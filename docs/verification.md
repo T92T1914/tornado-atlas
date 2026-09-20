@@ -219,3 +219,23 @@ visitor comprehension. See the [methods and source-access record](../research/ti
 These are software and editorial coverage checks, not evidence that the
 selection represents every community opinion. No new continuous review of
 creator videos was performed for the discussion entries.
+# September 20: survey location explorer
+
+The current suites pass 74 Python tests and 45 JavaScript tests. Seven Python
+tests cover survey source preservation, incomplete responses, changed event
+joins, duplicate IDs, coordinates, dates and polygon holes/boundaries. Two
+browser-model tests cover combined filters and the projected point extent.
+The regenerated exhibit and the 80,318-record catalogue pass their offline
+integrity checks.
+
+Local browser checks covered the 336-record view, all 12 EF3 records, Next,
+keyboard selection of the last record, the two TSTM/Wind records and an empty
+search followed by recovery. Empty results disable navigation. The detail card
+updates the record ID, description, coordinates and source link. The page was
+visually inspected at desktop and 390 CSS pixels; document-width checks at 390
+and 320 found no horizontal overflow. Temporary device emulation was cleared.
+No browser warnings or errors were recorded during these checks.
+
+The [source and selection record](../research/damage-locations-2026-09-20.md)
+states what the geographic match establishes. No impact times, photograph
+matches, human casualty totals or structural-model calibration were derived.

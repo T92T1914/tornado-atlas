@@ -146,3 +146,22 @@ html {scroll-behavior:auto}
 .discussion-sources .fineprint {margin:4px 0}
 .discussion-sources details p {font-size:14px;margin:4px 0 12px}
 .community-card details {margin:12px 0}
+.survey-explorer{margin-top:32px;border-top:1px solid var(--line);padding-top:28px}
+.survey-explorer>p{max-width:850px}
+#survey-map{display:block;width:100%;height:auto;background:#0b1415;border:1px solid var(--line);margin:18px 0}
+.survey-dot{cursor:pointer;stroke:#0b1415;stroke-width:.7}
+.survey-dot:hover{stroke:#fff;stroke-width:2}
+.survey-selected{fill:none;stroke:#fff;stroke-width:2;pointer-events:none}
+.survey-legend{display:flex;gap:12px 22px;flex-wrap:wrap;font-size:12px}
+.survey-legend span:before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--swatch);margin-right:7px}
+.survey-controls{display:flex;gap:10px;align-items:end;margin:20px 0}
+.survey-controls label{flex:1;min-width:0}
+.survey-controls select{display:block;width:100%;max-width:100%;margin-top:8px}
+.survey-controls button{flex-shrink:0}
+.survey-detail{padding:22px;background:var(--panel);border:1px solid var(--line);min-height:190px}
+.survey-detail h4{font-size:20px;margin:10px 0}
+.survey-detail a{font-size:13px}
+.survey-explorer details{margin-top:20px;font-size:13px}
+.survey-explorer .damage-filters label{min-width:0;flex:1}
+.survey-explorer .damage-filters input{width:100%;min-width:0}
+@media(max-width:650px){.survey-controls{flex-wrap:wrap}.survey-controls label{flex-basis:100%}.survey-explorer .damage-filters{align-items:stretch}.survey-explorer .damage-filters label{flex-basis:100%}.survey-detail{padding:16px}.survey-detail h4{font-size:17px}}

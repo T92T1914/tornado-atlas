@@ -19,7 +19,7 @@ The atlas contains 80,318 NOAA source records covering US years 1950 through 202
 The El Reno page is both a historical account and a reference. Read it in order,
 or use the contents list to jump to the path, photographs, damage, remembrance
 or sources. The seven-entry chronology links directly to the published map
-positions. Twelve named sources explain what each contributes. The page opens
+positions. Named sources explain what each contributes. The page opens
 with a photograph of the actual tornado, and all storm and damage photographs
 can be enlarged with their credits. The [documentary design notes](research/documentary-design-2026-09-20.md)
 and [audience research notes](research/audience-notes-2026-09-20.md) explain the
@@ -48,6 +48,12 @@ Use the timeline slider, previous and next buttons, or playback to step through 
 
 Compare two survey photographs, enlarge either one, or filter the collection by subject and the rating in the original NWS caption. The files are unchanged government survey photographs. Locations remain descriptive because exact camera positions and capture times have not been established.
 
+The damage map adds 336 NWS survey records within the published outline. Filter
+by the recorded rating, search the descriptions, or select a point to inspect
+its coordinates and original record. Blank event identifiers prevent a direct
+event join, so the map labels the geographic selection. These are surveyed
+outcomes, with no inferred impact times or automatic links to the photographs.
+
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
 ## What is implemented
@@ -58,6 +64,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes and unresolved evidence questions |
 | History and remembrance | Published casualty counts with their scope, public sources for eight names, and separate regional flooding context |
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
+| Survey location explorer | 336 preserved DAT records within the NWS outline, rating and description filters, individual source links and explicit association limits |
 | Interactive form study | Native WebGL 2 particle rendering, three forms, camera orbit, visibility controls and motion that begins paused |
 | Wind and force laboratory | Adjustable Rankine vortex, passive tracers, a movable probe, time-series passage experiment and generic drag calculations |
 | Source catalogue | NOAA NCEI imports, SQLite search, original records, source revisions and SHA-256 checks |
@@ -65,7 +72,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 67 Python tests, 43 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 74 Python tests, 45 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 

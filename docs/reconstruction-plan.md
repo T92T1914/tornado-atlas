@@ -116,3 +116,9 @@ its user-assumed capacity is exceeded. Those tools are implemented and tested;
 calibrated historical geometry and real structural archetypes remain future
 work. The priority remains finishing a bounded El Reno reconstruction before
 expanding the detailed exhibit list.
+
+The damage explorer now displays 336 geographically selected DAT survey
+records. Their recorded coordinates give the historical map a damage layer,
+with the original query and individual records available for inspection.
+Event joins, photograph matches and impact times remain unverified. See the
+[survey selection record](../research/damage-locations-2026-09-20.md).

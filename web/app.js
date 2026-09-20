@@ -167,6 +167,8 @@ async function main() {
   mountReader(data.reading, history.chapters.map(chapter => ({...chapter, map_time:mapTimes.get(chapter.minute)})), selectMinute);
   const { mountDamage } = await import('./damage-view.mjs');
   mountDamage(data.damage, openPhoto);
+  const { mountSurvey } = await import('./survey-view.mjs');
+  mountSurvey(data.survey, data.geometry);
   // A shared section link can arrive before the asynchronous exhibit is laid out.
   requestAnimationFrame(() => {
     let id;

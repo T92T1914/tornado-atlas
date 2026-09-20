@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "query_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/query?f=json&where=stormdate+%3E%3D+timestamp+%272013-05-31+00%3A00%3A00%27+AND+stormdate+%3C+timestamp+%272013-06-02+00%3A00%3A00%27&geometry=-98.1%2C35.35%2C-97.6%2C35.65&geometryType=esriGeometryEnvelope&inSR=4326&outSR=4326&spatialRel=esriSpatialRelIntersects&outFields=objectid%2Cglobalid%2Cevent_id%2Cpath_guid%2Cstormdate%2Csurveydate%2Cdamage_txt%2Cdod_txt%2Cefscale%2Coffice&returnGeometry=true&orderByFields=objectid",
+  "service_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer",
+  "retrieved_at": "2026-09-20T23:42:50.097839+00:00",
+  "sha256": "c6f31cc3252c0719f4521f8b1117e6e314b63c07ec6a4d6b94bf2c258733a2dd",
+  "bytes": 172979,
+  "office": "OUN",
+  "spatial_reference": "EPSG:4326",
+  "reviewed_counts": {
+    "queried_count": 424,
+    "included_count": 336,
+    "outside_count": 88
+  },
+  "selection": "May 31 through June 1, 2013 UTC, within -98.1,35.35,-97.6,35.65. Display only points inside or on the published NWS El Reno outline.",
+  "rights": "Public NOAA/NWS survey attributes; no third-party photographs, names, casualty fields, device identifiers or comments requested."
+}

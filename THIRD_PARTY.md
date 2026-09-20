@@ -92,3 +92,12 @@ to their publishers. The review scope is stored in `community.json` and the
 ## Preserved source downloads
 
 Raw NOAA NCEI and JMA downloads remain outside version control in `data/`. Their provenance is preserved locally. The software's license is not a license for arbitrary third-party content discovered during research.
+# NWS damage survey attributes
+
+`exhibits/el-reno-2013/survey-response.json` preserves a bounded public response
+from the [NOAA/NWS Damage Assessment Toolkit](https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer).
+The accompanying `survey-source.json` records the query, date, SHA-256 and
+selection counts. These are government survey attributes, not a transfer of
+rights to third-party photographs. The query excludes image links, comments,
+names, device identifiers and casualty fields. NWS identifies the survey data
+as preliminary. Original coordinates and labels remain available for checking.

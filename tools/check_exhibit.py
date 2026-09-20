@@ -10,9 +10,11 @@ from atlas.history import validate_history
 from atlas.reading import validate_reading
 from atlas.timeline_media import validate_timeline_media
 from atlas.community import validate_community
+from atlas.survey import load_survey
 bundle = json.loads((root / 'web/data.json').read_text(encoding='utf-8'))
 geo = json.loads((root / 'exhibits/el-reno-2013/path.geojson').read_text(encoding='utf-8'))
 assert bundle['geometry'] == geo, 'Preview geometry differs from exhibit geometry'
+assert bundle['survey'] == load_survey(geo), 'Stale or invalid survey bundle'
 for key, relative in [('exhibit', 'exhibits/el-reno-2013/dossier.json'),
                       ('creators', 'research/creators.json'),
                       ('review_queue', 'research/video-review-queue.json'),

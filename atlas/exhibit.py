@@ -23,6 +23,7 @@ from .history import validate_history
 from .reading import validate_reading
 from .timeline_media import validate_timeline_media
 from .community import validate_community
+from .survey import load_survey
 
 KMZ_URL = "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"
 PAGE_URL = "https://www.weather.gov/oun/events-20130531"
@@ -156,6 +157,7 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     community = json.loads((ROOT / 'exhibits/el-reno-2013/community.json').read_text(encoding='utf-8'))
     validate_community(community, dossier['id'])
     result['community'] = community
+    result['survey'] = load_survey(geojson)
     reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
     validate_reading(reading, result)
     result['reading'] = reading
