@@ -1,4 +1,5 @@
 import json
+import gzip
 import unittest
 
 from atlas.catalogue import import_ncei
@@ -60,6 +61,7 @@ class StaticPublicationTests(unittest.TestCase):
             self.assertEqual(detail['provenance']['snapshot_id'],row['source_snapshot'])
             self.assertEqual(detail['rating']['reported'],row['rating'])
             self.assertNotIn('episode_narrative',detail)
+        self.assertEqual(gzip.decompress((self.output/'index.json.gz').read_bytes()),(self.output/'index.json').read_bytes())
 
     def test_new_revision_cannot_mutate_an_older_detail_link(self):
         _,before = self.publish([sample()])

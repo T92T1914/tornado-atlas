@@ -1,17 +1,38 @@
 {
   "ncei:453682": {
-    "names": ["El Reno 2013", "Union City El Reno Yukon"],
+    "names": [
+      "El Reno 2013",
+      "Union City El Reno Yukon"
+    ],
     "exhibit": "index.html",
     "basis": "Reviewed NCEI event narrative, date, county and NWS event account agree with the El Reno 2013 exhibit."
   },
   "ncei:296617": {
-    "names": ["Joplin 2011", "Joplin Jasper County segment"],
+    "names": [
+      "Joplin 2011",
+      "Joplin Jasper County segment"
+    ],
     "exhibit": null,
     "basis": "NCEI event narrative explicitly describes the Joplin tornado through Jasper County; source title uses the starting locality Central City."
   },
   "ncei:296620": {
-    "names": ["Joplin 2011", "Joplin Newton County continuation"],
+    "names": [
+      "Joplin 2011",
+      "Joplin Newton County continuation"
+    ],
     "exhibit": null,
     "basis": "NCEI event narrative explicitly identifies the continuation of the Joplin tornado into Newton County. This alias does not merge records or ratings."
+  },
+  "ncei:10096417": {
+    "names": [
+      "Blackwell 1955",
+      "Blackwell Oklahoma Kay County segment"
+    ],
+    "exhibit": null,
+    "basis": "Reviewed association: the May 25, 1955 Kay County F5 record at 21:26 CST with 20 direct deaths matches the NWS Norman Blackwell table. County segment length remains 19.6 miles; it is not replaced by the whole-track length. The NWS narrative and table use different time labels, so the original NCEI clock is retained.",
+    "sources": [
+      "https://www.weather.gov/oun/events-19550525",
+      "https://www.weather.gov/oun/tornadodata-city-ok-blackwell"
+    ]
   }
 }

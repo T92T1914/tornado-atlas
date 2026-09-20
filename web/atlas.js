@@ -1,4 +1,4 @@
-import {filterRecords, project, fitBounds, clampBounds, color} from './atlas-model.mjs';
+import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage} from './atlas-model.mjs';
 
 const el = id => document.getElementById(id);
 const make = (tag, text, className) => {
@@ -33,16 +33,26 @@ async function getJSON(path) {
 }
 
 async function main() {
-  const [catalogue, land] = await Promise.all([getJSON('catalogue/index.json'),getJSON('land.json')]);
+  async function getCatalogue() {
+    if (typeof DecompressionStream!=='undefined') {
+      try {
+        const response=await fetch('catalogue/index.json.gz');
+        if (response.ok) return await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).json();
+      } catch { /* Older hosts and damaged compressed copies fall back to the readable index. */ }
+    }
+    return getJSON('catalogue/index.json');
+  }
+  const [catalogue, land] = await Promise.all([getCatalogue(),getJSON('land.json')]);
   const records = catalogue.records;
   const byId = new Map(records.map(record => [record.id,record]));
   const detailCache = new Map();
   const pageSize = 20;
   let matches = [], page = 0, selected = null, request = 0;
+  let groups = new Map(), groupSelection = null, filterTimer;
   let bounds = [0,0,1080,540];
   const map = el('world-map');
   const years = Object.keys(catalogue.coverage.by_year).sort();
-  el('coverage').textContent = `${records.length.toLocaleString()} source records · US pilot years ${years.join(', ')} · Partial coverage, including tornado segments. Other places and years have not been imported.`;
+  el('coverage').textContent = `${records.length.toLocaleString()} NOAA source records · United States ${yearCoverage(years)} · Includes tornado segments, not deduplicated storms. International records have not been imported.`;
   years.forEach(year => option(el('year'),year));
   [...new Set(records.map(record => record.state).filter(Boolean))].sort().forEach(state => option(el('state'),state));
   [...new Set(records.map(record => record.rating).filter(rating => /^(EF|F)[0-5]$/.test(rating || '')))]
@@ -63,9 +73,7 @@ async function main() {
     if (!next) return;
     bounds = clampBounds(next);
     map.setAttribute('viewBox',bounds.join(' '));
-    const radius = bounds[2] / 360;
-    for (const marker of el('markers').children) marker.setAttribute('r',radius);
-    renderSelection();
+    renderMap();
   }
   function renderSelection() {
     el('selection').replaceChildren();
@@ -74,17 +82,26 @@ async function main() {
   }
   function renderMap() {
     const fragment = document.createDocumentFragment();
-    let located = 0;
-    for (const record of matches) {
-      const point = project(record.point);
-      if (!point) continue;
-      located++;
-      const marker = svg('circle',{cx:point[0],cy:point[1],r:bounds[2]/360,fill:color(record.rating),class:'record-marker','data-record':record.id});
-      marker.append(svg('title',{},`${record.title} · ${record.date || 'Date unknown'} · ${record.rating || 'Unrated'} · ${record.point_basis}`));
-      fragment.append(marker);
+    const summary=mapGroups(matches,bounds);
+    groups=new Map(summary.groups.map(group=>[group.key,group]));
+    for (const group of summary.groups) {
+      const count=group.records.length,point=group.point;
+      if (count===1) {
+        const record=group.records[0];
+        const marker=svg('circle',{cx:point[0],cy:point[1],r:bounds[2]/320,fill:color(record.rating),class:'record-marker','data-record':record.id});
+        marker.append(svg('title',{},`${record.title} · ${record.date || 'Date unknown'} · ${record.rating || 'Unrated'} · ${record.point_basis}`));
+        fragment.append(marker);
+      } else {
+        const cluster=svg('g',{'data-group':group.key,class:'record-cluster'});
+        cluster.append(svg('circle',{cx:point[0],cy:point[1],r:bounds[2]/145}));
+        cluster.append(svg('text',{x:point[0],y:point[1],'font-size':bounds[2]/135},count>999?'1k+':String(count)));
+        cluster.append(svg('title',{},`${count.toLocaleString()} source records. Select to inspect this group.`));
+        fragment.append(cluster);
+      }
     }
     el('markers').replaceChildren(fragment);
-    el('map-count').textContent = `${located.toLocaleString()} mapped · ${(matches.length-located).toLocaleString()} unlocated`;
+    el('map-count').textContent = `${summary.visible.toLocaleString()} in view · ${summary.unlocated.toLocaleString()} unlocated`;
+    el('clear-group').hidden=!groupSelection;
     renderSelection();
   }
   function renderResults() {
@@ -105,7 +122,7 @@ async function main() {
     if (!matches.length) fragment.append(make('p','No records match these filters. Try another place or an imported year.','empty-state'));
     el('results').replaceChildren(fragment);
     const pages = Math.max(1,Math.ceil(matches.length/pageSize));
-    el('results-count').textContent = `${matches.length.toLocaleString()} ${matches.length === 1 ? 'match' : 'matches'}`;
+    el('results-count').textContent = `${matches.length.toLocaleString()} ${matches.length === 1 ? 'match' : 'matches'}${groupSelection ? ' in selected group' : ''}`;
     el('page-count').textContent = matches.length ? `Page ${page+1} of ${pages}` : 'No results';
     el('prev-page').disabled = page === 0;
     el('next-page').disabled = page >= pages-1;
@@ -116,11 +133,13 @@ async function main() {
     el('detail').replaceChildren(make('h2','Select a record'),make('p','Choose a marker or a result to inspect its source.'));
     history.replaceState(null,'',location.pathname+location.search);
   }
-  function applyFilters() {
+  function applyFilters({keepGroup=false}={}) {
+    if (!keepGroup) groupSelection=null;
     matches = filterRecords(records,{
       query:el('query').value,year:el('year').value,rating:el('rating').value,
       state:el('state').value,exhibits:el('exhibits').checked,
     });
+    if (groupSelection) matches=matches.filter(record=>groupSelection.has(record.id));
     page = 0;
     if (selected && !matches.some(record => record.id === selected.id)) clearDetail();
     renderMap();
@@ -166,6 +185,9 @@ async function main() {
       datum(fields,'Map position',record.point ? `${record.point[1]}, ${record.point[0]} (${record.point_basis.replaceAll('_',' ')})` : null);
       datum(fields,'Reported length, miles (tornado or segment)',detail.dimensions.reported_length_miles);
       datum(fields,'Reported width, yards (not funnel width)',detail.dimensions.reported_width_yards);
+      datum(fields,'Direct deaths reported in this record',detail.impacts.deaths_direct);
+      datum(fields,'Direct injuries reported in this record',detail.impacts.injuries_direct);
+      datum(fields,'Property damage (source amount; not inflation adjusted)',detail.impacts.property_damage.reported);
       datum(fields,'Source revision',detail.provenance.snapshot_id);
       panel.append(fields,anchor('Open the published NOAA source file ↗',detail.provenance.source_url,'source-link'));
       const narrative = make('details');
@@ -175,6 +197,7 @@ async function main() {
       if (detail.curation) {
         const notes = make('details');
         notes.append(make('summary','Why this storm name is searchable'),make('p',detail.curation.basis));
+        for (const source of detail.curation.sources || []) notes.append(anchor('Read the supporting account ↗',source,'source-link'));
         panel.append(notes);
       }
       const quality = make('details');
@@ -193,9 +216,14 @@ async function main() {
     }
   }
 
-  for (const id of ['query','year','rating','state','exhibits']) el(id).addEventListener(id === 'query' ? 'input':'change',applyFilters);
+  for (const id of ['query','year','rating','state','exhibits']) el(id).addEventListener(id === 'query' ? 'input':'change',() => {
+    clearTimeout(filterTimer);
+    if (id==='query') filterTimer=setTimeout(applyFilters,150);
+    else applyFilters();
+  });
   el('filters').addEventListener('submit',event => event.preventDefault());
   function resetFilters() {
+    clearTimeout(filterTimer);
     for (const id of ['query','year','rating','state']) el(id).value = '';
     el('exhibits').checked = false;
     clearDetail();
@@ -210,7 +238,16 @@ async function main() {
   for (const id of ['results','markers']) el(id).addEventListener('click',event => {
     const target = event.target.closest('[data-record]');
     if (target) selectRecord(byId.get(target.dataset.record));
+    const cluster=event.target.closest('[data-group]');
+    if (cluster && groups.has(cluster.dataset.group)) {
+      const group=groups.get(cluster.dataset.group);
+      groupSelection=new Set(group.records.map(record=>record.id));
+      applyFilters({keepGroup:true});
+      setBounds(fitBounds(matches));
+      el('results-count').textContent+= ' in selected group';
+    }
   });
+  el('clear-group').addEventListener('click',() => {applyFilters();setBounds(fitBounds(matches));});
   el('fit').addEventListener('click',() => setBounds(fitBounds(matches)));
   el('world').addEventListener('click',() => setBounds([0,0,1080,540]));
   for (const [id,factor] of [['zoom-in',.7],['zoom-out',1/.7]]) el(id).addEventListener('click',() => {
@@ -226,7 +263,7 @@ async function main() {
   });
   let drag = null;
   map.addEventListener('pointerdown',event => {
-    if (event.target.closest('[data-record]')) return;
+    if (event.target.closest('[data-record], [data-group]')) return;
     drag = {x:event.clientX,y:event.clientY,bounds:[...bounds]};
     map.setPointerCapture(event.pointerId);
   });

@@ -39,7 +39,7 @@ The separate 3D form study uses original procedural graphics. It incorporates no
 
 ## Catalogue records and map context
 
-The public preview includes normalized NOAA NCEI Storm Events records for 1950, 2011 and 2013 from publisher revision 20260323, with event narratives, source locators and revision hashes. Original government source material is excluded from the project's copyright claim. Full raw annual files and original rows remain in the local archive. Episode narratives are not included in the browser bundle.
+The public preview includes normalized NOAA NCEI Storm Events records for every year from 1950 through 2025, using the latest annual publisher revisions available at import on September 20, 2026. Each record retains its source locator and revision hash. Original government source material is excluded from the project's copyright claim. Full raw annual files and original rows remain in the local archive. Event narratives are included; episode narratives are not included in the browser bundle.
 
 Made with [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/). Its public-domain 1:110m countries dataset supplies 177 geographic features. Coordinates are retained; attributes are reduced to display names. These are modern boundaries for orientation, not a reconstruction of historical jurisdiction.
 

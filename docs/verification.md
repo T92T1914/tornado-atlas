@@ -2,7 +2,7 @@
 
 Date: September 20, 2026.
 
-## Executed locally
+## Initial pilot checks
 
 * Python 3.11 unit suite: 46 tests passed. Fifteen cover catalogue normalization and persistence; ten cover the geographic adapter; seven cover static publication; six cover footage notebook integrity; eight cover photograph integrity and restoration.
 * JavaScript model suite: 14 tests passed. Eight cover filters, aliases, scale identity, missing points, projection, map bounds and unrated display. Six cover repeatable particle layouts, allocation limits, camera and geometry validity, and animation timing.
@@ -34,6 +34,16 @@ The 2014 El Reno Survey Project conference abstract was read as a methodological
 
 The NWS damage captions and government-personnel attribution were read and matched to the selected original files. The NWS use policy and wedge glossary were read. NSSL's explanation of visibility was available through a search-indexed excerpt; direct access failed. A NOAA repository record and abstract for Wakimoto and colleagues' 2016 aerial-damage/mobile-radar study were located, but its full PDF has not been reviewed or redistributed.
 
-## Not yet executed
+## Expanded collection and wind laboratory
 
-The GitHub Actions workflow is prepared but has not run on GitHub. Publishing is pending account authentication and repository setup. The museum is a local preview, not a hosted public release.
+Later on September 20, the catalogue was expanded to all 76 annual NOAA source files from 1950 through 2025. The earlier counts above describe the initial pilot.
+
+* Current publication: 80,318 source records, 79,142 with usable reported coordinates and 1,176 without. These are not deduplicated tornadoes. The index references 256 current detail files, each checked against its content hash and source revision.
+* The deterministic gzip index expands to exactly the readable JSON bytes. The compressed transfer is approximately 3.5 MB instead of 29.6 MB. The browser retains a readable JSON fallback.
+* Python suite: 46 tests passed. JavaScript suite: 23 tests passed, including a 150,000-record map-grouping fixture, coverage gaps, and five analytic wind-model tests. The exhibit and catalogue integrity checks passed.
+* Desktop browser: grouped selection returned 1,865 source records; pagination advanced to page 2 of 94. Clearing the group restored 80,318 results. Search for Blackwell in 1955 returned the reviewed Kay County record. Its detail retained the original F5 rating, 19.6-mile segment length, 20 direct deaths, 280 direct injuries and source clock label.
+* Wind browser: the default probe displayed 100 mph, 1.22 kPa and 1.47 kN. At 200 mph with other inputs unchanged it displayed 5.88 kN. Play and pause controls worked. Reload restored the paused default state.
+* Narrow viewport: the atlas and wind laboratory were inspected at a 390 by 844 override. Both had 375-pixel content widths after the scrollbar with no horizontal overflow. A text-encoding defect in the wind page was found, corrected and visually rechecked. Viewport overrides were reset after testing.
+* No warnings or errors appeared in the inspected atlas and wind browser flows. This does not substitute for a physical mobile-device test or cross-browser coverage.
+
+The GitHub repository and Pages Actions source are configured. Hosted verification will be recorded after the first successful deployment. No historical tornado or structural failure model is validated by these software tests.

@@ -1,7 +1,8 @@
-name: Verify catalogue and exhibit
+name: Verify and publish museum
 on:
   push:
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -22,9 +23,32 @@ jobs:
           node --check web/app.js
           node --check web/atlas.js
           node --check web/study.js
+          node --check web/wind.js
           node --check web/damage-view.mjs
-          node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs
+          node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs
       - name: Verify checked-in exhibit
         run: |
           python tools/check_exhibit.py
           python tools/check_catalogue.py
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: web
+      - uses: actions/deploy-pages@v4
+        id: deployment

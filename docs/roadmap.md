@@ -12,7 +12,7 @@ The project can gain useful catalogue coverage before every tornado has a detail
 
 ## Catalogue work
 
-* Extend the implemented atlas beyond the three pilot years. Preserve coverage dates and record-versus-event distinctions as the catalogue grows.
+* US imports now cover every year from 1950 through 2025. Next, review historical naming and source anomalies while preserving record-versus-event distinctions.
 * Implement JMA classification, sentinel values, encoding and rating conventions. Preserve uncertain and non-tornado phenomena without mixing them into confirmed tornado counts.
 * Investigate international research datasets and reuse terms before adding further adapters.
 * Group county segments only with supporting identifiers or reviewed reasoning.
@@ -28,4 +28,4 @@ The first procedural 3D form study now runs separately at `web/study.html`. It i
 
 ## GitHub and release work
 
-The source is prepared for a repository, with an offline preview, an automated check workflow and contribution guidance. GitHub publishing and hosted deployment have not been performed. The final public name and first release scope remain open.
+The public repository is T92T1914/tornado-atlas. The workflow verifies the source bundle and tests before deploying the static web directory to GitHub Pages. Continue with evidence curation and small, reviewed releases.

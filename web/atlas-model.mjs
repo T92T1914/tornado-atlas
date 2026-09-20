@@ -18,12 +18,51 @@ export function project(point) {
 export function fitBounds(records) {
   const points = records.map(record => project(record.point)).filter(Boolean);
   if (!points.length) return null;
-  const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
-  const x = Math.min(...xs), y = Math.min(...ys);
-  const width = Math.max(18, Math.max(...xs) - x + 12);
-  const height = Math.max(9, Math.max(...ys) - y + 12);
+  // A library-sized catalogue must not exceed the engine's argument limit.
+  let x=Infinity,y=Infinity,right=-Infinity,bottom=-Infinity;
+  for (const [px,py] of points) {x=Math.min(x,px);y=Math.min(y,py);right=Math.max(right,px);bottom=Math.max(bottom,py);}
+  const width = Math.max(18, right - x + 12);
+  const height = Math.max(9, bottom - y + 12);
   const w = Math.max(width, height * 2), h = w / 2;
-  return clampBounds([x + (Math.max(...xs) - x) / 2 - w / 2, y + (Math.max(...ys) - y) / 2 - h / 2, w, h]);
+  return clampBounds([x + (right - x) / 2 - w / 2, y + (bottom - y) / 2 - h / 2, w, h]);
+}
+
+// Screen-sized bins keep rendering bounded as coverage grows. These groups
+// count source records, not unique storms or a storm-density estimate.
+export function mapGroups(records,bounds,columns=48) {
+  if (!Array.isArray(bounds) || bounds.length!==4 || !bounds.every(Number.isFinite)
+      || bounds[2]<=0 || bounds[3]<=0 || !Number.isInteger(columns) || columns<1 || columns>200) {
+    throw new RangeError('Invalid map grouping extent');
+  }
+  const [x,y,w,h]=bounds, rows=Math.max(1,Math.ceil(columns*h/w));
+  const groups=new Map(); let located=0,visible=0;
+  for (const record of records) {
+    const point=project(record.point);
+    if (!point) continue;
+    located++;
+    if (point[0]<x || point[0]>x+w || point[1]<y || point[1]>y+h) continue;
+    visible++;
+    const col=Math.min(columns-1,Math.floor((point[0]-x)/w*columns));
+    const row=Math.min(rows-1,Math.floor((point[1]-y)/h*rows));
+    const key=`${col}:${row}`;
+    if (!groups.has(key)) groups.set(key,{key,point:[0,0],records:[]});
+    const group=groups.get(key);
+    group.point[0]+=point[0];group.point[1]+=point[1];group.records.push(record);
+  }
+  for (const group of groups.values()) group.point=group.point.map(v=>v/group.records.length);
+  return {groups:[...groups.values()],located,visible,unlocated:records.length-located};
+}
+
+export function yearCoverage(years) {
+  const sorted=[...new Set(years.map(Number))].sort((a,b)=>a-b);
+  if (!sorted.length) return 'No years';
+  const ranges=[]; let first=sorted[0],last=first;
+  const push=()=>ranges.push(first===last?String(first):`${first}–${last}`);
+  for (const year of sorted.slice(1)) {
+    if (year===last+1) last=year;
+    else {push(); first=last=year;}
+  }
+  push(); return ranges.join(', ');
 }
 
 export function clampBounds([x,y,w,h]) {

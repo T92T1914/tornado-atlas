@@ -1,13 +1,11 @@
-# GitHub preparation
+# GitHub publication
 
-Suggested repository name: `tornado-atlas`
+Repository: [T92T1914/tornado-atlas](https://github.com/T92T1914/tornado-atlas).
 
-Suggested description: `An interactive historical tornado museum with source-preserving catalogues, documented paths, and evidence-led reconstructions in development.`
+The public repository was created on September 20, 2026. GitHub Pages uses the repository's Actions workflow. Verification runs before deployment and publishes only `web/`. The workflow has read access to source content; its deployment job adds the Pages and identity-token permissions required by GitHub Pages.
 
-Suggested topics: `tornado`, `meteorology`, `historical-data`, `geospatial`, `python`, `data-provenance`, `visualization`.
+The local checkout's existing Git credential manager supports Git transport. GitHub CLI authentication is not required for that push path. No new credentials were added to the repository.
 
-The repository includes a working offline atlas and exhibit, source documentation, attribution, a software license and automated checks. It has not been published or deployed. A fresh GitHub CLI check after the atlas implementation on September 20, 2026 found no authenticated account on this machine.
+Raw research downloads, the local SQLite database and output logs are excluded through `.gitignore`. Public browser bundles contain normalized NOAA records and event narratives, Natural Earth map geometry, the selected NWS geographic source, nine explicitly credited NOAA/NWS survey photographs, original procedural graphics, short original notes and public video references. Attribution and source hashes are included.
 
-Once the owner signs in to GitHub CLI, the prepared local repository can be pushed. Initial private hosting would allow continued curation before a public launch. Repository visibility remains an owner decision.
-
-No raw research downloads, local SQLite database, output logs, account credentials or unrelated project material should be included in the push. Public browser bundles contain normalized NOAA records and event narratives, Natural Earth map geometry, the selected NWS geographic source, nine explicitly credited NOAA/NWS damage survey photographs, original procedural graphics, short original notes and public video references. Attribution and source hashes are included.
+See the [verification record](verification.md) for completed checks and the limits of those checks. Successful deployment must be verified on the hosted site before treating its links as a working release.

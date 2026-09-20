@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
 import os
 import tempfile
@@ -15,6 +16,11 @@ LAND_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/maste
 
 def write_json(path: Path, data) -> bytes:
     content = (json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False) + '\n').encode()
+    write_bytes(path,content)
+    return content
+
+
+def write_bytes(path: Path, content: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(dir=path.parent, prefix='build-', suffix='.tmp')
     try:
@@ -23,7 +29,6 @@ def write_json(path: Path, data) -> bytes:
         os.replace(temporary, path)
     finally:
         Path(temporary).unlink(missing_ok=True)
-    return content
 
 
 def select_index(record: dict, aliases: dict, detail_file: str) -> dict:
@@ -56,7 +61,7 @@ def export_catalogue(connection, destination: Path, aliases: dict) -> dict:
     sources = {}
     for record in records:
         # Fixed buckets keep each on-demand response small; filenames identify content.
-        bucket = hashlib.sha256(record['id'].encode()).hexdigest()[0]
+        bucket = hashlib.sha256(record['id'].encode()).hexdigest()[:2]
         detail = {key: value for key, value in record.items() if key != 'episode_narrative'}
         detail['curation'] = aliases.get(record['id'])
         groups.setdefault(bucket, {})[record['id']] = detail
@@ -78,7 +83,9 @@ def export_catalogue(connection, destination: Path, aliases: dict) -> dict:
         'unmatched_aliases': unmatched, 'records': index,
     }
     # Publish the index last, after all its immutable detail files exist.
-    write_json(destination / 'index.json', payload)
+    index_bytes=(json.dumps(payload,ensure_ascii=False,separators=(',', ':'),allow_nan=False)+'\n').encode()
+    write_bytes(destination/'index.json.gz',gzip.compress(index_bytes,mtime=0))
+    write_bytes(destination/'index.json',index_bytes)
     return {'records': count, 'detail_files': len(groups), 'unmatched_aliases': unmatched,
             'located': sum(record['point'] is not None for record in index)}
 

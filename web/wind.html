@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tornado Atlas | Wind and force laboratory</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css"><link rel="stylesheet" href="wind.css"><script type="module" src="wind.js"></script></head>
+<body>
+<a class="skip" href="#main">Skip to wind laboratory</a>
+<header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Museum navigation"><a href="atlas.html">Atlas</a><a href="index.html">El Reno exhibit</a><a href="study.html">Form study</a><a href="wind.html" aria-current="page">Wind lab</a></nav><span class="local">EXPERIMENT / 002</span></header>
+<main id="main">
+<section class="study-intro"><div><div class="eyebrow">AN IDEALIZED WIND EXPERIMENT</div><h1>Wind becomes force.</h1></div><p>Double the wind speed and the same simple drag model gives four times the force. Move a probe through an idealized vortex to see the relationship. All settings here are assumptions, independent of the historical storms in the atlas.</p></section>
+<div class="study-layout">
+  <section class="wind-panel" aria-label="Horizontal wind field">
+    <div class="scene-bar"><span>PLAN VIEW / COUNTERCLOCKWISE FLOW</span><span>ILLUSTRATIVE MODEL</span></div>
+    <canvas id="wind-field" tabindex="0" aria-label="Idealized horizontal wind. Click to move the probe, or use the east and north sliders. Arrow keys move the probe by one tenth of the core radius."></canvas>
+    <div class="wind-key"><span>Slower</span><i></i><span>Faster</span><small>Colors are relative to the current settings, not EF ratings.</small></div>
+    <div class="scene-footer"><button id="wind-motion">Play tracers</button><button id="wind-reset">Reset experiment</button><span id="wind-status" role="status">Paused. Move the probe to explore.</span></div>
+    <p class="wind-caption">The dashed circle is the chosen radius of maximum swirl. It is not the condensation funnel, damage width, or a safe-distance boundary. Dots are passive flow tracers, not flying debris.</p>
+  </section>
+  <form class="study-controls" id="wind-controls" aria-label="Wind experiment settings">
+    <label for="peak">Peak swirl speed <output id="peak-value">100 mph</output></label><input id="peak" type="range" min="10" max="250" value="100" step="5">
+    <label for="radius">Core radius <output id="radius-value">500 ft</output></label><input id="radius" type="range" min="50" max="2000" value="500" step="50">
+    <label for="background">Eastward background wind <output id="background-value">0 mph</output></label><input id="background" type="range" min="0" max="50" value="0" step="5">
+    <p class="control-note">A uniform flow is added to the swirl. The center stays fixed in this diagram.</p>
+    <label for="probe-x">Probe east of center <output id="probe-x-value">1.0 R</output></label><input id="probe-x" type="range" min="-2.5" max="2.5" value="1" step=".1">
+    <label for="probe-y">Probe north of center <output id="probe-y-value">0.0 R</output></label><input id="probe-y" type="range" min="-2.5" max="2.5" value="0" step=".1">
+    <p class="control-note">R is the chosen core radius. The probe follows this fraction of R when you change the radius.</p>
+    <label for="area">Reference area <output id="area-value">1.0 m²</output></label><input id="area" type="range" min=".1" max="10" value="1" step=".1">
+    <label for="coefficient">Assumed drag coefficient <output id="coefficient-value">1.2</output></label><input id="coefficient" type="range" min=".1" max="2" value="1.2" step=".1">
+    <p class="control-note">Air density is fixed at 1.225 kg/m³. Area and coefficient describe a generic test object, not a house or a person.</p>
+  </form>
+</div>
+<section class="wind-readings" aria-label="Probe calculations" aria-live="polite">
+  <div><span>WIND AT PROBE</span><strong id="probe-speed">100 mph</strong><small id="probe-si"></small></div>
+  <div><span>DYNAMIC PRESSURE</span><strong id="probe-pressure"></strong><small>½ × air density × speed²</small></div>
+  <div><span>IDEALIZED DRAG</span><strong id="probe-force"></strong><small>Pressure × area × drag coefficient</small></div>
+  <div><span>IF LOCAL SPEED DOUBLED</span><strong>4 × force</strong><small>With density, area and coefficient fixed</small></div>
+</section>
+<section class="study-explanation">
+<article><div class="eyebrow">THE MODEL</div><h2>A useful shape, with deliberate limits.</h2><p>Inside the core, swirl speed rises linearly from zero. Outside, it falls as the inverse of distance. This is a Rankine vortex: a simple analytic velocity field. It has no inflow, updraft, terrain, gusts, multiple vortices, or evolving storm structure.</p><p>Arrow direction shows the horizontal flow. The pressure readout is dynamic pressure, not the atmospheric pressure deficit inside a tornado. Tracers start paused and pause again when the page is hidden.</p><p><a href="https://glossary.ametsoc.org/wiki/rankine-vortex/" target="_blank" rel="noopener">AMS: the Rankine vortex ↗</a></p></article>
+<article><div class="eyebrow">FROM WIND TO DAMAGE</div><h2>Force is only one part of failure.</h2><p>This experiment calculates a generic drag force. It has no building geometry, connections, materials, internal pressure, debris impacts, or failure criteria. It cannot assign a damage rating, reconstruct a building failure, or determine whether a structure is safe.</p><p>Real damage assessments require evidence about the affected objects. Explore the <a href="index.html#damage">El Reno survey photographs</a> to see the documented damage separately from this experiment.</p><p><a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/" target="_blank" rel="noopener">NASA: the drag equation ↗</a> · <a href="https://www.weather.gov/oun/efscale" target="_blank" rel="noopener">NWS: damage indicators and the EF scale ↗</a></p></article>
+</section>
+</main><footer><span>TORNADO ATLAS</span><p>Educational experiment · No historical calibration or structural validation.</p><a href="study.html">Explore the visible form ↗</a></footer>
+</body></html>

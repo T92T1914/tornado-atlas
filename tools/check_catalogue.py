@@ -1,11 +1,13 @@
 """Check the published static atlas without needing the research database."""
 import hashlib
+import gzip
 import json
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 folder = root / 'web/catalogue'
 index = json.loads((folder/'index.json').read_text(encoding='utf-8'))
+assert gzip.decompress((folder/'index.json.gz').read_bytes()) == (folder/'index.json').read_bytes()
 records = index['records']
 assert len(records) == index['coverage']['current_source_records']
 assert len({row['id'] for row in records}) == len(records)

@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from .catalogue import connect, import_ncei, search, stats
@@ -10,7 +11,9 @@ def main():
     parser = argparse.ArgumentParser(description="Local historical tornado catalogue")
     commands = parser.add_subparsers(dest="command", required=True)
     fetch = commands.add_parser("import-ncei", help="Fetch published annual files and import tornado records")
-    fetch.add_argument("--years", type=int, nargs="+", required=True)
+    period=fetch.add_mutually_exclusive_group(required=True)
+    period.add_argument("--years", type=int, nargs="+")
+    period.add_argument("--year-range",type=int,nargs=2,metavar=("FIRST","LAST"),help="Inclusive range of published years")
     commands.add_parser("stats")
     find = commands.add_parser("search")
     find.add_argument("query", nargs="?", default="")
@@ -23,8 +26,15 @@ def main():
     connection = connect()
     try:
         if args.command == "import-ncei":
+            years=args.years
+            if args.year_range:
+                first,last=args.year_range
+                if not 1950<=first<=last<=2100:
+                    parser.error('Expected an ascending year range from 1950 onward, ending no later than 2100')
+                years=list(range(first,last+1))
             result = []
-            for url in discover_ncei(args.years):
+            for number,url in enumerate(discover_ncei(years),1):
+                print(f'[{number}/{len(set(years))}] {url.rsplit("/",1)[-1]}',file=sys.stderr,flush=True)
                 metadata = cached_retrieval(url) or retrieve(url)
                 imported = import_ncei(connection, metadata)
                 result.append(imported)

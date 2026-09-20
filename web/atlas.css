@@ -19,6 +19,11 @@ select {background:#17231d;color:var(--text);border:1px solid #4a5c48;padding:10
 .land {fill:#25382d;stroke:#54634e;stroke-width:.3;vector-effect:non-scaling-stroke}
 .record-marker {cursor:pointer;stroke:#101a14;stroke-width:.35;vector-effect:non-scaling-stroke;opacity:.8}
 .record-marker:hover {opacity:1;stroke:#fff;stroke-width:1.3}
+.record-cluster {cursor:pointer}
+.record-cluster circle {fill:#eee0b5;stroke:#263829;stroke-width:1;vector-effect:non-scaling-stroke}
+.record-cluster text {fill:#14231b;stroke:none;text-anchor:middle;dominant-baseline:central;font-family:Segoe UI,sans-serif;font-weight:700;pointer-events:none}
+.record-cluster:hover circle {fill:#fff6df;stroke:#fff}
+#clear-group {margin-top:16px}
 .selected-marker {fill:none;stroke:#fff0c9;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}
 .map-key {display:flex;flex-wrap:wrap;gap:12px;padding:12px 15px;color:var(--muted);font-size:9px;border-top:1px solid var(--line)}
 .map-key>span {display:flex;align-items:center;gap:4px}
