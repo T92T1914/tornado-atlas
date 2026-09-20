@@ -30,9 +30,32 @@ are normalized to the current velocity settings and therefore do not form
 a fixed wind-speed scale across different experiments. Motion starts paused,
 stops when hidden, and does not catch up a hidden-tab time gap.
 
+## A passage past a fixed probe
+
+The second view prescribes eastward movement of the unchanged field. A fixed
+probe is placed at `(0, offset * R)` and the center moves as `x = travel * t`.
+At each sample, the existing wind equation is evaluated relative to that
+moving center. Travel speed is separate from the chosen background wind.
+This is not a self-consistent fluid solution or an inferred historical path.
+
+The graph has 481 samples from the center at `-6 R` to `+6 R`. Time zero is
+closest approach. Wind outside that finite window is omitted. Time above a
+user-chosen comparison speed is estimated by linear interpolation between
+samples; the comparison is not a damage threshold. The peak is the highest
+sampled value, not an analytic optimizer result. Force uses the same generic
+area and coefficient as the stationary experiment.
+
+Playback takes 24 display seconds, independent of the model-time axis. The
+slider can inspect individual samples. Motion begins paused and stops when
+the view is hidden or moved out of view. Changing any model setting pauses
+the passage and recomputes the graph.
+
 ## Checks
 
-Five independent analytic tests check the center, peak, inverse-distance outer
+Ten analytic tests check the center, peak, inverse-distance outer
 field, background-vector reinforcement/opposition, squared-speed and area
 scaling, unit conversions, continuity, and invalid input rejection. These are
 checks of the stated equations, not validation of a real tornado or building.
+The passage tests include a known central crossing, offset symmetry without
+background wind, clipped exposure time, and the invariant that doubling travel
+speed halves the time axis and exposure while preserving the sampled winds.

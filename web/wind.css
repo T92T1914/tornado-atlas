@@ -10,3 +10,13 @@
 .wind-readings strong {display:block;font:29px Georgia,serif;margin:12px 0;color:#f2dab6}
 .wind-readings small {display:block;font-size:11px;color:var(--muted)}
 @media(max-width:760px) {.wind-readings {grid-template-columns:1fr 1fr}.wind-readings>div {padding:16px}.wind-readings strong {font-size:24px}}
+.passage {border-top:1px solid var(--line);margin-top:50px;padding-top:32px;scroll-margin-top:20px}
+.passage-layout {display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;margin:28px 0}
+.passage svg {display:block;width:100%;background:#101e1c;border:1px solid var(--line);border-radius:4px;margin-bottom:14px}
+.passage svg text {fill:#b3bbae;font:12px system-ui,sans-serif}
+.passage input[type=range] {width:100%;accent-color:var(--green)}
+.passage label {display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px}
+.passage output {color:#e7b679}
+.passage-readings dt {font-size:11px;color:var(--muted);margin-top:24px}
+.passage-readings dd {margin:6px 0;font:26px Georgia,serif;color:#f2dab6}
+@media(max-width:760px) {.passage-layout {grid-template-columns:1fr}.passage .study-controls {padding:20px}.passage label {font-size:11px}.passage svg text {font-size:22px}}

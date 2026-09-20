@@ -47,6 +47,25 @@ Made with [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/).
 * Retrieved September 20, 2026; SHA-256 `6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f`.
 * Terms checked September 20, 2026. No map tiles, external map fonts or tracking service are required.
 
-## Data archive
+## El Reno storm photographs and remembrance
+
+The two storm photographs are by **Daniel Rodriguez**, licensed under
+[Creative Commons Attribution 2.0](https://creativecommons.org/licenses/by/2.0/):
+
+* [El Reno EF-5 Tornado Wedge](https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado_Wedge.jpg), originally published on Flickr, stored as `storm01.jpg`.
+* [El Reno EF-5 Tornado](https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado.jpg), originally published on Flickr, stored as `storm02.jpg`.
+
+The original bytes are preserved and checked against the SHA-256 values in
+`exhibits/el-reno-2013/storm-photos.json`. The browser scales them for display.
+No endorsement is implied. The filenames preserve a superseded rating; this
+exhibit uses the final EF3 damage rating. Their camera clocks are not treated
+as registered event times. Credit, source and license links appear beside each
+image, including when the page runs locally.
+
+The remembrance section transcribes public names with per-person links. It
+does not reproduce obituary prose or portraits. Its source scope and access
+limits are documented in [the history notes](docs/el-reno-history.md).
+
+## Local source archive
 
 Raw NOAA NCEI and JMA downloads remain outside version control in `data/`. Their provenance is preserved locally. The software's license is not a license for arbitrary third-party content discovered during research.

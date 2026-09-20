@@ -9,12 +9,19 @@
 </head>
 <body>
   <a class="skip" href="#main">Skip to exhibit</a>
-  <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Exhibit navigation"><a href="atlas.html">Atlas</a><a href="#path">Path</a><a href="#damage">Damage</a><a href="#research">Research</a><a href="study.html">Form study</a><a href="wind.html">Wind lab</a></nav><span class="local">HISTORICAL STUDY / 001</span></header>
+  <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Exhibit navigation"><a href="atlas.html">Atlas</a><a href="#history">History</a><a href="#path">Path</a><a href="#damage">Damage</a><a href="#remembrance">Remembrance</a><a href="study.html">Form study</a><a href="wind.html">Wind lab</a></nav><span class="local">HISTORICAL STUDY / 001</span></header>
   <main id="main">
     <section class="hero">
       <div class="eyebrow">THE HISTORICAL STORM COLLECTION</div>
       <div class="hero-grid"><div><p id="place" class="place"></p><h1>El Reno<span>May 31, 2013</span></h1></div><div class="intro"><p id="introduction"></p><a class="text-link" href="#path">Explore the path <span aria-hidden="true">↘</span></a></div></div>
       <div id="facts" class="facts"></div>
+    </section>
+    <section id="history" class="history-section">
+      <div class="section-title"><div><div class="eyebrow">THE STORM AND ITS HISTORY</div><h2>More than a line on a map.</h2></div><a href="#remembrance">In remembrance</a></div>
+      <p id="history-introduction" class="section-intro"></p>
+      <div id="historical-context" class="notes"></div>
+      <div id="storm-photographs" class="storm-photographs"></div>
+      <p class="fineprint">Historical photographs, separate from the simulator. Some original filenames retain an early EF5 label; the final official damage rating is EF3. Photograph timing and viewing directions remain unregistered.</p>
     </section>
     <section id="path" class="path-section">
       <div class="section-title"><div><div class="eyebrow">01 / GEOGRAPHIC EVIDENCE</div><h2>A path that changes direction.</h2></div><a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">NWS source ↗</a></div>
@@ -24,7 +31,9 @@
         <div class="legend"><span><i class="outline"></i>Whole-event outline</span><span><i class="line"></i>Center path</span><span><i class="point"></i>Published positions</span></div>
         <div class="timeline"><div class="time-display"><span class="eyebrow">SELECTED POSITION</span><output id="clock" for="timeline">Loading</output></div><div class="slider-wrap"><label class="sr-only" for="timeline">Published tornado position</label><input id="timeline" type="range" min="0" max="38" value="0" disabled><div class="range-labels"><span>6:04 PM</span><span>May 31 · CDT</span><span>6:42 PM</span></div></div><div class="controls"><button id="previous" aria-label="Previous position" disabled>←</button><button id="play" disabled>Play timeline</button><button id="next" aria-label="Next position" disabled>→</button></div></div>
         <div class="map-caption"><p id="map-note"></p><p id="time-note"></p></div>
+        <div class="path-account" aria-live="polite"><h3 id="chapter-title"></h3><p id="chapter-account"></p></div>
       </div>
+      <div id="path-chapters" class="path-chapters" aria-label="Explore the path by chapter"></div>
     </section>
     <section id="damage" class="damage-section">
       <div class="section-title"><div><div class="eyebrow">02 / THE DAMAGE SURVEY</div><h2>What was left behind.</h2></div><a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">NWS photograph captions ↗</a></div>
@@ -34,6 +43,16 @@
       <details class="damage-browse"><summary>Browse all nine survey photographs</summary><div class="damage-filters"><label>Subject <select id="damage-subject"><option value="">All subjects</option><option>House</option><option>Metal building</option><option>Infrastructure</option></select></label><label>Caption rating <select id="damage-rating"><option value="">All ratings</option><option>EF2</option><option>EF3</option></select></label><output id="damage-count" aria-live="polite"></output></div><div id="damage-photos" class="damage-photos"></div></details>
       <p id="damage-location" class="fineprint"></p>
       <p class="fineprint">Photographs: NOAA / National Weather Service survey personnel. Original files are preserved. <a href="https://www.weather.gov/disclaimer" target="_blank" rel="noopener">Source use policy ↗</a></p>
+    </section>
+    <section id="remembrance" class="remembrance-section">
+      <div class="section-title"><div><div class="eyebrow">THE PEOPLE BEHIND THE NUMBERS</div><h2 id="remembrance-title"></h2></div></div>
+      <div id="impact-counts" class="facts"></div>
+      <p id="impact-scope" class="fineprint"></p><p id="impact-definitions" class="fineprint"></p>
+      <details class="impact-sources"><summary>Why the reported totals need context</summary><p id="impact-discrepancy"></p></details>
+      <p id="remembrance-introduction" class="section-intro"></p>
+      <p id="remembrance-scope" class="fineprint"></p>
+      <ul id="memorial-names" class="memorial-names"></ul>
+      <p id="remembrance-source-note" class="fineprint"></p>
     </section>
     <section id="research" class="research-section">
       <div class="section-title"><div><div class="eyebrow">03 / THE RESEARCH NOTEBOOK</div><h2>What the evidence can tell us.</h2></div><span class="status">RECONSTRUCTION IN DEVELOPMENT</span></div>

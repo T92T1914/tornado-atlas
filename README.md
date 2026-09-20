@@ -4,7 +4,7 @@ An interactive museum of historical tornadoes, built around source records, docu
 
 I have always been interested in tornadoes. I wanted a place where I could look up a storm, follow where it went, see the evidence behind its history, and eventually explore a reconstruction of what it looked like. This project is how I am starting to build that.
 
-The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, nine damage survey photographs, and a footage notebook. A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field and generic drag force. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
+The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, nine damage survey photographs, two credited storm photographs, a sourced remembrance section, and a footage notebook. A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field, generic drag force, and a moving passage past a fixed probe. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
 
@@ -33,15 +33,16 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Part | What you can inspect |
 | --- | --- |
 | Searchable atlas | World outline, 80,318 US source records, combined filters, grouped map markers, paginated results and linked source details |
-| El Reno exhibit | Geographic timeline, five timestamped footage notes, source links and unresolved evidence questions |
+| El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes and unresolved evidence questions |
+| History and remembrance | Published casualty counts with their scope, public sources for eight names, and separate regional flooding context |
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
 | Interactive form study | Native WebGL 2 particle rendering, three forms, camera orbit, visibility controls and motion that begins paused |
-| Wind and force laboratory | Adjustable Rankine vortex, passive tracers, movable probe and an explicit drag calculation with no structural failure claims |
+| Wind and force laboratory | Adjustable Rankine vortex, passive tracers, a movable probe, time-series passage experiment and generic drag calculations |
 | Source catalogue | NOAA NCEI imports, SQLite search, original records, source revisions and SHA-256 checks |
 | Browser publication | A compressed static search index and 256 content-addressed detail files, loaded as needed without a database server |
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
-| Verification | 46 Python tests, 23 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 50 Python tests, 28 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
@@ -90,6 +91,7 @@ node --check web/app.js
 node --check web/atlas.js
 node --check web/study.js
 node --check web/wind.js
+node --check web/passage.js
 node --check web/damage-view.mjs
 node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs
 py -3.11 tools/check_catalogue.py
@@ -104,6 +106,7 @@ Node 20 or newer is needed for the JavaScript checks, but not to serve the museu
 * [Video evidence workflow](docs/video-evidence-workflow.md)
 * [Visual form study](docs/visual-form-study.md)
 * [Wind and force laboratory](docs/wind-laboratory.md)
+* [El Reno history and remembrance](docs/el-reno-history.md)
 * [Research claim ledger](research/claim-ledger.csv)
 * [Roadmap](docs/roadmap.md)
 * [Verification record](docs/verification.md)

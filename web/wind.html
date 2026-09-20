@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tornado Atlas | Wind and force laboratory</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css"><link rel="stylesheet" href="wind.css"><script type="module" src="wind.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tornado Atlas | Wind and force laboratory</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css"><link rel="stylesheet" href="wind.css"><script type="module" src="wind.js"></script><script type="module" src="passage.js"></script></head>
 <body>
 <a class="skip" href="#main">Skip to wind laboratory</a>
 <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Museum navigation"><a href="atlas.html">Atlas</a><a href="index.html">El Reno exhibit</a><a href="study.html">Form study</a><a href="wind.html" aria-current="page">Wind lab</a></nav><span class="local">EXPERIMENT / 002</span></header>
@@ -32,6 +32,40 @@
   <div><span>DYNAMIC PRESSURE</span><strong id="probe-pressure"></strong><small>½ × air density × speed²</small></div>
   <div><span>IDEALIZED DRAG</span><strong id="probe-force"></strong><small>Pressure × area × drag coefficient</small></div>
   <div><span>IF LOCAL SPEED DOUBLED</span><strong>4 × force</strong><small>With density, area and coefficient fixed</small></div>
+</section>
+<section id="passage" class="passage">
+  <div class="eyebrow">A VORTEX PASSES ONE LOCATION</div><h2>What changes as it moves past?</h2>
+  <p>The same assumed wind field now travels east past a fixed probe. Change its travel speed or move the probe to either side of the track. Peak swirl, core radius, background wind, area and drag coefficient come from the controls above.</p>
+  <div class="passage-layout">
+    <div>
+      <svg id="passage-plan" viewBox="0 0 720 420" role="img" aria-label="Plan view of a prescribed vortex moving east along a straight path past a fixed probe.">
+        <path d="M60 210H660" stroke="#748477" stroke-dasharray="5 6"/><text x="62" y="193">TRAVEL EAST →</text>
+        <circle id="passage-center" cx="60" cy="210" r="50" fill="#72bcb724" stroke="#a6cbc5" stroke-width="2"/>
+        <circle id="passage-probe" cx="360" cy="160" r="6" fill="#f2dab6"/><text x="374" y="38">FIXED PROBE: GOLD DOT</text>
+        <text x="62" y="394">CIRCLE: CORE RADIUS R</text><text x="490" y="394">PATH SHOWN: 12 R</text>
+      </svg>
+      <svg id="passage-chart" viewBox="0 0 720 245" role="img" aria-label="Sampled wind speed at the fixed probe over model time. The dashed line is the chosen comparison speed.">
+        <path d="M52 25V200H688" fill="none" stroke="#748477"/>
+        <line id="passage-threshold" x1="52" x2="688" stroke="#b69a73" stroke-dasharray="4 5"/>
+        <path id="passage-line" fill="none" stroke="#a6cbc5" stroke-width="2"/>
+        <line id="passage-cursor" y1="25" y2="200" stroke="#f2dab6" opacity=".65"/>
+        <circle id="passage-dot" r="4" fill="#f2dab6"/>
+        <text id="passage-top" x="52" y="17"></text><text x="30" y="204">0</text>
+        <text id="passage-start" x="52" y="225"></text><text x="340" y="225">0 s</text><text id="passage-end" x="688" y="225" text-anchor="end"></text>
+      </svg>
+      <label for="passage-time">Explore the passage <output id="passage-time-value"></output></label><input id="passage-time" type="range" min="0" max="480" step="1" value="0">
+      <button id="passage-play" type="button">Play passage</button><p class="control-note">Playback takes 24 seconds. The time axis shows model seconds, which can cover a longer or shorter interval. Drag the slider for individual samples.</p>
+    </div>
+    <div class="study-controls">
+      <label for="travel">Vortex travel speed <output id="travel-value"></output></label><input id="travel" type="range" min="5" max="80" step="5" value="30">
+      <label for="offset">Probe north of the track <output id="offset-value"></output></label><input id="offset" type="range" min="-3" max="3" step=".1" value="1">
+      <p class="control-note">Negative values put the probe south of the track. The probe stays fixed during the passage.</p>
+      <label for="threshold">Comparison speed <output id="threshold-value"></output></label><input id="threshold" type="range" min="25" max="200" step="5" value="50">
+      <p class="control-note">The dashed line is a comparison value you choose. It is not a damage or safety threshold.</p>
+      <dl class="passage-readings"><dt>Wind at this moment</dt><dd id="passage-now"></dd><dt>Drag at this moment</dt><dd id="passage-force"></dd><dt>Highest sampled wind in this passage</dt><dd id="passage-peak"></dd><dt id="passage-range"></dt><dd id="passage-duration"></dd></dl>
+    </div>
+  </div>
+  <p class="wind-caption">This is prescribed translation of an unchanged analytic field, not a fluid simulation. Travel speed is independent of the uniform background wind. The 481 samples cover the center moving from −6 R to +6 R; wind outside that window is omitted. Duration uses interpolation between samples. There is no historical calibration or building failure model.</p>
 </section>
 <section class="study-explanation">
 <article><div class="eyebrow">THE MODEL</div><h2>A useful shape, with deliberate limits.</h2><p>Inside the core, swirl speed rises linearly from zero. Outside, it falls as the inverse of distance. This is a Rankine vortex: a simple analytic velocity field. It has no inflow, updraft, terrain, gusts, multiple vortices, or evolving storm structure.</p><p>Arrow direction shows the horizontal flow. The pressure readout is dynamic pressure, not the atmospheric pressure deficit inside a tornado. Tracers start paused and pause again when the page is hidden.</p><p><a href="https://glossary.ametsoc.org/wiki/rankine-vortex/" target="_blank" rel="noopener">AMS: the Rankine vortex ↗</a></p></article>
