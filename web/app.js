@@ -27,6 +27,7 @@ async function main() {
   const openPhoto = mountPhotoViewer();
   const exhibit = data.exhibit;
   const history = data.history;
+  const sourceNames = new Map(data.reading.sources.map(source => [source.url, source.publisher]));
   byId('history-introduction').textContent = history.introduction;
   for (const entry of history.context) {
     const card = node('article', null, 'note');
@@ -86,11 +87,12 @@ async function main() {
   for (const person of memorial.people) {
     const item=node('li');item.append(node('strong',person.name));
     const sources=node('div',null,'memorial-sources');
-    person.sources.forEach((url,i)=>sources.append(link(`Public source ${i+1} ↗`,url)));
+    person.sources.forEach(url=>sources.append(link(`${sourceNames.get(url) || 'Public source'} ↗`,url)));
     item.append(sources);byId('memorial-names').append(item);
   }
   byId('place').textContent = exhibit.location;
   byId('introduction').textContent = exhibit.introduction;
+  byId('introduction').append(' ', link('NWS account ↗', exhibit.introduction_source));
   byId('map-note').textContent = exhibit.map_note;
   byId('time-note').textContent = exhibit.time_note;
   byId('coverage').textContent = exhibit.coverage.video_review;
@@ -103,7 +105,7 @@ async function main() {
   for (const entry of exhibit.discrepancies) {
     const card = node('article', null, 'note');
     card.append(node('h3', entry.title), node('p', entry.text));
-    entry.sources.forEach((url, index) => card.append(link(`Source ${index + 1} ↗`, url)));
+    entry.sources.forEach(url => card.append(link(`${sourceNames.get(url) || 'Source'} ↗`, url)));
     byId('notes').append(card);
   }
   const creators = new Map(data.creators.map(c => [c.id, c]));
@@ -151,7 +153,11 @@ async function main() {
   }
   byId('search').addEventListener('input', showVideos);
   showVideos();
-  drawMap(data.geometry, history.chapters);
+  const selectMinute = drawMap(data.geometry, history.chapters);
+  const { mountReader } = await import('./reader-view.mjs');
+  const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
+    .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
+  mountReader(data.reading, history.chapters.map(chapter => ({...chapter, map_time:mapTimes.get(chapter.minute)})), selectMinute);
   const { mountDamage } = await import('./damage-view.mjs');
   mountDamage(data.damage, openPhoto);
   // A shared section link can arrive before the asynchronous exhibit is laid out.
@@ -230,7 +236,7 @@ function drawMap(geojson, chapters) {
   for (const chapter of chapters) {
     const button=node('button');button.type='button';button.dataset.minute=chapter.minute;
     button.append(node('span',chapter.time),node('strong',chapter.title));
-    button.addEventListener('click',()=>{stop();index=positions.findIndex(p=>Number(p.properties.source_name.split(':')[1])===chapter.minute);update();});
+    button.addEventListener('click',()=>selectMinute(chapter.minute));
     byId('path-chapters').append(button);
   }
   slider.addEventListener('input', () => {stop();index = Number(slider.value);update();});
@@ -244,5 +250,11 @@ function drawMap(geojson, chapters) {
   });
   document.addEventListener('visibilitychange', () => {if(document.hidden) stop();});
   update();
+  function selectMinute(minute) {
+    const selected = positions.findIndex(p => Number(p.properties.source_name.split(':')[1]) === minute);
+    if (selected < 0) return;
+    stop();index = selected;update();
+  }
+  return selectMinute;
 }
 main().catch(error => {byId('error').hidden=false;byId('error').textContent=error.message;});

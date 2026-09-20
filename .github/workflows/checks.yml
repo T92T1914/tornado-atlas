@@ -27,6 +27,7 @@ jobs:
           node --check web/passage.js
           node --check web/damage-view.mjs
           node --check web/photo-view.mjs
+          node --check web/reader-view.mjs
           node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs
       - name: Verify checked-in exhibit
         run: |

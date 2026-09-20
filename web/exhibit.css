@@ -1,0 +1,123 @@
+/* Reading layout for historical exhibits. The atlas and labs keep their own layout. */
+html {scroll-behavior:auto}
+.documentary-exhibit {font-size:17px;line-height:1.75}
+.documentary-exhibit header,.documentary-exhibit main,.documentary-exhibit footer {max-width:1440px}
+.documentary-exhibit .hero {padding:58px 0 36px}
+.documentary-exhibit .hero h1 {font-size:clamp(64px,7vw,96px)}
+.documentary-exhibit .hero .intro {font-size:18px;line-height:1.75;max-width:46ch}
+.documentary-exhibit #introduction a {white-space:nowrap;font-size:14px}
+.documentary-exhibit .place {font-size:14px}
+.documentary-exhibit header nav {font-size:14px}
+.documentary-exhibit .eyebrow,.documentary-exhibit .local {font-size:11px}
+.exhibit-meta {display:flex;flex-wrap:wrap;gap:8px 24px;margin:28px 0 0;color:var(--muted);font-size:14px}
+.exhibit-layout {display:grid;grid-template-columns:210px minmax(0,1fr);gap:48px;align-items:start}
+.contents-rail {position:sticky;top:24px;padding-top:50px;max-height:calc(100vh - 40px);overflow:auto}
+.contents-rail summary {font-weight:650;font-size:15px;cursor:pointer;padding:8px 0}
+.contents-rail nav {display:flex;flex-direction:column;gap:3px;width:auto;margin-top:12px;font-size:14px}
+.contents-rail a {padding:8px 12px;border-left:2px solid var(--line);color:var(--muted);line-height:1.45}
+.contents-rail a:hover {color:var(--text);text-decoration:underline}
+.contents-rail a[aria-current=location] {border-color:var(--gold);color:var(--gold);background:#1b2822;font-weight:650}
+.exhibit-story {min-width:0}
+.documentary-exhibit section {scroll-margin-top:8px}
+.documentary-exhibit .section-title {align-items:start;flex-wrap:wrap;gap:14px}
+.documentary-exhibit .section-title h2 {font-size:clamp(30px,3vw,40px);line-height:1.2;max-width:26ch}
+.documentary-exhibit .section-title>a {font-size:14px;white-space:normal}
+.documentary-exhibit .section-title>p {font-size:14px;display:block}
+.documentary-exhibit h3 {font-size:25px;line-height:1.35}
+.documentary-exhibit p {overflow-wrap:break-word}
+.documentary-exhibit .section-intro {max-width:68ch;font-size:17px;line-height:1.75}
+.documentary-exhibit .fineprint {font-size:14px;line-height:1.65;max-width:78ch}
+.documentary-exhibit .fact {min-width:0;flex:1;margin-right:20px}
+.documentary-exhibit .fact a {font-size:14px;line-height:1.5;display:inline-block;max-width:24ch;text-decoration:underline;text-underline-offset:3px}
+.documentary-exhibit .fact strong {font-size:34px}
+.documentary-exhibit .hero-photograph figcaption,.documentary-exhibit .storm-photographs figcaption {font-size:14px;line-height:1.6;padding-top:12px}
+.documentary-exhibit .storm-photographs .fineprint {font-size:13px}
+.documentary-exhibit #historical-context {display:block;max-width:68ch}
+.documentary-exhibit #historical-context .note {padding:24px 0 0;background:none;border:0}
+.documentary-exhibit .note p,.documentary-exhibit .research-bottom p {font-size:16px;line-height:1.75}
+.documentary-exhibit .note a {font-size:14px;display:inline-block;margin-top:4px}
+.documentary-exhibit .map-top {font-size:12px;letter-spacing:.7px;gap:10px;flex-wrap:wrap}
+.documentary-exhibit .legend {font-size:13px;gap:10px 24px;flex-wrap:wrap}
+.documentary-exhibit .timeline {flex-wrap:wrap}
+.documentary-exhibit .time-display .eyebrow {font-size:10px}
+.documentary-exhibit .range-labels {font-size:12px;gap:8px}
+.documentary-exhibit .slider-wrap {min-width:min(100%,210px)}
+.documentary-exhibit .map-caption {font-size:14px;line-height:1.65}
+.documentary-exhibit .path-account h3 {font-size:21px}
+.documentary-exhibit .path-account p {font-size:16px;line-height:1.7}
+.documentary-exhibit button {font-size:14px;min-height:44px}
+.documentary-exhibit .path-chapters {grid-template-columns:repeat(auto-fit,minmax(min(100%,185px),1fr))}
+.documentary-exhibit .path-chapters strong,.documentary-exhibit .path-chapters span {font-size:14px}
+.chronology {margin-top:42px}
+.chronology>h3 {margin-bottom:14px}
+.chronology ol {list-style:none;margin:28px 0 0;padding:0 0 0 22px;border-left:1px solid #61745f;max-width:70ch}
+.chronology li {position:relative;padding:0 0 32px 10px}
+.chronology li::before {content:'';position:absolute;left:-28px;top:8px;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 5px var(--bg)}
+.chronology li:last-child {padding-bottom:0}
+.chronology .chapter-time {font-size:14px;color:var(--gold);font-variant-numeric:tabular-nums}
+.chronology h4 {font:23px/1.35 Georgia,serif;margin:6px 0 10px}
+.chronology p {margin-bottom:8px;color:var(--muted)}
+.chapter-links {display:flex;flex-wrap:wrap;gap:8px 24px;font-size:14px}
+.chapter-links a {padding:6px 0;text-underline-offset:4px}
+.documentary-exhibit .damage-panel label,.documentary-exhibit .damage-panel select,.documentary-exhibit .damage-filters label,.documentary-exhibit .damage-filters output {font-size:14px}
+.documentary-exhibit .damage-panel p {font-size:16px;line-height:1.7}
+.documentary-exhibit .damage-photos {grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.documentary-exhibit .damage-photos h3 {font-size:19px}
+.documentary-exhibit .damage-photos p {font-size:14px}
+.documentary-exhibit .impact-sources {font-size:16px;max-width:68ch}
+.documentary-exhibit .memorial-sources {font-size:14px;gap:8px 18px;margin-top:6px}
+.documentary-exhibit .memorial-sources a {padding:4px 0}
+.documentary-exhibit .visitor-questions summary {font-size:18px;line-height:1.5}
+.documentary-exhibit .visitor-questions p {font-size:16px}
+.documentary-exhibit .visitor-questions .guide-sources {font-size:14px}
+.documentary-exhibit .status {display:inline-block;font-size:10px}
+.documentary-exhibit .footage-notebook>p {font-size:16px;max-width:68ch}
+.documentary-exhibit .observation p {font-size:16px}
+.documentary-exhibit .observation a,.documentary-exhibit .observation summary {font-size:14px}
+.documentary-exhibit .research-bottom {gap:24px}
+.documentary-exhibit .creator,.documentary-exhibit .filter-row label,.documentary-exhibit #count {font-size:14px}
+.documentary-exhibit .filter-row {flex-wrap:wrap}
+.documentary-exhibit input[type=search] {font-size:16px;max-width:100%}
+.documentary-exhibit .video h3 {font-size:19px}
+.documentary-exhibit .video p {font-size:14px}
+.documentary-exhibit .video .eyebrow,.documentary-exhibit .video .review {font-size:11px}
+.source-group {margin:32px 0}
+.source-group ol {list-style:none;padding:0;margin:0}
+.source-group li {border-top:1px solid var(--line);padding:22px 0;max-width:72ch;overflow-wrap:anywhere}
+.source-group h4 {font-size:17px;line-height:1.5;font-weight:500;margin:4px 0 8px}
+.source-group .source-publisher {color:var(--green);font-size:13px;margin:0}
+.source-group li>p {color:var(--muted);font-size:15px;margin:0}
+.back-to-top {display:inline-block;margin-top:30px;padding:10px 0;font-size:15px}
+.documentary-exhibit footer {font-size:13px}
+@media(max-width:1080px) {
+  .exhibit-layout {display:block}
+  .contents-rail {position:static;max-height:none;overflow:visible;padding:18px 0;border-bottom:1px solid var(--line)}
+  .contents-rail nav {display:grid;grid-template-columns:1fr 1fr;gap:4px 20px}
+  .contents-rail a {min-height:44px}
+  .documentary-exhibit .exhibit-story {max-width:900px;margin:auto}
+}
+@media(max-width:720px) {
+  .documentary-exhibit .hero-grid {grid-template-columns:1fr}
+  .documentary-exhibit .hero .intro {max-width:68ch}
+  .documentary-exhibit .notes,.documentary-exhibit .research-bottom,.documentary-exhibit .visitor-questions {grid-template-columns:1fr}
+  .documentary-exhibit .map-caption {grid-template-columns:1fr;gap:0}
+  .documentary-exhibit .hero-photograph {grid-row:2}
+}
+@media(max-width:480px) {
+  .documentary-exhibit main {padding:0 18px}
+  .documentary-exhibit header {padding:18px}
+  .documentary-exhibit header nav {gap:8px 22px}
+  .documentary-exhibit header nav a {padding:5px 0}
+  .documentary-exhibit .hero {padding-top:32px}
+  .documentary-exhibit .hero h1 {font-size:64px}
+  .documentary-exhibit .facts {flex-wrap:wrap;gap:16px}
+  .documentary-exhibit .fact {flex:1 1 110px;margin:0;padding:18px 0 0}
+  .documentary-exhibit .fact strong {font-size:30px}
+  .contents-rail nav {grid-template-columns:1fr}
+  .documentary-exhibit .storm-photographs,.documentary-exhibit .memorial-names {grid-template-columns:1fr}
+  .documentary-exhibit .timeline {display:grid;grid-template-columns:minmax(0,1fr)}
+  .documentary-exhibit .controls {margin:0;justify-content:space-between;width:100%}
+  .documentary-exhibit #clock {font-size:21px}
+  .chronology ol {padding-left:18px}
+  .chronology li::before {left:-24px}
+}

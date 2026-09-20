@@ -6,7 +6,7 @@
   "stage": "First exhibit study",
   "record_id": "ncei:453682",
   "record_match_basis": "Date, county, start time, rating and event narrative agree. Nearby satellite tornadoes are separate records.",
-  "introduction": "Follow the history and documented path, see the storm and its damage, and remember the people who died. This exhibit brings published records, credited photographs and a footage notebook together while keeping their limits visible.",
+  "introduction": "On May 31, 2013, a tornado formed southwest of El Reno and grew exceptionally wide as it changed speed and direction. It passed south of the town and airport, damaging homes and other buildings. Eight people died, all in vehicles. Follow its documented history, photographs and path below.",
   "facts": [
     {
       "value": "EF3",
@@ -50,5 +50,6 @@
     "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
     "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
     "remaining": "Shot registration, complete video review, exact survey photograph locations, and a historical appearance reconstruction. A separate illustrative 3D form study is available; it does not reconstruct El Reno or predict damage."
-  }
+  },
+  "introduction_source": "https://www.weather.gov/oun/events-20130531"
 }

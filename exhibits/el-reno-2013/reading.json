@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "event": "el-reno-2013",
+  "updated": "2026-09-20",
+  "sources": [
+    {
+      "group": "Official records",
+      "title": "May 31 to June 1, 2013 tornado and flash flooding event",
+      "publisher": "NWS Norman",
+      "url": "https://www.weather.gov/oun/events-20130531",
+      "use": "The event account, path chronology, final EF3 rating, maximum reported width and damage photograph captions. Its narrative and summary table give different ending times; both remain visible in this exhibit."
+    },
+    {
+      "group": "Official records",
+      "title": "El Reno final tornado path file (KMZ download)",
+      "publisher": "NWS Norman",
+      "url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+      "use": "The original outline, center path and 39 time-labeled positions used by the map. A whole-event outline does not describe the funnel shape at each minute."
+    },
+    {
+      "group": "Official records",
+      "title": "Storm Events 2013 data, record 453682 (CSV.gz download)",
+      "publisher": "NOAA NCEI",
+      "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2013_c20260323.csv.gz",
+      "use": "The preserved March 23, 2026 revision supplies the event record and its direct fatality and injury figures. County-level source records are not necessarily distinct tornadoes."
+    },
+    {
+      "group": "Official records",
+      "title": "The Enhanced Fujita scale",
+      "publisher": "NWS Norman",
+      "url": "https://www.weather.gov/oun/efscale",
+      "use": "How surveyors use damage indicators and degrees of damage to estimate intensity. The rating alone cannot reconstruct the visible funnel."
+    },
+    {
+      "group": "Photographs",
+      "title": "El Reno wedge photograph, May 31, 2013",
+      "publisher": "Daniel Rodriguez / Wikimedia Commons",
+      "url": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado_Wedge.jpg",
+      "use": "Original photograph, attribution and CC BY 2.0 reuse terms. Its historical filename retains an EF5 label; the final official damage rating is EF3. Exact time and viewpoint are not registered here."
+    },
+    {
+      "group": "Photographs",
+      "title": "El Reno tornado photograph, May 31, 2013",
+      "publisher": "Daniel Rodriguez / Wikimedia Commons",
+      "url": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado.jpg",
+      "use": "The second preserved photograph and its CC BY 2.0 attribution. This view has not been synchronized with the map."
+    },
+    {
+      "group": "Remembrance and reporting",
+      "title": "NOAA statement remembering three storm researchers",
+      "publisher": "NOAA / NWS",
+      "url": "https://www.weather.gov/news/130603-chasers",
+      "use": "Public identification of Tim Samaras, Paul Samaras and Carl Young. This supports their names in the remembrance section."
+    },
+    {
+      "group": "Remembrance and reporting",
+      "title": "Breakdown of the storm fatalities in Oklahoma",
+      "publisher": "FOX6",
+      "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma",
+      "use": "Contemporary reporting used for named victims and context about regional hospital figures. Early ratings and conflicting ages are not carried into this exhibit."
+    },
+    {
+      "group": "Remembrance and reporting",
+      "title": "Dustin Bridges obituary",
+      "publisher": "Tribute Archive",
+      "url": "https://www.tributearchive.com/obituaries/26979897/dustin-bridges",
+      "use": "Public obituary used to verify the name Dustin Heath Bridges. No portrait is reproduced."
+    },
+    {
+      "group": "Remembrance and reporting",
+      "title": "William O’Neal obituary",
+      "publisher": "The Oklahoman / Legacy",
+      "url": "https://www.legacy.com/us/obituaries/oklahoman/name/william-oneal-obituary?id=11764894",
+      "use": "Public obituary used alongside contemporary reporting for William O’Neal. No portrait is reproduced."
+    },
+    {
+      "group": "Remembrance and reporting",
+      "title": "Language barriers hinder storm warnings in Oklahoma",
+      "publisher": "EMS World / HMP Global",
+      "url": "https://www.hmpgloballearningnetwork.com/site/emsworld/news/11031041/language-barriers-hinder-storm-warnings-okla",
+      "use": "Contemporary reporting used for Maria Pol Martin and Rey Chicoj Pol. This is a secondary account, separate from the official event totals."
+    },
+    {
+      "group": "Reconstruction methods",
+      "title": "Locating and synchronizing storm imagery",
+      "publisher": "American Meteorological Society",
+      "url": "https://ams.confex.com/ams/27SLS/webprogram/Paper254094.html",
+      "use": "A conference abstract describing the registration of chaser imagery. It guides the proposed method; it does not establish that this exhibit has already registered its photographs or reconstructed the storm."
+    }
+  ]
+}

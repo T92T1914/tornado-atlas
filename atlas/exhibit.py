@@ -20,6 +20,7 @@ from .sources import ROOT, cached_retrieval, read_object, retrieve
 from .observations import validate_notebook
 from .damage import validate_gallery
 from .history import validate_history
+from .reading import validate_reading
 
 KMZ_URL = "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"
 PAGE_URL = "https://www.weather.gov/oun/events-20130531"
@@ -147,6 +148,9 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     result = {"exhibit": dossier, "geometry": geojson, "review_queue": queue, "creators": creators,
               "notebook": notebook, "damage": damage, "history": history, "storm_photos": photos,
               "visitor_guide": guide}
+    reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
+    validate_reading(reading, result)
+    result['reading'] = reading
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     geo_path = ROOT / "exhibits/el-reno-2013/path.geojson"
