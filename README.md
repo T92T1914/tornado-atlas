@@ -4,6 +4,14 @@ An interactive museum of historical tornadoes, built around source records, docu
 
 I have always been interested in tornadoes. I wanted a place where I could look up a storm, follow where it went, see the evidence behind its history, and eventually explore a reconstruction of what it looked like. This project is how I am starting to build that.
 
+The long term goal is to animate individual tornadoes so you can watch them unfold
+along their documented paths, with their changing appearance reconstructed where
+photographs and footage support it. I am starting with the most infamous storms
+and working outward. One shared playback system will support separate event
+packages, so the collection can grow without rebuilding the application for
+every tornado. The [reconstruction plan](docs/reconstruction-plan.md)
+explains the approach and what still needs to be built.
+
 The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, nine damage survey photographs, two credited storm photographs, a sourced remembrance section, and a footage notebook. A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field, generic drag force, and a moving passage past a fixed probe. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
@@ -114,6 +122,7 @@ Node 20 or newer is needed for the JavaScript checks, but not to serve the museu
 ## Project notes
 
 * [Museum brief](docs/museum-brief.md)
+* [Individual tornado reconstruction plan](docs/reconstruction-plan.md)
 * [Data contract](docs/data-contract.md)
 * [Video evidence workflow](docs/video-evidence-workflow.md)
 * [Visual form study](docs/visual-form-study.md)
