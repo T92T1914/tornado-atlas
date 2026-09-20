@@ -1,12 +1,57 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage} from '../web/atlas-model.mjs';
+import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage, readSearchLink, writeSearchLink} from '../web/atlas-model.mjs';
 
 const records = [
   {id:'ncei:1',title:'A, Oklahoma',state:'OKLAHOMA',area:'CANADIAN',aliases:['El Reno'],rating:'EF3',year:2013,date:'2013-05-31',point:[-98,35],exhibit:'index.html'},
   {id:'ncei:2',title:'B, Oklahoma',state:'OKLAHOMA',area:'CANADIAN',aliases:[],rating:'F3',year:1950,date:'1950-05-31',point:[-98,35],exhibit:null},
   {id:'ncei:3',title:'C, Missouri',state:'MISSOURI',area:'JASPER',aliases:['Joplin'],rating:null,year:2011,date:'2011-05-22',point:null,exhibit:null},
 ];
+
+test('shared search restores all combined filters and the selected record', () => {
+  const filters = {query:'El Reno',year:'2013',rating:'EF3',state:'OKLAHOMA',exhibits:true};
+  const url = new URL(writeSearchLink(filters, 'ncei:1'), 'https://example.com/atlas.html');
+  const restored = readSearchLink(url.search, url.hash);
+  assert.deepEqual(restored, {filters,recordId:'ncei:1'});
+  assert.deepEqual(filterRecords(records, restored.filters).map(r => r.id), ['ncei:1']);
+});
+
+test('search links preserve literal symbols, accents and encoded fragments', () => {
+  const query = "O'Brien + São & #50%?";
+  const url = new URL(writeSearchLink({query}, 'source:a+b&c'), 'https://example.com/atlas.html');
+  assert.equal(readSearchLink(url.search, url.hash).filters.query, query);
+  assert.equal(readSearchLink(url.search, url.hash).recordId, 'source:a+b&c');
+});
+
+test('existing record bookmarks and a reset link remain compatible', () => {
+  assert.equal(readSearchLink('', '#record=ncei%3A1').recordId, 'ncei:1');
+  assert.equal(writeSearchLink(), '');
+  assert.equal(writeSearchLink({exhibits:false}, 'ncei:1'), '#record=ncei%3A1');
+  assert.equal(readSearchLink('', '#main').recordId, '');
+  assert.deepEqual(filterRecords(records, readSearchLink().filters), filterRecords(records));
+});
+
+test('unknown filter values stay restrictive instead of silently showing everything', () => {
+  for (const search of ['?year=2099','?rating=IF5','?state=UNKNOWN']) {
+    const state = readSearchLink(search);
+    assert.equal(filterRecords(records, state.filters).length, 0);
+    assert.equal(writeSearchLink(state.filters), search);
+  }
+});
+
+test('only the explicit exhibit flag filters to curated exhibits', () => {
+  for (const search of ['?exhibits=0','?exhibits=false','?exhibits=','?unrelated=1']) {
+    assert.equal(readSearchLink(search).filters.exhibits, false);
+  }
+  assert.equal(readSearchLink('?exhibits=1').filters.exhibits, true);
+});
+
+test('shared F and EF searches keep their distinct results', () => {
+  for (const [rating,id] of [['F3','ncei:2'],['EF3','ncei:1']]) {
+    const {filters} = readSearchLink(writeSearchLink({rating}));
+    assert.deepEqual(filterRecords(records, filters).map(r => r.id), [id]);
+  }
+});
 test('F3 and EF3 do not collapse into the same filter',() => {
   assert.deepEqual(filterRecords(records,{rating:'F3'}).map(r=>r.id),['ncei:2']);
   assert.deepEqual(filterRecords(records,{rating:'EF3'}).map(r=>r.id),['ncei:1']);

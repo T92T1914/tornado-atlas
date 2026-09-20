@@ -28,6 +28,11 @@ Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:
 
 Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Numbered groups open a smaller set of records; clear the selected group to return to the current filters. Each selected record has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account.
 
+Use **Link to this search** to copy or bookmark the filters together with the
+selected record. Reopening the link restores the search, and Back and Forward
+move between selected records. Temporary map groups and zoom are not saved in
+the link. [Try a filtered El Reno search](https://t92t1914.github.io/tornado-atlas/atlas.html?q=El+Reno&year=2013&rating=EF3&state=OKLAHOMA&exhibits=1#record=ncei%3A453682).
+
 Use the timeline slider, previous and next buttons, or playback to step through 39 published positions. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
 
 Compare two survey photographs, enlarge either one, or filter the collection by subject and the rating in the original NWS caption. The files are unchanged government survey photographs. Locations remain descriptive because exact camera positions and capture times have not been established.
@@ -48,7 +53,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Browser publication | A compressed static search index and 256 content-addressed detail files, loaded as needed without a database server |
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
-| Verification | 50 Python tests, 28 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 50 Python tests, 34 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 

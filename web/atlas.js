@@ -1,4 +1,4 @@
-import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage} from './atlas-model.mjs';
+import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage, readSearchLink, writeSearchLink} from './atlas-model.mjs';
 
 const el = id => document.getElementById(id);
 const make = (tag, text, className) => {
@@ -131,28 +131,42 @@ async function main() {
     selected = null;
     request++;
     el('detail').replaceChildren(make('h2','Select a record'),make('p','Choose a marker or a result to inspect its source.'));
-    history.replaceState(null,'',location.pathname+location.search);
   }
-  function applyFilters({keepGroup=false}={}) {
-    if (!keepGroup) groupSelection=null;
-    matches = filterRecords(records,{
+  function currentFilters() {
+    return {
       query:el('query').value,year:el('year').value,rating:el('rating').value,
       state:el('state').value,exhibits:el('exhibits').checked,
-    });
+    };
+  }
+  function syncSearchLink({writeHistory=true,push=false}={}) {
+    const href = location.pathname + writeSearchLink(currentFilters(), selected?.id);
+    el('search-link').href = href;
+    el('search-link').textContent = groupSelection ? 'Link to full filtered search' : 'Link to this search';
+    el('search-link-note').textContent = groupSelection
+      ? 'Includes filters and the selected record. This temporary map group is not included.'
+      : 'Includes filters and the selected record.';
+    if (writeHistory && href !== location.pathname+location.search+location.hash) {
+      history[push ? 'pushState' : 'replaceState'](null,'',href);
+    }
+  }
+  function applyFilters({keepGroup=false,writeHistory=true}={}) {
+    if (!keepGroup) groupSelection=null;
+    matches = filterRecords(records,currentFilters());
     if (groupSelection) matches=matches.filter(record=>groupSelection.has(record.id));
     page = 0;
     if (selected && !matches.some(record => record.id === selected.id)) clearDetail();
     renderMap();
     renderResults();
     el('fit').disabled = !matches.some(record => project(record.point));
+    syncSearchLink({writeHistory});
   }
   function datum(list, label, value) {
     list.append(make('dt',label),make('dd',value === null || value === undefined ? 'Not reported' : String(value)));
   }
-  async function selectRecord(record, {writeHash = true} = {}) {
+  async function selectRecord(record, {writeHistory = true} = {}) {
     selected = record;
     const token = ++request;
-    if (writeHash) history.replaceState(null,'',`#record=${encodeURIComponent(record.id)}`);
+    syncSearchLink({writeHistory,push:true});
     renderSelection();
     renderResults();
     el('detail').replaceChildren(make('span',record.id,'eyebrow'),make('h2',record.title),make('p','Loading source account…'));
@@ -169,6 +183,9 @@ async function main() {
       panel.replaceChildren(make('span',record.id,'eyebrow'),make('h2',record.title));
       if (record.aliases.length) panel.append(make('p',record.aliases.join(' · '),'alias'));
       panel.append(make('p','NOAA source record. It may describe one segment of a longer tornado.'));
+      if (!matches.some(match => match.id === record.id)) {
+        panel.append(make('p','This linked record is outside the current filters. Reset filters to include it.'));
+      }
       if (record.exhibit) panel.append(anchor('Enter the El Reno exhibit ↗',record.exhibit,'exhibit-link'));
       const actions = make('div',undefined,'detail-actions');
       const focus = make('button','Center on map');
@@ -244,7 +261,6 @@ async function main() {
       groupSelection=new Set(group.records.map(record=>record.id));
       applyFilters({keepGroup:true});
       setBounds(fitBounds(matches));
-      el('results-count').textContent+= ' in selected group';
     }
   });
   el('clear-group').addEventListener('click',() => {applyFilters();setBounds(fitBounds(matches));});
@@ -273,16 +289,36 @@ async function main() {
     setBounds([drag.bounds[0]-(event.clientX-drag.x)*scale,drag.bounds[1]-(event.clientY-drag.y)*scale,drag.bounds[2],drag.bounds[3]]);
   });
   for (const type of ['pointerup','pointercancel','lostpointercapture']) map.addEventListener(type,() => {drag=null;});
-  const initialId = new URLSearchParams(location.hash.slice(1)).get('record');
-  applyFilters();
-  setBounds(fitBounds(matches));
-  if (initialId && byId.has(initialId)) selectRecord(byId.get(initialId),{writeHash:false});
-  window.addEventListener('hashchange',() => {
-    const id = new URLSearchParams(location.hash.slice(1)).get('record');
-    if (id && byId.has(id)) {
-      resetFilters();
-      selectRecord(byId.get(id));
+  function restoreLocation() {
+    clearTimeout(filterTimer);
+    const {filters,recordId} = readSearchLink(location.search,location.hash);
+    el('query').value = filters.query;
+    for (const id of ['year','rating','state']) {
+      const select = el(id);
+      select.querySelectorAll('[data-unavailable]').forEach(item => item.remove());
+      // A stale or mistyped link must not broaden silently to all records.
+      if (filters[id] && ![...select.options].some(item => item.value === filters[id])) {
+        option(select,filters[id],`Unavailable: ${filters[id]}`);
+        select.lastElementChild.dataset.unavailable = 'true';
+      }
+      select.value = filters[id];
     }
+    el('exhibits').checked = filters.exhibits;
+    clearDetail();
+    applyFilters({writeHistory:false});
+    setBounds(fitBounds(matches) || [0,0,1080,540]);
+    if (recordId && byId.has(recordId)) {
+      const index = matches.findIndex(record => record.id === recordId);
+      if (index >= 0) page = Math.floor(index/pageSize);
+      selectRecord(byId.get(recordId),{writeHistory:false});
+    } else if (recordId) {
+      el('detail').replaceChildren(make('h2','Record unavailable'),make('p','That source ID is not in the current catalogue. The search filters still apply.'));
+    }
+  }
+  restoreLocation();
+  window.addEventListener('popstate',restoreLocation);
+  window.addEventListener('hashchange',() => {
+    if (!location.hash || location.hash.startsWith('#record=')) restoreLocation();
   });
 }
 main().catch(error => {el('error').hidden=false;el('error').textContent=error.message;el('coverage').textContent='Catalogue unavailable. The El Reno exhibit remains accessible from the navigation.';});

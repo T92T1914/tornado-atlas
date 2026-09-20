@@ -109,3 +109,29 @@ their hashes are unchanged.
 The [audience notes](../research/audience-notes-2026-09-20.md) distinguish direct
 page inspection, indexed excerpts and limited video samples. They do not claim
 complete documentary review or measured engagement improvements.
+
+## Shareable catalogue searches
+
+The next September 20 update preserves place, year, rating, state and exhibit
+filters in the URL, together with the selected record. Existing record-only
+bookmarks still work. Map groups remain temporary and the sharing label explains
+when a link opens the full filtered search. The duplicated selected-group label
+has also been removed.
+
+* The JavaScript suite passed 34 tests, including six new search-link cases for
+  combined filters, literal symbols, old bookmarks, unavailable values, explicit
+  exhibit selection and separate F/EF ratings.
+* All 50 Python tests, exhibit integrity and catalogue checks passed.
+* In the local browser, an El Reno search restored all five filters, its one
+  matching record and the selected source after reload. Back cleared selection
+  without discarding filters; Forward restored the selected source. Reset
+  returned all 80,318 records and removed the saved search from the URL.
+* A link to year 2099 showed an unavailable option and zero matches. A selected
+  El Reno record outside those filters remained readable with an explanation.
+  An unknown record ID displayed an unavailable message while preserving the
+  Joplin search and its 11 matches.
+* Selecting a map group showed one group label and explained the full-search
+  link. Clearing the group restored all results. Desktop and 390 by 844 layouts
+  were visually inspected; the narrow page had no horizontal overflow.
+* No warnings or errors appeared in these browser checks. The temporary viewport
+  override was cleared. Physical-device and cross-browser testing were not done.
