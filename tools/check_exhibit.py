@@ -8,6 +8,8 @@ sys.path.insert(0, str(root))
 from atlas.damage import validate_gallery
 from atlas.history import validate_history
 from atlas.reading import validate_reading
+from atlas.timeline_media import validate_timeline_media
+from atlas.community import validate_community
 bundle = json.loads((root / 'web/data.json').read_text(encoding='utf-8'))
 geo = json.loads((root / 'exhibits/el-reno-2013/path.geojson').read_text(encoding='utf-8'))
 assert bundle['geometry'] == geo, 'Preview geometry differs from exhibit geometry'
@@ -19,6 +21,8 @@ for key, relative in [('exhibit', 'exhibits/el-reno-2013/dossier.json'),
                       ('history', 'exhibits/el-reno-2013/history.json'),
                       ('storm_photos', 'exhibits/el-reno-2013/storm-photos.json'),
                       ('visitor_guide', 'exhibits/el-reno-2013/visitor-guide.json'),
+                      ('timeline_media', 'exhibits/el-reno-2013/timeline-media.json'),
+                      ('community', 'exhibits/el-reno-2013/community.json'),
                       ('reading', 'exhibits/el-reno-2013/reading.json')]:
     assert bundle[key] == json.loads((root / relative).read_text(encoding='utf-8')), f'Stale bundle: {key}'
 points = [f for f in geo['features'] if f['geometry']['type'] == 'Point']
@@ -32,6 +36,8 @@ ids = [video['id'] for video in bundle['review_queue']]
 assert len(ids) == len(set(ids))
 creator_ids = {creator['id'] for creator in bundle['creators']}
 assert all(video['creator'] in creator_ids for video in bundle['review_queue'])
+validate_timeline_media(bundle['timeline_media'], root / 'web')
+validate_community(bundle['community'], bundle['exhibit']['id'])
 validate_gallery(bundle['damage'], root / 'web')
 validate_history(bundle['history'], bundle['storm_photos'], root / 'web')
 validate_reading(bundle['reading'], {key: value for key, value in bundle.items() if key != 'reading'})

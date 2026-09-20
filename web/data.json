@@ -2113,6 +2113,245 @@
       ]
     }
   ],
+  "timeline_media": {
+    "schema": 1,
+    "event": "el-reno-2013",
+    "source": "https://www.weather.gov/oun/events-20130531",
+    "original_url": "https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif",
+    "original_sha256": "2c8ec05523dd1db897c38b67daae0f6770921135c6ddc2e34735bc40dfa93a7a",
+    "retrieved_at": "2026-09-20T22:47:42.118469+00:00",
+    "credit": "NOAA / National Weather Service, published NWRT phased-array radar loop",
+    "license": "NWS public-domain information policy, unless otherwise marked",
+    "license_url": "https://www.weather.gov/disclaimer",
+    "changes": "Twelve complete, composited GIF frames exported as lossless PNGs. No cropping or recoloring.",
+    "clock_basis": "Times are transcribed from the filename printed inside each radar frame and interpreted as UTC, consistent with the NWS event chronology. The printed label does not itself state a time zone; this clock interpretation is explicit, not an independent calibration.",
+    "interpretation": "Only a preceding frame up to four minutes old is shown. The radar view covers the wider storm area and is not registered as a geographic overlay on this map.",
+    "max_age_seconds": 240,
+    "frames": [
+      {
+        "frame_index": 151,
+        "utc": "2013-05-31T23:01:37+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-230137_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-151.png",
+        "sha256": "04131221cc0a961e12107b7155dbff638e4ac5e370f4936fcb9d7ac251e00070",
+        "alt": "NWRT regional reflectivity, source time label 23:01:37. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 154,
+        "utc": "2013-05-31T23:05:10+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-230510_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-154.png",
+        "sha256": "54e73592caa0232558d2b53872ce6926076b36de4f7b02578957fa3899ef459c",
+        "alt": "NWRT regional reflectivity, source time label 23:05:10. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 157,
+        "utc": "2013-05-31T23:08:43+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-230843_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-157.png",
+        "sha256": "03ba2de5aa4f5e02eb14f0803974d289eeb12ec324f424d5a4fcb78f61c597ee",
+        "alt": "NWRT regional reflectivity, source time label 23:08:43. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 160,
+        "utc": "2013-05-31T23:12:16+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-231216_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-160.png",
+        "sha256": "8e24900351a543c8743816015faca10985ae24d440286422c4cfb5da1ffe985b",
+        "alt": "NWRT regional reflectivity, source time label 23:12:16. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 163,
+        "utc": "2013-05-31T23:15:49+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-231549_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-163.png",
+        "sha256": "155a33cf3963126f10d2e794f209030f1ec4301354be5350745f8f92af51d0ab",
+        "alt": "NWRT regional reflectivity, source time label 23:15:49. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 166,
+        "utc": "2013-05-31T23:19:22+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-231922_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-166.png",
+        "sha256": "c13901e692f71f6f2f19138ae31fb8048da95cd6ffbd8876fd2f471d2ea4ef94",
+        "alt": "NWRT regional reflectivity, source time label 23:19:22. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 169,
+        "utc": "2013-05-31T23:22:56+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-232256_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-169.png",
+        "sha256": "39da6714f42f9f616b5f7a1faa4dac9af7609f87289dd020a3a1da08c712cb33",
+        "alt": "NWRT regional reflectivity, source time label 23:22:56. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 172,
+        "utc": "2013-05-31T23:26:29+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-232629_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-172.png",
+        "sha256": "88548ba2a48fba7fb4451181f78e9bf4b2d6ac041f842b176440ea0818b62664",
+        "alt": "NWRT regional reflectivity, source time label 23:26:29. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 175,
+        "utc": "2013-05-31T23:30:02+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-233002_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-175.png",
+        "sha256": "6fcf88cc04de9081cc4b3ed0fa3161559228c0c9374b2a098eb505f1cd9bfd42",
+        "alt": "NWRT regional reflectivity, source time label 23:30:02. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 178,
+        "utc": "2013-05-31T23:33:35+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-233335_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-178.png",
+        "sha256": "6b0142e359246cd8b0f4892d3e24f297e75911a1ff3fa98b753711237b2d35d0",
+        "alt": "NWRT regional reflectivity, source time label 23:33:35. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 181,
+        "utc": "2013-05-31T23:37:08+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-233708_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-181.png",
+        "sha256": "3caf587ba8832f9530e01a06be07ae9329f8ddb5e8cfe80fe4eb03862aa1c8b8",
+        "alt": "NWRT regional reflectivity, source time label 23:37:08. Radar echoes west of and over the Oklahoma City area."
+      },
+      {
+        "frame_index": 184,
+        "utc": "2013-05-31T23:40:51+00:00",
+        "source_label": "wseNWRT_Reflectivity_20130531-234051_00.51.png",
+        "file": "assets/el-reno-2013/radar/frame-184.png",
+        "sha256": "289307ddda63ded56ecfc55922b414a650c705061f6e7c6c3351eaa9c80743e2",
+        "alt": "NWRT regional reflectivity, source time label 23:40:51. Radar echoes west of and over the Oklahoma City area."
+      }
+    ]
+  },
+  "community": {
+    "schema": 1,
+    "event": "el-reno-2013",
+    "updated": "2026-09-20",
+    "introduction": "Storm discussions can raise good questions and point to details buried in survey reports. Here are three El Reno conversations, followed back to the records where possible. These entries sit alongside the history without changing the official rating or measurements.",
+    "scope": "This is a small curated selection, not a poll of the tornado community or a live comment feed. A popular post is a lead, not proof. Creator footage and eyewitness accounts need their own checks for date, location, context and the specific claim being made. We link to the discussions so you can read the arguments yourself.",
+    "sources": [
+      {
+        "id": "rating-thread",
+        "title": "El Reno 2013 tornado rating",
+        "publisher": "r/tornado discussion",
+        "url": "https://www.reddit.com/r/tornado/comments/1pr4gsg/el_reno_2013_tornado_rating/",
+        "role": "community",
+        "access": "text_reviewed",
+        "coverage": "Post and returned comment text inspected. Participants disagree about EF3, EF4 and EF5. This is evidence of those arguments, not a representative sample or a technical authority."
+      },
+      {
+        "id": "house-thread",
+        "title": "Did El Reno nearly receive a final low-end EF4 rating?",
+        "publisher": "r/tornado discussion",
+        "url": "https://www.reddit.com/r/tornado/comments/1mso0pl/did_you_know_that_the_2013_el_reno_tornado_nearly/",
+        "role": "community",
+        "access": "text_reviewed",
+        "coverage": "Post and returned comment text inspected. The house claim was checked in the survey paper; the post's other claims about trees, gravel and wind speeds were not all independently checked."
+      },
+      {
+        "id": "width-thread",
+        "title": "El Reno 2013 Tornado Event",
+        "publisher": "r/tornado discussion",
+        "url": "https://www.reddit.com/r/tornado/comments/1b6e4wc/el_reno_2013_tornado_event/",
+        "role": "community",
+        "access": "text_reviewed",
+        "coverage": "Post and returned comment text inspected. The 4.3-mile claim links to Matthew Gove's blog; commenters offer several explanations that have not been adopted here."
+      },
+      {
+        "id": "width-blog",
+        "title": "May 31st El Reno Tornado May Be the Most Powerful Tornado Ever Recorded",
+        "publisher": "Matthew Gove, September 21, 2013",
+        "url": "https://blog.matthewgove.com/2013/09/21/may-31st-el-reno-tornado-may-be-the-most-powerful-tornado-ever-recorded/",
+        "role": "secondary",
+        "access": "text_reviewed",
+        "coverage": "Article text read. It describes a recently published research paper but does not identify that paper in the accessible text. Its image tables and the underlying study were not independently verified."
+      },
+      {
+        "id": "ground-survey",
+        "title": "Ground-based damage survey and radar analysis of the El Reno, Oklahoma Tornado (PDF)",
+        "publisher": "Timothy P. Marshall and colleagues, AMS conference paper, 2014",
+        "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf",
+        "role": "primary",
+        "access": "selected_sections_reviewed",
+        "coverage": "Introduction, width methods, section 4.2 and Figure 13 caption, radar comparison and summary inspected in the accessible PDF text. Not a continuous review of every page or figure."
+      },
+      {
+        "id": "nws-event",
+        "title": "May 31 to June 1, 2013 tornado and flash flooding event",
+        "publisher": "NWS Norman",
+        "url": "https://www.weather.gov/oun/events-20130531",
+        "role": "primary",
+        "access": "text_reviewed",
+        "coverage": "Official event account, final EF3 rating, reported 2.6-mile maximum width and explanation of the radar and damage evidence."
+      },
+      {
+        "id": "ef-scale",
+        "title": "The Enhanced Fujita scale",
+        "publisher": "NWS Norman",
+        "url": "https://www.weather.gov/oun/efscale",
+        "role": "primary",
+        "access": "text_reviewed",
+        "coverage": "Damage indicators, degrees of damage and the role of construction in estimating wind intensity."
+      }
+    ],
+    "entries": [
+      {
+        "id": "el-reno-ef5-debate",
+        "title": "Should El Reno have been EF5?",
+        "status": "disputed_interpretation",
+        "reviewed": "2026-09-20",
+        "claim": "Some participants argue that the exceptional radar measurements justify an EF5 label. Others defend EF3 as the rating supported by the damage, or argue for EF4. The disagreement often concerns what the rating ought to measure.",
+        "discussion_sources": [
+          "rating-thread"
+        ],
+        "check": "NWS retains EF3. The survey paper reports extreme radar velocities where the strongest subvortices missed structures. Radar sampling and the EF scale's reference gust also differ; neither measurement should silently substitute for the other.",
+        "evidence_sources": [
+          "nws-event",
+          "ground-survey",
+          "ef-scale"
+        ],
+        "conclusion": "The debate is worth explaining. It does not establish a revised official rating, and EF3 should not be read as a measured ceiling on every wind within the tornado.",
+        "remaining": "A proposed alternative rating needs a stated method and treatment of measurement height, sampling duration and damage evidence. An imagined strike on a better-built house cannot supply the missing observation."
+      },
+      {
+        "id": "el-reno-house-anchoring",
+        "title": "The house that was considered for EF4",
+        "status": "supported_detail",
+        "reviewed": "2026-09-20",
+        "claim": "A community post says one severely damaged house was considered for EF4, but construction flaws affected the final assessment. This narrower claim can be checked against the surveyors' account.",
+        "discussion_sources": [
+          "house-thread"
+        ],
+        "check": "Section 4.2 describes a house with every wall down, initially a candidate for EF4. Missing nuts and washers left the walls unanchored to the foundation. The surveyors assigned EF3; Figure 13 documents the case.",
+        "evidence_sources": [
+          "ground-survey"
+        ],
+        "conclusion": "The house detail is supported by the primary account. It helps explain why a dramatic damage photograph alone cannot settle the rating.",
+        "remaining": "This finding supports the house example, not every statement in the thread. It is not evidence that the entire tornado received a final EF4 classification."
+      },
+      {
+        "id": "el-reno-width-claim",
+        "title": "Where does the 4.3-mile width claim come from?",
+        "status": "unresolved",
+        "reviewed": "2026-09-20",
+        "claim": "A discussion links the larger figure to a September 2013 blog post. That article says a recent research paper increased the width from 2.6 to 4.3 miles, but the accessible text does not name the paper.",
+        "discussion_sources": [
+          "width-thread",
+          "width-blog"
+        ],
+        "check": "The official event page reports 2.6 miles. The survey paper explains a boundary based on radar radial velocity and distinguishes tornado damage from nearby downdraft damage. The larger figure has not been verified here.",
+        "evidence_sources": [
+          "nws-event",
+          "ground-survey"
+        ],
+        "conclusion": "Keep 2.6 miles in the historical record. Preserve 4.3 miles as an unresolved claim with its source trail, not as a second confirmed measurement.",
+        "remaining": "Locate the study behind the blog and identify its boundary, time, height and method. We have not established whether it measures the same thing as the official tornado width."
+      }
+    ]
+  },
   "reading": {
     "schema": 1,
     "event": "el-reno-2013",
@@ -2201,6 +2440,20 @@
         "publisher": "American Meteorological Society",
         "url": "https://ams.confex.com/ams/27SLS/webprogram/Paper254094.html",
         "use": "A conference abstract describing the registration of chaser imagery. It guides the proposed method; it does not establish that this exhibit has already registered its photographs or reconstructed the storm."
+      },
+      {
+        "group": "Imagery and methods",
+        "title": "Published NWRT phased-array radar animation",
+        "publisher": "NOAA / National Weather Service",
+        "url": "https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif",
+        "use": "Original animation for twelve time-linked regional reflectivity frames. Printed filename times are interpreted as UTC, as stated beside the timeline."
+      },
+      {
+        "group": "Survey research",
+        "title": "Ground-based damage survey and radar analysis of the El Reno, Oklahoma Tornado (PDF)",
+        "publisher": "Timothy P. Marshall and colleagues, AMS conference paper, 2014",
+        "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf",
+        "use": "Selected survey sections support the separate community evidence checks. Review coverage is recorded with those entries."
       }
     ]
   }

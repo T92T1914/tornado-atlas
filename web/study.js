@@ -1,4 +1,5 @@
 import { PRESETS, particles, advanceTime, cameraMatrix } from './vortex-model.mjs';
+import { formAt } from './evolution-model.mjs';
 
 const byId = id => document.getElementById(id);
 const canvas = byId('scene');
@@ -132,6 +133,12 @@ function draw(now) {
   frame=0;
   if (!gpu || document.hidden || !inView) return;
   if(last !== null) time=advanceTime(time,(now-last)/1000,running);
+  const evolving=byId('sequence-enabled').checked;
+  if(evolving && running) {
+    byId('sequence-time').value=Math.min(1,time/30);
+    sequenceReadout();
+    if(time>=30) stop('Sequence complete');
+  }
   last=now;
   const rect=canvas.getBoundingClientRect(), ratio=Math.min(window.devicePixelRatio || 1,2);
   const width=Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
@@ -142,9 +149,10 @@ function draw(now) {
   gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
   gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);
   gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
-  const u=gpu.uniforms, shape=PRESETS[byId('shape').value];
+  const sequence=evolving?formAt(Number(byId('sequence-time').value)):null;
+  const u=gpu.uniforms, shape=sequence?.shape || PRESETS[byId('shape').value];
   gl.uniformMatrix4fv(u.camera,false,camera);gl.uniform3f(u.shape,shape.base,shape.flare,shape.bend);
-  gl.uniform1f(u.time,time);gl.uniform1f(u.extent,Number(byId('condensation').value)/100);
+  gl.uniform1f(u.time,time);gl.uniform1f(u.extent,sequence?.extent ?? Number(byId('condensation').value)/100);
   gl.uniform1f(u.viewportHeight,height);gl.uniform1f(u.maxPoint,gpu.maxPoint);
   gl.uniform1i(u.dust,byId('dust').checked?1:0);gl.drawArrays(gl.POINTS,0,gpu.count);
   if(running) requestFrame();
@@ -154,7 +162,7 @@ function syncControls() {
     const suffix=id==='condensation'?'%':id==='distance'?'':'°';
     byId(id+'-value').textContent=(id==='distance'?Number(byId(id).value).toFixed(1):byId(id).value)+suffix;
   }
-  byId('scene-form').textContent=PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
+  byId('scene-form').textContent=byId('sequence-enabled').checked?'AUTHORED FORM SEQUENCE':PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
   requestFrame();
 }
 for (const id of ['shape','condensation','azimuth','elevation','distance','dust']) byId(id).addEventListener('input',syncControls);
@@ -166,10 +174,11 @@ byId('quality').addEventListener('change',() => {
 });
 byId('motion').addEventListener('click',() => {
   if(running) {stop();return;}
+  if(byId('sequence-enabled').checked && time>=30) time=0;
   running=true;last=null;byId('motion').textContent='Pause motion';status('Illustrative motion playing');requestFrame();
 });
 byId('reset-view').addEventListener('click',() => {
-  stop();time=0;
+  stop();time=0;byId('sequence-time').value=0;sequenceReadout();
   for(const [id,value] of Object.entries({azimuth:25,elevation:12,distance:7})) byId(id).value=value;
   syncControls();
 });
@@ -202,4 +211,16 @@ new IntersectionObserver(entries => {
 }, {threshold:[0,.4]}).observe(canvas);
 canvas.addEventListener('webglcontextlost',event => {event.preventDefault();fail('Graphics context lost; waiting for recovery');});
 canvas.addEventListener('webglcontextrestored',initialize);
-syncControls();initialize();
+function sequenceReadout() {
+  const value=Number(byId('sequence-time').value);
+  byId('sequence-progress').textContent=`${Math.round(value*100)}% of authored sequence`;
+  byId('sequence-stage').textContent=formAt(value).label;
+}
+byId('sequence-enabled').addEventListener('change',()=>{
+  stop();time=Number(byId('sequence-time').value)*30;
+  for(const id of ['shape','condensation']) byId(id).disabled=byId('sequence-enabled').checked;
+  byId('sequence-time').disabled=!byId('sequence-enabled').checked;
+  syncControls();sequenceReadout();
+});
+byId('sequence-time').addEventListener('input',()=>{stop();time=Number(byId('sequence-time').value)*30;sequenceReadout();requestFrame();});
+sequenceReadout();syncControls();initialize();

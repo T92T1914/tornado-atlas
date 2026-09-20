@@ -27,6 +27,8 @@ async function main() {
   const openPhoto = mountPhotoViewer();
   const exhibit = data.exhibit;
   const history = data.history;
+  const { mountCommunity } = await import('./community-view.mjs');
+  mountCommunity(data.community);
   const sourceNames = new Map(data.reading.sources.map(source => [source.url, source.publisher]));
   byId('history-introduction').textContent = history.introduction;
   for (const entry of history.context) {
@@ -153,7 +155,12 @@ async function main() {
   }
   byId('search').addEventListener('input', showVideos);
   showVideos();
-  const selectMinute = drawMap(data.geometry, history.chapters);
+  const { mountTimelineMedia } = await import('./timeline-media.mjs');
+  const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
+  const selectMinute = drawMap(data.geometry, history.chapters, updateMedia);
+  const timedPoints=data.geometry.features.filter(f=>f.geometry.type==='Point');
+  byId('media-time').max=timedPoints.length-1;
+  byId('media-time').addEventListener('input',()=>selectMinute(Number(timedPoints[Number(byId('media-time').value)].properties.source_name.split(':')[1])));
   const { mountReader } = await import('./reader-view.mjs');
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
@@ -168,7 +175,7 @@ async function main() {
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
   });
 }
-function drawMap(geojson, chapters) {
+function drawMap(geojson, chapters, updateMedia) {
   const svg = byId('map');
   const features = geojson.features;
   const positions = features.filter(f => f.geometry.type === 'Point');
@@ -223,6 +230,7 @@ function drawMap(geojson, chapters) {
     for (const element of [halo,core]) {element.setAttribute('cx',x);element.setAttribute('cy',y);}
     byId('clock').textContent = selected.properties.display_time;
     slider.value = index;
+    updateMedia(selected,index);
     slider.setAttribute('aria-valuetext', selected.properties.display_time);
     byId('previous').disabled = index === 0;
     byId('next').disabled = index === positions.length - 1;
@@ -249,6 +257,7 @@ function drawMap(geojson, chapters) {
     timer = setInterval(() => {index++;update();if(index === positions.length-1) stop();}, 650);
   });
   document.addEventListener('visibilitychange', () => {if(document.hidden) stop();});
+  byId('timeline-media-image').addEventListener('click',stop);
   update();
   function selectMinute(minute) {
     const selected = positions.findIndex(p => Number(p.properties.source_name.split(':')[1]) === minute);

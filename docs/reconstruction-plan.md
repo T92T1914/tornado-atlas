@@ -102,3 +102,17 @@ Keep catalogue coverage, researched exhibits, geographic replays and appearance
 reconstructions as separate progress measures. That lets the museum grow without
 calling every imported row a finished exhibit. Reusable software can reduce the
 cost of adding each storm; the historical research remains work for each event.
+
+## September 20 implementation update
+
+The exhibit now has time-linked radar frames with a maximum age and explicit
+clock interpretation. The image panel shares the geographic timeline, while
+untimed storm photographs remain clearly labeled context. No ground-view
+photograph is registered yet. See the [source access record](../research/timeline-and-simulation-2026-09-20.md).
+
+The visual renderer accepts a reversible, evolving sequence of authored shape
+keys. The wind lab carries a generic component's failure state forward after
+its user-assumed capacity is exceeded. Those tools are implemented and tested;
+calibrated historical geometry and real structural archetypes remain future
+work. The priority remains finishing a bounded El Reno reconstruction before
+expanding the detailed exhibit list.

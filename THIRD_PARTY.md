@@ -66,6 +66,29 @@ The remembrance section transcribes public names with per-person links. It
 does not reproduce obituary prose or portraits. Its source scope and access
 limits are documented in [the history notes](docs/el-reno-history.md).
 
-## Local source archive
+## El Reno timeline radar
+
+Twelve full frames from the [NWS NWRT animation](https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif)
+are preserved as PNGs in `web/assets/el-reno-2013/radar/`. Credit: NOAA / National
+Weather Service. The [NWS event page](https://www.weather.gov/oun/events-20130531)
+publishes the radar loop. The [NWS use policy](https://www.weather.gov/disclaimer),
+checked September 20, 2026, supplies the public-domain reuse basis for this
+government imagery. No third-party credit is attached to this loop.
+
+The original GIF's SHA-256, selected frame indices, transcribed filename times,
+PNG hashes and complete transformation note are in
+`exhibits/el-reno-2013/timeline-media.json`. Complete composited frames were
+exported without cropping or recoloring. Credit and timing assumptions appear
+beside the image. This is an independent exhibit, not an official NWS product.
+
+## Community source links
+
+The community section uses original short summaries and links to discussions,
+a blog and primary records. It does not reproduce Reddit comments, user images,
+blog tables or figures from the survey paper. Source titles remain attributable
+to their publishers. The review scope is stored in `community.json` and the
+[community methods note](research/community-discussions-2026-09-20.md).
+
+## Preserved source downloads
 
 Raw NOAA NCEI and JMA downloads remain outside version control in `data/`. Their provenance is preserved locally. The software's license is not a license for arbitrary third-party content discovered during research.

@@ -86,6 +86,20 @@
       "publisher": "American Meteorological Society",
       "url": "https://ams.confex.com/ams/27SLS/webprogram/Paper254094.html",
       "use": "A conference abstract describing the registration of chaser imagery. It guides the proposed method; it does not establish that this exhibit has already registered its photographs or reconstructed the storm."
+    },
+    {
+      "group": "Imagery and methods",
+      "title": "Published NWRT phased-array radar animation",
+      "publisher": "NOAA / National Weather Service",
+      "url": "https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif",
+      "use": "Original animation for twelve time-linked regional reflectivity frames. Printed filename times are interpreted as UTC, as stated beside the timeline."
+    },
+    {
+      "group": "Survey research",
+      "title": "Ground-based damage survey and radar analysis of the El Reno, Oklahoma Tornado (PDF)",
+      "publisher": "Timothy P. Marshall and colleagues, AMS conference paper, 2014",
+      "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf",
+      "use": "Selected survey sections support the separate community evidence checks. Review coverage is recorded with those entries."
     }
   ]
 }

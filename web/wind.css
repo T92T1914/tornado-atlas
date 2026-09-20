@@ -20,3 +20,8 @@
 .passage-readings dt {font-size:11px;color:var(--muted);margin-top:24px}
 .passage-readings dd {margin:6px 0;font:26px Georgia,serif;color:#f2dab6}
 @media(max-width:760px) {.passage-layout {grid-template-columns:1fr}.passage .study-controls {padding:20px}.passage label {font-size:11px}.passage svg text {font-size:22px}}
+.component-experiment{margin-top:32px;padding-top:24px;border-top:1px solid #4d5b4e}
+#component-diagram{width:100%;background:#111b16;border:1px solid #3b4b3e}
+#component-diagram text{fill:#c4d1c0;font-size:12px}
+#component-panel.failed{fill:#8e674d}
+.component-state{font-size:20px;color:#e3d7c3}
