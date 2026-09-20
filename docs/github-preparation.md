@@ -8,4 +8,4 @@ The local checkout's existing Git credential manager supports Git transport. Git
 
 Raw research downloads, the local SQLite database and output logs are excluded through `.gitignore`. Public browser bundles contain normalized NOAA records and event narratives, Natural Earth map geometry, the selected NWS geographic source, nine explicitly credited NOAA/NWS survey photographs, original procedural graphics, short original notes and public video references. Attribution and source hashes are included.
 
-See the [verification record](verification.md) for completed checks and the limits of those checks. Successful deployment must be verified on the hosted site before treating its links as a working release.
+The first [verification and deployment run](https://github.com/T92T1914/tornado-atlas/actions/runs/35511588062) passed, and the hosted atlas, source detail, exhibit and wind laboratory were checked in the browser. See the [verification record](verification.md) for the inspection scope and remaining limits.

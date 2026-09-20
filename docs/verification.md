@@ -46,4 +46,12 @@ Later on September 20, the catalogue was expanded to all 76 annual NOAA source f
 * Narrow viewport: the atlas and wind laboratory were inspected at a 390 by 844 override. Both had 375-pixel content widths after the scrollbar with no horizontal overflow. A text-encoding defect in the wind page was found, corrected and visually rechecked. Viewport overrides were reset after testing.
 * No warnings or errors appeared in the inspected atlas and wind browser flows. This does not substitute for a physical mobile-device test or cross-browser coverage.
 
-The GitHub repository and Pages Actions source are configured. Hosted verification will be recorded after the first successful deployment. No historical tornado or structural failure model is validated by these software tests.
+No historical tornado or structural failure model is validated by these software tests.
+
+## First public deployment
+
+The [GitHub Actions run for f32673c](https://github.com/T92T1914/tornado-atlas/actions/runs/35511588062) completed successfully on September 20, 2026. Both verification and Pages deployment jobs passed on GitHub's Ubuntu runner.
+
+The hosted atlas loaded all 80,318 records. Filtering for an exhibit returned the El Reno source record, its separately fetched detail displayed correctly, and its exhibit link opened the geographic timeline and survey gallery. The hosted wind laboratory displayed 200 mph and 5.88 kN after changing the speed control; Reset restored the paused defaults. No browser errors or warnings appeared in this inspected hosted flow.
+
+Repository metadata now includes the atlas link and seven relevant topics. Raw downloads and the SQLite archive remain local. Physical-device and cross-browser tests, international coverage and historically calibrated reconstructions remain future work.
