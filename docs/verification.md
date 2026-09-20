@@ -169,3 +169,53 @@ photograph bytes and the source-scoped remembrance remain unchanged.
 The [design research](../research/documentary-design-2026-09-20.md) records the
 sources and distinguishes guidance from observed design and our own choices.
 No reader-comprehension or engagement improvement has been measured yet.
+
+## Timeline evidence and simulation update
+
+* Python suite: 61 passing tests. JavaScript suite: 43 passing tests. New checks
+  cover invalid clocks, source-label disagreement, duplicate or reordered frames,
+  asset integrity, future-frame rejection, frame expiry, all 39 path positions,
+  UTC-to-CDT display, reversible form interpolation, and persistent component
+  failure after wind falls.
+* The source-frame extraction tool reproduced all twelve PNG hashes from the
+  preserved original GIF. The selected source labels were visually transcribed.
+  The source clock interpretation is documented rather than claimed calibrated.
+* The full static catalogue check passed for 80,318 records and 256 immutable
+  detail files. The exhibit bundle and existing source photographs also passed.
+* Local browser: both geographic and media sliders reached the same 6:42 PM
+  position, displaying the preceding 6:40:51 frame and its 69-second age. Switching
+  to a storm photograph and rewinding kept its time-unknown label. Enlargement
+  opened the evidence dialog; Escape returned focus to its initiating control.
+* Local WebGL: the sequence control produced the final narrow/bent form, disabled
+  conflicting manual shape inputs, and completed playback at its endpoint.
+* Local damage lab: the component remained failed at the end when current force
+  was only 0.04 kN, rewound to its intact state, and had no exceedance when assumed
+  capacity was raised to 20 kN. Its second scrubber updated the original passage
+  slider to the same sample.
+* Exhibit and component panels were visually inspected at 390-pixel viewport
+  width and checked at 320. Neither widened the document beyond its viewport.
+  Temporary viewport overrides were cleared. No browser warnings or errors were
+  reported by the three pages during these checks.
+
+These checks establish the implemented behavior, not historical camera
+registration, structural validation, physical-device coverage or improved
+visitor comprehension. See the [methods and source-access record](../research/timeline-and-simulation-2026-09-20.md).
+
+## Curated community discussions
+
+* Python suite: 67 passing tests after six discussion-integrity tests were added.
+  The 43 JavaScript model tests remain unchanged and passed. The regenerated
+  exhibit passes its source-file comparison and validation checks.
+* The three entry labels and conclusions appeared in the local browser. Opening
+  the house entry exposed the primary survey citation, the separate forum link,
+  review coverage and remaining questions. Its permalink selected that entry.
+* The open entry was visually inspected at 390 CSS pixels. Layout checks at 390
+  and 320 reported no document-wide horizontal overflow. Enter toggled the
+  evidence disclosure. Temporary viewport overrides were cleared; no browser
+  warnings or errors appeared during these interactions.
+* The main factual rating and width remain in the existing dossier. Community
+  conclusions are separate structured records, with no writeback into it.
+
+These are software and editorial coverage checks, not evidence that the
+selection represents every community opinion. No new continuous review of
+creator videos was performed for the discussion entries.

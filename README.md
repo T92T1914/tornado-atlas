@@ -64,9 +64,35 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Browser publication | A compressed static search index and 256 content-addressed detail files, loaded as needed without a database server |
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
-| Verification | 56 Python tests, 34 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
+| Verification | 67 Python tests, 43 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
+
+## Follow the timeline and try the models
+
+El Reno now has an image panel controlled by the same clock as its path. Twelve
+reviewed frames from the published NWS radar animation cover all 39 map
+positions, using the latest preceding frame within four minutes. The actual
+frame age and the filename-clock interpretation stay visible. The two storm
+photographs can be viewed beside the timeline, but remain explicitly untimed.
+
+The [form study](https://t92t1914.github.io/tornado-atlas/study.html) can play and
+scrub an authored sequence of changing shapes. The
+[wind lab](https://t92t1914.github.io/tornado-atlas/wind.html#component-title)
+now has a generic component experiment: choose a load capacity and inspect the
+first sampled exceedance, persistent failure state, and rewind behavior. These
+are model foundations. They do not reconstruct El Reno's visible evolution or
+predict a specific building's damage.
+
+The [source and model notes](research/timeline-and-simulation-2026-09-20.md)
+record what was inspected, the unavailable synchronized-video leads, the
+assumptions, and what remains before a historical reconstruction.
+
+The [community section](https://t92t1914.github.io/tornado-atlas/#community)
+follows selected forum claims back to primary records. It separates supported
+details, disputed interpretations and unresolved leads from the main history.
+Readers can inspect each source and see what was actually reviewed.
 
 ## Explore the data pipeline
 
@@ -117,7 +143,9 @@ node --check web/passage.js
 node --check web/damage-view.mjs
 node --check web/photo-view.mjs
 node --check web/reader-view.mjs
-node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs
+node --check web/timeline-media.mjs
+node --check web/community-view.mjs
+node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs
 py -3.11 tools/check_catalogue.py
 ```
 
@@ -127,6 +155,8 @@ Node 20 or newer is needed for the JavaScript checks, but not to serve the museu
 
 * [Museum brief](docs/museum-brief.md)
 * [Documentary and reference design](research/documentary-design-2026-09-20.md)
+* [Timeline evidence and simulation methods](research/timeline-and-simulation-2026-09-20.md)
+* [Community discussion methods](research/community-discussions-2026-09-20.md)
 * [Individual tornado reconstruction plan](docs/reconstruction-plan.md)
 * [Data contract](docs/data-contract.md)
 * [Video evidence workflow](docs/video-evidence-workflow.md)

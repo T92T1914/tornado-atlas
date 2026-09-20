@@ -121,3 +121,28 @@ html {scroll-behavior:auto}
   .chronology ol {padding-left:18px}
   .chronology li::before {left:-24px}
 }
+.timeline-evidence {padding:24px 0;border-bottom:1px solid #384337}
+.timeline-evidence select {max-width:100%;margin:8px 0 20px;padding:10px;background:#151e19;color:#e4e8dd;border:1px solid #647366;border-radius:5px}
+.timeline-evidence-layout {display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}
+.timeline-media-enlarge {display:block;background:#09100c;border:1px solid #455448;padding:0;width:100%;cursor:zoom-in}
+.timeline-media-enlarge img {display:block;width:100%;height:auto;max-height:480px;object-fit:contain}
+#timeline-media-caption h4 {font-size:22px;margin:0 0 12px}
+#timeline-media-caption p {margin:0 0 15px}
+.timeline-evidence details {margin-top:16px}
+@media(max-width:650px){.timeline-evidence-layout{grid-template-columns:1fr}}
+.community-card {padding:26px 0;border-bottom:1px solid var(--line);max-width:72ch;scroll-margin-top:24px}
+.community-card h3 {margin:8px 0 16px}
+.community-card h3 a {color:var(--text)}
+.community-card h4 {font-size:18px;line-height:1.5;margin:24px 0 8px}
+.community-card p {font-size:16px;line-height:1.75}
+.community-card .discussion-status {display:inline-block;font-size:13px;font-weight:650;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);border-radius:4px;margin:0}
+.community-card .supported_detail {border-color:#8abf98;color:#b2d4b8}
+.community-card .unresolved {border-color:#a9b7c7;color:#c6d6e5}
+.discussion-conclusion {border-left:2px solid var(--line);padding-left:16px}
+.community-card summary {cursor:pointer;line-height:1.55;padding:8px 0;text-underline-offset:3px}
+.community-card summary:hover {text-decoration:underline}
+.discussion-sources {padding-left:22px}
+.discussion-sources li {padding:8px 0;overflow-wrap:anywhere}
+.discussion-sources .fineprint {margin:4px 0}
+.discussion-sources details p {font-size:14px;margin:4px 0 12px}
+.community-card details {margin:12px 0}

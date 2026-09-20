@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "event": "el-reno-2013",
+  "source": "https://www.weather.gov/oun/events-20130531",
+  "original_url": "https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif",
+  "original_sha256": "2c8ec05523dd1db897c38b67daae0f6770921135c6ddc2e34735bc40dfa93a7a",
+  "retrieved_at": "2026-09-20T22:47:42.118469+00:00",
+  "credit": "NOAA / National Weather Service, published NWRT phased-array radar loop",
+  "license": "NWS public-domain information policy, unless otherwise marked",
+  "license_url": "https://www.weather.gov/disclaimer",
+  "changes": "Twelve complete, composited GIF frames exported as lossless PNGs. No cropping or recoloring.",
+  "clock_basis": "Times are transcribed from the filename printed inside each radar frame and interpreted as UTC, consistent with the NWS event chronology. The printed label does not itself state a time zone; this clock interpretation is explicit, not an independent calibration.",
+  "interpretation": "Only a preceding frame up to four minutes old is shown. The radar view covers the wider storm area and is not registered as a geographic overlay on this map.",
+  "max_age_seconds": 240,
+  "frames": [
+    {
+      "frame_index": 151,
+      "utc": "2013-05-31T23:01:37+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-230137_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-151.png",
+      "sha256": "04131221cc0a961e12107b7155dbff638e4ac5e370f4936fcb9d7ac251e00070",
+      "alt": "NWRT regional reflectivity, source time label 23:01:37. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 154,
+      "utc": "2013-05-31T23:05:10+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-230510_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-154.png",
+      "sha256": "54e73592caa0232558d2b53872ce6926076b36de4f7b02578957fa3899ef459c",
+      "alt": "NWRT regional reflectivity, source time label 23:05:10. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 157,
+      "utc": "2013-05-31T23:08:43+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-230843_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-157.png",
+      "sha256": "03ba2de5aa4f5e02eb14f0803974d289eeb12ec324f424d5a4fcb78f61c597ee",
+      "alt": "NWRT regional reflectivity, source time label 23:08:43. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 160,
+      "utc": "2013-05-31T23:12:16+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-231216_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-160.png",
+      "sha256": "8e24900351a543c8743816015faca10985ae24d440286422c4cfb5da1ffe985b",
+      "alt": "NWRT regional reflectivity, source time label 23:12:16. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 163,
+      "utc": "2013-05-31T23:15:49+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-231549_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-163.png",
+      "sha256": "155a33cf3963126f10d2e794f209030f1ec4301354be5350745f8f92af51d0ab",
+      "alt": "NWRT regional reflectivity, source time label 23:15:49. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 166,
+      "utc": "2013-05-31T23:19:22+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-231922_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-166.png",
+      "sha256": "c13901e692f71f6f2f19138ae31fb8048da95cd6ffbd8876fd2f471d2ea4ef94",
+      "alt": "NWRT regional reflectivity, source time label 23:19:22. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 169,
+      "utc": "2013-05-31T23:22:56+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-232256_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-169.png",
+      "sha256": "39da6714f42f9f616b5f7a1faa4dac9af7609f87289dd020a3a1da08c712cb33",
+      "alt": "NWRT regional reflectivity, source time label 23:22:56. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 172,
+      "utc": "2013-05-31T23:26:29+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-232629_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-172.png",
+      "sha256": "88548ba2a48fba7fb4451181f78e9bf4b2d6ac041f842b176440ea0818b62664",
+      "alt": "NWRT regional reflectivity, source time label 23:26:29. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 175,
+      "utc": "2013-05-31T23:30:02+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-233002_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-175.png",
+      "sha256": "6fcf88cc04de9081cc4b3ed0fa3161559228c0c9374b2a098eb505f1cd9bfd42",
+      "alt": "NWRT regional reflectivity, source time label 23:30:02. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 178,
+      "utc": "2013-05-31T23:33:35+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-233335_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-178.png",
+      "sha256": "6b0142e359246cd8b0f4892d3e24f297e75911a1ff3fa98b753711237b2d35d0",
+      "alt": "NWRT regional reflectivity, source time label 23:33:35. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 181,
+      "utc": "2013-05-31T23:37:08+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-233708_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-181.png",
+      "sha256": "3caf587ba8832f9530e01a06be07ae9329f8ddb5e8cfe80fe4eb03862aa1c8b8",
+      "alt": "NWRT regional reflectivity, source time label 23:37:08. Radar echoes west of and over the Oklahoma City area."
+    },
+    {
+      "frame_index": 184,
+      "utc": "2013-05-31T23:40:51+00:00",
+      "source_label": "wseNWRT_Reflectivity_20130531-234051_00.51.png",
+      "file": "assets/el-reno-2013/radar/frame-184.png",
+      "sha256": "289307ddda63ded56ecfc55922b414a650c705061f6e7c6c3351eaa9c80743e2",
+      "alt": "NWRT regional reflectivity, source time label 23:40:51. Radar echoes west of and over the Oklahoma City area."
+    }
+  ]
+}

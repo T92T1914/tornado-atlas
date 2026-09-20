@@ -29,3 +29,6 @@
 #scene-failure p {color:var(--muted)}
 @media(max-width:1050px){.study-layout{grid-template-columns:minmax(0,1fr) 250px}.scene-wrap{height:490px}.scene-overlay{flex-direction:column;font-size:8px}.study-intro{gap:30px}.study-intro h1{font-size:52px}}
 @media(max-width:780px){.study-intro,.study-layout,.study-explanation{grid-template-columns:1fr}.study-intro{gap:20px}.scene-wrap{height:450px}.study-explanation{gap:30px}.study-controls{display:block}.study-intro h1{font-size:46px}.scene-footer span{flex-basis:100%;margin:0}}
+.form-sequence {border:1px solid #506051;margin:0 0 24px;padding:14px;border-radius:6px;min-width:0}
+.form-sequence legend {color:#e2e7d9;padding:0 5px}
+.form-sequence p {margin:10px 0}

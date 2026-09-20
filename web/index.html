@@ -31,6 +31,7 @@
           <a href="#damage">Damage survey</a>
           <a href="#remembrance">Remembering those who died</a>
           <a href="#questions">Questions about El Reno</a>
+          <a href="#community">Community discussions</a>
           <a href="#research">Research and reconstruction</a>
           <a href="#collection">Source videos</a>
           <a href="#sources">Sources and further reading</a>
@@ -54,6 +55,13 @@
         <div class="map-caption"><p id="map-note"></p><p id="time-note"></p></div>
         <div class="path-account" aria-live="polite"><h3 id="chapter-title"></h3><p id="chapter-account"></p></div>
       </div>
+      <section class="timeline-evidence" aria-labelledby="timeline-evidence-title">
+        <div class="section-title"><div><div class="eyebrow" id="timeline-media-status">TIME LINKED EVIDENCE</div><h3 id="timeline-evidence-title">A view alongside the timeline</h3></div></div>
+        <label for="timeline-media-mode">View <select id="timeline-media-mode"><option value="radar">Radar at this time</option><option value="0">Storm photograph 1 · time unknown</option><option value="1">Storm photograph 2 · time unknown</option></select></label>
+        <label for="media-time">Selected path time <output id="media-time-label"></output></label><input id="media-time" type="range" min="0" max="38" step="1" value="0">
+        <div class="timeline-evidence-layout"><div id="timeline-media-image"></div><div id="timeline-media-caption"></div></div>
+        <details><summary>How these images are placed in time</summary><p id="timeline-media-method"></p><p>The photographs have no calibrated time or camera position yet. They remain available as context without a guessed place on the clock.</p></details>
+      </section>
       <div id="path-chapters" class="path-chapters" aria-label="Explore the path by chapter"></div>
       <div class="chronology"><h3>The tornado, in sequence</h3><p class="section-intro">Each entry links back to the NWS account and to a published map position. The formation precedes the first map point, and the reported ending times disagree.</p><ol id="storm-chronology"></ol></div>
     </section>
@@ -86,6 +94,13 @@
     <section id="questions" class="questions-section">
       <div class="section-title"><div><div class="eyebrow">READING THE EVIDENCE</div><h2>Questions about El Reno</h2></div></div>
       <div id="visitor-questions" class="visitor-questions"></div>
+    </section>
+    <section id="community" aria-labelledby="community-title">
+      <div class="section-title"><div><div class="eyebrow">QUESTIONS PEOPLE KEEP ASKING</div><h2 id="community-title">Community discussions</h2></div></div>
+      <p id="community-introduction" class="section-intro"></p>
+      <div id="community-discussions"></div>
+      <p id="community-scope" class="fineprint"></p>
+      <p class="fineprint"><a href="https://github.com/T92T1914/tornado-atlas/issues" target="_blank" rel="noopener noreferrer">Have a source or a correction?</a> Include the specific claim and the original record, photograph or video timestamp that supports it.</p>
     </section>
     <section id="research" class="research-section">
       <div class="section-title"><div><div class="eyebrow">THE RESEARCH NOTEBOOK</div><h2>Research and reconstruction</h2></div><span class="status">RECONSTRUCTION IN DEVELOPMENT</span></div>
