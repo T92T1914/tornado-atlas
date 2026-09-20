@@ -1,0 +1,1594 @@
+{
+  "exhibit": {
+    "id": "el-reno-2013",
+    "title": "El Reno",
+    "date": "May 31, 2013",
+    "location": "Canadian County, Oklahoma · United States",
+    "stage": "First exhibit study",
+    "record_id": "ncei:453682",
+    "record_match_basis": "Date, county, start time, rating and event narrative agree. Nearby satellite tornadoes are separate records.",
+    "introduction": "Follow a documented path, then examine how footage can help reconstruct a changing storm. This first study brings a geographic timeline and a video research notebook into one place.",
+    "facts": [
+      {
+        "value": "EF3",
+        "label": "Final damage rating",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "value": "2.6 mi",
+        "label": "Reported maximum tornado width",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "value": "39",
+        "label": "Time-labeled positions in the NWS file",
+        "source": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"
+      }
+    ],
+    "map_note": "NWS tornado outline, center path and time-labeled center positions. The shaded outline covers the event as a whole; it is not the tornado's shape at the selected minute. The marker has no physical size.",
+    "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Playback steps through published minute labels without inventing intermediate observations.",
+    "discrepancies": [
+      {
+        "title": "An unresolved end time",
+        "text": "The NWS narrative ends at 6:42 PM CDT. Its table and NCEI record end at 6:44 PM CDT. The geographic timeline's last label is 6:42. Both reported endings remain in the dossier.",
+        "sources": [
+          "https://www.weather.gov/oun/events-20130531",
+          "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2013_c20260323.csv.gz"
+        ]
+      },
+      {
+        "title": "Rating and appearance answer different questions",
+        "text": "The damage rating does not specify the funnel's dimensions or recreate its appearance. Building a scene needs shot-level evidence about viewpoint, visibility and time.",
+        "sources": [
+          "https://www.weather.gov/oun/efscale"
+        ]
+      }
+    ],
+    "video_observations": [
+      {
+        "video": "Q7X3fyId2U0",
+        "elapsed_seconds": 185,
+        "kind": "creator_annotation",
+        "note": "The description identifies a change in the visible cloud base. Historical time and camera position remain unregistered."
+      },
+      {
+        "video": "Q7X3fyId2U0",
+        "elapsed_seconds": 390,
+        "kind": "creator_annotation",
+        "note": "The description identifies a separate anticyclonic tornado. Do not assign every funnel in the video to the main tornado."
+      }
+    ],
+    "coverage": {
+      "video_review": "One Pecos Hank description, partial captions and exploratory still samples. No full video or audio audit.",
+      "frame_registration": "Some screenshots followed seeks before exact decoded-frame timing was established. They support no measured speed, width or position.",
+      "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
+      "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
+      "remaining": "Shot registration, complete video review, third-party image permissions, geolocated damage evidence, and an appearance reconstruction. No 3D storm or damage simulator yet."
+    }
+  },
+  "geometry": {
+    "type": "FeatureCollection",
+    "source": {
+      "url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+      "resolved_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+      "retrieved_at": "2026-09-20T08:45:56.560178+00:00",
+      "sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+      "bytes": 6583,
+      "path": "raw\\3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+      "content_type": "application/vnd.google-earth.kmz",
+      "last_modified": "Fri, 16 Sep 2016 17:56:17 GMT",
+      "etag": null
+    },
+    "transformation": "KML longitude/latitude preserved; altitude omitted for 2D display. No geometry interpolation.",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "Tornado Contour",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_tornado_outline"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -98.0762786738666,
+                35.47723374349317
+              ],
+              [
+                -98.0743818355527,
+                35.47196156581471
+              ],
+              [
+                -98.07142751434465,
+                35.46755425563491
+              ],
+              [
+                -98.0666441118539,
+                35.46108768903548
+              ],
+              [
+                -98.06551979966983,
+                35.4584039542608
+              ],
+              [
+                -98.06130153724449,
+                35.45094553452613
+              ],
+              [
+                -98.05752170010194,
+                35.44787313638531
+              ],
+              [
+                -98.05322339396871,
+                35.44545196262589
+              ],
+              [
+                -98.04388160718231,
+                35.44204605004567
+              ],
+              [
+                -98.03283569729174,
+                35.43764015822922
+              ],
+              [
+                -98.02564419744327,
+                35.43555948674313
+              ],
+              [
+                -98.01626163838434,
+                35.4357132587018
+              ],
+              [
+                -97.99951856724145,
+                35.43805276241164
+              ],
+              [
+                -97.98032506260623,
+                35.44326242801239
+              ],
+              [
+                -97.97241304565647,
+                35.44350000544618
+              ],
+              [
+                -97.96536568565776,
+                35.44216299925888
+              ],
+              [
+                -97.95544954749614,
+                35.43995894061204
+              ],
+              [
+                -97.93964832511264,
+                35.43773933994766
+              ],
+              [
+                -97.92799824688403,
+                35.43882953874589
+              ],
+              [
+                -97.91633774541651,
+                35.4425676265274
+              ],
+              [
+                -97.90910198792126,
+                35.44609907290424
+              ],
+              [
+                -97.90186589350378,
+                35.44949141782438
+              ],
+              [
+                -97.8893496442676,
+                35.45579122476982
+              ],
+              [
+                -97.88108704385724,
+                35.46153909331351
+              ],
+              [
+                -97.87558045666303,
+                35.46775735020469
+              ],
+              [
+                -97.87447521562034,
+                35.47066618820505
+              ],
+              [
+                -97.86548542707348,
+                35.48486617040587
+              ],
+              [
+                -97.85944701308271,
+                35.49122065636823
+              ],
+              [
+                -97.85696618380946,
+                35.49299839222583
+              ],
+              [
+                -97.85244195600436,
+                35.49607954545839
+              ],
+              [
+                -97.84740139735136,
+                35.49827452563027
+              ],
+              [
+                -97.84383165036694,
+                35.5002385442429
+              ],
+              [
+                -97.84550071431566,
+                35.50532982231862
+              ],
+              [
+                -97.8473192786096,
+                35.5080613739045
+              ],
+              [
+                -97.85015973682631,
+                35.51020039686932
+              ],
+              [
+                -97.85628268526553,
+                35.51157078065127
+              ],
+              [
+                -97.8615318217883,
+                35.51193133473399
+              ],
+              [
+                -97.87158989083665,
+                35.51401630943907
+              ],
+              [
+                -97.87363098790031,
+                35.51413654539
+              ],
+              [
+                -97.88179500953366,
+                35.51467656508144
+              ],
+              [
+                -97.89871391941645,
+                35.50655889659191
+              ],
+              [
+                -97.90280215499466,
+                35.49872952488675
+              ],
+              [
+                -97.90491767805418,
+                35.49623879849192
+              ],
+              [
+                -97.90702411486797,
+                35.49440006608514
+              ],
+              [
+                -97.91578276479329,
+                35.48742198851168
+              ],
+              [
+                -97.92453111569075,
+                35.48024635729023
+              ],
+              [
+                -97.9353151592032,
+                35.47567017678911
+              ],
+              [
+                -97.94311154282363,
+                35.47359567825812
+              ],
+              [
+                -97.95568776695616,
+                35.47086819422806
+              ],
+              [
+                -97.97290203237529,
+                35.46996780524183
+              ],
+              [
+                -97.98995322906951,
+                35.46673671617079
+              ],
+              [
+                -97.99213110773086,
+                35.46574664328649
+              ],
+              [
+                -97.99948931442593,
+                35.46267020427761
+              ],
+              [
+                -98.00600919207677,
+                35.4602356484459
+              ],
+              [
+                -98.01515092808586,
+                35.45948744807362
+              ],
+              [
+                -98.0265492745069,
+                35.45913460842294
+              ],
+              [
+                -98.0356950592664,
+                35.46007293428503
+              ],
+              [
+                -98.04175339563795,
+                35.46263006054444
+              ],
+              [
+                -98.04441749658365,
+                35.46373247139311
+              ],
+              [
+                -98.04698329016816,
+                35.46643432557829
+              ],
+              [
+                -98.04826969526009,
+                35.46916539507875
+              ],
+              [
+                -98.0498471663534,
+                35.47125481472224
+              ],
+              [
+                -98.05267869611782,
+                35.47301068924768
+              ],
+              [
+                -98.05650527983386,
+                35.47500870537873
+              ],
+              [
+                -98.05859544972864,
+                35.47617855057192
+              ],
+              [
+                -98.06193544257773,
+                35.47913958432771
+              ],
+              [
+                -98.06589146873075,
+                35.48124541601538
+              ],
+              [
+                -98.0725812008563,
+                35.48932765913794
+              ],
+              [
+                -98.07585306544352,
+                35.48912209194801
+              ],
+              [
+                -98.07695983764809,
+                35.48726062281918
+              ],
+              [
+                -98.0771968856161,
+                35.48323897128923
+              ],
+              [
+                -98.0762786738666,
+                35.47723374349317
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "Path",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_path"
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -98.07133672356525,
+              35.47997957481969
+            ],
+            [
+              -98.07025101575351,
+              35.47723527309064
+            ],
+            [
+              -98.0663953159544,
+              35.47253174779661
+            ],
+            [
+              -98.06531195546782,
+              35.47258120433018
+            ],
+            [
+              -98.05947149500973,
+              35.46831962915611
+            ],
+            [
+              -98.05712162625197,
+              35.46278244165963
+            ],
+            [
+              -98.0538161600445,
+              35.45785037608417
+            ],
+            [
+              -98.05203383977765,
+              35.45639981515109
+            ],
+            [
+              -98.0434555574756,
+              35.45503178506942
+            ],
+            [
+              -98.03336813509766,
+              35.45322716499462
+            ],
+            [
+              -98.02317457246976,
+              35.45336273712427
+            ],
+            [
+              -98.01202658421585,
+              35.45078327601372
+            ],
+            [
+              -97.99784889206558,
+              35.45282452294475
+            ],
+            [
+              -97.98914910036831,
+              35.45715462413688
+            ],
+            [
+              -97.98897739211142,
+              35.45853327183825
+            ],
+            [
+              -97.97933340299798,
+              35.45861067709967
+            ],
+            [
+              -97.9695088802978,
+              35.45566502306109
+            ],
+            [
+              -97.96297364937361,
+              35.45271300657299
+            ],
+            [
+              -97.95599546077636,
+              35.45239511199266
+            ],
+            [
+              -97.94072964993873,
+              35.45294905274814
+            ],
+            [
+              -97.92722197392006,
+              35.45743906560934
+            ],
+            [
+              -97.919140611209,
+              35.46200894865503
+            ],
+            [
+              -97.90984447638334,
+              35.46700589816565
+            ],
+            [
+              -97.90750778006225,
+              35.47200508281711
+            ],
+            [
+              -97.9063032346629,
+              35.47831030062365
+            ],
+            [
+              -97.90648934337278,
+              35.47913516850498
+            ],
+            [
+              -97.90256383548166,
+              35.48045132938848
+            ],
+            [
+              -97.8978121372801,
+              35.48182056595344
+            ],
+            [
+              -97.89811119227423,
+              35.48308304410298
+            ],
+            [
+              -97.89798288469704,
+              35.48376856785758
+            ],
+            [
+              -97.89584158419754,
+              35.4865492078963
+            ],
+            [
+              -97.89471597300016,
+              35.48875211230597
+            ],
+            [
+              -97.89079731593058,
+              35.49900322547669
+            ],
+            [
+              -97.8878788211281,
+              35.50314643808424
+            ],
+            [
+              -97.88604970250098,
+              35.50692672873273
+            ],
+            [
+              -97.88958675192063,
+              35.50647262180345
+            ],
+            [
+              -97.8911681331331,
+              35.50528629553272
+            ],
+            [
+              -97.89197953200099,
+              35.50418195464377
+            ],
+            [
+              -97.89254915314824,
+              35.50269403913136
+            ],
+            [
+              -97.89258618998505,
+              35.50218809084477
+            ],
+            [
+              -97.89007434609066,
+              35.50361512205425
+            ],
+            [
+              -97.88830581978301,
+              35.50500293231181
+            ],
+            [
+              -97.88697798489187,
+              35.50440678671983
+            ],
+            [
+              -97.88407354955908,
+              35.50400795884011
+            ],
+            [
+              -97.88050634077103,
+              35.50285456315317
+            ],
+            [
+              -97.87640115849904,
+              35.50126412892318
+            ],
+            [
+              -97.8732039845129,
+              35.5003886274041
+            ],
+            [
+              -97.86512558306107,
+              35.50028894316616
+            ],
+            [
+              -97.85946041656105,
+              35.5030822675394
+            ],
+            [
+              -97.85863600984567,
+              35.50245082743923
+            ],
+            [
+              -97.85828305497309,
+              35.50191578457643
+            ],
+            [
+              -97.85346344061539,
+              35.50374857804611
+            ],
+            [
+              -97.85025522577706,
+              35.50425280445809
+            ],
+            [
+              -97.84973416892745,
+              35.50351189632491
+            ],
+            [
+              -97.84964873555278,
+              35.50215441711158
+            ],
+            [
+              -97.848134226089,
+              35.50123426968863
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:04",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:04:00-05:00",
+          "utc": "2013-05-31T23:04:00+00:00",
+          "display_time": "6:04 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.07092974326828,
+            35.47878246124045
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:05",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:05:00-05:00",
+          "utc": "2013-05-31T23:05:00+00:00",
+          "display_time": "6:05 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.06781456160681,
+            35.47417973041775
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:06",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:06:00-05:00",
+          "utc": "2013-05-31T23:06:00+00:00",
+          "display_time": "6:06 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.06360017289082,
+            35.47130507902062
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:07",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:07:00-05:00",
+          "utc": "2013-05-31T23:07:00+00:00",
+          "display_time": "6:07 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.05892260696919,
+            35.46718978764002
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:08",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:08:00-05:00",
+          "utc": "2013-05-31T23:08:00+00:00",
+          "display_time": "6:08 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.0567134749803,
+            35.46210136532956
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:09",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:09:00-05:00",
+          "utc": "2013-05-31T23:09:00+00:00",
+          "display_time": "6:09 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.05194320742007,
+            35.45642371961319
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:10",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:10:00-05:00",
+          "utc": "2013-05-31T23:10:00+00:00",
+          "display_time": "6:10 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.04151814989955,
+            35.45472372277286
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:11",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:11:00-05:00",
+          "utc": "2013-05-31T23:11:00+00:00",
+          "display_time": "6:11 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.03202643024933,
+            35.45332248380541
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:12",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:12:00-05:00",
+          "utc": "2013-05-31T23:12:00+00:00",
+          "display_time": "6:12 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.02114760158207,
+            35.4529158454014
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:13",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:13:00-05:00",
+          "utc": "2013-05-31T23:13:00+00:00",
+          "display_time": "6:13 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -98.00686563737541,
+            35.45145963072685
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:14",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:14:00-05:00",
+          "utc": "2013-05-31T23:14:00+00:00",
+          "display_time": "6:14 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.9952229297938,
+            35.45417988607535
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:15",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:15:00-05:00",
+          "utc": "2013-05-31T23:15:00+00:00",
+          "display_time": "6:15 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.98910346671843,
+            35.4579671390931
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:16",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:16:00-05:00",
+          "utc": "2013-05-31T23:16:00+00:00",
+          "display_time": "6:16 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.9791271320556,
+            35.45864252738311
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:17",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:17:00-05:00",
+          "utc": "2013-05-31T23:17:00+00:00",
+          "display_time": "6:17 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.96959074405858,
+            35.45572959205624
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:18",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:18:00-05:00",
+          "utc": "2013-05-31T23:18:00+00:00",
+          "display_time": "6:18 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.95591334707565,
+            35.45253486103849
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:19",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:19:00-05:00",
+          "utc": "2013-05-31T23:19:00+00:00",
+          "display_time": "6:19 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.94048369583385,
+            35.45309015915255
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:20",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:20:00-05:00",
+          "utc": "2013-05-31T23:20:00+00:00",
+          "display_time": "6:20 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.92750262068765,
+            35.45739428637771
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:21",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:21:00-05:00",
+          "utc": "2013-05-31T23:21:00+00:00",
+          "display_time": "6:21 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.91907395249629,
+            35.46205388826071
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:22",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:22:00-05:00",
+          "utc": "2013-05-31T23:22:00+00:00",
+          "display_time": "6:22 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.90984909352386,
+            35.46685483261022
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:23",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:23:00-05:00",
+          "utc": "2013-05-31T23:23:00+00:00",
+          "display_time": "6:23 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.90742641678672,
+            35.47201679122134
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:24",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:24:00-05:00",
+          "utc": "2013-05-31T23:24:00+00:00",
+          "display_time": "6:24 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.90593178998931,
+            35.47829065659857
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:25",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:25:00-05:00",
+          "utc": "2013-05-31T23:25:00+00:00",
+          "display_time": "6:25 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.8981120768612,
+            35.48310512935544
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:26",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:26:00-05:00",
+          "utc": "2013-05-31T23:26:00+00:00",
+          "display_time": "6:26 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.8939038904492,
+            35.48999339220952
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:27",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:27:00-05:00",
+          "utc": "2013-05-31T23:27:00+00:00",
+          "display_time": "6:27 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.89069007768526,
+            35.49833298948496
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:28",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:28:00-05:00",
+          "utc": "2013-05-31T23:28:00+00:00",
+          "display_time": "6:28 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.88700437803583,
+            35.50443132531481
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:29",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:29:00-05:00",
+          "utc": "2013-05-31T23:29:00+00:00",
+          "display_time": "6:29 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.88643659823491,
+            35.50754621458322
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:30",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:30:00-05:00",
+          "utc": "2013-05-31T23:30:00+00:00",
+          "display_time": "6:30 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.88956190936538,
+            35.50640785886416
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:31",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:31:00-05:00",
+          "utc": "2013-05-31T23:31:00+00:00",
+          "display_time": "6:31 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.89112493807164,
+            35.50523711100782
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:32",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:32:00-05:00",
+          "utc": "2013-05-31T23:32:00+00:00",
+          "display_time": "6:32 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.89191747595024,
+            35.50408392576208
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:33",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:33:00-05:00",
+          "utc": "2013-05-31T23:33:00+00:00",
+          "display_time": "6:33 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.89250772839453,
+            35.50273582536507
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:34",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:34:00-05:00",
+          "utc": "2013-05-31T23:34:00+00:00",
+          "display_time": "6:34 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.89009575857868,
+            35.50363326190606
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:35",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:35:00-05:00",
+          "utc": "2013-05-31T23:35:00+00:00",
+          "display_time": "6:35 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.88407695505128,
+            35.5040187697707
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:36",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:36:00-05:00",
+          "utc": "2013-05-31T23:36:00+00:00",
+          "display_time": "6:36 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.87642379861295,
+            35.50124138162927
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:37",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:37:00-05:00",
+          "utc": "2013-05-31T23:37:00+00:00",
+          "display_time": "6:37 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.86878724832538,
+            35.50032136600753
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:38",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:38:00-05:00",
+          "utc": "2013-05-31T23:38:00+00:00",
+          "display_time": "6:38 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.86230725525024,
+            35.50172424404569
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:39",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:39:00-05:00",
+          "utc": "2013-05-31T23:39:00+00:00",
+          "display_time": "6:39 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.85866211043843,
+            35.50247016613207
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:40",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:40:00-05:00",
+          "utc": "2013-05-31T23:40:00+00:00",
+          "display_time": "6:40 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.85350706977188,
+            35.50375388402842
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:41",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:41:00-05:00",
+          "utc": "2013-05-31T23:41:00+00:00",
+          "display_time": "6:41 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.84971605110904,
+            35.50352549485547
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "source_name": "6:42",
+          "source_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+          "source_sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
+          "role": "published_center_position",
+          "local_time": "2013-05-31T18:42:00-05:00",
+          "utc": "2013-05-31T23:42:00+00:00",
+          "display_time": "6:42 PM CDT",
+          "time_basis": "Bare KML label interpreted using the NWS event chronology",
+          "precision": "source label to nearest minute; no error bounds supplied"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -97.84815499363609,
+            35.50127653098339
+          ]
+        }
+      }
+    ]
+  },
+  "review_queue": [
+    {
+      "id": "Q7X3fyId2U0",
+      "creator": "pecos-hank",
+      "title": "LARGEST TORNADO EVER!!! From Birth to Death (w/ Radar & Commentary) 5-31-13",
+      "event": "El Reno 2013",
+      "event_id": "el-reno-2013",
+      "priority": 1,
+      "status": "partial_review",
+      "coverage": "Description read; captions sampled 4:25 to 8:19; exploratory stills after seeking. No continuous or audio audit.",
+      "next": "Verify shot times and camera locations; distinguish edited elapsed time from event time."
+    },
+    {
+      "id": "Ppw0W5IXNAI",
+      "creator": "tornado-trx",
+      "title": "El Reno - The Largest Tornado In Recorded History",
+      "event": "El Reno 2013",
+      "event_id": "el-reno-2013",
+      "priority": 1,
+      "status": "metadata_only",
+      "coverage": "Channel title/link and indexed description inspected. No video review.",
+      "next": "Review documentary, credits and cited research alongside the NWS chronology."
+    },
+    {
+      "id": "8FYe-qjACPk",
+      "creator": "swegle-studios",
+      "title": "The Night a Tornado Started Glowing",
+      "event": "Blackwell 1955",
+      "event_id": "blackwell-1955",
+      "priority": 2,
+      "status": "description_checked",
+      "coverage": "Watch-page description identifies Blackwell 1955. No video review.",
+      "next": "Separate eyewitness light accounts, later retellings and proposed mechanisms."
+    },
+    {
+      "id": "-FrpbvkVjI0",
+      "creator": "tornado-trx",
+      "title": "Blackwell - The Most Horrifying Tornado In History",
+      "event": "Blackwell 1955",
+      "event_id": "blackwell-1955",
+      "priority": 2,
+      "status": "metadata_only",
+      "coverage": "Channel title and link only; exact subject/date needs video verification.",
+      "next": "Compare sources with Swegle and the NWS historical account."
+    },
+    {
+      "id": "nw9d7s7Hz38",
+      "creator": "tornado-trx",
+      "title": "Pilger - The Most Insane Day In Tornado History",
+      "event": "Pilger (candidate)",
+      "event_id": null,
+      "priority": 3,
+      "status": "metadata_only",
+      "coverage": "Channel listing only.",
+      "next": "Identify each tornado separately before grouping the event."
+    },
+    {
+      "id": "hBA2RBAZYf4",
+      "creator": "tornado-trx",
+      "title": "El Reno 2011 - The Strongest Tornado In History",
+      "event": "El Reno 2011",
+      "event_id": "el-reno-2011",
+      "priority": 3,
+      "status": "metadata_only",
+      "coverage": "Channel title/link only.",
+      "next": "Keep distinct from El Reno 2013; investigate rather than inherit the title's ranking."
+    },
+    {
+      "id": "q3IP4vTGnRY",
+      "creator": "tornado-trx",
+      "title": "Jarrell - The Worst F5 Tornado In History",
+      "event": "Jarrell (candidate)",
+      "event_id": null,
+      "priority": 3,
+      "status": "metadata_only",
+      "coverage": "Channel listing only.",
+      "next": "Identify date, source survey and specific damage evidence."
+    },
+    {
+      "id": "P3af7-UgjfA",
+      "creator": "pecos-hank",
+      "title": "STORM CHASING ARGENTINA",
+      "event": "Argentina footage leads",
+      "event_id": null,
+      "priority": 3,
+      "status": "metadata_only",
+      "coverage": "Channel listing only; no specific tornado identified.",
+      "next": "Find dates and locations, then corroborate with Argentine records."
+    },
+    {
+      "id": "mXlQAl47sB4",
+      "creator": "swegle-studios",
+      "title": "The Largest Tornado Outbreak in History - 2011 Tornado Super Outbreak",
+      "event": "2011 outbreak (candidate)",
+      "event_id": null,
+      "priority": 3,
+      "status": "metadata_only",
+      "coverage": "Channel listing only.",
+      "next": "Separate outbreak-level narrative from individual tornado records."
+    },
+    {
+      "id": "XYlAcZZqnWo",
+      "creator": "swegle-studios",
+      "title": "I Recreated the Wizard of Oz Tornado",
+      "event": "Visual methods / fiction",
+      "event_id": null,
+      "priority": 4,
+      "status": "metadata_only",
+      "coverage": "Channel listing only. Excluded as historical tornado evidence.",
+      "next": "Review for explanatory visual methods only; do not copy protected assets."
+    }
+  ],
+  "creators": [
+    {
+      "id": "pecos-hank",
+      "name": "Pecos Hank",
+      "url": "https://www.youtube.com/@PecosHank",
+      "added_by": "user",
+      "priority": "initial source collection",
+      "reviewed_on": "2026-09-20",
+      "listing_scope": "First 30 loaded recent videos; selected older El Reno video opened separately. Not a complete channel inventory.",
+      "intended_use": "Locate firsthand imagery and explanations; trace each shot to its filmmaker and event.",
+      "rights": "Links only. No footage reuse permission recorded. Membership content excluded."
+    },
+    {
+      "id": "tornado-trx",
+      "name": "TornadoTRX",
+      "url": "https://www.youtube.com/@tornadotrx/videos",
+      "added_by": "user",
+      "priority": "initial source collection",
+      "reviewed_on": "2026-09-20",
+      "listing_scope": "19 visible video titles and links inspected. Videos have not been watched in full.",
+      "intended_use": "Find event histories, credited footage, research references, and questions to verify.",
+      "rights": "Links only. Credit the underlying photographer or filmmaker where documentary footage is reused."
+    },
+    {
+      "id": "swegle-studios",
+      "name": "Swegle Studios",
+      "url": "https://www.youtube.com/@SwegleStudios/videos",
+      "added_by": "user",
+      "priority": "initial source collection",
+      "reviewed_on": "2026-09-20",
+      "listing_scope": "First 30 loaded recent videos; Blackwell subject verified from the watch-page description. Not a complete channel inventory.",
+      "intended_use": "Historical accounts, unusual phenomena, visual explanation, and source leads.",
+      "rights": "Links only. Fictional tornado effects and speculative claims stay separate from historical observations."
+    }
+  ]
+}

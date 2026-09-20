@@ -1,0 +1,32 @@
+{
+  "id": "el-reno-2013",
+  "title": "El Reno",
+  "date": "May 31, 2013",
+  "location": "Canadian County, Oklahoma · United States",
+  "stage": "First exhibit study",
+  "record_id": "ncei:453682",
+  "record_match_basis": "Date, county, start time, rating and event narrative agree. Nearby satellite tornadoes are separate records.",
+  "introduction": "Follow a documented path, then examine how footage can help reconstruct a changing storm. This first study brings a geographic timeline and a video research notebook into one place.",
+  "facts": [
+    {"value":"EF3","label":"Final damage rating","source":"https://www.weather.gov/oun/events-20130531"},
+    {"value":"2.6 mi","label":"Reported maximum tornado width","source":"https://www.weather.gov/oun/events-20130531"},
+    {"value":"39","label":"Time-labeled positions in the NWS file","source":"https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"}
+  ],
+  "map_note": "NWS tornado outline, center path and time-labeled center positions. The shaded outline covers the event as a whole; it is not the tornado's shape at the selected minute. The marker has no physical size.",
+  "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Playback steps through published minute labels without inventing intermediate observations.",
+  "discrepancies": [
+    {"title":"An unresolved end time","text":"The NWS narrative ends at 6:42 PM CDT. Its table and NCEI record end at 6:44 PM CDT. The geographic timeline's last label is 6:42. Both reported endings remain in the dossier.","sources":["https://www.weather.gov/oun/events-20130531","https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2013_c20260323.csv.gz"]},
+    {"title":"Rating and appearance answer different questions","text":"The damage rating does not specify the funnel's dimensions or recreate its appearance. Building a scene needs shot-level evidence about viewpoint, visibility and time.","sources":["https://www.weather.gov/oun/efscale"]}
+  ],
+  "video_observations": [
+    {"video":"Q7X3fyId2U0","elapsed_seconds":185,"kind":"creator_annotation","note":"The description identifies a change in the visible cloud base. Historical time and camera position remain unregistered."},
+    {"video":"Q7X3fyId2U0","elapsed_seconds":390,"kind":"creator_annotation","note":"The description identifies a separate anticyclonic tornado. Do not assign every funnel in the video to the main tornado."}
+  ],
+  "coverage": {
+    "video_review":"One Pecos Hank description, partial captions and exploratory still samples. No full video or audio audit.",
+    "frame_registration":"Some screenshots followed seeks before exact decoded-frame timing was established. They support no measured speed, width or position.",
+    "caption_discrepancy":"Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
+    "geometry":"Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
+    "remaining":"Shot registration, complete video review, third-party image permissions, geolocated damage evidence, and an appearance reconstruction. No 3D storm or damage simulator yet."
+  }
+}

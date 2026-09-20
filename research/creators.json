@@ -1,0 +1,35 @@
+[
+  {
+    "id": "pecos-hank",
+    "name": "Pecos Hank",
+    "url": "https://www.youtube.com/@PecosHank",
+    "added_by": "user",
+    "priority": "initial source collection",
+    "reviewed_on": "2026-09-20",
+    "listing_scope": "First 30 loaded recent videos; selected older El Reno video opened separately. Not a complete channel inventory.",
+    "intended_use": "Locate firsthand imagery and explanations; trace each shot to its filmmaker and event.",
+    "rights": "Links only. No footage reuse permission recorded. Membership content excluded."
+  },
+  {
+    "id": "tornado-trx",
+    "name": "TornadoTRX",
+    "url": "https://www.youtube.com/@tornadotrx/videos",
+    "added_by": "user",
+    "priority": "initial source collection",
+    "reviewed_on": "2026-09-20",
+    "listing_scope": "19 visible video titles and links inspected. Videos have not been watched in full.",
+    "intended_use": "Find event histories, credited footage, research references, and questions to verify.",
+    "rights": "Links only. Credit the underlying photographer or filmmaker where documentary footage is reused."
+  },
+  {
+    "id": "swegle-studios",
+    "name": "Swegle Studios",
+    "url": "https://www.youtube.com/@SwegleStudios/videos",
+    "added_by": "user",
+    "priority": "initial source collection",
+    "reviewed_on": "2026-09-20",
+    "listing_scope": "First 30 loaded recent videos; Blackwell subject verified from the watch-page description. Not a complete channel inventory.",
+    "intended_use": "Historical accounts, unusual phenomena, visual explanation, and source leads.",
+    "rights": "Links only. Fictional tornado effects and speculative claims stay separate from historical observations."
+  }
+]
