@@ -1450,9 +1450,9 @@
       "event": "El Reno 2013",
       "event_id": "el-reno-2013",
       "priority": 1,
-      "status": "metadata_only",
-      "coverage": "Channel title/link and indexed description inspected. No video review.",
-      "next": "Review documentary, credits and cited research alongside the NWS chronology."
+      "status": "partial_review",
+      "coverage": "Expanded watch-page description and visible chapters read. One still sampled near the 3:54 chapter entry, showing credited ground footage. No continuous video or audio audit.",
+      "next": "Review the full documentary and cited research against the NWS chronology; register shot times and camera positions."
     },
     {
       "id": "8FYe-qjACPk",
@@ -1462,7 +1462,7 @@
       "event_id": "blackwell-1955",
       "priority": 2,
       "status": "description_checked",
-      "coverage": "Watch-page description identifies Blackwell 1955. No video review.",
+      "coverage": "Expanded watch-page description identifies Blackwell 1955 and credits a historical film. Pinned creator comment about Blender animation limitations read. No continuous video or audio review.",
       "next": "Separate eyewitness light accounts, later retellings and proposed mechanisms."
     },
     {
@@ -1965,7 +1965,7 @@
     },
     "remembrance": {
       "title": "Remembering the people who died",
-      "introduction": "Eight lives were lost in the El Reno tornado. These names belong beside the maps and measurements. Rest in peace.",
+      "introduction": "Eight lives were lost in the El Reno tornado. We remember them here, together.",
       "scope": "El Reno tornado, May 31, 2013. This section does not yet catalogue the separate flash-flood victims.",
       "people": [
         {
@@ -2056,6 +2056,60 @@
       "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
       "width": 5085,
       "height": 3390
+    }
+  ],
+  "visitor_guide": [
+    {
+      "id": "question-rating",
+      "question": "Why is the official rating EF3?",
+      "answer": "The final damage survey supports EF3. NWS explains that the strongest radar-observed small vortices did not strike structures that could provide evidence for a higher damage rating. A wide tornado, an intense radar measurement and an EF damage rating describe different things.",
+      "sources": [
+        {
+          "label": "NWS El Reno account",
+          "url": "https://www.weather.gov/oun/events-20130531"
+        },
+        {
+          "label": "How the EF scale is assigned",
+          "url": "https://www.weather.gov/oun/efscale"
+        }
+      ]
+    },
+    {
+      "id": "question-width",
+      "question": "Does 2.6 miles describe the visible funnel?",
+      "answer": "It is the reported maximum tornado width. NWS used radar to help distinguish the tornado from a wider area of damaging downdraft winds. A photograph shows cloud and debris from one viewpoint; its visible dark shape is not a measurement of that entire circulation.",
+      "sources": [
+        {
+          "label": "NWS width explanation",
+          "url": "https://www.weather.gov/oun/events-20130531"
+        },
+        {
+          "label": "NSSL tornado basics",
+          "url": "https://www.nssl.noaa.gov/education/svrwx101/tornadoes/"
+        }
+      ]
+    },
+    {
+      "id": "question-map",
+      "question": "What does the moving point on the map show?",
+      "answer": "The point steps through published center positions. The line traces the center path, while the shaded outline covers the whole event. That outline does not resize with time. This exhibit does not turn it into an animated boundary of the tornado.",
+      "sources": [
+        {
+          "label": "NWS map and centroid times",
+          "url": "https://www.weather.gov/oun/events-20130531"
+        }
+      ]
+    },
+    {
+      "id": "question-reconstruction",
+      "question": "Can we see exactly what it looked like at each moment?",
+      "answer": "Not yet. The photographs and linked footage provide views of the actual storm, but their camera positions and historical times still need to be matched. The form study and wind lab are separate illustrations. They do not recreate the recorded El Reno wind field or the damage to individual buildings.",
+      "sources": [
+        {
+          "label": "Our reconstruction and review record",
+          "url": "https://github.com/T92T1914/tornado-atlas/blob/main/docs/verification.md"
+        }
+      ]
     }
   ]
 }

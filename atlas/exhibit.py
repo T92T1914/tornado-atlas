@@ -143,8 +143,10 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     history = json.loads((ROOT / "exhibits/el-reno-2013/history.json").read_text(encoding="utf-8"))
     photos = json.loads((ROOT / "exhibits/el-reno-2013/storm-photos.json").read_text(encoding="utf-8"))
     validate_history(history, photos, ROOT / "web")
+    guide = json.loads((ROOT / "exhibits/el-reno-2013/visitor-guide.json").read_text(encoding="utf-8"))
     result = {"exhibit": dossier, "geometry": geojson, "review_queue": queue, "creators": creators,
-              "notebook": notebook, "damage": damage, "history": history, "storm_photos": photos}
+              "notebook": notebook, "damage": damage, "history": history, "storm_photos": photos,
+              "visitor_guide": guide}
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     geo_path = ROOT / "exhibits/el-reno-2013/path.geojson"

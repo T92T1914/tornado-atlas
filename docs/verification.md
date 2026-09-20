@@ -75,3 +75,37 @@ unregistered. The source-access record is in `docs/el-reno-history.md`.
 
 These are local browser and software checks. They do not validate historical
 wind measurements, structural failure, or physical mobile-device behavior.
+
+## Photograph presentation and visitor questions
+
+The next September 20 update brings a licensed storm photograph into the opening
+view, adds a separate photograph section and four source-linked visitor answers,
+and uses a single enlargement dialog with image-specific attribution. Remembrance
+now has one shared dedication above the names. The original photograph files and
+their hashes are unchanged.
+
+* All 50 Python tests and 28 JavaScript tests passed. Script syntax, exhibit
+  integrity and the 80,318-record catalogue check passed.
+* The desktop opening view and a 390 by 844 opening view were visually inspected.
+  The narrow layout had no horizontal overflow. The remembrance's narrow layout
+  was checked through DOM dimensions and content; a readable full-size screenshot
+  of that particular mobile section was not obtained.
+* Both storm photographs enlarged with Daniel Rodriguez's credit and CC BY 2.0
+  link. Opening an NWS damage photograph afterward cleared that license and used
+  the NWS source and credit. Returning to the second storm photograph restored
+  its own attribution.
+* Escape closed the dialog and returned focus to its originating photograph
+  button. The EF3 question expanded and displayed its two supporting links.
+* A direct remembrance fragment initially landed above its target because the
+  exhibit content loads asynchronously. The page now aligns the requested
+  section after rendering. A reload with `#remembrance` landed approximately
+  24 pixels below the viewport top after the gallery mounted.
+* The desktop remembrance was visually inspected. The section contained eight
+  names, exactly one `Rest in peace` dedication and none inside individual list
+  entries. No browser warnings or errors appeared in the tested interactions.
+* Temporary viewport overrides were cleared. No new physical-device or
+  cross-browser validation was performed.
+
+The [audience notes](../research/audience-notes-2026-09-20.md) distinguish direct
+page inspection, indexed excerpts and limited video samples. They do not claim
+complete documentary review or measured engagement improvements.
