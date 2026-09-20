@@ -24,6 +24,7 @@ jobs:
           node --check web/atlas.js
           node --check web/study.js
           node --check web/wind.js
+          node --check web/passage.js
           node --check web/damage-view.mjs
           node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs
       - name: Verify checked-in exhibit

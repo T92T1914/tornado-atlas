@@ -711,6 +711,26 @@ footer p {
     gap:12px
   }
 }
+.history-section,.remembrance-section {padding:48px 0;border-bottom:1px solid var(--line)}
+.storm-photographs {display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}
+.storm-photographs figure {margin:0;min-width:0}
+.storm-photographs img {display:block;width:100%;height:auto;border:1px solid var(--line)}
+.storm-photographs figcaption {font-size:12px;color:var(--muted);padding:8px 0}
+.path-account {padding:18px 24px;border-top:1px solid var(--line)}
+.path-account h3 {margin:0;color:var(--gold);font-size:17px}
+.path-account p {font-size:13px;margin-bottom:0}
+.path-chapters {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:16px}
+.path-chapters button {text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:14px;cursor:pointer}
+.path-chapters button[aria-pressed=true] {border-color:var(--gold);background:#293327}
+.path-chapters span,.path-chapters strong {display:block;font-size:12px}
+.path-chapters span {color:var(--muted);margin-bottom:5px;font-size:11px}
+.memorial-names {list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:0 30px}
+.memorial-names li {padding:22px 0;border-top:1px solid var(--line)}
+.memorial-names strong {font:23px Georgia,serif;display:block}
+.memorial-rest {display:block;color:var(--muted);font-size:13px;margin:6px 0}
+.memorial-sources {display:flex;flex-wrap:wrap;gap:15px;font-size:11px;color:var(--muted)}
+.impact-sources {padding:15px 0;color:var(--muted);font-size:13px}
+@media(max-width:650px) {.storm-photographs,.memorial-names {grid-template-columns:1fr}.path-account {padding:15px}.history-section,.remembrance-section {padding:32px 0}}
 @media(prefers-reduced-motion:reduce) {
   html {
     scroll-behavior:auto

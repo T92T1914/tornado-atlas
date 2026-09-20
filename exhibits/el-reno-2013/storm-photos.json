@@ -1,0 +1,36 @@
+[
+  {
+    "id": "storm-1",
+    "file": "assets/el-reno-2013/storm01.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado_Wedge.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/El_Reno_EF-5_Tornado_Wedge.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    "credit": "Daniel Rodriguez",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0/",
+    "sha256": "0f345ef666729bd9b86d723772f371f0dde7acf9e7b7016896dfdd8c8db2c494",
+    "retrieved_at": "2026-09-20T14:00:15.366312+00:00",
+    "changes": "Original image bytes preserved; scaled by the browser.",
+    "caption": "El Reno tornado, May 31, 2013. Photograph by Daniel Rodriguez.",
+    "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
+    "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
+    "width": 5103,
+    "height": 3402
+  },
+  {
+    "id": "storm-2",
+    "file": "assets/el-reno-2013/storm02.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/El_Reno_EF-5_Tornado.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    "credit": "Daniel Rodriguez",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0/",
+    "sha256": "161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6",
+    "retrieved_at": "2026-09-20T14:00:16.451457+00:00",
+    "changes": "Original image bytes preserved; scaled by the browser.",
+    "caption": "El Reno tornado, May 31, 2013. Photograph by Daniel Rodriguez.",
+    "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
+    "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
+    "width": 5085,
+    "height": 3390
+  }
+]

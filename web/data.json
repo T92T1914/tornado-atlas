@@ -7,7 +7,7 @@
     "stage": "First exhibit study",
     "record_id": "ncei:453682",
     "record_match_basis": "Date, county, start time, rating and event narrative agree. Nearby satellite tornadoes are separate records.",
-    "introduction": "Follow a documented path, compare the damage left behind, then examine how footage can help reconstruct a changing storm. This study brings a geographic timeline, nine NWS survey photographs and a video research notebook into one place.",
+    "introduction": "Follow the history and documented path, see the storm and its damage, and remember the people who died. This exhibit brings published records, credited photographs and a footage notebook together while keeping their limits visible.",
     "facts": [
       {
         "value": "EF3",
@@ -1880,5 +1880,182 @@
       "bytes": 41596,
       "retrieved_at": "2026-09-20T10:15:27.773049+00:00"
     }
-  }
+  },
+  "history": {
+    "schema": 1,
+    "event": "el-reno-2013",
+    "reviewed_at": "2026-09-20",
+    "introduction": "The path is only part of this story. People were caught on the roads, homes and farms were damaged, and the same evening brought deadly flooding elsewhere. This exhibit keeps the human impact beside the meteorology.",
+    "context": [
+      {
+        "title": "Before the tornado",
+        "text": "Storms developed near a dryline and a nearly stationary front in an extremely unstable atmosphere. The El Reno tornado formed southwest of town and passed south of the airport.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "title": "A separate flooding disaster",
+        "text": "NWS records 14 flash-flood deaths across Oklahoma during May 31 and June 1. These are separate from the eight El Reno tornado deaths.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      }
+    ],
+    "chapters": [
+      {
+        "minute": 4,
+        "time": "6:03 PM CDT",
+        "title": "Formation southwest of town",
+        "text": "The tornado formed near Heaston and Reuter roads, initially moving southeast. The map begins with the first published position at 6:04.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "minute": 9,
+        "time": "6:09 PM CDT",
+        "title": "An eastward turn",
+        "text": "It turned east south of Reno Road and widened as it approached the airport.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "minute": 19,
+        "time": "6:19 PM CDT",
+        "title": "Crossing Highway 81",
+        "text": "After crossing near Reno Road, it turned north and accelerated.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "minute": 24,
+        "time": "6:24–6:26 PM CDT",
+        "title": "Maximum size",
+        "text": "The NWS account places maximum size and intensity near Radio and Reuter roads.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "minute": 27,
+        "time": "6:27–6:35 PM CDT",
+        "title": "A loop near the interstate",
+        "text": "The tornado slowed and looped north of I-40.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "minute": 35,
+        "time": "After 6:35 PM CDT",
+        "title": "Moving east again",
+        "text": "It resumed an eastward track toward Banner Road.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "minute": 42,
+        "time": "6:42 / 6:44 PM CDT",
+        "title": "The ending remains inconsistent",
+        "text": "The narrative and last map position end at 6:42; the source table and event record give 6:44.",
+        "source": "https://www.weather.gov/oun/events-20130531"
+      }
+    ],
+    "impacts": {
+      "record_id": "ncei:453682",
+      "deaths_direct": 8,
+      "injuries_direct": 26,
+      "deaths_indirect": 0,
+      "injuries_indirect": 0,
+      "source": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2013_c20260323.csv.gz",
+      "snapshot": "ncei:2013:20260323",
+      "sha256": "4fa4036ed1c7ea9a779d5a5841d18de08596c423920189a9e6173488d1a98260",
+      "scope": "Direct deaths and injuries in NOAA Storm Events record 453682. These are the published record's figures, not a new estimate of everyone affected.",
+      "note": "Injuries includes people hurt; wounded is not an additional category to add. Casualties is an umbrella term for deaths and injuries, so it is not counted again.",
+      "discrepancy": "Contemporary reporting also cites 115 people treated by Oklahoma City area hospitals. That is a hospital and regional reporting scope, not a reconciled total for this tornado. Other widely repeated injury figures remain unverified here.",
+      "discrepancy_source": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+    },
+    "remembrance": {
+      "title": "Remembering the people who died",
+      "introduction": "Eight lives were lost in the El Reno tornado. These names belong beside the maps and measurements. Rest in peace.",
+      "scope": "El Reno tornado, May 31, 2013. This section does not yet catalogue the separate flash-flood victims.",
+      "people": [
+        {
+          "name": "Dustin Heath Bridges",
+          "sources": [
+            "https://www.tributearchive.com/obituaries/26979897/dustin-bridges",
+            "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+          ]
+        },
+        {
+          "name": "Richard Henderson",
+          "sources": [
+            "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+          ]
+        },
+        {
+          "name": "William O’Neal",
+          "sources": [
+            "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma",
+            "https://www.legacy.com/us/obituaries/oklahoman/name/william-oneal-obituary?id=11764894"
+          ]
+        },
+        {
+          "name": "Maria Pol Martin",
+          "sources": [
+            "https://www.hmpgloballearningnetwork.com/site/emsworld/news/11031041/language-barriers-hinder-storm-warnings-okla"
+          ]
+        },
+        {
+          "name": "Rey Chicoj Pol",
+          "sources": [
+            "https://www.hmpgloballearningnetwork.com/site/emsworld/news/11031041/language-barriers-hinder-storm-warnings-okla"
+          ]
+        },
+        {
+          "name": "Paul Samaras",
+          "sources": [
+            "https://www.weather.gov/news/130603-chasers"
+          ]
+        },
+        {
+          "name": "Tim Samaras",
+          "sources": [
+            "https://www.weather.gov/news/130603-chasers"
+          ]
+        },
+        {
+          "name": "Carl Young",
+          "sources": [
+            "https://www.weather.gov/news/130603-chasers"
+          ]
+        }
+      ],
+      "source_note": "Names are transcribed from public NOAA statements, contemporary reporting and an obituary. Early articles contain superseded storm ratings and conflicting ages; their names are used here without repeating those ages or ratings. This is an independently assembled remembrance, not a family-approved or official memorial."
+    }
+  },
+  "storm_photos": [
+    {
+      "id": "storm-1",
+      "file": "assets/el-reno-2013/storm01.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado_Wedge.jpg",
+      "original_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/El_Reno_EF-5_Tornado_Wedge.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+      "credit": "Daniel Rodriguez",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "sha256": "0f345ef666729bd9b86d723772f371f0dde7acf9e7b7016896dfdd8c8db2c494",
+      "retrieved_at": "2026-09-20T14:00:15.366312+00:00",
+      "changes": "Original image bytes preserved; scaled by the browser.",
+      "caption": "El Reno tornado, May 31, 2013. Photograph by Daniel Rodriguez.",
+      "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
+      "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
+      "width": 5103,
+      "height": 3402
+    },
+    {
+      "id": "storm-2",
+      "file": "assets/el-reno-2013/storm02.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado.jpg",
+      "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/El_Reno_EF-5_Tornado.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+      "credit": "Daniel Rodriguez",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0/",
+      "sha256": "161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6",
+      "retrieved_at": "2026-09-20T14:00:16.451457+00:00",
+      "changes": "Original image bytes preserved; scaled by the browser.",
+      "caption": "El Reno tornado, May 31, 2013. Photograph by Daniel Rodriguez.",
+      "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
+      "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
+      "width": 5085,
+      "height": 3390
+    }
+  ]
 }

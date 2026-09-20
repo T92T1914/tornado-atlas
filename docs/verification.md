@@ -55,3 +55,23 @@ The [GitHub Actions run for f32673c](https://github.com/T92T1914/tornado-atlas/a
 The hosted atlas loaded all 80,318 records. Filtering for an exhibit returned the El Reno source record, its separately fetched detail displayed correctly, and its exhibit link opened the geographic timeline and survey gallery. The hosted wind laboratory displayed 200 mph and 5.88 kN after changing the speed control; Reset restored the paused defaults. No browser errors or warnings appeared in this inspected hosted flow.
 
 Repository metadata now includes the atlas link and seven relevant topics. Raw downloads and the SQLite archive remain local. Physical-device and cross-browser tests, international coverage and historically calibrated reconstructions remain future work.
+
+## Historical account, remembrance and moving passage
+
+The September 20 continuation adds seven sourced path chapters, eight publicly
+reported names with per-person links, and two Daniel Rodriguez storm photographs
+under CC BY 2.0. The original image bytes and dimensions were checked, and both
+images were visually inspected. Their times and viewing directions remain
+unregistered. The source-access record is in `docs/el-reno-history.md`.
+
+* The Python suite passed 50 tests; the JavaScript suite passed 28 tests.
+* The exhibit and all 80,318 published catalogue records passed integrity checks.
+* Browser chapter selection moved the timeline to 6:24 PM and displayed the matching maximum-size account.
+* The remembrance displayed eight names and the source-scoped counts of eight deaths and 26 injuries.
+* The passage at closest approach displayed 100 mph and 1.47 kN with the default wind and drag settings. Changing travel from 30 to 60 mph reduced displayed time above 50 mph from about 39.4 to 19.7 seconds while preserving the 100 mph sampled peak.
+* Playback advanced the timeline and returned to a paused control at its end.
+* A 390 by 844 tab viewport showed 375-pixel content without horizontal overflow for the remembrance and passage. Both layouts were visually inspected; passage graph labels were enlarged at the narrow breakpoint. Temporary viewport overrides were cleared.
+* No errors or warnings were reported in the inspected exhibit and passage browser flows.
+
+These are local browser and software checks. They do not validate historical
+wind measurements, structural failure, or physical mobile-device behavior.

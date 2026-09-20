@@ -24,6 +24,42 @@ async function main() {
   if (!response.ok) throw new Error('Exhibit data could not be loaded. Run the exhibit build first.');
   const data = await response.json();
   const exhibit = data.exhibit;
+  const history = data.history;
+  byId('history-introduction').textContent = history.introduction;
+  for (const entry of history.context) {
+    const card = node('article', null, 'note');
+    card.append(node('h3', entry.title),node('p',entry.text),link('Read the account ↗',entry.source));
+    byId('historical-context').append(card);
+  }
+  for (const photo of data.storm_photos) {
+    const figure = node('figure');
+    const image = node('img');
+    image.src = photo.file; image.alt = photo.alt; image.loading = 'lazy';
+    image.width=photo.width; image.height=photo.height;
+    const full = link('', photo.file); full.append(image); full.setAttribute('aria-label','Open original storm photograph');
+    const caption=node('figcaption');
+    caption.append(node('p',photo.caption),link('Source and photographer credit ↗',photo.source),
+      document.createTextNode(' · '),link(photo.license,photo.license_url),node('p',photo.changes+' '+photo.timing_note,'fineprint'));
+    figure.append(full,caption); byId('storm-photographs').append(figure);
+  }
+  const impacts=history.impacts, memorial=history.remembrance;
+  for (const [label,value] of [['Direct fatalities',impacts.deaths_direct],['Direct injuries reported',impacts.injuries_direct]]) {
+    const card=node('div',null,'fact');
+    card.append(node('strong',String(value)),link(label+' ↗',impacts.source));byId('impact-counts').append(card);
+  }
+  byId('impact-scope').textContent=impacts.scope+' Source revision '+impacts.snapshot+'.';
+  byId('impact-definitions').textContent=impacts.note;
+  byId('impact-discrepancy').append(document.createTextNode(impacts.discrepancy+' '),link('Contemporary reporting ↗',impacts.discrepancy_source));
+  byId('remembrance-title').textContent=memorial.title;
+  byId('remembrance-introduction').textContent=memorial.introduction;
+  byId('remembrance-scope').textContent=memorial.scope;
+  byId('remembrance-source-note').textContent=memorial.source_note;
+  for (const person of memorial.people) {
+    const item=node('li');item.append(node('strong',person.name),node('span','Rest in peace','memorial-rest'));
+    const sources=node('div',null,'memorial-sources');
+    person.sources.forEach((url,i)=>sources.append(link(`Public source ${i+1} ↗`,url)));
+    item.append(sources);byId('memorial-names').append(item);
+  }
   byId('place').textContent = exhibit.location;
   byId('introduction').textContent = exhibit.introduction;
   byId('map-note').textContent = exhibit.map_note;
@@ -86,11 +122,11 @@ async function main() {
   }
   byId('search').addEventListener('input', showVideos);
   showVideos();
-  drawMap(data.geometry);
+  drawMap(data.geometry, history.chapters);
   const { mountDamage } = await import('./damage-view.mjs');
   mountDamage(data.damage);
 }
-function drawMap(geojson) {
+function drawMap(geojson, chapters) {
   const svg = byId('map');
   const features = geojson.features;
   const positions = features.filter(f => f.geometry.type === 'Point');
@@ -149,6 +185,17 @@ function drawMap(geojson) {
     byId('previous').disabled = index === 0;
     byId('next').disabled = index === positions.length - 1;
     byId('map-description').textContent = `NWS whole-event outline and center path. Selected center position: ${selected.properties.display_time}. The marker has no physical size.`;
+    const minute=Number(selected.properties.source_name.split(':')[1]);
+    const chapter=chapters.filter(c=>c.minute<=minute).at(-1) || chapters[0];
+    byId('chapter-title').textContent=chapter.time+' · '+chapter.title;
+    byId('chapter-account').replaceChildren(document.createTextNode(chapter.text+' '),link('NWS account ↗',chapter.source));
+    for (const button of byId('path-chapters').querySelectorAll('button')) button.setAttribute('aria-pressed',String(Number(button.dataset.minute)===chapter.minute));
+  }
+  for (const chapter of chapters) {
+    const button=node('button');button.type='button';button.dataset.minute=chapter.minute;
+    button.append(node('span',chapter.time),node('strong',chapter.title));
+    button.addEventListener('click',()=>{stop();index=positions.findIndex(p=>Number(p.properties.source_name.split(':')[1])===chapter.minute);update();});
+    byId('path-chapters').append(button);
   }
   slider.addEventListener('input', () => {stop();index = Number(slider.value);update();});
   byId('previous').addEventListener('click', () => {stop();index = Math.max(0,index-1);update();});
