@@ -135,3 +135,37 @@ has also been removed.
   were visually inspected; the narrow page had no horizontal overflow.
 * No warnings or errors appeared in these browser checks. The temporary viewport
   override was cleared. Physical-device and cross-browser testing were not done.
+
+## Documentary reading and source directory
+
+The next September 20 update adds an exhibit-only reading layout, a responsive
+contents list, the complete seven-entry chronology and twelve named sources.
+The map and written chronology share chapter data. Historical source files,
+photograph bytes and the source-scoped remembrance remain unchanged.
+
+* All 56 Python tests and 34 JavaScript tests passed. New cases check bibliography
+  source identity, duplicate and unused URLs, unsafe URLs, and the introduction's
+  citation. They verify consistency, not historical truth.
+* Exhibit integrity, script syntax and all 80,318 published catalogue records
+  passed their checks. Every chapter selects an existing map position.
+* The desktop opening photograph, history, map and sources were visually checked.
+  Contents links selected the intended section and the current marker followed
+  the reader. Back to overview returned to the introduction.
+* The 6:24 chronology link selected the maximum-size chapter and 6:24 map point.
+  The formation link explicitly selected 6:04 while its account retained 6:03.
+* A 390 by 844 tab viewport had 375 CSS pixels of content and a 320 by 844 viewport
+  had 305, accounting for the scrollbar. Neither had page-wide horizontal
+  overflow. Individual exhibit sections also stayed within their bounds at the
+  smaller size. The source list and narrow map controls were visually inspected.
+* The contents disclosure opened from the keyboard. The second storm photograph
+  enlarged with its own attribution and license; Escape closed it and returned
+  focus to the originating button. The narrow dialog did not widen the page.
+* Changing a damage comparison view selected the steel power poles and its
+  caption. Searching Blackwell returned two of ten video leads.
+* No browser warnings or errors appeared in these interactions. Viewport
+  overrides were cleared. These were local browser checks, not a physical-phone,
+  cross-browser, screen-reader, slow-network or complete WCAG audit.
+
+The [design research](../research/documentary-design-2026-09-20.md) records the
+sources and distinguishes guidance from observed design and our own choices.
+No reader-comprehension or engagement improvement has been measured yet.

@@ -16,11 +16,14 @@ The atlas contains 80,318 NOAA source records covering US years 1950 through 202
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
 
-The El Reno page opens with a photograph of the actual tornado. You can enlarge
-the storm and damage photographs, inspect their credits, follow the path
-chapters, and read short explanations of the rating, width and reconstruction
-limits. I keep [audience research notes](research/audience-notes-2026-09-20.md)
-alongside the project so the reasons for these choices are visible too.
+The El Reno page is both a historical account and a reference. Read it in order,
+or use the contents list to jump to the path, photographs, damage, remembrance
+or sources. The seven-entry chronology links directly to the published map
+positions. Twelve named sources explain what each contributes. The page opens
+with a photograph of the actual tornado, and all storm and damage photographs
+can be enlarged with their credits. The [documentary design notes](research/documentary-design-2026-09-20.md)
+and [audience research notes](research/audience-notes-2026-09-20.md) explain the
+choices and the limits of the research.
 
 ## Run locally
 
@@ -61,7 +64,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Browser publication | A compressed static search index and 256 content-addressed detail files, loaded as needed without a database server |
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
-| Verification | 50 Python tests, 34 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 56 Python tests, 34 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
@@ -113,6 +116,7 @@ node --check web/wind.js
 node --check web/passage.js
 node --check web/damage-view.mjs
 node --check web/photo-view.mjs
+node --check web/reader-view.mjs
 node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs
 py -3.11 tools/check_catalogue.py
 ```
@@ -122,6 +126,7 @@ Node 20 or newer is needed for the JavaScript checks, but not to serve the museu
 ## Project notes
 
 * [Museum brief](docs/museum-brief.md)
+* [Documentary and reference design](research/documentary-design-2026-09-20.md)
 * [Individual tornado reconstruction plan](docs/reconstruction-plan.md)
 * [Data contract](docs/data-contract.md)
 * [Video evidence workflow](docs/video-evidence-workflow.md)

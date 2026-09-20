@@ -12,6 +12,13 @@ in its path. Start with the most infamous storms, then work outward to less
 familiar events. This is a long term collection built one reviewed event at a
 time, not a requirement to finish every catalogue entry before opening the museum.
 
+Each detailed exhibit should also work as a documentary and reference page.
+Give visitors a sourced account, a chronology they can read without operating
+the animation, actual photographs with credits, damage context, reported human
+impacts, remembrance and a usable source list. A persistent contents list should
+support returning to a particular passage. El Reno now implements this first
+reading template; the archive still needs deeper event-by-event research.
+
 The working title is Tornado Atlas. It is a local folder name, not a final brand.
 
 ## Visitor experience to build

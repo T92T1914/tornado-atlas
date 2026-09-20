@@ -3,37 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Tornado Atlas | El Reno field study</title>
+  <title>El Reno tornado, May 31, 2013 | History, photographs and path | Tornado Atlas</title>
+  <meta name="description" content="Explore the El Reno tornado through its documented history, a timed path map, credited photographs, damage survey, remembrance and sources.">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="exhibit.css">
   <script src="app.js" defer></script>
 </head>
-<body>
+<body class="documentary-exhibit">
   <a class="skip" href="#main">Skip to exhibit</a>
   <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Exhibit navigation"><a href="atlas.html">Atlas</a><a href="#photos">Photos</a><a href="#path">Path</a><a href="#damage">Damage</a><a href="#remembrance">Remembrance</a><a href="study.html">Form study</a><a href="wind.html">Wind lab</a></nav><span class="local">HISTORICAL STUDY / 001</span></header>
   <main id="main">
-    <section class="hero">
+    <section id="overview" class="hero">
       <div class="eyebrow">THE HISTORICAL STORM COLLECTION</div>
       <div class="hero-grid"><div><p id="place" class="place"></p><h1>El Reno<span>May 31, 2013</span></h1><div class="intro"><p id="introduction"></p><a class="text-link" href="#path">Explore the path <span aria-hidden="true">↘</span></a></div></div><div id="hero-photograph" class="hero-photograph"></div></div>
       <div id="facts" class="facts"></div>
-      <nav class="exhibit-jumps" aria-label="Explore this storm"><a href="#history">The history</a><a href="#photos">The tornado in photographs</a><a href="#questions">Questions about El Reno</a><a href="#collection">Watch the source videos</a></nav>
+      <p class="exhibit-meta"><span>Historical exhibit</span><span id="exhibit-updated"></span><a href="#sources">Sources and further reading</a></p>
     </section>
+    <div class="exhibit-layout">
+    <aside class="contents-rail">
+      <details id="exhibit-contents" open>
+        <summary>On this page</summary>
+        <nav aria-label="On this page">
+          <a href="#overview">Overview</a>
+          <a href="#history">History and context</a>
+          <a href="#path">Path and timeline</a>
+          <a href="#photos">Photographs</a>
+          <a href="#damage">Damage survey</a>
+          <a href="#remembrance">Remembering those who died</a>
+          <a href="#questions">Questions about El Reno</a>
+          <a href="#research">Research and reconstruction</a>
+          <a href="#collection">Source videos</a>
+          <a href="#sources">Sources and further reading</a>
+        </nav>
+      </details>
+    </aside>
+    <article class="exhibit-story" aria-label="El Reno historical account">
     <section id="history" class="history-section">
-      <div class="section-title"><div><div class="eyebrow">THE STORM AND ITS HISTORY</div><h2>More than a line on a map.</h2></div><a href="#remembrance">In remembrance</a></div>
+      <div class="section-title"><div><div class="eyebrow">MAY 31, 2013</div><h2>History and context</h2></div><a href="#remembrance">In remembrance</a></div>
       <p id="history-introduction" class="section-intro"></p>
       <div id="historical-context" class="notes"></div>
     </section>
-    <section id="photos" class="photos-section">
-      <div class="section-title"><div><div class="eyebrow">PHOTOGRAPHS OF THE TORNADO</div><h2>The storm as it was photographed.</h2></div><a href="#damage">See the damage survey</a></div>
-      <p class="section-intro">Two views by Daniel Rodriguez. Select either photograph for a larger view, its credit and the original file. Neither photograph has been placed at a specific moment on the path.</p>
-      <div id="storm-photographs" class="storm-photographs"></div>
-      <p class="fineprint">Historical photographs, separate from the simulator. Some original filenames retain an early EF5 label; the final official damage rating is EF3. Photograph timing and viewing directions remain unregistered.</p>
-    </section>
-    <section id="questions" class="questions-section">
-      <div class="section-title"><div><div class="eyebrow">READING THE EVIDENCE</div><h2>Questions about El Reno.</h2></div></div>
-      <div id="visitor-questions" class="visitor-questions"></div>
-    </section>
     <section id="path" class="path-section">
-      <div class="section-title"><div><div class="eyebrow">01 / GEOGRAPHIC EVIDENCE</div><h2>A path that changes direction.</h2></div><a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">NWS source ↗</a></div>
+      <div class="section-title"><div><div class="eyebrow">GEOGRAPHIC EVIDENCE</div><h2>Path and timeline</h2></div><a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">NWS source ↗</a></div>
+      <p class="section-intro">Follow the tornado's changing course using the published center positions, or read the chronology below. All times here are local daylight time, CDT. Playback begins only when you select Play timeline.</p>
       <div class="map-shell">
         <div class="map-top"><span>EL RENO · OKLAHOMA</span><span>Survey geometry / north up</span></div>
         <svg id="map" viewBox="0 0 960 430" role="img" aria-labelledby="map-title map-description"><title id="map-title">El Reno tornado path and published center position</title><desc id="map-description">Official NWS geometry on a local coordinate grid. The shaded outline is the entire event footprint, not a changing funnel.</desc></svg>
@@ -43,9 +55,16 @@
         <div class="path-account" aria-live="polite"><h3 id="chapter-title"></h3><p id="chapter-account"></p></div>
       </div>
       <div id="path-chapters" class="path-chapters" aria-label="Explore the path by chapter"></div>
+      <div class="chronology"><h3>The tornado, in sequence</h3><p class="section-intro">Each entry links back to the NWS account and to a published map position. The formation precedes the first map point, and the reported ending times disagree.</p><ol id="storm-chronology"></ol></div>
+    </section>
+    <section id="photos" class="photos-section">
+      <div class="section-title"><div><div class="eyebrow">THE TORNADO ON CAMERA</div><h2>Photographs</h2></div><a href="#damage">See the damage survey</a></div>
+      <p class="section-intro">Two views by Daniel Rodriguez. Select either photograph for a larger view, its credit and the original file. Neither photograph has been placed at a specific moment on the path.</p>
+      <div id="storm-photographs" class="storm-photographs"></div>
+      <p class="fineprint">Historical photographs, separate from the simulator. Some original filenames retain an early EF5 label; the final official damage rating is EF3. Photograph timing and viewing directions remain unregistered.</p>
     </section>
     <section id="damage" class="damage-section">
-      <div class="section-title"><div><div class="eyebrow">02 / THE DAMAGE SURVEY</div><h2>What was left behind.</h2></div><a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">NWS photograph captions ↗</a></div>
+      <div class="section-title"><div><div class="eyebrow">BUILDINGS AND INFRASTRUCTURE</div><h2>Damage survey</h2></div><a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">NWS photograph captions ↗</a></div>
       <p id="damage-introduction" class="section-intro"></p>
       <div class="damage-compare" id="damage-compare"></div>
       <p id="damage-interpretation" class="fineprint"></p>
@@ -64,19 +83,32 @@
       <ul id="memorial-names" class="memorial-names"></ul>
       <p id="remembrance-source-note" class="fineprint"></p>
     </section>
+    <section id="questions" class="questions-section">
+      <div class="section-title"><div><div class="eyebrow">READING THE EVIDENCE</div><h2>Questions about El Reno</h2></div></div>
+      <div id="visitor-questions" class="visitor-questions"></div>
+    </section>
     <section id="research" class="research-section">
-      <div class="section-title"><div><div class="eyebrow">03 / THE RESEARCH NOTEBOOK</div><h2>What the evidence can tell us.</h2></div><span class="status">RECONSTRUCTION IN DEVELOPMENT</span></div>
+      <div class="section-title"><div><div class="eyebrow">THE RESEARCH NOTEBOOK</div><h2>Research and reconstruction</h2></div><span class="status">RECONSTRUCTION IN DEVELOPMENT</span></div>
       <div id="notes" class="notes"></div>
       <div class="footage-notebook"><h3 id="footage-title"></h3><p id="footage-introduction"></p><div id="observations" class="observations"></div><p id="footage-timing" class="fineprint"></p><p id="method-source" class="fineprint"></p></div>
       <div class="research-bottom"><div><h3>From footage to a historical scene</h3><p>Each shot needs a time, a location and a viewing direction before it can guide the reconstruction. An edited video's timestamp is a place in the film, not automatically a time in the storm.</p><p>The survey photographs add documented damage. Connecting them to registered camera views is still ahead. For an early look at the visual work, <a href="study.html">explore the interactive form study</a>. It is an illustration, separate from this historical exhibit.</p></div><div class="coverage"><span class="eyebrow">REVIEW COVERAGE</span><p id="coverage"></p><p id="remaining"></p></div></div>
     </section>
     <section id="collection" class="collection-section">
-      <div class="section-title"><div><div class="eyebrow">04 / CURATOR'S VIDEO COLLECTION</div><h2>Three channels. A growing archive.</h2></div><p>Organized by storm, reviewed one source at a time.</p></div>
+      <div class="section-title"><div><div class="eyebrow">THE GROWING COLLECTION</div><h2>Source videos</h2></div><p>Organized by storm, reviewed one source at a time.</p></div>
       <div id="creators" class="creators"></div>
       <div class="filter-row"><label for="search">Find a storm, creator or video</label><input id="search" type="search" placeholder="Try Blackwell or El Reno"><output id="count" aria-live="polite"></output></div>
       <div id="videos" class="videos"></div>
       <p class="fineprint">These are research leads and credited links. Original video titles are preserved, including their authors' rankings and superlatives; those claims have not been adopted as museum findings. Media remains with its creators.</p>
     </section>
+    <section id="sources" class="sources-section">
+      <div class="section-title"><div><div class="eyebrow">FOLLOW THE RECORD</div><h2>Sources and further reading</h2></div></div>
+      <p class="section-intro">The records below support this exhibit. Each note explains what the source contributes. Video review coverage is listed with the videos above; a link does not mean an entire source has been independently verified.</p>
+      <div id="source-register"></div>
+      <p class="fineprint">Found an error or have a source to add? <a href="https://github.com/T92T1914/tornado-atlas/issues" target="_blank" rel="noopener">Send a correction with the passage and its source.</a> The <a href="data.json">exhibit data</a> also keeps the source revisions and unresolved questions available for inspection.</p>
+      <a class="back-to-top" href="#overview">Back to the overview ↑</a>
+    </section>
+    </article>
+    </div>
     <p id="error" role="alert" hidden></p>
   </main>
   <dialog id="photo-dialog" aria-labelledby="photo-title"><div class="photo-dialog-bar"><h2 id="photo-title"></h2><button id="photo-close" autofocus>Close photograph</button></div><img id="photo-full" alt=""><p id="photo-failure" role="status" hidden>The photograph could not be loaded. You can still open its source below.</p><p id="photo-caption"></p><p id="photo-location"></p><p id="photo-credit" class="fineprint"></p><div class="photo-dialog-links"><a id="photo-source" target="_blank" rel="noopener">Source and attribution ↗</a><a id="photo-original" target="_blank" rel="noopener">Open full resolution ↗</a><a id="photo-license" target="_blank" rel="noopener" hidden></a></div></dialog>
