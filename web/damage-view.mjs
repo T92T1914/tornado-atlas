@@ -6,20 +6,16 @@ const el = (tag, text, className) => {
 };
 const byId = id => document.getElementById(id);
 
-export function mountDamage(gallery) {
+export function mountDamage(gallery, showPhoto) {
   byId('damage-introduction').textContent = gallery.introduction;
   byId('damage-interpretation').textContent = gallery.interpretation_note;
   byId('damage-location').textContent = gallery.location_note;
-  const dialog = byId('photo-dialog');
-  byId('photo-close').addEventListener('click', () => dialog.close());
   function openPhoto(photo) {
-    byId('photo-title').textContent = photo.title;
-    byId('photo-full').src = photo.asset;
-    byId('photo-full').alt = photo.caption;
-    byId('photo-caption').textContent = `${photo.reported_rating} in NWS caption. ${photo.caption}`;
-    byId('photo-location').textContent = photo.location_description;
-    byId('photo-source').href = photo.image_url;
-    dialog.showModal();
+    showPhoto({title:photo.title, asset:photo.asset, alt:photo.caption,
+      caption:`${photo.reported_rating} in NWS caption. ${photo.caption}`,
+      location:photo.location_description + ' Exact camera coordinates and capture time are unverified.',
+      credit:'NOAA / National Weather Service survey personnel. Original image bytes preserved.',
+      source:photo.image_url});
   }
   function imageButton(photo, lazy = true) {
     const button = el('button', null, 'photo-button');

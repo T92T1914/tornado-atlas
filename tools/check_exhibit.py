@@ -16,7 +16,8 @@ for key, relative in [('exhibit', 'exhibits/el-reno-2013/dossier.json'),
                       ('notebook', 'exhibits/el-reno-2013/observations.json'),
                       ('damage', 'exhibits/el-reno-2013/damage.json'),
                       ('history', 'exhibits/el-reno-2013/history.json'),
-                      ('storm_photos', 'exhibits/el-reno-2013/storm-photos.json')]:
+                      ('storm_photos', 'exhibits/el-reno-2013/storm-photos.json'),
+                      ('visitor_guide', 'exhibits/el-reno-2013/visitor-guide.json')]:
     assert bundle[key] == json.loads((root / relative).read_text(encoding='utf-8')), f'Stale bundle: {key}'
 points = [f for f in geo['features'] if f['geometry']['type'] == 'Point']
 assert len(points) == 39

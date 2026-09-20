@@ -10,6 +10,12 @@ The project can gain useful catalogue coverage before every tornado has a detail
 4. Build one limited appearance reconstruction from registered observations. Identify the view and time range it represents.
 5. Complete a contrasting Blackwell 1955 dossier. Historical testimony and later explanations need separate labels.
 
+The [September 20 audience review](../research/audience-notes-2026-09-20.md)
+supports prioritizing registered camera views, understandable map legends,
+source-linked photographs and the human history. The first exhibit now brings
+its photographs into the opening view. New exhibits need their own verified
+photographs and rights records; a catalogue record alone does not supply them.
+
 ## Catalogue work
 
 * US imports now cover every year from 1950 through 2025. Next, review historical naming and source anomalies while preserving record-versus-event distinctions.

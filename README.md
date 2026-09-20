@@ -8,6 +8,12 @@ The atlas contains 80,318 NOAA source records covering US years 1950 through 202
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
 
+The El Reno page opens with a photograph of the actual tornado. You can enlarge
+the storm and damage photographs, inspect their credits, follow the path
+chapters, and read short explanations of the rating, width and reconstruction
+limits. I keep [audience research notes](research/audience-notes-2026-09-20.md)
+alongside the project so the reasons for these choices are visible too.
+
 ## Run locally
 
 Python 3.11 or newer. No additional packages, API keys or map service accounts are needed for the included preview.
@@ -93,6 +99,7 @@ node --check web/study.js
 node --check web/wind.js
 node --check web/passage.js
 node --check web/damage-view.mjs
+node --check web/photo-view.mjs
 node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs
 py -3.11 tools/check_catalogue.py
 ```

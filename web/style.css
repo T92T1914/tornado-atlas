@@ -66,7 +66,8 @@ header {
 }
 nav {
   display:flex;
-  gap:30px;
+  flex-wrap:wrap;
+  gap:12px 22px;
   font-size:13px
 }
 nav a {
@@ -90,8 +91,8 @@ section {
 }
 .hero-grid {
   display:grid;
-  grid-template-columns:1.2fr 1fr;
-  gap:80px;
+  grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);
+  gap:36px;
   align-items:center;
   margin-top:22px
 }
@@ -727,7 +728,7 @@ footer p {
 .memorial-names {list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:0 30px}
 .memorial-names li {padding:22px 0;border-top:1px solid var(--line)}
 .memorial-names strong {font:23px Georgia,serif;display:block}
-.memorial-rest {display:block;color:var(--muted);font-size:13px;margin:6px 0}
+.remembrance-dedication {font:italic 24px Georgia,serif;color:var(--green);margin:28px 0 20px}
 .memorial-sources {display:flex;flex-wrap:wrap;gap:15px;font-size:11px;color:var(--muted)}
 .impact-sources {padding:15px 0;color:var(--muted);font-size:13px}
 @media(max-width:650px) {.storm-photographs,.memorial-names {grid-template-columns:1fr}.path-account {padding:15px}.history-section,.remembrance-section {padding:32px 0}}
@@ -736,3 +737,22 @@ footer p {
     scroll-behavior:auto
   }
 }
+.hero-photograph {min-width:0}
+.hero-photograph figure {margin:0}
+.hero-photograph figcaption {font-size:12px;color:var(--muted);padding:12px 0 0}
+.hero-photograph figcaption p {margin-bottom:4px}
+.storm-photo-button {display:block;width:100%;padding:0;overflow:hidden;background:#0b1110;border:1px solid var(--line);cursor:zoom-in}
+.storm-photo-button img {display:block;width:100%;height:auto}
+.storm-photo-button span {display:block;padding:30px}
+.exhibit-jumps {border-top:1px solid var(--line);margin-top:30px;padding-top:20px;font-size:12px;gap:14px 28px;width:100%}
+.exhibit-jumps a {text-decoration:underline}
+.photo-dialog-links {display:flex;flex-wrap:wrap;gap:12px 24px;margin-top:18px;font-size:13px}
+#photo-full[hidden] {display:none}
+.visitor-questions {display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.visitor-questions details {background:var(--panel);border:1px solid var(--line);padding:22px;min-width:0}
+.visitor-questions summary {cursor:pointer;font-size:16px;color:var(--green)}
+.visitor-questions p {font-size:14px;color:var(--muted);margin:18px 0 0}
+.visitor-questions .guide-sources {display:flex;gap:10px 20px;flex-wrap:wrap;font-size:12px}
+.storm-photographs .fineprint {margin:12px 0 0}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr 1.2fr;gap:25px}.hero h1{font-size:66px}.hero .intro{font-size:15px}}
+@media(max-width:650px){.hero-grid,.visitor-questions{grid-template-columns:1fr}.hero-photograph{grid-row:2}.hero h1{font-size:58px;margin-bottom:20px}.hero .intro{font-size:14px}.exhibit-jumps{gap:12px 22px}.visitor-questions details{padding:18px}.hero-photograph figcaption{font-size:11px}}

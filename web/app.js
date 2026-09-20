@@ -23,6 +23,8 @@ async function main() {
   const response = await fetch('data.json');
   if (!response.ok) throw new Error('Exhibit data could not be loaded. Run the exhibit build first.');
   const data = await response.json();
+  const { mountPhotoViewer } = await import('./photo-view.mjs');
+  const openPhoto = mountPhotoViewer();
   const exhibit = data.exhibit;
   const history = data.history;
   byId('history-introduction').textContent = history.introduction;
@@ -31,16 +33,43 @@ async function main() {
     card.append(node('h3', entry.title),node('p',entry.text),link('Read the account ↗',entry.source));
     byId('historical-context').append(card);
   }
-  for (const photo of data.storm_photos) {
+  function stormFigure(photo, index, hero = false) {
     const figure = node('figure');
     const image = node('img');
-    image.src = photo.file; image.alt = photo.alt; image.loading = 'lazy';
+    image.src = photo.file; image.alt = photo.alt; image.loading = hero ? 'eager' : 'lazy';
+    image.decoding = 'async';
+    if (hero) image.fetchPriority = 'high';
     image.width=photo.width; image.height=photo.height;
-    const full = link('', photo.file); full.append(image); full.setAttribute('aria-label','Open original storm photograph');
+    const full = node('button', null, 'storm-photo-button');
+    full.append(image); full.setAttribute('aria-label',`Enlarge storm photograph ${index + 1}`);
+    full.addEventListener('click', () => openPhoto({
+      title:`El Reno / storm photograph ${index + 1}`, asset:photo.file, alt:photo.alt,
+      caption:photo.caption, location:photo.timing_note, credit:photo.credit + '. ' + photo.changes,
+      source:photo.source, license:photo.license, licenseUrl:photo.license_url
+    }));
+    image.addEventListener('error', () => {
+      full.replaceChildren(node('span', 'Photograph unavailable. Use the source link below.'));
+      full.disabled = true;
+    }, {once:true});
     const caption=node('figcaption');
-    caption.append(node('p',photo.caption),link('Source and photographer credit ↗',photo.source),
-      document.createTextNode(' · '),link(photo.license,photo.license_url),node('p',photo.changes+' '+photo.timing_note,'fineprint'));
-    figure.append(full,caption); byId('storm-photographs').append(figure);
+    caption.append(node('p', hero ? 'El Reno, photographed on May 31, 2013. Select to enlarge.' : photo.caption),
+      link(photo.credit + ' ↗',photo.source), document.createTextNode(' · '),link(photo.license,photo.license_url));
+    if (!hero) caption.append(node('p',photo.changes+' '+photo.timing_note,'fineprint'));
+    figure.append(full,caption);
+    return figure;
+  }
+  data.storm_photos.forEach((photo,index) => {
+    byId('storm-photographs').append(stormFigure(photo,index));
+  });
+  if (data.storm_photos.length) byId('hero-photograph').append(stormFigure(data.storm_photos[0],0,true));
+  for (const entry of data.visitor_guide) {
+    const details = node('details');
+    details.id = entry.id;
+    details.append(node('summary',entry.question),node('p',entry.answer));
+    const sources = node('p',null,'guide-sources');
+    entry.sources.forEach(source => sources.append(link(source.label+' ↗',source.url)));
+    details.append(sources);
+    byId('visitor-questions').append(details);
   }
   const impacts=history.impacts, memorial=history.remembrance;
   for (const [label,value] of [['Direct fatalities',impacts.deaths_direct],['Direct injuries reported',impacts.injuries_direct]]) {
@@ -55,7 +84,7 @@ async function main() {
   byId('remembrance-scope').textContent=memorial.scope;
   byId('remembrance-source-note').textContent=memorial.source_note;
   for (const person of memorial.people) {
-    const item=node('li');item.append(node('strong',person.name),node('span','Rest in peace','memorial-rest'));
+    const item=node('li');item.append(node('strong',person.name));
     const sources=node('div',null,'memorial-sources');
     person.sources.forEach((url,i)=>sources.append(link(`Public source ${i+1} ↗`,url)));
     item.append(sources);byId('memorial-names').append(item);
@@ -124,7 +153,14 @@ async function main() {
   showVideos();
   drawMap(data.geometry, history.chapters);
   const { mountDamage } = await import('./damage-view.mjs');
-  mountDamage(data.damage);
+  mountDamage(data.damage, openPhoto);
+  // A shared section link can arrive before the asynchronous exhibit is laid out.
+  requestAnimationFrame(() => {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); }
+    catch { return; }
+    if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
+  });
 }
 function drawMap(geojson, chapters) {
   const svg = byId('map');
