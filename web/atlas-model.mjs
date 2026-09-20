@@ -1,4 +1,27 @@
 // Pure view logic shared by the browser and offline Node tests.
+export function readSearchLink(search = '', hash = '') {
+  const params = new URLSearchParams(search);
+  return {
+    filters: {
+      query: params.get('q') || '', year: params.get('year') || '',
+      rating: params.get('rating') || '', state: params.get('state') || '',
+      exhibits: params.get('exhibits') === '1',
+    },
+    recordId: new URLSearchParams(hash.replace(/^#/, '')).get('record') || '',
+  };
+}
+
+export function writeSearchLink(filters = {}, recordId = '') {
+  const params = new URLSearchParams();
+  for (const [key, field] of [['q','query'],['year','year'],['rating','rating'],['state','state']]) {
+    if (filters[field]) params.set(key, filters[field]);
+  }
+  if (filters.exhibits) params.set('exhibits', '1');
+  const query = params.toString();
+  // Keep existing #record= bookmarks compatible.
+  return `${query ? `?${query}` : ''}${recordId ? `#record=${encodeURIComponent(recordId)}` : ''}`;
+}
+
 export function filterRecords(records, {query = '', year = '', rating = '', state = '', exhibits = false} = {}) {
   const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   return records.filter(record => {
