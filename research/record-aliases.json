@@ -1,0 +1,17 @@
+{
+  "ncei:453682": {
+    "names": ["El Reno 2013", "Union City El Reno Yukon"],
+    "exhibit": "index.html",
+    "basis": "Reviewed NCEI event narrative, date, county and NWS event account agree with the El Reno 2013 exhibit."
+  },
+  "ncei:296617": {
+    "names": ["Joplin 2011", "Joplin Jasper County segment"],
+    "exhibit": null,
+    "basis": "NCEI event narrative explicitly describes the Joplin tornado through Jasper County; source title uses the starting locality Central City."
+  },
+  "ncei:296620": {
+    "names": ["Joplin 2011", "Joplin Newton County continuation"],
+    "exhibit": null,
+    "basis": "NCEI event narrative explicitly identifies the continuation of the Joplin tornado into Newton County. This alias does not merge records or ratings."
+  }
+}

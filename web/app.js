@@ -42,6 +42,27 @@ async function main() {
     byId('notes').append(card);
   }
   const creators = new Map(data.creators.map(c => [c.id, c]));
+  const notebook = data.notebook;
+  byId('footage-title').textContent = notebook.title;
+  byId('footage-introduction').textContent = notebook.introduction;
+  byId('footage-timing').textContent = notebook.timing_note;
+  byId('method-source').append(node('span', notebook.method_source.note + ' '),
+    link('Research precedent ↗', notebook.method_source.url));
+  for (const observation of notebook.observations) {
+    const card = node('article', null, 'observation');
+    const minute = Math.floor(observation.start_seconds / 60);
+    const second = Math.floor(observation.start_seconds % 60).toString().padStart(2,'0');
+    const sourceVideo = data.review_queue.find(video => video.id === observation.video);
+    card.append(node('span', observation.kind === 'visual_sample' ? 'Inspected still sample' : 'Creator annotation', 'eyebrow'));
+    card.append(node('h4', observation.title), node('p', observation.note));
+    card.append(link(`${creators.get(sourceVideo.creator).name} · ${minute}:${second} ↗`,
+      `https://www.youtube.com/watch?v=${observation.video}&t=${Math.floor(observation.start_seconds)}s`));
+    const details = node('details');
+    details.append(node('summary', 'What is still unresolved'),
+      node('p', 'Historical time and camera location are not registered. ' + observation.next));
+    card.append(details);
+    byId('observations').append(card);
+  }
   for (const creator of data.creators) {
     const anchor = link(creator.name + ' ↗', creator.url);
     anchor.className = 'creator';

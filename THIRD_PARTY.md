@@ -23,8 +23,18 @@ The catalogue records titles, links, access scope and short original research no
 * [TornadoTRX](https://www.youtube.com/@tornadotrx/videos)
 * [Swegle Studios](https://www.youtube.com/@SwegleStudios/videos)
 
-An uploader may credit other camera operators. A later shot register must preserve those credits and document a reuse basis before third-party media becomes an exhibit asset.
+An uploader may credit other camera operators. As the shot register expands it must preserve those credits and document a reuse basis before third-party media becomes an exhibit asset.
+
+## Catalogue records and map context
+
+The public preview includes normalized NOAA NCEI Storm Events records for 1950, 2011 and 2013 from publisher revision 20260323, with event narratives, source locators and revision hashes. Original government source material is excluded from the project's copyright claim. Full raw annual files and original rows remain in the local archive. Episode narratives are not included in the browser bundle.
+
+Made with [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/). Its public-domain 1:110m countries dataset supplies 177 geographic features. Coordinates are retained; attributes are reduced to display names. These are modern boundaries for orientation, not a reconstruction of historical jurisdiction.
+
+* [Original GeoJSON](https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson)
+* Retrieved September 20, 2026; SHA-256 `6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f`.
+* Terms checked September 20, 2026. No map tiles, external map fonts or tracking service are required.
 
 ## Data archive
 
-NOAA NCEI and JMA downloads remain outside version control in `data/`. Their provenance is preserved locally. The software's license is not a license for arbitrary third-party content discovered during research.
+Raw NOAA NCEI and JMA downloads remain outside version control in `data/`. Their provenance is preserved locally. The software's license is not a license for arbitrary third-party content discovered during research.

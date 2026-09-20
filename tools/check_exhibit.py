@@ -8,7 +8,8 @@ geo = json.loads((root / 'exhibits/el-reno-2013/path.geojson').read_text(encodin
 assert bundle['geometry'] == geo, 'Preview geometry differs from exhibit geometry'
 for key, relative in [('exhibit', 'exhibits/el-reno-2013/dossier.json'),
                       ('creators', 'research/creators.json'),
-                      ('review_queue', 'research/video-review-queue.json')]:
+                      ('review_queue', 'research/video-review-queue.json'),
+                      ('notebook', 'exhibits/el-reno-2013/observations.json')]:
     assert bundle[key] == json.loads((root / relative).read_text(encoding='utf-8')), f'Stale bundle: {key}'
 points = [f for f in geo['features'] if f['geometry']['type'] == 'Point']
 assert len(points) == 39
@@ -21,4 +22,4 @@ ids = [video['id'] for video in bundle['review_queue']]
 assert len(ids) == len(set(ids))
 creator_ids = {creator['id'] for creator in bundle['creators']}
 assert all(video['creator'] in creator_ids for video in bundle['review_queue'])
-print(f'Exhibit verified: {len(points)} timed positions, {len(ids)} video leads, 3 creators.')
+print(f"Exhibit verified: {len(points)} timed positions, {len(ids)} video leads, 3 creators, {len(bundle['notebook']['observations'])} footage notes.")

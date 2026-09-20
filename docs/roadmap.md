@@ -4,7 +4,7 @@ The project can gain useful catalogue coverage before every tornado has a detail
 
 ## Next exhibit work
 
-1. Review the two El Reno 2013 videos with a shot register, including cuts, reuse credits and caption corrections.
+1. Expand the initial five-note El Reno register into continuous shot coverage for both source videos, including cuts, reuse credits and caption corrections.
 2. Locate original footage and research that can establish camera position, direction and historical time.
 3. Add documented damage locations without inferring precise failure times or wind fields from a rating.
 4. Build one limited appearance reconstruction from registered observations. Identify the view and time range it represents.
@@ -12,7 +12,7 @@ The project can gain useful catalogue coverage before every tornado has a detail
 
 ## Catalogue work
 
-* Add a world atlas view and filters over source records, with clear coverage dates and record-versus-event distinctions.
+* Extend the implemented atlas beyond the three pilot years. Preserve coverage dates and record-versus-event distinctions as the catalogue grows.
 * Implement JMA classification, sentinel values, encoding and rating conventions. Preserve uncertain and non-tornado phenomena without mixing them into confirmed tornado counts.
 * Investigate international research datasets and reuse terms before adding further adapters.
 * Group county segments only with supporting identifiers or reviewed reasoning.

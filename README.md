@@ -4,7 +4,7 @@ An interactive museum of historical tornadoes, built around source records, docu
 
 I have always been interested in tornadoes. I wanted a place where I could look up a storm, follow where it went, see the evidence behind its history, and eventually explore a reconstruction of what it looked like. This project is how I am starting to build that.
 
-The first exhibit is **El Reno, Oklahoma, on May 31, 2013**. It has an interactive geographic timeline, the published NWS outline and center path, and a searchable video research collection. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
+The atlas starts with 3,350 NOAA source records from three US pilot years. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, and a footage notebook. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
 
 ## Try the museum
 
@@ -16,7 +16,9 @@ From the repository directory:
 py -3.11 -m http.server 8768 --bind 127.0.0.1 --directory web
 ```
 
-Open **http://127.0.0.1:8768**. On macOS or Linux, replace `py -3.11` with `python3`. The included exhibit runs offline after checkout. The source links open external websites.
+Open **http://127.0.0.1:8768/atlas.html** for the catalogue or **http://127.0.0.1:8768** for El Reno. On macOS or Linux, replace `py -3.11` with `python3`. Both included pages run offline after checkout. The source links open external websites.
+
+Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Each selection has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account.
 
 Use the timeline slider, previous and next buttons, or playback to step through 39 published positions. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
 
@@ -24,13 +26,15 @@ Use the timeline slider, previous and next buttons, or playback to step through 
 
 | Part | What you can inspect |
 | --- | --- |
-| El Reno exhibit | Geographic timeline, source links, unresolved end-time discrepancy, and explicit video review coverage |
+| Searchable atlas | World outline, 3,350 US source records, combined filters, paginated results and linked source details |
+| El Reno exhibit | Geographic timeline, five timestamped footage notes, source links and unresolved evidence questions |
 | Source catalogue | NOAA NCEI imports, SQLite search, original records, source revisions and SHA-256 checks |
+| Browser publication | A static search index and 16 content-addressed detail files, loaded as needed without a database server |
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
-| Verification | 25 unit tests, an offline exhibit consistency check, and a GitHub Actions workflow |
+| Verification | 38 Python tests, eight JavaScript tests, offline bundle checks and a GitHub Actions workflow |
 
-This is an early working project. A world map, normalized international imports, complete documentary exhibits, 3D storm reconstructions and experimental building damage models are still ahead. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
+This is an early working project. International imports, complete documentary exhibits, 3D storm reconstructions and experimental building damage models are still ahead. The world outline is a navigation layer; only the stated US years are populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
 ## Explore the data pipeline
 
@@ -41,9 +45,10 @@ py -3.11 -X utf8 -m atlas search 'Joplin' --year 2011
 py -3.11 -X utf8 -m atlas search 'El Reno' --year 2013
 py -3.11 -X utf8 -m atlas search --rating F3 --year 1950
 py -3.11 -X utf8 -m atlas export
+py -3.11 -X utf8 -m atlas.publication
 ```
 
-The first import requires a network connection. It discovers the latest publisher revision for each requested year. Raw downloads and the local database live in `data/`, which is excluded from Git. Exported catalogue JSON goes into `outputs/`.
+The first import requires a network connection. It discovers the latest publisher revision for each requested year. Raw downloads and the local database live in `data/`, which is excluded from Git. The CLI export goes into `outputs/`. `atlas.publication` builds the browser files in `web/catalogue/` and retrieves the Natural Earth map if it is not cached. Its index is published only after every referenced detail file exists. Old detail filenames remain valid across rebuilds.
 
 The pilot import on September 20, 2026 produced 3,350 source records across those three years. A row can describe one county's segment of a longer tornado. That number is not a count of unique tornadoes, and the selected years do not imply continuous coverage.
 
@@ -69,9 +74,12 @@ Future reconstructions will connect specific shots to camera positions and histo
 py -3.11 -m unittest discover -s tests -v
 py -3.11 tools/check_exhibit.py
 node --check web/app.js
+node --check web/atlas.js
+node --test tests/atlas-model.test.mjs
+py -3.11 tools/check_catalogue.py
 ```
 
-Node is only needed for the optional JavaScript syntax check. Tests cover source corruption, revision replacement, transaction rollback, old date formats, time offsets, missing values, rating identity, coordinate validation and geographic timeline ordering. Synthetic fixtures test the parsers. They do not validate every historical claim in the source databases.
+Node 20 or newer is needed for the JavaScript checks, but not to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
 
 ## Project notes
 

@@ -29,6 +29,10 @@ Every observation needs a source ID, elapsed start and end, access method, inspe
 
 Store short notes and links by default. Do not paste full transcripts into project documentation. Do not scrape membership content, download creator footage for redistribution, or publish frame captures as museum assets without an appropriate reuse basis. Use credited external links while rights are unresolved.
 
+The first implemented register is `exhibits/el-reno-2013/observations.json`. Two inspected stills and three creator annotations are published with different labels. Its validator prevents an inspected still from becoming a claimed continuous interval or acquiring an unsupported camera/time placement. A sampled image must be checked after seeking: an advertisement or stale decoded frame is not evidence from the requested scene.
+
+The [2014 El Reno Survey Project abstract](https://ams.confex.com/ams/27SLS/webprogram/Paper254094.html) describes fixing time and location before combining multiple views. This is a useful precedent for future registration. Reading that abstract is not equivalent to implementing or validating the researchers' complete method.
+
 ## Initial comparison cases
 
 * El Reno 2013: Pecos Hank footage and TornadoTRX's documentary, alongside NWS geographic evidence. The first preview implements the path, not a completed appearance reconstruction.

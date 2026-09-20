@@ -44,23 +44,10 @@
         ]
       }
     ],
-    "video_observations": [
-      {
-        "video": "Q7X3fyId2U0",
-        "elapsed_seconds": 185,
-        "kind": "creator_annotation",
-        "note": "The description identifies a change in the visible cloud base. Historical time and camera position remain unregistered."
-      },
-      {
-        "video": "Q7X3fyId2U0",
-        "elapsed_seconds": 390,
-        "kind": "creator_annotation",
-        "note": "The description identifies a separate anticyclonic tornado. Do not assign every funnel in the video to the main tornado."
-      }
-    ],
+    "observation_register": "observations.json",
     "coverage": {
-      "video_review": "One Pecos Hank description, partial captions and exploratory still samples. No full video or audio audit.",
-      "frame_registration": "Some screenshots followed seeks before exact decoded-frame timing was established. They support no measured speed, width or position.",
+      "video_review": "Pecos Hank's description and available captions read; two paused visual samples are documented in the footage notebook. No continuous video or audio audit.",
+      "frame_registration": "Sample times use approximate browser playback readings. Camera position and historical time remain unregistered. No measured speed or width is inferred.",
       "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
       "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
       "remaining": "Shot registration, complete video review, third-party image permissions, geolocated damage evidence, and an appearance reconstruction. No 3D storm or damage simulator yet."
@@ -1453,7 +1440,7 @@
       "event_id": "el-reno-2013",
       "priority": 1,
       "status": "partial_review",
-      "coverage": "Description read; captions sampled 4:25 to 8:19; exploratory stills after seeking. No continuous or audio audit.",
+      "coverage": "Description and available captions read. Two paused still samples documented near 2:18.52 and 3:42.98. No continuous video or audio audit.",
       "next": "Verify shot times and camera locations; distinguish edited elapsed time from event time."
     },
     {
@@ -1590,5 +1577,95 @@
       "intended_use": "Historical accounts, unusual phenomena, visual explanation, and source leads.",
       "rights": "Links only. Fictional tornado effects and speculative claims stay separate from historical observations."
     }
-  ]
+  ],
+  "notebook": {
+    "event_id": "el-reno-2013",
+    "reviewed_on": "2026-09-20",
+    "title": "A closer look at the footage",
+    "introduction": "These notes link to places in the original video. Visual samples and the creator's annotations have different evidence labels. None is synchronized with the map yet.",
+    "timing_note": "Sample times are approximate browser playback readings, not decoded frame identifiers. Edited elapsed time does not establish historical time or continuous storm evolution.",
+    "method_source": {
+      "title": "El Reno Survey Project: time and location registration",
+      "url": "https://ams.confex.com/ams/27SLS/webprogram/Paper254094.html",
+      "access": "Full 2014 conference abstract read; presentation not reviewed.",
+      "note": "The researchers describe locating and synchronizing chaser imagery before combining multiple viewpoints. That is the methodological precedent for the next registration stage."
+    },
+    "coverage": {
+      "Q7X3fyId2U0": {
+        "duration_seconds": 503,
+        "description": "Expanded description read.",
+        "captions": "Available timestamped captions from 0:02 through 8:19 read. Captions were not verified against audio.",
+        "visual_samples_seconds": [
+          138.52,
+          222.98
+        ],
+        "continuous_video_review": false,
+        "audio_review": false,
+        "rejected_sample": "A later seek to 6:30 entered an advertisement. The resulting image and playback clock were excluded.",
+        "rights": "Credited links and original notes only. No permission to redistribute footage assumed."
+      }
+    },
+    "observations": [
+      {
+        "id": "ER13-PH-001",
+        "video": "Q7X3fyId2U0",
+        "start_seconds": 138.52,
+        "end_seconds": 138.52,
+        "kind": "visual_sample",
+        "title": "An obscured lower boundary",
+        "note": "A broad dark lowering fills the background above a field and house. Its visible edge does not supply a measurable ground circulation boundary.",
+        "historical_utc": null,
+        "camera_position": null,
+        "next": "Locate the foreground landmarks and camera direction before attempting any size estimate."
+      },
+      {
+        "id": "ER13-PH-002",
+        "video": "Q7X3fyId2U0",
+        "start_seconds": 170,
+        "end_seconds": 170,
+        "kind": "creator_annotation",
+        "title": "The wide view",
+        "note": "The creator identifies the broad feature at this timestamp as the wedge. This is an attributed interpretation, not a measured outline.",
+        "historical_utc": null,
+        "camera_position": null,
+        "next": "Compare registered viewpoints with the documented circulation."
+      },
+      {
+        "id": "ER13-PH-003",
+        "video": "Q7X3fyId2U0",
+        "start_seconds": 185,
+        "end_seconds": 185,
+        "kind": "creator_annotation",
+        "title": "A changing appearance",
+        "note": "The description flags a lifted, flattened base. That appearance alone cannot establish that the tornado ended.",
+        "historical_utc": null,
+        "camera_position": null,
+        "next": "Review the surrounding shots continuously and register any edits."
+      },
+      {
+        "id": "ER13-PH-004",
+        "video": "Q7X3fyId2U0",
+        "start_seconds": 222.98,
+        "end_seconds": 222.98,
+        "kind": "visual_sample",
+        "title": "Foreground landmarks",
+        "note": "A house, vehicle and raised structure provide foreground references beneath a broad lowering. One still cannot establish motion or wind speed.",
+        "historical_utc": null,
+        "camera_position": null,
+        "next": "Match persistent landmarks using documented locations, then estimate viewing direction."
+      },
+      {
+        "id": "ER13-PH-005",
+        "video": "Q7X3fyId2U0",
+        "start_seconds": 390,
+        "end_seconds": 390,
+        "kind": "creator_annotation",
+        "title": "A separate tornado",
+        "note": "The description identifies a smaller anticyclonic tornado here. Keep this lead separate from the main tornado until independently matched.",
+        "historical_utc": null,
+        "camera_position": null,
+        "next": "Identify the corresponding official event; do not attach it to the main path by proximity."
+      }
+    ]
+  }
 }

@@ -18,13 +18,10 @@
     {"title":"An unresolved end time","text":"The NWS narrative ends at 6:42 PM CDT. Its table and NCEI record end at 6:44 PM CDT. The geographic timeline's last label is 6:42. Both reported endings remain in the dossier.","sources":["https://www.weather.gov/oun/events-20130531","https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2013_c20260323.csv.gz"]},
     {"title":"Rating and appearance answer different questions","text":"The damage rating does not specify the funnel's dimensions or recreate its appearance. Building a scene needs shot-level evidence about viewpoint, visibility and time.","sources":["https://www.weather.gov/oun/efscale"]}
   ],
-  "video_observations": [
-    {"video":"Q7X3fyId2U0","elapsed_seconds":185,"kind":"creator_annotation","note":"The description identifies a change in the visible cloud base. Historical time and camera position remain unregistered."},
-    {"video":"Q7X3fyId2U0","elapsed_seconds":390,"kind":"creator_annotation","note":"The description identifies a separate anticyclonic tornado. Do not assign every funnel in the video to the main tornado."}
-  ],
+  "observation_register": "observations.json",
   "coverage": {
-    "video_review":"One Pecos Hank description, partial captions and exploratory still samples. No full video or audio audit.",
-    "frame_registration":"Some screenshots followed seeks before exact decoded-frame timing was established. They support no measured speed, width or position.",
+    "video_review":"Pecos Hank's description and available captions read; two paused visual samples are documented in the footage notebook. No continuous video or audio audit.",
+    "frame_registration":"Sample times use approximate browser playback readings. Camera position and historical time remain unregistered. No measured speed or width is inferred.",
     "caption_discrepancy":"Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
     "geometry":"Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
     "remaining":"Shot registration, complete video review, third-party image permissions, geolocated damage evidence, and an appearance reconstruction. No 3D storm or damage simulator yet."

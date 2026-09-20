@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tornado Atlas | Explore the catalogue</title>
+  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="atlas.css">
+  <script type="module" src="atlas.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to catalogue</a>
+  <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Museum navigation"><a href="atlas.html" aria-current="page">Atlas</a><a href="index.html">El Reno exhibit</a><a href="index.html#collection">Video collection</a></nav><span class="local">HISTORICAL RECORDS</span></header>
+  <main id="main">
+    <section class="atlas-intro"><div class="eyebrow">EXPLORE THE SOURCE COLLECTION</div><h1>Every record has a story.</h1><p>A starting point for a world museum. Search the pilot US collection, inspect the original account, or enter a curated exhibit.</p><p id="coverage" class="coverage-strip">Loading catalogue…</p></section>
+    <form id="filters" class="filters" aria-label="Catalogue filters">
+      <div class="wide-filter"><label for="query">Place, source ID or known storm</label><input id="query" type="search" placeholder="Try Joplin, El Reno, or a state"></div>
+      <div><label for="year">Year</label><select id="year"><option value="">All imported years</option></select></div>
+      <div><label for="rating">Reported rating</label><select id="rating"><option value="">All ratings</option></select></div>
+      <div><label for="state">State or territory</label><select id="state"><option value="">All areas</option></select></div>
+      <label class="check"><input id="exhibits" type="checkbox">Has an exhibit</label>
+      <button id="reset" type="reset">Reset filters</button>
+    </form>
+    <div class="atlas-layout">
+      <div class="map-column">
+        <div class="world-shell"><div class="world-toolbar"><strong id="map-count">Loading</strong><div><button id="fit" type="button">Fit matches</button><button id="world" type="button">World</button><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button></div></div>
+          <svg id="world-map" viewBox="0 0 1080 540" role="img" tabindex="0" aria-labelledby="map-title map-desc"><title id="map-title">Reported tornado record locations</title><desc id="map-desc">A world outline with markers for the filtered source records. Use the result list to select records by keyboard. Arrow keys pan the map.</desc><g id="land"></g><g id="markers"></g><g id="selection"></g></svg>
+          <div class="map-key"><span><i style="background:#9ac3a7"></i>0</span><span><i style="background:#add09e"></i>1</span><span><i style="background:#e0ce8c"></i>2</span><span><i style="background:#e7aa73"></i>3</span><span><i style="background:#df8774"></i>4</span><span><i style="background:#da9fc9"></i>5</span><span><i style="background:#a9b8c0"></i>Unrated</span><small>Category colors; F and EF remain distinct in the filters.</small></div>
+          <p class="map-explainer">Markers show reported start positions, with labeled end-position fallback where needed. They are not reconstructed paths or funnel sizes. Drag or use arrow keys to pan. Current boundaries are geographic context.</p>
+          <p class="attribution"><a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noopener">Made with Natural Earth</a> · Public-domain 1:110m map · Historical records: NOAA NCEI</p>
+        </div>
+        <div class="results-heading"><h2>Matching records</h2><output id="results-count" aria-live="polite"></output></div>
+        <div id="results" class="results"></div><div class="pagination"><button id="prev-page" type="button">Previous</button><output id="page-count"></output><button id="next-page" type="button">Next</button></div>
+      </div>
+      <aside id="detail" class="record-detail" aria-label="Selected source record" aria-live="polite"><h2>Select a record</h2><p>Choose a marker or a result to inspect its source.</p></aside>
+    </div>
+    <p id="error" role="alert" hidden></p>
+  </main>
+  <footer><span>TORNADO ATLAS</span><p>Partial historical coverage. Source records can be segments of one tornado. Map density is not a climatology.</p><a href="catalogue/index.json">Catalogue data ↗</a></footer>
+</body>
+</html>

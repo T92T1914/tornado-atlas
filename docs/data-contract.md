@@ -34,8 +34,18 @@ Future adapters must retain original scale, value or interval, authority, langua
 
 JMA's CSV has duplicate blank header cells and explicit codes for tornadoes, other gusts, and uncertain phenomena. Its format guide distinguishes -9999 (unset) and -8888 (unknown); retain those meanings in the source record. Some casualty/damage values have shared-count flags. Do not sum those into national totals without reconciling the shared scope.
 
-## Separate exhibit layer, not implemented
+## Static atlas publication
 
-An exhibit will have a stable museum ID, aliases, linked source records, and documented grouping decisions. Observations should record their source locator, time basis and uncertainty, geometry type, and confidence rationale. Media need creator, source URL, reuse terms, and retrieval/version details. Reconstruction parameters need an evidence reference or an explicit assumption label.
+The browser index selects a reported start point, falling back to an explicitly labeled end point only when the start is missing. Records without either point remain searchable. Neither case creates a track. Search matches source identifiers, locality, state, county and reviewed aliases. Episode narratives are excluded from the browser export because they can describe several storms; the local archive retains them.
+
+Reviewed aliases in `research/record-aliases.json` add search names without replacing source titles or ratings. The initial Joplin aliases refer to two separately reviewed county segments. They are not a complete event grouping. F and EF categories are separate filter values; shared map colors indicate only the numeric category.
+
+Detail files use content hashes in their filenames. A rebuild writes the details before atomically replacing the index, retaining previous detail files so an already loaded page is not handed different records under an old filename. Source revision and SHA-256 travel with each public detail record. Natural Earth provides modern geographic context, not historical boundaries.
+
+## Separate exhibit layer
+
+The first exhibit has a stable museum ID, a linked source record with a match rationale, preserved geometry and a footage observation register. The register distinguishes an inspected still from an attributed creator annotation. Video locators are checked against source duration and recorded inspection coverage. Historical times and camera positions remain null. The current schema rejects non-null registration until a future schema can require supporting evidence and uncertainty.
+
+Future registration needs a historical time basis, camera coordinates and direction, uncertainty, source locator and a confidence rationale. Media need creator, source URL and a reuse basis. Reconstruction parameters need an evidence reference or an explicit assumption label.
 
 No present catalogue record claims to supply a finished reconstruction or a damage simulation.

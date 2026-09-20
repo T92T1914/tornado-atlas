@@ -27,12 +27,12 @@ The common catalogue is independent of those choices. No paid service, public de
 ## First build sequence
 
 * Implement and verify the catalogue and source history.
+* Publish a searchable map and exhibit pages using real catalogue records. The initial atlas and El Reno page are implemented.
 * Add an international adapter and deliberate source-record grouping.
-* Build a searchable map and an exhibit page using real catalogue records.
 * Complete one detailed reconstruction, including an evidence timeline and documented damage layer.
 * Apply the same pipeline to contrasting storms, then expand coverage.
 
-El Reno 2013 is the first implemented geographic exhibit study. Joplin 2011 remains a data exploration candidate. Blackwell 1955 is the next source comparison candidate because two selected creators cover it. A weaker event and an international event should also exercise the design.
+El Reno 2013 is the first implemented geographic exhibit study, with an initial footage notebook. Joplin 2011 has two reviewed search aliases but remains a future exhibit candidate. Blackwell 1955 is the next source comparison candidate because two selected creators cover it. A weaker event and an international event should also exercise the design.
 
 The initial creator collection is Pecos Hank, TornadoTRX and Swegle Studios, selected by the project owner. Reviews are organized around tornadoes and observations. Channel inclusion is not a claim that every upload has been reviewed or that each video's claims are established facts.
 

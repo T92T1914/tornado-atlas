@@ -360,6 +360,44 @@ h3 {
   gap:50px;
   margin-top:30px
 }
+.footage-notebook {
+  margin-top:36px
+}
+.footage-notebook>p {
+  color:var(--muted);
+  font-size:13px;
+  max-width:800px
+}
+.observations {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
+  gap:14px
+}
+.observation {
+  border:1px solid var(--line);
+  padding:22px;
+  background:var(--panel)
+}
+.observation h4 {
+  font:20px Georgia,serif;
+  margin:12px 0
+}
+.observation p,.observation a,.observation summary {
+  font-size:12px
+}
+.observation p {
+  color:var(--muted)
+}
+.observation details {
+  margin-top:18px
+}
+.observation summary {
+  cursor:pointer;
+  color:var(--green)
+}
+.observation summary:focus-visible {
+  outline:2px solid var(--gold)
+}
 .coverage {
   padding:0 0 0 24px;
   border-left:1px solid var(--line)
