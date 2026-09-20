@@ -87,6 +87,8 @@ async function main() {
   byId('search').addEventListener('input', showVideos);
   showVideos();
   drawMap(data.geometry);
+  const { mountDamage } = await import('./damage-view.mjs');
+  mountDamage(data.damage);
 }
 function drawMap(geojson) {
   const svg = byId('map');

@@ -6,7 +6,7 @@ The project can gain useful catalogue coverage before every tornado has a detail
 
 1. Expand the initial five-note El Reno register into continuous shot coverage for both source videos, including cuts, reuse credits and caption corrections.
 2. Locate original footage and research that can establish camera position, direction and historical time.
-3. Add documented damage locations without inferring precise failure times or wind fields from a rating.
+3. Establish exact survey locations for the nine included NOAA/NWS photographs. Captions currently supply roads and landmarks only. Do not infer precise failure times or wind fields from a rating.
 4. Build one limited appearance reconstruction from registered observations. Identify the view and time range it represents.
 5. Complete a contrasting Blackwell 1955 dossier. Historical testimony and later explanations need separate labels.
 
@@ -18,6 +18,8 @@ The project can gain useful catalogue coverage before every tornado has a detail
 * Group county segments only with supporting identifiers or reviewed reasoning.
 
 ## Reconstruction work
+
+The first procedural 3D form study now runs separately at `web/study.html`. It is an illustration with three adjustable forms, not an event reconstruction or fluid simulation.
 
 * Represent observations, camera models, visibility and uncertainty independently of the renderer.
 * Establish rights for any third-party imagery that will be embedded or redistributed.

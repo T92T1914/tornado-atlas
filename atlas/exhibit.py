@@ -18,6 +18,7 @@ from xml.etree import ElementTree as ET
 
 from .sources import ROOT, cached_retrieval, read_object, retrieve
 from .observations import validate_notebook
+from .damage import validate_gallery
 
 KMZ_URL = "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"
 PAGE_URL = "https://www.weather.gov/oun/events-20130531"
@@ -136,8 +137,10 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     creators = json.loads((ROOT / "research/creators.json").read_text(encoding="utf-8"))
     notebook = json.loads((ROOT / "exhibits/el-reno-2013/observations.json").read_text(encoding="utf-8"))
     validate_notebook(notebook, queue, dossier['id'])
+    damage = json.loads((ROOT / "exhibits/el-reno-2013/damage.json").read_text(encoding="utf-8"))
+    validate_gallery(damage, ROOT / "web")
     result = {"exhibit": dossier, "geometry": geojson, "review_queue": queue, "creators": creators,
-              "notebook": notebook}
+              "notebook": notebook, "damage": damage}
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     geo_path = ROOT / "exhibits/el-reno-2013/path.geojson"

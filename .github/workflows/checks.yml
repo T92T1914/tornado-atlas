@@ -21,7 +21,9 @@ jobs:
         run: |
           node --check web/app.js
           node --check web/atlas.js
-          node --test tests/atlas-model.test.mjs
+          node --check web/study.js
+          node --check web/damage-view.mjs
+          node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs
       - name: Verify checked-in exhibit
         run: |
           python tools/check_exhibit.py

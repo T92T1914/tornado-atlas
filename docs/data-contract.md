@@ -49,3 +49,11 @@ The first exhibit has a stable museum ID, a linked source record with a match ra
 Future registration needs a historical time basis, camera coordinates and direction, uncertainty, source locator and a confidence rationale. Media need creator, source URL and a reuse basis. Reconstruction parameters need an evidence reference or an explicit assumption label.
 
 No present catalogue record claims to supply a finished reconstruction or a damage simulation.
+
+## Survey photographs
+
+`exhibits/el-reno-2013/damage.json` is the curated photograph manifest. It ties each original image URL and source photo number to a pinned SHA-256, byte length, dimensions, source-caption paraphrase, reported local damage rating, descriptive location, credit and reuse basis. Source-page and use-policy snapshot hashes identify the archived evidence for those associations.
+
+Exact camera coordinates and capture times remain null in this version. The validator rejects invented registration, unreviewed URLs and asset paths outside the selected gallery. It verifies each checked-in image against its pinned bytes. The restoration command can retrieve missing images but rejects changed downloads and existing corruption. It never treats a new remote image as automatically reviewed.
+
+The 3D form study does not read catalogue ratings, path widths or photograph assessments as simulation parameters. Its geometric presets live separately in `web/vortex-model.mjs`. They are explicitly illustrative and supply no historical measurement.

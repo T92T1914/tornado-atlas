@@ -84,7 +84,7 @@ def discover_ncei(years: list[int], data_dir: Path = DATA) -> list[str]:
 
 
 def cached_retrieval(url: str, data_dir: Path = DATA) -> dict | None:
-    """Reuse immutable, revision-named NOAA files; mutable URLs are fetched afresh."""
+    """Return the last integrity-checked snapshot; callers choose when to refresh."""
     log = data_dir / "retrievals.jsonl"
     if not log.exists():
         return None

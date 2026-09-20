@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tornado Atlas | Interactive form study</title>
+  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css">
+  <script type="module" src="study.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to form study</a>
+  <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Museum navigation"><a href="atlas.html">Atlas</a><a href="index.html">El Reno exhibit</a><a href="index.html#damage">Damage survey</a></nav><span class="local">VISUAL LAB / 001</span></header>
+  <main id="main">
+    <section class="study-intro"><div><div class="eyebrow">AN INTERACTIVE FORM STUDY</div><h1>Inside the shape.</h1></div><p>Turn the view. Change the form. Watch the cloud move. This is the first visual prototype for the museum, an illustration in three dimensions with no assigned storm, date or physical scale.</p></section>
+    <div class="study-layout">
+      <div class="scene-shell">
+        <div class="scene-bar"><span>PROCEDURAL ILLUSTRATION</span><span id="scene-form">CONE FORM</span></div>
+        <div class="scene-wrap"><canvas id="scene" aria-label="Three dimensional illustrated tornado. Drag to orbit, or use the view controls below." tabindex="0"></canvas><div class="scene-overlay" aria-hidden="true"><span>FORM / CLOUD / MOTION</span><span>NO HISTORICAL TIME OR PHYSICAL SCALE</span></div><div id="scene-failure" role="status" hidden><h2>The animated view is unavailable.</h2><p>This view needs WebGL 2. The atlas, photograph gallery and historical exhibit still work.</p><a href="index.html">Explore El Reno's documented evidence ↗</a></div></div>
+        <div class="scene-footer"><button id="motion" disabled>Play motion</button><button id="reset-view">Reset view</button><span id="motion-status" role="status">Loading the scene</span></div>
+      </div>
+      <form class="study-controls" onsubmit="return false" aria-label="Illustration controls">
+        <label for="shape">Funnel form</label><select id="shape"><option value="cone">Cone</option><option value="wedge">Wedge</option><option value="rope">Rope</option></select>
+        <p class="control-note">Forms are visual presets. They do not assign an EF rating.</p>
+        <label for="condensation">Visible funnel extent <output id="condensation-value" for="condensation">100%</output></label><input id="condensation" type="range" min="35" max="100" value="100" step="1">
+        <p class="control-note">Hide part of the funnel from the ground upward. This changes the drawing, not the circulation.</p>
+        <label for="azimuth">View direction <output id="azimuth-value" for="azimuth">25°</output></label><input id="azimuth" type="range" min="-180" max="180" value="25">
+        <label for="elevation">View elevation <output id="elevation-value" for="elevation">12°</output></label><input id="elevation" type="range" min="3" max="60" value="12">
+        <label for="distance">View distance <output id="distance-value" for="distance">7.0</output></label><input id="distance" type="range" min="5" max="12" value="7" step=".1">
+        <label class="check-control"><input id="dust" type="checkbox" checked> Show illustrative ground dust</label>
+        <label for="quality">Drawing detail</label><select id="quality"><option value="3600">Lighter · 3,600 particles</option><option value="7200" selected>Standard · 7,200 particles</option></select>
+        <p class="control-note">Motion starts paused. Drag the scene or use its arrow keys to rotate. Animation pauses when you leave the page or most of the scene scrolls out of view.</p>
+      </form>
+    </div>
+    <section class="study-explanation"><article><div class="eyebrow">WHAT YOU ARE SEEING</div><h2>A visible form is only part of the storm.</h2><p>The condensation funnel, dust and debris help make a tornado visible. Its appearance alone does not establish its wind speed or damage rating. The same illustrated form here can be shown with a shorter visible funnel.</p><p><a href="https://www.nssl.noaa.gov/education/svrwx101/tornadoes/" target="_blank" rel="noopener">NSSL tornado basics ↗</a> · <a href="https://forecast.weather.gov/glossary.php?word=wedge" target="_blank" rel="noopener">NWS on appearance and intensity ↗</a></p></article><article><div class="eyebrow">WHERE THIS FITS</div><h2>From a form study to a historical view.</h2><p>This drawing uses repeatable particle patterns and adjustable geometry. It does not solve the air flow or estimate damage. The rotation rate, cloud shape and ground grid are artistic choices.</p><p>A reconstruction of a particular tornado will need registered camera views, dates, positions and measured constraints. The <a href="index.html#research">El Reno research notebook</a> tracks that work separately. The <a href="index.html#damage">survey gallery</a> shows real documented damage.</p></article></section>
+  </main>
+  <footer><span>TORNADO ATLAS</span><p>Illustrative visual study · Original procedural graphics · September 2026.</p><a href="atlas.html">Return to atlas ↗</a></footer>
+</body>
+</html>

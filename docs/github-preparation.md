@@ -10,4 +10,4 @@ The repository includes a working offline atlas and exhibit, source documentatio
 
 Once the owner signs in to GitHub CLI, the prepared local repository can be pushed. Initial private hosting would allow continued curation before a public launch. Repository visibility remains an owner decision.
 
-No raw research downloads, local SQLite database, output logs, account credentials or unrelated project material should be included in the push. Public browser bundles contain normalized NOAA records and event narratives, Natural Earth map geometry, the selected NWS geographic source, short original notes and public video references. Attribution and source hashes are included.
+No raw research downloads, local SQLite database, output logs, account credentials or unrelated project material should be included in the push. Public browser bundles contain normalized NOAA records and event narratives, Natural Earth map geometry, the selected NWS geographic source, nine explicitly credited NOAA/NWS damage survey photographs, original procedural graphics, short original notes and public video references. Attribution and source hashes are included.

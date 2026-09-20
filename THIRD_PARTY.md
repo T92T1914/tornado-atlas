@@ -11,7 +11,7 @@ Publisher: National Weather Service, Norman, Oklahoma.
 * Retrieved September 20, 2026; original SHA-256 `3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce`.
 * GeoJSON adaptation: original longitude and latitude retained, altitude omitted for a 2D map. KML time labels interpreted as PM CDT from the accompanying chronology. Timeline points sorted by time. No smoothing or new observations added.
 
-The preview displays a whole-event outline, center path and published timed positions. The shaded outline is not an instantaneous funnel shape or a spatial map of intensity. Source photographs have not been included.
+The preview displays a whole-event outline, center path and published timed positions. The shaded outline is not an instantaneous funnel shape or a spatial map of intensity.
 
 The original NWS geographic data is public-domain government material, excluded from the project's copyright claim. The [NWS use policy](https://www.weather.gov/disclaimer) distinguishes its data from licensed third-party imagery and permits adaptation that is not represented as an official government product. This preview is an independent adaptation. Policy checked September 20, 2026.
 
@@ -24,6 +24,18 @@ The catalogue records titles, links, access scope and short original research no
 * [Swegle Studios](https://www.youtube.com/@SwegleStudios/videos)
 
 An uploader may credit other camera operators. As the shot register expands it must preserve those credits and document a reuse basis before third-party media becomes an exhibit asset.
+
+## El Reno damage photographs
+
+The exhibit includes photos 1 through 9 of structures and infrastructure from the **Damage Photos** section of the [NWS event account](https://www.weather.gov/oun/events-20130531). That section explicitly identifies the photographs as taken by NWS/NOAA personnel during the damage survey. This attribution is specific to the survey set; other photographs on the event page have separate photographer credits and are not bundled here.
+
+* Credit: NOAA / National Weather Service survey personnel.
+* Reuse basis: public-domain government material under the [NWS use policy](https://www.weather.gov/disclaimer), checked September 20, 2026. Excluded from this project's copyright claim. No government endorsement is implied.
+* `exhibits/el-reno-2013/damage.json` records each original URL, SHA-256, byte length, dimensions, retrieval time, location description and caption rating.
+* Original JPEG bytes are preserved at `web/assets/el-reno-2013/`. Images are resized only by the browser for display. Captions are short project paraphrases attributed to NWS.
+* Camera coordinates and capture times have not been verified. The distributed JPEG files contain no EXIF tags; their absence does not establish when or where the photographs were taken.
+
+The separate 3D form study uses original procedural graphics. It incorporates no creator footage, textures or third-party 3D assets. Its geometry is illustrative and is not derived from the NWS damage rating or footprint.
 
 ## Catalogue records and map context
 

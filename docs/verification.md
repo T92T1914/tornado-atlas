@@ -4,11 +4,11 @@ Date: September 20, 2026.
 
 ## Executed locally
 
-* Python 3.11 unit suite: 38 tests passed. Fifteen cover catalogue normalization and persistence; ten cover the geographic adapter; seven cover static publication; six cover footage notebook integrity.
-* JavaScript model suite: eight tests passed for filters, aliases, scale identity, missing points, projection, map bounds and unrated display.
-* Offline exhibit check: bundle matches its dossier, creator catalogue, video queue, footage notebook and GeoJSON. It contains 39 unique chronologically ordered positions, ten video leads, three creators and five footage notes.
+* Python 3.11 unit suite: 46 tests passed. Fifteen cover catalogue normalization and persistence; ten cover the geographic adapter; seven cover static publication; six cover footage notebook integrity; eight cover photograph integrity and restoration.
+* JavaScript model suite: 14 tests passed. Eight cover filters, aliases, scale identity, missing points, projection, map bounds and unrated display. Six cover repeatable particle layouts, allocation limits, camera and geometry validity, and animation timing.
+* Offline exhibit check: bundle matches its dossier, creator catalogue, video queue, footage notebook, damage gallery and GeoJSON. It contains 39 unique chronologically ordered positions, ten video leads, three creators, five footage notes and nine original survey photographs.
 * Offline catalogue check: all 3,350 index records resolve to the expected source revisions across 16 detail files. File content hashes, record coverage and coordinate ranges agree.
-* JavaScript syntax checks passed for both browser entry points.
+* JavaScript syntax checks passed for the atlas, exhibit, damage view and form study entry points.
 * Source conversion: downloaded NWS KMZ passed its SHA-256 integrity check and produced one polygon, one line and 39 points. Original coordinate sequences were preserved; KML ordering of 6:17 before 6:16 was corrected only in timeline display order.
 * Browser: opened the served local exhibit in the Codex browser. Verified initial 6:04 position, next-position movement to 6:05, keyboard selection of the 6:42 endpoint, disabled next button at the end, playback restart from the beginning, and pause.
 * Browser search: Blackwell returned the two corresponding creator leads. Browser error log was empty during these checks. Desktop appearance was visually inspected. Separate physical-device and cross-browser testing has not been performed.
@@ -17,11 +17,22 @@ Date: September 20, 2026.
 * Footage notebook: five cards, evidence labels, timestamped source links and unresolved registration details rendered successfully. No browser errors were reported during the inspected catalogue/exhibit flow.
 * Local catalogue: pilot imports contain 3,350 source records across 1950, 2011 and 2013. This is partial coverage and does not establish a count of distinct tornadoes.
 
+## Survey gallery and visual study pass
+
+* Nine original JPEGs were retrieved from the NWS event page, hashed and verified. Pillow 12.3 was used once to check decoding, dimensions and EXIF presence; it is not a runtime or test dependency. All nine had no EXIF tags. Six files are 1,280 by 960 and three are 960 by 1,280. Source page and use-policy snapshots were preserved in the local archive.
+* Browser: the initial comparison displayed an EF3 house and an EF2 house with their separate source locations. Changing one comparison to the power-pole photo updated its image and description. The enlargement dialog opened with the original source link, and Escape closed it. A final keyboard check confirmed focus returned to the photograph button.
+* Browser filters: EF2 returned two photographs. Adding Infrastructure returned an explicit empty result. Clearing the rating returned one infrastructure image, and clearing both returned nine. No errors or warnings appeared in the inspected flow.
+* WebGL 2 rendered the form study successfully in the Codex browser. Cone, wedge and rope controls, explicit play and pause, the visibility slider, lighter detail, dust toggle, pointer orbit and arrow-key orbit were exercised. The visibility slider reached 35 percent and the keyboard orbit updated the view direction by five degrees.
+* Browser inspection found an incorrect alpha accumulation in the first renderer. Separate color and alpha blending corrected the compositing. A subsequent screenshot was inspected. The renderer starts paused and the tested scroll-away flow paused motion after most of the scene left view.
+* Neither the form study nor its software tests establish physical tornado behavior. No GPU timing benchmark, continuous long-duration render test, physical mobile-device test or cross-browser test has been performed. WebGL context loss and restoration handling exists but has not been exercised in browser testing.
+
 ## Research coverage
 
 The initial channel listings and selected descriptions were inspected. Pecos Hank's El Reno description and available captions from 0:02 through 8:19 were read. Two paused visual samples near 2:18.52 and 3:42.98 have approximate browser-clock readings in the notebook. These are individual stills, not continuous video inspection or measurements. A later seek entered an advertisement and was rejected as evidence. Audio has not been independently reviewed. No channel's entire archive has been watched, and no complete 3D reconstruction has been validated.
 
 The 2014 El Reno Survey Project conference abstract was read as a methodological precedent. A related 2016 paper was available only through search-indexed excerpts; direct access returned 403. Neither that full paper nor the conference presentation has been reviewed.
+
+The NWS damage captions and government-personnel attribution were read and matched to the selected original files. The NWS use policy and wedge glossary were read. NSSL's explanation of visibility was available through a search-indexed excerpt; direct access failed. A NOAA repository record and abstract for Wakimoto and colleagues' 2016 aerial-damage/mobile-radar study were located, but its full PDF has not been reviewed or redistributed.
 
 ## Not yet executed
 
