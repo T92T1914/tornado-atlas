@@ -58,20 +58,25 @@ ID. Blank event identifiers still prevent a direct event join for the underlying
 regional survey, so the map retains its geographic-selection caveat. No capture
 times, camera positions or photographer names are invented.
 
-All four pages offer Noir, Light and System appearances. Noir uses black,
-white and gray for the interface. Forced-color support and text alternatives
+All four pages offer Clair, Obscur and System appearances. Clair pairs warm
+ivory with charcoal text. Obscur uses black, white and gray for the interface.
+Fatality records have their own rose diamond and written death count. Forced-color support and text alternatives
 remain available for map markers. Photographs and radar
 colors are not recolored. Community entries link back to the relevant map or
 gallery. The [design and research review](research/linked-evidence-design-2026-09-20.md)
 explains the ArcGIS reference, the evidence model and the remaining work.
 
-The history now includes six longer sections on the storm environment,
+The history now includes eleven linked sections on the storm environment,
 circulation, damage, human consequences, reconstruction and community evidence.
 The first documented remembrance location is the approximate TWISTEX vehicle
 recovery point from the published research account. It can be opened from the
 path map and remains fixed as the timeline moves. It is not labeled as an exact
 place of death. The [location and reading notes](research/noir-remembrance-2026-09-20.md)
 explain the source disagreement and why the other locations remain unknown.
+The [fatality record contract](docs/fatality-records.md) defines the reusable
+source and display requirements. The [enthusiast research notes](research/enthusiast-priorities-2026-09-20.md)
+set priorities for roads, synchronized evidence, before and after views, and
+a dated corrections log.
 
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
@@ -92,7 +97,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 90 Python tests, 64 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 94 Python tests, 67 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
@@ -183,7 +188,8 @@ node --check web/community-view.mjs
 node --check web/places-view.mjs
 node --check web/map-navigation.mjs
 node --check web/impact-view.mjs
-node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs
+node --check web/fatality-view.mjs
+node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs tests/impact-model.test.mjs
 py -3.11 tools/check_catalogue.py
 ```
 

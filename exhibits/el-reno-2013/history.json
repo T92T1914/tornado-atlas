@@ -147,7 +147,7 @@
         "id": "twistex-recovery",
         "kind": "vehicle_recovery",
         "label": "Approximate vehicle recovery location",
-        "title": "The TWISTEX vehicle near Reuter and Radio Roads",
+        "title": "TWISTEX team vehicle",
         "coordinates": [
           -97.9014,
           35.4795
@@ -162,7 +162,10 @@
         "precision_note": "Coordinates are reproduced as approximate in the published paper. No positional error radius is supplied. The diamond has no physical extent. A preliminary conference account gives a different latitude; this exhibit follows the later journal account.",
         "time_note": "The location stays fixed through playback. No exact time of death is assigned.",
         "source": "https://doi.org/10.1175/BAMS-D-13-00221.1",
-        "source_locator": "Wurman et al., BAMS 95 (2014), pp. 38–40, “Tornado impacts storm-chasing teams,” Figures 6 and 9. Location paragraph checked in indexed primary-source text; the full figure has not been visually verified in this review."
+        "source_locator": "Wurman et al., BAMS 95 (2014), pp. 38–40, “Tornado impacts storm-chasing teams,” Figures 6 and 9. Location paragraph checked in indexed primary-source text; the full figure has not been visually verified in this review.",
+        "category": "fatalities",
+        "deaths": 3,
+        "map_label": "TWISTEX"
       }
     ]
   },

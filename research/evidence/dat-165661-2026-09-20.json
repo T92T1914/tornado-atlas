@@ -1,0 +1,218 @@
+{
+  "response": {
+    "displayFieldName": "damage_txt",
+    "fieldAliases": {
+      "objectid": "OBJECTID",
+      "stormdate": "stormdate",
+      "surveydate": "surveydate",
+      "event_id": "event_id",
+      "damage": "damage",
+      "damage_txt": "damage_txt",
+      "dod_txt": "dod_txt",
+      "efscale": "efscale",
+      "damage_dir": "damage_dir",
+      "windspeed": "windspeed",
+      "injuries": "injuries",
+      "deaths": "deaths",
+      "comments": "comments",
+      "lat": "lat",
+      "lon": "lon",
+      "office": "office",
+      "image": "image",
+      "gps_horiz_accuracy": "gps_horiz_accuracy",
+      "device_id": "device_id",
+      "qc": "qc",
+      "globalid": "globalid",
+      "dod": "dod",
+      "surveytype": "surveytype",
+      "edit_time": "edit_time",
+      "path_guid": "path_guid"
+    },
+    "geometryType": "esriGeometryPoint",
+    "spatialReference": {
+      "wkid": 4326,
+      "latestWkid": 4326
+    },
+    "fields": [
+      {
+        "name": "objectid",
+        "type": "esriFieldTypeOID",
+        "alias": "OBJECTID"
+      },
+      {
+        "name": "stormdate",
+        "type": "esriFieldTypeDate",
+        "alias": "stormdate",
+        "length": 8
+      },
+      {
+        "name": "surveydate",
+        "type": "esriFieldTypeDate",
+        "alias": "surveydate",
+        "length": 8
+      },
+      {
+        "name": "event_id",
+        "type": "esriFieldTypeString",
+        "alias": "event_id",
+        "length": 30
+      },
+      {
+        "name": "damage",
+        "type": "esriFieldTypeSingle",
+        "alias": "damage"
+      },
+      {
+        "name": "damage_txt",
+        "type": "esriFieldTypeString",
+        "alias": "damage_txt",
+        "length": 200
+      },
+      {
+        "name": "dod_txt",
+        "type": "esriFieldTypeString",
+        "alias": "dod_txt",
+        "length": 200
+      },
+      {
+        "name": "efscale",
+        "type": "esriFieldTypeString",
+        "alias": "efscale",
+        "length": 20
+      },
+      {
+        "name": "damage_dir",
+        "type": "esriFieldTypeString",
+        "alias": "damage_dir",
+        "length": 10
+      },
+      {
+        "name": "windspeed",
+        "type": "esriFieldTypeString",
+        "alias": "windspeed",
+        "length": 10
+      },
+      {
+        "name": "injuries",
+        "type": "esriFieldTypeSingle",
+        "alias": "injuries"
+      },
+      {
+        "name": "deaths",
+        "type": "esriFieldTypeSingle",
+        "alias": "deaths"
+      },
+      {
+        "name": "comments",
+        "type": "esriFieldTypeString",
+        "alias": "comments",
+        "length": 5000
+      },
+      {
+        "name": "lat",
+        "type": "esriFieldTypeDouble",
+        "alias": "lat"
+      },
+      {
+        "name": "lon",
+        "type": "esriFieldTypeDouble",
+        "alias": "lon"
+      },
+      {
+        "name": "office",
+        "type": "esriFieldTypeString",
+        "alias": "office",
+        "length": 50
+      },
+      {
+        "name": "image",
+        "type": "esriFieldTypeString",
+        "alias": "image",
+        "length": 200
+      },
+      {
+        "name": "gps_horiz_accuracy",
+        "type": "esriFieldTypeDouble",
+        "alias": "gps_horiz_accuracy"
+      },
+      {
+        "name": "device_id",
+        "type": "esriFieldTypeString",
+        "alias": "device_id",
+        "length": 50
+      },
+      {
+        "name": "qc",
+        "type": "esriFieldTypeString",
+        "alias": "qc",
+        "length": 10
+      },
+      {
+        "name": "globalid",
+        "type": "esriFieldTypeGlobalID",
+        "alias": "globalid",
+        "length": 38
+      },
+      {
+        "name": "dod",
+        "type": "esriFieldTypeSingle",
+        "alias": "dod"
+      },
+      {
+        "name": "surveytype",
+        "type": "esriFieldTypeString",
+        "alias": "surveytype",
+        "length": 25
+      },
+      {
+        "name": "edit_time",
+        "type": "esriFieldTypeDate",
+        "alias": "edit_time",
+        "length": 8
+      },
+      {
+        "name": "path_guid",
+        "type": "esriFieldTypeGUID",
+        "alias": "path_guid",
+        "length": 38
+      }
+    ],
+    "features": [
+      {
+        "attributes": {
+          "objectid": 165661,
+          "stormdate": 1370020560000,
+          "surveydate": 1370112660000,
+          "event_id": "",
+          "damage": 29.0,
+          "damage_txt": "Other (O)",
+          "dod_txt": "Other damage",
+          "efscale": "N/A",
+          "damage_dir": "UNKNOWN",
+          "windspeed": "N/A",
+          "injuries": 0.0,
+          "deaths": 0.0,
+          "comments": "vehicle tossed",
+          "lat": 35.479,
+          "lon": -97.9003,
+          "office": "OUN",
+          "image": "null",
+          "gps_horiz_accuracy": null,
+          "device_id": null,
+          "qc": "Y",
+          "globalid": "{A09EF674-F19D-4D66-8BF2-1AD82ED12FF3}",
+          "dod": 1.0,
+          "surveytype": null,
+          "edit_time": null,
+          "path_guid": "{00000000-0000-0000-0000-000000000000}"
+        },
+        "geometry": {
+          "x": -97.90037984999998,
+          "y": 35.47907250999998
+        }
+      }
+    ]
+  },
+  "source": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/query?f=json&objectIds=165661&outFields=*&returnGeometry=true&outSR=4326",
+  "retrieved_at": "2026-09-21T03:45:34.9791031Z"
+}
