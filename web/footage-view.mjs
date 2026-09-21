@@ -17,9 +17,10 @@ function youtubeAPI() {
   return api;
 }
 
-export function mountFootage(data,start,seek,stop) {
+export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
+  if(![2,3].includes(headingLevel))throw new RangeError('Unsupported footage heading level');
   const host=document.getElementById('registered-footage');
-  host.append(el('p','ORIGINAL FOOTAGE / CHECKED CLOCK READINGS','eyebrow'),el('h3','See the storm at a recorded moment'),el('p',data.introduction));
+  host.append(el('p','ORIGINAL FOOTAGE / CHECKED CLOCK READINGS','eyebrow'),el(`h${headingLevel}`,'See the storm at a recorded moment'),el('p',data.introduction));
   const list=el('div',null,'footage-moments');list.setAttribute('aria-label','Registered video moments');host.append(list);
   const summary=el('p',null,'footage-status');summary.id='footage-status';summary.setAttribute('role','status');host.append(summary);
   const controls=el('div',null,'footage-controls'),load=el('button','Load original YouTube player'),reset=el('button','Return to the checked moment'),unload=el('button','Close player');

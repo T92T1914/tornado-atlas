@@ -1,6 +1,7 @@
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
 import {localStamp, frameAt} from './timeline-media-model.mjs';
 import {localPoint, sceneProject, initialSeconds, funnelGlyph} from './reconstruction-model.mjs';
+import {mountFootage} from './footage-view.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -23,6 +24,7 @@ async function start(){
   clock.seek(initialSeconds(location.search,clock.duration));
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
   let current=positionAt(positions,clock.seconds), lastText=null, radarFile=null;
+  const updateFootage=mountFootage({...data.footage,introduction:"Choose a checked clock reading from Dan Robinson's original dashcam upload. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel."},positions[0].stamp,seconds=>{pause();clock.seek(seconds);refresh();},pause,{headingLevel:2});
   function readCamera(center){
     const camera={focus:el('replay-follow').checked?center:[0,0,0]};
     for(const key of ['azimuth','elevation','distance']){
@@ -63,6 +65,7 @@ async function start(){
     current=positionAt(positions,clock.seconds);requestDraw();
     const key=`${Math.floor(clock.seconds)}:${current.published}`;if(key===lastText)return;lastText=key;
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
+    updateFootage(current.utc);
     el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?'Published NWS minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
     el('replay-link').href=`reconstruction.html?t=${Math.floor(clock.seconds)}`;
