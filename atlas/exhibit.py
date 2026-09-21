@@ -16,6 +16,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+from .documentary import load_documentary
 from .sources import ROOT, cached_retrieval, read_object, retrieve
 from .observations import validate_notebook
 from .damage import validate_gallery
@@ -162,6 +163,7 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     result['survey'] = load_survey(geojson)
     result['survey_media'] = load_survey_attachments(result['survey'])
     result['cameras'] = load_cameras()
+    result['documentary'] = load_documentary(ROOT)
     reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
     validate_reading(reading, result)
     result['reading'] = reading

@@ -5,6 +5,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
+from atlas.documentary import load_documentary
 from atlas.damage import validate_gallery
 from atlas.history import validate_history
 from atlas.reading import validate_reading
@@ -19,6 +20,7 @@ assert bundle['geometry'] == geo, 'Preview geometry differs from exhibit geometr
 assert bundle['survey'] == load_survey(geo), 'Stale or invalid survey bundle'
 assert bundle['survey_media'] == load_survey_attachments(bundle['survey']), 'Stale or invalid survey photographs'
 assert bundle['cameras'] == load_cameras(), 'Stale or invalid camera bundle'
+assert bundle['documentary'] == load_documentary(root), 'Stale documentary evidence'
 for key, relative in [('exhibit', 'exhibits/el-reno-2013/dossier.json'),
                       ('creators', 'research/creators.json'),
                       ('review_queue', 'research/video-review-queue.json'),

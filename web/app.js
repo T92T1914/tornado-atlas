@@ -169,7 +169,9 @@ async function main() {
   showVideos();
   const { mountTimelineMedia } = await import('./timeline-media.mjs');
   const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
-  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places);
+  const {mountComparison,mountResearchLog} = await import('./documentary-view.mjs');
+  mountComparison(data.documentary.comparison);mountResearchLog(data.documentary);
+  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media);
   const { mountReader } = await import('./reader-view.mjs');
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
@@ -186,7 +188,7 @@ async function main() {
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
   });
 }
-async function drawMap(geojson, chapters, updateMedia, cameras, places) {
+async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media) {
   const {PlaybackClock, preparePositions, positionAt} = await import('./playback-model.mjs');
   const {localStamp} = await import('./timeline-media-model.mjs');
   const {mountCamera} = await import('./camera-view.mjs');
@@ -240,6 +242,8 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places) {
   mountPlaces(places, svg, project);
   const {mountMapNavigation}=await import('./map-navigation.mjs');
   const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
+  const {mountGeography}=await import('./geography-view.mjs');
+  mountGeography(svg,project,byId('path-geography'));
   byId('path-zoom-in').addEventListener('click',()=>navigation.zoom(1/1.6));
   byId('path-zoom-out').addEventListener('click',()=>navigation.zoom(1.6));
   byId('path-fit').addEventListener('click',navigation.reset);
@@ -258,11 +262,14 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places) {
   }
   function seek(seconds) {stop(); clock.seek(seconds); update();}
   const updateCamera = mountCamera(cameras, svg, project, start, end, seek);
+  const {mountDocumentary}=await import('./documentary-view.mjs');
+  const updateDocumentary=mountDocumentary(documentary,media,cameras,svg,project,start,end,seek);
   function update() {
     const selected = positionAt(timed, clock.seconds), [x,y] = project(selected.coordinates);
     for (const element of [halo,core]) {element.setAttribute('cx',x);element.setAttribute('cy',y);}
     // Expiry checks run on every frame, including between displayed whole seconds.
     updateCamera(selected.utc);
+    updateDocumentary(selected.utc);
     updateMedia({properties:{utc:selected.utc,display_time:localStamp(selected.utc)}},Math.floor(clock.seconds));
     // Keep the marker smooth, but do not rebuild captions or image nodes each frame.
     const textKey = `${Math.floor(clock.seconds)}:${selected.published}`;

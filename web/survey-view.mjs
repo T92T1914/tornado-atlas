@@ -1,3 +1,5 @@
+import {mountGeography} from './geography-view.mjs';
+import {damageExplanation} from './damage-explanation.mjs';
 import {mountMapNavigation} from './map-navigation.mjs';
 import {mountSurveyImpacts} from './impact-view.mjs';
 import {fillFatalityRecord} from './fatality-view.mjs';
@@ -92,6 +94,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
   const strip=el('div',null,'survey-photo-strip');strip.id='survey-photo-strip';strip.setAttribute('aria-label','Photographs at matching survey locations');host.append(strip);
   let visible=[], selectedId=initial.id;
   const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
+  mountGeography(svg,project,mapPanel);
   function zoomState(){const width=navigation.read()[2];zoomOut.disabled=width>=960;zoomIn.disabled=width<=navigation.minWidth;}
   svg.addEventListener('mapviewchange',zoomState);
   zoomOut.addEventListener('click',()=>navigation.zoom(1.6));
@@ -142,6 +145,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
     detail.append(el('p','Recorded assessment','eyebrow'),el('p',point.degree),
       el('p',`${point.coordinates[1].toFixed(5)}°N, ${Math.abs(point.coordinates[0]).toFixed(5)}°W. Surveyed feature location; camera position and positional accuracy are not established here.`,'fineprint'));
     if(photos.length) detail.append(el('p','Source: NOAA/NWS Damage Assessment Toolkit. Photographer: not identified in the attachment metadata. Capture time: not provided.','fineprint'));
+    detail.append(damageExplanation(point.indicator,point.degree,point.rating));
     const share=el('a','Link to this observation');share.id='survey-share';
     share.href=surveyLink(location.href,{id:point.id,rating:rating.value,query:search.value,photosOnly:photosOnly.checked});
     const links=el('div',null,'survey-record-links');links.append(source,share);detail.append(links);

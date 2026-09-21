@@ -1,0 +1,399 @@
+{
+  "schema": 1,
+  "event": "el-reno-2013",
+  "reviewed": "2026-09-20",
+  "warnings": [
+    {
+      "id": "bulletin-0945",
+      "issued": "2013-05-31T09:45:00Z",
+      "title": "Morning outlook",
+      "summary": "NWS Norman expected severe storms late in the day, with the greatest tornado potential from 5 to 9 PM. The outlook described a front, dryline, strong instability and increasing wind shear.",
+      "event_id": null,
+      "expires": null,
+      "polygon": null,
+      "source": "https://mesonet.agron.iastate.edu/wx/afos/p.php?pil=HWOOUN&e=201305310945",
+      "preserved": "research/evidence/warning-201305310945.txt",
+      "sha256": "da878004424f6777c2a616f259e345da9d42f265d893f29bc982612c5f3168f1"
+    },
+    {
+      "id": "bulletin-2236",
+      "issued": "2013-05-31T22:36:00Z",
+      "title": "First warning for central Canadian County",
+      "summary": "Issued at 5:36 PM, this warning described a storm capable of producing a tornado near Hinton at 5:33 PM. El Reno was among the named locations.",
+      "event_id": "0057",
+      "expires": "2013-05-31T23:15:00Z",
+      "polygon": [
+        [
+          -97.91,
+          35.41
+        ],
+        [
+          -98.28,
+          35.46
+        ],
+        [
+          -98.28,
+          35.56
+        ],
+        [
+          -97.91,
+          35.62
+        ],
+        [
+          -97.91,
+          35.41
+        ]
+      ],
+      "source": "https://mesonet.agron.iastate.edu/wx/afos/p.php?pil=TOROUN&e=201305312236",
+      "preserved": "research/evidence/warning-201305312236.txt",
+      "sha256": "6d36c0528eef378573d27e1f8849d84c650c6fcf73066913a6d02117c435bb3f"
+    },
+    {
+      "id": "bulletin-2250",
+      "issued": "2013-05-31T22:50:00Z",
+      "title": "Warning continued as the storm approached",
+      "summary": "The 5:50 PM update described the storm near Calumet at 5:46 PM and continued the warning through 6:15 PM. This preceded the documented El Reno tornado formation.",
+      "event_id": "0057",
+      "expires": "2013-05-31T23:15:00Z",
+      "polygon": [
+        [
+          -97.91,
+          35.41
+        ],
+        [
+          -98.21,
+          35.45
+        ],
+        [
+          -98.25,
+          35.46
+        ],
+        [
+          -98.24,
+          35.57
+        ],
+        [
+          -97.91,
+          35.62
+        ],
+        [
+          -97.91,
+          35.41
+        ]
+      ],
+      "source": "https://mesonet.agron.iastate.edu/wx/afos/p.php?pil=SVSOUN&e=201305312250",
+      "preserved": "research/evidence/warning-201305312250.txt",
+      "sha256": "86751db9efdfafd6e1f3875fc112f5a3f8077b7e8f45a8dd320ac3247135da83"
+    },
+    {
+      "id": "bulletin-2308",
+      "issued": "2013-05-31T23:08:00Z",
+      "title": "A large tornado reported southwest of El Reno",
+      "summary": "The 6:08 PM warning described a 6:05 PM observation six miles southwest of El Reno, moving southeast. Spotters and meteorologists were now tracking a large tornado.",
+      "event_id": "0058",
+      "expires": "2013-06-01T00:00:00Z",
+      "polygon": [
+        [
+          -97.67,
+          35.51
+        ],
+        [
+          -97.67,
+          35.25
+        ],
+        [
+          -98.13,
+          35.4
+        ],
+        [
+          -98.12,
+          35.4
+        ],
+        [
+          -98.07,
+          35.54
+        ],
+        [
+          -97.67,
+          35.51
+        ]
+      ],
+      "source": "https://mesonet.agron.iastate.edu/wx/afos/p.php?pil=TOROUN&e=201305312308",
+      "preserved": "research/evidence/warning-201305312308.txt",
+      "sha256": "6cea4aca2b3297b3bf521c46e356da66b60534b5932cee5f4166061b39ebc3e6"
+    },
+    {
+      "id": "bulletin-2317",
+      "issued": "2013-05-31T23:17:00Z",
+      "title": "The reported motion turns east",
+      "summary": "Issued at 6:17 PM, the statement located the tornado northwest of Union City at 6:14 PM, moving east at 35 mph. These are operational estimates, separate from the later surveyed path.",
+      "event_id": "0058",
+      "expires": "2013-06-01T00:00:00Z",
+      "polygon": [
+        [
+          -97.67,
+          35.51
+        ],
+        [
+          -97.67,
+          35.25
+        ],
+        [
+          -98.1,
+          35.39
+        ],
+        [
+          -98.07,
+          35.54
+        ],
+        [
+          -97.67,
+          35.51
+        ]
+      ],
+      "source": "https://mesonet.agron.iastate.edu/wx/afos/p.php?pil=SVSOUN&e=201305312317",
+      "preserved": "research/evidence/warning-201305312317.txt",
+      "sha256": "0e4ab0a64662be516811b8d54b37ef1dcdbbd5f458d91d74736df3c91f1c11cf"
+    },
+    {
+      "id": "bulletin-2324",
+      "issued": "2013-05-31T23:24:00Z",
+      "title": "The storm continues east of Union City",
+      "summary": "The 6:24 PM update described a 6:19 PM observation northeast of Union City. It repeated the danger of a tornado obscured by rain.",
+      "event_id": "0058",
+      "expires": "2013-06-01T00:00:00Z",
+      "polygon": [
+        [
+          -97.67,
+          35.51
+        ],
+        [
+          -97.67,
+          35.25
+        ],
+        [
+          -98.02,
+          35.39
+        ],
+        [
+          -97.97,
+          35.53
+        ],
+        [
+          -97.67,
+          35.51
+        ]
+      ],
+      "source": "https://mesonet.agron.iastate.edu/wx/afos/p.php?pil=SVSOUN&e=201305312324",
+      "preserved": "research/evidence/warning-201305312324.txt",
+      "sha256": "0ec564e5fa64115590dac5a36449a16fd24dbe8a76b15b353f09cfd0e807bac5"
+    },
+    {
+      "id": "bulletin-2328",
+      "issued": "2013-05-31T23:28:00Z",
+      "title": "Tornado emergency wording for communities farther east",
+      "summary": "Issued at 6:28 PM, the new warning described the tornado southeast of El Reno at 6:23 PM. It named Yukon, Richland, Wiley Post Airport, Bethany and The Village in its tornado emergency wording.",
+      "event_id": "0060",
+      "expires": "2013-06-01T00:00:00Z",
+      "polygon": [
+        [
+          -97.51,
+          35.41
+        ],
+        [
+          -97.92,
+          35.37
+        ],
+        [
+          -97.96,
+          35.53
+        ],
+        [
+          -97.6,
+          35.65
+        ],
+        [
+          -97.51,
+          35.41
+        ]
+      ],
+      "source": "https://mesonet.agron.iastate.edu/wx/afos/p.php?pil=TOROUN&e=201305312328",
+      "preserved": "research/evidence/warning-201305312328.txt",
+      "sha256": "f298b734153a37c91d7682ab220f37604b3bc512a03e422d6f12cc7d273fca06"
+    }
+  ],
+  "comparison": {
+    "title": "The landscape before and after the storm",
+    "description": "A matched regional view published by UW–Madison CIMSS shows the El Reno landscape on May 14 and June 2, 2013. Move the slider to compare the two observations. The red ellipse in the later image is part of the original source.",
+    "width": 1196,
+    "height": 1019,
+    "source": "https://cimss.ssec.wisc.edu/satellite-blog/archives/13130",
+    "rights": "https://www.ssec.wisc.edu/disclaimer/",
+    "credit": "Provided courtesy of Space Science and Engineering Center, University of Wisconsin-Madison. Terra MODIS imagery; comparison published by Scott Bachmeier. No ground photographer applies to satellite observations.",
+    "limits": "250-meter source resolution. This comparison shows landscape-scale change, not individual building damage. Different illumination, water glint, vegetation and image coverage also affect the appearance. The original publisher aligned these views; the museum has not performed a survey-grade registration. Browser framing and the original annotation are retained. Two source GIF frames were decoded to PNG without cropping or retouching. Noncommercial use under SSEC terms.",
+    "original_url": "https://cimss.ssec.wisc.edu/satellite-blog/wp-content/uploads/sites/5/2013/06/130514-0602_modis_truecolor_el_reno_tornado_path_before_after_anim.gif",
+    "original_asset": "assets/el-reno-2013/modis-comparison-source.gif",
+    "original_sha256": "0350fe1ac3427e1a05c910763f4c701dd600e7fdcc2888a628bdc3dfff4ef03c",
+    "before": {
+      "date": "May 14, 2013 · 17:01 UTC",
+      "asset": "assets/el-reno-2013/modis-comparison-0.png",
+      "sha256": "d31ca22108cb83c7ba2b2f66b893f1e1221224c7062df55ddd87663daf85990c",
+      "alt": "Terra MODIS view of the El Reno and Oklahoma City landscape, May 14, 2013 · 17:01 UTC. Before the May 31 tornado."
+    },
+    "after": {
+      "date": "June 2, 2013 · 17:32 UTC",
+      "asset": "assets/el-reno-2013/modis-comparison-1.png",
+      "sha256": "9473de7c40137f3e2dddaee6d122bc6144c2a83cd51b7689633fd86a6efdc147",
+      "alt": "Terra MODIS view of the El Reno and Oklahoma City landscape, June 2, 2013 · 17:32 UTC. Red ellipse identifies the storm scar in the original source."
+    }
+  },
+  "unmapped_fatalities": [
+    {
+      "people": [
+        "Dustin Heath Bridges"
+      ],
+      "account": "His published obituary identifies his death in El Reno on May 31. Contemporary reporting identifies him among the storm fatalities.",
+      "reason": "The inspected obituary and named-fatality list do not establish a surveyed vehicle coordinate. No point has been assigned.",
+      "sources": [
+        {
+          "label": "Published obituary",
+          "url": "https://www.legacy.com/us/obituaries/legacyremembers/dustin-bridges-obituary?id=22638694"
+        },
+        {
+          "label": "Contemporary named-fatality list",
+          "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+        }
+      ]
+    },
+    {
+      "people": [
+        "William O’Neal"
+      ],
+      "account": "His obituary and contemporary reporting identify William O’Neal among those who died that day.",
+      "reason": "A place name in a fatality list is not necessarily the location of the fatal impact. An independently supported incident coordinate remains unresolved.",
+      "sources": [
+        {
+          "label": "Published obituary",
+          "url": "https://www.legacy.com/us/obituaries/oklahoman/name/william-oneal-obituary?id=11764894"
+        },
+        {
+          "label": "Contemporary named-fatality list",
+          "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+        }
+      ]
+    },
+    {
+      "people": [
+        "Richard Henderson"
+      ],
+      "account": "National Geographic describes firefighters recovering Henderson near a creek, about a mile south of the TWISTEX wreck. This is a relative recovery account, not a precise impact location.",
+      "reason": "Other online accounts propose road locations without a secure named incident join. A relative distance alone cannot establish the recovery coordinate or the place where he died.",
+      "sources": [
+        {
+          "label": "National Geographic reporting",
+          "url": "https://www.nationalgeographic.com/magazine/article/the-last-chase"
+        },
+        {
+          "label": "Contemporary named-fatality list",
+          "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+        }
+      ]
+    },
+    {
+      "people": [
+        "Maria Pol Martin",
+        "Rey Chicoj Pol"
+      ],
+      "account": "Juliana Keeping’s contemporary reporting places the family’s minivan on Interstate 40 at El Reno when the tornado struck. It names Maria Pol Martin and her son Rey Chicoj Pol.",
+      "reason": "The account does not give a mile marker or coordinate. No particular point on the interstate is presented as their death site.",
+      "sources": [
+        {
+          "label": "Reporting by Juliana Keeping, republished by EMS World",
+          "url": "https://www.hmpgloballearningnetwork.com/site/emsworld/news/11031041/language-barriers-hinder-storm-warnings-okla"
+        }
+      ]
+    }
+  ],
+  "log": [
+    {
+      "date": "2026-09-20",
+      "status": "Added",
+      "title": "Geography is now a separate reference layer",
+      "finding": "USGS roads, towns and shaded relief can be shown beneath the historical observations. These are modern layers; they do not establish what a road or property looked like in 2013.",
+      "sources": [
+        {
+          "label": "USGS map metadata",
+          "url": "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
+      "status": "Checked",
+      "title": "Warning issue time and observation time stay separate",
+      "finding": "Seven preserved NWS products now accompany the shared clock. Future bulletins stay out of the current evidence display. Dashed polygons retain the coordinates printed in the original text and expire at the stated time. This is a curated sequence, not a complete warning archive.",
+      "sources": [
+        {
+          "label": "NWS event chronology",
+          "url": "https://www.weather.gov/oun/events-20130531"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
+      "status": "Added",
+      "title": "An actual before-and-after pair",
+      "finding": "Two frames from the original CIMSS satellite comparison are displayed with dates, source credit and limits. Ground photographs at different sites have not been passed off as a matched pair.",
+      "sources": [
+        {
+          "label": "Original satellite comparison",
+          "url": "https://cimss.ssec.wisc.edu/satellite-blog/archives/13130"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
+      "status": "Unresolved",
+      "title": "Five named people still have no defensible map point here",
+      "finding": "The reviewed accounts support names and, in some cases, road or recovery context. They do not support precise named death-site coordinates. The remembrance list includes everyone while the map retains only the documented approximate TWISTEX vehicle recovery location.",
+      "sources": [
+        {
+          "label": "Public reporting of the deaths",
+          "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+        },
+        {
+          "label": "Interstate 40 account",
+          "url": "https://www.hmpgloballearningnetwork.com/site/emsworld/news/11031041/language-barriers-hinder-storm-warnings-okla"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
+      "status": "Clarified",
+      "title": "The nearby vehicle photograph is not an identity record",
+      "finding": "DAT record 165661 says Other and vehicle tossed. The preserved response does not name the vehicle or occupants. Its proximity to the TWISTEX recovery coordinate is shown as a research lead, not an identification.",
+      "sources": [
+        {
+          "label": "Original DAT record",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/query?f=json&objectIds=165661&outFields=*&returnGeometry=true&outSR=4326"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
+      "status": "Research lead",
+      "title": "Chaser footage may narrow vehicle movements",
+      "finding": "A 2014 Stormtrack discussion compares vehicles at Highway 81, Reno Road and SW 15th Street, but also disputes camera timing and vehicle identities. A Reddit discussion points toward Randy Walton footage behind TWISTEX. These leads need original footage, clock alignment and independent identity checks before a named map location can be added. Neither complete video has been reviewed for this update.",
+      "sources": [
+        {
+          "label": "Stormtrack discussion and firsthand replies",
+          "url": "https://stormtrack.org/threads/el-reno-question.27366/"
+        },
+        {
+          "label": "Reddit footage lead",
+          "url": "https://www.reddit.com/r/tornado/comments/1931iok/"
+        }
+      ]
+    }
+  ]
+}

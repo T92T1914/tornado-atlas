@@ -1,0 +1,30 @@
+name: Historical source or correction
+description: Help check a claim, photograph, location or timeline entry.
+title: "Evidence: "
+body:
+  - type: input
+    id: exhibit
+    attributes:
+      label: Exhibit and passage
+      description: Include the page link and the specific statement or map record.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Original evidence
+      description: Link the original record or footage. Give page numbers or video timestamps, publisher and date. Forum threads are useful leads; include their original sources too.
+    validations:
+      required: true
+  - type: textarea
+    id: interpretation
+    attributes:
+      label: What the evidence establishes
+      description: Explain the correction and its limits. For location work, distinguish last sighting, impact, recovery and memorial sites. Include landmarks, clock offsets, vehicle identification evidence and uncertainty. Please avoid graphic victim imagery or private information.
+    validations:
+      required: true
+  - type: textarea
+    id: rights
+    attributes:
+      label: Photograph or video rights
+      description: Identify the creator and license or permission if proposing media for display. A link is welcome even when reuse rights are unknown.

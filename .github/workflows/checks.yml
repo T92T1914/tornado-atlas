@@ -38,7 +38,10 @@ jobs:
           node --check web/survey-view.mjs
           node --check web/camera-view.mjs
           node --check web/playback-model.mjs
-          node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs tests/impact-model.test.mjs
+          node --check web/documentary-view.mjs
+          node --check web/geography-view.mjs
+          node --check web/damage-explanation.mjs
+          node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs tests/impact-model.test.mjs tests/documentary-model.test.mjs
       - name: Verify checked-in exhibit
         run: |
           python tools/check_exhibit.py

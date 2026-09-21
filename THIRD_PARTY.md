@@ -126,3 +126,31 @@ reuse rights. Source links and missing-credit information remain visible.
 
 The September 11 Photo Collection Map was inspected as a design reference.
 Its photographs, map imagery and implementation are not included here.
+
+## USGS reference geography
+
+The path and survey maps optionally request current USGSTopo and
+USGSShadedReliefOnly images from The National Map. These are external reference
+layers, not preserved 2013 basemaps. USGS describes the service's underlying
+government datasets as public domain. Service metadata and attribution are
+linked beside the controls. Historical evidence remains usable if that service
+cannot be reached.
+
+## MODIS landscape comparison
+
+The source GIF and two decoded PNG frames in
+`web/assets/el-reno-2013/modis-comparison*` come from
+[Scott Bachmeier's CIMSS comparison](https://cimss.ssec.wisc.edu/satellite-blog/archives/13130).
+Provided courtesy of Space Science and Engineering Center, University of
+Wisconsin-Madison. Their [reuse terms](https://www.ssec.wisc.edu/disclaimer/)
+permit noncommercial use with attribution. These assets are excluded from the
+software's MIT license. Commercial reuse needs separate permission from SSEC.
+The original view, browser framing and annotation are preserved. Hashes, dates,
+the original URL and interpretation limits are in `documentary.json`.
+
+## Archived NWS warnings
+
+Seven original NWS text products are preserved under `research/evidence/`.
+Iowa Environmental Mesonet is the archive provider. Each product retains its
+issue time, original wording, source URL and SHA-256 in the exhibit manifest.
+The modern museum does not issue warnings or update these historical products.

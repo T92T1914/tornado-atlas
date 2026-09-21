@@ -25,6 +25,15 @@ can be enlarged with their credits. The [documentary design notes](research/docu
 and [audience research notes](research/audience-notes-2026-09-20.md) explain the
 choices and the limits of the research.
 
+The path and survey maps now include optional modern USGS roads, towns and
+terrain. The shared clock connects the tornado position with the latest
+reviewed warning, available radar and published camera samples. Seven preserved
+NWS products show how the forecast and warnings changed that day. A matched
+MODIS comparison shows the landscape before and after the storm, and survey
+photographs include explanations of the recorded damage and its limits.
+The [dated research log](https://t92t1914.github.io/tornado-atlas/#corrections)
+records additions, corrections and questions that remain open.
+
 ## Run locally
 
 Python 3.11 or newer. No additional packages, API keys or map service accounts are needed for the included preview.
@@ -35,7 +44,7 @@ From the repository directory:
 py -3.11 -m http.server 8768 --bind 127.0.0.1 --directory web
 ```
 
-Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:8768/index.html#survey-explorer** for the linked El Reno photographs, **http://127.0.0.1:8768/study.html** for the form study, or **http://127.0.0.1:8768/wind.html** for the wind experiment. On macOS or Linux, replace `py -3.11` with `python3`. The museum data, maps, preserved galleries and labs run offline after checkout. The 45 linked DAT photographs need access to the original NWS service; failed images leave the assessment and source link usable. Source links open external websites. The 3D view needs WebGL 2; the historical pages and wind lab do not.
+Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:8768/index.html#survey-explorer** for the linked El Reno photographs, **http://127.0.0.1:8768/study.html** for the form study, or **http://127.0.0.1:8768/wind.html** for the wind experiment. On macOS or Linux, replace `py -3.11` with `python3`. The museum data, maps, preserved galleries and labs run offline after checkout. Optional USGS reference geography needs a network connection and can be hidden. The 45 linked DAT photographs need access to the original NWS service; failed images leave the assessment and source link usable. Source links open external websites. The 3D view needs WebGL 2; the historical pages and wind lab do not.
 
 Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Numbered groups open a smaller set of records; clear the selected group to return to the current filters. Each selected record has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account. Scroll to zoom around the pointer, drag to explore, or pinch on a touchscreen. The atlas, historical path and damage survey share these controls. Arrow keys pan a focused map; + and - zoom; Home resets it.
 
@@ -78,6 +87,13 @@ source and display requirements. The [enthusiast research notes](research/enthus
 set priorities for roads, synchronized evidence, before and after views, and
 a dated corrections log.
 
+Five other victims have separate location research accounts, without guessed
+coordinates. Chaser footage and community discussions can supply leads, but
+vehicle identification, camera clocks and landmarks need to agree before a
+location is added. A last sighting, an impact and a recovery are separate
+observations. The [documentary evidence notes](research/documentary-evidence-2026-09-20.md)
+record what was inspected and what still needs original footage review.
+
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
 ## What is implemented
@@ -87,7 +103,11 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Searchable atlas | World outline, 80,318 US source records, combined filters, grouped map markers, paginated results and linked source details |
 | El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes and unresolved evidence questions |
 | Recorded camera samples | Tim Marshall's published locations and directions, 17 samples inside the playback window, explicit sample ages and gaps |
-| History and remembrance | Six extended historical sections, public sources for eight names, separate flooding context and one documented vehicle recovery location |
+| History and remembrance | Eleven historical sections, sources for eight names, one approximate vehicle recovery location and five unresolved location accounts |
+| Forecast and evidence clock | Seven original NWS bulletins, issue and observation times, optional archived warning polygons, radar and camera sample availability |
+| Reference geography | Optional modern USGS roads, place names and terrain beneath historical path and survey overlays |
+| Before and after | Original MODIS frames from May 14 and June 2, 2013, a comparison slider, credits and resolution limits |
+| Research log | Dated findings, a source contribution form and a preserved link access audit |
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
 | Survey location explorer | 336 preserved DAT records, 45 original linked photographs, combined filters, zoom, image enlargement and shareable observations |
 | Interactive form study | Native WebGL 2 particle rendering, three forms, camera orbit, visibility controls and motion that begins paused |
@@ -97,7 +117,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 94 Python tests, 67 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 98 Python tests, 71 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
@@ -189,11 +209,21 @@ node --check web/places-view.mjs
 node --check web/map-navigation.mjs
 node --check web/impact-view.mjs
 node --check web/fatality-view.mjs
-node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs tests/impact-model.test.mjs
+node --check web/documentary-view.mjs
+node --check web/geography-view.mjs
+node --check web/damage-explanation.mjs
+node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs tests/impact-model.test.mjs tests/documentary-model.test.mjs
 py -3.11 tools/check_catalogue.py
 ```
 
 Node 20 or newer is needed for the JavaScript checks, but not to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
+
+Optional network audit: install `requests`, then run
+`py -3.11 tools/audit_exhibit_links.py`. The report separates reachable links,
+missing pages and unresolved access. `--new-only` keeps the original check date
+on unchanged URLs and checks additions. HTTP access does not establish that a
+source supports a particular claim. The audit covers the curated exhibit and
+fixed page links, not all 80,318 catalogue records.
 
 ## Project notes
 

@@ -163,6 +163,41 @@
       "publisher": "American Meteorological Society / Monthly Weather Review",
       "url": "https://doi.org/10.1175/MWR-D-15-0367.1",
       "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable; the unfinished conclusion was not used."
+    },
+    {
+      "group": "Geography and imagery",
+      "title": "Modern topographic reference map",
+      "publisher": "USGS The National Map",
+      "url": "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer",
+      "use": "Current roads, names and terrain for orientation. These layers are not historical evidence of the landscape in 2013."
+    },
+    {
+      "group": "Geography and imagery",
+      "title": "Before and after satellite comparison",
+      "publisher": "Scott Bachmeier / UW–Madison CIMSS",
+      "url": "https://cimss.ssec.wisc.edu/satellite-blog/archives/13130",
+      "use": "The June 2 update compares May 14 and June 2 Terra MODIS imagery at 250-meter source resolution. The old article retains an early EF5 label; it is not the source of the final official rating here."
+    },
+    {
+      "group": "Geography and imagery",
+      "title": "SSEC image use terms",
+      "publisher": "University of Wisconsin-Madison SSEC",
+      "url": "https://www.ssec.wisc.edu/disclaimer/",
+      "use": "Noncommercial image reuse with the required attribution. These images are excluded from the repository code license."
+    },
+    {
+      "group": "Community research leads",
+      "title": "El Reno vehicle discussion",
+      "publisher": "Stormtrack participants",
+      "url": "https://stormtrack.org/threads/el-reno-question.27366/",
+      "use": "First page and firsthand replies inspected. Clock alignment and vehicle identities are contested. Original videos have not been fully reviewed here; this does not establish a named fatality coordinate."
+    },
+    {
+      "group": "Community research leads",
+      "title": "Footage from behind TWISTEX",
+      "publisher": "Reddit community",
+      "url": "https://www.reddit.com/r/tornado/comments/1931iok/",
+      "use": "A route to attributed original footage, not independently verified movement or a death-site coordinate. Post discussion inspected; full video not reviewed."
     }
   ]
 }

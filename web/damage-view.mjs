@@ -1,3 +1,4 @@
+import {damageExplanation} from './damage-explanation.mjs';
 const el = (tag, text, className) => {
   const element = document.createElement(tag);
   if (text) element.textContent = text;
@@ -53,6 +54,7 @@ export function mountDamage(gallery, showPhoto) {
       const caption = el('figcaption');
       caption.append(el('span', `NWS caption / ${photo.reported_rating}`, 'eyebrow'),
         el('h3', photo.title), el('p', photo.caption), el('p', photo.location_description, 'fineprint'));
+      caption.append(damageExplanation(photo.subject,photo.caption,photo.reported_rating));
       content.replaceChildren(imageButton(photo), caption);
     }
     select.addEventListener('change', update);
