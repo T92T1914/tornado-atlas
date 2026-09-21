@@ -291,3 +291,28 @@ Firefox, Safari, physical phones and arbitrary theme extensions remain
 unverified. The appearance control currently belongs to the El Reno exhibit.
 The [research record](../research/linked-evidence-design-2026-09-20.md) separates
 inspected research methods from abstract-only leads and visitor-testing plans.
+
+# September 20: Noir, longer history and documented places
+
+The Python suite passes 90 tests and the JavaScript model suite passes 58.
+The exhibit and 80,318-record catalogue checks pass. New checks reject an
+unsupported death-location classification, a missing source or precision note,
+an unverified name and nonfinite coordinates. The new browser module and the
+changed application modules pass syntax checks.
+
+In local Chromium, the optional recovery marker opened its source account.
+The account link enabled the map layer. Advancing the timeline left the marker
+at the same coordinates. Desktop Noir and Light were visually inspected, as
+were the 390-pixel historical text and light wind lab. All four pages were
+checked at 320 CSS pixels without horizontal document overflow. Appearance
+selection persisted between them. The history rendered all six new sections.
+
+Forced colors and reduced motion were emulated; the page adopted system colors.
+No browser warnings or errors were recorded during these checks. Temporary
+device and media overrides were cleared. These are Chromium checks, not actual
+Firefox, Safari, physical-device or arbitrary theme-extension verification.
+
+The source record remains explicit about indexed-text access to the TWISTEX
+location paragraph. Its full published figures have not been visually checked.
+The UI tests do not strengthen the historical precision of that point or
+validate a historical reconstruction or damage model.

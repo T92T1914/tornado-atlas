@@ -2025,8 +2025,124 @@
           ]
         }
       ],
-      "source_note": "Names are transcribed from public NOAA statements, contemporary reporting and an obituary. Early articles contain superseded storm ratings and conflicting ages; their names are used here without repeating those ages or ratings. This is an independently assembled remembrance, not a family-approved or official memorial."
-    }
+      "source_note": "Names are transcribed from public NOAA statements, contemporary reporting and an obituary. Early articles contain superseded storm ratings and conflicting ages; their names are used here without repeating those ages or ratings. This is an independently assembled remembrance, not a family-approved or official memorial.",
+      "places": [
+        {
+          "id": "twistex-recovery",
+          "kind": "vehicle_recovery",
+          "label": "Approximate vehicle recovery location",
+          "title": "The TWISTEX vehicle near Reuter and Radio Roads",
+          "coordinates": [
+            -97.9014,
+            35.4795
+          ],
+          "coordinate_basis": "published_approximate",
+          "people": [
+            "Tim Samaras",
+            "Paul Samaras",
+            "Carl Young"
+          ],
+          "account": "Wurman and colleagues give this approximate location for the recovered vehicle occupied by Tim Samaras, Paul Samaras and Carl Young. Their account places the initial impact about 530 meters west of the road intersection and describes an inferred route to the resting place. This diamond identifies the recovery location, not the exact place of death.",
+          "precision_note": "Coordinates are reproduced as approximate in the published paper. No positional error radius is supplied. The diamond has no physical extent. A preliminary conference account gives a different latitude; this exhibit follows the later journal account.",
+          "time_note": "The location stays fixed through playback. No exact time of death is assigned.",
+          "source": "https://doi.org/10.1175/BAMS-D-13-00221.1",
+          "source_locator": "Wurman et al., BAMS 95 (2014), pp. 38–40, “Tornado impacts storm-chasing teams,” Figures 6 and 9. Location paragraph checked in indexed primary-source text; the full figure has not been visually verified in this review."
+        }
+      ]
+    },
+    "report": [
+      {
+        "id": "storm-environment",
+        "title": "Before the funnel: a dangerous environment",
+        "paragraphs": [
+          "The May 31 storm arrived after a destructive period in central Oklahoma. The NWS service assessment treats the earlier May 19 and May 20 events as part of the context for how people responded that evening. A warning is received by people who remember what happened recently, not by an empty landscape.",
+          "A slow front met a dryline, a boundary separating much drier air from humid air. The assessment describes very moist surface air, strong to extreme instability and southeasterly inflow near the developing storms. These observations explain why forecasters were concerned before a tornado appeared. They do not specify the future route of an individual vortex."
+        ],
+        "sources": [
+          {
+            "label": "NWS assessment, event overview and public response",
+            "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
+          }
+        ]
+      },
+      {
+        "id": "changing-circulation",
+        "title": "The circulation was larger than one visible funnel",
+        "paragraphs": [
+          "A useful reconstruction has to distinguish the condensation funnel, the larger circulation and smaller vortices moving through it. Wurman and colleagues describe rapidly moving subvortices and very large differences in their motion. A single cone following the center line would hide that complexity.",
+          "The path player below shows published center positions. Between those observations, the moving point is an interpolation. The shaded outline describes the whole event footprint. Neither is a measured, second-by-second outline of the visible funnel. Read the linked radar and photographs as observations with their own times and viewing positions."
+        ],
+        "sources": [
+          {
+            "label": "Wurman and colleagues, multiple-vortex analysis",
+            "url": "https://doi.org/10.1175/BAMS-D-13-00221.1"
+          }
+        ]
+      },
+      {
+        "id": "reading-damage",
+        "title": "What a damaged building can tell us",
+        "paragraphs": [
+          "A photograph records a result. Interpreting it requires knowing what stood there before, how it was built and what connections failed. A collapsed wall in a wide shot does not reveal every foundation connection. This is why the survey account and close photographs matter alongside a dramatic overview.",
+          "The mapped survey browser keeps each source feature attached to its own photographs. Select a point, read the reported damage indicator and degree of damage, and then inspect the original attachment. Its map position belongs to the survey feature; it does not automatically identify where the photographer stood. If the source has no photographer or capture time, the exhibit says so.",
+          "The local gallery and mapped attachments are separate collections. A caption that says EF3 is a claim about that damage example. It is not a measurement of every wind the storm produced. Likewise, a point outside a familiar drawing of the path cannot be reassigned to El Reno merely because it is nearby."
+        ],
+        "sources": [
+          {
+            "label": "NWS damage photographs and event account",
+            "url": "https://www.weather.gov/oun/events-20130531"
+          },
+          {
+            "label": "Ground survey, construction evidence and rating discussion",
+            "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf"
+          }
+        ]
+      },
+      {
+        "id": "human-consequences",
+        "title": "People, vehicles and the limits of the map",
+        "paragraphs": [
+          "The NWS assessment records all eight direct tornado fatalities in vehicles; four people were storm chasing. It also distinguishes the tornado losses from the later flooding. Those are different events in the same dangerous evening, and combining their totals would obscure what happened.",
+          "The remembrance below names the eight people using public records. A name does not require a map pin. We add a place only when a source locates something specific, such as an impact area or a recovery site. Those labels matter because a vehicle can move after it is struck. The map does not infer a person’s final position from a memorial, a roadside marker or a damage photograph.",
+          "The current place record is a research-reported vehicle recovery location. The source does not establish the precise place or instant of each occupant’s death. The other fatal incidents remain unmapped here. That is a limit of this exhibit’s verified location evidence, not a suggestion that their histories matter less."
+        ],
+        "sources": [
+          {
+            "label": "NWS assessment, storm chasing and fatalities, printed pages 27–30",
+            "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
+          }
+        ]
+      },
+      {
+        "id": "reconstructing-storm",
+        "title": "How scattered recordings become a reconstruction",
+        "paragraphs": [
+          "The El Reno Survey Project demonstrates how footage can become a scientific record. Seimon and colleagues describe correcting video times against recorded lightning flashes and locating viewpoints using recognizable scene features. That permits observations from separate cameras to be compared with radar at corresponding times.",
+          "For this exhibit, a useful image record therefore needs more than a date and a credit. It needs an original source, a defensible time or interval, a viewpoint when known, and an explanation of any correction. An upload time is not a capture time. An eyewitness’s position is not the tornado center. A clear view of the funnel is not a complete view of the wind field.",
+          "At present, the original storm photographs are available without assigned timestamps. The radar frames and published camera samples can be explored on the clock. A future historical animation should inherit those distinctions: observed positions, interpolation, inferred form and missing evidence should remain inspectable while it plays."
+        ],
+        "sources": [
+          {
+            "label": "Seimon and colleagues, time correction and georeferencing",
+            "url": "https://doi.org/10.1175/BAMS-D-15-00174.1"
+          }
+        ]
+      },
+      {
+        "id": "reading-community",
+        "title": "Questions that deserve an evidence trail",
+        "paragraphs": [
+          "The discussion section is a companion to this account. Each entry names a specific claim, links the public conversation, follows it back to source material and explains what remains unresolved. Agreement among commenters is useful evidence of interest in a question. It cannot substitute for the underlying survey or measurement.",
+          "A good contribution can be quite small: identifying a building in an original photograph, locating a missing report, or finding a timestamp correction. Include the source and the reasoning so somebody else can check it. We can then change the relevant passage and its evidence note together, instead of allowing a compelling story to quietly become an established fact."
+        ],
+        "sources": [
+          {
+            "label": "Community discussions and original sources",
+            "url": "https://www.reddit.com/r/tornado/comments/1pr4gsg/el_reno_2013_tornado_rating/"
+          }
+        ]
+      }
+    ]
   },
   "storm_photos": [
     {
@@ -2235,7 +2351,7 @@
     "schema": 1,
     "event": "el-reno-2013",
     "updated": "2026-09-20",
-    "introduction": "Storm discussions can raise good questions and point to details buried in survey reports. Here are three El Reno conversations, followed back to the records where possible. These entries sit alongside the history without changing the official rating or measurements.",
+    "introduction": "El Reno continues to raise difficult questions about rating, scale and what a photograph can establish. These discussions follow individual claims back to their sources. Open each evidence account for the reasoning, the competing interpretations and the work still needed.",
     "scope": "This is a small curated selection, not a poll of the tornado community or a live comment feed. A popular post is a lead, not proof. Creator footage and eyewitness accounts need their own checks for date, location, context and the specific claim being made. We link to the discussions so you can read the arguments yourself.",
     "sources": [
       {
@@ -2300,6 +2416,15 @@
         "role": "primary",
         "access": "text_reviewed",
         "coverage": "Damage indicators, degrees of damage and the role of construction in estimating wind intensity."
+      },
+      {
+        "id": "multiple-vortex",
+        "title": "The Role of Multiple-Vortex Tornado Structure in Causing Storm Researcher Fatalities",
+        "publisher": "Wurman, Kosiba, Robinson and Marshall; BAMS, 2014",
+        "url": "https://doi.org/10.1175/BAMS-D-13-00221.1",
+        "role": "primary",
+        "access": "selected_sections_reviewed",
+        "coverage": "Indexed primary-source passages on velocity-threshold width and vehicle recovery reviewed. Direct publisher access and the institutional PDF were unavailable in this review; figures were not visually inspected. The journal location supersedes the differing preliminary conference latitude."
       }
     ],
     "entries": [
@@ -2329,6 +2454,11 @@
             "label": "Compare the captioned NWS gallery",
             "href": "#damage"
           }
+        ],
+        "analysis": [
+          "The disagreement often starts with two questions being treated as one: how intense were the strongest measured winds, and what rating did the documented damage support? A report can provide evidence about the first while the official record answers the second.",
+          "The useful next step is to identify a particular measurement or damage indicator, not to vote between labels. Check the wind measurement’s height and sampling, or the building’s construction and failure. Then ask what claim that evidence can support.",
+          "The exhibit retains the final official EF3 rating. That choice does not dismiss the research on extreme winds. It keeps the classification, observations and arguments separately available for inspection."
         ]
       },
       {
@@ -2355,6 +2485,11 @@
             "label": "Compare the captioned NWS gallery",
             "href": "#damage"
           }
+        ],
+        "analysis": [
+          "The house example is valuable because it offers a specific claim that can be checked. The survey account explains what failed and what the investigators found at the foundation. That is a stronger chain of evidence than an impression from a wide photograph.",
+          "The construction finding changes the interpretation of that building. It does not identify the maximum wind everywhere in the tornado, and it does not establish that every similar-looking ruin had the same weakness.",
+          "A fuller account should identify the exact survey record and original photographs before connecting this example to a map pin. Nearby photographs with similar damage are not interchangeable. The mapped browser provides source identifiers so that a future match can be recorded and checked."
         ]
       },
       {
@@ -2370,15 +2505,21 @@
         "check": "The official event page reports 2.6 miles. The survey paper explains a boundary based on radar radial velocity and distinguishes tornado damage from nearby downdraft damage. The larger figure has not been verified here.",
         "evidence_sources": [
           "nws-event",
-          "ground-survey"
+          "ground-survey",
+          "multiple-vortex"
         ],
         "conclusion": "Keep 2.6 miles in the historical record. Preserve 4.3 miles as an unresolved claim with its source trail, not as a second confirmed measurement.",
-        "remaining": "Locate the study behind the blog and identify its boundary, time, height and method. We have not established whether it measures the same thing as the official tornado width.",
+        "remaining": "The journal supplies a potentially relevant 7-kilometer velocity-threshold extent. The blog’s specific citation and equivalence to the official width are still unconfirmed.",
         "exhibit_links": [
           {
             "label": "Inspect the published outline",
             "href": "#path"
           }
+        ],
+        "analysis": [
+          "The first question is what “width” means in the claim. A photographed funnel, a damage swath and a radar velocity threshold can give different boundaries. Converting units cannot resolve a difference in definition.",
+          "A 4.3-mile figure is approximately 7 kilometers. Wurman and colleagues discuss a 7-kilometer extent under a particular velocity-threshold definition. This is a potentially relevant research lead, not proof that the blog used that study or that the official damage width should be replaced.",
+          "To close the claim, the blog’s underlying reference still needs to be established. Then its threshold, height, time and direction of measurement can be compared with the official figure. Until that comparison is documented, the alternate number belongs in the discussion rather than the headline facts."
         ]
       }
     ]
@@ -7571,6 +7712,27 @@
         "publisher": "El Reno Survey Project",
         "url": "https://el-reno-survey.net/ted/ted-elreno-metadata.js",
         "use": "A preserved 22-sample numerical excerpt supplies UTC times, camera positions and camera 1 azimuth. Seventeen samples fall within the map timeline. No footage or photograph has been matched to these samples here."
+      },
+      {
+        "group": "Research and reconstruction",
+        "title": "May 2013 Oklahoma tornadoes and flash flooding: service assessment",
+        "publisher": "National Weather Service",
+        "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf",
+        "use": "Storm environment, public response and vehicle fatality context. Event overview and storm-chasing sections inspected."
+      },
+      {
+        "group": "Research and reconstruction",
+        "title": "The Role of Multiple-Vortex Tornado Structure in Causing Storm Researcher Fatalities",
+        "publisher": "Wurman, Kosiba, Robinson and Marshall, 2014",
+        "url": "https://doi.org/10.1175/BAMS-D-13-00221.1",
+        "use": "Recovery-site coordinates and the distinction between circulation boundaries. Indexed selected passages checked; figures not inspected."
+      },
+      {
+        "group": "Research and reconstruction",
+        "title": "Crowdsourcing the El Reno 2013 Tornado",
+        "publisher": "Seimon and colleagues, 2016",
+        "url": "https://doi.org/10.1175/BAMS-D-15-00174.1",
+        "use": "Methods for video time correction and georeferencing, checked in indexed primary-source passages."
       }
     ]
   }

@@ -36,6 +36,15 @@ async function main() {
     card.append(node('h3', entry.title),node('p',entry.text),link('Read the account ↗',entry.source));
     byId('historical-context').append(card);
   }
+  for (const section of history.report) {
+    const article = node('article'); article.id = section.id;
+    const heading = node('h3'); const anchor = node('a', section.title); anchor.href = '#'+section.id;
+    heading.append(anchor); article.append(heading);
+    section.paragraphs.forEach(text => article.append(node('p', text)));
+    const sources = node('div', null, 'report-links');
+    section.sources.forEach(source => sources.append(link(source.label, source.url)));
+    article.append(sources); byId('documentary-report').append(article);
+  }
   function stormFigure(photo, index, hero = false) {
     const figure = node('figure');
     const image = node('img');
@@ -157,7 +166,7 @@ async function main() {
   showVideos();
   const { mountTimelineMedia } = await import('./timeline-media.mjs');
   const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
-  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras);
+  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places);
   const { mountReader } = await import('./reader-view.mjs');
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
@@ -174,7 +183,7 @@ async function main() {
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
   });
 }
-async function drawMap(geojson, chapters, updateMedia, cameras) {
+async function drawMap(geojson, chapters, updateMedia, cameras, places) {
   const {PlaybackClock, preparePositions, positionAt} = await import('./playback-model.mjs');
   const {localStamp} = await import('./timeline-media-model.mjs');
   const {mountCamera} = await import('./camera-view.mjs');
@@ -221,6 +230,8 @@ async function drawMap(geojson, chapters, updateMedia, cameras) {
   const bar = 2 * scale;
   svg.append(svgNode('path', {d:`M 50 355 v 5 h ${bar} v -5`,fill:'none',stroke:'#b3bbae','stroke-width':1.5}));
   svg.append(svgNode('text', {x:50,y:380,class:'axis-label'}, '≈ 2 km'));
+  const { mountPlaces } = await import('./places-view.mjs');
+  mountPlaces(places, svg, project);
   const timed = preparePositions(positions), start = timed[0].stamp, end = timed.at(-1).stamp;
   const clock = new PlaybackClock((end-start)/1000);
   let animation = null, lastChapter = null, lastText = null;

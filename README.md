@@ -58,11 +58,20 @@ ID. Blank event identifiers still prevent a direct event join for the underlying
 regional survey, so the map retains its geographic-selection caveat. No capture
 times, camera positions or photographer names are invented.
 
-The exhibit offers System, Light and Dark reading appearances, with forced-color
-support and text alternatives to colored map markers. Photographs and radar
+All four pages offer Noir, Light and System appearances. Noir uses black,
+white and gray for the interface. Forced-color support and text alternatives
+remain available for map markers. Photographs and radar
 colors are not recolored. Community entries link back to the relevant map or
 gallery. The [design and research review](research/linked-evidence-design-2026-09-20.md)
 explains the ArcGIS reference, the evidence model and the remaining work.
+
+The history now includes six longer sections on the storm environment,
+circulation, damage, human consequences, reconstruction and community evidence.
+The first documented remembrance location is the approximate TWISTEX vehicle
+recovery point from the published research account. It can be opened from the
+path map and remains fixed as the timeline moves. It is not labeled as an exact
+place of death. The [location and reading notes](research/noir-remembrance-2026-09-20.md)
+explain the source disagreement and why the other locations remain unknown.
 
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
@@ -73,7 +82,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Searchable atlas | World outline, 80,318 US source records, combined filters, grouped map markers, paginated results and linked source details |
 | El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes and unresolved evidence questions |
 | Recorded camera samples | Tim Marshall's published locations and directions, 17 samples inside the playback window, explicit sample ages and gaps |
-| History and remembrance | Published casualty counts with their scope, public sources for eight names, and separate regional flooding context |
+| History and remembrance | Six extended historical sections, public sources for eight names, separate flooding context and one documented vehicle recovery location |
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
 | Survey location explorer | 336 preserved DAT records, 45 original linked photographs, combined filters, zoom, image enlargement and shareable observations |
 | Interactive form study | Native WebGL 2 particle rendering, three forms, camera orbit, visibility controls and motion that begins paused |
@@ -83,7 +92,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 88 Python tests, 58 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 90 Python tests, 58 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
@@ -95,7 +104,7 @@ positions, using the latest preceding frame within four minutes. The actual
 frame age and the filename-clock interpretation stay visible. The two storm
 photographs can be viewed beside the timeline, but remain explicitly untimed.
 
-A cyan camera marker follows Tim Marshall's published camera samples. Selecting
+An arrow marker follows Tim Marshall's published camera samples. Selecting
 6:09:38 PM, for example, shows that recorded camera location and moves the
 interpolated tornado marker to the same time. Camera samples are held at their
 recorded locations for at most 90 seconds, with their age displayed. The marker
@@ -171,6 +180,7 @@ node --check web/photo-view.mjs
 node --check web/reader-view.mjs
 node --check web/timeline-media.mjs
 node --check web/community-view.mjs
+node --check web/places-view.mjs
 node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs
 py -3.11 tools/check_catalogue.py
 ```
