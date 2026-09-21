@@ -122,3 +122,13 @@ records. Their recorded coordinates give the historical map a damage layer,
 with the original query and individual records available for inspection.
 Event joins, photograph matches and impact times remain unverified. See the
 [survey selection record](../research/damage-locations-2026-09-20.md).
+
+The historical map now has a shared second-level clock with explicit playback
+rates and labeled interpolation between the unchanged NWS positions. A Tim
+Marshall camera overlay uses 17 published samples within that interval, showing
+the last recorded location and its age before hiding it after 90 seconds.
+Camera gaps are not interpolated. This establishes a usable geographic clock
+and viewpoint layer; it does not register the untimed ground photographs or
+complete the historical appearance scene. The
+[camera source and playback record](../research/camera-playback-2026-09-20.md)
+sets out those boundaries and the remaining work.

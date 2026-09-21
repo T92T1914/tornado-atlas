@@ -1,22 +1,31 @@
 import {frameAt,localStamp} from './timeline-media-model.mjs';
 export function mountTimelineMedia(manifest, photos, openPhoto) {
   const el=id=>document.getElementById(id), mode=el('timeline-media-mode');
-  let selected=null;
+  let selected=null, renderedKey=null, ageLabel=null;
   el('timeline-media-method').textContent=manifest.clock_basis+' '+manifest.interpretation;
   function render() {
     if (!selected) return;
+    const match=mode.value==='radar' ? frameAt(manifest.frames,selected.properties.utc,manifest.max_age_seconds) : null;
+    const key=mode.value==='radar' ? `radar:${match?.frame.file || 'none'}` : `photo:${mode.value}`;
+    function updateAge() {
+      if (!ageLabel || !match) return;
+      const age=Math.floor(match.ageSeconds);
+      const text=`${Math.floor(age/60)} min ${age%60} sec before the selected time. Latest curated preceding frame; the image does not update every second.`;
+      if (ageLabel.textContent !== text) ageLabel.textContent=text;
+    }
+    if (key === renderedKey) {updateAge();return;}
+    renderedKey=key;ageLabel=null;
     const slot=el('timeline-media-image'), body=el('timeline-media-caption');
     slot.replaceChildren();body.replaceChildren();
     const add=(tag,text)=>{const n=document.createElement(tag);n.textContent=text;body.append(n);return n;};
     let asset;
     if(mode.value==='radar') {
       el('timeline-media-status').textContent='RADAR / TIME LINKED';
-      const match=frameAt(manifest.frames,selected.properties.utc,manifest.max_age_seconds);
       if(!match) {add('p','No reviewed radar frame within four minutes before this position.');return;}
-      const {frame,ageSeconds}=match;
+      const {frame}=match;
       add('h4',localStamp(frame.utc));
       add('p','Source filename time interpreted as UTC. Clock details below.');
-      add('p',`${Math.floor(ageSeconds/60)} min ${ageSeconds%60} sec before the selected position. Latest curated preceding frame; the image does not update every minute.`);
+      ageLabel=add('p','');updateAge();
       add('p','Regional reflectivity shows radar echoes, not the visible funnel or a surface wind-speed map.');
       asset={title:'El Reno / regional radar',asset:frame.file,alt:frame.alt,caption:frame.source_label,
         location:manifest.clock_basis,credit:manifest.credit+'. '+manifest.changes,source:manifest.source,license:manifest.license,licenseUrl:manifest.license_url};
@@ -38,9 +47,11 @@ export function mountTimelineMedia(manifest, photos, openPhoto) {
   mode.addEventListener('change',render);
   return (position,index)=>{
     selected=position;
-    el('media-time').value=index;
-    el('media-time').setAttribute('aria-valuetext',position.properties.display_time);
-    el('media-time-label').textContent=position.properties.display_time;
+    if (el('media-time').value !== String(index)) el('media-time').value=index;
+    if (el('media-time-label').textContent !== position.properties.display_time) {
+      el('media-time').setAttribute('aria-valuetext',position.properties.display_time);
+      el('media-time-label').textContent=position.properties.display_time;
+    }
     render();
   };
 }

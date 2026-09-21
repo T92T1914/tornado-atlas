@@ -157,10 +157,7 @@ async function main() {
   showVideos();
   const { mountTimelineMedia } = await import('./timeline-media.mjs');
   const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
-  const selectMinute = drawMap(data.geometry, history.chapters, updateMedia);
-  const timedPoints=data.geometry.features.filter(f=>f.geometry.type==='Point');
-  byId('media-time').max=timedPoints.length-1;
-  byId('media-time').addEventListener('input',()=>selectMinute(Number(timedPoints[Number(byId('media-time').value)].properties.source_name.split(':')[1])));
+  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras);
   const { mountReader } = await import('./reader-view.mjs');
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
@@ -177,7 +174,10 @@ async function main() {
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
   });
 }
-function drawMap(geojson, chapters, updateMedia) {
+async function drawMap(geojson, chapters, updateMedia, cameras) {
+  const {PlaybackClock, preparePositions, positionAt} = await import('./playback-model.mjs');
+  const {localStamp} = await import('./timeline-media-model.mjs');
+  const {mountCamera} = await import('./camera-view.mjs');
   const svg = byId('map');
   const features = geojson.features;
   const positions = features.filter(f => f.geometry.type === 'Point');
@@ -221,24 +221,44 @@ function drawMap(geojson, chapters, updateMedia) {
   const bar = 2 * scale;
   svg.append(svgNode('path', {d:`M 50 355 v 5 h ${bar} v -5`,fill:'none',stroke:'#b3bbae','stroke-width':1.5}));
   svg.append(svgNode('text', {x:50,y:380,class:'axis-label'}, '≈ 2 km'));
-  let index = 0, timer = null;
+  const timed = preparePositions(positions), start = timed[0].stamp, end = timed.at(-1).stamp;
+  const clock = new PlaybackClock((end-start)/1000);
+  let animation = null, lastChapter = null, lastText = null;
   const slider = byId('timeline');
-  slider.max = positions.length - 1;
+  slider.max = clock.duration;
+  byId('media-time').max = clock.duration;
   slider.disabled = false;
   byId('play').disabled = false;
-  function stop() { if (timer !== null) clearInterval(timer); timer = null; byId('play').textContent = 'Play timeline'; }
+  function stop() {
+    clock.pause();
+    if (animation !== null) cancelAnimationFrame(animation);
+    animation = null; byId('play').textContent = 'Play timeline';
+  }
+  function seek(seconds) {stop(); clock.seek(seconds); update();}
+  const updateCamera = mountCamera(cameras, svg, project, start, end, seek);
   function update() {
-    const selected = positions[index], [x,y] = project(selected.geometry.coordinates);
+    const selected = positionAt(timed, clock.seconds), [x,y] = project(selected.coordinates);
     for (const element of [halo,core]) {element.setAttribute('cx',x);element.setAttribute('cy',y);}
-    byId('clock').textContent = selected.properties.display_time;
-    slider.value = index;
-    updateMedia(selected,index);
-    slider.setAttribute('aria-valuetext', selected.properties.display_time);
-    byId('previous').disabled = index === 0;
-    byId('next').disabled = index === positions.length - 1;
-    byId('map-description').textContent = `NWS whole-event outline and center path. Selected center position: ${selected.properties.display_time}. The marker has no physical size.`;
-    const minute=Number(selected.properties.source_name.split(':')[1]);
+    // Expiry checks run on every frame, including between displayed whole seconds.
+    updateCamera(selected.utc);
+    updateMedia({properties:{utc:selected.utc,display_time:localStamp(selected.utc)}},Math.floor(clock.seconds));
+    // Keep the marker smooth, but do not rebuild captions or image nodes each frame.
+    const textKey = `${Math.floor(clock.seconds)}:${selected.published}`;
+    if (textKey === lastText) return;
+    lastText = textKey;
+    const time = localStamp(selected.utc);
+    byId('clock').textContent = time;
+    slider.value = Math.floor(clock.seconds);
+    slider.setAttribute('aria-valuetext', time);
+    byId('previous').disabled = clock.seconds === 0;
+    byId('next').disabled = clock.seconds === clock.duration;
+    const basis = selected.published ? 'Published NWS minute position' : `Interpolated between ${positions[selected.before].properties.source_name} and ${positions[selected.after].properties.source_name} PM CDT`;
+    byId('position-basis').textContent = basis;
+    byId('map-description').textContent = `NWS whole-event outline and center path. Selected time: ${time}. ${basis}. The marker has no physical size. Camera samples are separate recorded observations.`;
+    const minute=Number(positions[selected.before].properties.source_name.split(':')[1]);
     const chapter=chapters.filter(c=>c.minute<=minute).at(-1) || chapters[0];
+    if (lastChapter === chapter) return;
+    lastChapter = chapter;
     byId('chapter-title').textContent=chapter.time+' · '+chapter.title;
     byId('chapter-account').replaceChildren(document.createTextNode(chapter.text+' '),link('NWS account ↗',chapter.source));
     for (const button of byId('path-chapters').querySelectorAll('button')) button.setAttribute('aria-pressed',String(Number(button.dataset.minute)===chapter.minute));
@@ -249,14 +269,31 @@ function drawMap(geojson, chapters, updateMedia) {
     button.addEventListener('click',()=>selectMinute(chapter.minute));
     byId('path-chapters').append(button);
   }
-  slider.addEventListener('input', () => {stop();index = Number(slider.value);update();});
-  byId('previous').addEventListener('click', () => {stop();index = Math.max(0,index-1);update();});
-  byId('next').addEventListener('click', () => {stop();index = Math.min(positions.length-1,index+1);update();});
+  slider.addEventListener('input', () => seek(Number(slider.value)));
+  byId('media-time').addEventListener('input', () => seek(Number(byId('media-time').value)));
+  byId('previous').addEventListener('click', () => {
+    const previous = timed.filter(p => (p.stamp-start)/1000 < clock.seconds).at(-1);
+    seek(previous ? (previous.stamp-start)/1000 : 0);
+  });
+  byId('next').addEventListener('click', () => {
+    const next = timed.find(p => (p.stamp-start)/1000 > clock.seconds);
+    seek(next ? (next.stamp-start)/1000 : clock.duration);
+  });
+  function frame() {
+    // Use the same monotonic clock as UI events, not the older frame timestamp.
+    animation = null; clock.tick(performance.now()); update();
+    if (clock.playing) animation = requestAnimationFrame(frame);
+    else stop();
+  }
   byId('play').addEventListener('click', () => {
-    if (timer !== null) {stop();return;}
-    if (index === positions.length-1) {index=0;update();}
+    if (clock.playing) {clock.tick(performance.now()); stop(); update(); return;}
+    clock.play(performance.now()); update();
     byId('play').textContent = 'Pause timeline';
-    timer = setInterval(() => {index++;update();if(index === positions.length-1) stop();}, 650);
+    animation = requestAnimationFrame(frame);
+  });
+  byId('playback-rate').addEventListener('change', () => {
+    clock.tick(performance.now());
+    clock.setRate(Number(byId('playback-rate').value)); update();
   });
   document.addEventListener('visibilitychange', () => {if(document.hidden) stop();});
   byId('timeline-media-image').addEventListener('click',stop);
@@ -264,7 +301,7 @@ function drawMap(geojson, chapters, updateMedia) {
   function selectMinute(minute) {
     const selected = positions.findIndex(p => Number(p.properties.source_name.split(':')[1]) === minute);
     if (selected < 0) return;
-    stop();index = selected;update();
+    seek((timed[selected].stamp-start)/1000);
   }
   return selectMinute;
 }
