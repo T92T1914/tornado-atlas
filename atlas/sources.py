@@ -50,7 +50,7 @@ def retrieve(url: str, *, data_dir: Path = DATA, max_bytes: int = 32_000_000) ->
             "retrieved_at": datetime.now(timezone.utc).isoformat(),
             "sha256": sha,
             "bytes": count,
-            "path": str(destination.relative_to(data_dir)),
+            "path": destination.relative_to(data_dir).as_posix(),
             "content_type": headers.get("Content-Type"),
             "last_modified": headers.get("Last-Modified"),
             "etag": headers.get("ETag"),
@@ -63,8 +63,27 @@ def retrieve(url: str, *, data_dir: Path = DATA, max_bytes: int = 32_000_000) ->
 
 
 def read_object(metadata: dict, data_dir: Path = DATA) -> bytes:
-    content = (data_dir / metadata["path"]).read_bytes()
-    if hashlib.sha256(content).hexdigest() != metadata["sha256"]:
+    """Verify a content-addressed cache object, never an arbitrary manifest path."""
+    if not isinstance(metadata, dict):
+        raise ValueError("Source metadata must be an object")
+    sha, recorded_path = metadata.get("sha256"), metadata.get("path")
+    if not isinstance(sha, str) or re.fullmatch(r"[0-9a-f]{64}", sha) is None:
+        raise ValueError("Source sha256 must be a lowercase SHA-256 digest")
+    # Earlier Windows retrievals recorded backslashes. Accept that spelling
+    # on every platform while keeping the content-addressed layout exact.
+    if not isinstance(recorded_path, str) or recorded_path.replace("\\", "/") != f"raw/{sha}":
+        raise ValueError("Source path must identify its digest inside raw/")
+    count = metadata.get("bytes")
+    if "bytes" in metadata and (type(count) is not int or count < 0):
+        raise ValueError("Source byte count must be a nonnegative integer")
+    base = data_dir.resolve()
+    path = base / "raw" / sha
+    if path.resolve() != path:
+        raise ValueError("Source path must not redirect outside its cache object")
+    content = path.read_bytes()
+    if "bytes" in metadata and len(content) != count:
+        raise ValueError("Source byte count does not match the cached object")
+    if hashlib.sha256(content).hexdigest() != sha:
         raise ValueError("Source integrity check failed; original bytes must be restored")
     return content
 
