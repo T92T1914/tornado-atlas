@@ -112,3 +112,17 @@ records the full-source hash, excerpt hash, original locator and retrieval date.
 Only the factual time, coordinate and azimuth subset is included. The full
 viewer implementation, videos and photographs are not republished. This
 project's software license does not grant rights to the survey project's media.
+
+## Linked NWS survey attachments
+
+The El Reno damage explorer links 45 original photographs at their NOAA/NWS DAT
+attachment URLs. These files are not bundled in the repository. The preserved
+attachment response and manifest retain original IDs, filenames, sizes and
+source URLs, with exact parent joins to the survey records. Individual
+photographers and capture times are not identified in this metadata. Hosting
+by NOAA/NWS is not presented as proof that every attachment is public domain.
+The project claims no copyright in these photographs or transfer of their
+reuse rights. Source links and missing-credit information remain visible.
+
+The September 11 Photo Collection Map was inspected as a design reference.
+Its photographs, map imagery and implementation are not included here.

@@ -40,3 +40,14 @@ response; visitors do not query the mutable service automatically.
 
 This adds documented locations for future reconstruction work. It does not
 calibrate the wind lab or supply building-collapse animations.
+
+## Follow-up: original attachments
+
+A later bounded query of the service's separate attachment interface found 45
+original photographs at 45 of these records, plus 44 thumbnail files. Exact
+parent object IDs and global IDs are checked against the preserved point
+response. This supersedes the earlier absence of photograph joins described
+above. The nine existing gallery photographs remain unmatched. The new joins
+still do not establish capture time, photographer or camera position. See
+[the linked-evidence record](linked-evidence-design-2026-09-20.md) and
+[attachment manifest](../exhibits/el-reno-2013/survey-attachments-source.json).

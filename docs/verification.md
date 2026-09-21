@@ -259,3 +259,35 @@ No browser warnings or errors appeared in these checks.
 The 390-pixel viewport had no horizontal overflow. Temporary emulation was
 cleared. The camera layer has not been independently calibrated against footage,
 and this update does not validate a historical appearance or damage model.
+
+# September 20: linked survey photographs and reading appearance
+
+The suites pass 88 Python tests and 58 JavaScript tests. Six new Python tests
+exercise exact attachment provenance and invalid/incomplete responses; three
+JavaScript tests cover combined photo filters, shared observation state and
+zoom bounds. The exhibit and 80,318-record catalogue checks pass.
+
+The preserved attachment response contains 45 original photographs at 45
+survey records, with 44 thumbnail files. The importer checks object IDs and
+global IDs against the original survey response. The nine existing local
+gallery photographs remain separate.
+
+Local Chromium checks covered original images, an EF0 filter, previous/next,
+map zoom, empty-result recovery, a record without a photograph, enlargement,
+and a shared observation restored after reload. A deliberately blocked image
+left a readable fallback and original record link. Removing the block restored
+the original 1,280-pixel-wide image. Network and emulation overrides were reset.
+
+Dark and light desktop layouts were visually inspected. Appearance selection
+survived reload. System light/dark, reduced-motion and forced-color preferences
+were emulated. Document widths at 390 and 320 CSS pixels showed no horizontal
+overflow. Main survey controls measured 44 to 44.5 CSS pixels high. Across
+body/panel/control/selected backgrounds, palette contrast had minimum ratios
+of 6.57:1 in dark mode and 4.94:1 in light mode for the four tested text tokens.
+These token checks do not establish every component's contrast or overall
+WCAG conformance.
+
+Firefox, Safari, physical phones and arbitrary theme extensions remain
+unverified. The appearance control currently belongs to the El Reno exhibit.
+The [research record](../research/linked-evidence-design-2026-09-20.md) separates
+inspected research methods from abstract-only leads and visitor-testing plans.

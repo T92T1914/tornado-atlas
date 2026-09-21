@@ -12,6 +12,10 @@ def source_url(value):
 def validate_history(history, photos, web_root=None):
     if history.get('schema') != 1 or history.get('event') != 'el-reno-2013':
         raise ValueError('Unsupported history exhibit')
+    for context in history['context']:
+        if not context.get('title') or not context.get('text'):
+            raise ValueError('Historical context needs a title and account')
+        source_url(context['source'])
     impacts = history['impacts']
     for key in ('deaths_direct', 'injuries_direct', 'deaths_indirect', 'injuries_indirect'):
         if type(impacts[key]) is not int or impacts[key] < 0:

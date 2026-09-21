@@ -12,10 +12,12 @@ from atlas.timeline_media import validate_timeline_media
 from atlas.community import validate_community
 from atlas.survey import load_survey
 from atlas.cameras import load_cameras
+from atlas.survey_attachments import load_survey_attachments
 bundle = json.loads((root / 'web/data.json').read_text(encoding='utf-8'))
 geo = json.loads((root / 'exhibits/el-reno-2013/path.geojson').read_text(encoding='utf-8'))
 assert bundle['geometry'] == geo, 'Preview geometry differs from exhibit geometry'
 assert bundle['survey'] == load_survey(geo), 'Stale or invalid survey bundle'
+assert bundle['survey_media'] == load_survey_attachments(bundle['survey']), 'Stale or invalid survey photographs'
 assert bundle['cameras'] == load_cameras(), 'Stale or invalid camera bundle'
 for key, relative in [('exhibit', 'exhibits/el-reno-2013/dossier.json'),
                       ('creators', 'research/creators.json'),
@@ -47,4 +49,4 @@ validate_history(bundle['history'], bundle['storm_photos'], root / 'web')
 validate_reading(bundle['reading'], {key: value for key, value in bundle.items() if key != 'reading'})
 minutes = {int(point['properties']['source_name'].split(':')[1]) for point in points}
 assert all(chapter['minute'] in minutes for chapter in bundle['history']['chapters']), 'Chapter lacks a published map position'
-print(f"Exhibit verified: {len(points)} timed positions, {len(ids)} video leads, 3 creators, {len(bundle['notebook']['observations'])} footage notes, {len(bundle['damage']['photos'])} original survey photographs.")
+print(f"Exhibit verified: {len(points)} timed positions, {len(ids)} video leads, 3 creators, {len(bundle['notebook']['observations'])} footage notes, {len(bundle['damage']['photos'])} preserved gallery photographs, {bundle['survey_media']['photo_count']} linked survey photographs.")

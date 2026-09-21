@@ -25,6 +25,7 @@ from .timeline_media import validate_timeline_media
 from .community import validate_community
 from .survey import load_survey
 from .cameras import load_cameras
+from .survey_attachments import load_survey_attachments
 
 KMZ_URL = "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"
 PAGE_URL = "https://www.weather.gov/oun/events-20130531"
@@ -159,6 +160,7 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     validate_community(community, dossier['id'])
     result['community'] = community
     result['survey'] = load_survey(geojson)
+    result['survey_media'] = load_survey_attachments(result['survey'])
     result['cameras'] = load_cameras()
     reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
     validate_reading(reading, result)

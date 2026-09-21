@@ -3,10 +3,34 @@ export const ratingColors = {
   'TSTM/Wind':'#b69fd4', 'N/A':'#87949d', UNKNOWN:'#87949d',
 };
 
-export function filterSurvey(points, rating = '', query = '') {
+export function filterSurvey(points, rating = '', query = '', photos = null) {
   const needle = query.trim().toLocaleLowerCase('en');
-  return points.filter(point => (!rating || point.rating === rating) &&
+  return points.filter(point => (!rating || point.rating === rating) && (!photos || photos[String(point.id)]?.length) &&
     `${point.id} ${point.indicator} ${point.degree}`.toLocaleLowerCase('en').includes(needle));
+}
+
+export function surveyState(url) {
+  const params = new URL(url, 'https://example.invalid').searchParams;
+  const value = params.get('survey');
+  return {id: value && /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : null,
+    rating: params.get('surveyRating') || '', query: params.get('surveySearch') || '',
+    photosOnly: params.get('surveyPhotos') !== '0'};
+}
+
+export function surveyLink(url, state) {
+  const result = new URL(url, 'https://example.invalid');
+  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos']) result.searchParams.delete(key);
+  if (state.id !== null) result.searchParams.set('survey',String(state.id));
+  if (state.rating) result.searchParams.set('surveyRating',state.rating);
+  if (state.query) result.searchParams.set('surveySearch',state.query);
+  result.searchParams.set('surveyPhotos',state.photosOnly ? '1' : '0');
+  result.hash = 'survey-explorer'; return result.href;
+}
+
+export function surveyViewBox(zoom, center = [480,215]) {
+  if (![1,2,4].includes(zoom) || center.length !== 2 || !center.every(Number.isFinite)) throw new RangeError('Invalid map view');
+  const width=960/zoom, height=430/zoom;
+  return [Math.max(0,Math.min(960-width,center[0]-width/2)), Math.max(0,Math.min(430-height,center[1]-height/2)),width,height];
 }
 
 export function surveyProjection(rings) {

@@ -21,6 +21,7 @@ jobs:
       - name: Check browser script
         run: |
           node --check web/app.js
+          node --check web/appearance.js
           node --check web/atlas.js
           node --check web/study.js
           node --check web/wind.js
