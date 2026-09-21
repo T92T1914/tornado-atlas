@@ -277,3 +277,28 @@ fixed page links, not all 80,318 catalogue records.
 * [Source attribution and third-party material](THIRD_PARTY.md)
 
 Original software and documentation use the [MIT License](LICENSE). Source data and third-party material are handled separately in the attribution record. This is an independent historical project and is not an operational warning service.
+
+## Working with the evidence
+
+The [focused survey workspace](https://t92t1914.github.io/tornado-atlas/survey.html)
+keeps the map and photograph inspector together. It uses the same preserved
+records as the report. Switching between the report and workspace carries the
+selected observation and filters, including a separately documented fatality
+record. The source register in the report can also be searched by publisher,
+title and evidence note, or narrowed to a collection.
+
+## Engineering behind the museum
+
+This is where my interest in tornadoes meets data and software engineering.
+I have to preserve what a source actually says, build repeatable imports, keep
+uncertain associations visible and make a large record collection usable on a
+phone as well as a desktop.
+
+- **Data pipelines and provenance.** The [catalogue importer](atlas/catalogue.py) and [publication layer](atlas/publication.py) separate source records, revisions and browser output.
+- **Interactive applications.** The [shared playback model](web/playback-model.mjs) connects historical time with the views that have evidence at that moment.
+- **Verification and failure handling.** The [checks](.github/workflows/checks.yml) validate records and browser models. External imagery can fail while the preserved assessment remains readable.
+
+These are transferable skills for data engineering and software roles. This
+project does not establish meteorological forecasting skill or operational
+emergency-response readiness. The [responsive design research](research/responsive-evidence-2026-09-21.md)
+records the design choices and the validation limits.

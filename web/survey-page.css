@@ -1,0 +1,13 @@
+.survey-page main{max-width:1560px;margin:auto;padding:28px clamp(16px,3vw,50px)}
+.survey-page .workspace-intro{padding:0 0 22px;border:0;max-width:980px}
+.workspace-intro h1{font:clamp(30px,4vw,52px)/1.15 Georgia,serif;margin:18px 0}
+.workspace-intro p{max-width:75ch}
+.survey-page #survey-explorer{border-top:1px solid var(--line);padding-top:20px}
+.survey-page .survey-workspace{grid-template-columns:minmax(0,1.25fr) minmax(310px,1fr)}
+.survey-page .survey-map-panel{top:12px}
+.survey-page #survey-map{height:clamp(250px,38vw,540px);width:100%;display:block}
+.survey-page .survey-controls label,.survey-page select{min-width:0;max-width:100%}
+.survey-page .survey-photo-strip{max-height:260px;overflow:auto;overscroll-behavior:contain}
+.survey-page .survey-detail{overflow-wrap:anywhere}
+@media(max-width:860px){.survey-page .survey-workspace{grid-template-columns:minmax(0,1fr)}.survey-page .survey-map-panel{position:static}.survey-page #survey-map{height:280px}.survey-page header nav{flex-wrap:wrap}.survey-page .survey-photo-strip{max-height:210px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
