@@ -15,7 +15,7 @@ def validate_documentary(data, root):
     def preserved(relative, digest, base=root):
         path = (base / relative).resolve()
         if not path.is_relative_to(base.resolve()) or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
-            raise ValueError('Invalid or changed preserved evidence')
+            raise ValueError(f'Invalid or changed preserved evidence: {relative}')
     for record in data['warnings']:
         stamp = datetime.fromisoformat(record['issued'])
         if stamp.tzinfo is None or (previous and stamp <= previous) or record['id'] in seen:
