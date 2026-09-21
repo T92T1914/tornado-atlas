@@ -142,6 +142,27 @@
       "publisher": "Seimon and colleagues, 2016",
       "url": "https://doi.org/10.1175/BAMS-D-15-00174.1",
       "use": "Methods for video time correction and georeferencing, checked in indexed primary-source passages."
+    },
+    {
+      "group": "Meteorology and reconstruction",
+      "title": "Tornadogenesis and Early Tornado Evolution in the El Reno, Oklahoma, Supercell on 31 May 2013",
+      "publisher": "American Meteorological Society / Monthly Weather Review",
+      "url": "https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf",
+      "use": "Found through Consensus, then checked against the NOAA-hosted primary PDF abstract and selected opening methods. Supports the formation account. Full figures and the complete analysis have not been audited here."
+    },
+    {
+      "group": "Meteorology and reconstruction",
+      "title": "The Multiple-Vortex Structure of the El Reno, Oklahoma, Tornado on 31 May 2013",
+      "publisher": "American Meteorological Society / Monthly Weather Review",
+      "url": "https://doi.org/10.1175/MWR-D-18-0073.1",
+      "use": "Consensus full abstract record read; publisher metadata checked. Supports the secondary-vortex summary. Direct full-text access failed in this review; no numerical tracks were extracted."
+    },
+    {
+      "group": "Meteorology and reconstruction",
+      "title": "Aerial Damage Survey of the 2013 El Reno Tornado Combined with Mobile Radar Data",
+      "publisher": "American Meteorological Society / Monthly Weather Review",
+      "url": "https://doi.org/10.1175/MWR-D-15-0367.1",
+      "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable; the unfinished conclusion was not used."
     }
   ]
 }
