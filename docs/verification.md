@@ -382,7 +382,9 @@ documentary tests passed again after the final display changes. The checked-in
 exhibit and 80,318-record catalogue checks passed. The new cases cover source
 hashes, path containment, unresolved location coordinates, issue-time gating,
 overlapping warning events and expiration, comparison endpoints and geographic
-projection round trips. Script syntax and diff whitespace checks passed.
+projection round trips. Script syntax and code whitespace checks passed.
+Archived warning text deliberately retains the source's trailing spaces and
+line endings; its Git attributes exempt that evidence from whitespace cleanup.
 
 Local Chromium checks exercised roads and terrain, keyboard map navigation,
 both comparison endpoints and their fully loaded 1196-pixel source frames,
