@@ -374,3 +374,35 @@ were 5.44:1 for Obscur and 5.30:1 for Clair. This is a palette check, not an aud
 of every rendered element or a claim of complete WCAG conformance. The checks
 did not exercise physical phones, Safari or Firefox. No browser warnings or
 errors were recorded in the local checks.
+
+# September 20: documentary evidence and reference geography
+
+The complete suite passed with 98 Python and 71 JavaScript tests. Focused
+documentary tests passed again after the final display changes. The checked-in
+exhibit and 80,318-record catalogue checks passed. The new cases cover source
+hashes, path containment, unresolved location coordinates, issue-time gating,
+overlapping warning events and expiration, comparison endpoints and geographic
+projection round trips. Script syntax and diff whitespace checks passed.
+
+Local Chromium checks exercised roads and terrain, keyboard map navigation,
+both comparison endpoints and their fully loaded 1196-pixel source frames,
+camera selection and the shared clock. At 6:11:05 PM the evidence panel showed
+the 6:08 warning, 6:08:43 radar and 6:11:05 camera sample, with two concurrent
+warning polygons. Both Clair and Obscur were inspected. A 390 by 844 viewport
+had no horizontal document overflow. The original EF3 survey account and its
+new damage explanation rendered; selecting TWISTEX retained the three names.
+All local exhibit fragment links had targets. The 55 file links across the
+four museum pages resolved to files on disk.
+
+A tab-scoped network block simulated an unavailable USGS service. The status
+reported the failure while the historical map and controls remained usable.
+The block and temporary viewport were removed after the check, and the USGS
+layer loaded again. No warnings or errors were returned by the browser log
+reader. This is Chromium verification, not physical-phone, Safari or Firefox
+testing and not a complete accessibility certification.
+
+The external access audit covers 501 distinct URLs: 492 reachable and nine
+unresolved, with no 404 or 410 responses. The report retains redirects and
+per-link dates. No claim that every reachable page supports every assertion is
+made. Detailed source use and the unreviewed original-footage leads are recorded
+in [the documentary evidence note](../research/documentary-evidence-2026-09-20.md).
