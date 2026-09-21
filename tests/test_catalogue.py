@@ -5,10 +5,11 @@ import io
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from atlas.catalogue import connect, import_ncei, search, stats
-from atlas.ncei import normalize
+from atlas.ncei import iter_records, normalize
 from atlas.sources import read_object
 
 
@@ -70,6 +71,40 @@ class NormalizationTests(unittest.TestCase):
     def test_wrong_phenomenon_rejected(self):
         with self.assertRaises(ValueError):
             normalize(sample(EVENT_TYPE="Thunderstorm Wind"))
+
+    def test_overflow_is_unknown_with_source_values_preserved(self):
+        raw = '9' * 309 + 'B'
+        result = normalize(sample(DAMAGE_PROPERTY=raw, TOR_LENGTH='1e308'))
+        self.assertEqual(result['impacts']['property_damage']['reported'], raw)
+        self.assertIsNone(result['impacts']['property_damage']['nominal_usd'])
+        self.assertEqual(result['dimensions']['reported_length_miles'], 1e308)
+        self.assertIsNone(result['dimensions']['length_m'])
+        self.assertIn('unparsed_damage_amount:DAMAGE_PROPERTY', result['quality_notes'])
+        self.assertIn('unit_conversion_overflow:TOR_LENGTH', result['quality_notes'])
+        json.dumps(result, allow_nan=False)
+
+    def test_person_counts_are_integral_and_never_rounded(self):
+        for field in ('DEATHS_DIRECT', 'DEATHS_INDIRECT', 'INJURIES_DIRECT', 'INJURIES_INDIRECT'):
+            with self.subTest(field=field):
+                result = normalize(sample(**{field: '1.5'}))
+                self.assertIsNone(result['impacts'][field.lower()])
+                self.assertIn(f'invalid_count:{field}', result['quality_notes'])
+                self.assertEqual(normalize(sample(**{field: '2'}))['impacts'][field.lower()], 2)
+                self.assertEqual(normalize(sample(**{field: '0'}))['impacts'][field.lower()], 0)
+
+    def test_duplicate_csv_header_cannot_silently_replace_source_value(self):
+        content = gzip.compress(
+            b'EVENT_ID,EVENT_TYPE,YEAR,TOR_F_SCALE,BEGIN_YEARMONTH,TOR_F_SCALE\n'
+            b'1,Tornado,2013,EF3,201305,EF0\n')
+        with self.assertRaisesRegex(ValueError, 'duplicate.*header'):
+            list(iter_records(content))
+
+    def test_truncated_csv_record_is_rejected_with_row_number(self):
+        content = gzip.compress(
+            b'EVENT_ID,EVENT_TYPE,YEAR,TOR_F_SCALE,BEGIN_YEARMONTH\n'
+            b'1,Tornado,2013\n')
+        with self.assertRaisesRegex(ValueError, 'Missing columns.*record 2'):
+            list(iter_records(content))
 
 
 class PersistenceTests(unittest.TestCase):
@@ -137,6 +172,17 @@ class PersistenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             import_ncei(self.db, meta, self.root)
         self.assertEqual(stats(self.db)["source_snapshots"], 0)
+
+    def test_nonfinite_normalized_value_rolls_back_revision(self):
+        import_ncei(self.db, self.snapshot([sample()]), self.root)
+        raw = sample(TOR_F_SCALE='EF2')
+        record = normalize(raw)
+        record['dimensions']['length_m'] = float('inf')
+        with patch('atlas.catalogue.iter_records', return_value=iter([(2, raw, record)])):
+            with self.assertRaises(ValueError):
+                import_ncei(self.db, self.snapshot([raw], '20260920'), self.root)
+        self.assertEqual(stats(self.db)['source_snapshots'], 1)
+        self.assertEqual(search(self.db)[0]['rating']['reported'], 'EF3')
 
 
 if __name__ == "__main__":

@@ -54,6 +54,24 @@ def normalize(row: dict[str, str]) -> dict:
             issues.append(f"invalid_or_missing_time:{prefix}")
         return result
 
+    def count(key: str) -> int | None:
+        raw = row.get(key, '').strip()
+        if not raw:
+            return None
+        if not re.fullmatch(r'[0-9]+', raw):
+            issues.append(f'invalid_count:{key}')
+            return None
+        return int(raw)
+
+    def metres(value: float | None, factor: float, key: str) -> float | None:
+        if value is None:
+            return None
+        converted = value * factor
+        if not math.isfinite(converted):
+            issues.append(f'unit_conversion_overflow:{key}')
+            return None
+        return round(converted, 6)
+
     def position(prefix: str) -> list[float] | None:
         lat = number(prefix + "_LAT", nonnegative=False)
         lon = number(prefix + "_LON", nonnegative=False)
@@ -71,7 +89,9 @@ def normalize(row: dict[str, str]) -> dict:
             match = re.fullmatch(r"(\d+(?:\.\d+)?)([KMB]?)", raw.upper())
             if match:
                 value = float(match[1]) * {"": 1, "K": 1000, "M": 1_000_000, "B": 1_000_000_000}[match[2]]
-            else:
+                if not math.isfinite(value):
+                    value = None
+            if value is None:
                 issues.append(f"unparsed_damage_amount:{key}")
         return {"reported": raw or None, "nominal_usd": value, "inflation_adjusted": False}
 
@@ -112,15 +132,15 @@ def normalize(row: dict[str, str]) -> dict:
                     "basis": "reported_segment_endpoints", "interpolation": None},
         "dimensions": {
             "reported_length_miles": length,
-            "length_m": None if length is None else round(length * 1609.344, 6),
+            "length_m": metres(length, 1609.344, 'TOR_LENGTH'),
             "reported_width_yards": width,
-            "width_m": None if width is None else round(width * 0.9144, 6),
+            "width_m": metres(width, 0.9144, 'TOR_WIDTH'),
             "scope": "reported_tornado_or_segment", "visible_funnel_width_m": None,
         },
-        "impacts": {"deaths_direct": number("DEATHS_DIRECT"),
-                    "deaths_indirect": number("DEATHS_INDIRECT"),
-                    "injuries_direct": number("INJURIES_DIRECT"),
-                    "injuries_indirect": number("INJURIES_INDIRECT"),
+        "impacts": {"deaths_direct": count("DEATHS_DIRECT"),
+                    "deaths_indirect": count("DEATHS_INDIRECT"),
+                    "injuries_direct": count("INJURIES_DIRECT"),
+                    "injuries_indirect": count("INJURIES_INDIRECT"),
                     "property_damage": money("DAMAGE_PROPERTY"),
                     "crop_damage": money("DAMAGE_CROPS")},
         "reporting_entity": row.get("SOURCE") or None,
@@ -139,9 +159,13 @@ def iter_records(content: bytes):
             required = {"EVENT_ID", "EVENT_TYPE", "YEAR", "TOR_F_SCALE", "BEGIN_YEARMONTH"}
             if not required.issubset(reader.fieldnames or []):
                 raise ValueError("Unsupported NCEI CSV schema; expected headers are missing")
+            if len(reader.fieldnames) != len(set(reader.fieldnames)):
+                raise ValueError('Unsupported NCEI CSV schema; duplicate column header')
             # row_number is the logical CSV record, not a physical line in multiline narratives.
             for row_number, row in enumerate(reader, start=2):
                 if row.get("EVENT_TYPE") == "Tornado":
                     if None in row:
                         raise ValueError(f"Unexpected extra columns in CSV record {row_number}")
+                    if None in row.values():
+                        raise ValueError(f'Missing columns in CSV record {row_number}')
                     yield row_number, row, normalize(row)

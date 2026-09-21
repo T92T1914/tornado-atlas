@@ -67,7 +67,7 @@ def import_ncei(connection: sqlite3.Connection, metadata: dict, data_dir: Path =
             search_text = " ".join(str(value) for value in raw.values() if value).lower()
             connection.execute("INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?)", (
                 identifier, record["id"], record["year"], record["country_code"],
-                record["rating"]["reported"], search_text, json.dumps(record, ensure_ascii=False),
+                record["rating"]["reported"], search_text, json.dumps(record, ensure_ascii=False, allow_nan=False),
                 json.dumps(raw, ensure_ascii=False), row_number))
             count += 1
         if not count:
