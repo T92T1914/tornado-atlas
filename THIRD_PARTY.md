@@ -101,3 +101,14 @@ selection counts. These are government survey attributes, not a transfer of
 rights to third-party photographs. The query excludes image links, comments,
 names, device identifiers and casualty fields. NWS identifies the survey data
 as preliminary. Original coordinates and labels remain available for checking.
+
+# El Reno Survey Project camera metadata
+
+`exhibits/el-reno-2013/camera-marshall-literal.txt` preserves the selected
+22-record numerical Tim Marshall track from the
+[project's published metadata](https://el-reno-survey.net/ted/ted-elreno-metadata.js).
+Credit: El Reno Survey Project and Tim Marshall. The adjacent `cameras.json`
+records the full-source hash, excerpt hash, original locator and retrieval date.
+Only the factual time, coordinate and azimuth subset is included. The full
+viewer implementation, videos and photographs are not republished. This
+project's software license does not grant rights to the survey project's media.

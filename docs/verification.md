@@ -221,7 +221,7 @@ selection represents every community opinion. No new continuous review of
 creator videos was performed for the discussion entries.
 # September 20: survey location explorer
 
-The current suites pass 74 Python tests and 45 JavaScript tests. Seven Python
+At this stage the suites passed 74 Python tests and 45 JavaScript tests. Seven Python
 tests cover survey source preservation, incomplete responses, changed event
 joins, duplicate IDs, coordinates, dates and polygon holes/boundaries. Two
 browser-model tests cover combined filters and the projected point extent.
@@ -239,3 +239,23 @@ No browser warnings or errors were recorded during these checks.
 The [source and selection record](../research/damage-locations-2026-09-20.md)
 states what the geographic match establishes. No impact times, photograph
 matches, human casualty totals or structural-model calibration were derived.
+
+# September 20: historical playback and camera samples
+
+The suites now pass 82 Python tests and 55 JavaScript tests. Eight new Python
+tests validate the numerical camera excerpt and its provenance; ten JavaScript
+tests cover clock behavior, frame-rate independence, interpolation and camera
+timing. The offline exhibit and 80,318-record catalogue checks also pass.
+
+In the local browser, selecting 6:09:38 moved both sliders to 338 seconds,
+showed the exact Marshall sample and labeled the tornado center interpolated.
+Keyboard scrubbing advanced both clocks together. CDP DOM node IDs confirmed
+that moving one second within a radar frame retained the existing image node.
+Playback at 120× stopped at 6:42:00 with Next disabled. At 6:26 the camera
+marker was hidden across the source gap. A 1× run advanced and paused normally;
+camera toggling, switching to an untimed photo and photo enlargement worked.
+No browser warnings or errors appeared in these checks.
+
+The 390-pixel viewport had no horizontal overflow. Temporary emulation was
+cleared. The camera layer has not been independently calibrated against footage,
+and this update does not validate a historical appearance or damage model.

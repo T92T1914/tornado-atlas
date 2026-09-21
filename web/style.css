@@ -748,6 +748,19 @@ footer p {
 .exhibit-jumps a {text-decoration:underline}
 .photo-dialog-links {display:flex;flex-wrap:wrap;gap:12px 24px;margin-top:18px;font-size:13px}
 #photo-full[hidden] {display:none}
+.playback-options {padding:0 24px 14px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;font-size:12px}
+.playback-options p {margin:0;color:var(--gold)}
+.playback-options select,.camera-controls select {background:var(--panel);color:var(--text);border:1px solid var(--line);padding:9px;max-width:100%;font:inherit}
+.camera-observations {margin:24px 0;padding:22px;border:1px solid var(--line);background:var(--panel);font-size:13px}
+.camera-observations h3 {margin:8px 0;font:24px Georgia,serif}
+.camera-controls {display:flex;flex-wrap:wrap;gap:18px 30px;align-items:center}
+.camera-controls label {display:flex;gap:9px;align-items:center;flex-wrap:wrap;min-width:0}
+.camera-marker {stroke:#80d8d0;fill:#102523;stroke-width:2.5}
+.camera-marker path {fill:none;stroke-linecap:round;stroke-linejoin:round}
+.camera-legend {color:#80d8d0}
+#camera-status {color:#b2e2dc;min-height:3em}
+.camera-observations details {color:var(--muted)}
+@media(max-width:650px){.playback-options{padding:0 15px 14px}.camera-observations{padding:16px}.camera-controls{display:grid;grid-template-columns:minmax(0,1fr)}}
 .visitor-questions {display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 .visitor-questions details {background:var(--panel);border:1px solid var(--line);padding:22px;min-width:0}
 .visitor-questions summary {cursor:pointer;font-size:16px;color:var(--green)}

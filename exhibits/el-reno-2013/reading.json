@@ -107,6 +107,13 @@
       "publisher": "Timothy P. Marshall and colleagues, AMS conference paper, 2014",
       "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf",
       "use": "Selected survey sections support the separate community evidence checks. Review coverage is recorded with those entries."
+    },
+    {
+      "group": "Reconstruction methods",
+      "title": "Tim Marshall camera samples in the El Reno Survey Project",
+      "publisher": "El Reno Survey Project",
+      "url": "https://el-reno-survey.net/ted/ted-elreno-metadata.js",
+      "use": "A preserved 22-sample numerical excerpt supplies UTC times, camera positions and camera 1 azimuth. Seventeen samples fall within the map timeline. No footage or photograph has been matched to these samples here."
     }
   ]
 }

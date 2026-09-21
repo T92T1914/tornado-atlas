@@ -50,15 +50,23 @@
       <div class="map-shell">
         <div class="map-top"><span>EL RENO · OKLAHOMA</span><span>Survey geometry / north up</span></div>
         <svg id="map" viewBox="0 0 960 430" role="img" aria-labelledby="map-title map-description"><title id="map-title">El Reno tornado path and published center position</title><desc id="map-description">Official NWS geometry on a local coordinate grid. The shaded outline is the entire event footprint, not a changing funnel.</desc></svg>
-        <div class="legend"><span><i class="outline"></i>Whole-event outline</span><span><i class="line"></i>Center path</span><span><i class="point"></i>Published positions</span></div>
-        <div class="timeline"><div class="time-display"><span class="eyebrow">SELECTED POSITION</span><output id="clock" for="timeline">Loading</output></div><div class="slider-wrap"><label class="sr-only" for="timeline">Published tornado position</label><input id="timeline" type="range" min="0" max="38" value="0" disabled><div class="range-labels"><span>6:04 PM</span><span>May 31 · CDT</span><span>6:42 PM</span></div></div><div class="controls"><button id="previous" aria-label="Previous position" disabled>←</button><button id="play" disabled>Play timeline</button><button id="next" aria-label="Next position" disabled>→</button></div></div>
+        <div class="legend"><span><i class="outline"></i>Whole-event outline</span><span><i class="line"></i>Center path</span><span><i class="point"></i>Published positions</span><span class="camera-legend">↗ Recorded camera direction</span></div>
+        <div class="timeline"><div class="time-display"><span class="eyebrow">SELECTED TIME</span><output id="clock" for="timeline">Loading</output></div><div class="slider-wrap"><label class="sr-only" for="timeline">Timeline time</label><input id="timeline" type="range" min="0" max="2280" value="0" disabled><div class="range-labels"><span>6:04 PM</span><span>May 31 · CDT</span><span>6:42 PM</span></div></div><div class="controls"><button id="previous" aria-label="Previous position" disabled>←</button><button id="play" disabled>Play timeline</button><button id="next" aria-label="Next position" disabled>→</button></div></div>
+        <div class="playback-options"><label for="playback-rate">Playback speed <select id="playback-rate"><option value="1">1× · real time</option><option value="15">15× · 15 seconds per second</option><option value="60" selected>60× · 1 minute per second</option><option value="120">120× · 2 minutes per second</option></select></label><p id="position-basis"></p></div>
         <div class="map-caption"><p id="map-note"></p><p id="time-note"></p></div>
         <div class="path-account" aria-live="polite"><h3 id="chapter-title"></h3><p id="chapter-account"></p></div>
       </div>
+      <section class="camera-observations" aria-labelledby="camera-title">
+        <div class="eyebrow">RECORDED VIEWPOINTS</div><h3 id="camera-title">Where Tim Marshall's camera was</h3>
+        <p>The cyan marker adds published camera locations and directions to the same clock. It is a record of the camera, not a photograph of the tornado at this moment.</p>
+        <div class="camera-controls"><label><input id="camera-enabled" type="checkbox" checked> Show recorded camera samples</label><label for="camera-sample">Jump to a camera observation <select id="camera-sample"><option value="">Choose a recorded time</option></select></label></div>
+        <p id="camera-status"></p><p id="camera-count" class="fineprint"></p>
+        <details><summary>Camera evidence and display limits</summary><p id="camera-method"></p><p>Credit: El Reno Survey Project; Tim Marshall camera track. <a id="camera-source" target="_blank" rel="noopener">Published numerical metadata ↗</a></p></details>
+      </section>
       <section class="timeline-evidence" aria-labelledby="timeline-evidence-title">
         <div class="section-title"><div><div class="eyebrow" id="timeline-media-status">TIME LINKED EVIDENCE</div><h3 id="timeline-evidence-title">A view alongside the timeline</h3></div></div>
         <label for="timeline-media-mode">View <select id="timeline-media-mode"><option value="radar">Radar at this time</option><option value="0">Storm photograph 1 · time unknown</option><option value="1">Storm photograph 2 · time unknown</option></select></label>
-        <label for="media-time">Selected path time <output id="media-time-label"></output></label><input id="media-time" type="range" min="0" max="38" step="1" value="0">
+        <label for="media-time">Selected path time <output id="media-time-label"></output></label><input id="media-time" type="range" min="0" max="2280" step="1" value="0">
         <div class="timeline-evidence-layout"><div id="timeline-media-image"></div><div id="timeline-media-caption"></div></div>
         <details><summary>How these images are placed in time</summary><p id="timeline-media-method"></p><p>The photographs have no calibrated time or camera position yet. They remain available as context without a guessed place on the clock.</p></details>
       </section>

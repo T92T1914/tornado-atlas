@@ -25,7 +25,7 @@
     }
   ],
   "map_note": "NWS tornado outline, center path and time-labeled center positions. The shaded outline covers the event as a whole; it is not the tornado's shape at the selected minute. The marker has no physical size.",
-  "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Playback steps through published minute labels without inventing intermediate observations.",
+  "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Between published minutes, the marker moves by linear interpolation in longitude and latitude. This is a display assumption, not an additional observation or a measured second-by-second route. Playback pauses when this tab is hidden.",
   "discrepancies": [
     {
       "title": "An unresolved end time",

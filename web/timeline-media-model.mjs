@@ -11,6 +11,5 @@ export function frameAt(frames, utc, maxAgeSeconds) {
   }
   return candidate;
 }
-export function localStamp(utc) {
-  return new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(utc));
-}
+const localClock = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'});
+export function localStamp(utc) { return localClock.format(new Date(utc)); }

@@ -44,7 +44,7 @@ selected record. Reopening the link restores the search, and Back and Forward
 move between selected records. Temporary map groups and zoom are not saved in
 the link. [Try a filtered El Reno search](https://t92t1914.github.io/tornado-atlas/atlas.html?q=El+Reno&year=2013&rating=EF3&state=OKLAHOMA&exhibits=1#record=ncei%3A453682).
 
-Use the timeline slider, previous and next buttons, or playback to step through 39 published positions. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
+Use the shared second-level clock to scrub or play the path at 1×, 15×, 60× or 120×. Previous and next still select the 39 published minute positions; movement between them is explicitly labeled interpolation. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
 
 Compare two survey photographs, enlarge either one, or filter the collection by subject and the rating in the original NWS caption. The files are unchanged government survey photographs. Locations remain descriptive because exact camera positions and capture times have not been established.
 
@@ -62,6 +62,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | --- | --- |
 | Searchable atlas | World outline, 80,318 US source records, combined filters, grouped map markers, paginated results and linked source details |
 | El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes and unresolved evidence questions |
+| Recorded camera samples | Tim Marshall's published locations and directions, 17 samples inside the playback window, explicit sample ages and gaps |
 | History and remembrance | Published casualty counts with their scope, public sources for eight names, and separate regional flooding context |
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
 | Survey location explorer | 336 preserved DAT records within the NWS outline, rating and description filters, individual source links and explicit association limits |
@@ -72,7 +73,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 74 Python tests, 45 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 82 Python tests, 55 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
@@ -83,6 +84,14 @@ reviewed frames from the published NWS radar animation cover all 39 map
 positions, using the latest preceding frame within four minutes. The actual
 frame age and the filename-clock interpretation stay visible. The two storm
 photographs can be viewed beside the timeline, but remain explicitly untimed.
+
+A cyan camera marker follows Tim Marshall's published camera samples. Selecting
+6:09:38 PM, for example, shows that recorded camera location and moves the
+interpolated tornado marker to the same time. Camera samples are held at their
+recorded locations for at most 90 seconds, with their age displayed. The marker
+then disappears. The arrow shows the reported azimuth, not a measured viewing
+cone. The [camera and playback notes](research/camera-playback-2026-09-20.md)
+explain the source, gaps and display assumptions.
 
 The [form study](https://t92t1914.github.io/tornado-atlas/study.html) can play and
 scrub an authored sequence of changing shapes. The
@@ -152,7 +161,7 @@ node --check web/photo-view.mjs
 node --check web/reader-view.mjs
 node --check web/timeline-media.mjs
 node --check web/community-view.mjs
-node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs
+node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs
 py -3.11 tools/check_catalogue.py
 ```
 

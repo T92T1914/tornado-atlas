@@ -4,8 +4,14 @@
     "question": "Why is the official rating EF3?",
     "answer": "The final damage survey supports EF3. NWS explains that the strongest radar-observed small vortices did not strike structures that could provide evidence for a higher damage rating. A wide tornado, an intense radar measurement and an EF damage rating describe different things.",
     "sources": [
-      {"label": "NWS El Reno account", "url": "https://www.weather.gov/oun/events-20130531"},
-      {"label": "How the EF scale is assigned", "url": "https://www.weather.gov/oun/efscale"}
+      {
+        "label": "NWS El Reno account",
+        "url": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "label": "How the EF scale is assigned",
+        "url": "https://www.weather.gov/oun/efscale"
+      }
     ]
   },
   {
@@ -13,16 +19,25 @@
     "question": "Does 2.6 miles describe the visible funnel?",
     "answer": "It is the reported maximum tornado width. NWS used radar to help distinguish the tornado from a wider area of damaging downdraft winds. A photograph shows cloud and debris from one viewpoint; its visible dark shape is not a measurement of that entire circulation.",
     "sources": [
-      {"label": "NWS width explanation", "url": "https://www.weather.gov/oun/events-20130531"},
-      {"label": "NSSL tornado basics", "url": "https://www.nssl.noaa.gov/education/svrwx101/tornadoes/"}
+      {
+        "label": "NWS width explanation",
+        "url": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "label": "NSSL tornado basics",
+        "url": "https://www.nssl.noaa.gov/education/svrwx101/tornadoes/"
+      }
     ]
   },
   {
     "id": "question-map",
     "question": "What does the moving point on the map show?",
-    "answer": "The point steps through published center positions. The line traces the center path, while the shaded outline covers the whole event. That outline does not resize with time. This exhibit does not turn it into an animated boundary of the tornado.",
+    "answer": "At published minute times, the marker shows an NWS center position. Between those times, it follows a labeled linear interpolation. The line traces the center path, while the shaded outline covers the whole event and does not resize with time. The cyan arrow is a separate recorded camera sample, with its age and evidence limits shown below the map.",
     "sources": [
-      {"label": "NWS map and centroid times", "url": "https://www.weather.gov/oun/events-20130531"}
+      {
+        "label": "NWS map and centroid times",
+        "url": "https://www.weather.gov/oun/events-20130531"
+      }
     ]
   },
   {
@@ -30,7 +45,10 @@
     "question": "Can we see exactly what it looked like at each moment?",
     "answer": "Not yet. The photographs and linked footage provide views of the actual storm, but their camera positions and historical times still need to be matched. The form study and wind lab are separate illustrations. They do not recreate the recorded El Reno wind field or the damage to individual buildings.",
     "sources": [
-      {"label": "Our reconstruction and review record", "url": "https://github.com/T92T1914/tornado-atlas/blob/main/docs/verification.md"}
+      {
+        "label": "Our reconstruction and review record",
+        "url": "https://github.com/T92T1914/tornado-atlas/blob/main/docs/verification.md"
+      }
     ]
   }
 ]

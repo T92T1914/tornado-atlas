@@ -26,7 +26,7 @@
       }
     ],
     "map_note": "NWS tornado outline, center path and time-labeled center positions. The shaded outline covers the event as a whole; it is not the tornado's shape at the selected minute. The marker has no physical size.",
-    "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Playback steps through published minute labels without inventing intermediate observations.",
+    "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Between published minutes, the marker moves by linear interpolation in longitude and latitude. This is a display assumption, not an additional observation or a measured second-by-second route. Playback pauses when this tab is hidden.",
     "discrepancies": [
       {
         "title": "An unresolved end time",
@@ -2093,7 +2093,7 @@
     {
       "id": "question-map",
       "question": "What does the moving point on the map show?",
-      "answer": "The point steps through published center positions. The line traces the center path, while the shaded outline covers the whole event. That outline does not resize with time. This exhibit does not turn it into an animated boundary of the tornado.",
+      "answer": "At published minute times, the marker shows an NWS center position. Between those times, it follows a labeled linear interpolation. The line traces the center path, while the shaded outline covers the whole event and does not resize with time. The cyan arrow is a separate recorded camera sample, with its age and evidence limits shown below the map.",
       "sources": [
         {
           "label": "NWS map and centroid times",
@@ -6412,6 +6412,200 @@
     "time_note": "These are surveyed outcomes, not timed impacts. They stay visible throughout playback. They have not been matched to the nine survey photographs.",
     "status_note": "DAT calls these quality-controlled records preliminary. The event rating remains the final NWS EF3 assessment. Individual point ratings are separate observations."
   },
+  "cameras": {
+    "schema": 1,
+    "event": "el-reno-2013",
+    "observer": "Tim Marshall",
+    "source": "https://el-reno-survey.net/ted/ted-elreno-metadata.js",
+    "project": "https://el-reno-survey.net/",
+    "participants": "https://el-reno-survey.net/participants/",
+    "locator": "chaserMetaData.Marshall",
+    "source_sha256": "529691b0c0639e912864b55b2b305a85a15a645d204f8e926b99ab635ecfd0b2",
+    "retrieved_at": "2026-09-20T22:42:32.171982+00:00",
+    "excerpt_sha256": "8795b93dfe6965c6ec1d17557a1dd4be32dfd0658542159c448d38f2934980fb",
+    "display_max_age_seconds": 90,
+    "credit": "El Reno Survey Project; Tim Marshall camera track.",
+    "method": "Published UTC timestamps, latitude, longitude and camera 1 azimuth. Directions are shown clockwise from north, following the source viewer. Camera positions are not interpolated.",
+    "limits": "The marker shows the latest preceding recorded camera location for at most 90 seconds, then disappears. This is a display rule, not a measured error bound. Location, clock and direction uncertainty are not quantified. The arrow has no distance or field-of-view meaning. No photograph or video frame is assigned to this track here.",
+    "samples": [
+      {
+        "utc": "2013-05-31T22:51:49Z",
+        "coordinates": [
+          -97.938896,
+          35.481293
+        ],
+        "azimuth": 270
+      },
+      {
+        "utc": "2013-05-31T22:52:08Z",
+        "coordinates": [
+          -97.938896,
+          35.481293
+        ],
+        "azimuth": 270
+      },
+      {
+        "utc": "2013-05-31T22:52:39Z",
+        "coordinates": [
+          -97.938896,
+          35.481293
+        ],
+        "azimuth": 280
+      },
+      {
+        "utc": "2013-05-31T22:53:42Z",
+        "coordinates": [
+          -97.938896,
+          35.481293
+        ],
+        "azimuth": 270
+      },
+      {
+        "utc": "2013-05-31T22:54:18Z",
+        "coordinates": [
+          -97.938881,
+          35.481184
+        ],
+        "azimuth": 270
+      },
+      {
+        "utc": "2013-05-31T23:09:38Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 250
+      },
+      {
+        "utc": "2013-05-31T23:09:54Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 250
+      },
+      {
+        "utc": "2013-05-31T23:11:05Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 250
+      },
+      {
+        "utc": "2013-05-31T23:12:16Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 225
+      },
+      {
+        "utc": "2013-05-31T23:13:27Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 225
+      },
+      {
+        "utc": "2013-05-31T23:14:38Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 225
+      },
+      {
+        "utc": "2013-05-31T23:15:49Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 225
+      },
+      {
+        "utc": "2013-05-31T23:16:41Z",
+        "coordinates": [
+          -97.954941,
+          35.488103
+        ],
+        "azimuth": 220
+      },
+      {
+        "utc": "2013-05-31T23:21:21Z",
+        "coordinates": [
+          -97.917797,
+          35.493575
+        ],
+        "azimuth": 210
+      },
+      {
+        "utc": "2013-05-31T23:21:45Z",
+        "coordinates": [
+          -97.910786,
+          35.493605
+        ],
+        "azimuth": 220
+      },
+      {
+        "utc": "2013-05-31T23:22:23Z",
+        "coordinates": [
+          -97.901168,
+          35.49357
+        ],
+        "azimuth": 210
+      },
+      {
+        "utc": "2013-05-31T23:24:00Z",
+        "coordinates": [
+          -97.875352,
+          35.49346
+        ],
+        "azimuth": 240
+      },
+      {
+        "utc": "2013-05-31T23:24:07Z",
+        "coordinates": [
+          -97.87381,
+          35.49346
+        ],
+        "azimuth": 240
+      },
+      {
+        "utc": "2013-05-31T23:24:20Z",
+        "coordinates": [
+          -97.870541,
+          35.493447
+        ],
+        "azimuth": 240
+      },
+      {
+        "utc": "2013-05-31T23:27:31Z",
+        "coordinates": [
+          -97.848919,
+          35.496957
+        ],
+        "azimuth": 270
+      },
+      {
+        "utc": "2013-05-31T23:27:40Z",
+        "coordinates": [
+          -97.848919,
+          35.496957
+        ],
+        "azimuth": 275
+      },
+      {
+        "utc": "2013-05-31T23:27:56Z",
+        "coordinates": [
+          -97.848919,
+          35.496957
+        ],
+        "azimuth": 285
+      }
+    ]
+  },
   "reading": {
     "schema": 1,
     "event": "el-reno-2013",
@@ -6521,6 +6715,13 @@
         "publisher": "Timothy P. Marshall and colleagues, AMS conference paper, 2014",
         "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf",
         "use": "Selected survey sections support the separate community evidence checks. Review coverage is recorded with those entries."
+      },
+      {
+        "group": "Reconstruction methods",
+        "title": "Tim Marshall camera samples in the El Reno Survey Project",
+        "publisher": "El Reno Survey Project",
+        "url": "https://el-reno-survey.net/ted/ted-elreno-metadata.js",
+        "use": "A preserved 22-sample numerical excerpt supplies UTC times, camera positions and camera 1 azimuth. Seventeen samples fall within the map timeline. No footage or photograph has been matched to these samples here."
       }
     ]
   }

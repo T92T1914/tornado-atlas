@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "event": "el-reno-2013",
+  "observer": "Tim Marshall",
+  "source": "https://el-reno-survey.net/ted/ted-elreno-metadata.js",
+  "project": "https://el-reno-survey.net/",
+  "participants": "https://el-reno-survey.net/participants/",
+  "locator": "chaserMetaData.Marshall",
+  "source_sha256": "529691b0c0639e912864b55b2b305a85a15a645d204f8e926b99ab635ecfd0b2",
+  "retrieved_at": "2026-09-20T22:42:32.171982+00:00",
+  "excerpt_sha256": "8795b93dfe6965c6ec1d17557a1dd4be32dfd0658542159c448d38f2934980fb",
+  "display_max_age_seconds": 90,
+  "credit": "El Reno Survey Project; Tim Marshall camera track.",
+  "method": "Published UTC timestamps, latitude, longitude and camera 1 azimuth. Directions are shown clockwise from north, following the source viewer. Camera positions are not interpolated.",
+  "limits": "The marker shows the latest preceding recorded camera location for at most 90 seconds, then disappears. This is a display rule, not a measured error bound. Location, clock and direction uncertainty are not quantified. The arrow has no distance or field-of-view meaning. No photograph or video frame is assigned to this track here."
+}
