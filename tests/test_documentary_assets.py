@@ -34,18 +34,26 @@ class DocumentaryAssetsTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), asset['sha256'])
 
     def test_reading_anchors_and_local_media_resolve(self):
-        parser = PageLinks()
-        parser.feed((ROOT / 'web/joplin.html').read_text(encoding='utf-8'))
-        self.assertEqual(len(parser.ids), len(set(parser.ids)), 'Duplicate reading anchor')
-        for target in parser.targets:
-            parsed = urlsplit(target)
-            if parsed.scheme or parsed.netloc:
+        index = json.loads((ROOT / 'exhibits/events.json').read_text(encoding='utf-8'))
+        for event in index['events']:
+            # Replay exhibits construct some anchor targets from their bundle.
+            # These checks cover the static documentary-only reading pages.
+            if event['replay'] is not None:
                 continue
-            with self.subTest(target=target):
-                if parsed.path:
-                    self.assertTrue((ROOT / 'web' / unquote(parsed.path)).is_file())
-                elif parsed.fragment:
-                    self.assertIn(unquote(parsed.fragment), parser.ids)
+            with self.subTest(event=event['id']):
+                page = ROOT / 'web' / event['documentary']
+                parser = PageLinks()
+                parser.feed(page.read_text(encoding='utf-8'))
+                self.assertEqual(len(parser.ids), len(set(parser.ids)), 'Duplicate reading anchor')
+                for target in parser.targets:
+                    parsed = urlsplit(target)
+                    if parsed.scheme or parsed.netloc:
+                        continue
+                    with self.subTest(target=target):
+                        if parsed.path:
+                            self.assertTrue((page.parent / unquote(parsed.path)).is_file())
+                        elif parsed.fragment:
+                            self.assertIn(unquote(parsed.fragment), parser.ids)
 
 
 if __name__ == '__main__':
