@@ -1,4 +1,4 @@
-import {inverseProjection,geographicBounds,basemapRequest} from './geography-model.mjs';
+import {inverseProjection,geographicBounds,basemapRequest,basemapImage} from './geography-model.mjs';
 export function mountGeography(svg,project,host) {
   const ns='http://www.w3.org/2000/svg',unproject=inverseProjection(project);
   const layer=document.createElementNS(ns,'g');layer.classList.add('basemap-layer');layer.setAttribute('aria-hidden','true');svg.prepend(layer);
@@ -24,11 +24,9 @@ export function mountGeography(svg,project,host) {
       const response=await fetch(basemapRequest(select.value,geographicBounds(view,unproject)),{signal:controller.signal});
       if(!response.ok) throw new Error('Map response failed');
       const data=await response.json();
-      if(data.error || !data.href || !data.extent) throw new Error('Map service unavailable');
-      const u=new URL(data.href);if(u.protocol!=='https:' || u.hostname!=='basemap.nationalmap.gov') throw new Error('Unexpected map image source');
-      const e=data.extent,[x,y]=project([e.xmin,e.ymax]),[right,bottom]=project([e.xmax,e.ymin]);
+      const attributes=basemapImage(data,project);
       const img=document.createElementNS(ns,'image');
-      for(const [k,v] of Object.entries({x,y,width:right-x,height:bottom-y,preserveAspectRatio:'none',href:u.href})) img.setAttribute(k,v);
+      for(const [k,v] of Object.entries(attributes)) img.setAttribute(k,v);
       const imageTimeout=setTimeout(()=>{img.remove();if(token===generation)status.textContent='USGS imagery timed out. Historical evidence remains available; change the layer to retry.';},15000);
       img.addEventListener('load',()=>{clearTimeout(imageTimeout);if(token!==generation){img.remove();return;}layer.replaceChildren(img);img.style.removeProperty('visibility');svg.classList.add('has-basemap');status.textContent='Modern USGS geography loaded. Historical path and observations remain separate overlays.';},{once:true});
       img.addEventListener('error',()=>{clearTimeout(imageTimeout);img.remove();if(token!==generation)return;status.textContent='USGS imagery unavailable. The historical evidence map still works.';},{once:true});
