@@ -32,6 +32,7 @@ def urls(value):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--new-only', action='store_true', help='Keep dated results for unchanged URLs and check newly added links.')
+    parser.add_argument('--retry-unresolved', action='store_true', help='With --new-only, also retry previously missing or unresolved URLs.')
     args = parser.parse_args()
     links = set(urls(json.loads((ROOT / 'web/data.json').read_text(encoding='utf-8'))))
     for path in (ROOT / 'web').glob('*.html'):
@@ -48,7 +49,7 @@ def main():
         previous = {r['url']: dict(r, checked_at=r.get('checked_at', saved['checked_at'])) for r in saved['results']}
     locks = {urlsplit(u).hostname: threading.Semaphore(2) for u in links}
     def check(url):
-        if url in previous:
+        if url in previous and not (args.retry_unresolved and previous[url].get('access') != 'reachable'):
             return previous[url]
         result = {'url': url, 'checked_at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'claim_review': 'Reachability only; see bibliography use notes and research ledger.'}
         domain = urlsplit(url).hostname

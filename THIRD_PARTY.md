@@ -154,3 +154,24 @@ Seven original NWS text products are preserved under `research/evidence/`.
 Iowa Environmental Mesonet is the archive provider. Each product retains its
 issue time, original wording, source URL and SHA-256 in the exhibit manifest.
 The modern museum does not issue warnings or update these historical products.
+
+## Joplin documentary assets
+
+`web/assets/joplin-2011/storm.jpg` is Daniel Friskey's photograph, obtained from
+[Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Joplin,_Missouri_tornado_of_2011.jpg)
+under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+The original bytes are preserved. The photograph retains that license and is
+excluded from the software's MIT license. Its exact viewpoint and capture time
+have not been registered.
+
+`web/assets/joplin-2011/damage.jpg` is credited to NWS Springfield by its
+[Commons source page](https://commons.wikimedia.org/wiki/File:22_May_2011_Joplin_tornado_damage.jpg),
+which identifies it as public-domain government work. Its original NOAA link
+is unavailable. The unchanged copy retains the source and the capture-date
+qualification shown on the page.
+
+`nws-track.png` is Figure 1 extracted from the preserved July 2011 NWS service
+assessment in `exhibits/joplin-2011/`. The report includes third-party imagery,
+and the map's underlying components are not separately licensed here. Neither
+the figure nor the PDF is placed under the software's MIT license. Their source,
+hashes and extraction details are in the adjacent manifest.
