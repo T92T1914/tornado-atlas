@@ -70,6 +70,10 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
+          # A retry must not leave deploy-pages choosing between same-name artifacts.
+          name: github-pages-${{ github.run_attempt }}
           path: web
       - uses: actions/deploy-pages@v4
         id: deployment
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
