@@ -28,6 +28,15 @@ class DocumentaryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_documentary(self.data, ROOT)
 
+    def test_location_review_requires_traceable_evidence_and_limits(self):
+        record = next(row for row in self.data['unmapped_fatalities'] if row['id'] == 'location-henderson')
+        row = record['location_review']['evidence'][0]
+        row['source'] = 'file:///local/unpublished'
+        with self.assertRaises(ValueError): validate_documentary(self.data, ROOT)
+        row['source'] = 'https://example.org/source'
+        row['limit'] = ''
+        with self.assertRaises(ValueError): validate_documentary(self.data, ROOT)
+
     def test_every_victim_has_a_visible_location_status(self):
         history = json.loads((ROOT/'exhibits/el-reno-2013/history.json').read_text(encoding='utf-8'))
         validate_remembrance_coverage(history, self.data)

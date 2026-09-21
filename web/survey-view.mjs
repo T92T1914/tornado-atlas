@@ -3,6 +3,7 @@ import {damageExplanation} from './damage-explanation.mjs';
 import {mountMapNavigation} from './map-navigation.mjs';
 import {mountSurveyImpacts} from './impact-view.mjs';
 import {fillFatalityRecord} from './fatality-view.mjs';
+import {surveyPhotos} from './survey-photos.mjs';
 import {fatalityLabel, nearbyFatalities, fatalityLink} from './impact-model.mjs';
 import {filterSurvey, ratingColors, surveyProjection, surveyState, surveyLink} from './survey-model.mjs';
 
@@ -105,7 +106,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
     selectedId='fatality:'+place.id;select.value=selectedId;previous.disabled=next.disabled=true;
     halo.setAttribute('visibility','hidden');
     for(const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed','false');
-    fillFatalityRecord(detail,place);
+    fillFatalityRecord(detail,place,{points:survey.points,media,openPhoto});
     const share=el('a','Link to this fatality record');share.id='fatality-share';share.href=fatalityLink(location.href,place.id);detail.append(share);
   }
   const targetMissing=el('p',null,'fineprint');targetMissing.id='survey-link-status';host.append(targetMissing);
@@ -128,19 +129,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
     }
     const photos=media.photos[String(point.id)] || [];
     if (photos.length) {
-      const gallery=el('div',null,'survey-record-photos');
-      for (const [i,photo] of photos.entries()) {
-        const button=el('button',null,'survey-photo-open');button.type='button';
-        button.setAttribute('aria-label',`Enlarge photograph ${i+1} for survey record ${point.id}`);
-        const img=el('img');img.src=photo.url;img.alt=`Photograph attached to NWS survey record ${point.id}, rated ${point.rating}.`;
-        img.referrerPolicy='no-referrer';img.decoding='async';
-        img.addEventListener('error',()=>{button.disabled=true;button.replaceChildren(el('span','Photograph unavailable from the source. The original record link remains below.'));},{once:true});
-        button.append(img);button.addEventListener('click',()=>openPhoto({title:`${point.rating} · NWS survey ${point.id}`,asset:photo.url,alt:img.alt,
-          caption:`Recorded assessment: ${point.degree}. This assessment belongs to the survey record, not a new rating from the photograph.`,
-          location:`Surveyed feature: ${point.coordinates[1].toFixed(5)}°N, ${Math.abs(point.coordinates[0]).toFixed(5)}°W. The camera's position and capture time are not supplied.`,
-          credit:media.source.credit,source:point.source_url}));gallery.append(button);
-      }
-      detail.append(gallery);
+      detail.append(surveyPhotos(point,media,openPhoto));
     } else detail.append(el('p','No original photograph is linked in the preserved attachment response for this record.','survey-photo-empty'));
     detail.append(el('p','Recorded assessment','eyebrow'),el('p',point.degree),
       el('p',`${point.coordinates[1].toFixed(5)}°N, ${Math.abs(point.coordinates[0]).toFixed(5)}°W. Surveyed feature location; camera position and positional accuracy are not established here.`,'fineprint'));

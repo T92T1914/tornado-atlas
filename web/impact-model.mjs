@@ -5,14 +5,23 @@ export function fatalityLabel(place) {
   return `${place.deaths} ${place.deaths === 1 ? 'death' : 'deaths'}`;
 }
 
-export function nearbyFatalities(point, places, radiusKm = .25) {
+function distanceKm(first, second) {
   const radians = value => value * Math.PI / 180;
-  return places.filter(place => {
-    if(place.category !== 'fatalities') return false;
-    const [lon1, lat1] = point.coordinates.map(radians), [lon2, lat2] = place.coordinates.map(radians);
-    const a = Math.sin((lat2-lat1)/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
-    return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(a))) <= radiusKm;
-  });
+  const [lon1, lat1] = first.map(radians), [lon2, lat2] = second.map(radians);
+  const a = Math.sin((lat2-lat1)/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
+  return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(a)));
+}
+
+export function nearbyFatalities(point, places, radiusKm = .25) {
+  return places.filter(place => place.category === 'fatalities' && distanceKm(point.coordinates, place.coordinates) <= radiusKm);
+}
+
+// A spatial relationship does not identify the subject of a photograph.
+export function nearbySurveyPhotos(place, points, photos, radiusKm = .25) {
+  return points.filter(point => photos[String(point.id)]?.length)
+    .map(point => ({point, distanceKm:distanceKm(place.coordinates, point.coordinates)}))
+    .filter(item => item.distanceKm <= radiusKm)
+    .sort((a,b) => a.distanceKm-b.distanceKm || a.point.id-b.point.id);
 }
 
 export function fatalityLink(url, id) {

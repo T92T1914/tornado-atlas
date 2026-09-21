@@ -389,7 +389,7 @@ select:focus-visible,summary:focus-visible {outline:2px solid var(--gold);outlin
 #photo-dialog::backdrop {background:#050908db}
 .photo-dialog-bar {display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:16px}
 .photo-dialog-bar h2 {font:24px Georgia,serif;margin:0}
-#photo-full {display:block;width:100%;height:min(64vh,760px);object-fit:contain;background:#090e0c;margin-bottom:20px}
+#photo-full {display:block;width:100%;height:auto;max-height:min(64vh,760px);object-fit:contain;background:var(--bg);margin-bottom:20px}
 #photo-dialog p {margin-bottom:10px}
 #photo-source {font-size:13px}
 @media(max-width:720px){.damage-compare{grid-template-columns:1fr}.damage-photos{grid-template-columns:1fr 1fr}.photo-button img{height:280px}.damage-photos img{height:170px}.photo-dialog-bar{align-items:start;flex-direction:column}}

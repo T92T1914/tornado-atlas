@@ -103,6 +103,13 @@ location is added. A last sighting, an impact and a recovery are separate
 observations. The [documentary evidence notes](research/documentary-evidence-2026-09-20.md)
 record what was inspected and what still needs original footage review.
 
+Fatality cards also show nearby survey photographs, with their original record
+links and a clear distinction between spatial proximity and an identified
+vehicle. Henderson's location account includes the conflicting road claims and
+the correction within the original forum discussion. The
+[September 21 location review](research/fatality-locations-2026-09-21.md)
+explains why that evidence still does not support a precise pin.
+
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
 ## What is implemented
@@ -218,6 +225,7 @@ node --check web/places-view.mjs
 node --check web/map-navigation.mjs
 node --check web/impact-view.mjs
 node --check web/fatality-view.mjs
+node --check web/survey-photos.mjs
 node --check web/documentary-view.mjs
 node --check web/geography-view.mjs
 node --check web/damage-explanation.mjs

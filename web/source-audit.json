@@ -1,9 +1,9 @@
 {
-  "checked_at": "2026-09-21T05:12:14.741313+00:00",
+  "checked_at": "2026-09-21T05:35:23.965885+00:00",
   "scope": "Every distinct external URL in the curated El Reno data bundle, top-level museum HTML and fixed browser-module links. Catalogue-generated event URLs and browser-generated service requests are outside this list. Fragment anchors and claim support require separate checks.",
   "method": "Bounded GET, at most two concurrent requests per host. HTTP 403, 429 and timeouts are unresolved access, not proof of a dead source. Successful HTTP does not establish content truth or exclude a soft error page.",
   "counts": {
-    "reachable": 497,
+    "reachable": 498,
     "access_unresolved": 12
   },
   "results": [
@@ -4659,6 +4659,16 @@
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 200,
       "final_url": "https://stormtrack.org/.stile/challenge?rung=nojs&band=watch&return=%2Fthreads%2Fel-reno-question.27366%2F&sig=2375e700c7156375370748d43d2546cf81d5fa13208b34b28c9c77e712232120&aud=stormtrack.org&aid=9eb813cde3d82724ec5d13edcde0b3e0",
+      "content_type": "text/html; charset=utf-8",
+      "access": "reachable"
+    },
+    {
+      "url": "https://stormtrack.org/threads/el-reno-question.27366/page-2",
+      "checked_at": "2026-09-21T05:35:23.440860+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://stormtrack.org/.stile/challenge?rung=nojs&band=watch&return=%2Fthreads%2Fel-reno-question.27366%2Fpage-2&sig=d0ecd69c7f690937608e0bb4724a6df57ff19980a71676cdc7c1f634d0482fd5&aud=stormtrack.org&aid=c2edea50201ec88f3c59120d7d10c3c9",
       "content_type": "text/html; charset=utf-8",
       "access": "reachable"
     },

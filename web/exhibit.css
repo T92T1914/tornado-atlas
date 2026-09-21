@@ -180,6 +180,11 @@ html {scroll-behavior:auto}
 .survey-photo-open span{display:block;padding:24px}
 .survey-photo-empty{padding:28px 18px;border:1px dashed var(--line);color:var(--muted);font-size:13px}
 .survey-record-photos{display:grid;gap:12px;margin:16px 0}
+.fatality-photo-context{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:20px 0;padding:12px 0}
+.fatality-photo-context h5{font-size:16px;margin:10px 0}
+.fatality-photo-context figure{margin:16px 0}
+.fatality-photo-context figcaption{font-size:13px;line-height:1.7;color:var(--muted)}
+.fatality-photo-context .survey-photo-open{background:var(--panel)}
 .survey-photo-strip{display:flex;overflow-x:auto;gap:10px;padding:18px 0;scroll-snap-type:x proximity}
 .survey-photo-strip button{flex:0 0 132px;padding:0;background:var(--panel);border:1px solid var(--line);color:var(--text);scroll-snap-align:start;cursor:pointer}
 .survey-photo-strip button[aria-pressed=true]{border:2px solid var(--gold)}
