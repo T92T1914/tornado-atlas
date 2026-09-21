@@ -6,7 +6,7 @@ It does not establish a new fatality coordinate.
 
 ## Henderson
 
-His [published obituary](https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.)
+His [published obituary](https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764)
 confirms his name, age 35 and death on May 31, 2013. It supplies no incident
 coordinate. [National Geographic's reporting](https://www.nationalgeographic.com/magazine/article/the-last-chase)
 describes a recovery near a creek roughly a mile south of the TWISTEX wreck.

@@ -1,11 +1,10 @@
 {
-  "checked_at": "2026-09-21T06:48:21.920159+00:00",
+  "checked_at": "2026-09-21T07:34:33.515091+00:00",
   "scope": "Every distinct external URL in the curated El Reno data bundle, top-level museum HTML and fixed browser-module links. Catalogue-generated event URLs and browser-generated service requests are outside this list. Fragment anchors and claim support require separate checks.",
   "method": "Bounded GET, at most two concurrent requests per host. HTTP 403, 429 and timeouts are unresolved access, not proof of a dead source. Successful HTTP does not establish content truth or exclude a soft error page.",
   "counts": {
-    "reachable": 510,
-    "access_unresolved": 13,
-    "missing": 1
+    "reachable": 511,
+    "access_unresolved": 13
   },
   "results": [
     {
@@ -130,58 +129,58 @@
     },
     {
       "url": "https://doi.org/10.1175/BAMS-D-13-00221.1",
+      "checked_at": "2026-09-21T06:54:42.427455+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://journals.ametsoc.org:443/view/journals/bams/95/1/bams-d-13-00221.1.xml",
       "content_type": "text/html",
       "access": "access_unresolved",
-      "redirect_review": "Changed host; review destination identity.",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "redirect_review": "Changed host; review destination identity."
     },
     {
       "url": "https://doi.org/10.1175/BAMS-D-15-00174.1",
+      "checked_at": "2026-09-21T06:54:42.427455+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://journals.ametsoc.org:443/view/journals/bams/97/11/bams-d-15-00174.1.xml",
       "content_type": "text/html",
       "access": "access_unresolved",
-      "redirect_review": "Changed host; review destination identity.",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "redirect_review": "Changed host; review destination identity."
     },
     {
       "url": "https://doi.org/10.1175/MWR-D-15-0367.1",
+      "checked_at": "2026-09-21T06:54:42.427455+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://journals.ametsoc.org:443/view/journals/mwre/144/5/mwr-d-15-0367.1.xml",
       "content_type": "text/html",
       "access": "access_unresolved",
-      "redirect_review": "Changed host; review destination identity.",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "redirect_review": "Changed host; review destination identity."
     },
     {
       "url": "https://doi.org/10.1175/MWR-D-18-0073.1",
+      "checked_at": "2026-09-21T06:54:42.428455+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://journals.ametsoc.org:443/view/journals/mwre/146/8/mwr-d-18-0073.1.xml",
       "content_type": "text/html",
       "access": "access_unresolved",
-      "redirect_review": "Changed host; review destination identity.",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "redirect_review": "Changed host; review destination identity."
     },
     {
       "url": "https://doi.org/10.1175/WAF-D-14-00152.1",
+      "checked_at": "2026-09-21T06:54:42.428455+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://journals.ametsoc.org/view/journals/wefo/30/3/waf-d-14-00152_1.xml",
       "content_type": "text/html",
       "access": "access_unresolved",
-      "redirect_review": "Changed host; review destination identity.",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "redirect_review": "Changed host; review destination identity."
     },
     {
       "url": "https://el-reno-survey.net/",
@@ -255,13 +254,13 @@
     },
     {
       "url": "https://github.com/T92T1914/tornado-atlas/blob/main/research/joplin-foundation-2026-09-21.md",
-      "checked_at": "2026-09-21T06:48:20.183882+00:00",
+      "checked_at": "2026-09-21T06:54:42.430455+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
-      "http_status": 404,
+      "http_status": 200,
       "final_url": "https://github.com/T92T1914/tornado-atlas/blob/main/research/joplin-foundation-2026-09-21.md",
       "content_type": "text/html; charset=utf-8",
-      "access": "missing"
+      "access": "reachable"
     },
     {
       "url": "https://github.com/T92T1914/tornado-atlas/issues",
@@ -375,7 +374,7 @@
     },
     {
       "url": "https://player.vimeo.com/video/142010192",
-      "checked_at": "2026-09-21T04:57:46.465786+00:00",
+      "checked_at": "2026-09-21T06:54:42.430455+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
@@ -385,7 +384,7 @@
     },
     {
       "url": "https://player.vimeo.com/video/143033121",
-      "checked_at": "2026-09-21T04:57:46.465786+00:00",
+      "checked_at": "2026-09-21T06:54:42.431454+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
@@ -4765,7 +4764,7 @@
     },
     {
       "url": "https://www.joplinmo.org/Archive.aspx?ADID=219",
-      "checked_at": "2026-09-21T06:48:20.187881+00:00",
+      "checked_at": "2026-09-21T06:54:42.959000+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
@@ -4775,33 +4774,33 @@
     },
     {
       "url": "https://www.legacy.com/us/obituaries/legacyremembers/dustin-bridges-obituary?id=22638694",
+      "checked_at": "2026-09-21T06:54:42.979523+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://www.legacy.com/us/obituaries/legacyremembers/dustin-bridges-obituary?id=22638694",
       "content_type": "text/html; charset=UTF-8",
-      "access": "access_unresolved",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "access": "access_unresolved"
     },
     {
-      "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.",
-      "checked_at": "2026-09-21T05:12:14.469123+00:00",
+      "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764",
+      "checked_at": "2026-09-21T07:34:33.179320+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
-      "final_url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.",
+      "final_url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764",
       "content_type": "text/html; charset=UTF-8",
       "access": "access_unresolved"
     },
     {
       "url": "https://www.legacy.com/us/obituaries/oklahoman/name/william-oneal-obituary?id=11764894",
+      "checked_at": "2026-09-21T06:54:43.307151+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://www.legacy.com/us/obituaries/oklahoman/name/william-oneal-obituary?id=11764894",
       "content_type": "text/html; charset=UTF-8",
-      "access": "access_unresolved",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "access": "access_unresolved"
     },
     {
       "url": "https://www.nationalgeographic.com/magazine/article/the-last-chase",
@@ -4875,11 +4874,11 @@
     },
     {
       "url": "https://www.nssl.noaa.gov/education/svrwx101/tornadoes/",
+      "checked_at": "2026-09-21T06:54:43.427497+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "government source",
       "access": "access_unresolved",
-      "error": "SSLError",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "error": "SSLError"
     },
     {
       "url": "https://www.reddit.com/r/tornado/comments/1931iok/",
@@ -4973,13 +4972,13 @@
     },
     {
       "url": "https://www.tributearchive.com/obituaries/26979897/dustin-bridges",
+      "checked_at": "2026-09-21T06:54:43.481490+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
       "http_status": 403,
       "final_url": "https://www.tributearchive.com/obituaries/26979897/dustin-bridges",
       "content_type": "text/html; charset=UTF-8",
-      "access": "access_unresolved",
-      "checked_at": "2026-09-21T04:09:12.877308+00:00"
+      "access": "access_unresolved"
     },
     {
       "url": "https://www.visitjoplinmo.com/directory/a-tribute-to-the-volunteers-the-miracle-of-human-spirit/",
