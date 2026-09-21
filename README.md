@@ -14,7 +14,16 @@ explains the approach and what still needs to be built.
 
 The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, 45 photographs linked to damage survey locations, a separate nine-photo comparison gallery, two credited storm photographs, a sourced remembrance section, and a footage notebook. A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field, generic drag force, and a moving passage past a fixed probe. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
 
-[Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
+[Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [El Reno spatial replay](https://T92T1914.github.io/tornado-atlas/reconstruction.html) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
+
+The atlas entrance now brings the documentary, spatial replay and wind laboratory
+together before the searchable collection. The spatial replay places El Reno's
+39 published minute positions on a three-dimensional stage, with orbit controls,
+a following camera, a shared clock and the available radar. The route comes from
+the source record. The funnel is a drawing symbol, and the ground is flat.
+It is a starting point for the historical reconstruction, not a claim to have
+recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
+record the tested behavior and remaining gaps.
 
 The El Reno page is both a historical account and a reference. Read it in order,
 or use the contents list to jump to the path, photographs, damage, remembrance
