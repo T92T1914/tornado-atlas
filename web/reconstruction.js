@@ -8,7 +8,7 @@ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
 let drawPending=null, frame=null, clock=null, redraw=()=>{}, refresh=()=>{};
 const failedRadar=new Set();
 const requestDraw=()=>{if(drawPending===null) drawPending=requestAnimationFrame(()=>{drawPending=null;redraw();});};
-function pause(){clock?.pause();if(frame!==null) cancelAnimationFrame(frame);frame=null;el('replay-play').textContent='Play timeline';}
+function pause(){clock?.pause(performance.now());if(frame!==null) cancelAnimationFrame(frame);frame=null;el('replay-play').textContent='Play timeline';}
 function resetView(){const distance=Math.min(60,Math.max(24,43.2*canvas.clientHeight/canvas.clientWidth));for(const [key,value] of Object.entries({azimuth:0,elevation:48,distance}))el(`replay-${key}`).value=value;el('replay-follow').checked=false;requestDraw();}
 
 async function start(){
@@ -77,9 +77,9 @@ async function start(){
     if(match&&failedRadar.has(match.frame.file))el('replay-radar-note').textContent='This radar image could not load. The historical clock and source map remain available.';
   };
   function animate(){frame=null;clock.tick(performance.now());refresh();if(clock.playing)frame=requestAnimationFrame(animate);else pause();}
-  el('replay-play').addEventListener('click',()=>{if(clock.playing){clock.tick(performance.now());pause();refresh();return;}clock.play(performance.now());el('replay-play').textContent='Pause timeline';frame=requestAnimationFrame(animate);});
+  el('replay-play').addEventListener('click',()=>{if(clock.playing){pause();refresh();return;}clock.play(performance.now());el('replay-play').textContent='Pause timeline';frame=requestAnimationFrame(animate);});
   el('replay-time').addEventListener('input',()=>{pause();clock.seek(Number(el('replay-time').value));refresh();});
-  el('replay-rate').addEventListener('change',()=>{clock.tick(performance.now());clock.setRate(Number(el('replay-rate').value));refresh();});
+  el('replay-rate').addEventListener('change',()=>{clock.setRate(Number(el('replay-rate').value),performance.now());refresh();});
   refresh();
 }
 for(const key of ['azimuth','elevation','distance','follow','funnel'])el(`replay-${key}`).addEventListener('input',requestDraw);
@@ -95,7 +95,7 @@ canvas.addEventListener('keydown',e=>{const keys={ArrowLeft:[-5,0],ArrowRight:[5
 new ResizeObserver(requestDraw).observe(canvas);
 new MutationObserver(requestDraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-appearance']});
 matchMedia('(prefers-color-scheme: light)').addEventListener('change',requestDraw);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else requestDraw();});
-reduceMotion.addEventListener('change',event=>{if(event.matches)pause();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();refresh();}else requestDraw();});
+reduceMotion.addEventListener('change',event=>{if(event.matches){pause();refresh();}});
 el('replay-radar-image').addEventListener('error',()=>{const image=el('replay-radar-image');failedRadar.add(image.getAttribute('src'));image.hidden=true;el('replay-radar-note').textContent='This radar image could not load. The historical clock and source map remain available.';});
 start().catch(error=>{pause();el('replay-error').textContent=error.message;el('replay-error').hidden=false;});
