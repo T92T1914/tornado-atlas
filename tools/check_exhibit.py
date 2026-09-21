@@ -5,7 +5,8 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
-from atlas.documentary import load_documentary
+from atlas.documentary import load_documentary, validate_remembrance_coverage
+from atlas.footage import load_footage
 from atlas.damage import validate_gallery
 from atlas.history import validate_history
 from atlas.reading import validate_reading
@@ -21,6 +22,7 @@ assert bundle['survey'] == load_survey(geo), 'Stale or invalid survey bundle'
 assert bundle['survey_media'] == load_survey_attachments(bundle['survey']), 'Stale or invalid survey photographs'
 assert bundle['cameras'] == load_cameras(), 'Stale or invalid camera bundle'
 assert bundle['documentary'] == load_documentary(root), 'Stale documentary evidence'
+assert bundle['footage'] == load_footage(root), 'Stale or invalid footage registration'
 for key, relative in [('exhibit', 'exhibits/el-reno-2013/dossier.json'),
                       ('creators', 'research/creators.json'),
                       ('review_queue', 'research/video-review-queue.json'),
@@ -48,6 +50,7 @@ validate_timeline_media(bundle['timeline_media'], root / 'web')
 validate_community(bundle['community'], bundle['exhibit']['id'])
 validate_gallery(bundle['damage'], root / 'web')
 validate_history(bundle['history'], bundle['storm_photos'], root / 'web')
+validate_remembrance_coverage(bundle['history'], bundle['documentary'])
 validate_reading(bundle['reading'], {key: value for key, value in bundle.items() if key != 'reading'})
 minutes = {int(point['properties']['source_name'].split(':')[1]) for point in points}
 assert all(chapter['minute'] in minutes for chapter in bundle['history']['chapters']), 'Chapter lacks a published map position'

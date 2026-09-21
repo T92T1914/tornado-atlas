@@ -38,6 +38,8 @@ def main():
         links.update(unescape(u) for u in re.findall(r'(?:href|src)=[\"\'](https?://[^\"\']+)', path.read_text(encoding='utf-8')))
     for path in list((ROOT / 'web').glob('*.mjs')) + list((ROOT / 'web').glob('*.js')):
         links.update(u for u in re.findall(r'[\"\'](https://[^\"\'\s]+)[\"\'](?!\s*\+)', path.read_text(encoding='utf-8')) if 'example.invalid' not in u)
+    # The player host is a service origin, not a published page or media URL.
+    links.discard('https://www.youtube-nocookie.com')
     links = sorted({urldefrag(u)[0] for u in links})
     previous = {}
     destination = ROOT / 'web/source-audit.json'

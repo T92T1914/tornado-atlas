@@ -19,9 +19,17 @@ The initial source collection is Pecos Hank, TornadoTRX and Swegle Studios. Each
 * `description_checked`: event or other metadata checked on the watch page.
 * `partial_review`: specific text or visual intervals examined, with coverage recorded.
 * `full_review`: the entire specified video version examined; unresolved claims may remain.
+* `discrete_clock_anchors`: particular paused samples have a recorded source time and visible historical clock. This is temporal registration only; it does not establish camera location or continuous coverage.
 * `registered_observations`: particular shots have defensible temporal and spatial placement.
 
 These statuses describe work performed. They are not confidence scores or a quality ranking of creators.
+
+The original Robinson upload now has seven `discrete_clock_anchors` in
+`exhibits/el-reno-2013/footage.json`. The shared clock offers each moment and
+cues the original host player only after a visitor loads it. No coverage is
+assigned between those samples. Playing the source video leaves the historical
+map paused. The [registration record](../research/footage-registration-2026-09-21.md)
+contains the source version, observed clock values and limits.
 
 ## Observation fields
 

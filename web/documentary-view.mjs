@@ -1,8 +1,9 @@
 import {issuedAt,activeWarnings,splitPercent} from './documentary-model.mjs';
 import {localStamp,frameAt} from './timeline-media-model.mjs';
+import {anchorAt} from './footage-model.mjs';
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e;};
 const link=(text,url)=>{const a=el('a',text);a.href=url;a.target='_blank';a.rel='noopener';return a;};
-export function mountDocumentary(data,media,cameras,svg,project,start,end,seek) {
+export function mountDocumentary(data,media,cameras,svg,project,start,end,seek,footage) {
   const host=document.getElementById('evidence-desk');
   host.append(el('p','ONE CLOCK, SEPARATE RECORDS','eyebrow'),el('h3','What was known at this moment'),el('p','Move either timeline slider to follow the latest reviewed warning, radar frame and camera sample. Issue time is separate from the earlier observation described inside a bulletin. This is a historical archive, not a live warning service.'));
   const cards=el('div',null,'evidence-cards');host.append(cards);
@@ -14,14 +15,19 @@ export function mountDocumentary(data,media,cameras,svg,project,start,end,seek) 
   function update(utc) {
     last=utc;const available=issuedAt(data.warnings,utc),latest=available.at(-1),r=frameAt(media.frames,utc,media.max_age_seconds),c=frameAt(cameras.samples,utc,cameras.display_max_age_seconds);
     const active=activeWarnings(data.warnings,utc);
-    const key=JSON.stringify([latest?.id,r?.frame.utc,c?.frame.utc,toggle.checked,active.map(item=>item.id)]);if(key===lastKey)return;lastKey=key;
+    const recorded=anchorAt(footage.anchors,utc);
+    const key=JSON.stringify([latest?.id,r?.frame.utc,c?.frame.utc,recorded?.id,toggle.checked,active.map(item=>item.id)]);if(key===lastKey)return;lastKey=key;
     warning.replaceChildren(el('h4','Latest reviewed bulletin'));
     if(latest) warning.append(el('p',localStamp(latest.issued)),el('strong',latest.title),el('p',latest.summary),link('Read the original bulletin',latest.source));
     else warning.append(el('p','No reviewed bulletin issued by this time.'));
     radar.replaceChildren(el('h4','Radar available'));
     radar.append(el('p',r?localStamp(r.frame.utc):'No frame within the preceding four minutes.'),el('p','Regional reflectivity. Available frames remain discrete; intermediate images are not generated.','fineprint'));
     camera.replaceChildren(el('h4','Camera evidence'));
-    camera.append(el('p',c?`Tim Marshall · ${localStamp(c.frame.utc)} · ${c.frame.azimuth}°`:'No camera sample within the preceding 90 seconds.'),el('p','Published position and bearing only. No registered camera photograph has been assigned to this second.','fineprint'));
+    if(recorded){
+      camera.append(el('p',`Dan Robinson · ${localStamp(recorded.utc)}`),el('p','Checked video clock. Camera position and bearing are not registered.','fineprint'));
+      const jump=el('a','View the original footage below');jump.href='#registered-footage';camera.append(jump);
+    }else camera.append(el('p','No checked video frame assigned to this second.','fineprint'));
+    camera.append(el('p',c?`Separate camera: Tim Marshall · ${localStamp(c.frame.utc)} · ${c.frame.azimuth}°`:'No Marshall position sample within the preceding 90 seconds.'),el('p','Marshall entries contain published position and bearing only.','fineprint'));
     layer.replaceChildren();
     if(toggle.checked) for(const item of active) {
       const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',item.polygon.map((p,i)=>(i?'L':'M')+project(p).join(',')).join(' ')+' Z');
@@ -56,7 +62,12 @@ export function mountResearchLog(data) {
   const host=document.getElementById('research-log');
   for(const record of data.log) {const article=el('article');article.append(el('p',record.date+' · '+record.status,'eyebrow'),el('h3',record.title),el('p',record.finding));record.sources.forEach(s=>article.append(link(s.label,s.url)));host.append(article);}
   const missing=document.getElementById('unmapped-fatalities');
-  for(const item of data.unmapped_fatalities){const card=el('article');card.append(el('h3',item.people.join(' and ')),el('p',item.account),el('p',item.reason,'fineprint'));item.sources.forEach(s=>card.append(link(s.label,s.url)));missing.append(card);}
+  for(const item of data.unmapped_fatalities){const card=el('article');card.id=item.id;card.append(el('h3',item.people.join(' and ')),el('p',item.account),el('p',item.reason,'fineprint'));item.sources.forEach(s=>card.append(link(s.label,s.url)));missing.append(card);}
+  for(const host of document.querySelectorAll('[data-remembrance-coverage]')){
+    const details=el('details');details.open=true;details.append(el('summary','Five victims with unresolved locations'));
+    details.append(el('p','All eight people are named in the remembrance. The mapped recovery record accounts for the three TWISTEX members. The five people below have confirmed names but no verified precise location in this exhibit.','fineprint'));
+    const list=el('ul');for(const item of data.unmapped_fatalities){const row=el('li'),a=el('a',item.people.join(' and '));a.href='#'+item.id;row.append(a);list.append(row);}details.append(list);host.append(details);
+  }
   const audit=document.getElementById('link-audit-summary');
   fetch('source-audit.json').then(response=>{if(!response.ok)throw new Error('Audit unavailable');return response.json();}).then(report=>{
     audit.append(el('p',`Link access checked ${report.checked_at.slice(0,10)} UTC: ${report.results.length} distinct URLs, ${report.counts.reachable||0} reachable, ${report.counts.access_unresolved||0} with unresolved access, ${report.counts.missing||0} returned missing pages. These results cover the curated exhibit and museum pages, not every catalogue record.`));

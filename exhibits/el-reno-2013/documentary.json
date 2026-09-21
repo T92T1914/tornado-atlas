@@ -263,7 +263,8 @@
           "label": "Contemporary named-fatality list",
           "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
         }
-      ]
+      ],
+      "id": "location-bridges"
     },
     {
       "people": [
@@ -280,15 +281,20 @@
           "label": "Contemporary named-fatality list",
           "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
         }
-      ]
+      ],
+      "id": "location-oneal"
     },
     {
       "people": [
-        "Richard Henderson"
+        "Richard Charles Henderson"
       ],
-      "account": "National Geographic describes firefighters recovering Henderson near a creek, about a mile south of the TWISTEX wreck. This is a relative recovery account, not a precise impact location.",
-      "reason": "Other online accounts propose road locations without a secure named incident join. A relative distance alone cannot establish the recovery coordinate or the place where he died.",
+      "account": "Richard Charles Henderson, 35, was an amateur storm chaser from Hinton. His obituary records his name, age and death on May 31, 2013. National Geographic reports a recovery near a creek about a mile south of the TWISTEX wreck. That relative account does not establish where the fatal impact occurred.",
+      "reason": "His death and identity are documented. A precise incident coordinate remains unresolved. Documentary route reconstructions and vehicle appearances need corroboration before a point can be named for him.",
       "sources": [
+        {
+          "label": "Published obituary, June 5, 2013",
+          "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764."
+        },
         {
           "label": "National Geographic reporting",
           "url": "https://www.nationalgeographic.com/magazine/article/the-last-chase"
@@ -296,8 +302,13 @@
         {
           "label": "Contemporary named-fatality list",
           "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+        },
+        {
+          "label": "NWS assessment, section 3.9: four chaser fatalities",
+          "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
         }
-      ]
+      ],
+      "id": "location-henderson"
     },
     {
       "people": [
@@ -311,10 +322,43 @@
           "label": "Reporting by Juliana Keeping, republished by EMS World",
           "url": "https://www.hmpgloballearningnetwork.com/site/emsworld/news/11031041/language-barriers-hinder-storm-warnings-okla"
         }
-      ]
+      ],
+      "id": "location-pol-family"
     }
   ],
   "log": [
+    {
+      "date": "2026-09-21",
+      "status": "clarified",
+      "title": "All eight people remain visible beside the maps",
+      "finding": "Richard Charles Henderson is identified as the amateur chaser from Hinton, with his obituary and the NWS assessment linked. Map controls now link the unresolved location accounts for all five people outside the TWISTEX recovery record. A completeness check prevents a named person from losing their location status. No precise location for Henderson is claimed.",
+      "sources": [
+        {
+          "label": "Henderson obituary",
+          "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764."
+        },
+        {
+          "label": "NWS service assessment, section 3.9",
+          "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-20",
+      "status": "Discrete clock observations added",
+      "title": "Original dashcam moments on the shared clock",
+      "finding": "Checked moments from Dan Robinson's original upload now select the historical map, radar and warning time. They remain discrete observations. Tim Marshall and Skip Talbot's legacy Vimeo players report unavailable; Robinson's former event webpage redirects to a closure notice. A successful HTTP request alone would miss these content failures.",
+      "sources": [
+        {
+          "label": "Original Dan Robinson video",
+          "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM"
+        },
+        {
+          "label": "Survey project timing metadata",
+          "url": "https://el-reno-survey.net/ted/ted-elreno-metadata.js"
+        }
+      ]
+    },
     {
       "date": "2026-09-20",
       "status": "Added",

@@ -34,6 +34,15 @@ photographs include explanations of the recorded damage and its limits.
 The [dated research log](https://t92t1914.github.io/tornado-atlas/#corrections)
 records additions, corrections and questions that remain open.
 
+Seven checked moments from Dan Robinson's original dashcam upload now connect
+to that clock. Select a moment to compare its visible time with the path,
+available radar and latest reviewed warning. The original player loads on
+request. Unchecked intervals remain unassigned, and no camera coordinates are
+inferred from the timestamp. An exhibit search and six short reading guides
+help readers find passages and understand timing, viewpoint and rating limits.
+The [footage registration record](research/footage-registration-2026-09-21.md)
+documents what was inspected.
+
 ## Run locally
 
 Python 3.11 or newer. No additional packages, API keys or map service accounts are needed for the included preview.

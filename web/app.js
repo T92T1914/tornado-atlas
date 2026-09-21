@@ -100,6 +100,7 @@ async function main() {
   byId('remembrance-source-note').textContent=memorial.source_note;
   for (const person of memorial.people) {
     const item=node('li');item.append(node('strong',person.name));
+    if(person.note)item.append(node('p',person.note));
     const sources=node('div',null,'memorial-sources');
     person.sources.forEach(url=>sources.append(link(`${sourceNames.get(url) || 'Public source'} ↗`,url)));
     item.append(sources);byId('memorial-names').append(item);
@@ -170,8 +171,8 @@ async function main() {
   const { mountTimelineMedia } = await import('./timeline-media.mjs');
   const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
   const {mountComparison,mountResearchLog} = await import('./documentary-view.mjs');
-  mountComparison(data.documentary.comparison);mountResearchLog(data.documentary);
-  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media);
+  mountComparison(data.documentary.comparison);
+  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage);
   const { mountReader } = await import('./reader-view.mjs');
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
@@ -180,6 +181,9 @@ async function main() {
   mountDamage(data.damage, openPhoto);
   const { mountSurvey } = await import('./survey-view.mjs');
   mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places);
+  mountResearchLog(data.documentary);
+  const {mountReadingTools}=await import('./footage-view.mjs');
+  mountReadingTools(data.footage);
   // A shared section link can arrive before the asynchronous exhibit is laid out.
   requestAnimationFrame(() => {
     let id;
@@ -188,7 +192,7 @@ async function main() {
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
   });
 }
-async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media) {
+async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage) {
   const {PlaybackClock, preparePositions, positionAt} = await import('./playback-model.mjs');
   const {localStamp} = await import('./timeline-media-model.mjs');
   const {mountCamera} = await import('./camera-view.mjs');
@@ -263,13 +267,16 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   function seek(seconds) {stop(); clock.seek(seconds); update();}
   const updateCamera = mountCamera(cameras, svg, project, start, end, seek);
   const {mountDocumentary}=await import('./documentary-view.mjs');
-  const updateDocumentary=mountDocumentary(documentary,media,cameras,svg,project,start,end,seek);
+  const updateDocumentary=mountDocumentary(documentary,media,cameras,svg,project,start,end,seek,footage);
+  const {mountFootage}=await import('./footage-view.mjs');
+  const updateFootage=mountFootage(footage,start,seek,stop);
   function update() {
     const selected = positionAt(timed, clock.seconds), [x,y] = project(selected.coordinates);
     for (const element of [halo,core]) {element.setAttribute('cx',x);element.setAttribute('cy',y);}
     // Expiry checks run on every frame, including between displayed whole seconds.
     updateCamera(selected.utc);
     updateDocumentary(selected.utc);
+    updateFootage(selected.utc);
     updateMedia({properties:{utc:selected.utc,display_time:localStamp(selected.utc)}},Math.floor(clock.seconds));
     // Keep the marker smooth, but do not rebuild captions or image nodes each frame.
     const textKey = `${Math.floor(clock.seconds)}:${selected.published}`;

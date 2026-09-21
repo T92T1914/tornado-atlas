@@ -1,10 +1,10 @@
 {
-  "checked_at": "2026-09-21T04:17:44.374500+00:00",
+  "checked_at": "2026-09-21T05:12:14.741313+00:00",
   "scope": "Every distinct external URL in the curated El Reno data bundle, top-level museum HTML and fixed browser-module links. Catalogue-generated event URLs and browser-generated service requests are outside this list. Fragment anchors and claim support require separate checks.",
   "method": "Bounded GET, at most two concurrent requests per host. HTTP 403, 429 and timeouts are unresolved access, not proof of a dead source. Successful HTTP does not establish content truth or exclude a soft error page.",
   "counts": {
-    "reachable": 492,
-    "access_unresolved": 9
+    "reachable": 497,
+    "access_unresolved": 12
   },
   "results": [
     {
@@ -163,6 +163,16 @@
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
     },
     {
+      "url": "https://el-reno-survey.net/data-collection-recommendations/",
+      "checked_at": "2026-09-21T04:57:46.465786+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://el-reno-survey.net/data-collection-recommendations/",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
+    },
+    {
       "url": "https://el-reno-survey.net/participants/",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
@@ -311,6 +321,26 @@
       "content_type": "text/html; charset=UTF-8",
       "access": "reachable",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://player.vimeo.com/video/142010192",
+      "checked_at": "2026-09-21T04:57:46.465786+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 403,
+      "final_url": "https://player.vimeo.com/video/142010192",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "access_unresolved"
+    },
+    {
+      "url": "https://player.vimeo.com/video/143033121",
+      "checked_at": "2026-09-21T04:57:46.465786+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 403,
+      "final_url": "https://player.vimeo.com/video/143033121",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "access_unresolved"
     },
     {
       "url": "https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf",
@@ -4613,6 +4643,16 @@
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
     },
     {
+      "url": "https://stormhighway.com/may312013.php",
+      "checked_at": "2026-09-21T04:57:46.470949+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://stormhighway.com/index.php",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
+    },
+    {
       "url": "https://stormtrack.org/threads/el-reno-question.27366/",
       "checked_at": "2026-09-21T04:16:56.930401+00:00",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
@@ -4671,6 +4711,16 @@
       "content_type": "text/html; charset=UTF-8",
       "access": "access_unresolved",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.",
+      "checked_at": "2026-09-21T05:12:14.469123+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 403,
+      "final_url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "access_unresolved"
     },
     {
       "url": "https://www.legacy.com/us/obituaries/oklahoman/name/william-oneal-obituary?id=11764894",
@@ -4749,6 +4799,16 @@
       "content_type": "text/html",
       "access": "reachable",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://www.reddit.com/r/tornado/comments/1cmk0hx/any_videos_of_synced_tornado_footage/",
+      "checked_at": "2026-09-21T04:57:46.470949+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://www.reddit.com/r/tornado/comments/1cmk0hx/any_videos_of_synced_tornado_footage/",
+      "content_type": "text/html",
+      "access": "reachable"
     },
     {
       "url": "https://www.reddit.com/r/tornado/comments/1mso0pl/did_you_know_that_the_2013_el_reno_tornado_nearly/",
@@ -4989,6 +5049,26 @@
       "content_type": "text/html; charset=utf-8",
       "access": "reachable",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://www.youtube.com/iframe_api",
+      "checked_at": "2026-09-21T04:57:46.470949+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://www.youtube.com/iframe_api",
+      "content_type": "text/javascript; charset=utf-8",
+      "access": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM",
+      "checked_at": "2026-09-21T04:57:46.470949+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://www.youtube.com/watch?v=MxgU1QcFMJM",
+      "content_type": "text/html; charset=utf-8",
+      "access": "reachable"
     },
     {
       "url": "https://www.youtube.com/watch?v=Ppw0W5IXNAI",
