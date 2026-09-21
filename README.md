@@ -12,7 +12,7 @@ packages, so the collection can grow without rebuilding the application for
 every tornado. The [reconstruction plan](docs/reconstruction-plan.md)
 explains the approach and what still needs to be built.
 
-The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, nine damage survey photographs, two credited storm photographs, a sourced remembrance section, and a footage notebook. A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field, generic drag force, and a moving passage past a fixed probe. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
+The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, 45 photographs linked to damage survey locations, a separate nine-photo comparison gallery, two credited storm photographs, a sourced remembrance section, and a footage notebook. A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field, generic drag force, and a moving passage past a fixed probe. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
 
@@ -35,7 +35,7 @@ From the repository directory:
 py -3.11 -m http.server 8768 --bind 127.0.0.1 --directory web
 ```
 
-Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:8768/index.html#damage** for the El Reno survey gallery, **http://127.0.0.1:8768/study.html** for the form study, or **http://127.0.0.1:8768/wind.html** for the wind experiment. On macOS or Linux, replace `py -3.11` with `python3`. All museum pages run offline after checkout. Source links open external websites. The 3D view needs WebGL 2; the historical pages and wind lab do not.
+Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:8768/index.html#survey-explorer** for the linked El Reno photographs, **http://127.0.0.1:8768/study.html** for the form study, or **http://127.0.0.1:8768/wind.html** for the wind experiment. On macOS or Linux, replace `py -3.11` with `python3`. The museum data, maps, preserved galleries and labs run offline after checkout. The 45 linked DAT photographs need access to the original NWS service; failed images leave the assessment and source link usable. Source links open external websites. The 3D view needs WebGL 2; the historical pages and wind lab do not.
 
 Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Numbered groups open a smaller set of records; clear the selected group to return to the current filters. Each selected record has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account.
 
@@ -48,11 +48,21 @@ Use the shared second-level clock to scrub or play the path at 1×, 15×, 60× o
 
 Compare two survey photographs, enlarge either one, or filter the collection by subject and the rating in the original NWS caption. The files are unchanged government survey photographs. Locations remain descriptive because exact camera positions and capture times have not been established.
 
-The damage map adds 336 NWS survey records within the published outline. Filter
-by the recorded rating, search the descriptions, or select a point to inspect
-its coordinates and original record. Blank event identifiers prevent a direct
-event join, so the map labels the geographic selection. These are surveyed
-outcomes, with no inferred impact times or automatic links to the photographs.
+The damage map adds 336 NWS survey records within the published outline. It
+starts with the 45 locations that have original DAT photographs. Select a dot,
+thumbnail or observation to see the photograph alongside its recorded assessment.
+Filter by rating or description, zoom around the selection, and use the observation
+link to share the same filters and record. Turn off the photo filter to inspect
+all 336 records. Each photograph is joined by its exact parent object and global
+ID. Blank event identifiers still prevent a direct event join for the underlying
+regional survey, so the map retains its geographic-selection caveat. No capture
+times, camera positions or photographer names are invented.
+
+The exhibit offers System, Light and Dark reading appearances, with forced-color
+support and text alternatives to colored map markers. Photographs and radar
+colors are not recolored. Community entries link back to the relevant map or
+gallery. The [design and research review](research/linked-evidence-design-2026-09-20.md)
+explains the ArcGIS reference, the evidence model and the remaining work.
 
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
@@ -65,7 +75,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Recorded camera samples | Tim Marshall's published locations and directions, 17 samples inside the playback window, explicit sample ages and gaps |
 | History and remembrance | Published casualty counts with their scope, public sources for eight names, and separate regional flooding context |
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
-| Survey location explorer | 336 preserved DAT records within the NWS outline, rating and description filters, individual source links and explicit association limits |
+| Survey location explorer | 336 preserved DAT records, 45 original linked photographs, combined filters, zoom, image enlargement and shareable observations |
 | Interactive form study | Native WebGL 2 particle rendering, three forms, camera orbit, visibility controls and motion that begins paused |
 | Wind and force laboratory | Adjustable Rankine vortex, passive tracers, a movable probe, time-series passage experiment and generic drag calculations |
 | Source catalogue | NOAA NCEI imports, SQLite search, original records, source revisions and SHA-256 checks |
@@ -73,7 +83,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 82 Python tests, 55 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 88 Python tests, 58 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 

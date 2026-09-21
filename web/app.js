@@ -165,7 +165,7 @@ async function main() {
   const { mountDamage } = await import('./damage-view.mjs');
   mountDamage(data.damage, openPhoto);
   const { mountSurvey } = await import('./survey-view.mjs');
-  mountSurvey(data.survey, data.geometry);
+  mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto);
   // A shared section link can arrive before the asynchronous exhibit is laid out.
   requestAnimationFrame(() => {
     let id;

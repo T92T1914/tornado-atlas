@@ -1890,8 +1890,13 @@
     "context": [
       {
         "title": "Before the tornado",
-        "text": "Storms developed near a dryline and a nearly stationary front in an extremely unstable atmosphere. The El Reno tornado formed southwest of town and passed south of the airport.",
+        "text": "By midafternoon, a dryline was moving into western Oklahoma while a nearly stationary front crossed the state. Daytime heating left an extremely unstable atmosphere ahead of the dryline and south of the front. Storms formed near the intersection in the late afternoon. As the southern storm moved east into richer moisture and instability, it became tornadic.",
         "source": "https://www.weather.gov/oun/events-20130531"
+      },
+      {
+        "title": "A storm with more than one scale of motion",
+        "text": "The parent supercell formed near a cold front and dryline, with strong atmospheric instability and moderately strong changes in wind with height. The 2015 multiscale study describes both a broad cyclonic tornado and a smaller anticyclonic companion. Understanding the event means examining the surrounding storm as well as the tornado itself.",
+        "source": "https://doi.org/10.1175/WAF-D-14-00152.1"
       },
       {
         "title": "A separate flooding disaster",
@@ -2314,7 +2319,17 @@
           "ef-scale"
         ],
         "conclusion": "The debate is worth explaining. It does not establish a revised official rating, and EF3 should not be read as a measured ceiling on every wind within the tornado.",
-        "remaining": "A proposed alternative rating needs a stated method and treatment of measurement height, sampling duration and damage evidence. An imagined strike on a better-built house cannot supply the missing observation."
+        "remaining": "A proposed alternative rating needs a stated method and treatment of measurement height, sampling duration and damage evidence. An imagined strike on a better-built house cannot supply the missing observation.",
+        "exhibit_links": [
+          {
+            "label": "Explore mapped survey photographs",
+            "href": "#survey-explorer"
+          },
+          {
+            "label": "Compare the captioned NWS gallery",
+            "href": "#damage"
+          }
+        ]
       },
       {
         "id": "el-reno-house-anchoring",
@@ -2330,7 +2345,17 @@
           "ground-survey"
         ],
         "conclusion": "The house detail is supported by the primary account. It helps explain why a dramatic damage photograph alone cannot settle the rating.",
-        "remaining": "This finding supports the house example, not every statement in the thread. It is not evidence that the entire tornado received a final EF4 classification."
+        "remaining": "This finding supports the house example, not every statement in the thread. It is not evidence that the entire tornado received a final EF4 classification.",
+        "exhibit_links": [
+          {
+            "label": "Explore mapped survey photographs",
+            "href": "#survey-explorer"
+          },
+          {
+            "label": "Compare the captioned NWS gallery",
+            "href": "#damage"
+          }
+        ]
       },
       {
         "id": "el-reno-width-claim",
@@ -2348,7 +2373,13 @@
           "ground-survey"
         ],
         "conclusion": "Keep 2.6 miles in the historical record. Preserve 4.3 miles as an unresolved claim with its source trail, not as a second confirmed measurement.",
-        "remaining": "Locate the study behind the blog and identify its boundary, time, height and method. We have not established whether it measures the same thing as the official tornado width."
+        "remaining": "Locate the study behind the blog and identify its boundary, time, height and method. We have not established whether it measures the same thing as the official tornado width.",
+        "exhibit_links": [
+          {
+            "label": "Inspect the published outline",
+            "href": "#path"
+          }
+        ]
       }
     ]
   },
@@ -6409,8 +6440,819 @@
     },
     "association": "geographic_overlap_only",
     "note": "NWS survey points inside or on the published El Reno outline. The archived records have no event ID linking them to this tornado. Geographic overlap alone does not prove that it caused each observation.",
-    "time_note": "These are surveyed outcomes, not timed impacts. They stay visible throughout playback. They have not been matched to the nine survey photographs.",
+    "time_note": "These are surveyed outcomes, not timed impacts. Available DAT attachments are linked to their exact survey records below. The separate nine-photo NWS gallery has not been matched to these points.",
     "status_note": "DAT calls these quality-controlled records preliminary. The event rating remains the final NWS EF3 assessment. Individual point ratings are separate observations."
+  },
+  "survey_media": {
+    "photos": {
+      "165486": [
+        {
+          "attachment_id": 112129,
+          "source_name": "apHmtMGy_1370098696867.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165486/attachments/112129",
+          "content_type": "image/jpeg",
+          "bytes": 859553,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165486/attachments/112130"
+        }
+      ],
+      "165491": [
+        {
+          "attachment_id": 112131,
+          "source_name": "apHmtMGy_1370099010997.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165491/attachments/112131",
+          "content_type": "image/jpeg",
+          "bytes": 1032382,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165491/attachments/112132"
+        }
+      ],
+      "165515": [
+        {
+          "attachment_id": 112141,
+          "source_name": "apHmtMGy_1370099469780.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165515/attachments/112141",
+          "content_type": "image/jpeg",
+          "bytes": 1118668,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165515/attachments/112142"
+        }
+      ],
+      "165521": [
+        {
+          "attachment_id": 112143,
+          "source_name": "apHmtMGy_1370100899232.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165521/attachments/112143",
+          "content_type": "image/jpeg",
+          "bytes": 886433,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165521/attachments/112144"
+        }
+      ],
+      "165524": [
+        {
+          "attachment_id": 112145,
+          "source_name": "apHmtMGy_1370101592082.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165524/attachments/112145",
+          "content_type": "image/jpeg",
+          "bytes": 1065229,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165524/attachments/112146"
+        }
+      ],
+      "165531": [
+        {
+          "attachment_id": 112152,
+          "source_name": "apHmtMGy_1370101846644.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165531/attachments/112152",
+          "content_type": "image/jpeg",
+          "bytes": 1080919,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165531/attachments/112153"
+        }
+      ],
+      "165587": [
+        {
+          "attachment_id": 112187,
+          "source_name": "apHmtMGy_1370106475845.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165587/attachments/112187",
+          "content_type": "image/jpeg",
+          "bytes": 955170,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165587/attachments/112189"
+        }
+      ],
+      "165589": [
+        {
+          "attachment_id": 112190,
+          "source_name": "apHmtMGy_1370102375249.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165589/attachments/112190",
+          "content_type": "image/jpeg",
+          "bytes": 1097634,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165589/attachments/112191"
+        }
+      ],
+      "165594": [
+        {
+          "attachment_id": 112192,
+          "source_name": "apHmtMGy_1370103051649.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165594/attachments/112192",
+          "content_type": "image/jpeg",
+          "bytes": 1010672,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165594/attachments/112193"
+        }
+      ],
+      "165599": [
+        {
+          "attachment_id": 112196,
+          "source_name": "apHmtMGy_1370104850392.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165599/attachments/112196",
+          "content_type": "image/jpeg",
+          "bytes": 899947,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165599/attachments/112197"
+        }
+      ],
+      "165600": [
+        {
+          "attachment_id": 112198,
+          "source_name": "apHmtMGy_1370106005943.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165600/attachments/112198",
+          "content_type": "image/jpeg",
+          "bytes": 1003035,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165600/attachments/112199"
+        }
+      ],
+      "165601": [
+        {
+          "attachment_id": 112200,
+          "source_name": "apHmtMGy_1370107009904.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165601/attachments/112200",
+          "content_type": "image/jpeg",
+          "bytes": 979905,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165601/attachments/112201"
+        }
+      ],
+      "165632": [
+        {
+          "attachment_id": 112210,
+          "source_name": "apHmtMGy_1370109008851.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165632/attachments/112210",
+          "content_type": "image/jpeg",
+          "bytes": 1014353,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165632/attachments/112211"
+        }
+      ],
+      "165638": [
+        {
+          "attachment_id": 112214,
+          "source_name": "apHmtMGy_1370109741882.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165638/attachments/112214",
+          "content_type": "image/jpeg",
+          "bytes": 974326,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165638/attachments/112215"
+        }
+      ],
+      "165650": [
+        {
+          "attachment_id": 112218,
+          "source_name": "apHmtMGy_1370110729160.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165650/attachments/112218",
+          "content_type": "image/jpeg",
+          "bytes": 1052538,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165650/attachments/112219"
+        }
+      ],
+      "165658": [
+        {
+          "attachment_id": 112222,
+          "source_name": "apHmtMGy_1370111387939.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165658/attachments/112222",
+          "content_type": "image/jpeg",
+          "bytes": 990741,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165658/attachments/112223"
+        }
+      ],
+      "165660": [
+        {
+          "attachment_id": 112224,
+          "source_name": "apHmtMGy_1370112114801.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165660/attachments/112224",
+          "content_type": "image/jpeg",
+          "bytes": 964704,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165660/attachments/112225"
+        }
+      ],
+      "165661": [
+        {
+          "attachment_id": 112226,
+          "source_name": "apHmtMGy_1370112691247.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165661/attachments/112226",
+          "content_type": "image/jpeg",
+          "bytes": 1070246,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165661/attachments/112227"
+        }
+      ],
+      "165695": [
+        {
+          "attachment_id": 112236,
+          "source_name": "apHmtMGy_1370113516991.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165695/attachments/112236",
+          "content_type": "image/jpeg",
+          "bytes": 788464,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165695/attachments/112237"
+        }
+      ],
+      "165697": [
+        {
+          "attachment_id": 112238,
+          "source_name": "apHmtMGy_1370113635116.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165697/attachments/112238",
+          "content_type": "image/jpeg",
+          "bytes": 737850,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165697/attachments/112239"
+        }
+      ],
+      "165701": [
+        {
+          "attachment_id": 112244,
+          "source_name": "apHmtMGy_1370114639919.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165701/attachments/112244",
+          "content_type": "image/jpeg",
+          "bytes": 971643,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165701/attachments/112245"
+        }
+      ],
+      "165703": [
+        {
+          "attachment_id": 112248,
+          "source_name": "apHmtMGy_1370114240618.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165703/attachments/112248",
+          "content_type": "image/jpeg",
+          "bytes": 910634,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165703/attachments/112249"
+        }
+      ],
+      "165704": [
+        {
+          "attachment_id": 112250,
+          "source_name": "apHmtMGy_1370115022612.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165704/attachments/112250",
+          "content_type": "image/jpeg",
+          "bytes": 851736,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165704/attachments/112251"
+        }
+      ],
+      "165712": [
+        {
+          "attachment_id": 112252,
+          "source_name": "apHmtMGy_1370117456017.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165712/attachments/112252",
+          "content_type": "image/jpeg",
+          "bytes": 1014799,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165712/attachments/112253"
+        }
+      ],
+      "165713": [
+        {
+          "attachment_id": 112254,
+          "source_name": "apHmtMGy_1370117700768.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165713/attachments/112254",
+          "content_type": "image/jpeg",
+          "bytes": 899663,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165713/attachments/112255"
+        }
+      ],
+      "165755": [
+        {
+          "attachment_id": 112268,
+          "source_name": "apHmtMGy_1370119198082.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165755/attachments/112268",
+          "content_type": "image/jpeg",
+          "bytes": 949628,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165755/attachments/112269"
+        }
+      ],
+      "165756": [
+        {
+          "attachment_id": 112270,
+          "source_name": "apHmtMGy_1370119678313.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165756/attachments/112270",
+          "content_type": "image/jpeg",
+          "bytes": 1130441,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165756/attachments/112271"
+        }
+      ],
+      "165757": [
+        {
+          "attachment_id": 112272,
+          "source_name": "apHmtMGy_1370119867851.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165757/attachments/112272",
+          "content_type": "image/jpeg",
+          "bytes": 879976,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165757/attachments/112273"
+        }
+      ],
+      "165758": [
+        {
+          "attachment_id": 112274,
+          "source_name": "apHmtMGy_1370120763128.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165758/attachments/112274",
+          "content_type": "image/jpeg",
+          "bytes": 777948,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165758/attachments/112275"
+        }
+      ],
+      "165761": [
+        {
+          "attachment_id": 112276,
+          "source_name": "apHmtMGy_1370121992157.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165761/attachments/112276",
+          "content_type": "image/jpeg",
+          "bytes": 806522,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/165761/attachments/112277"
+        }
+      ],
+      "171831": [
+        {
+          "attachment_id": 113714,
+          "source_name": "vA1OatRg_1370203579939.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171831/attachments/113714",
+          "content_type": "image/jpeg",
+          "bytes": 1338287,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171831/attachments/113715"
+        }
+      ],
+      "171832": [
+        {
+          "attachment_id": 116080,
+          "source_name": "vA1OatRg_1370203972834.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171832/attachments/116080",
+          "content_type": "image/jpeg",
+          "bytes": 1316491,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171832/attachments/113717"
+        }
+      ],
+      "171852": [
+        {
+          "attachment_id": 113738,
+          "source_name": "vA1OatRg_1370210176480.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171852/attachments/113738",
+          "content_type": "image/jpeg",
+          "bytes": 750510,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171852/attachments/113739"
+        }
+      ],
+      "171856": [
+        {
+          "attachment_id": 113740,
+          "source_name": "vA1OatRg_1370210453569.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171856/attachments/113740",
+          "content_type": "image/jpeg",
+          "bytes": 967144,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171856/attachments/113741"
+        }
+      ],
+      "171860": [
+        {
+          "attachment_id": 113742,
+          "source_name": "vA1OatRg_1370211123812.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171860/attachments/113742",
+          "content_type": "image/jpeg",
+          "bytes": 879600,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171860/attachments/113743"
+        }
+      ],
+      "171868": [
+        {
+          "attachment_id": 113744,
+          "source_name": "vA1OatRg_1370212904796.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171868/attachments/113744",
+          "content_type": "image/jpeg",
+          "bytes": 927938,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/171868/attachments/113745"
+        }
+      ],
+      "172215": [
+        {
+          "attachment_id": 113716,
+          "source_name": "vA1OatRg_1370203841100.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/172215/attachments/113716",
+          "content_type": "image/jpeg",
+          "bytes": 1222920,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/172215/attachments/116079"
+        }
+      ],
+      "172225": [
+        {
+          "attachment_id": 116081,
+          "source_name": "vA1OatRg_1370204031934.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/172225/attachments/116081",
+          "content_type": "image/jpeg",
+          "bytes": 1387141,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/172225/attachments/116082"
+        }
+      ],
+      "270265": [
+        {
+          "attachment_id": 159679,
+          "source_name": "GlAAUBeT_1373321694384.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270265/attachments/159679",
+          "content_type": "image/jpeg",
+          "bytes": 717932,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270265/attachments/159679"
+        }
+      ],
+      "270267": [
+        {
+          "attachment_id": 159681,
+          "source_name": "GlAAUBeT_1373324467373.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270267/attachments/159681",
+          "content_type": "image/jpeg",
+          "bytes": 810311,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270267/attachments/159682"
+        }
+      ],
+      "270269": [
+        {
+          "attachment_id": 159685,
+          "source_name": "GlAAUBeT_1373322669579.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270269/attachments/159685",
+          "content_type": "image/jpeg",
+          "bytes": 660906,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270269/attachments/159686"
+        }
+      ],
+      "270271": [
+        {
+          "attachment_id": 159687,
+          "source_name": "GlAAUBeT_1373324638497.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270271/attachments/159687",
+          "content_type": "image/jpeg",
+          "bytes": 948135,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270271/attachments/159688"
+        }
+      ],
+      "270275": [
+        {
+          "attachment_id": 159695,
+          "source_name": "GlAAUBeT_1373325045022.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270275/attachments/159695",
+          "content_type": "image/jpeg",
+          "bytes": 757477,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270275/attachments/159696"
+        }
+      ],
+      "270276": [
+        {
+          "attachment_id": 159697,
+          "source_name": "GlAAUBeT_1373325102736.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270276/attachments/159697",
+          "content_type": "image/jpeg",
+          "bytes": 1130888,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270276/attachments/159698"
+        }
+      ],
+      "270277": [
+        {
+          "attachment_id": 159699,
+          "source_name": "GlAAUBeT_1373325348631.jpg",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270277/attachments/159699",
+          "content_type": "image/jpeg",
+          "bytes": 740485,
+          "thumbnail_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/270277/attachments/159700"
+        }
+      ]
+    },
+    "records_with_photos": 45,
+    "photo_count": 45,
+    "thumbnail_count": 44,
+    "source": {
+      "schema": 1,
+      "query_url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/queryAttachments?f=json&objectIds=165486%2C165491%2C165515%2C165521%2C165524%2C165531%2C165587%2C165589%2C165594%2C165599%2C165600%2C165601%2C165603%2C165632%2C165638%2C165650%2C165658%2C165660%2C165661%2C165695%2C165697%2C165701%2C165703%2C165704%2C165712%2C165713%2C165755%2C165756%2C165757%2C165758%2C165761%2C171831%2C171832%2C171850%2C171852%2C171856%2C171860%2C171868%2C172215%2C172225%2C250664%2C269881%2C269882%2C269883%2C269884%2C270264%2C270265%2C270267%2C270269%2C270270%2C270271%2C270275%2C270276%2C270277%2C270278%2C270280%2C270281%2C270665%2C271437%2C271838%2C585915%2C585916%2C585917%2C585918%2C585919%2C585920%2C585921%2C585922%2C585923%2C585925%2C585926%2C585927%2C585928%2C585929%2C585930%2C585931%2C585933%2C585934%2C585935%2C585936%2C585938%2C585939%2C585940%2C585941%2C585942%2C585944%2C585945%2C585946%2C585947%2C585948%2C585949%2C585951%2C585952%2C585953%2C585954%2C585955%2C585956%2C585957%2C585958%2C585959%2C585960%2C585961%2C585962%2C585963%2C585964%2C586312%2C586313%2C586315%2C586316%2C586317%2C586318%2C586319%2C586320%2C586321%2C586322%2C586323%2C586324%2C586325%2C586326%2C586327%2C586329%2C586330%2C586331%2C586332%2C586333%2C586334%2C586335%2C586336%2C586337%2C586338%2C586339%2C586340%2C586341%2C586342%2C586343%2C586344%2C587111%2C587112%2C587113%2C587114%2C587115%2C587116%2C587117%2C587118%2C587119%2C587120%2C587121%2C587122%2C587123%2C587124%2C587125%2C587126%2C587127%2C587128%2C587129%2C587130%2C587131%2C587132%2C587133%2C587134%2C587135%2C587136%2C587137%2C587138%2C587139%2C587140%2C587141%2C587142%2C587143%2C587144%2C587145%2C587146%2C587147%2C587148%2C587149%2C587150%2C587151%2C587152%2C587153%2C587154%2C587155%2C587156%2C587157%2C587158%2C587159%2C587510%2C587511%2C587512%2C587513%2C587515%2C587517%2C587519%2C587520%2C587521%2C587522%2C587523%2C587524%2C587525%2C587526%2C587528%2C587529%2C587530%2C587531%2C587532%2C587533%2C587534%2C589110%2C589111%2C589112%2C589113%2C589114%2C589115%2C589116%2C589117%2C589118%2C589119%2C589120%2C589122%2C589123%2C589124%2C589125%2C589126%2C589130%2C589131%2C589132%2C589133%2C589134%2C589135%2C589136%2C589137%2C589138%2C589139%2C589140%2C589141%2C589142%2C589143%2C589145%2C589146%2C589147%2C589148%2C589149%2C589150%2C589151%2C589152%2C589153%2C589154%2C589155%2C589156%2C589157%2C589158%2C589159%2C589160%2C589161%2C589162%2C589163%2C589164%2C589165%2C589166%2C589167%2C589510%2C589511%2C589512%2C589513%2C589514%2C589515%2C589516%2C589517%2C589518%2C589519%2C589523%2C589524%2C589525%2C589526%2C589528%2C589529%2C589530%2C589531%2C589532%2C589533%2C589534%2C589535%2C589536%2C589537%2C589538%2C589539%2C589540%2C589541%2C589542%2C589543%2C589544%2C589545%2C589546%2C589547%2C589548%2C589549%2C589550%2C589551%2C589552%2C589553%2C589555%2C589556%2C589557%2C589561%2C589562%2C589563%2C589564%2C589565%2C589566%2C589567%2C589568%2C589569%2C589570%2C589571%2C589572%2C589573%2C589574%2C589575%2C589577%2C589578%2C589579%2C589581%2C589582%2C589583%2C589584%2C589585%2C589586%2C589910%2C589911%2C589913%2C589914%2C589915%2C590310%2C590311%2C590312%2C590313%2C590314&returnMetadata=true",
+      "source_sha256": "8cea1d5b2c35bf17d3e819fe6462aa0845f4e71a2745bfb5e38eca826c70a6ef",
+      "bytes": 32446,
+      "retrieved_at": "2026-09-21T01:06:22.798644+00:00",
+      "queried_record_ids": [
+        165486,
+        165491,
+        165515,
+        165521,
+        165524,
+        165531,
+        165587,
+        165589,
+        165594,
+        165599,
+        165600,
+        165601,
+        165603,
+        165632,
+        165638,
+        165650,
+        165658,
+        165660,
+        165661,
+        165695,
+        165697,
+        165701,
+        165703,
+        165704,
+        165712,
+        165713,
+        165755,
+        165756,
+        165757,
+        165758,
+        165761,
+        171831,
+        171832,
+        171850,
+        171852,
+        171856,
+        171860,
+        171868,
+        172215,
+        172225,
+        250664,
+        269881,
+        269882,
+        269883,
+        269884,
+        270264,
+        270265,
+        270267,
+        270269,
+        270270,
+        270271,
+        270275,
+        270276,
+        270277,
+        270278,
+        270280,
+        270281,
+        270665,
+        271437,
+        271838,
+        585915,
+        585916,
+        585917,
+        585918,
+        585919,
+        585920,
+        585921,
+        585922,
+        585923,
+        585925,
+        585926,
+        585927,
+        585928,
+        585929,
+        585930,
+        585931,
+        585933,
+        585934,
+        585935,
+        585936,
+        585938,
+        585939,
+        585940,
+        585941,
+        585942,
+        585944,
+        585945,
+        585946,
+        585947,
+        585948,
+        585949,
+        585951,
+        585952,
+        585953,
+        585954,
+        585955,
+        585956,
+        585957,
+        585958,
+        585959,
+        585960,
+        585961,
+        585962,
+        585963,
+        585964,
+        586312,
+        586313,
+        586315,
+        586316,
+        586317,
+        586318,
+        586319,
+        586320,
+        586321,
+        586322,
+        586323,
+        586324,
+        586325,
+        586326,
+        586327,
+        586329,
+        586330,
+        586331,
+        586332,
+        586333,
+        586334,
+        586335,
+        586336,
+        586337,
+        586338,
+        586339,
+        586340,
+        586341,
+        586342,
+        586343,
+        586344,
+        587111,
+        587112,
+        587113,
+        587114,
+        587115,
+        587116,
+        587117,
+        587118,
+        587119,
+        587120,
+        587121,
+        587122,
+        587123,
+        587124,
+        587125,
+        587126,
+        587127,
+        587128,
+        587129,
+        587130,
+        587131,
+        587132,
+        587133,
+        587134,
+        587135,
+        587136,
+        587137,
+        587138,
+        587139,
+        587140,
+        587141,
+        587142,
+        587143,
+        587144,
+        587145,
+        587146,
+        587147,
+        587148,
+        587149,
+        587150,
+        587151,
+        587152,
+        587153,
+        587154,
+        587155,
+        587156,
+        587157,
+        587158,
+        587159,
+        587510,
+        587511,
+        587512,
+        587513,
+        587515,
+        587517,
+        587519,
+        587520,
+        587521,
+        587522,
+        587523,
+        587524,
+        587525,
+        587526,
+        587528,
+        587529,
+        587530,
+        587531,
+        587532,
+        587533,
+        587534,
+        589110,
+        589111,
+        589112,
+        589113,
+        589114,
+        589115,
+        589116,
+        589117,
+        589118,
+        589119,
+        589120,
+        589122,
+        589123,
+        589124,
+        589125,
+        589126,
+        589130,
+        589131,
+        589132,
+        589133,
+        589134,
+        589135,
+        589136,
+        589137,
+        589138,
+        589139,
+        589140,
+        589141,
+        589142,
+        589143,
+        589145,
+        589146,
+        589147,
+        589148,
+        589149,
+        589150,
+        589151,
+        589152,
+        589153,
+        589154,
+        589155,
+        589156,
+        589157,
+        589158,
+        589159,
+        589160,
+        589161,
+        589162,
+        589163,
+        589164,
+        589165,
+        589166,
+        589167,
+        589510,
+        589511,
+        589512,
+        589513,
+        589514,
+        589515,
+        589516,
+        589517,
+        589518,
+        589519,
+        589523,
+        589524,
+        589525,
+        589526,
+        589528,
+        589529,
+        589530,
+        589531,
+        589532,
+        589533,
+        589534,
+        589535,
+        589536,
+        589537,
+        589538,
+        589539,
+        589540,
+        589541,
+        589542,
+        589543,
+        589544,
+        589545,
+        589546,
+        589547,
+        589548,
+        589549,
+        589550,
+        589551,
+        589552,
+        589553,
+        589555,
+        589556,
+        589557,
+        589561,
+        589562,
+        589563,
+        589564,
+        589565,
+        589566,
+        589567,
+        589568,
+        589569,
+        589570,
+        589571,
+        589572,
+        589573,
+        589574,
+        589575,
+        589577,
+        589578,
+        589579,
+        589581,
+        589582,
+        589583,
+        589584,
+        589585,
+        589586,
+        589910,
+        589911,
+        589913,
+        589914,
+        589915,
+        590310,
+        590311,
+        590312,
+        590313,
+        590314
+      ],
+      "reviewed_counts": {
+        "records_with_photos": 45,
+        "photo_count": 45,
+        "thumbnail_count": 44
+      },
+      "credit": "Photographs linked by the NOAA/NWS Damage Assessment Toolkit. Individual photographers are not identified in this attachment metadata.",
+      "association": "Exact attachment parent object ID and global ID; event association remains geographic overlap.",
+      "timing": "Survey and attachment records do not establish when the tornado damaged the feature or the photograph was taken.",
+      "rights": "Images remain hosted by NOAA/NWS. Linking an attachment does not establish its photographer or transfer reuse rights."
+    }
   },
   "cameras": {
     "schema": 1,
@@ -6616,7 +7458,7 @@
         "title": "Damage Assessment Toolkit survey service",
         "publisher": "NOAA / National Weather Service",
         "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer",
-        "use": "Preserved regional survey records supply the damage map. The exhibit shows 336 points that overlap the published outline, retaining their individual ratings. Event identifiers are blank, so this is a geographic selection, not a verified event join. DAT labels the records preliminary."
+        "use": "Preserved regional survey records supply the damage map. The exhibit shows 336 points that overlap the published outline, retaining their individual ratings. Event identifiers are blank, so this is a geographic selection, not a verified event join. DAT labels the records preliminary. Exact attachment relationships now link 45 original photographs to 45 selected survey records. Image capture times and individual photographers are not supplied in the retrieved metadata."
       },
       {
         "group": "Official records",
@@ -6624,6 +7466,13 @@
         "publisher": "NWS Norman",
         "url": "https://www.weather.gov/oun/events-20130531",
         "use": "The event account, path chronology, final EF3 rating, maximum reported width and damage photograph captions. Its narrative and summary table give different ending times; both remain visible in this exhibit."
+      },
+      {
+        "group": "Meteorology and reconstruction",
+        "title": "A Multiscale Overview of the El Reno, Oklahoma, Tornadic Supercell of 31 May 2013",
+        "publisher": "Bluestein, Snyder and Houser / Weather and Forecasting (2015)",
+        "url": "https://doi.org/10.1175/WAF-D-14-00152.1",
+        "use": "The abstract supports the opening account of the environment and companion tornado. Full methods have not been rechecked for numerical reconstruction in this update."
       },
       {
         "group": "Official records",

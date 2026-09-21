@@ -1,0 +1,57 @@
+/* Reading colors are independent of historical images and radar legends. */
+:root {
+  --control:#24352a;
+  --control-hover:#344835;
+  --selected:#293327;
+  --control-line:#71836d;
+}
+:root[data-appearance=light] {
+  color-scheme:light;
+  --bg:#f7f4eb;--panel:#efece1;--line:#899487;
+  --text:#202b26;--muted:#4e5d52;--green:#285838;--gold:#865015;
+  --control:#e3e8dd;--control-hover:#d3ddce;--selected:#e2dfcd;--control-line:#758073;
+}
+@media(prefers-color-scheme:light) {
+  :root:not([data-appearance]) {
+    color-scheme:light;
+    --bg:#f7f4eb;--panel:#efece1;--line:#899487;
+    --text:#202b26;--muted:#4e5d52;--green:#285838;--gold:#865015;
+    --control:#e3e8dd;--control-hover:#d3ddce;--selected:#e2dfcd;--control-line:#758073;
+  }
+}
+.reading-appearance {display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;margin:24px 0 0}
+.reading-appearance select {min-height:44px}
+.documentary-exhibit button {background:var(--control);border-color:var(--control-line)}
+.documentary-exhibit button:hover {background:var(--control-hover)}
+.documentary-exhibit .note,.documentary-exhibit .creator,.documentary-exhibit input[type=search],
+.documentary-exhibit .timeline-evidence select {background:var(--panel);color:var(--text);border-color:var(--control-line)}
+.documentary-exhibit .contents-rail a[aria-current=location],.documentary-exhibit .path-chapters button[aria-pressed=true] {background:var(--selected)}
+.documentary-exhibit .supported_detail {color:var(--green);border-color:var(--green)}
+.documentary-exhibit .unresolved {color:var(--muted);border-color:var(--muted)}
+.documentary-exhibit #camera-status,.documentary-exhibit .camera-legend {color:var(--green)}
+.documentary-exhibit .review {color:var(--gold);border-color:var(--gold)}
+.documentary-exhibit .photo-button,.documentary-exhibit .storm-photo-button,
+.documentary-exhibit .timeline-media-enlarge,.documentary-exhibit .survey-photo-open {background:var(--panel)}
+/* Keep the historical map's muted terrain palette and source media unchanged. */
+#map,#survey-map {--text:#f0ece0;--muted:#b3bbae;--gold:#e7b679}
+input::placeholder {color:var(--muted);opacity:1}
+input,select {font-size:16px}
+.survey-record-links a,.survey-context a {display:inline-flex;align-items:center;min-height:44px}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {scroll-behavior:auto!important;transition:none!important}
+  .survey-photo-strip {scroll-snap-type:none}
+}
+@media(forced-colors:active) {
+  :root[data-appearance],:root:not([data-appearance]) {--bg:Canvas;--panel:Canvas;--line:CanvasText;--text:CanvasText;--muted:CanvasText;
+    --green:LinkText;--gold:Highlight;--control:ButtonFace;--control-hover:ButtonFace;
+    --selected:Canvas;--control-line:ButtonText}
+  #map,#survey-map {background:Canvas;--text:CanvasText;--muted:CanvasText;--gold:Highlight}
+  .map-outline {fill:Canvas;stroke:CanvasText}
+  .map-path {stroke:CanvasText}
+  .survey-dot {fill:CanvasText;stroke:Canvas}
+  .survey-selected {fill:none;stroke:Highlight;stroke-width:3}
+  .survey-photo-strip button[aria-pressed=true],.path-chapters button[aria-pressed=true] {outline:3px solid Highlight;outline-offset:-3px}
+  .camera-marker {stroke:CanvasText;fill:Canvas}
+  svg text {fill:CanvasText}
+  a {color:LinkText}
+}

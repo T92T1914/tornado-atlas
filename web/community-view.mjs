@@ -42,6 +42,14 @@ export function mountCommunity(documentation) {
     permalink.href = `#${entry.id}`;
     heading.append(permalink);
     card.append(status, heading, element('p', entry.claim), element('p', entry.conclusion, 'discussion-conclusion'));
+    const related = element('nav', '', 'survey-context');
+    related.setAttribute('aria-label', `Explore evidence for ${entry.title}`);
+    for (const target of entry.exhibit_links || []) {
+      const anchor = element('a', target.label);
+      anchor.href = target.href;
+      related.append(anchor);
+    }
+    card.append(related);
     const evidence = element('details');
     evidence.append(element('summary', 'Follow the evidence and open questions'),
       element('h4', 'What the records support'), element('p', entry.check),

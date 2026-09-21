@@ -76,11 +76,27 @@
       "status": "disputed_interpretation",
       "reviewed": "2026-09-20",
       "claim": "Some participants argue that the exceptional radar measurements justify an EF5 label. Others defend EF3 as the rating supported by the damage, or argue for EF4. The disagreement often concerns what the rating ought to measure.",
-      "discussion_sources": ["rating-thread"],
+      "discussion_sources": [
+        "rating-thread"
+      ],
       "check": "NWS retains EF3. The survey paper reports extreme radar velocities where the strongest subvortices missed structures. Radar sampling and the EF scale's reference gust also differ; neither measurement should silently substitute for the other.",
-      "evidence_sources": ["nws-event", "ground-survey", "ef-scale"],
+      "evidence_sources": [
+        "nws-event",
+        "ground-survey",
+        "ef-scale"
+      ],
       "conclusion": "The debate is worth explaining. It does not establish a revised official rating, and EF3 should not be read as a measured ceiling on every wind within the tornado.",
-      "remaining": "A proposed alternative rating needs a stated method and treatment of measurement height, sampling duration and damage evidence. An imagined strike on a better-built house cannot supply the missing observation."
+      "remaining": "A proposed alternative rating needs a stated method and treatment of measurement height, sampling duration and damage evidence. An imagined strike on a better-built house cannot supply the missing observation.",
+      "exhibit_links": [
+        {
+          "label": "Explore mapped survey photographs",
+          "href": "#survey-explorer"
+        },
+        {
+          "label": "Compare the captioned NWS gallery",
+          "href": "#damage"
+        }
+      ]
     },
     {
       "id": "el-reno-house-anchoring",
@@ -88,11 +104,25 @@
       "status": "supported_detail",
       "reviewed": "2026-09-20",
       "claim": "A community post says one severely damaged house was considered for EF4, but construction flaws affected the final assessment. This narrower claim can be checked against the surveyors' account.",
-      "discussion_sources": ["house-thread"],
+      "discussion_sources": [
+        "house-thread"
+      ],
       "check": "Section 4.2 describes a house with every wall down, initially a candidate for EF4. Missing nuts and washers left the walls unanchored to the foundation. The surveyors assigned EF3; Figure 13 documents the case.",
-      "evidence_sources": ["ground-survey"],
+      "evidence_sources": [
+        "ground-survey"
+      ],
       "conclusion": "The house detail is supported by the primary account. It helps explain why a dramatic damage photograph alone cannot settle the rating.",
-      "remaining": "This finding supports the house example, not every statement in the thread. It is not evidence that the entire tornado received a final EF4 classification."
+      "remaining": "This finding supports the house example, not every statement in the thread. It is not evidence that the entire tornado received a final EF4 classification.",
+      "exhibit_links": [
+        {
+          "label": "Explore mapped survey photographs",
+          "href": "#survey-explorer"
+        },
+        {
+          "label": "Compare the captioned NWS gallery",
+          "href": "#damage"
+        }
+      ]
     },
     {
       "id": "el-reno-width-claim",
@@ -100,11 +130,23 @@
       "status": "unresolved",
       "reviewed": "2026-09-20",
       "claim": "A discussion links the larger figure to a September 2013 blog post. That article says a recent research paper increased the width from 2.6 to 4.3 miles, but the accessible text does not name the paper.",
-      "discussion_sources": ["width-thread", "width-blog"],
+      "discussion_sources": [
+        "width-thread",
+        "width-blog"
+      ],
       "check": "The official event page reports 2.6 miles. The survey paper explains a boundary based on radar radial velocity and distinguishes tornado damage from nearby downdraft damage. The larger figure has not been verified here.",
-      "evidence_sources": ["nws-event", "ground-survey"],
+      "evidence_sources": [
+        "nws-event",
+        "ground-survey"
+      ],
       "conclusion": "Keep 2.6 miles in the historical record. Preserve 4.3 miles as an unresolved claim with its source trail, not as a second confirmed measurement.",
-      "remaining": "Locate the study behind the blog and identify its boundary, time, height and method. We have not established whether it measures the same thing as the official tornado width."
+      "remaining": "Locate the study behind the blog and identify its boundary, time, height and method. We have not established whether it measures the same thing as the official tornado width.",
+      "exhibit_links": [
+        {
+          "label": "Inspect the published outline",
+          "href": "#path"
+        }
+      ]
     }
   ]
 }

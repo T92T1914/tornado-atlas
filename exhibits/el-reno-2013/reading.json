@@ -8,7 +8,7 @@
       "title": "Damage Assessment Toolkit survey service",
       "publisher": "NOAA / National Weather Service",
       "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer",
-      "use": "Preserved regional survey records supply the damage map. The exhibit shows 336 points that overlap the published outline, retaining their individual ratings. Event identifiers are blank, so this is a geographic selection, not a verified event join. DAT labels the records preliminary."
+      "use": "Preserved regional survey records supply the damage map. The exhibit shows 336 points that overlap the published outline, retaining their individual ratings. Event identifiers are blank, so this is a geographic selection, not a verified event join. DAT labels the records preliminary. Exact attachment relationships now link 45 original photographs to 45 selected survey records. Image capture times and individual photographers are not supplied in the retrieved metadata."
     },
     {
       "group": "Official records",
@@ -16,6 +16,13 @@
       "publisher": "NWS Norman",
       "url": "https://www.weather.gov/oun/events-20130531",
       "use": "The event account, path chronology, final EF3 rating, maximum reported width and damage photograph captions. Its narrative and summary table give different ending times; both remain visible in this exhibit."
+    },
+    {
+      "group": "Meteorology and reconstruction",
+      "title": "A Multiscale Overview of the El Reno, Oklahoma, Tornadic Supercell of 31 May 2013",
+      "publisher": "Bluestein, Snyder and Houser / Weather and Forecasting (2015)",
+      "url": "https://doi.org/10.1175/WAF-D-14-00152.1",
+      "use": "The abstract supports the opening account of the environment and companion tornado. Full methods have not been rechecked for numerical reconstruction in this update."
     },
     {
       "group": "Official records",

@@ -6,8 +6,13 @@
   "context": [
     {
       "title": "Before the tornado",
-      "text": "Storms developed near a dryline and a nearly stationary front in an extremely unstable atmosphere. The El Reno tornado formed southwest of town and passed south of the airport.",
+      "text": "By midafternoon, a dryline was moving into western Oklahoma while a nearly stationary front crossed the state. Daytime heating left an extremely unstable atmosphere ahead of the dryline and south of the front. Storms formed near the intersection in the late afternoon. As the southern storm moved east into richer moisture and instability, it became tornadic.",
       "source": "https://www.weather.gov/oun/events-20130531"
+    },
+    {
+      "title": "A storm with more than one scale of motion",
+      "text": "The parent supercell formed near a cold front and dryline, with strong atmospheric instability and moderately strong changes in wind with height. The 2015 multiscale study describes both a broad cyclonic tornado and a smaller anticyclonic companion. Understanding the event means examining the surrounding storm as well as the tornado itself.",
+      "source": "https://doi.org/10.1175/WAF-D-14-00152.1"
     },
     {
       "title": "A separate flooding disaster",

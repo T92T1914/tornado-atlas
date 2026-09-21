@@ -164,4 +164,28 @@ html {scroll-behavior:auto}
 .survey-explorer details{margin-top:20px;font-size:13px}
 .survey-explorer .damage-filters label{min-width:0;flex:1}
 .survey-explorer .damage-filters input{width:100%;min-width:0}
+.survey-workspace{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:20px}
+.survey-map-panel,.survey-inspector{min-width:0}
+.survey-map-panel{position:sticky;top:20px}
+.survey-workspace .survey-controls{margin:0 0 15px;flex-wrap:wrap}
+.survey-workspace .survey-controls label{flex-basis:100%}
+.survey-options,.survey-zoom,.survey-record-links{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.survey-options{justify-content:space-between;font-size:13px}
+.survey-photo-filter{display:flex;align-items:center;gap:10px}
+.survey-photo-filter input{accent-color:var(--gold);width:18px;height:18px}
+.survey-zoom{margin:12px 0}
+.survey-zoom button{padding:7px 10px;font-size:12px}
+.survey-photo-open{display:block;width:100%;padding:0;cursor:zoom-in;background:#0b1110;color:var(--text);border:1px solid var(--line);min-height:100px}
+.survey-photo-open img{display:block;width:100%;height:auto;max-height:400px;object-fit:contain}
+.survey-photo-open span{display:block;padding:24px}
+.survey-photo-empty{padding:28px 18px;border:1px dashed var(--line);color:var(--muted);font-size:13px}
+.survey-record-photos{display:grid;gap:12px;margin:16px 0}
+.survey-photo-strip{display:flex;overflow-x:auto;gap:10px;padding:18px 0;scroll-snap-type:x proximity}
+.survey-photo-strip button{flex:0 0 132px;padding:0;background:var(--panel);border:1px solid var(--line);color:var(--text);scroll-snap-align:start;cursor:pointer}
+.survey-photo-strip button[aria-pressed=true]{border:2px solid var(--gold)}
+.survey-photo-strip img{display:block;width:100%;height:92px;object-fit:contain;background:#080d0b}
+.survey-photo-strip span{display:block;font-size:12px;padding:8px}
+.survey-record-links{align-items:start;margin-top:20px;gap:14px}
+.survey-context{padding:16px 0;border-top:1px solid var(--line);display:flex;gap:12px 24px;flex-wrap:wrap;font-size:13px}
+@media(max-width:1150px){.survey-workspace{grid-template-columns:minmax(0,1fr)}.survey-map-panel{position:static}}
 @media(max-width:650px){.survey-controls{flex-wrap:wrap}.survey-controls label{flex-basis:100%}.survey-explorer .damage-filters{align-items:stretch}.survey-explorer .damage-filters label{flex-basis:100%}.survey-detail{padding:16px}.survey-detail h4{font-size:17px}}

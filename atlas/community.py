@@ -43,6 +43,10 @@ def validate_community(document, event_id):
             raise ValueError('Review cannot be newer than the document update')
         if entry.get('status') not in {'supported_detail', 'disputed_interpretation', 'unresolved'}:
             raise ValueError('Unknown discussion conclusion status')
+        for link in entry.get('exhibit_links', []):
+            _text(link, ('label', 'href'))
+            if link['href'] not in {'#history', '#path', '#survey-explorer', '#damage'}:
+                raise ValueError('Discussion must link to a known exhibit section')
         for field in ('discussion_sources', 'evidence_sources'):
             refs = entry.get(field)
             if not isinstance(refs, list) or not refs or len(set(refs)) != len(refs):
