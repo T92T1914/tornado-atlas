@@ -49,6 +49,17 @@ def validate_documentary(data, root):
             source_url(source['url'])
     if any('coordinates' in item for item in data['unmapped_fatalities']):
         raise ValueError('Unresolved locations cannot silently acquire map pins')
+    for item in data['unmapped_fatalities']:
+        if 'location_review' not in item:
+            continue
+        review = item['location_review']
+        date.fromisoformat(review['date'])
+        if not review['needed'] or not review['evidence']:
+            raise ValueError('Location reviews must explain evidence and what remains unresolved')
+        for row in review['evidence']:
+            if not all(row.get(key, '').strip() for key in ('title', 'finding', 'limit', 'source_label')):
+                raise ValueError('Location evidence needs an account, source label and limitation')
+            source_url(row['source'])
 
 
 def load_documentary(root):

@@ -289,7 +289,7 @@
         "Richard Charles Henderson"
       ],
       "account": "Richard Charles Henderson, 35, was an amateur storm chaser from Hinton. His obituary records his name, age and death on May 31, 2013. National Geographic reports a recovery near a creek about a mile south of the TWISTEX wreck. That relative account does not establish where the fatal impact occurred.",
-      "reason": "His death and identity are documented. A precise incident coordinate remains unresolved. Documentary route reconstructions and vehicle appearances need corroboration before a point can be named for him.",
+      "reason": "His identity and death are documented. Reports of recovery, road position and vehicle identity have not been reconciled into a named incident location. No precise pin is assigned.",
       "sources": [
         {
           "label": "Published obituary, June 5, 2013",
@@ -308,7 +308,48 @@
           "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
         }
       ],
-      "id": "location-henderson"
+      "id": "location-henderson",
+      "location_review": {
+        "date": "2026-09-21",
+        "needed": "To add a location, we need a public record or independently corroborated eyewitness account that names Henderson and distinguishes the impact site from the vehicle or body recovery site. A vehicle resemblance or an unnamed fatality symbol is not enough.",
+        "evidence": [
+          {
+            "title": "Identity confirmed",
+            "finding": "His published obituary gives the full name Richard Charles Henderson, age 35, and his death on May 31, 2013.",
+            "limit": "It provides no incident coordinate.",
+            "source_label": "Published obituary",
+            "source": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764."
+          },
+          {
+            "title": "Relative recovery account",
+            "finding": "National Geographic places the recovery near a creek roughly a mile south of the TWISTEX wreck.",
+            "limit": "A relative recovery description does not establish the fatal impact site or a unique coordinate.",
+            "source_label": "National Geographic: The Last Chase",
+            "source": "https://www.nationalgeographic.com/magazine/article/the-last-chase"
+          },
+          {
+            "title": "Competing road and vehicle claims",
+            "finding": "Stormtrack participants suggest Reno Road east of US 81 and, separately, SW 15th Street. They are discussing vehicles seen in footage.",
+            "limit": "The thread does not verify which vehicle was Henderson's. These are research leads, not surveyed locations.",
+            "source_label": "Stormtrack discussion, posts 3 and 13",
+            "source": "https://stormtrack.org/threads/el-reno-question.27366/"
+          },
+          {
+            "title": "A correction within the discussion",
+            "finding": "The final reply challenges the KFOR account cited earlier and links a contemporary survivor report.",
+            "limit": "The linked NewsOK article could not be retrieved in this review. The challenge is recorded without treating it as a verified replacement location.",
+            "source_label": "Stormtrack, post 16",
+            "source": "https://stormtrack.org/threads/el-reno-question.27366/page-2"
+          },
+          {
+            "title": "Official event account",
+            "finding": "NWS records eight tornado deaths, all in vehicles, and describes several road areas.",
+            "limit": "The event narrative does not pair Henderson's name with a precise location.",
+            "source_label": "NWS event account",
+            "source": "https://www.weather.gov/oun/events-20130531"
+          }
+        ]
+      }
     },
     {
       "people": [
@@ -327,6 +368,22 @@
     }
   ],
   "log": [
+    {
+      "date": "2026-09-21",
+      "status": "Research and navigation update",
+      "title": "Fatality records now include nearby survey photographs",
+      "finding": "Opening the TWISTEX fatality record also shows photographs attached to nearby NWS survey points. Their source labels remain separate: a nearby photograph does not by itself identify a vehicle or its occupants. Henderson's record now explains the conflicting location leads and what evidence is still needed. No new fatality coordinate has been claimed.",
+      "sources": [
+        {
+          "label": "Original DAT record 165661",
+          "url": "https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/query?f=json&objectIds=165661&outFields=*&returnGeometry=true&outSR=4326"
+        },
+        {
+          "label": "Stormtrack correction",
+          "url": "https://stormtrack.org/threads/el-reno-question.27366/page-2"
+        }
+      ]
+    },
     {
       "date": "2026-09-21",
       "status": "clarified",

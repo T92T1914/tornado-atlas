@@ -62,7 +62,16 @@ export function mountResearchLog(data) {
   const host=document.getElementById('research-log');
   for(const record of data.log) {const article=el('article');article.append(el('p',record.date+' · '+record.status,'eyebrow'),el('h3',record.title),el('p',record.finding));record.sources.forEach(s=>article.append(link(s.label,s.url)));host.append(article);}
   const missing=document.getElementById('unmapped-fatalities');
-  for(const item of data.unmapped_fatalities){const card=el('article');card.id=item.id;card.append(el('h3',item.people.join(' and ')),el('p',item.account),el('p',item.reason,'fineprint'));item.sources.forEach(s=>card.append(link(s.label,s.url)));missing.append(card);}
+  for(const item of data.unmapped_fatalities){
+    const card=el('article');card.id=item.id;card.append(el('h3',item.people.join(' and ')),el('p',item.account),el('p',item.reason,'fineprint'));
+    if(item.location_review){
+      const review=item.location_review,details=el('details');
+      details.append(el('summary',`Location evidence checked ${review.date}`));
+      const list=el('ul');for(const row of review.evidence){const entry=el('li');entry.append(el('strong',row.title),el('p',row.finding),el('p',row.limit,'fineprint'),link(row.source_label,row.source));list.append(entry);}
+      details.append(list,el('p',review.needed));card.append(details);
+    }
+    item.sources.forEach(s=>card.append(link(s.label,s.url)));missing.append(card);
+  }
   for(const host of document.querySelectorAll('[data-remembrance-coverage]')){
     const details=el('details');details.open=true;details.append(el('summary','Five victims with unresolved locations'));
     details.append(el('p','All eight people are named in the remembrance. The mapped recovery record accounts for the three TWISTEX members. The five people below have confirmed names but no verified precise location in this exhibit.','fineprint'));

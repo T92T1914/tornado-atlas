@@ -172,7 +172,7 @@ async function main() {
   const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
   const {mountComparison,mountResearchLog} = await import('./documentary-view.mjs');
   mountComparison(data.documentary.comparison);
-  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage);
+  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage, {points:data.survey.points,media:data.survey_media,openPhoto,lazy:true});
   const { mountReader } = await import('./reader-view.mjs');
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
@@ -192,7 +192,7 @@ async function main() {
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
   });
 }
-async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage) {
+async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage, photoContext) {
   const {PlaybackClock, preparePositions, positionAt} = await import('./playback-model.mjs');
   const {localStamp} = await import('./timeline-media-model.mjs');
   const {mountCamera} = await import('./camera-view.mjs');
@@ -243,7 +243,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   svg.append(svgNode('path', {d:`M 50 355 v 5 h ${bar} v -5`,fill:'none',stroke:'#b3bbae','stroke-width':1.5}));
   svg.append(svgNode('text', {x:50,y:380,class:'axis-label'}, '≈ 2 km'));
   const { mountPlaces } = await import('./places-view.mjs');
-  mountPlaces(places, svg, project);
+  mountPlaces(places, svg, project, photoContext);
   const {mountMapNavigation}=await import('./map-navigation.mjs');
   const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
   const {mountGeography}=await import('./geography-view.mjs');

@@ -36,3 +36,14 @@ Survey observations within 250 meters of a curated location offer a nearby
 account link. This distance is a navigation aid, not evidence that the survey
 photograph or vehicle belongs to that incident. The interface says so next to
 the link. A direct identification needs its own reviewed source association.
+
+The same nearby photographs are available inside the fatality card, including
+its enlarged photograph viewer. Their original survey captions and source links
+remain attached. The card states that proximity does not identify a vehicle or
+its occupants. Filtering the damage layer does not change the evidence linked
+to the selected fatality record.
+
+An unresolved location can include a dated `location_review` with the inspected
+evidence, the limit of each source and what would establish a location. These
+accounts have no map coordinates. Forum corrections and contradictory reports
+remain visible rather than being resolved by choosing a convenient photograph.

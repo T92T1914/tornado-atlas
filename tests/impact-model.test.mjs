@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {fatalityLabel, nearbyFatalities, fatalityLink} from '../web/impact-model.mjs';
+import {fatalityLabel, nearbyFatalities, nearbySurveyPhotos, fatalityLink} from '../web/impact-model.mjs';
 import {surveyLink} from '../web/survey-model.mjs';
 
 const history=JSON.parse(readFileSync(new URL('../exhibits/el-reno-2013/history.json',import.meta.url)));
@@ -34,4 +34,22 @@ test('sharing a fatality or damage observation cannot reopen the opposite select
   const damage=surveyLink(link,{id:165661,photosOnly:true});
   assert.equal(new URL(damage).searchParams.has('fatality'),false);
   assert.throws(()=>fatalityLink(link,'../invalid'),RangeError);
+});
+
+test('fatality photo context includes only nearby photographed records, without identifying them',()=>{
+  const points=[
+    {id:1,coordinates:[-97.90037985,35.47907251],indicator:'Other (O)'},
+    {id:2,coordinates:[0,0]},
+    {id:3,coordinates:[...places[0].coordinates]},
+    {id:4,coordinates:[...places[0].coordinates]}
+  ];
+  const media={1:[{url:'first'}],2:[{url:'far'}],3:[],4:[{url:'nearest'}]};
+  const original=JSON.stringify({points,media,places});
+  const matches=nearbySurveyPhotos(places[0],points,media);
+  assert.deepEqual(matches.map(row=>row.point.id),[4,1]);
+  assert.equal(matches[1].point.indicator,'Other (O)');
+  assert.equal(matches[1].point.people,undefined);
+  assert.deepEqual(nearbySurveyPhotos(places[0],points,{},.25),[]);
+  assert.deepEqual(nearbySurveyPhotos(places[0],points,media,.01).map(row=>row.point.id),[4]);
+  assert.equal(JSON.stringify({points,media,places}),original);
 });
