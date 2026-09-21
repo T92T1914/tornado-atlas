@@ -36,6 +36,9 @@ async function main() {
     card.append(node('h3', entry.title),node('p',entry.text),link('Read the account ↗',entry.source));
     byId('historical-context').append(card);
   }
+  const contents=node('nav',null,'report-contents');contents.setAttribute('aria-label','In this history');contents.append(node('strong','In this history'));
+  for(const section of history.report){const entry=node('a',section.title);entry.href='#'+section.id;contents.append(entry);}
+  byId('documentary-report').append(contents);
   for (const section of history.report) {
     const article = node('article'); article.id = section.id;
     const heading = node('h3'); const anchor = node('a', section.title); anchor.href = '#'+section.id;
@@ -174,7 +177,7 @@ async function main() {
   const { mountDamage } = await import('./damage-view.mjs');
   mountDamage(data.damage, openPhoto);
   const { mountSurvey } = await import('./survey-view.mjs');
-  mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto);
+  mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places);
   // A shared section link can arrive before the asynchronous exhibit is laid out.
   requestAnimationFrame(() => {
     let id;
@@ -219,8 +222,11 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places) {
   }
   for (const position of positions) {
     const [x,y] = project(position.geometry.coordinates);
-    const dot = svgNode('circle', {cx:x,cy:y,r:2.6,class:'map-position'});
+    const dot = svgNode('circle', {cx:x,cy:y,r:4.5,class:'map-position',tabindex:0,role:'button','aria-label':'Go to '+position.properties.display_time});
     dot.append(svgNode('title', {}, position.properties.display_time));
+    const jump=()=>seek((Date.parse(position.properties.utc)-start)/1000);
+    dot.addEventListener('click',jump);
+    dot.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();jump();}});
     svg.append(dot);
   }
   const halo = svgNode('circle', {r:13,class:'selected-halo'});
@@ -232,6 +238,11 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places) {
   svg.append(svgNode('text', {x:50,y:380,class:'axis-label'}, '≈ 2 km'));
   const { mountPlaces } = await import('./places-view.mjs');
   mountPlaces(places, svg, project);
+  const {mountMapNavigation}=await import('./map-navigation.mjs');
+  const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
+  byId('path-zoom-in').addEventListener('click',()=>navigation.zoom(1/1.6));
+  byId('path-zoom-out').addEventListener('click',()=>navigation.zoom(1.6));
+  byId('path-fit').addEventListener('click',navigation.reset);
   const timed = preparePositions(positions), start = timed[0].stamp, end = timed.at(-1).stamp;
   const clock = new PlaybackClock((end-start)/1000);
   let animation = null, lastChapter = null, lastText = null;

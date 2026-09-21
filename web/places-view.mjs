@@ -7,7 +7,6 @@ export function mountPlaces(places, svg, project) {
     return el;
   };
   const layer = document.createElementNS(svg.namespaceURI, 'g');
-  layer.setAttribute('aria-hidden', 'true');
   layer.setAttribute('display', 'none');
   svg.append(layer);
   const enabled = document.getElementById('places-enabled');
@@ -24,6 +23,7 @@ export function mountPlaces(places, svg, project) {
     const mark = document.createElementNS(svg.namespaceURI, 'path');
     mark.setAttribute('d', `M ${x} ${y-9} l 9 9 l -9 9 l -9 -9 Z`);
     mark.setAttribute('class', 'incident-marker');
+    mark.dataset.mapSymbol=[x,y,9].join(',');
     const mapLink = document.createElementNS(svg.namespaceURI, 'a');
     mapLink.setAttribute('href', '#'+place.id);
     mapLink.setAttribute('aria-label', place.title+'; '+place.label);
@@ -32,7 +32,7 @@ export function mountPlaces(places, svg, project) {
     const card = create('article', '', 'place-record');
     card.id = place.id;
     card.append(create('p', place.label, 'place-kind'), create('h3', place.title),
-      create('p', place.account), create('p', place.precision_note, 'fineprint'),
+      create('p', place.people.join(', ')), create('p', place.account), create('p', place.precision_note, 'fineprint'),
       create('p', place.time_note, 'fineprint'));
     const source = create('a', 'Read the research account');
     source.href = place.source; source.target = '_blank'; source.rel = 'noopener noreferrer';

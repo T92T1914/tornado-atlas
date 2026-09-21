@@ -1,4 +1,6 @@
-import {filterSurvey, ratingColors, surveyProjection, surveyState, surveyLink, surveyViewBox} from './survey-model.mjs';
+import {mountMapNavigation} from './map-navigation.mjs';
+import {mountSurveyImpacts} from './impact-view.mjs';
+import {filterSurvey, ratingColors, surveyProjection, surveyState, surveyLink} from './survey-model.mjs';
 
 const byId = id => document.getElementById(id);
 const el = (tag, text, className) => {
@@ -14,7 +16,7 @@ const svgNode = (tag, attrs, text) => {
   return element;
 };
 
-export function mountSurvey(survey, geometry, media, openPhoto) {
+export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
   const host = byId('survey-explorer');
   const initial = surveyState(location.href);
   host.append(el('p', 'PLACES AND PHOTOGRAPHS', 'eyebrow'), el('h3', 'Explore the damage, one place at a time'),
@@ -76,7 +78,7 @@ export function mountSurvey(survey, geometry, media, openPhoto) {
     const item=el('span',label==='N/A'?'N/A or unknown':label);
     item.style.setProperty('--swatch',color); legend.append(item);
   }
-  mapPanel.append(legend,el('p','Choose a dot or photograph. Zoom follows the selected location. The map shows surveyed features, not camera positions.','fineprint'));
+  mapPanel.append(legend,el('p','Scroll to zoom around the pointer. Drag to explore, or pinch on a touchscreen. Keyboard: arrows to pan, + and - to zoom, Home for the whole path. The map shows surveyed features, not camera positions.','fineprint'));
   const controls=el('div',null,'survey-controls'), label=el('label','Observation ');
   const select=el('select');select.id='survey-observation';label.htmlFor=select.id;label.append(select);
   select.setAttribute('aria-label','Observation');
@@ -85,11 +87,14 @@ export function mountSurvey(survey, geometry, media, openPhoto) {
   controls.append(label,previous,next);inspector.append(controls);
   const detail=el('article',null,'survey-detail');detail.id='survey-detail';detail.setAttribute('aria-live','polite');inspector.append(detail);
   const strip=el('div',null,'survey-photo-strip');strip.id='survey-photo-strip';strip.setAttribute('aria-label','Photographs at matching survey locations');host.append(strip);
-  let visible=[], selectedId=initial.id, zoom=1, selectedXY=[480,215];
-  function zoomMap(){svg.setAttribute('viewBox',surveyViewBox(zoom,selectedXY).join(' '));zoomOut.disabled=zoom===1;zoomIn.disabled=zoom===4;}
-  zoomOut.addEventListener('click',()=>{zoom=Math.max(1,zoom/2);zoomMap();});
-  zoomIn.addEventListener('click',()=>{zoom=Math.min(4,zoom*2);zoomMap();});
-  fit.addEventListener('click',()=>{zoom=1;zoomMap();});
+  let visible=[], selectedId=initial.id;
+  const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
+  function zoomState(){const width=navigation.read()[2];zoomOut.disabled=width>=960;zoomIn.disabled=width<=navigation.minWidth;}
+  svg.addEventListener('mapviewchange',zoomState);
+  zoomOut.addEventListener('click',()=>navigation.zoom(1.6));
+  zoomIn.addEventListener('click',()=>navigation.zoom(1/1.6));
+  fit.addEventListener('click',navigation.reset);zoomState();
+  mountSurveyImpacts(places,svg,project,mapPanel,navigation);
   const targetMissing=el('p',null,'fineprint');targetMissing.id='survey-link-status';host.append(targetMissing);
   function show(id) {
     const index=visible.findIndex(p=>p.id===id), point=visible[index];
@@ -98,7 +103,7 @@ export function mountSurvey(survey, geometry, media, openPhoto) {
     detail.replaceChildren();halo.setAttribute('visibility',point?'visible':'hidden');
     if (!point) {detail.append(el('p','No survey observations match these filters.'));return;}
     const [x,y]=project(point.coordinates);halo.setAttribute('cx',x);halo.setAttribute('cy',y);
-    selectedXY=[x,y];zoomMap();
+    navigation.centerOn([x,y]);
     for (const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed',String(Number(button.dataset.id)===id));
     const source=el('a','Open this NWS record ↗');source.href=point.source_url;source.target='_blank';source.rel='noopener';
     detail.append(el('p',`NWS DAT RECORD ${point.id} · ${point.rating}`,'eyebrow'),el('h4',point.indicator));
@@ -132,7 +137,7 @@ export function mountSurvey(survey, geometry, media, openPhoto) {
     for (const point of visible) {
       const option=el('option',`${point.id} · ${point.rating} · ${point.indicator}`);option.value=point.id;select.append(option);
       const [x,y]=project(point.coordinates);
-      const dot=svgNode('circle',{cx:x,cy:y,r:4.2,fill:ratingColors[point.rating]||'#87949d',class:'survey-dot'});
+      const dot=svgNode('circle',{cx:x,cy:y,r:4.2*navigation.read()[2]/960,'data-map-radius':4.2,fill:ratingColors[point.rating]||'#87949d',class:'survey-dot'});
       dot.append(svgNode('title',{},`${point.id} · ${point.rating} · ${point.indicator}`));
       dot.addEventListener('click',()=>show(point.id));dots.append(dot);
       const photo=media.photos[String(point.id)]?.[0];

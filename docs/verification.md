@@ -316,3 +316,32 @@ The source record remains explicit about indexed-text access to the TWISTEX
 location paragraph. Its full published figures have not been visually checked.
 The UI tests do not strengthen the historical precision of that point or
 validate a historical reconstruction or damage model.
+
+# September 20: map exploration, point contrast and report sources
+
+The Python suite passes 90 tests and the JavaScript model suite passes 64.
+Six new model tests check pointer anchoring, clamped zoom scale, pan bounds,
+nonzero map extents, wheel units and invalid numerical inputs. The exhibit and
+80,318-record catalogue integrity checks pass. New and changed browser modules
+pass syntax checks.
+
+Local Chromium checks covered wheel zoom and dragging on all three maps,
+whole-path reset, selecting a published time by mouse and Enter, and the
+independent fatality-linked recovery account in the damage explorer. The
+account opens the three names and its source and precision notes. Its checkbox
+hides and restores the marker. Damage and photograph filters remain separate.
+Chrome's emulated two-finger gesture reduced the survey view width from 960 to
+480, verifying that the pinch handler responds. This was not a physical phone.
+
+Noir cards were checked for neutral backgrounds. Light cards were visually
+inspected, and the corrected rating labels use the normal text token. At a
+390-pixel viewport the historical path points measured about nine CSS pixels
+across and remained visible; document width did not exceed the viewport.
+Keyboard Enter on the 6:14 position set the displayed time to 6:14:00 PM CDT.
+Temporary viewport overrides were reset after checking.
+
+The report now has eleven linked sections. The new research record identifies
+full-text excerpts, abstract-only access and the partial documentary transcript:
+[map exploration and research](../research/map-exploration-2026-09-20.md).
+These interface checks do not strengthen the historical precision of the
+recovery point or establish exact death sites.

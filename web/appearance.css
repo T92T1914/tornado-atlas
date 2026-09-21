@@ -39,6 +39,9 @@
 .map-outline,.land {fill:var(--muted);stroke:var(--muted)}
 .land {fill:var(--panel)}
 .map-position,.point {fill:var(--muted);background:var(--muted)}
+.map-position {fill:var(--text);stroke:var(--bg);stroke-width:1.8;opacity:1;cursor:pointer}
+.map-position:hover,.map-position:focus {stroke:var(--text);fill:var(--bg);outline:none}
+.selected-halo,.selected-core {pointer-events:none}
 .selected-core {fill:var(--text);stroke:var(--bg)}
 .outline {background:var(--panel);border-color:var(--muted)}
 .legend,.chronology ol {border-color:var(--line)}
@@ -50,6 +53,10 @@
 .selected-marker {stroke:var(--text)}
 button,select,input[type=search],.study-controls select {background:var(--control);color:var(--text);border-color:var(--control-line)}
 button:hover {background:var(--control-hover)}
+.result-button {background:var(--panel);border-color:var(--line)}
+.result-button:hover {background:var(--control-hover);border-color:var(--text)}
+.result-button .result-rating {color:var(--text);font-size:12px}
+.result-rating::before {content:'';display:inline-block;width:8px;height:8px;margin-right:5px;border:1px solid var(--line);border-radius:50%;background:var(--swatch)}
 button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--selected);border-color:var(--text)}
 .coverage-strip,.world-shell,.record-detail,.scene-shell,#scene-failure,.note,.creator,.path-account {background:var(--panel);border-color:var(--line)}
 .record-detail .exhibit-link {background:var(--control);color:var(--text);border-color:var(--control-line)}
@@ -71,7 +78,22 @@ button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--se
 .report-links {display:flex;gap:12px 24px;flex-wrap:wrap;font-size:14px}
 .place-controls {margin:22px 0;padding:18px;border:1px solid var(--line)}
 .place-controls label {display:flex;gap:12px;align-items:center;min-height:44px}
-.incident-marker {fill:var(--bg);stroke:var(--text);stroke-width:2.5;cursor:pointer}
+.incident-marker {fill:#d94772;stroke:var(--text);stroke-width:2.5;cursor:pointer}
+.impact-symbol {color:#d94772;font-size:1.3em;margin-right:.5em}
+.impact-card {border-left:3px solid #d94772;padding:8px 18px;margin:18px 0}
+.impact-card h4 {margin:8px 0}
+.impact-controls label {display:flex;align-items:center;gap:10px;min-height:44px}
+.impact-controls button {text-align:left}
+.explorable-map {touch-action:none;cursor:grab;user-select:none}
+.explorable-map.is-dragging {cursor:grabbing}
+.explorable-map .map-path,.explorable-map .map-outline,.explorable-map .map-position,
+.explorable-map .survey-dot,.explorable-map .survey-selected,.explorable-map .incident-marker,
+.explorable-map .selected-core,.explorable-map .selected-halo {vector-effect:non-scaling-stroke}
+.explorable-map:focus-visible {outline:2px solid var(--text);outline-offset:3px}
+.map-tools {display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+#path .map-tools,#path .map-tools + .fineprint {margin-left:24px;margin-right:24px}
+.report-contents {border:1px solid var(--line);padding:18px;margin:24px 0}
+.report-contents a {display:block;padding:7px 0}
 .place-record {margin:22px 0;padding:24px;border:1px solid var(--line);max-width:72ch}
 .place-kind {font-size:13px;font-weight:650;letter-spacing:.04em}
 .place-record:target {outline:2px solid var(--text);outline-offset:4px}
@@ -93,6 +115,8 @@ input,select {font-size:16px}
   .survey-selected {fill:none;stroke:Highlight;stroke-width:3}
   .survey-photo-strip button[aria-pressed=true],.path-chapters button[aria-pressed=true] {outline:3px solid Highlight;outline-offset:-3px}
   .camera-marker {stroke:CanvasText;fill:Canvas}
+  .incident-marker {fill:Highlight;stroke:CanvasText}
+  .map-position {fill:CanvasText;stroke:Canvas}
   svg text {fill:CanvasText}
   a {color:LinkText}
 }

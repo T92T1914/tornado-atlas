@@ -1,3 +1,4 @@
+import {mountMapNavigation} from './map-navigation.mjs';
 import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage, readSearchLink, writeSearchLink} from './atlas-model.mjs';
 
 const el = id => document.getElementById(id);
@@ -112,7 +113,7 @@ async function main() {
       button.dataset.record = record.id;
       button.setAttribute('aria-pressed',String(selected?.id === record.id));
       const rating = make('span',record.rating || 'Unrated','result-rating');
-      rating.style.color = color(record.rating);
+      rating.style.setProperty('--swatch', color(record.rating));
       button.append(rating, make('strong',record.title));
       if (record.aliases.length) button.append(make('small',record.aliases[0]));
       button.append(make('small',`${record.date || 'Date unknown'} · ${record.id}`));
@@ -270,25 +271,7 @@ async function main() {
     const [x,y,w,h] = bounds;
     setBounds([x+w*(1-factor)/2,y+h*(1-factor)/2,w*factor,h*factor]);
   });
-  map.addEventListener('keydown',event => {
-    const directions = {ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
-    const direction = directions[event.key];
-    if (!direction) return;
-    event.preventDefault();
-    setBounds([bounds[0]+direction[0]*bounds[2]*.15,bounds[1]+direction[1]*bounds[3]*.15,bounds[2],bounds[3]]);
-  });
-  let drag = null;
-  map.addEventListener('pointerdown',event => {
-    if (event.target.closest('[data-record], [data-group]')) return;
-    drag = {x:event.clientX,y:event.clientY,bounds:[...bounds]};
-    map.setPointerCapture(event.pointerId);
-  });
-  map.addEventListener('pointermove',event => {
-    if (!drag) return;
-    const scale = drag.bounds[2]/map.getBoundingClientRect().width;
-    setBounds([drag.bounds[0]-(event.clientX-drag.x)*scale,drag.bounds[1]-(event.clientY-drag.y)*scale,drag.bounds[2],drag.bounds[3]]);
-  });
-  for (const type of ['pointerup','pointercancel','lostpointercapture']) map.addEventListener(type,() => {drag=null;});
+  mountMapNavigation(map,{extent:[0,0,1080,540],minWidth:12,getView:()=>bounds,setView:setBounds});
   function restoreLocation() {
     clearTimeout(filterTimer);
     const {filters,recordId} = readSearchLink(location.search,location.hash);

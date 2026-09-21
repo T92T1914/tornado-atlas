@@ -46,7 +46,7 @@
     ],
     "observation_register": "observations.json",
     "coverage": {
-      "video_review": "Pecos Hank's description and available captions read; two paused visual samples are documented in the footage notebook. No continuous video or audio audit.",
+      "video_review": "Pecos Hank's description and available captions read; two paused visual samples are documented in the footage notebook. No continuous video or audio audit. TornadoTRX English caption text was also retrieved and read, with transcription errors and an abrupt ending recorded; no continuous audiovisual audit.",
       "frame_registration": "Sample times use approximate browser playback readings. Camera position and historical time remain unregistered. No measured speed or width is inferred.",
       "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
       "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
@@ -1452,8 +1452,8 @@
       "event_id": "el-reno-2013",
       "priority": 1,
       "status": "partial_review",
-      "coverage": "Expanded watch-page description and visible chapters read. One still sampled near the 3:54 chapter entry, showing credited ground footage. No continuous video or audio audit.",
-      "next": "Review the full documentary and cited research against the NWS chronology; register shot times and camera positions."
+      "coverage": "English caption text retrieved through vidIQ and read on September 20. Captions have inconsistent names and no segment timestamps; the response ends abruptly. Earlier description, chapters and one still sample also inspected. No continuous audiovisual review.",
+      "next": "Verify the remaining transcript against the original audio and primary sources, especially named incidents, quotations, vehicle routes and timing. Do not derive map coordinates from caption place names."
     },
     {
       "id": "8FYe-qjACPk",
@@ -2066,6 +2066,21 @@
         ]
       },
       {
+        "id": "formation-in-radar",
+        "title": "How the tornado developed near the ground",
+        "paragraphs": [
+          "The early circulation did not simply appear as a finished column beneath the cloud. Bluestein and colleagues used rapid mobile radar observations to examine the development. Their 2019 study finds that the main circulation formed near the ground about 90 seconds before a coherent vortex column developed upward through at least 3.5 kilometers. That vertical development occurred within one radar update of less than 20 seconds. Broader rotation higher in the storm had already been present for several minutes.",
+          "Intensification came in bursts. The authors discuss downdrafts and changes in convergence as possible contributors, rather than establishing one complete causal explanation. The vortex could also be strongly tilted while strengthening. These findings matter when interpreting a photograph: a funnel that looks uneven or tilted is not necessarily weakening.",
+          "The study covers the formation and early evolution, not every minute of the tornado. Its radar analysis also distinguishes an absence of a clear weak echo hole from an absence of strong rotation. Debris complicates that visual signature. A historical reconstruction needs the measurement context as well as the recognizable shape."
+        ],
+        "sources": [
+          {
+            "label": "Bluestein and colleagues, 2019: early evolution (NOAA-hosted PDF)",
+            "url": "https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf"
+          }
+        ]
+      },
+      {
         "id": "changing-circulation",
         "title": "The circulation was larger than one visible funnel",
         "paragraphs": [
@@ -2076,6 +2091,20 @@
           {
             "label": "Wurman and colleagues, multiple-vortex analysis",
             "url": "https://doi.org/10.1175/BAMS-D-13-00221.1"
+          }
+        ]
+      },
+      {
+        "id": "secondary-vortices",
+        "title": "Smaller vortices inside the larger circulation",
+        "paragraphs": [
+          "A 2018 study by Bluestein and colleagues followed secondary vortices using radar observations two seconds apart. Most of those tracked for at least 15 seconds formed inside the radius of the strongest winds, often behind and to the left of the parent tornado relative to its motion. They moved around the main center and usually dissipated closer to it in the forward quadrants. Some persisted for at least a minute.",
+          "The researchers also showed that conclusions about motion relative to the surrounding wind depend on how that larger wind field is represented. Assuming a symmetrical circulation and allowing an asymmetric one gave different interpretations. The small vortices should therefore not be animated as a fixed ring of identical funnels. That would be a design shortcut, not a reconstruction supported by these observations."
+        ],
+        "sources": [
+          {
+            "label": "Bluestein and colleagues, 2018: multiple-vortex structure",
+            "url": "https://doi.org/10.1175/MWR-D-18-0073.1"
           }
         ]
       },
@@ -2099,6 +2128,20 @@
         ]
       },
       {
+        "id": "fields-and-radar",
+        "title": "Connecting marks in fields with a moving vortex",
+        "paragraphs": [
+          "The aerial survey by Wakimoto and colleagues brings three kinds of evidence together: marks left in fields, photographs and video of smaller vortices, and mobile radar observations. In one documented case, a visible vortex was matched to a field swath while its rotational signature was tracked by radar. That is much stronger evidence than drawing a route from a single damage photograph.",
+          "This gives the museum a practical standard for future reconstruction. A damage point records an outcome at a place. To show when a particular vortex caused it, we need a justified connection between the ground evidence, the camera and the radar. The current survey explorer does not claim that connection for every building. Its photograph links preserve the source relationships that are actually available."
+        ],
+        "sources": [
+          {
+            "label": "Wakimoto and colleagues, 2016: aerial damage survey and mobile radar",
+            "url": "https://doi.org/10.1175/MWR-D-15-0367.1"
+          }
+        ]
+      },
+      {
         "id": "human-consequences",
         "title": "People, vehicles and the limits of the map",
         "paragraphs": [
@@ -2110,6 +2153,20 @@
           {
             "label": "NWS assessment, storm chasing and fatalities, printed pages 27–30",
             "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
+          }
+        ]
+      },
+      {
+        "id": "after-the-tornado",
+        "title": "The danger continued after the tornado",
+        "paragraphs": [
+          "The El Reno tornado was part of a wider evening of severe weather. The parent storm produced other tornadoes toward the Oklahoma City area. Repeated storms then brought heavy rain over the same places. NWS records at least 23 rescues from high water and 14 flash flood deaths across Oklahoma during May 31 and June 1. Those flooding deaths are separate from the eight direct El Reno tornado deaths.",
+          "This distinction changes how the event should be documented. A regional storm total, a hospital count and an individual tornado record answer different questions. The remembrance here follows the named El Reno tornado victims. A future account of the flooding needs its own locations, chronology and sources instead of adding names to this tornado by association."
+        ],
+        "sources": [
+          {
+            "label": "NWS Norman: event summary and flooding account",
+            "url": "https://www.weather.gov/oun/events-20130531"
           }
         ]
       },
@@ -2139,6 +2196,29 @@
           {
             "label": "Community discussions and original sources",
             "url": "https://www.reddit.com/r/tornado/comments/1pr4gsg/el_reno_2013_tornado_rating/"
+          }
+        ]
+      },
+      {
+        "id": "reading-films-and-encyclopedias",
+        "title": "Reading the documentaries alongside the records",
+        "paragraphs": [
+          "TornadoTRX builds its El Reno documentary around the changing circulation and the people trying to understand and escape it. That makes a useful route into the history. Its English transcript also contains inconsistent spellings of names and detailed claims about conversations, routes and exact intervals. Captions help locate questions to investigate; they do not establish those details on their own.",
+          "Pecos Hank provides another route through the event with footage and commentary. The footage notebook below records the limited passages already inspected. Neither an edited film nor its elapsed running time is automatically a continuous storm clock. Matching a scene to the map still requires a location and a defensible historical time.",
+          "The Wikipedia article is a useful overview and a way to find further references. Where summaries disagree with a source record, this exhibit keeps the disagreement visible. The reported ending time and the scope of injury totals need that treatment. We do not average conflicting numbers or turn the most repeated number into a new measurement."
+        ],
+        "sources": [
+          {
+            "label": "TornadoTRX: El Reno documentary",
+            "url": "https://www.youtube.com/watch?v=Ppw0W5IXNAI"
+          },
+          {
+            "label": "Pecos Hank: El Reno footage and commentary",
+            "url": "https://www.youtube.com/watch?v=Q7X3fyId2U0"
+          },
+          {
+            "label": "Wikipedia: overview and references",
+            "url": "https://en.wikipedia.org/wiki/2013_El_Reno_tornado"
           }
         ]
       }
@@ -7733,6 +7813,27 @@
         "publisher": "Seimon and colleagues, 2016",
         "url": "https://doi.org/10.1175/BAMS-D-15-00174.1",
         "use": "Methods for video time correction and georeferencing, checked in indexed primary-source passages."
+      },
+      {
+        "group": "Meteorology and reconstruction",
+        "title": "Tornadogenesis and Early Tornado Evolution in the El Reno, Oklahoma, Supercell on 31 May 2013",
+        "publisher": "American Meteorological Society / Monthly Weather Review",
+        "url": "https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf",
+        "use": "Found through Consensus, then checked against the NOAA-hosted primary PDF abstract and selected opening methods. Supports the formation account. Full figures and the complete analysis have not been audited here."
+      },
+      {
+        "group": "Meteorology and reconstruction",
+        "title": "The Multiple-Vortex Structure of the El Reno, Oklahoma, Tornado on 31 May 2013",
+        "publisher": "American Meteorological Society / Monthly Weather Review",
+        "url": "https://doi.org/10.1175/MWR-D-18-0073.1",
+        "use": "Consensus full abstract record read; publisher metadata checked. Supports the secondary-vortex summary. Direct full-text access failed in this review; no numerical tracks were extracted."
+      },
+      {
+        "group": "Meteorology and reconstruction",
+        "title": "Aerial Damage Survey of the 2013 El Reno Tornado Combined with Mobile Radar Data",
+        "publisher": "American Meteorological Society / Monthly Weather Review",
+        "url": "https://doi.org/10.1175/MWR-D-15-0367.1",
+        "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable; the unfinished conclusion was not used."
       }
     ]
   }

@@ -37,7 +37,7 @@ py -3.11 -m http.server 8768 --bind 127.0.0.1 --directory web
 
 Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:8768/index.html#survey-explorer** for the linked El Reno photographs, **http://127.0.0.1:8768/study.html** for the form study, or **http://127.0.0.1:8768/wind.html** for the wind experiment. On macOS or Linux, replace `py -3.11` with `python3`. The museum data, maps, preserved galleries and labs run offline after checkout. The 45 linked DAT photographs need access to the original NWS service; failed images leave the assessment and source link usable. Source links open external websites. The 3D view needs WebGL 2; the historical pages and wind lab do not.
 
-Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Numbered groups open a smaller set of records; clear the selected group to return to the current filters. Each selected record has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account.
+Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Numbered groups open a smaller set of records; clear the selected group to return to the current filters. Each selected record has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account. Scroll to zoom around the pointer, drag to explore, or pinch on a touchscreen. The atlas, historical path and damage survey share these controls. Arrow keys pan a focused map; + and - zoom; Home resets it.
 
 Use **Link to this search** to copy or bookmark the filters together with the
 selected record. Reopening the link restores the search, and Back and Forward
@@ -92,7 +92,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 90 Python tests, 58 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | 90 Python tests, 64 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
@@ -181,7 +181,9 @@ node --check web/reader-view.mjs
 node --check web/timeline-media.mjs
 node --check web/community-view.mjs
 node --check web/places-view.mjs
-node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs
+node --check web/map-navigation.mjs
+node --check web/impact-view.mjs
+node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs
 py -3.11 tools/check_catalogue.py
 ```
 
