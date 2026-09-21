@@ -1,9 +1,9 @@
 /* Reading colors are independent of historical images and radar legends. */
 :root {
-  --control:#24352a;
-  --control-hover:#344835;
-  --selected:#293327;
-  --control-line:#71836d;
+  color-scheme:dark;
+  --bg:#090909;--panel:#151515;--line:#494949;
+  --text:#f4f4f4;--muted:#bcbcbc;--green:#dedede;--gold:#ffffff;
+  --control:#252525;--control-hover:#373737;--selected:#333333;--control-line:#858585;
 }
 :root[data-appearance=light] {
   color-scheme:light;
@@ -32,8 +32,49 @@
 .documentary-exhibit .review {color:var(--gold);border-color:var(--gold)}
 .documentary-exhibit .photo-button,.documentary-exhibit .storm-photo-button,
 .documentary-exhibit .timeline-media-enlarge,.documentary-exhibit .survey-photo-open {background:var(--panel)}
-/* Keep the historical map's muted terrain palette and source media unchanged. */
-#map,#survey-map {--text:#f0ece0;--muted:#b3bbae;--gold:#e7b679}
+/* Geographic marks use shape, text and selection outlines as well as tone. */
+#map,#survey-map,#world-map {background:var(--bg)}
+.grid-line {stroke:var(--line)}
+.axis-label {fill:var(--muted)}
+.map-outline,.land {fill:var(--muted);stroke:var(--muted)}
+.land {fill:var(--panel)}
+.map-position,.point {fill:var(--muted);background:var(--muted)}
+.selected-core {fill:var(--text);stroke:var(--bg)}
+.outline {background:var(--panel);border-color:var(--muted)}
+.legend,.chronology ol {border-color:var(--line)}
+.camera-marker {stroke:var(--text);fill:var(--panel)}
+.camera-marker circle {fill:var(--text);stroke:var(--bg)}
+.record-cluster circle {fill:var(--text);stroke:var(--bg)}
+.record-cluster text {fill:var(--bg)}
+.record-cluster:hover circle {fill:var(--muted);stroke:var(--text)}
+.selected-marker {stroke:var(--text)}
+button,select,input[type=search],.study-controls select {background:var(--control);color:var(--text);border-color:var(--control-line)}
+button:hover {background:var(--control-hover)}
+button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--selected);border-color:var(--text)}
+.coverage-strip,.world-shell,.record-detail,.scene-shell,#scene-failure,.note,.creator,.path-account {background:var(--panel);border-color:var(--line)}
+.record-detail .exhibit-link {background:var(--control);color:var(--text);border-color:var(--control-line)}
+.form-sequence {border-color:var(--line)}
+.form-sequence legend {color:var(--text)}
+.wind-panel,.wind-readings>div {background:var(--panel)}
+.wind-readings strong,.passage-readings dd,.passage output,.component-state {color:var(--text)}
+.component-experiment {border-color:var(--line)}
+.passage svg,#component-diagram {background:#111111;border-color:var(--line)}
+.passage svg text,#component-diagram text {fill:#bcbcbc}
+.scene-overlay {color:#dddddd}
+.appearance-bar {padding:0 0 22px;margin:20px 0 0}
+/* Scientific wind keys, radar, source photos and canvas renderings keep their
+   original colors. Never apply a blanket grayscale filter to historical media. */
+.documentary-report {max-width:70ch;margin:30px 0}
+.documentary-report article {padding:24px 0;border-top:1px solid var(--line)}
+.documentary-report p,.community-analysis p {font-size:16px;line-height:1.8;color:var(--muted)}
+.documentary-report h3 a {text-decoration:none}
+.report-links {display:flex;gap:12px 24px;flex-wrap:wrap;font-size:14px}
+.place-controls {margin:22px 0;padding:18px;border:1px solid var(--line)}
+.place-controls label {display:flex;gap:12px;align-items:center;min-height:44px}
+.incident-marker {fill:var(--bg);stroke:var(--text);stroke-width:2.5;cursor:pointer}
+.place-record {margin:22px 0;padding:24px;border:1px solid var(--line);max-width:72ch}
+.place-kind {font-size:13px;font-weight:650;letter-spacing:.04em}
+.place-record:target {outline:2px solid var(--text);outline-offset:4px}
 input::placeholder {color:var(--muted);opacity:1}
 input,select {font-size:16px}
 .survey-record-links a,.survey-context a {display:inline-flex;align-items:center;min-height:44px}

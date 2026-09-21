@@ -35,3 +35,18 @@ class HistoryTests(unittest.TestCase):
         self.photos[0]['sha256']='0'*64
         with self.assertRaisesRegex(ValueError,'integrity'):
             validate_history(self.history,self.photos,ROOT/'web')
+
+    def test_recovery_record_cannot_be_promoted_to_death_location(self):
+        self.history['remembrance']['places'][0]['kind']='death_location'
+        with self.assertRaisesRegex(ValueError,'recovery'):
+            validate_history(self.history,self.photos)
+
+    def test_place_requires_source_precision_and_known_people(self):
+        for key,value,reason in [('source','', 'HTTPS'), ('precision_note','', 'precision'),
+                                 ('people',['Unverified person'], 'memorial'),
+                                 ('coordinates',[float('nan'),35.4], 'finite')]:
+            with self.subTest(key=key):
+                changed=copy.deepcopy(self.history)
+                changed['remembrance']['places'][0][key]=value
+                with self.assertRaisesRegex(ValueError,reason):
+                    validate_history(changed,self.photos)

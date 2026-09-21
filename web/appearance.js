@@ -2,7 +2,7 @@
 (() => {
   const root = document.documentElement;
   const valid = new Set(['system', 'light', 'dark']);
-  let choice = 'system';
+  let choice = 'dark';
   try {
     const saved = localStorage.getItem('tornado-atlas-appearance');
     if (valid.has(saved)) choice = saved;

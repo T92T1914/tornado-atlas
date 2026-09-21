@@ -56,6 +56,9 @@ export function mountCommunity(documentation) {
       citations(entry.evidence_sources, sources), element('h4', 'Where the discussion starts'),
       citations(entry.discussion_sources, sources), element('h4', 'What remains open'),
       element('p', entry.remaining));
+    const analysis = element('div', '', 'community-analysis');
+    for (const paragraph of entry.analysis || []) analysis.append(element('p', paragraph));
+    evidence.insertBefore(analysis, evidence.children[1]);
     const reviewed = element('p', 'Reviewed ', 'fineprint');
     const date = element('time', new Date(entry.reviewed + 'T00:00:00Z').toLocaleDateString('en-US',
       {year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}));

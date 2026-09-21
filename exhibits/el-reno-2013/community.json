@@ -2,7 +2,7 @@
   "schema": 1,
   "event": "el-reno-2013",
   "updated": "2026-09-20",
-  "introduction": "Storm discussions can raise good questions and point to details buried in survey reports. Here are three El Reno conversations, followed back to the records where possible. These entries sit alongside the history without changing the official rating or measurements.",
+  "introduction": "El Reno continues to raise difficult questions about rating, scale and what a photograph can establish. These discussions follow individual claims back to their sources. Open each evidence account for the reasoning, the competing interpretations and the work still needed.",
   "scope": "This is a small curated selection, not a poll of the tornado community or a live comment feed. A popular post is a lead, not proof. Creator footage and eyewitness accounts need their own checks for date, location, context and the specific claim being made. We link to the discussions so you can read the arguments yourself.",
   "sources": [
     {
@@ -67,6 +67,15 @@
       "role": "primary",
       "access": "text_reviewed",
       "coverage": "Damage indicators, degrees of damage and the role of construction in estimating wind intensity."
+    },
+    {
+      "id": "multiple-vortex",
+      "title": "The Role of Multiple-Vortex Tornado Structure in Causing Storm Researcher Fatalities",
+      "publisher": "Wurman, Kosiba, Robinson and Marshall; BAMS, 2014",
+      "url": "https://doi.org/10.1175/BAMS-D-13-00221.1",
+      "role": "primary",
+      "access": "selected_sections_reviewed",
+      "coverage": "Indexed primary-source passages on velocity-threshold width and vehicle recovery reviewed. Direct publisher access and the institutional PDF were unavailable in this review; figures were not visually inspected. The journal location supersedes the differing preliminary conference latitude."
     }
   ],
   "entries": [
@@ -96,6 +105,11 @@
           "label": "Compare the captioned NWS gallery",
           "href": "#damage"
         }
+      ],
+      "analysis": [
+        "The disagreement often starts with two questions being treated as one: how intense were the strongest measured winds, and what rating did the documented damage support? A report can provide evidence about the first while the official record answers the second.",
+        "The useful next step is to identify a particular measurement or damage indicator, not to vote between labels. Check the wind measurement’s height and sampling, or the building’s construction and failure. Then ask what claim that evidence can support.",
+        "The exhibit retains the final official EF3 rating. That choice does not dismiss the research on extreme winds. It keeps the classification, observations and arguments separately available for inspection."
       ]
     },
     {
@@ -122,6 +136,11 @@
           "label": "Compare the captioned NWS gallery",
           "href": "#damage"
         }
+      ],
+      "analysis": [
+        "The house example is valuable because it offers a specific claim that can be checked. The survey account explains what failed and what the investigators found at the foundation. That is a stronger chain of evidence than an impression from a wide photograph.",
+        "The construction finding changes the interpretation of that building. It does not identify the maximum wind everywhere in the tornado, and it does not establish that every similar-looking ruin had the same weakness.",
+        "A fuller account should identify the exact survey record and original photographs before connecting this example to a map pin. Nearby photographs with similar damage are not interchangeable. The mapped browser provides source identifiers so that a future match can be recorded and checked."
       ]
     },
     {
@@ -137,15 +156,21 @@
       "check": "The official event page reports 2.6 miles. The survey paper explains a boundary based on radar radial velocity and distinguishes tornado damage from nearby downdraft damage. The larger figure has not been verified here.",
       "evidence_sources": [
         "nws-event",
-        "ground-survey"
+        "ground-survey",
+        "multiple-vortex"
       ],
       "conclusion": "Keep 2.6 miles in the historical record. Preserve 4.3 miles as an unresolved claim with its source trail, not as a second confirmed measurement.",
-      "remaining": "Locate the study behind the blog and identify its boundary, time, height and method. We have not established whether it measures the same thing as the official tornado width.",
+      "remaining": "The journal supplies a potentially relevant 7-kilometer velocity-threshold extent. The blog’s specific citation and equivalence to the official width are still unconfirmed.",
       "exhibit_links": [
         {
           "label": "Inspect the published outline",
           "href": "#path"
         }
+      ],
+      "analysis": [
+        "The first question is what “width” means in the claim. A photographed funnel, a damage swath and a radar velocity threshold can give different boundaries. Converting units cannot resolve a difference in definition.",
+        "A 4.3-mile figure is approximately 7 kilometers. Wurman and colleagues discuss a 7-kilometer extent under a particular velocity-threshold definition. This is a potentially relevant research lead, not proof that the blog used that study or that the official damage width should be replaced.",
+        "To close the claim, the blog’s underlying reference still needs to be established. Then its threshold, height, time and direction of measurement can be compared with the official figure. Until that comparison is documented, the alternate number belongs in the discussion rather than the headline facts."
       ]
     }
   ]

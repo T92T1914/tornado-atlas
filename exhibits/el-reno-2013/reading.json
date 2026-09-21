@@ -121,6 +121,27 @@
       "publisher": "El Reno Survey Project",
       "url": "https://el-reno-survey.net/ted/ted-elreno-metadata.js",
       "use": "A preserved 22-sample numerical excerpt supplies UTC times, camera positions and camera 1 azimuth. Seventeen samples fall within the map timeline. No footage or photograph has been matched to these samples here."
+    },
+    {
+      "group": "Research and reconstruction",
+      "title": "May 2013 Oklahoma tornadoes and flash flooding: service assessment",
+      "publisher": "National Weather Service",
+      "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf",
+      "use": "Storm environment, public response and vehicle fatality context. Event overview and storm-chasing sections inspected."
+    },
+    {
+      "group": "Research and reconstruction",
+      "title": "The Role of Multiple-Vortex Tornado Structure in Causing Storm Researcher Fatalities",
+      "publisher": "Wurman, Kosiba, Robinson and Marshall, 2014",
+      "url": "https://doi.org/10.1175/BAMS-D-13-00221.1",
+      "use": "Recovery-site coordinates and the distinction between circulation boundaries. Indexed selected passages checked; figures not inspected."
+    },
+    {
+      "group": "Research and reconstruction",
+      "title": "Crowdsourcing the El Reno 2013 Tornado",
+      "publisher": "Seimon and colleagues, 2016",
+      "url": "https://doi.org/10.1175/BAMS-D-15-00174.1",
+      "use": "Methods for video time correction and georeferencing, checked in indexed primary-source passages."
     }
   ]
 }

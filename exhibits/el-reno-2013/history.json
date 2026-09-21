@@ -141,6 +141,122 @@
         ]
       }
     ],
-    "source_note": "Names are transcribed from public NOAA statements, contemporary reporting and an obituary. Early articles contain superseded storm ratings and conflicting ages; their names are used here without repeating those ages or ratings. This is an independently assembled remembrance, not a family-approved or official memorial."
-  }
+    "source_note": "Names are transcribed from public NOAA statements, contemporary reporting and an obituary. Early articles contain superseded storm ratings and conflicting ages; their names are used here without repeating those ages or ratings. This is an independently assembled remembrance, not a family-approved or official memorial.",
+    "places": [
+      {
+        "id": "twistex-recovery",
+        "kind": "vehicle_recovery",
+        "label": "Approximate vehicle recovery location",
+        "title": "The TWISTEX vehicle near Reuter and Radio Roads",
+        "coordinates": [
+          -97.9014,
+          35.4795
+        ],
+        "coordinate_basis": "published_approximate",
+        "people": [
+          "Tim Samaras",
+          "Paul Samaras",
+          "Carl Young"
+        ],
+        "account": "Wurman and colleagues give this approximate location for the recovered vehicle occupied by Tim Samaras, Paul Samaras and Carl Young. Their account places the initial impact about 530 meters west of the road intersection and describes an inferred route to the resting place. This diamond identifies the recovery location, not the exact place of death.",
+        "precision_note": "Coordinates are reproduced as approximate in the published paper. No positional error radius is supplied. The diamond has no physical extent. A preliminary conference account gives a different latitude; this exhibit follows the later journal account.",
+        "time_note": "The location stays fixed through playback. No exact time of death is assigned.",
+        "source": "https://doi.org/10.1175/BAMS-D-13-00221.1",
+        "source_locator": "Wurman et al., BAMS 95 (2014), pp. 38–40, “Tornado impacts storm-chasing teams,” Figures 6 and 9. Location paragraph checked in indexed primary-source text; the full figure has not been visually verified in this review."
+      }
+    ]
+  },
+  "report": [
+    {
+      "id": "storm-environment",
+      "title": "Before the funnel: a dangerous environment",
+      "paragraphs": [
+        "The May 31 storm arrived after a destructive period in central Oklahoma. The NWS service assessment treats the earlier May 19 and May 20 events as part of the context for how people responded that evening. A warning is received by people who remember what happened recently, not by an empty landscape.",
+        "A slow front met a dryline, a boundary separating much drier air from humid air. The assessment describes very moist surface air, strong to extreme instability and southeasterly inflow near the developing storms. These observations explain why forecasters were concerned before a tornado appeared. They do not specify the future route of an individual vortex."
+      ],
+      "sources": [
+        {
+          "label": "NWS assessment, event overview and public response",
+          "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
+        }
+      ]
+    },
+    {
+      "id": "changing-circulation",
+      "title": "The circulation was larger than one visible funnel",
+      "paragraphs": [
+        "A useful reconstruction has to distinguish the condensation funnel, the larger circulation and smaller vortices moving through it. Wurman and colleagues describe rapidly moving subvortices and very large differences in their motion. A single cone following the center line would hide that complexity.",
+        "The path player below shows published center positions. Between those observations, the moving point is an interpolation. The shaded outline describes the whole event footprint. Neither is a measured, second-by-second outline of the visible funnel. Read the linked radar and photographs as observations with their own times and viewing positions."
+      ],
+      "sources": [
+        {
+          "label": "Wurman and colleagues, multiple-vortex analysis",
+          "url": "https://doi.org/10.1175/BAMS-D-13-00221.1"
+        }
+      ]
+    },
+    {
+      "id": "reading-damage",
+      "title": "What a damaged building can tell us",
+      "paragraphs": [
+        "A photograph records a result. Interpreting it requires knowing what stood there before, how it was built and what connections failed. A collapsed wall in a wide shot does not reveal every foundation connection. This is why the survey account and close photographs matter alongside a dramatic overview.",
+        "The mapped survey browser keeps each source feature attached to its own photographs. Select a point, read the reported damage indicator and degree of damage, and then inspect the original attachment. Its map position belongs to the survey feature; it does not automatically identify where the photographer stood. If the source has no photographer or capture time, the exhibit says so.",
+        "The local gallery and mapped attachments are separate collections. A caption that says EF3 is a claim about that damage example. It is not a measurement of every wind the storm produced. Likewise, a point outside a familiar drawing of the path cannot be reassigned to El Reno merely because it is nearby."
+      ],
+      "sources": [
+        {
+          "label": "NWS damage photographs and event account",
+          "url": "https://www.weather.gov/oun/events-20130531"
+        },
+        {
+          "label": "Ground survey, construction evidence and rating discussion",
+          "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf"
+        }
+      ]
+    },
+    {
+      "id": "human-consequences",
+      "title": "People, vehicles and the limits of the map",
+      "paragraphs": [
+        "The NWS assessment records all eight direct tornado fatalities in vehicles; four people were storm chasing. It also distinguishes the tornado losses from the later flooding. Those are different events in the same dangerous evening, and combining their totals would obscure what happened.",
+        "The remembrance below names the eight people using public records. A name does not require a map pin. We add a place only when a source locates something specific, such as an impact area or a recovery site. Those labels matter because a vehicle can move after it is struck. The map does not infer a person’s final position from a memorial, a roadside marker or a damage photograph.",
+        "The current place record is a research-reported vehicle recovery location. The source does not establish the precise place or instant of each occupant’s death. The other fatal incidents remain unmapped here. That is a limit of this exhibit’s verified location evidence, not a suggestion that their histories matter less."
+      ],
+      "sources": [
+        {
+          "label": "NWS assessment, storm chasing and fatalities, printed pages 27–30",
+          "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
+        }
+      ]
+    },
+    {
+      "id": "reconstructing-storm",
+      "title": "How scattered recordings become a reconstruction",
+      "paragraphs": [
+        "The El Reno Survey Project demonstrates how footage can become a scientific record. Seimon and colleagues describe correcting video times against recorded lightning flashes and locating viewpoints using recognizable scene features. That permits observations from separate cameras to be compared with radar at corresponding times.",
+        "For this exhibit, a useful image record therefore needs more than a date and a credit. It needs an original source, a defensible time or interval, a viewpoint when known, and an explanation of any correction. An upload time is not a capture time. An eyewitness’s position is not the tornado center. A clear view of the funnel is not a complete view of the wind field.",
+        "At present, the original storm photographs are available without assigned timestamps. The radar frames and published camera samples can be explored on the clock. A future historical animation should inherit those distinctions: observed positions, interpolation, inferred form and missing evidence should remain inspectable while it plays."
+      ],
+      "sources": [
+        {
+          "label": "Seimon and colleagues, time correction and georeferencing",
+          "url": "https://doi.org/10.1175/BAMS-D-15-00174.1"
+        }
+      ]
+    },
+    {
+      "id": "reading-community",
+      "title": "Questions that deserve an evidence trail",
+      "paragraphs": [
+        "The discussion section is a companion to this account. Each entry names a specific claim, links the public conversation, follows it back to source material and explains what remains unresolved. Agreement among commenters is useful evidence of interest in a question. It cannot substitute for the underlying survey or measurement.",
+        "A good contribution can be quite small: identifying a building in an original photograph, locating a missing report, or finding a timestamp correction. Include the source and the reasoning so somebody else can check it. We can then change the relevant passage and its evidence note together, instead of allowing a compelling story to quietly become an established fact."
+      ],
+      "sources": [
+        {
+          "label": "Community discussions and original sources",
+          "url": "https://www.reddit.com/r/tornado/comments/1pr4gsg/el_reno_2013_tornado_rating/"
+        }
+      ]
+    }
+  ]
 }

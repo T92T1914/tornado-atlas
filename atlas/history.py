@@ -1,5 +1,7 @@
 """Checks for curated history, named remembrance and credited storm photographs."""
 import hashlib
+import math
+import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -35,6 +37,34 @@ def validate_history(history, photos, web_root=None):
             source_url(url)
     if len(names) > impacts['deaths_direct']:
         raise ValueError('Remembrance exceeds the declared tornado death count')
+    ids = set()
+    for section in history.get('report', []):
+        if not re.fullmatch('[a-z][a-z0-9-]*', section['id']) or section['id'] in ids:
+            raise ValueError('Report needs unique section anchors')
+        ids.add(section['id'])
+        if not section.get('title') or not section.get('paragraphs') or not section.get('sources'):
+            raise ValueError('Report sections need prose and sources')
+        if any(not isinstance(p, str) or not p.strip() for p in section['paragraphs']):
+            raise ValueError('Report paragraphs must be nonempty text')
+        for source in section['sources']:
+            source_url(source['url'])
+    for place in history['remembrance'].get('places', []):
+        if place.get('kind') != 'vehicle_recovery' or place.get('coordinate_basis') != 'published_approximate':
+            raise ValueError('Only reviewed approximate vehicle recovery records are currently supported')
+        if not re.fullmatch('[a-z][a-z0-9-]*', place['id']) or place['id'] in ids:
+            raise ValueError('Place needs a unique section anchor')
+        ids.add(place['id'])
+        for key in ('label', 'title', 'account', 'precision_note', 'time_note', 'source_locator'):
+            if not isinstance(place.get(key), str) or not place[key].strip():
+                raise ValueError('Place needs evidence and precision notes')
+        coords = place.get('coordinates')
+        if (not isinstance(coords, list) or len(coords) != 2
+                or any(type(x) not in (float,int) or not math.isfinite(x) for x in coords)
+                or not -180 <= coords[0] <= 180 or not -90 <= coords[1] <= 90):
+            raise ValueError('Place requires finite longitude and latitude')
+        if not place.get('people') or any(name.casefold() not in names for name in place['people']):
+            raise ValueError('Place must refer to publicly sourced memorial names')
+        source_url(place['source'])
     minutes=[]
     for chapter in history['chapters']:
         minute=chapter['minute']
