@@ -5,8 +5,10 @@ export class PlaybackClock {
     this.duration = duration; this.seconds = 0; this.playing = false; this.last = null;
     this.setRate(rate);
   }
-  setRate(rate) {
+  setRate(rate, now = this.last) {
     if (![1,15,60,120].includes(rate)) throw new RangeError('Unsupported playback rate');
+    if (now !== null && now !== undefined) this.tick(now);
+    this.anchorSeconds = this.seconds; this.anchorNow = this.last;
     this.rate = rate;
   }
   seek(seconds) {
@@ -15,14 +17,20 @@ export class PlaybackClock {
   }
   play(now) {
     if (!Number.isFinite(now)) throw new RangeError('Invalid wall clock');
+    if (this.playing) this.tick(now);
     if (this.seconds === this.duration) this.seconds = 0;
+    this.anchorSeconds = this.seconds; this.anchorNow = now;
     this.last = now; this.playing = true;
   }
-  pause() { this.playing = false; this.last = null; }
+  pause(now = null) {
+    if (now !== null) this.tick(now);
+    this.playing = false; this.last = null;
+  }
   tick(now) {
     if (!Number.isFinite(now) || (this.last !== null && now < this.last)) throw new RangeError('Invalid wall clock');
     if (!this.playing) return this.seconds;
-    this.seconds = Math.min(this.duration, this.seconds + (now - this.last) * this.rate / 1000);
+    // Evaluate from the latest control anchor, not a sum of rendered frames.
+    this.seconds = Math.min(this.duration, this.anchorSeconds + (now - this.anchorNow) * this.rate / 1000);
     this.last = now;
     if (this.seconds === this.duration) this.pause();
     return this.seconds;

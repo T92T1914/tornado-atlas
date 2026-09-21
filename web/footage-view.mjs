@@ -39,6 +39,7 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
   let selected=null,player=null,ready=false,loading=false,generation=0,freezeAfterSeek=false,playerTimer=null;
   function close(){generation++;clearTimeout(playerTimer);loading=false;ready=false;player?.destroy();player=null;frame.replaceChildren();frame.hidden=true;reset.hidden=true;unload.hidden=true;load.hidden=false;load.disabled=!selected;load.textContent='Load original YouTube player';state.textContent='';}
   function cue(){if(!player||!ready||!selected)return;freezeAfterSeek=true;player.pauseVideo();player.seekTo(selected.video_seconds,true);state.textContent='Requested the checked video position. The host may seek to a nearby frame; compare the visible clock. Starting video playback leaves the map paused.';}
+  function freeze(){if(selected)seek((Date.parse(selected.utc)-start)/1000);else stop();}
   for(const anchor of data.anchors) {
     const button=el('button',localStamp(anchor.utc));button.type='button';button.dataset.anchor=anchor.id;button.setAttribute('aria-pressed','false');button.title=anchor.note;
     button.addEventListener('click',()=>{const url=new URL(location.href);url.searchParams.set('footage',anchor.id);url.hash='registered-footage';history.replaceState(null,'',url);seek((Date.parse(anchor.utc)-start)/1000);});list.append(button);
@@ -58,7 +59,7 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
     if(player&&ready){frame.hidden=false;reset.hidden=false;cue();}else state.textContent='Load the original player, or open the timestamped source link. Camera location and bearing have not been registered for this upload.';
   }
   load.addEventListener('click',async()=>{
-    if(!selected||loading)return;stop();loading=true;load.disabled=true;load.textContent='Loading YouTube…';const token=++generation;
+    if(!selected||loading)return;freeze();loading=true;load.disabled=true;load.textContent='Loading YouTube…';const token=++generation;
     state.textContent='Connecting to the original video host…';
     try {
       const YT=await youtubeAPI();if(token!==generation)return;
@@ -67,11 +68,11 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
       player=new YT.Player(mount,{host:'https://www.youtube-nocookie.com',width:'100%',height:'100%',videoId:source.video_id,
         playerVars:{playsinline:1,autoplay:0,rel:0,origin:location.origin,start:Math.floor(selected?.video_seconds||0)},
         events:{onReady:event=>{if(token!==generation)return;clearTimeout(playerTimer);player=event.target;ready=true;loading=false;load.hidden=true;reset.hidden=!selected;player.mute();if(selected)cue();else player.pauseVideo();},
-          onStateChange:event=>{if(token!==generation)return;if(event.data===2)freezeAfterSeek=false;if(event.data===1){stop();if(freezeAfterSeek){freezeAfterSeek=false;event.target.pauseVideo();return;}state.textContent='Source playback is running. The map remains at the checked moment; subsequent frames are not continuously registered. Use Return to the checked moment to compare again.';}},
+          onStateChange:event=>{if(token!==generation)return;if(event.data===2)freezeAfterSeek=false;if(event.data===1){freeze();if(freezeAfterSeek){freezeAfterSeek=false;event.target.pauseVideo();return;}state.textContent='Source playback is running. The map remains at the checked moment; subsequent frames are not continuously registered. Use Return to the checked moment to compare again.';}},
           onError:()=>{if(token!==generation)return;close();state.textContent='The original host could not play this video here. Use the timestamped source link below.';}}});
     }catch(error){if(token!==generation)return;loading=false;load.disabled=!selected;load.textContent='Retry loading YouTube';state.textContent=error.message;}
   });
-  reset.addEventListener('click',()=>{stop();cue();});unload.addEventListener('click',close);
+  reset.addEventListener('click',()=>{freeze();cue();});unload.addEventListener('click',close);
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&ready)player.pauseVideo();});
   const initial=data.anchors.find(a=>a.id===new URL(location.href).searchParams.get('footage'));
   if(initial)requestAnimationFrame(()=>seek((Date.parse(initial.utc)-start)/1000));
