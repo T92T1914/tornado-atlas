@@ -64,7 +64,7 @@ export function mountResearchLog(data) {
   const missing=document.getElementById('unmapped-fatalities');
   for(const item of data.unmapped_fatalities){const card=el('article');card.id=item.id;card.append(el('h3',item.people.join(' and ')),el('p',item.account),el('p',item.reason,'fineprint'));item.sources.forEach(s=>card.append(link(s.label,s.url)));missing.append(card);}
   for(const host of document.querySelectorAll('[data-remembrance-coverage]')){
-    const details=el('details');details.append(el('summary','Other victims: location research'));
+    const details=el('details');details.open=true;details.append(el('summary','Five victims with unresolved locations'));
     details.append(el('p','All eight people are named in the remembrance. The mapped recovery record accounts for the three TWISTEX members. The five people below have confirmed names but no verified precise location in this exhibit.','fineprint'));
     const list=el('ul');for(const item of data.unmapped_fatalities){const row=el('li'),a=el('a',item.people.join(' and '));a.href='#'+item.id;row.append(a);list.append(row);}details.append(list);host.append(details);
   }
