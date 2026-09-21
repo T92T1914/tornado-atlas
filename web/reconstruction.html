@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>El Reno in space and time | Tornado Atlas</title>
+  <meta name="description" content="Explore El Reno's documented tornado path on a three-dimensional stage, with a shared historical clock, radar and clearly labeled illustrative geometry.">
+  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="reconstruction.css"><link rel="stylesheet" href="appearance.css">
+  <script src="appearance.js"></script><script type="module" src="reconstruction.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to reconstruction</a>
+  <header><a class="brand" href="atlas.html">◎ TORNADO ATLAS</a><nav aria-label="Museum navigation"><a href="atlas.html">Atlas</a><a href="index.html">El Reno history</a><a href="reconstruction.html" aria-current="page">Spatial replay</a><a href="study.html">Form study</a><a href="wind.html">Wind lab</a></nav><span class="local">EL RENO / 2013</span></header>
+  <main id="main">
+    <div class="reading-appearance appearance-bar"><label for="reading-appearance">Appearance</label><select id="reading-appearance"><option value="dark">Obscur · Dark</option><option value="light">Clair · Light</option><option value="system">Use system setting</option></select></div>
+    <section class="replay-intro"><div class="eyebrow">A DOCUMENTED PATH IN THREE DIMENSIONS</div><h1>El Reno, in space and time.</h1><p>Follow the published center positions across the landscape. Turn the scene, move through the historical clock and compare the available radar. This is the spatial foundation of a reconstruction.</p></section>
+    <p class="replay-boundary"><strong>The route is historical. The funnel symbol is illustrative.</strong> Its shape, height, width and rotation are drawing choices. The outline covers the whole event; it is not the tornado's size at the selected time. Ground is flat, with no modeled buildings or terrain.</p>
+    <div class="replay-layout">
+      <section class="replay-stage" aria-label="Historical path scene">
+        <div class="replay-bar"><strong id="replay-clock">Loading historical positions</strong><span>DOCUMENTED PATH / ILLUSTRATIVE FUNNEL</span></div>
+        <canvas id="replay-scene" tabindex="0" role="img" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
+        <p id="replay-basis" class="replay-caption"></p>
+        <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a></div>
+        <label class="replay-time-label" for="replay-time">Historical time</label><input id="replay-time" type="range" min="0" max="2280" value="0" step="1" disabled>
+        <p class="replay-help">Drag to orbit. Scroll to zoom. Keyboard: arrows turn the view, + and - zoom, Home restores the whole path. Playback pauses when the page is hidden.</p>
+      </section>
+      <aside class="replay-controls" aria-label="Scene and evidence controls">
+        <h2>Choose your view</h2>
+        <label for="replay-azimuth">View direction <output id="replay-azimuth-value"></output></label><input id="replay-azimuth" type="range" min="-180" max="180" value="0">
+        <label for="replay-elevation">View elevation <output id="replay-elevation-value"></output></label><input id="replay-elevation" type="range" min="10" max="80" value="48">
+        <label for="replay-distance">View distance <output id="replay-distance-value"></output></label><input id="replay-distance" type="range" min="3" max="60" value="8" step=".25">
+        <label class="replay-check"><input id="replay-follow" type="checkbox" checked> Follow the center position</label>
+        <label class="replay-check"><input id="replay-funnel" type="checkbox" checked> Show the illustrative funnel symbol</label>
+        <p class="replay-help">Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.</p>
+        <div class="replay-radar"><h3>Available radar</h3><img id="replay-radar-image" alt="" hidden><p id="replay-radar-note"></p><a id="replay-radar-source" href="index.html#path">Radar and timing methods</a></div>
+      </aside>
+    </div>
+    <p id="replay-error" role="alert" hidden></p>
+    <section class="replay-reading"><article><div class="eyebrow">WHAT IS RECORDED</div><h2>The historical track.</h2><p>The NWS source supplies 39 minute positions and the center path. The moving marker passes through those positions, with linear interpolation between them. The clock labels which you are seeing. Published times have minute precision and no supplied error bounds.</p><p><a href="https://www.weather.gov/oun/events-20130531">Read the NWS event account</a> · <a href="index.html#path">Inspect the source map and camera observations</a></p></article><article><div class="eyebrow">WHAT STILL NEEDS EVIDENCE</div><h2>The appearance of the storm.</h2><p>A center path does not give the funnel's changing dimensions, rain curtains or subvortex motion. Those need registered photographs or footage. This scene therefore does not claim to reproduce what a particular witness saw, or show when a building failed.</p><p><a href="index.html#registered-footage">Compare the checked original footage</a> · <a href="index.html#damage">Explore documented damage</a></p></article></section>
+  </main>
+  <footer><span>TORNADO ATLAS</span><p>Historical positions: NOAA/NWS. Procedural funnel: illustration. No wind or damage prediction.</p><a href="atlas.html">Explore the collection ↗</a></footer>
+</body>
+</html>

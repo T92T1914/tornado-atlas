@@ -24,6 +24,8 @@ jobs:
           node --check web/appearance.js
           node --check web/atlas.js
           node --check web/study.js
+          node --check web/reconstruction.js
+          node --test tests/reconstruction-model.test.mjs
           node --check web/wind.js
           node --check web/passage.js
           node --check web/damage-view.mjs
