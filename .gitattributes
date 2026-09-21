@@ -10,3 +10,4 @@
 *.md text eol=lf
 *.yml text eol=lf
 *.ps1 text eol=crlf
+exhibits/el-reno-2013/camera-marshall-literal.txt -text
