@@ -47,10 +47,10 @@
     "observation_register": "observations.json",
     "coverage": {
       "video_review": "Pecos Hank's description and available captions read; two paused visual samples are documented in the footage notebook. No continuous video or audio audit. TornadoTRX English caption text was also retrieved and read, with transcription errors and an abrupt ending recorded; no continuous audiovisual audit.",
-      "frame_registration": "Sample times use approximate browser playback readings. Camera position and historical time remain unregistered. No measured speed or width is inferred.",
+      "frame_registration": "Separate Dan Robinson dashcam samples now have a visible source-clock correspondence. Pecos Hank samples remain without historical time or camera position. No continuous video synchronization or measured speed or width is inferred.",
       "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
       "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
-      "remaining": "Shot registration, complete video review, exact survey photograph locations, and a historical appearance reconstruction. A separate illustrative 3D form study is available; it does not reconstruct El Reno or predict damage."
+      "remaining": "Continuous shot registration, independent clock calibration, complete video review, camera georeferencing, and a historical appearance reconstruction. Discrete registered moments are available in the original-footage viewer. The separate 3D form study is illustrative."
     },
     "introduction_source": "https://www.weather.gov/oun/events-20130531"
   },
@@ -1982,10 +1982,13 @@
           ]
         },
         {
-          "name": "Richard Henderson",
+          "name": "Richard Charles Henderson",
           "sources": [
-            "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
-          ]
+            "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma",
+            "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.",
+            "https://www.nationalgeographic.com/magazine/article/the-last-chase"
+          ],
+          "note": "Age 35, from Hinton. An amateur storm chaser, remembered separately from the three TWISTEX researchers."
         },
         {
           "name": "William O’Neal",
@@ -7937,7 +7940,8 @@
             "label": "Contemporary named-fatality list",
             "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
           }
-        ]
+        ],
+        "id": "location-bridges"
       },
       {
         "people": [
@@ -7954,15 +7958,20 @@
             "label": "Contemporary named-fatality list",
             "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
           }
-        ]
+        ],
+        "id": "location-oneal"
       },
       {
         "people": [
-          "Richard Henderson"
+          "Richard Charles Henderson"
         ],
-        "account": "National Geographic describes firefighters recovering Henderson near a creek, about a mile south of the TWISTEX wreck. This is a relative recovery account, not a precise impact location.",
-        "reason": "Other online accounts propose road locations without a secure named incident join. A relative distance alone cannot establish the recovery coordinate or the place where he died.",
+        "account": "Richard Charles Henderson, 35, was an amateur storm chaser from Hinton. His obituary records his name, age and death on May 31, 2013. National Geographic reports a recovery near a creek about a mile south of the TWISTEX wreck. That relative account does not establish where the fatal impact occurred.",
+        "reason": "His death and identity are documented. A precise incident coordinate remains unresolved. Documentary route reconstructions and vehicle appearances need corroboration before a point can be named for him.",
         "sources": [
+          {
+            "label": "Published obituary, June 5, 2013",
+            "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764."
+          },
           {
             "label": "National Geographic reporting",
             "url": "https://www.nationalgeographic.com/magazine/article/the-last-chase"
@@ -7970,8 +7979,13 @@
           {
             "label": "Contemporary named-fatality list",
             "url": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
+          },
+          {
+            "label": "NWS assessment, section 3.9: four chaser fatalities",
+            "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
           }
-        ]
+        ],
+        "id": "location-henderson"
       },
       {
         "people": [
@@ -7985,10 +7999,43 @@
             "label": "Reporting by Juliana Keeping, republished by EMS World",
             "url": "https://www.hmpgloballearningnetwork.com/site/emsworld/news/11031041/language-barriers-hinder-storm-warnings-okla"
           }
-        ]
+        ],
+        "id": "location-pol-family"
       }
     ],
     "log": [
+      {
+        "date": "2026-09-21",
+        "status": "clarified",
+        "title": "All eight people remain visible beside the maps",
+        "finding": "Richard Charles Henderson is identified as the amateur chaser from Hinton, with his obituary and the NWS assessment linked. Map controls now link the unresolved location accounts for all five people outside the TWISTEX recovery record. A completeness check prevents a named person from losing their location status. No precise location for Henderson is claimed.",
+        "sources": [
+          {
+            "label": "Henderson obituary",
+            "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764."
+          },
+          {
+            "label": "NWS service assessment, section 3.9",
+            "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
+          }
+        ]
+      },
+      {
+        "date": "2026-09-20",
+        "status": "Discrete clock observations added",
+        "title": "Original dashcam moments on the shared clock",
+        "finding": "Checked moments from Dan Robinson's original upload now select the historical map, radar and warning time. They remain discrete observations. Tim Marshall and Skip Talbot's legacy Vimeo players report unavailable; Robinson's former event webpage redirects to a closure notice. A successful HTTP request alone would miss these content failures.",
+        "sources": [
+          {
+            "label": "Original Dan Robinson video",
+            "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM"
+          },
+          {
+            "label": "Survey project timing metadata",
+            "url": "https://el-reno-survey.net/ted/ted-elreno-metadata.js"
+          }
+        ]
+      },
       {
         "date": "2026-09-20",
         "status": "Added",
@@ -8066,6 +8113,201 @@
           {
             "label": "Reddit footage lead",
             "url": "https://www.reddit.com/r/tornado/comments/1931iok/"
+          }
+        ]
+      }
+    ]
+  },
+  "footage": {
+    "schema": 1,
+    "event": "el-reno-2013",
+    "reviewed": "2026-09-20",
+    "mode": "discrete_clock_anchors",
+    "introduction": "Choose a checked clock reading from Dan Robinson's original dashcam upload. Each button sets the path, warning and radar viewers to that historical time and selects the corresponding video position.",
+    "method": "These are discrete clock observations, read from paused frames in the original upload. They are not a continuous synchronization of every frame. A video offset is recorded separately from the CDT clock printed on the footage; CDT is converted to UTC by adding five hours. Browser seeking can land on a nearby frame. Compare the visible clock before making a precise comparison. No camera coordinates, viewing bearings, wind measurements or fatal impact locations are inferred from these samples.",
+    "coverage": "Only the listed paused samples and the creator description were checked. No full video or audio audit has been completed. The space between samples remains unregistered. Playing the original video leaves the historical map paused, so unreviewed frames do not acquire an invented event time.",
+    "sources": [
+      {
+        "id": "robinson-dashcam",
+        "video_id": "MxgU1QcFMJM",
+        "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM",
+        "creator": "Dan Robinson / Storm Highway",
+        "title": "Escaping the largest EF5 tornado in history - El Reno, OK - full dashcam sequence",
+        "duration_seconds": 868.161,
+        "rights": "Copyright Dan Robinson. Original host player and source links only; no footage or frame captures are republished by Tornado Atlas.",
+        "clock_basis": "Robinson describes the visible CDT clock as GPS synchronized. That is the creator's timing claim; this exhibit has not independently checked his GPS log.",
+        "limits": "The original title retains an EF5 label. El Reno's final NWS damage rating is EF3. This camera is separate from the Tim Marshall position marker."
+      }
+    ],
+    "anchors": [
+      {
+        "id": "robinson-01",
+        "source_id": "robinson-dashcam",
+        "video_seconds": 5,
+        "utc": "2013-05-31T23:17:03Z",
+        "evidence": "onscreen_clock_sample",
+        "coordinates": null,
+        "bearing": null,
+        "note": "The source labels the road as southbound S Choctaw near Jensen. Windshield water is visible; the label has not been turned into a map coordinate."
+      },
+      {
+        "id": "robinson-02",
+        "source_id": "robinson-dashcam",
+        "video_seconds": 86.810056,
+        "utc": "2013-05-31T23:18:23Z",
+        "evidence": "onscreen_clock_sample",
+        "coordinates": null,
+        "bearing": null,
+        "note": "Forward dashcam view through rain and windshield water. The visible clock supplies the historical time."
+      },
+      {
+        "id": "robinson-03",
+        "source_id": "robinson-dashcam",
+        "video_seconds": 260.430169,
+        "utc": "2013-05-31T23:21:14Z",
+        "evidence": "onscreen_clock_sample",
+        "coordinates": null,
+        "bearing": null,
+        "note": "Forward view with poor contrast and water across the windshield. No wind speed or vortex boundary is measured from this frame."
+      },
+      {
+        "id": "robinson-04",
+        "source_id": "robinson-dashcam",
+        "video_seconds": 434.050283,
+        "utc": "2013-05-31T23:24:04Z",
+        "evidence": "onscreen_clock_sample",
+        "coordinates": null,
+        "bearing": null,
+        "note": "A checked dashcam clock reading. Water on the glass limits visibility; no camera position or wind measurement has been assigned."
+      },
+      {
+        "id": "robinson-05",
+        "source_id": "robinson-dashcam",
+        "video_seconds": 607.670396,
+        "utc": "2013-05-31T23:26:55Z",
+        "evidence": "onscreen_clock_sample",
+        "coordinates": null,
+        "bearing": null,
+        "note": "A checked dashcam clock reading. Water on the glass limits visibility; no camera position or wind measurement has been assigned."
+      },
+      {
+        "id": "robinson-06",
+        "source_id": "robinson-dashcam",
+        "video_seconds": 694.480453,
+        "utc": "2013-05-31T23:27:47Z",
+        "evidence": "onscreen_clock_sample",
+        "coordinates": null,
+        "bearing": null,
+        "note": "Checked original dashcam clock reading. This sample is registered independently of earlier views; elapsed video time is not assumed to equal elapsed storm time."
+      },
+      {
+        "id": "robinson-07",
+        "source_id": "robinson-dashcam",
+        "video_seconds": 781.290509,
+        "utc": "2013-05-31T23:29:12Z",
+        "evidence": "onscreen_clock_sample",
+        "coordinates": null,
+        "bearing": null,
+        "note": "Checked original dashcam clock reading. This sample is registered independently of earlier views; elapsed video time is not assumed to equal elapsed storm time."
+      }
+    ],
+    "access_checks": [
+      {
+        "label": "Tim Marshall survey video",
+        "url": "https://player.vimeo.com/video/143033121",
+        "note": "The survey project preserves a timing registration, but this hosted player reports that its video is unavailable. It has not been substituted with another edit."
+      },
+      {
+        "label": "Skip Talbot survey video",
+        "url": "https://player.vimeo.com/video/142010192",
+        "note": "This hosted survey video also reports unavailable. Published timing metadata alone is not playable footage."
+      },
+      {
+        "label": "Dan Robinson's former event account",
+        "url": "https://stormhighway.com/may312013.php",
+        "note": "The original event account now redirects to a site closure notice. It must not be described as a currently accessible event report."
+      }
+    ],
+    "guide": [
+      {
+        "id": "guide-camera-clock",
+        "title": "A video has two clocks",
+        "text": "Elapsed player time tells you where you are in an upload. The clock printed inside a shot may tell you when it happened. Cuts, replays and altered playback speed can break a single offset between the two. Here, each checked dashcam moment has its own correspondence. The intervening footage remains available to watch without claiming it is continuously synchronized.",
+        "sources": [
+          {
+            "label": "Original dashcam and creator timing note",
+            "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM"
+          }
+        ]
+      },
+      {
+        "id": "guide-camera-geography",
+        "title": "The camera is not the tornado",
+        "text": "A camera position describes the observer. A bearing describes where the camera points, not the distance to the visible feature. The El Reno Survey Project recommends recognizable landmarks, accurate clocks and location records because all three help register a view. Its guidance also warns that wide-angle distortion complicates interpretation. A source photograph without that information remains valuable, but cannot establish a precise funnel location by itself.",
+        "sources": [
+          {
+            "label": "El Reno Survey Project field methods",
+            "url": "https://el-reno-survey.net/data-collection-recommendations/"
+          }
+        ]
+      },
+      {
+        "id": "guide-invisible-boundary",
+        "title": "A visible edge is not a safe boundary",
+        "text": "Rain, spray and the viewing angle can obscure what the circulation is doing. In Robinson's sampled views, water on the windshield and low contrast hide much of the surrounding scene. A clear outline in one photograph does not establish the full width of damaging winds. The official path and documented damage must be read alongside the view.",
+        "sources": [
+          {
+            "label": "NWS event account and survey",
+            "url": "https://www.weather.gov/oun/events-20130531"
+          },
+          {
+            "label": "Robinson's original footage",
+            "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM"
+          }
+        ]
+      },
+      {
+        "id": "guide-rating-measurement",
+        "title": "Damage rating and radar measurement",
+        "text": "The Enhanced Fujita scale estimates wind intensity from damage indicators and degrees of damage. Radar measurements describe sampled air motion with their own height, resolution and timing. They answer related questions with different evidence. This exhibit retains the final EF3 damage rating while discussing the mobile-radar research separately; an old EF5 video title does not change the final rating.",
+        "sources": [
+          {
+            "label": "NWS explanation of the EF scale",
+            "url": "https://www.weather.gov/oun/efscale"
+          },
+          {
+            "label": "NWS El Reno account",
+            "url": "https://www.weather.gov/oun/events-20130531"
+          }
+        ]
+      },
+      {
+        "id": "guide-photo-identity",
+        "title": "A landmark does not identify a person",
+        "text": "A road sign can help locate a camera. A matching vehicle shape is a lead, not a confirmed identity. Establishing a fatal impact requires more than a nearby timestamp or a recovery photograph. The remembrance map labels the kind of location the evidence supports and keeps unsupported coordinates out of the record.",
+        "sources": [
+          {
+            "label": "Research discussion and unresolved identifications",
+            "url": "https://stormtrack.org/threads/el-reno-question.27366/"
+          },
+          {
+            "label": "NWS event account",
+            "url": "https://www.weather.gov/oun/events-20130531"
+          }
+        ]
+      },
+      {
+        "id": "guide-how-to-contribute",
+        "title": "Bring the original record",
+        "text": "The most useful contribution is an original source with the relevant timestamp, visible landmarks and an explanation of the clock. Keep the camera operator's name and the upload version with the observation. A popular repost can remove those details. Research findings and disagreements belong beside the evidence, so a later correction can be traced.",
+        "sources": [
+          {
+            "label": "El Reno Survey Project recording guidance",
+            "url": "https://el-reno-survey.net/data-collection-recommendations/"
+          },
+          {
+            "label": "Community interest in synchronized views",
+            "url": "https://www.reddit.com/r/tornado/comments/1cmk0hx/any_videos_of_synced_tornado_footage/"
           }
         ]
       }
@@ -8271,6 +8513,34 @@
         "publisher": "Reddit community",
         "url": "https://www.reddit.com/r/tornado/comments/1931iok/",
         "use": "A route to attributed original footage, not independently verified movement or a death-site coordinate. Post discussion inspected; full video not reviewed."
+      },
+      {
+        "group": "Original footage and registration",
+        "title": "Original El Reno dashcam sequence",
+        "publisher": "Dan Robinson / Storm Highway",
+        "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM",
+        "use": "Original creator upload and visible CDT clock, checked at discrete paused moments. The video is linked to the historical clock only at those observations. No continuous synchronization, camera-coordinate reconstruction or independent GPS audit is claimed."
+      },
+      {
+        "group": "Original footage and registration",
+        "title": "Field recording and georeferencing guidance",
+        "publisher": "El Reno Survey Project",
+        "url": "https://el-reno-survey.net/data-collection-recommendations/",
+        "use": "Accurate clocks, landmarks, location records and camera geometry explain what makes a view useful for registration."
+      },
+      {
+        "group": "Community research leads",
+        "title": "Request for synchronized tornado footage",
+        "publisher": "r/tornado contributors",
+        "url": "https://www.reddit.com/r/tornado/comments/1cmk0hx/any_videos_of_synced_tornado_footage/",
+        "use": "Anecdotal reader interest in comparing the same event through multiple views. This is a design lead, not evidence of historical timing or a representative visitor survey."
+      },
+      {
+        "group": "Remembrance",
+        "title": "Richard Henderson obituary",
+        "publisher": "The Oklahoman / Legacy, June 5, 2013",
+        "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.",
+        "use": "Full name, age 35, Hinton background and date of death. This does not locate the fatal incident."
       }
     ]
   }

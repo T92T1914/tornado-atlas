@@ -46,10 +46,10 @@
   "observation_register": "observations.json",
   "coverage": {
     "video_review": "Pecos Hank's description and available captions read; two paused visual samples are documented in the footage notebook. No continuous video or audio audit. TornadoTRX English caption text was also retrieved and read, with transcription errors and an abrupt ending recorded; no continuous audiovisual audit.",
-    "frame_registration": "Sample times use approximate browser playback readings. Camera position and historical time remain unregistered. No measured speed or width is inferred.",
+    "frame_registration": "Separate Dan Robinson dashcam samples now have a visible source-clock correspondence. Pecos Hank samples remain without historical time or camera position. No continuous video synchronization or measured speed or width is inferred.",
     "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
     "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
-    "remaining": "Shot registration, complete video review, exact survey photograph locations, and a historical appearance reconstruction. A separate illustrative 3D form study is available; it does not reconstruct El Reno or predict damage."
+    "remaining": "Continuous shot registration, independent clock calibration, complete video review, camera georeferencing, and a historical appearance reconstruction. Discrete registered moments are available in the original-footage viewer. The separate 3D form study is illustrative."
   },
   "introduction_source": "https://www.weather.gov/oun/events-20130531"
 }

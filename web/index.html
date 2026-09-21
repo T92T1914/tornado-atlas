@@ -11,6 +11,7 @@
   <script src="appearance.js"></script>
   <script src="app.js" defer></script>
   <link rel="stylesheet" href="documentary.css">
+  <link rel="stylesheet" href="footage.css">
 </head>
 <body class="documentary-exhibit">
   <a class="skip" href="#main">Skip to exhibit</a>
@@ -22,6 +23,7 @@
       <div id="facts" class="facts"></div>
       <p class="exhibit-meta"><span>Historical exhibit</span><span id="exhibit-updated"></span><a href="#corrections">Corrections and research</a><a href="#sources">Sources and further reading</a></p>
       <div class="reading-appearance"><label for="reading-appearance">Reading appearance</label><select id="reading-appearance"><option value="system">Use system setting</option><option value="light">Clair · Light</option><option value="dark">Obscur · Dark</option></select></div>
+      <details class="passage-finder"><summary>Find something in this exhibit</summary><label for="passage-search">Search the report</label><input type="search" id="passage-search" placeholder="Try radar, visibility or recovery" maxlength="160"><p id="passage-count" role="status"></p><ul id="passage-results"></ul></details>
     </section>
     <div class="exhibit-layout">
     <aside class="contents-rail">
@@ -32,10 +34,12 @@
           <a href="#history">History and context</a>
           <a href="#forecast">Forecast and warnings</a>
           <a href="#path">Path and timeline</a>
+          <a href="#registered-footage">Original footage on the clock</a>
           <a href="#photos">Photographs</a>
           <a href="#before-after">Before and after</a><a href="#damage">Damage survey</a>
           <a href="#remembrance">Remembering those who died</a>
           <a href="#questions">Questions about El Reno</a>
+          <a href="#reading-footage">How to read the footage</a>
           <a href="#community">Community discussions</a>
           <a href="#research">Research and reconstruction</a>
           <a href="#corrections">Corrections and research</a>
@@ -66,8 +70,9 @@
         <div class="map-caption"><p id="map-note"></p><p id="time-note"></p></div>
         <div class="path-account" aria-live="polite"><h3 id="chapter-title"></h3><p id="chapter-account"></p></div>
       </div>
-      <div class="place-controls"><label><input type="checkbox" id="places-enabled" checked> <span class="impact-symbol" aria-hidden="true">◆</span> Fatality locations</label><p id="places-status" class="fineprint" role="status"></p><a href="#twistex-recovery">Read the location account</a></div>
+      <div class="place-controls"><label><input type="checkbox" id="places-enabled" checked> <span class="impact-symbol" aria-hidden="true">◆</span> Fatality locations</label><p id="places-status" class="fineprint" role="status"></p><a href="#twistex-recovery">Read the location account</a><div data-remembrance-coverage></div></div>
       <section id="evidence-desk" class="evidence-desk"></section>
+      <section id="registered-footage" aria-label="Original footage on the storm clock"></section>
       <section class="camera-observations" aria-labelledby="camera-title">
         <div class="eyebrow">RECORDED VIEWPOINTS</div><h3 id="camera-title">Where Tim Marshall's camera was</h3>
         <p>The arrow marker adds published camera locations and directions to the same clock. It is a record of the camera, not a photograph of the tornado at this moment.</p>
@@ -118,6 +123,7 @@
       <div class="section-title"><div><div class="eyebrow">READING THE EVIDENCE</div><h2>Questions about El Reno</h2></div></div>
       <div id="visitor-questions" class="visitor-questions"></div>
     </section>
+    <section id="reading-footage"><p class="eyebrow">A FIELD GUIDE TO THE RECORD</p><h2>How to read the footage</h2><p>A storm can look different from each road. These notes explain what a view can establish, and what needs another kind of evidence.</p></section>
     <section id="community" aria-labelledby="community-title">
       <div class="section-title"><div><div class="eyebrow">QUESTIONS PEOPLE KEEP ASKING</div><h2 id="community-title">Community discussions</h2></div></div>
       <p id="community-introduction" class="section-intro"></p>

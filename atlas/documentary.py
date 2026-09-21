@@ -56,3 +56,20 @@ def load_documentary(root):
     data = json.loads((root / 'exhibits/el-reno-2013/documentary.json').read_text(encoding='utf-8'))
     validate_documentary(data, root)
     return data
+
+
+def validate_remembrance_coverage(history, documentary):
+    """Every named victim must have one visible, sourced location status."""
+    people = [person['name'] for person in history['remembrance']['people']]
+    if len(people) != history['impacts']['deaths_direct'] or len(people) != len(set(people)):
+        raise ValueError('El Reno remembrance must account for all eight recorded deaths')
+    located = [name for place in history['remembrance']['places'] for name in place['people']]
+    unresolved = [name for record in documentary['unmapped_fatalities'] for name in record['people']]
+    coverage = located + unresolved
+    if len(coverage) != len(set(coverage)) or set(coverage) != set(people):
+        raise ValueError('Every remembered person needs exactly one location status')
+    ids = [record['id'] for record in documentary['unmapped_fatalities']]
+    if len(ids) != len(set(ids)) or any(not value.startswith('location-') for value in ids):
+        raise ValueError('Unresolved location records need distinct stable links')
+    if any(not record['account'] or not record['reason'] for record in documentary['unmapped_fatalities']):
+        raise ValueError('Explain each unresolved location without inventing a pin')

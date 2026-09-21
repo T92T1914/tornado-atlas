@@ -198,6 +198,34 @@
       "publisher": "Reddit community",
       "url": "https://www.reddit.com/r/tornado/comments/1931iok/",
       "use": "A route to attributed original footage, not independently verified movement or a death-site coordinate. Post discussion inspected; full video not reviewed."
+    },
+    {
+      "group": "Original footage and registration",
+      "title": "Original El Reno dashcam sequence",
+      "publisher": "Dan Robinson / Storm Highway",
+      "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM",
+      "use": "Original creator upload and visible CDT clock, checked at discrete paused moments. The video is linked to the historical clock only at those observations. No continuous synchronization, camera-coordinate reconstruction or independent GPS audit is claimed."
+    },
+    {
+      "group": "Original footage and registration",
+      "title": "Field recording and georeferencing guidance",
+      "publisher": "El Reno Survey Project",
+      "url": "https://el-reno-survey.net/data-collection-recommendations/",
+      "use": "Accurate clocks, landmarks, location records and camera geometry explain what makes a view useful for registration."
+    },
+    {
+      "group": "Community research leads",
+      "title": "Request for synchronized tornado footage",
+      "publisher": "r/tornado contributors",
+      "url": "https://www.reddit.com/r/tornado/comments/1cmk0hx/any_videos_of_synced_tornado_footage/",
+      "use": "Anecdotal reader interest in comparing the same event through multiple views. This is a design lead, not evidence of historical timing or a representative visitor survey."
+    },
+    {
+      "group": "Remembrance",
+      "title": "Richard Henderson obituary",
+      "publisher": "The Oklahoman / Legacy, June 5, 2013",
+      "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764.",
+      "use": "Full name, age 35, Hinton background and date of death. This does not locate the fatal incident."
     }
   ]
 }
