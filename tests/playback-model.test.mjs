@@ -18,6 +18,41 @@ test('rate changes account for the old rate before applying the new one', () => 
   const clock = new PlaybackClock(2280); clock.play(0); clock.tick(1000);
   clock.setRate(1); clock.tick(3000); assert.equal(clock.seconds,62);
 });
+
+test('pause records the event time even when no frame has rendered', () => {
+  const clock = new PlaybackClock(2280); clock.play(0);
+  clock.pause(1250);
+  assert.equal(clock.seconds,75);
+  clock.play(10000); clock.tick(11000);
+  assert.equal(clock.seconds,135);
+});
+
+test('rate changes settle elapsed time at the previous rate without a render tick', () => {
+  const clock = new PlaybackClock(2280); clock.play(0);
+  clock.setRate(1,1500); clock.tick(3000);
+  assert.equal(clock.seconds,91.5);
+});
+
+test('rendering cadence and stalls have no effect on historical time', () => {
+  const schedules = [[], [17,35,200,999], Array.from({length:240},(_,i)=>(i+1)*1000/240)];
+  for (const frames of schedules) {
+    const clock = new PlaybackClock(2280); clock.play(0);
+    for (const now of frames) clock.tick(now);
+    clock.setRate(15,1250); clock.pause(2000);
+    assert.equal(clock.seconds,86.25);
+    clock.seek(30); clock.play(10000); clock.tick(12000);
+    assert.equal(clock.seconds,60);
+  }
+});
+
+test('invalid timestamped controls leave the previous clock usable', () => {
+  const clock = new PlaybackClock(2280); clock.play(100); clock.tick(200);
+  assert.throws(()=>clock.pause(199),RangeError);
+  assert.throws(()=>clock.setRate(1,NaN),RangeError);
+  assert.throws(()=>clock.setRate(0,300),RangeError);
+  assert.equal(clock.playing,true); assert.equal(clock.rate,60);
+  clock.tick(300); assert.equal(clock.seconds,12);
+});
 test('pause discards hidden time; seek pauses and clamps without resuming', () => {
   const clock = new PlaybackClock(2280); clock.play(0); clock.tick(1000); clock.pause();
   clock.tick(999999); assert.equal(clock.seconds,60);

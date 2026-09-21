@@ -260,7 +260,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   slider.disabled = false;
   byId('play').disabled = false;
   function stop() {
-    clock.pause();
+    clock.pause(performance.now());
     if (animation !== null) cancelAnimationFrame(animation);
     animation = null; byId('play').textContent = 'Play timeline';
   }
@@ -322,17 +322,16 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     else stop();
   }
   byId('play').addEventListener('click', () => {
-    if (clock.playing) {clock.tick(performance.now()); stop(); update(); return;}
+    if (clock.playing) {stop(); update(); return;}
     clock.play(performance.now()); update();
     byId('play').textContent = 'Pause timeline';
     animation = requestAnimationFrame(frame);
   });
   byId('playback-rate').addEventListener('change', () => {
-    clock.tick(performance.now());
-    clock.setRate(Number(byId('playback-rate').value)); update();
+    clock.setRate(Number(byId('playback-rate').value),performance.now()); update();
   });
-  document.addEventListener('visibilitychange', () => {if(document.hidden) stop();});
-  byId('timeline-media-image').addEventListener('click',stop);
+  document.addEventListener('visibilitychange', () => {if(document.hidden) {stop();update();}});
+  byId('timeline-media-image').addEventListener('click',()=>{stop();update();});
   update();
   function selectMinute(minute) {
     const selected = positions.findIndex(p => Number(p.properties.source_name.split(':')[1]) === minute);
