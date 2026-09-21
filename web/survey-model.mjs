@@ -27,6 +27,17 @@ export function surveyLink(url, state) {
   result.hash = 'survey-explorer'; return result.href;
 }
 
+// Carry only survey state between the report and its focused map page.
+export function surveyPageLink(url, destination) {
+  const current = new URL(url, 'https://example.invalid');
+  const result = new URL(destination, current);
+  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos', 'fatality']) {
+    if (current.searchParams.has(key)) result.searchParams.set(key, current.searchParams.get(key));
+  }
+  result.hash = 'survey-explorer';
+  return result.href;
+}
+
 export function surveyViewBox(zoom, center = [480,215]) {
   if (![1,2,4].includes(zoom) || center.length !== 2 || !center.every(Number.isFinite)) throw new RangeError('Invalid map view');
   const width=960/zoom, height=430/zoom;

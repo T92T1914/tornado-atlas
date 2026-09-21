@@ -31,6 +31,8 @@ jobs:
           node --check web/damage-view.mjs
           node --check web/photo-view.mjs
           node --check web/reader-view.mjs
+          node --check web/survey-page.mjs
+          node --test tests/source-filter.test.mjs
           node --check web/timeline-media.mjs
           node --check web/community-view.mjs
           node --check web/places-view.mjs

@@ -1,0 +1,6 @@
+claim,source,access,interpretation,limitation
+Map and attachment selection can stay linked,https://doc.arcgis.com/en/instant-apps/latest/create-apps/attachment-viewer.htm,full documentation,Adopt a focused survey workspace,"Capability description, not user outcome evidence"
+Museum narrative evaluation includes wayfinding,https://consensus.app/papers/flow-staging-wayfinding-personalization-evaluating-user-roussou-katifori/56f9aaeea51c51429186e255d1badc40/,abstract and metadata fetched,Test how readers navigate evidence,53 participants in reported studies; in-person context
+Multiple platforms need usability evaluation,https://doi.org/10.3390/math9212678,abstract plus indexed article excerpts; publisher 429,Check mobile and desktop separately,Different population and heritage application
+Small screens need reflow,https://www.w3.org/WAI/WCAG21/Understanding/reflow,guidance text,Check 320 CSS pixels with map/table exceptions,Not a full accessibility audit
+Anecdotal interest in comparing radar,https://www.reddit.com/r/tornado/comments/mrcnef/nws_raleigh_interactive_storymap_page_on_the/,post text,Keep radar and evidence views connected,Not representative audience research

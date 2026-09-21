@@ -52,6 +52,6 @@ export function fillFatalityRecord(card, place, photoContext) {
   }
   card.append(make('p', place.precision_note, 'fineprint'),make('p', place.time_note, 'fineprint'));
   const source=make('a','Read the research account');source.href=place.source;source.target='_blank';source.rel='noopener noreferrer';
-  const remembrance=make('a','Read the remembrance');remembrance.href='#remembrance';
+  const remembrance=make('a','Read the remembrance');remembrance.href=photoContext?.remembranceUrl || '#remembrance';
   const links=make('div',null,'report-links');links.append(source,remembrance);card.append(links,make('p',place.source_locator,'fineprint'));
 }

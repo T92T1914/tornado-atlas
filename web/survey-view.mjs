@@ -5,7 +5,7 @@ import {mountSurveyImpacts} from './impact-view.mjs';
 import {fillFatalityRecord} from './fatality-view.mjs';
 import {surveyPhotos} from './survey-photos.mjs';
 import {fatalityLabel, nearbyFatalities, fatalityLink} from './impact-model.mjs';
-import {filterSurvey, ratingColors, surveyProjection, surveyState, surveyLink} from './survey-model.mjs';
+import {filterSurvey, ratingColors, surveyProjection, surveyState, surveyLink, surveyPageLink} from './survey-model.mjs';
 
 const byId = id => document.getElementById(id);
 const el = (tag, text, className) => {
@@ -21,11 +21,16 @@ const svgNode = (tag, attrs, text) => {
   return element;
 };
 
-export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
+export function mountSurvey(survey, geometry, media, openPhoto, places = [], pageOptions = {}) {
   const host = byId('survey-explorer');
   const initial = surveyState(location.href);
   host.append(el('p', 'PLACES AND PHOTOGRAPHS', 'eyebrow'), el('h3', 'Explore the damage, one place at a time'),
     el('p',`${media.photo_count} photographs are linked to ${media.records_with_photos} survey locations. Choose a photograph or a map point to see its recorded assessment and original image.`));
+  const alternate = el('a', pageOptions.alternateLabel || 'Open the focused map and photo viewer', 'survey-alternate');
+  alternate.id = 'survey-alternate';
+  host.append(alternate);
+  const reportLink = hash => (pageOptions.reportPage || '') + hash;
+  const updateAlternate = url => { alternate.href = surveyPageLink(url, pageOptions.alternatePage || 'survey.html'); };
   const filters = el('div', null, 'damage-filters');
   const rating = el('select'); rating.id = 'survey-rating';
   rating.setAttribute('aria-label', 'Recorded rating');
@@ -106,13 +111,15 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
     selectedId='fatality:'+place.id;select.value=selectedId;previous.disabled=next.disabled=true;
     halo.setAttribute('visibility','hidden');
     for(const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed','false');
-    fillFatalityRecord(detail,place,{points:survey.points,media,openPhoto});
+    fillFatalityRecord(detail,place,{points:survey.points,media,openPhoto,remembranceUrl:reportLink('#remembrance')});
     const share=el('a','Link to this fatality record');share.id='fatality-share';share.href=fatalityLink(location.href,place.id);detail.append(share);
+    updateAlternate(share.href);
   }
   const targetMissing=el('p',null,'fineprint');targetMissing.id='survey-link-status';host.append(targetMissing);
   function show(id) {
     const index=visible.findIndex(p=>p.id===id), point=visible[index];
     selectedId=point?.id ?? null;select.value=point?String(point.id):'';
+    updateAlternate(surveyLink(location.href,{id:selectedId,rating:rating.value,query:search.value,photosOnly:photosOnly.checked}));
     previous.disabled=index<=0;next.disabled=index<0 || index===visible.length-1;
     detail.replaceChildren();detail.classList.remove('fatality-record');halo.setAttribute('visibility',point?'visible':'hidden');
     if (!point) {detail.append(el('p','No survey observations match these filters.'));return;}
@@ -182,7 +189,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = []) {
   host.append(methodology);
   const context=el('nav',null,'survey-context');context.setAttribute('aria-label','Read around these observations');
   for (const [text,href] of [['Read the storm history','#history'],['Explore the EF3 / EF5 discussion','#el-reno-ef5-debate'],['Remember those who died','#remembrance']]) {
-    const anchor=el('a',text);anchor.href=href;context.append(anchor);
+    const anchor=el('a',text);anchor.href=reportLink(href);context.append(anchor);
   }
   host.append(context);filter();
   const requestedPlace=new URL(location.href).searchParams.get('fatality');
