@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "event_id": "el-reno-2013",
+  "bundle": "data.json",
+  "clock": {
+    "start_utc": "2013-05-31T23:04:00+00:00",
+    "end_utc": "2013-05-31T23:42:00+00:00",
+    "time_zone": "America/Chicago",
+    "precision": "minute",
+    "basis": "Bare KML minute labels interpreted as PM CDT using the accompanying NWS chronology. The source supplies no timing error bounds."
+  },
+  "geography_source": {
+    "url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
+    "sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce"
+  },
+  "coverage": {
+    "positions": "published_minute_samples",
+    "between_positions": "linear_longitude_latitude",
+    "camera": "free_orbit",
+    "appearance": "illustrative_symbol"
+  },
+  "bundle_sha256": "73717b6db8e4bde058afb93956719acfadb9cbfd06a25f81d63172d1bd7e9067"
+}

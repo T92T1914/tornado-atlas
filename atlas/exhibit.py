@@ -170,8 +170,12 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
     validate_reading(reading, result)
     result['reading'] = reading
+    from .event_package import publication_artifacts, write_packages
+    bundle_bytes = (json.dumps(result, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+    packages = publication_artifacts(ROOT, bundle_bytes, destination.name)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    destination.write_bytes(bundle_bytes)
+    write_packages(destination.parent, packages)
     geo_path = ROOT / "exhibits/el-reno-2013/path.geojson"
     geo_path.write_text(json.dumps(geojson, indent=2) + "\n", encoding="utf-8")
     return {"output": str(destination), "geometry": counts, "source_sha256": metadata["sha256"]}

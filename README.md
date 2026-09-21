@@ -25,6 +25,13 @@ It is a starting point for the historical reconstruction, not a claim to have
 recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
 record the tested behavior and remaining gaps.
 
+The replay now opens events through a versioned evidence package. Its clock,
+source identity and bundle must agree before the scene loads. The event selector
+also shows Joplin's research-readiness page, with a link to its documentary;
+Joplin does not yet have a reviewed replay. The [package contract](docs/event-replay-packages.md)
+explains this first reusable boundary and the evidence still required for another
+storm. A package mismatch leaves a visible error instead of mixing revisions.
+
 The El Reno page is both a historical account and a reference. Read it in order,
 or use the contents list to jump to the path, photographs, damage, remembrance
 or sources. The seven-entry chronology links directly to the published map

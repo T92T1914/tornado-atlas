@@ -17,7 +17,7 @@ function youtubeAPI() {
   return api;
 }
 
-export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
+export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=localStamp,clockLabel='Historical clock (CDT)'}={}) {
   if(![2,3].includes(headingLevel))throw new RangeError('Unsupported footage heading level');
   const host=document.getElementById('registered-footage');
   host.append(el('p','ORIGINAL FOOTAGE / CHECKED CLOCK READINGS','eyebrow'),el(`h${headingLevel}`,'See the storm at a recorded moment'),el('p',data.introduction));
@@ -31,9 +31,9 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
   const caption=el('div',null,'footage-caption');host.append(caption);
   host.append(el('p','The player connects to YouTube only when loaded. Media stays with its creator. Ads, embedding restrictions and playback availability are controlled by YouTube and the uploader.','fineprint'));
   const details=el('details');details.append(el('summary','Clock registration, coverage and source availability'),el('p',data.method),el('p',data.coverage));
-  const table=el('table'),thead=el('thead'),tr=el('tr');['Historical clock (CDT)','Video position','Evidence'].forEach(t=>tr.append(el('th',t)));thead.append(tr);table.append(thead);
+  const table=el('table'),thead=el('thead'),tr=el('tr');[clockLabel,'Video position','Evidence'].forEach(t=>tr.append(el('th',t)));thead.append(tr);table.append(thead);
   const tbody=el('tbody');
-  for(const anchor of data.anchors){const row=el('tr');row.append(el('td',localStamp(anchor.utc)),el('td',sourceTime(anchor.video_seconds)),el('td','Visible clock; sampled frame'));tbody.append(row);}table.append(tbody);const wrapper=el('div',null,'footage-table');wrapper.append(table);details.append(wrapper);
+  for(const anchor of data.anchors){const row=el('tr');row.append(el('td',formatTime(anchor.utc)),el('td',sourceTime(anchor.video_seconds)),el('td','Visible clock; sampled frame'));tbody.append(row);}table.append(tbody);const wrapper=el('div',null,'footage-table');wrapper.append(table);details.append(wrapper);
   for(const check of data.access_checks)details.append(el('p',check.note+' Checked '+data.reviewed+'. '),external(check.label,check.url));
   host.append(details);
   let selected=null,player=null,ready=false,loading=false,generation=0,freezeAfterSeek=false,playerTimer=null;
@@ -41,7 +41,7 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
   function cue(){if(!player||!ready||!selected)return;freezeAfterSeek=true;player.pauseVideo();player.seekTo(selected.video_seconds,true);state.textContent='Requested the checked video position. The host may seek to a nearby frame; compare the visible clock. Starting video playback leaves the map paused.';}
   function freeze(){if(selected)seek((Date.parse(selected.utc)-start)/1000);else stop();}
   for(const anchor of data.anchors) {
-    const button=el('button',localStamp(anchor.utc));button.type='button';button.dataset.anchor=anchor.id;button.setAttribute('aria-pressed','false');button.title=anchor.note;
+    const button=el('button',formatTime(anchor.utc));button.type='button';button.dataset.anchor=anchor.id;button.setAttribute('aria-pressed','false');button.title=anchor.note;
     button.addEventListener('click',()=>{const url=new URL(location.href);url.searchParams.set('footage',anchor.id);url.hash='registered-footage';history.replaceState(null,'',url);seek((Date.parse(anchor.utc)-start)/1000);});list.append(button);
   }
   function update(utc) {
@@ -52,7 +52,7 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3}={}) {
     load.disabled=!selected||loading;reset.disabled=!selected;
     if(!selected){player?.pauseVideo();frame.hidden=true;reset.hidden=true;summary.textContent='No checked video frame at this selected second. Choose one of the recorded moments above.';caption.replaceChildren();state.textContent='Unreviewed intervals are left unassigned. The last camera view is not held as evidence for later times.';return;}
     const source=data.sources.find(s=>s.id===selected.source_id);
-    summary.textContent=`${localStamp(selected.utc)} · ${source.creator} · video ${sourceTime(selected.video_seconds)}`;
+    summary.textContent=`${formatTime(selected.utc)} · ${source.creator} · video ${sourceTime(selected.video_seconds)}`;
     caption.replaceChildren(el('p',selected.note),el('p',source.clock_basis,'fineprint'),el('p',source.limits,'fineprint'),external('Watch this moment on the original upload',sourceLink(source,selected)),el('p',source.rights,'fineprint'));
     const momentURL=new URL(location.href);momentURL.searchParams.set('footage',selected.id);momentURL.hash='registered-footage';
     caption.append(external('Link to this moment in the exhibit',momentURL.href));

@@ -1,5 +1,6 @@
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
-import {localStamp, frameAt} from './timeline-media-model.mjs';
+import {frameAt} from './timeline-media-model.mjs';
+import {loadEventPackage,displayClock} from './event-package-model.mjs';
 import {localPoint, sceneProject, initialSeconds, funnelGlyph} from './reconstruction-model.mjs';
 import {mountFootage} from './footage-view.mjs';
 
@@ -12,9 +13,28 @@ function pause(){clock?.pause(performance.now());if(frame!==null) cancelAnimatio
 function resetView(){const distance=Math.min(60,Math.max(24,43.2*canvas.clientHeight/canvas.clientWidth));for(const [key,value] of Object.entries({azimuth:0,elevation:48,distance}))el(`replay-${key}`).value=value;el('replay-follow').checked=false;requestDraw();}
 
 async function start(){
+  const {index,event,config,data}=await loadEventPackage(new URLSearchParams(location.search).get('event'));
+  const picker=el('replay-event');picker.replaceChildren();
+  for(const row of index.events){const option=document.createElement('option');option.value=row.id;option.textContent=`${row.title}${row.replay?' · Geographic replay':' · Research readiness'}`;picker.append(option);}
+  picker.value=event.id;picker.disabled=false;
+  picker.addEventListener('change',()=>{location.href=`reconstruction.html?event=${encodeURIComponent(picker.value)}`;});
+  document.title=`${event.title} in space and time | Tornado Atlas`;
+  el('replay-title').textContent=`${event.title}, in space and time.`;
+  el('replay-event-name').textContent=event.title;
+  for(const link of document.querySelectorAll('[data-event-documentary]'))link.href=event.documentary+(link.dataset.eventDocumentary||'');
+  el('replay-documentary').textContent=`Read the ${event.title} documentary`;
+  if(!config){
+    document.title=`${event.title} reconstruction readiness | Tornado Atlas`;
+    el('replay-title').textContent=`${event.title}: reconstruction readiness`;
+    el('replay-eyebrow').textContent='DOCUMENTARY AVAILABLE / REPLAY NOT YET REGISTERED';
+    el('replay-introduction').textContent='The documentary is available. A reviewed geographic replay package has not been published for this event.';
+    el('replay-readiness').hidden=false;
+    return;
+  }
   if(!context) throw new Error('The scene cannot start in this browser. The source map and historical account remain available.');
-  const response=await fetch('data.json');if(!response.ok) throw new Error('Could not load the historical exhibit.');
-  const data=await response.json(), features=data.geometry.features;
+  const localStamp=displayClock(config.clock.time_zone),features=data.geometry.features;
+  el('replay-content').hidden=false;
+  canvas.setAttribute('aria-label',`Three-dimensional view of the documented ${event.title} path. Drag or use arrow keys to turn the scene. The following controls provide the same options.`);
   const positions=preparePositions(features.filter(f=>f.geometry.type==='Point'));
   const path=features.find(f=>f.geometry.type==='LineString').geometry.coordinates;
   const boundary=features.find(f=>f.geometry.type==='Polygon').geometry.coordinates[0];
@@ -24,7 +44,9 @@ async function start(){
   clock.seek(initialSeconds(location.search,clock.duration));
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
   let current=positionAt(positions,clock.seconds), lastText=null, radarFile=null;
-  const updateFootage=mountFootage({...data.footage,introduction:"Choose a checked clock reading from Dan Robinson's original dashcam upload. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel."},positions[0].stamp,seconds=>{pause();clock.seek(seconds);refresh();},pause,{headingLevel:2});
+  el('replay-source-note').textContent=`The source supplies ${positions.length} minute positions and the center path. The moving marker uses linear interpolation between those positions. ${config.clock.basis}`;
+  el('replay-geography-source').href=config.geography_source.url;
+  const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},positions[0].stamp,seconds=>{pause();clock.seek(seconds);refresh();},pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`});
   function readCamera(center){
     const camera={focus:el('replay-follow').checked?center:[0,0,0]};
     for(const key of ['azimuth','elevation','distance']){
@@ -67,8 +89,8 @@ async function start(){
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
     updateFootage(current.utc);
     el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);
-    el('replay-basis').textContent=current.published?'Published NWS minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
-    el('replay-link').href=`reconstruction.html?t=${Math.floor(clock.seconds)}`;
+    el('replay-basis').textContent=current.published?'Published source minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
+    el('replay-link').href=`reconstruction.html?event=${encodeURIComponent(event.id)}&t=${Math.floor(clock.seconds)}`;
     const media=data.timeline_media;
     const match=frameAt(media.frames,current.utc,media.max_age_seconds);
     const image=el('replay-radar-image');image.hidden=!match||failedRadar.has(match?.frame.file);
