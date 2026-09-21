@@ -1,0 +1,37 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {fatalityLabel, nearbyFatalities, fatalityLink} from '../web/impact-model.mjs';
+import {surveyLink} from '../web/survey-model.mjs';
+
+const history=JSON.parse(readFileSync(new URL('../exhibits/el-reno-2013/history.json',import.meta.url)));
+const places=history.remembrance.places;
+
+test('fatality counts cannot be confused with unrated survey observations',()=>{
+  assert.equal(fatalityLabel(places[0]),'3 deaths');
+  assert.equal(fatalityLabel({...places[0],deaths:1}),'1 death');
+  for(const p of [{rating:'N/A'}, {...places[0],deaths:0}, {...places[0],category:'EF3'}])
+    assert.throws(()=>fatalityLabel(p),RangeError);
+});
+
+test('nearby accounts are spatial references without modifying survey identity',()=>{
+  const point={id:165661,coordinates:[-97.90037985,35.47907251],indicator:'Other (O)'};
+  const before=JSON.stringify(point);
+  assert.equal(nearbyFatalities(point,places)[0].id,'twistex-recovery');
+  assert.deepEqual(nearbyFatalities(point,places,.01),[]);
+  assert.deepEqual(nearbyFatalities({coordinates:[0,0]},places),[]);
+  assert.equal(JSON.stringify(point),before);
+});
+
+test('sharing a fatality or damage observation cannot reopen the opposite selection',()=>{
+  const link=fatalityLink('https://example.org/?survey=165661&surveyRating=EF3&surveyPhotos=1&time=9','twistex-recovery');
+  const url=new URL(link);
+  assert.equal(url.searchParams.get('fatality'),'twistex-recovery');
+  assert.equal(url.searchParams.get('time'),'9');
+  assert.equal(url.searchParams.has('survey'),false);
+  assert.equal(url.searchParams.has('surveyRating'),false);
+  assert.equal(url.hash,'#survey-explorer');
+  const damage=surveyLink(link,{id:165661,photosOnly:true});
+  assert.equal(new URL(damage).searchParams.has('fatality'),false);
+  assert.throws(()=>fatalityLink(link,'../invalid'),RangeError);
+});

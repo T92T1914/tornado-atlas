@@ -3,24 +3,25 @@
   color-scheme:dark;
   --bg:#090909;--panel:#151515;--line:#494949;
   --text:#f4f4f4;--muted:#bcbcbc;--green:#dedede;--gold:#ffffff;
-  --control:#252525;--control-hover:#373737;--selected:#333333;--control-line:#858585;
+  --fatality:#f08bb2;--control:#252525;--control-hover:#373737;--selected:#333333;--control-line:#858585;
 }
 :root[data-appearance=light] {
   color-scheme:light;
-  --bg:#f7f4eb;--panel:#efece1;--line:#899487;
-  --text:#202b26;--muted:#4e5d52;--green:#285838;--gold:#865015;
-  --control:#e3e8dd;--control-hover:#d3ddce;--selected:#e2dfcd;--control-line:#758073;
+  --bg:#f8f7f3;--panel:#ffffff;--line:#b8b6ae;
+  --text:#242424;--muted:#595854;--green:#383833;--gold:#35332d;
+  --fatality:#a52b60;--control:#ecebe6;--control-hover:#e0ded7;--selected:#e7e4da;--control-line:#85837c;
 }
 @media(prefers-color-scheme:light) {
   :root:not([data-appearance]) {
     color-scheme:light;
-    --bg:#f7f4eb;--panel:#efece1;--line:#899487;
-    --text:#202b26;--muted:#4e5d52;--green:#285838;--gold:#865015;
-    --control:#e3e8dd;--control-hover:#d3ddce;--selected:#e2dfcd;--control-line:#758073;
+    --bg:#f8f7f3;--panel:#ffffff;--line:#b8b6ae;
+    --text:#242424;--muted:#595854;--green:#383833;--gold:#35332d;
+    --fatality:#a52b60;--control:#ecebe6;--control-hover:#e0ded7;--selected:#e7e4da;--control-line:#85837c;
   }
 }
 .reading-appearance {display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;margin:24px 0 0}
-.reading-appearance select {min-height:44px}
+.reading-appearance select {min-height:44px;min-width:172px;padding:10px 36px 10px 14px;border-radius:8px;font:inherit}
+.reading-appearance label {color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.03em}
 .documentary-exhibit button {background:var(--control);border-color:var(--control-line)}
 .documentary-exhibit button:hover {background:var(--control-hover)}
 .documentary-exhibit .note,.documentary-exhibit .creator,.documentary-exhibit input[type=search],
@@ -78,9 +79,9 @@ button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--se
 .report-links {display:flex;gap:12px 24px;flex-wrap:wrap;font-size:14px}
 .place-controls {margin:22px 0;padding:18px;border:1px solid var(--line)}
 .place-controls label {display:flex;gap:12px;align-items:center;min-height:44px}
-.incident-marker {fill:#d94772;stroke:var(--text);stroke-width:2.5;cursor:pointer}
-.impact-symbol {color:#d94772;font-size:1.3em;margin-right:.5em}
-.impact-card {border-left:3px solid #d94772;padding:8px 18px;margin:18px 0}
+.incident-marker {fill:var(--fatality);stroke:var(--text);stroke-width:2.5;cursor:pointer}
+.impact-symbol {color:var(--fatality);font-size:1.3em;margin-right:.5em}
+.impact-card {border-left:3px solid var(--fatality);padding:8px 18px;margin:18px 0}
 .impact-card h4 {margin:8px 0}
 .impact-controls label {display:flex;align-items:center;gap:10px;min-height:44px}
 .impact-controls button {text-align:left}
@@ -116,7 +117,23 @@ input,select {font-size:16px}
   .survey-photo-strip button[aria-pressed=true],.path-chapters button[aria-pressed=true] {outline:3px solid Highlight;outline-offset:-3px}
   .camera-marker {stroke:CanvasText;fill:Canvas}
   .incident-marker {fill:Highlight;stroke:CanvasText}
+  .fatality-map-label {fill:CanvasText;stroke:Canvas}
+  .fatality-record {--fatality:CanvasText}
   .map-position {fill:CanvasText;stroke:Canvas}
   svg text {fill:CanvasText}
   a {color:LinkText}
 }
+
+/* Human impact has its own key, outside the EF color scale. */
+.fatality-map-label {fill:var(--fatality);stroke:var(--bg);stroke-width:3px;paint-order:stroke;stroke-linejoin:round;font-family:system-ui,sans-serif;font-weight:650;pointer-events:none}
+.incident-marker:focus-visible {outline:none;stroke:var(--fatality);stroke-width:4;fill:var(--bg)}
+.fatality-badge {color:var(--fatality);font:600 13px/1.5 system-ui,sans-serif;letter-spacing:.03em}
+.fatality-names {padding-left:20px;line-height:1.8}
+.fatality-legend {display:inline-flex;align-items:center;gap:6px}
+.survey-legend .fatality-legend::before {display:none}
+.survey-legend .fatality-legend {color:var(--fatality);font-weight:600}
+.impact-controls {border:1px solid var(--line);border-left:3px solid var(--fatality);padding:16px;margin:0 0 18px;background:var(--panel)}
+.impact-controls h4 {margin:0 0 8px;font:600 16px/1.5 system-ui,sans-serif}
+.impact-controls label {font-weight:600}
+.nearby-fatality {padding:14px;border-left:3px solid var(--fatality);margin:18px 0;background:var(--panel)}
+.nearby-fatality button {text-align:left;color:var(--fatality)}

@@ -13,6 +13,12 @@ export function mountMapNavigation(svg, {extent, minWidth = extent[2] / 16, getV
       const [x,y,size]=element.dataset.mapSymbol.split(',').map(Number),r=size*scale;
       element.setAttribute('d',`M ${x} ${y-r} l ${r} ${r} l ${-r} ${r} l ${-r} ${-r} Z`);
     }
+    for(const element of svg.querySelectorAll('[data-map-label]')) {
+      const [x,y]=element.dataset.mapLabel.split(',').map(Number);
+      element.setAttribute('x',x);element.setAttribute('y',y-17*scale);
+      element.setAttribute('font-size',12*scale);
+      element.style.strokeWidth=3*scale;
+    }
     svg.dispatchEvent(new CustomEvent('mapviewchange', {detail:next}));
   };
   const point = (x, y) => new DOMPoint(x, y).matrixTransform(svg.getScreenCTM().inverse());

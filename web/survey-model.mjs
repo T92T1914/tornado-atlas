@@ -19,7 +19,7 @@ export function surveyState(url) {
 
 export function surveyLink(url, state) {
   const result = new URL(url, 'https://example.invalid');
-  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos']) result.searchParams.delete(key);
+  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos', 'fatality']) result.searchParams.delete(key);
   if (state.id !== null) result.searchParams.set('survey',String(state.id));
   if (state.rating) result.searchParams.set('surveyRating',state.rating);
   if (state.query) result.searchParams.set('surveySearch',state.query);

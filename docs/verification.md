@@ -345,3 +345,32 @@ full-text excerpts, abstract-only access and the partial documentary transcript:
 [map exploration and research](../research/map-exploration-2026-09-20.md).
 These interface checks do not strengthen the historical precision of the
 recovery point or establish exact death sites.
+
+# September 20: Clair, Obscur and explicit fatality records
+
+All 94 Python tests and 67 JavaScript tests pass, along with module syntax,
+the exhibit check and the 80,318-record catalogue check. New cases reject
+invalid or contradictory fatality counts, duplicate names and anchors,
+unsupported categories, and ambiguous share-link state. A synthetic record
+checks that the validator is independent of the El Reno event and a vehicle.
+The nearby-location test checks that spatial suggestions leave the original
+survey identity unchanged.
+
+In local Chromium, the TWISTEX record opened from the observation picker and
+the keyboard-accessible path marker. The three names and the three-death count
+rendered. EF3 filtering retained the selected fatality account. Hiding the
+fatality layer removed its marker, and reopening the record restored it. A
+shared fatality link restored the selection after reload. Nearby survey record
+165661 retained its original Other label and gained the separate account link.
+
+Clair and Obscur were inspected on desktop. A 390-pixel Obscur view showed the
+rose diamond and its text label without horizontal document overflow. Clair
+persisted when moving from the exhibit to the catalogue. The path marker's
+Enter action opened the named account. Temporary viewport overrides were reset.
+
+The text, muted-text and fatality color tokens were checked against body,
+panel, control and selected backgrounds. The minimum computed contrast ratios
+were 5.44:1 for Obscur and 5.30:1 for Clair. This is a palette check, not an audit
+of every rendered element or a claim of complete WCAG conformance. The checks
+did not exercise physical phones, Safari or Firefox. No browser warnings or
+errors were recorded in the local checks.
