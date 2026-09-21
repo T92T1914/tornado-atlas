@@ -12,7 +12,7 @@
       "Joplin 2011",
       "Joplin Jasper County segment"
     ],
-    "exhibit": null,
+    "exhibit": "joplin.html",
     "basis": "NCEI event narrative explicitly describes the Joplin tornado through Jasper County; source title uses the starting locality Central City."
   },
   "ncei:296620": {
@@ -20,7 +20,7 @@
       "Joplin 2011",
       "Joplin Newton County continuation"
     ],
-    "exhibit": null,
+    "exhibit": "joplin.html",
     "basis": "NCEI event narrative explicitly identifies the continuation of the Joplin tornado into Newton County. This alias does not merge records or ratings."
   },
   "ncei:10096417": {

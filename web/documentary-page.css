@@ -1,0 +1,30 @@
+.documentary-intro {max-width:850px;padding:40px 0 30px;border:0}
+.documentary-intro h1 {font-size:clamp(40px,6vw,76px);line-height:1.04;letter-spacing:-2px;margin:22px 0}
+.documentary-deck {font-size:clamp(20px,2vw,25px);font-family:Georgia,serif}
+.documentary-intro>p:last-child {font-size:16px;color:var(--muted)}
+.documentary-hero {margin:0;max-width:1040px}
+.documentary-hero img,.documentary-figure img {width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:4px}
+.documentary-hero a:focus-visible,.documentary-figure a:focus-visible {display:block;outline:3px solid var(--text);outline-offset:5px}
+.documentary-hero figcaption,.documentary-figure figcaption {font-size:13px;color:var(--muted);margin-top:12px;line-height:1.7}
+.documentary-facts {display:grid;grid-template-columns:repeat(4,1fr);gap:22px;padding:30px 0;border-bottom:1px solid var(--line);max-width:1040px}
+.documentary-facts dt {font-size:12px;color:var(--muted)}
+.documentary-facts dd {font:28px Georgia,serif;margin:6px 0}
+.documentary-facts small {font-size:11px;color:var(--muted)}
+.documentary-status {font-size:14px;border-left:3px solid var(--line);padding:12px 20px;max-width:900px;color:var(--muted)}
+.documentary-contents {display:flex;flex-wrap:wrap;gap:10px 24px;padding:20px 0;border-bottom:1px solid var(--line);font-size:14px}
+.documentary-reading {max-width:850px}
+.documentary-reading section {padding:48px 0;scroll-margin-top:20px}
+.documentary-reading h2 {font:clamp(28px,3.5vw,39px)/1.2 Georgia,serif;letter-spacing:-.6px}
+.documentary-reading p {font-size:16px;line-height:1.9}
+.documentary-reading h3 {font-size:18px;margin-bottom:6px}
+.documentary-timeline {list-style:none;padding:0}
+.documentary-timeline li {display:grid;grid-template-columns:145px 1fr;gap:20px;border-left:1px solid var(--line);padding:16px 20px;border-bottom:1px solid var(--line)}
+.documentary-timeline time {font-size:14px;padding-top:3px;color:var(--muted)}
+.documentary-timeline h3 {margin:0}.documentary-timeline p {margin:8px 0;font-size:14px}
+.documentary-figure {margin:30px 0}
+.documentary-note {border:1px solid var(--line);background:var(--panel);padding:18px 24px;margin-top:25px;scroll-margin-top:20px}
+.documentary-note h3 {margin-top:0}
+.documentary-reading details {padding:18px 0;border-bottom:1px solid var(--line)}
+.documentary-reading summary {cursor:pointer;font-size:17px;font-weight:600}
+.documentary-sources {padding-left:24px}.documentary-sources li {padding:15px 0;scroll-margin-top:20px}.documentary-sources p {font-size:14px;color:var(--muted);margin:5px 0}
+@media(max-width:650px){.documentary-facts{grid-template-columns:1fr 1fr;gap:24px}.documentary-timeline li{grid-template-columns:1fr;gap:6px}.documentary-intro{padding-top:25px}.documentary-reading section{padding:35px 0}.documentary-reading p{font-size:15px}.documentary-note{padding:16px}}

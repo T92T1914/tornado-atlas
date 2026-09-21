@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "event": "Joplin, Missouri, May 22, 2011",
+  "reviewed": "2026-09-21",
+  "status": "documentary foundation; reconstruction and individual fatality locations unverified",
+  "assets": [
+    {
+      "path": "exhibits/joplin-2011/nws-service-assessment.pdf",
+      "sha256": "38e97e54efaaa1853cff5018e0b5ae041e70fc822d0c6c9228258a636fc16962",
+      "source": "https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf",
+      "credit": "National Weather Service Central Region, July 2011; report includes third-party material",
+      "transformation": "Original PDF preserved"
+    },
+    {
+      "path": "web/assets/joplin-2011/storm.jpg",
+      "sha256": "5002f48485c7b139bc6ce3b0d2bd2e3359da812ef220b0d761210cab2bf034f1",
+      "source": "https://commons.wikimedia.org/wiki/File:Joplin,_Missouri_tornado_of_2011.jpg",
+      "credit": "Daniel Friskey",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "transformation": "None; original image bytes preserved",
+      "location": null,
+      "registered_time": null
+    },
+    {
+      "path": "web/assets/joplin-2011/damage.jpg",
+      "sha256": "5d5bf4cf13abb226f579a7c8d614319bb62d70ff3bb7e4b0b4033ccc3f2ae726",
+      "source": "https://commons.wikimedia.org/wiki/File:22_May_2011_Joplin_tornado_damage.jpg",
+      "credit": "NWS Springfield, via Wikimedia Commons",
+      "license": "Public domain according to Commons PD-US-NOAA-NWS notice",
+      "transformation": "None; original image bytes preserved",
+      "location": null,
+      "registered_time": null,
+      "date_note": "EXIF says May 23, 2011 at 13:19; description uses May 22 event date. Camera clock and time zone unverified."
+    },
+    {
+      "path": "web/assets/joplin-2011/nws-track.png",
+      "sha256": "70a01692b96dd25a23c8718449b95db06ba8547b657ff67d36db6f3b5e6de8ef",
+      "source": "https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf#page=7",
+      "credit": "NWS Central Region service assessment, Figure 1",
+      "transformation": "Original embedded image extracted from PDF page 7, image object 40; no new georeferencing",
+      "rights_note": "Report figure may include third-party basemap components; not licensed under this repository's software license"
+    }
+  ],
+  "fatality_accounts": [
+    {"source": "NWS July 2011 assessment, printed page 1", "direct": 158, "indirect": 4, "scope": "As of that report"},
+    {"source": "NIST investigation overview", "total": 161, "scope": "Later federal investigation account"},
+    {"source": "City of Joplin remembrance", "total": 161, "scope": "People remembered at Cunningham Park"}
+  ],
+  "fatality_locations": [],
+  "count_reconciliation": "Not established at individual-record level; do not combine these accounts"
+}

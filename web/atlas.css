@@ -8,7 +8,7 @@
 .museum-feature-copy h2 a,.museum-routes h2 a {color:var(--text);text-decoration:none}
 .museum-feature-copy p {font-size:15px;color:var(--muted)}
 .museum-feature-copy .museum-credit {font-size:11px;margin:26px 0 0}
-.museum-routes {display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+.museum-routes {display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:22px}
 .museum-routes article {padding:26px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .museum-routes h2 {font:27px Georgia,serif;margin:15px 0}
 .museum-routes p {font-size:14px;color:var(--muted)}

@@ -52,6 +52,14 @@ help readers find passages and understand timing, viewpoint and rating limits.
 The [footage registration record](research/footage-registration-2026-09-21.md)
 documents what was inspected.
 
+The [Joplin chapter](https://t92t1914.github.io/tornado-atlas/joplin.html) adds
+the 2011 warning sequence, the original NWS path figure, credited storm and
+damage photographs, and the NWS/NIST investigations. The earlier direct and
+indirect death accounts remain distinct from the city's later remembrance of
+161 people. Individual names, located damage and a timed reconstruction still
+need further research. The [source and coverage record](research/joplin-foundation-2026-09-21.md)
+shows what has actually been checked.
+
 ## Run locally
 
 Python 3.11 or newer. No additional packages, API keys or map service accounts are needed for the included preview.
@@ -85,7 +93,7 @@ ID. Blank event identifiers still prevent a direct event join for the underlying
 regional survey, so the map retains its geographic-selection caveat. No capture
 times, camera positions or photographer names are invented.
 
-All four pages offer Clair, Obscur and System appearances. Clair pairs warm
+The museum pages offer Clair, Obscur and System appearances. Clair pairs warm
 ivory with charcoal text. Obscur uses black, white and gray for the interface.
 Fatality records have their own rose diamond and written death count. Forced-color support and text alternatives
 remain available for map markers. Photographs and radar

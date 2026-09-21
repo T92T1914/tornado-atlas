@@ -1,10 +1,11 @@
 {
-  "checked_at": "2026-09-21T05:35:23.965885+00:00",
+  "checked_at": "2026-09-21T06:48:21.920159+00:00",
   "scope": "Every distinct external URL in the curated El Reno data bundle, top-level museum HTML and fixed browser-module links. Catalogue-generated event URLs and browser-generated service requests are outside this list. Fragment anchors and claim support require separate checks.",
   "method": "Bounded GET, at most two concurrent requests per host. HTTP 403, 429 and timeouts are unresolved access, not proof of a dead source. Successful HTTP does not establish content truth or exclude a soft error page.",
   "counts": {
-    "reachable": 498,
-    "access_unresolved": 12
+    "reachable": 510,
+    "access_unresolved": 13,
+    "missing": 1
   },
   "results": [
     {
@@ -68,6 +69,16 @@
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
     },
     {
+      "url": "https://commons.wikimedia.org/wiki/File:22_May_2011_Joplin_tornado_damage.jpg",
+      "checked_at": "2026-09-21T06:48:20.182648+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://commons.wikimedia.org/wiki/File:22_May_2011_Joplin_tornado_damage.jpg",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
+    },
+    {
       "url": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado.jpg",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
@@ -86,6 +97,26 @@
       "content_type": "text/html; charset=UTF-8",
       "access": "reachable",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://commons.wikimedia.org/wiki/File:Joplin,_Missouri_tornado_of_2011.jpg",
+      "checked_at": "2026-09-21T06:48:20.182648+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://commons.wikimedia.org/wiki/File:Joplin,_Missouri_tornado_of_2011.jpg",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
+    },
+    {
+      "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "checked_at": "2026-09-21T06:48:20.183882+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "content_type": "text/html",
+      "access": "reachable"
     },
     {
       "url": "https://creativecommons.org/licenses/by/2.0/",
@@ -223,6 +254,16 @@
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
     },
     {
+      "url": "https://github.com/T92T1914/tornado-atlas/blob/main/research/joplin-foundation-2026-09-21.md",
+      "checked_at": "2026-09-21T06:48:20.183882+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 404,
+      "final_url": "https://github.com/T92T1914/tornado-atlas/blob/main/research/joplin-foundation-2026-09-21.md",
+      "content_type": "text/html; charset=utf-8",
+      "access": "missing"
+    },
+    {
       "url": "https://github.com/T92T1914/tornado-atlas/issues",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
@@ -231,6 +272,16 @@
       "content_type": "text/html; charset=utf-8",
       "access": "reachable",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://github.com/T92T1914/tornado-atlas/issues/new",
+      "checked_at": "2026-09-21T06:48:20.186881+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2FT92T1914%2Ftornado-atlas%2Fissues%2Fnew",
+      "content_type": "text/html; charset=utf-8",
+      "access": "reachable"
     },
     {
       "url": "https://github.com/T92T1914/tornado-atlas/issues/new?template=evidence.yml",
@@ -4713,6 +4764,16 @@
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
     },
     {
+      "url": "https://www.joplinmo.org/Archive.aspx?ADID=219",
+      "checked_at": "2026-09-21T06:48:20.187881+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 403,
+      "final_url": "https://www.joplinmo.org/Archive.aspx?ADID=219",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "access_unresolved"
+    },
+    {
       "url": "https://www.legacy.com/us/obituaries/legacyremembers/dustin-bridges-obituary?id=22638694",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
@@ -4773,6 +4834,36 @@
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
     },
     {
+      "url": "https://www.nist.gov/disaster-failure-studies/joplin-tornado",
+      "checked_at": "2026-09-21T06:48:20.187881+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "government source",
+      "http_status": 200,
+      "final_url": "https://www.nist.gov/disaster-failure-studies/joplin-tornado",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
+    },
+    {
+      "url": "https://www.nist.gov/feature-stories/joplin-tornado-calamity-and-boon-resilience-10-years",
+      "checked_at": "2026-09-21T06:48:20.187881+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "government source",
+      "http_status": 200,
+      "final_url": "https://www.nist.gov/feature-stories/joplin-tornado-calamity-and-boon-resilience-10-years",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
+    },
+    {
+      "url": "https://www.nist.gov/publications/final-report-national-institute-standards-and-technology-nist-technical-investigation",
+      "checked_at": "2026-09-21T06:48:20.607261+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "government source",
+      "http_status": 200,
+      "final_url": "https://www.nist.gov/publications/final-report-national-institute-standards-and-technology-nist-technical-investigation",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
+    },
+    {
       "url": "https://www.nist.gov/publications/tornado-wind-speed-maps-building-design-research-and-development-tornado-risk",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "government source",
@@ -4831,6 +4922,16 @@
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
     },
     {
+      "url": "https://www.reddit.com/r/tornado/comments/1mvc2wq/",
+      "checked_at": "2026-09-21T06:48:20.687161+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://www.reddit.com/r/tornado/comments/1mvc2wq/",
+      "content_type": "text/html",
+      "access": "reachable"
+    },
+    {
       "url": "https://www.reddit.com/r/tornado/comments/1pr4gsg/el_reno_2013_tornado_rating/",
       "claim_review": "Reachability only; see bibliography use notes and research ledger.",
       "role": "creator platform, publisher or secondary source; check item attribution",
@@ -4839,6 +4940,16 @@
       "content_type": "text/html",
       "access": "reachable",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://www.reddit.com/r/tornado/comments/1swetug/",
+      "checked_at": "2026-09-21T06:48:20.698670+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://www.reddit.com/r/tornado/comments/1swetug/",
+      "content_type": "text/html",
+      "access": "reachable"
     },
     {
       "url": "https://www.ssec.wisc.edu/",
@@ -4869,6 +4980,16 @@
       "content_type": "text/html; charset=UTF-8",
       "access": "access_unresolved",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://www.visitjoplinmo.com/directory/a-tribute-to-the-volunteers-the-miracle-of-human-spirit/",
+      "checked_at": "2026-09-21T06:48:20.771002+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "creator platform, publisher or secondary source; check item attribution",
+      "http_status": 200,
+      "final_url": "https://www.visitjoplinmo.com/directory/a-tribute-to-the-volunteers-the-miracle-of-human-spirit/",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
     },
     {
       "url": "https://www.weather.gov/disclaimer",
@@ -4989,6 +5110,26 @@
       "content_type": "application/pdf",
       "access": "reachable",
       "checked_at": "2026-09-21T04:09:12.877308+00:00"
+    },
+    {
+      "url": "https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf",
+      "checked_at": "2026-09-21T06:48:20.848507+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "government source",
+      "http_status": 200,
+      "final_url": "https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf",
+      "content_type": "application/pdf",
+      "access": "reachable"
+    },
+    {
+      "url": "https://www.weather.gov/news/052212-joplin",
+      "checked_at": "2026-09-21T06:48:20.906057+00:00",
+      "claim_review": "Reachability only; see bibliography use notes and research ledger.",
+      "role": "government source",
+      "http_status": 200,
+      "final_url": "https://www.weather.gov/news/052212-joplin",
+      "content_type": "text/html; charset=UTF-8",
+      "access": "reachable"
     },
     {
       "url": "https://www.weather.gov/news/130603-chasers",
