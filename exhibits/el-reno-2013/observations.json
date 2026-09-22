@@ -1,9 +1,9 @@
 {
   "event_id": "el-reno-2013",
-  "reviewed_on": "2026-09-20",
-  "title": "A closer look at the footage",
-  "introduction": "These notes link to places in the original video. Visual samples and the creator's annotations have different evidence labels. None is synchronized with the map yet.",
-  "timing_note": "Sample times are approximate browser playback readings, not decoded frame identifiers. Edited elapsed time does not establish historical time or continuous storm evolution.",
+  "reviewed_on": "2026-09-21",
+  "title": "A closer look at source imagery",
+  "introduction": "These notes link to original video moments and photographs. Inspected stills and the creator's annotations have different evidence labels. None of these notebook entries is synchronized with the map.",
+  "timing_note": "Video sample times are approximate browser playback readings, not decoded frame identifiers. Edited elapsed time does not establish historical time or continuous storm evolution. Photograph caption times remain uncalibrated source labels.",
   "method_source": {
     "title": "El Reno Survey Project: time and location registration",
     "url": "https://ams.confex.com/ams/27SLS/webprogram/Paper254094.html",
@@ -57,6 +57,88 @@
       "note": "The description identifies a smaller anticyclonic tornado here. Keep this lead separate from the main tornado until independently matched.",
       "historical_utc": null, "camera_position": null,
       "next": "Identify the corresponding official event; do not attach it to the main path by proximity."
+    }
+  ],
+  "photographs": [
+    {
+      "id": "ER13-HARK-PHOTO-604",
+      "title": "A view from Airport Road and NW 10th Street",
+      "visual_note": "A field horizon sits beneath a broad dark lowering. The still provides no physical scale.",
+      "caption_note": "Hark labels this photograph 6:04 PM and places the view at Airport Road and NW 10th Street.",
+      "source": {
+        "author": "William T. Hark",
+        "title": "Storm Chase May 31, 2013: El Reno, Oklahoma Tornado",
+        "url": "https://www.harkphoto.com/05312013.html",
+        "original_url": "https://www.harkphoto.com/053113time604tornado1.jpg",
+        "locator": "First 6:04 PM photograph in the account's image sequence; filename 053113time604tornado1.jpg.",
+        "access": "page_and_still_inspected",
+        "accessed_on": "2026-09-21"
+      },
+      "review": {
+        "reviewed_on": "2026-09-21",
+        "status": "still_and_caption_inspected",
+        "coverage": "Full linked still, its caption and the surrounding account inspected. The route map's top-left portion, including the labeled observation stops, was visually checked. This is one photograph, not a continuous passage.",
+        "not_reviewed": "Video or audio, original GPS data, EXIF, camera calibration and independent clock synchronization."
+      },
+      "source_time": {
+        "label": "6:04 PM",
+        "precision": "minute",
+        "calibration": "unverified",
+        "accuracy": "unknown"
+      },
+      "place": {"label": "Airport Road and NW 10th Street", "basis": "author_caption"},
+      "processing": {
+        "status": "not_documented",
+        "note": "No processing statement is attached to this selected caption. An unedited original is not established."
+      },
+      "rights": {
+        "credit": "Photograph: William T. Hark",
+        "notice": "Copyright 2013 William T. Hark. The source offers licensing on request.",
+        "usage": "credited_links_only"
+      },
+      "uncertainty": "No exact historical time, camera coordinate, bearing or funnel dimensions are assigned. A minute label is not a measured timing error bound.",
+      "historical_utc": null,
+      "camera_position": null
+    },
+    {
+      "id": "ER13-HARK-PHOTO-609",
+      "title": "An enhanced view west from Airport Road and Reno Road",
+      "visual_note": "A road and fields are visible beneath a low-contrast dark cloud boundary. This still does not establish motion or a circulation boundary.",
+      "caption_note": "Hark identifies a highly enhanced image at 6:09 PM CDT, looking west from Airport Road and Reno Road.",
+      "source": {
+        "author": "William T. Hark",
+        "title": "Storm Chase May 31, 2013: El Reno, Oklahoma Tornado",
+        "url": "https://www.harkphoto.com/05312013.html",
+        "original_url": "https://www.harkphoto.com/053113tornado609IMG2575highlyprocessed.jpg",
+        "locator": "6:09 PM CDT enhanced photograph after the 6:05 PM sequence; filename 053113tornado609IMG2575highlyprocessed.jpg.",
+        "access": "page_and_still_inspected",
+        "accessed_on": "2026-09-21"
+      },
+      "review": {
+        "reviewed_on": "2026-09-21",
+        "status": "still_and_caption_inspected",
+        "coverage": "Full linked still, its caption and the surrounding account inspected. The route map's top-left portion, including the labeled observation stops, was visually checked. Enhancement is recorded from the author's caption.",
+        "not_reviewed": "Video or audio, original GPS data, EXIF, camera calibration, independent clock synchronization and an unprocessed version."
+      },
+      "source_time": {
+        "label": "6:09 PM CDT",
+        "precision": "minute",
+        "calibration": "unverified",
+        "accuracy": "unknown"
+      },
+      "place": {"label": "Airport Road and Reno Road, looking west", "basis": "author_caption"},
+      "processing": {
+        "status": "author_enhanced",
+        "note": "The author identifies this image as highly enhanced. It is not a neutral record of scene brightness or contrast."
+      },
+      "rights": {
+        "credit": "Photograph: William T. Hark",
+        "notice": "Copyright 2013 William T. Hark. The source offers licensing on request.",
+        "usage": "credited_links_only"
+      },
+      "uncertainty": "No exact historical time, camera coordinate, numerical bearing or funnel dimensions are assigned. The named junction and direction remain attributed caption information.",
+      "historical_utc": null,
+      "camera_position": null
     }
   ]
 }
