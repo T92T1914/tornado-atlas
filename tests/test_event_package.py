@@ -40,6 +40,24 @@ class EventPackageTests(unittest.TestCase):
         validate_index(self.index)
         self.assertIsNone(self.index['events'][1]['replay'])
 
+    def test_clock_bounds_accept_both_browser_supported_utc_suffixes(self):
+        for suffix in ('Z', '+00:00'):
+            with self.subTest(suffix=suffix):
+                config = copy.deepcopy(self.config)
+                for bound in ('start_utc', 'end_utc'):
+                    config['clock'][bound] = config['clock'][bound].replace('+00:00', suffix)
+                validate_replay(config, self.bundle)
+
+    def test_clock_bounds_reject_formats_the_browser_cannot_load(self):
+        for value in ('20130531T230400Z', '2013-05-31 23:04:00+00:00',
+                      '2013-05-31T23:04+00:00', '2013-05-31T23:04:00+0000',
+                      '2013-05-31T23:04:00-00:00'):
+            with self.subTest(value=value):
+                config = copy.deepcopy(self.config)
+                config['clock']['start_utc'] = value
+                with self.assertRaises(ValueError):
+                    validate_replay(config, self.bundle)
+
     def test_mixed_event_evidence_is_rejected(self):
         for field in ('exhibit', 'timeline_media', 'footage'):
             bundle = copy.deepcopy(self.bundle)

@@ -22,6 +22,13 @@ ordered minute positions with source display labels, and the existing single
 footage-source contract. Raw source conversion still preserves polygon holes;
 this renderer rejects them instead of discarding them.
 
+Clock bounds use `YYYY-MM-DDTHH:MM:00Z` or `YYYY-MM-DDTHH:MM:00+00:00`.
+The publication validator and browser accept both UTC suffixes. Compact dates,
+space-separated times, omitted seconds and other offset spellings fail before
+publication, even when Python can parse them. This keeps a successful build
+from producing a replay that the browser rejects. Raw source time labels remain
+separate from this normalized package boundary.
+
 Run `python -m atlas.exhibit` to regenerate the bundle, index and replay manifest.
 The source builder remains specific to the reviewed El Reno inputs. It writes
 `web/events.json` and `web/events/el-reno-2013.json`, adding the SHA-256 of the

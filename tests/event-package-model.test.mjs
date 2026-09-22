@@ -37,6 +37,17 @@ test('unsupported schema, historical appearance, zone and mixed identity fail',(
     const copy=structuredClone(config);mutate(copy);assert.throws(()=>validatePackage(copy,index.events[0]));
   }
 });
+test('clock bounds share the publication validator UTC string contract',()=>{
+  for(const suffix of ['Z','+00:00']){
+    const copy=structuredClone(config);
+    for(const bound of ['start_utc','end_utc'])copy.clock[bound]=copy.clock[bound].replace('+00:00',suffix);
+    assert.doesNotThrow(()=>validatePackage(copy,index.events[0]));
+  }
+  for(const value of ['20130531T230400Z','2013-05-31 23:04:00+00:00','2013-05-31T23:04+00:00','2013-05-31T23:04:00+0000','2013-05-31T23:04:00-00:00']){
+    const copy=structuredClone(config);copy.clock.start_utc=value;
+    assert.throws(()=>validatePackage(copy,index.events[0]),/historical clock/);
+  }
+});
 test('index rejects duplicate IDs and unsafe documentary links',()=>{
   const duplicate=structuredClone(index);duplicate.events.push(duplicate.events[0]);assert.throws(()=>selectEvent(duplicate),/duplicate/);
   for(const path of ['https://example.test/','../private.html','//example.test/a.html']){
