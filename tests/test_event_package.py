@@ -40,12 +40,62 @@ class EventPackageTests(unittest.TestCase):
         validate_index(self.index)
         self.assertIsNone(self.index['events'][1]['replay'])
 
+    def test_clock_bounds_accept_both_browser_supported_utc_suffixes(self):
+        for suffix in ('Z', '+00:00'):
+            with self.subTest(suffix=suffix):
+                config = copy.deepcopy(self.config)
+                for bound in ('start_utc', 'end_utc'):
+                    config['clock'][bound] = config['clock'][bound].replace('+00:00', suffix)
+                validate_replay(config, self.bundle)
+
+    def test_clock_bounds_reject_formats_the_browser_cannot_load(self):
+        for value in ('20130531T230400Z', '2013-05-31 23:04:00+00:00',
+                      '2013-05-31T23:04+00:00', '2013-05-31T23:04:00+0000',
+                      '2013-05-31T23:04:00-00:00'):
+            with self.subTest(value=value):
+                config = copy.deepcopy(self.config)
+                config['clock']['start_utc'] = value
+                with self.assertRaises(ValueError):
+                    validate_replay(config, self.bundle)
+
     def test_mixed_event_evidence_is_rejected(self):
         for field in ('exhibit', 'timeline_media', 'footage'):
             bundle = copy.deepcopy(self.bundle)
             bundle[field]['id' if field == 'exhibit' else 'event'] = 'another-event'
             with self.subTest(field=field), self.assertRaises(ValueError):
                 validate_replay(self.config, bundle)
+
+    def test_normalized_position_and_anchor_times_must_be_browser_readable(self):
+        cases = (
+            ('position', '20130531T230500Z'),
+            ('position', '2013-W22-5T23:05:00Z'),
+            ('anchor', '20130531T231703Z'),
+            ('anchor', '2013-W22-5T23:17:03Z'),
+            ('anchor', '2013-05-31T23:17:03.125Z'),
+        )
+        for kind, value in cases:
+            with self.subTest(kind=kind, value=value):
+                bundle = copy.deepcopy(self.bundle)
+                if kind == 'position':
+                    target = [feature['properties'] for feature in bundle['geometry']['features']
+                              if feature['geometry']['type'] == 'Point'][1]
+                else:
+                    target = bundle['footage']['anchors'][0]
+                target['utc'] = value
+                with self.assertRaises(ValueError):
+                    publication_artifacts(ROOT, json.dumps(bundle).encode('utf-8'))
+
+    def test_normalized_evidence_keeps_second_precision_and_both_utc_suffixes(self):
+        for suffix in ('Z', '+00:00'):
+            with self.subTest(suffix=suffix):
+                bundle = copy.deepcopy(self.bundle)
+                for feature in bundle['geometry']['features']:
+                    if feature['geometry']['type'] == 'Point':
+                        feature['properties']['utc'] = feature['properties']['utc'].replace('+00:00', suffix)
+                for anchor in bundle['footage']['anchors']:
+                    anchor['utc'] = anchor['utc'].replace('Z', suffix)
+                validate_replay(self.config, bundle)
+                self.assertIn('23:17:03', bundle['footage']['anchors'][0]['utc'])
 
     def test_unsupported_precision_appearance_and_source_are_rejected(self):
         mutations = [

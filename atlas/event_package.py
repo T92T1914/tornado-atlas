@@ -26,8 +26,8 @@ def asset_path(value, suffix):
 
 
 def utc(value):
-    if not isinstance(value, str):
-        raise ValueError("Expected explicit UTC time")
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:Z|\+00:00)", value):
+        raise ValueError("Expected normalized UTC time with whole seconds")
     stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if stamp.utcoffset() is None or stamp.utcoffset().total_seconds() != 0:
         raise ValueError("Expected explicit UTC time")
@@ -67,6 +67,12 @@ def validate_replay(config, bundle):
         raise ValueError("Unsupported coverage; historical appearance needs a reviewed schema")
     clock = config["clock"]
     fields(clock, ("start_utc", "end_utc", "time_zone", "precision", "basis"), "clock")
+    for bound in ("start_utc", "end_utc"):
+        # Match the browser contract before a valid Python-only spelling is
+        # published as a replay that the shared loader cannot open.
+        value = clock[bound]
+        if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:00(?:Z|\+00:00)", value):
+            raise ValueError("Clock bounds require minute UTC format YYYY-MM-DDTHH:MM:00Z or +00:00")
     start, end = utc(clock["start_utc"]), utc(clock["end_utc"])
     if start >= end or clock["precision"] != "minute" or not isinstance(clock["basis"], str) or not clock["basis"].strip():
         raise ValueError("Invalid clock interval or evidence basis")
