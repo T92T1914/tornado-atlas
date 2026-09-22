@@ -29,6 +29,13 @@ publication, even when Python can parse them. This keeps a successful build
 from producing a replay that the browser rejects. Raw source time labels remain
 separate from this normalized package boundary.
 
+Normalized geographic positions and footage anchors also use the expanded date,
+`T` separator, explicit seconds and either UTC suffix. Geographic observations
+remain on whole minutes. Footage anchors retain their recorded whole seconds,
+including values between geographic samples. Fractional anchor times are rejected
+because this viewer selects printed clock readings at one-second resolution.
+Neither timestamp validation nor that display resolution establishes clock accuracy.
+
 Run `python -m atlas.exhibit` to regenerate the bundle, index and replay manifest.
 The source builder remains specific to the reviewed El Reno inputs. It writes
 `web/events.json` and `web/events/el-reno-2013.json`, adding the SHA-256 of the

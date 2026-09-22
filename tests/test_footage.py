@@ -26,6 +26,20 @@ class FootageTests(unittest.TestCase):
         self.data['anchors'][0]['utc'] = '2013-05-31T18:17:03'
         with self.assertRaises(ValueError): validate_footage(self.data)
 
+    def test_rejects_browser_incompatible_or_subsecond_anchor_times(self):
+        for value in ('20130531T231703Z', '2013-W22-5T23:17:03Z',
+                      '2013-05-31T23:17:03.125Z'):
+            with self.subTest(value=value):
+                self.data['anchors'][0]['utc'] = value
+                with self.assertRaises(ValueError):
+                    validate_footage(self.data)
+
+    def test_second_precision_anchors_keep_both_supported_utc_suffixes(self):
+        for suffix in ('Z', '+00:00'):
+            with self.subTest(suffix=suffix):
+                self.data['anchors'][0]['utc'] = '2013-05-31T23:17:03' + suffix
+                validate_footage(self.data)
+
     def test_rejects_wrong_video_version(self):
         self.data['sources'][0]['video_id'] = '0Wdv6zsvsI0'
         with self.assertRaises(ValueError): validate_footage(self.data)

@@ -31,7 +31,10 @@ def validate_footage(data):
     last = None
     for anchor in data['anchors']:
         source = sources[anchor['source_id']]
-        stamp = datetime.fromisoformat(anchor['utc'].replace('Z', '+00:00'))
+        value = anchor['utc']
+        if not isinstance(value, str) or not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:Z|\+00:00)', value):
+            raise ValueError('Clock anchors require normalized UTC with whole seconds')
+        stamp = datetime.fromisoformat(value.replace('Z', '+00:00'))
         if stamp.utcoffset() is None or stamp.utcoffset().total_seconds() != 0 or stamp.date().isoformat() != '2013-05-31':
             raise ValueError('Clock anchor requires event UTC')
         if last and stamp <= last:

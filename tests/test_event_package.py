@@ -65,6 +65,38 @@ class EventPackageTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(ValueError):
                 validate_replay(self.config, bundle)
 
+    def test_normalized_position_and_anchor_times_must_be_browser_readable(self):
+        cases = (
+            ('position', '20130531T230500Z'),
+            ('position', '2013-W22-5T23:05:00Z'),
+            ('anchor', '20130531T231703Z'),
+            ('anchor', '2013-W22-5T23:17:03Z'),
+            ('anchor', '2013-05-31T23:17:03.125Z'),
+        )
+        for kind, value in cases:
+            with self.subTest(kind=kind, value=value):
+                bundle = copy.deepcopy(self.bundle)
+                if kind == 'position':
+                    target = [feature['properties'] for feature in bundle['geometry']['features']
+                              if feature['geometry']['type'] == 'Point'][1]
+                else:
+                    target = bundle['footage']['anchors'][0]
+                target['utc'] = value
+                with self.assertRaises(ValueError):
+                    publication_artifacts(ROOT, json.dumps(bundle).encode('utf-8'))
+
+    def test_normalized_evidence_keeps_second_precision_and_both_utc_suffixes(self):
+        for suffix in ('Z', '+00:00'):
+            with self.subTest(suffix=suffix):
+                bundle = copy.deepcopy(self.bundle)
+                for feature in bundle['geometry']['features']:
+                    if feature['geometry']['type'] == 'Point':
+                        feature['properties']['utc'] = feature['properties']['utc'].replace('+00:00', suffix)
+                for anchor in bundle['footage']['anchors']:
+                    anchor['utc'] = anchor['utc'].replace('Z', suffix)
+                validate_replay(self.config, bundle)
+                self.assertIn('23:17:03', bundle['footage']['anchors'][0]['utc'])
+
     def test_unsupported_precision_appearance_and_source_are_rejected(self):
         mutations = [
             ('schema_version', None, 2),

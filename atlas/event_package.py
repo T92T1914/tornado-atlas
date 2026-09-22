@@ -26,8 +26,8 @@ def asset_path(value, suffix):
 
 
 def utc(value):
-    if not isinstance(value, str):
-        raise ValueError("Expected explicit UTC time")
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:Z|\+00:00)", value):
+        raise ValueError("Expected normalized UTC time with whole seconds")
     stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if stamp.utcoffset() is None or stamp.utcoffset().total_seconds() != 0:
         raise ValueError("Expected explicit UTC time")

@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {webcrypto} from 'node:crypto';
 import {loadEventPackage,selectEvent,validatePackage,displayClock} from '../web/event-package-model.mjs';
+import {preparePositions} from '../web/playback-model.mjs';
+import {anchorAt} from '../web/footage-model.mjs';
 const root=new URL('../web/',import.meta.url);
 const index=JSON.parse(await readFile(new URL('events.json',root),'utf8'));
 const config=JSON.parse(await readFile(new URL('events/el-reno-2013.json',root),'utf8'));
@@ -46,6 +48,19 @@ test('clock bounds share the publication validator UTC string contract',()=>{
   for(const value of ['20130531T230400Z','2013-05-31 23:04:00+00:00','2013-05-31T23:04+00:00','2013-05-31T23:04:00+0000','2013-05-31T23:04:00-00:00']){
     const copy=structuredClone(config);copy.clock.start_utc=value;
     assert.throws(()=>validatePackage(copy,index.events[0]),/historical clock/);
+  }
+});
+test('normalized evidence UTC forms preserve geographic minutes and footage seconds',()=>{
+  for(const suffix of ['Z','+00:00']){
+    const data=JSON.parse(bundle);
+    const points=data.geometry.features.filter(feature=>feature.geometry.type==='Point');
+    for(const point of points)point.properties.utc=point.properties.utc.replace(/(?:Z|\+00:00)$/,suffix);
+    const positions=preparePositions(points);
+    assert.equal(positions[1].stamp,Date.parse('2013-05-31T23:05:00Z'));
+    for(const anchor of data.footage.anchors){
+      anchor.utc=anchor.utc.replace(/(?:Z|\+00:00)$/,suffix);
+      assert.equal(anchorAt(data.footage.anchors,new Date(Date.parse(anchor.utc)).toISOString()),anchor);
+    }
   }
 });
 test('index rejects duplicate IDs and unsafe documentary links',()=>{
