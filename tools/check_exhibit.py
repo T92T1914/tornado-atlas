@@ -10,6 +10,7 @@ from atlas.footage import load_footage
 from atlas.damage import validate_gallery
 from atlas.history import validate_history
 from atlas.reading import validate_reading
+from atlas.observations import validate_notebook
 from atlas.timeline_media import validate_timeline_media
 from atlas.community import validate_community
 from atlas.survey import load_survey
@@ -50,6 +51,7 @@ assert len(ids) == len(set(ids))
 creator_ids = {creator['id'] for creator in bundle['creators']}
 assert all(video['creator'] in creator_ids for video in bundle['review_queue'])
 validate_timeline_media(bundle['timeline_media'], root / 'web')
+validate_notebook(bundle['notebook'], bundle['review_queue'], bundle['exhibit']['id'])
 validate_community(bundle['community'], bundle['exhibit']['id'])
 validate_gallery(bundle['damage'], root / 'web')
 validate_history(bundle['history'], bundle['storm_photos'], root / 'web')

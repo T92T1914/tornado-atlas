@@ -145,6 +145,8 @@ async function main() {
     card.append(details);
     byId('observations').append(card);
   }
+  const { mountNotebookPhotographs } = await import('./notebook-view.mjs');
+  mountNotebookPhotographs(notebook, byId('observations'));
   for (const creator of data.creators) {
     const anchor = link(creator.name + ' ↗', creator.url);
     anchor.className = 'creator';

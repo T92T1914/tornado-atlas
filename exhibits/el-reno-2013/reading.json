@@ -1,8 +1,15 @@
 {
   "schema": 1,
   "event": "el-reno-2013",
-  "updated": "2026-09-20",
+  "updated": "2026-09-21",
   "sources": [
+    {
+      "group": "Original photographs and accounts",
+      "title": "Storm Chase May 31, 2013: El Reno, Oklahoma Tornado",
+      "publisher": "William T. Hark",
+      "url": "https://www.harkphoto.com/05312013.html",
+      "use": "Two inspected photographs with separate visual notes and attributed caption times and named places. Their clocks and camera positions remain unregistered; copyright images are linked, not copied."
+    },
     {
       "group": "Official records",
       "title": "Damage Assessment Toolkit survey service",

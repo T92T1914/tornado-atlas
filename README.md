@@ -134,6 +134,13 @@ the correction within the original forum discussion. The
 [September 21 location review](research/fatality-locations-2026-09-21.md)
 explains why that evidence still does not support a precise pin.
 
+The source notebook also links two original William T. Hark photographs. Each
+entry separates what is visible in the still from the author's caption, keeps
+the stated time and named place, and records image processing and review limits.
+The [photograph notes](research/source-photographs-2026-09-21.md) explain why
+these remain unregistered observations. They do not seek the historical clock
+or place a camera on the map, and the copyrighted images remain on their source site.
+
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
 ## What is implemented
@@ -141,7 +148,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Part | What you can inspect |
 | --- | --- |
 | Searchable atlas | World outline, 80,318 US source records, combined filters, grouped map markers, paginated results and linked source details |
-| El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes and unresolved evidence questions |
+| El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes, two original-photo notebook entries and unresolved evidence questions |
 | Recorded camera samples | Tim Marshall's published locations and directions, 17 samples inside the playback window, explicit sample ages and gaps |
 | History and remembrance | Eleven historical sections, sources for eight names, one approximate vehicle recovery location and five unresolved location accounts |
 | Forecast and evidence clock | Seven original NWS bulletins, issue and observation times, optional archived warning polygons, radar and camera sample availability |
@@ -157,7 +164,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
-| Verification | 98 Python tests, 71 JavaScript tests, offline bundle and photograph checks, and a GitHub Actions workflow |
+| Verification | Python and JavaScript behavior tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
 This is an early working project. International imports, complete documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer; only US source coverage is populated. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
 
