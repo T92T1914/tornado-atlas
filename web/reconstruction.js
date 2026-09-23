@@ -1,3 +1,4 @@
+import {mountChronology} from './chronology-view.mjs';
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
 import {frameAt} from './timeline-media-model.mjs';
 import {loadEventPackage,displayClock} from './event-package-model.mjs';
@@ -13,9 +14,9 @@ function pause(){clock?.pause(performance.now());if(frame!==null) cancelAnimatio
 function resetView(){const distance=Math.min(60,Math.max(24,43.2*canvas.clientHeight/canvas.clientWidth));for(const [key,value] of Object.entries({azimuth:0,elevation:48,distance}))el(`replay-${key}`).value=value;el('replay-follow').checked=false;requestDraw();}
 
 async function start(){
-  const {index,event,config,data}=await loadEventPackage(new URLSearchParams(location.search).get('event'));
+  const {index,event,config,data,chronology}=await loadEventPackage(new URLSearchParams(location.search).get('event'));
   const picker=el('replay-event');picker.replaceChildren();
-  for(const row of index.events){const option=document.createElement('option');option.value=row.id;option.textContent=`${row.title}${row.replay?' · Geographic replay':' · Research readiness'}`;picker.append(option);}
+  for(const row of index.events){const option=document.createElement('option');option.value=row.id;option.textContent=`${row.title}${row.replay?' · Geographic replay':row.chronology?' · Source chronology':' · Research readiness'}`;picker.append(option);}
   picker.value=event.id;picker.disabled=false;
   picker.addEventListener('change',()=>{location.href=`reconstruction.html?event=${encodeURIComponent(picker.value)}`;});
   document.title=`${event.title} in space and time | Tornado Atlas`;
@@ -23,6 +24,14 @@ async function start(){
   el('replay-event-name').textContent=event.title;
   for(const link of document.querySelectorAll('[data-event-documentary]'))link.href=event.documentary+(link.dataset.eventDocumentary||'');
   el('replay-documentary').textContent=`Read the ${event.title} documentary`;
+  if(chronology){
+    document.title=`${event.title} source chronology | Tornado Atlas`;
+    el('replay-title').textContent=`${event.title}: the documented sequence`;
+    el('replay-eyebrow').textContent='SOURCE CHRONOLOGY / NO GEOGRAPHIC REPLAY';
+    el('replay-introduction').textContent='Move through reviewed warning and event records. Read what each clock label establishes and open its original source page.';
+    mountChronology(el('replay-chronology'),chronology,event);
+    if(!config)return;
+  }
   if(!config){
     document.title=`${event.title} reconstruction readiness | Tornado Atlas`;
     el('replay-title').textContent=`${event.title}: reconstruction readiness`;

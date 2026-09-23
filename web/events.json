@@ -1,24 +1,27 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "default_event": "el-reno-2013",
   "events": [
     {
       "id": "el-reno-2013",
       "title": "El Reno · 2013",
       "documentary": "index.html",
-      "replay": "events/el-reno-2013.json"
+      "replay": "events/el-reno-2013.json",
+      "chronology": null
     },
     {
       "id": "joplin-2011",
       "title": "Joplin · 2011",
       "documentary": "joplin.html",
-      "replay": null
+      "replay": null,
+      "chronology": "events/joplin-2011-chronology.json"
     },
     {
       "id": "blackwell-1955",
       "title": "Blackwell · 1955",
       "documentary": "blackwell.html",
-      "replay": null
+      "replay": null,
+      "chronology": null
     }
   ]
 }

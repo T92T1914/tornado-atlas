@@ -36,13 +36,13 @@ def utc(value):
 
 def validate_index(index):
     fields(index, ("schema_version", "default_event", "events"), "event index")
-    if type(index["schema_version"]) is not int or index["schema_version"] != 1:
+    if type(index["schema_version"]) is not int or index["schema_version"] not in (1, 2):
         raise ValueError("Unsupported event index version")
     if not isinstance(index["events"], list) or not index["events"]:
         raise ValueError("An event index needs entries")
     seen = set()
     for event in index["events"]:
-        fields(event, ("id", "title", "documentary", "replay"), "event")
+        fields(event, ("id", "title", "documentary", "replay") + (("chronology",) if index["schema_version"] == 2 else ()), "event")
         if not isinstance(event["id"], str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", event["id"]) or event["id"] in seen:
             raise ValueError("Invalid or duplicate event identity")
         if not isinstance(event["title"], str) or not event["title"].strip():
@@ -51,6 +51,10 @@ def validate_index(index):
         if event["replay"] is not None:
             if event["replay"] != f"events/{event['id']}.json":
                 raise ValueError("Replay path must identify its event")
+        if event.get("chronology") is not None and event["chronology"] != f"events/{event['id']}-chronology.json":
+            raise ValueError("Chronology path must identify its event")
+        if event.get("chronology") is not None and event["replay"] is not None:
+            raise ValueError("Combined chronology and replay synchronization is not supported yet")
         seen.add(event["id"])
     if index["default_event"] not in seen:
         raise ValueError("Default event is absent")
@@ -143,7 +147,13 @@ def publication_artifacts(root: Path, bundle_bytes: bytes, bundle_name="data.jso
     if config["bundle"] != bundle_name:
         raise ValueError("Replay bundle path differs from generated destination")
     package = {**config, "bundle_sha256": hashlib.sha256(bundle_bytes).hexdigest()}
-    return {"events.json": index, event["replay"]: package}
+    artifacts = {"events.json": index, event["replay"]: package}
+    from .chronology import validate_chronology
+    for entry in index["events"]:
+        if entry.get("chronology"):
+            data = json.loads((root / "exhibits" / entry["id"] / "chronology.json").read_text(encoding="utf-8"))
+            artifacts[entry["chronology"]] = validate_chronology(data, entry["id"], root)
+    return artifacts
 
 
 def write_packages(web: Path, artifacts):

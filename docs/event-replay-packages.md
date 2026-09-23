@@ -69,3 +69,35 @@ relabelling test data. It does not establish a separately sourced event or prove
 that every future geography renders correctly. Historical camera registration,
 appearance geometry, continuous footage synchronization and multi-source player
 switching remain outside version 1.
+
+## Documentary chronologies
+
+Event index version 2 adds a nullable `chronology` path. Version 1 remains
+readable. A chronology is independent of geographic replay. Joplin now loads
+seven reviewed NWS entries through the shared event selector and PlaybackClock,
+while its geographic replay remains null. Blackwell remains a documentary with
+unresolved clock labels, without a chronology assigned to it.
+Version 2 rejects assigning both modes to one event. A future combined view must
+explicitly synchronize their evidence before enabling that combination.
+
+`exhibits/joplin-2011/chronology.json` supplies chronology schema version 1.
+Sources have preserved PDF paths and SHA-256 values checked during publication.
+Entries carry their original clock labels, normalized UTC minute, reported or
+approximate precision, account, limits and source page. Unknown times cannot be
+inserted into a timed sequence. Coordinates, camera registration and appearance
+fields are rejected by this schema.
+
+The browser holds the latest earlier entry between observations and labels that
+gap. It never interpolates documentary text or positions. Play, pause, rate,
+entry selection, minute seeking and a shareable `t` URL use the existing clock.
+Entry changes create history entries, while scrubbing replaces the current URL.
+Back and forward restore the selected time paused. Hidden pages pause playback.
+No media player or external source needs to load for the evidence text to work.
+The documentary page remains a noninteractive alternative.
+
+The existing exhibit build publishes the chronology under `web/events/`.
+`check_exhibit.py` compares it with the reviewed input. Python checks the archived
+source hash. Browser validation checks schema, event joins, ordering and source
+locators. Those checks preserve the curated contract, not independent historical
+verification. The source is a retrospective assessment, not a synchronized feed
+of what every observer knew at each moment.

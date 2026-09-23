@@ -33,3 +33,15 @@
 .replay-reading p {font-size:15px;color:var(--muted)}
 @media(max-width:850px){.replay-layout,.replay-reading{grid-template-columns:1fr}.replay-controls{display:block}.replay-radar img{max-width:420px}.replay-reading{gap:30px}.replay-buttons a{margin-left:0}#replay-scene{height:390px}.replay-caption{min-height:4em}}
 @media(forced-colors:active){.replay-boundary,.replay-stage,.replay-controls{border:1px solid CanvasText}}
+
+#replay-chronology {max-width:960px;border:1px solid var(--line);padding:24px;background:var(--panel);border-radius:8px}
+#replay-chronology[hidden] {display:none}
+.chronology-controls {display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chronology-controls button,.chronology-controls select {min-height:44px}
+.chronology-time {font-size:24px;font-variant-numeric:tabular-nums}
+#chronology-time,#chronology-entry {display:block;width:100%;margin:10px 0 20px;min-height:44px}
+#chronology-entry {white-space:normal;font:inherit}
+.chronology-record {border-left:3px solid var(--text);padding:4px 20px;margin:22px 0;overflow-wrap:anywhere}
+.chronology-record h3 {font-size:25px}
+.chronology-record p:first-child {font-size:13px;color:var(--muted)}
+@media(max-width:600px){#replay-chronology{padding:16px}.chronology-controls{align-items:stretch}.chronology-record{padding-left:12px}}
