@@ -23,6 +23,8 @@ jobs:
           node --check web/app.js
           node --check web/appearance.js
           node --check web/atlas.js
+          node --check web/explorer-map.mjs
+          node --test tests/explorer-model.test.mjs tests/explorer-map.test.mjs
           node --check web/study.js
           node --check web/reconstruction.js
           node --check web/chronology-view.mjs

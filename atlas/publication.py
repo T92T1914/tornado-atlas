@@ -31,11 +31,27 @@ def write_bytes(path: Path, content: bytes) -> None:
         Path(temporary).unlink(missing_ok=True)
 
 
-def select_index(record: dict, aliases: dict, detail_file: str) -> dict:
+def location_review(record: dict, reviews: dict) -> dict | None:
+    review = reviews.get(record['id'])
+    if review is None:
+        return None
+    if (review.get('status') != 'disputed'
+            or review.get('snapshot_id') != record['provenance']['snapshot_id']
+            or review.get('source_sha256') != record['provenance']['sha256']
+            or review.get('source_url') != record['provenance']['source_url']
+            or review.get('csv_record') != record['provenance']['csv_record']
+            or review.get('reported_start') != record['spatial']['begin_point']
+            or review.get('reported_end') != record['spatial']['end_point']
+            or not review.get('reason')):
+        raise ValueError(f"Location review is stale or incomplete: {record['id']}")
+    return review
+
+
+def select_index(record: dict, aliases: dict, detail_file: str, reviews: dict | None = None) -> dict:
     annotation = aliases.get(record['id'], {})
     start = record['spatial']['begin_point']
     end = record['spatial']['end_point']
-    return {
+    result = {
         'id': record['id'], 'title': record['title'], 'aliases': annotation.get('names', []),
         'year': record['year'], 'country': record['country_code'],
         'state': record['administrative_area'], 'area': record['local_area'],
@@ -47,15 +63,21 @@ def select_index(record: dict, aliases: dict, detail_file: str) -> dict:
         'detail_file': detail_file, 'exhibit': annotation.get('exhibit'),
         'source_snapshot': record['provenance']['snapshot_id'],
     }
+    if location_review(record, reviews or {}):
+        result['location_quality'] = 'disputed'
+    return result
 
 
-def export_catalogue(connection, destination: Path, aliases: dict) -> dict:
+def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict | None = None) -> dict:
+    reviews = reviews or {}
     coverage = stats(connection)
     count = coverage['current_source_records']
     if not 0 < count <= 100_000:
         raise ValueError('Import between 1 and 100000 records before exporting the static atlas')
     records = search(connection, limit=count)
     identifiers = {record['id'] for record in records}
+    if set(reviews) - identifiers:
+        raise ValueError('Location review references an unavailable record')
     unmatched = sorted(set(aliases) - identifiers)
     groups = {}
     sources = {}
@@ -64,6 +86,9 @@ def export_catalogue(connection, destination: Path, aliases: dict) -> dict:
         bucket = hashlib.sha256(record['id'].encode()).hexdigest()[:2]
         detail = {key: value for key, value in record.items() if key != 'episode_narrative'}
         detail['curation'] = aliases.get(record['id'])
+        review = location_review(record, reviews)
+        if review:
+            detail['location_review'] = review
         groups.setdefault(bucket, {})[record['id']] = detail
         provenance = record['provenance']
         sources[provenance['snapshot_id']] = {
@@ -75,7 +100,7 @@ def export_catalogue(connection, destination: Path, aliases: dict) -> dict:
         relative = f'details/{bucket}-{digest}.json'
         write_json(destination / relative, group)
         lookup.update({identifier: relative for identifier in group})
-    index = [select_index(record, aliases, lookup[record['id']]) for record in records]
+    index = [select_index(record, aliases, lookup[record['id']], reviews) for record in records]
     payload = {
         'schema_version': 1, 'coverage': coverage, 'sources': sources,
         'search_scope': 'Published locality, state, county, source ID and reviewed aliases; not episode narratives.',
@@ -112,7 +137,8 @@ def build() -> dict:
     aliases = json.loads((ROOT / 'research/record-aliases.json').read_text(encoding='utf-8'))
     connection = connect()
     try:
-        result = export_catalogue(connection, ROOT / 'web/catalogue', aliases)
+        reviews = json.loads((ROOT / 'research/location-reviews.json').read_text(encoding='utf-8'))
+        result = export_catalogue(connection, ROOT / 'web/catalogue', aliases, reviews)
     finally:
         connection.close()
     result['land'] = export_land(ROOT / 'web/land.json')
