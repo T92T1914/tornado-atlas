@@ -24,6 +24,13 @@ for row in records:
     assert row['rating'] == detail['rating']['reported']
     assert row['source_snapshot'] == detail['provenance']['snapshot_id']
     assert row['source_snapshot'] in index['sources']
+    assert (row.get('location_quality') == 'disputed') == bool(detail.get('location_review'))
+    if detail.get('location_review'):
+        review = detail['location_review']
+        assert review['snapshot_id'] == row['source_snapshot']
+        assert review['reported_start'] == detail['spatial']['begin_point']
+        assert review['reported_end'] == detail['spatial']['end_point']
+        assert review['source_sha256'] == detail['provenance']['sha256']
     point = row['point']
     assert point is None or (len(point)==2 and -180<=point[0]<=180 and -90<=point[1]<=90)
     counts[str(row['year'])] = counts.get(str(row['year']),0)+1

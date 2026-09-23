@@ -14,3 +14,7 @@ exhibits/el-reno-2013/camera-marshall-literal.txt -text
 exhibits/el-reno-2013/survey-attachments-response.json -text
 # Archived source text retains its original line endings and trailing spaces.
 research/evidence/warning-*.txt -text whitespace=-blank-at-eol
+# Pinned third-party bytes are checked against their upstream digests.
+web/vendor/leaflet/leaflet.js -text whitespace=-blank-at-eol
+web/vendor/leaflet/leaflet.css -text whitespace=-blank-at-eol
+web/vendor/leaflet/LICENSE -text whitespace=-blank-at-eol

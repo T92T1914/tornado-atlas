@@ -1,0 +1,14 @@
+{
+  "ncei:5599610": {
+    "status": "disputed",
+    "reviewed": "2026-09-23",
+    "snapshot_id": "ncei:1997:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
+    "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
+    "csv_record": 23731,
+    "reported_start": [-12.18, 34.6],
+    "reported_end": [-117.03, 34.63],
+    "reason": "The source labels this Apple Vly Arpt, San Bernardino County, California, but its reported start is in the Atlantic. The original CSV and a fresh download agree on -12.18 longitude. The reported end is -117.03, 34.63. No corrected starting longitude has been established.",
+    "display_policy": "Keep the original coordinates and record. Exclude the disputed start from ordinary map groups and fit results. Show it only through the explicitly labeled reported-position action. Do not substitute the end or a place centroid."
+  }
+}

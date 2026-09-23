@@ -4,12 +4,27 @@ import unittest
 
 from atlas.catalogue import import_ncei
 from atlas.ncei import normalize
-from atlas.publication import export_catalogue, select_index
+from atlas.publication import export_catalogue, select_index, location_review
 import test_catalogue as fixtures
 from test_catalogue import sample
 
 
 class BrowserIndexTests(unittest.TestCase):
+    def test_review_flags_original_point_without_replacing_it(self):
+        record = normalize(sample(BEGIN_LAT='34.60', BEGIN_LON='-12.18', END_LAT='34.63', END_LON='-117.03'))
+        record['provenance'] = {'snapshot_id':'fixture','sha256':'a'*64,'source_url':'https://example.com/source','csv_record':2}
+        review = {'status':'disputed','snapshot_id':'fixture','reported_start':[-12.18,34.6],
+                  'reported_end':[-117.03,34.63],'reason':'Conflicting source geography','source_url':'https://example.com/source',
+                  'source_sha256':'a'*64,'csv_record':2}
+        result = select_index(record, {}, 'details/fixture.json', {'ncei:1':review})
+        self.assertEqual(result['point'], [-12.18,34.6])
+        self.assertEqual(result['location_quality'], 'disputed')
+        self.assertEqual(result['point_basis'], 'reported_start')
+        for key,value in [('snapshot_id','new-revision'),('reported_start',[-117.18,34.6]),('reported_end',None),('reason',''),
+                          ('source_sha256','b'*64),('source_url','https://example.com/other'),('csv_record',3)]:
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError,'stale or incomplete'):
+                location_review(record, {'ncei:1':{**review,key:value}})
+
     def test_end_fallback_is_labeled_and_never_connects_endpoints(self):
         record = normalize(sample(BEGIN_LAT='', BEGIN_LON=''))
         record['provenance'] = {'snapshot_id':'fixture'}

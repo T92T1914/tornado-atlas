@@ -25,10 +25,14 @@ export function writeSearchLink(filters = {}, recordId = '') {
 export function filterRecords(records, {query = '', year = '', rating = '', state = '', exhibits = false} = {}) {
   const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   return records.filter(record => {
-    const text = [record.id, record.title, record.state, record.area, ...record.aliases].join(' ').toLocaleLowerCase();
-    return terms.every(term => text.includes(term)) && (!year || record.year === Number(year))
-      && (!rating || (rating === 'unrated' ? !/^(EF|F)[0-5]$/.test(record.rating || '') : record.rating === rating))
-      && (!state || record.state === state) && (!exhibits || Boolean(record.exhibit));
+    if ((year && record.year !== Number(year))
+      || (rating && (rating === 'unrated' ? /^(EF|F)[0-5]$/.test(record.rating || '') : record.rating !== rating))
+      || (state && record.state !== state) || (exhibits && !record.exhibit)) return false;
+    // The ordinary overview has no text terms. Avoid assembling and folding
+    // every source label when only structured filters need evaluating.
+    if (!terms.length) return true;
+    const text = [record.id, record.title, record.state, record.area, record.date, record.year, ...record.aliases].join(' ').toLocaleLowerCase();
+    return terms.every(term => text.includes(term));
   }).sort((a, b) => (b.date || '').localeCompare(a.date || '') || a.id.localeCompare(b.id));
 }
 
