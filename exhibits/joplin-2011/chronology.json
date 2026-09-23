@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "event_id": "joplin-2011",
+  "title": "Warnings and reported events",
+  "clock": {
+    "time_zone": "America/Chicago",
+    "precision": "minute",
+    "basis": "The NWS July 2011 assessment prints these times in CDT. UTC values use the stated UTC-05:00 offset for navigation. Minute labels retain source precision, not measured clock accuracy. Between entries, the player holds the last documentary record. It does not interpolate storm positions, images or impacts."
+  },
+  "sources": [
+    {
+      "id": "nws-assessment",
+      "title": "NWS Central Region Service Assessment, July 2011",
+      "url": "https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf",
+      "archive": "exhibits/joplin-2011/nws-service-assessment.pdf",
+      "sha256": "38e97e54efaaa1853cff5018e0b5ae041e70fc822d0c6c9228258a636fc16962"
+    }
+  ],
+  "entries": [
+    {
+      "id": "watch",
+      "utc": "2011-05-22T18:30:00Z",
+      "source_time": "130 pm CDT",
+      "precision": "reported_minute",
+      "title": "Tornado watch",
+      "account": "SPC issues a tornado watch for southwest Missouri through 9 p.m. CDT.",
+      "limits": "A watch describes a threat area. It does not predict a future street-level track.",
+      "source_id": "nws-assessment",
+      "page": 8,
+      "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
+    },
+    {
+      "id": "warning-30",
+      "utc": "2011-05-22T22:09:00Z",
+      "source_time": "509 pm CDT",
+      "precision": "reported_minute",
+      "title": "First warning area",
+      "account": "NWS Springfield issues warning polygon 30 for western Jasper County, including northeastern Joplin, through 6 p.m. CDT.",
+      "limits": "This warning has different coverage from the following warning. No polygon geometry is registered in this player.",
+      "source_id": "nws-assessment",
+      "page": 8,
+      "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
+    },
+    {
+      "id": "first-siren",
+      "utc": "2011-05-22T22:11:00Z",
+      "source_time": "511 pm CDT",
+      "precision": "reported_minute",
+      "title": "First siren alert",
+      "account": "A three-minute siren alert sounds for Jasper County and Joplin.",
+      "limits": "An alert time does not establish what each resident heard or how they responded.",
+      "source_id": "nws-assessment",
+      "page": 8,
+      "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
+    },
+    {
+      "id": "warning-31",
+      "utc": "2011-05-22T22:17:00Z",
+      "source_time": "517 pm CDT",
+      "precision": "reported_minute",
+      "title": "Warning including Joplin",
+      "account": "Warning polygon 31 includes southwest Jasper County and Joplin, northwest Newton County and southeast Cherokee County, Kansas. It remains in effect through 6 p.m. CDT.",
+      "limits": "This is the retrospective chronology, not a replay of the original warning transmission.",
+      "source_id": "nws-assessment",
+      "page": 8,
+      "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
+    },
+    {
+      "id": "touchdown",
+      "utc": "2011-05-22T22:34:00Z",
+      "source_time": "534 pm CDT",
+      "precision": "approximate_minute",
+      "title": "Approximate initial touchdown",
+      "account": "The assessment places touchdown about half a mile southwest of JJ Highway and Newton Road, southwest of the city limits.",
+      "limits": "The source explicitly calls this time approximate. No numerical error bound or exact coordinate is assigned.",
+      "source_id": "nws-assessment",
+      "page": 8,
+      "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
+    },
+    {
+      "id": "second-siren",
+      "utc": "2011-05-22T22:38:00Z",
+      "source_time": "538 pm CDT",
+      "precision": "reported_minute",
+      "title": "Second siren alert and damage progression",
+      "account": "A second three-minute alert sounds. The chronology places the beginning of EF4 damage as the tornado approaches Schifferdecker Avenue in western Joplin.",
+      "limits": "This combined report entry does not supply a separate building-impact clock or an instantaneous wind field.",
+      "source_id": "nws-assessment",
+      "page": 8,
+      "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
+    },
+    {
+      "id": "warning-32",
+      "utc": "2011-05-22T22:48:00Z",
+      "source_time": "548 pm CDT",
+      "precision": "reported_minute",
+      "title": "Warning coverage extends east",
+      "account": "Warning polygon 32 includes southern Jasper County and Joplin, northern Newton County and western Lawrence County, through 6:30 p.m. CDT.",
+      "limits": "This is the final entry selected for this chronology. It is not the end of the tornado or the disaster.",
+      "source_id": "nws-assessment",
+      "page": 8,
+      "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
+    }
+  ]
+}

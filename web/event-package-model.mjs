@@ -1,3 +1,4 @@
+import {validateChronology} from './chronology-model.mjs';
 // The build validates the historical contract. The loader rejects mixed or
 // incomplete publications before any bundle reaches the shared renderer.
 const idPattern=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -6,13 +7,15 @@ function requireValue(condition,message){if(!condition)throw new Error(message);
 function keys(value,names,label){requireValue(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).sort().join('|')===names.sort().join('|'),`Unsupported ${label} fields.`);}
 export function selectEvent(index,requested=null){
   keys(index,['schema_version','default_event','events'],'event index');
-  requireValue(index.schema_version===1&&Array.isArray(index.events)&&index.events.length,'Unsupported event index.');
+  requireValue([1,2].includes(index.schema_version)&&Array.isArray(index.events)&&index.events.length,'Unsupported event index.');
   const seen=new Set();
   for(const row of index.events){
-    keys(row,['id','title','documentary','replay'],'event');
+    keys(row,['id','title','documentary','replay',...(index.schema_version===2?['chronology']:[])],'event');
     requireValue(typeof row.id==='string'&&idPattern.test(row.id)&&!seen.has(row.id),'Invalid or duplicate event identity.');
     requireValue(typeof row.title==='string'&&row.title.trim()&&typeof row.documentary==='string'&&assetPattern.test(row.documentary)&&row.documentary.endsWith('.html'),'Invalid event description.');
     requireValue(row.replay===null||row.replay===`events/${row.id}.json`,'Replay path does not match the event.');
+    requireValue(row.chronology==null||row.chronology===`events/${row.id}-chronology.json`,'Chronology path does not match the event.');
+    requireValue(row.chronology==null||row.replay===null,'Combined chronology and replay synchronization is not supported yet.');
     seen.add(row.id);
   }
   requireValue(seen.has(index.default_event),'Default event is absent.');
@@ -50,7 +53,8 @@ export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,
     return response;
   }
   const index=await (await retrieve('events.json')).json(),event=selectEvent(index,requested);
-  if(event.replay===null)return {index,event,config:null,data:null};
+  const chronology=event.chronology?validateChronology(await (await retrieve(event.chronology)).json(),event.id):null;
+  if(event.replay===null)return {index,event,config:null,data:null,chronology};
   const config=validatePackage(await (await retrieve(event.replay)).json(),event);
   requireValue(subtle,'Bundle verification requires HTTPS or a localhost preview. The documentary remains available.');
   const bytes=await (await retrieve(config.bundle)).arrayBuffer();
@@ -61,5 +65,5 @@ export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,
   requireValue(Object.entries(config.geography_source).every(([key,value])=>data.geometry?.source?.[key]===value),'Geography provenance differs from the reviewed package.');
   const points=data.geometry.features.filter(f=>f.geometry.type==='Point');
   requireValue(points.length>=2&&Date.parse(points[0].properties.utc)===Date.parse(config.clock.start_utc)&&Date.parse(points.at(-1).properties.utc)===Date.parse(config.clock.end_utc),'Historical positions differ from the declared coverage.');
-  return {index,event,config,data};
+  return {index,event,config,data,chronology};
 }

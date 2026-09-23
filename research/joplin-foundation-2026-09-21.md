@@ -65,3 +65,18 @@ supplies a historical fact, fatality identity or map coordinate in this chapter.
 
 The catalogue now links its reviewed Jasper and Newton County aliases to this
 chapter. It does not merge the source records or add their death counts.
+
+## September 23 chronology registration
+
+The original NWS assessment URL was reopened. PDF pages 8 and 9 (printed pages
+2 and 3) were rendered from the preserved PDF and visually inspected, including
+the full seven-row chronology and the following warning map. The new chronology
+package preserves each printed CDT clock label. Its UTC navigation values add
+five hours to that explicit offset. The 5:34 p.m. touchdown remains approximate,
+without an invented error radius, coordinate or numerical time bound.
+
+The warning map was inspected for context. No warning polygon was traced or
+registered, no image was assigned a frame time, and no new third-party asset was
+published. Each chronology entry opens PDF page 8 and names the printed-page
+locator. The original static account remains available when JavaScript or the
+source website fails. The last 5:48 p.m. entry does not imply tornado dissipation.
