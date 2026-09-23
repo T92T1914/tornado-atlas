@@ -31,6 +31,7 @@ jobs:
           node --check web/passage.js
           node --check web/damage-view.mjs
           node --check web/photo-view.mjs
+          node --test tests/photo-view.test.mjs
           node --check web/notebook-view.mjs
           node --test tests/notebook-view.test.mjs
           node --check web/reader-view.mjs
