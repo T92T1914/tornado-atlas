@@ -87,6 +87,29 @@ class StaticPublicationTests(unittest.TestCase):
         self.assertEqual(previous.read_bytes(),content)
         self.assertEqual(after['records'][0]['rating'],'EF2')
 
+    def test_review_republishes_details_without_replacing_original_location(self):
+        _, before = self.publish([sample(BEGIN_LAT='48.17', BEGIN_LON='-12.42')])
+        old_index = before['records'][0]
+        previous = self.output / old_index['detail_file']
+        content = previous.read_bytes()
+        original = json.loads(content)['ncei:1']
+        provenance = original['provenance']
+        review = {'status':'disputed', 'snapshot_id':provenance['snapshot_id'],
+                  'source_url':provenance['source_url'], 'source_sha256':provenance['sha256'],
+                  'csv_record':provenance['csv_record'], 'reason':'Place and reported start disagree',
+                  'reported_start':original['spatial']['begin_point'],
+                  'reported_end':original['spatial']['end_point']}
+        export_catalogue(self.fixture.db, self.output, {}, {'ncei:1':review})
+        after = json.loads((self.output/'index.json').read_text(encoding='utf-8'))
+        new_index = after['records'][0]
+        self.assertEqual(new_index['point'], [-12.42,48.17])
+        self.assertEqual(new_index['location_quality'], 'disputed')
+        self.assertNotEqual(new_index['detail_file'], old_index['detail_file'])
+        self.assertEqual(previous.read_bytes(), content)
+        detail = json.loads((self.output/new_index['detail_file']).read_text(encoding='utf-8'))['ncei:1']
+        self.assertEqual(detail.pop('location_review'), review)
+        self.assertEqual(detail, original)
+
     def test_unknown_alias_cannot_create_a_fake_record(self):
         result,index = self.publish([sample()],aliases={'ncei:99':{'names':['Imaginary']}})
         self.assertEqual(result['unmatched_aliases'],['ncei:99'])

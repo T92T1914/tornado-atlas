@@ -2,13 +2,15 @@ import {fatalityMarker, fillFatalityRecord} from './fatality-view.mjs';
 
 // Published locations stay fixed while the historical clock moves.
 export function mountPlaces(places, svg, project, photoContext) {
-  const layer=document.createElementNS(svg.namespaceURI,'g');svg.append(layer);
+  const layer=document.createElementNS(svg.namespaceURI,'g');layer.id='map-recovery-context';svg.append(layer);
   const enabled=document.getElementById('places-enabled'),status=document.getElementById('places-status');
+  const legend=document.getElementById('playback-remembrance-legend');
   const update=()=>{
     layer.setAttribute('display',enabled.checked?'inline':'none');
+    legend.hidden=!enabled.checked;
     status.textContent=enabled.checked
-      ? `${places.length} documented fatality record shown. A recovery location does not establish the exact place of death.`
-      : 'Fatality locations are hidden. The sourced accounts remain available below.';
+      ? `${places.length} reviewed recovery record shown, independent of the selected time. This does not mark a death at the playback time or establish the exact place of death.`
+      : 'Recovery context is off. The damage map and remembrance retain the location account.';
   };
   enabled.addEventListener('change',update);
   for(const place of places) {

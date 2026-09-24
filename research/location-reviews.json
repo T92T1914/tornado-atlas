@@ -6,9 +6,156 @@
     "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
     "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
     "csv_record": 23731,
-    "reported_start": [-12.18, 34.6],
-    "reported_end": [-117.03, 34.63],
+    "reported_start": [
+      -12.18,
+      34.6
+    ],
+    "reported_end": [
+      -117.03,
+      34.63
+    ],
     "reason": "The source labels this Apple Vly Arpt, San Bernardino County, California, but its reported start is in the Atlantic. The original CSV and a fresh download agree on -12.18 longitude. The reported end is -117.03, 34.63. No corrected starting longitude has been established.",
     "display_policy": "Keep the original coordinates and record. Exclude the disputed start from ordinary map groups and fit results. Show it only through the explicitly labeled reported-position action. Do not substitute the end or a place centroid."
+  },
+  "ncei:10159477": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1959:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1959_c20260323.csv.gz",
+    "source_sha256": "16bcd5c858e9564d7740515ea692acb38e9e1843eea93389d19bad9bcfb0e437",
+    "csv_record": 1507,
+    "reported_start": [
+      -66.75,
+      18.27
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Big Horn, Wyoming, but the reported start (18.27, -66.75) is in the Caribbean. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10159507": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1962:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1962_c20260323.csv.gz",
+    "source_sha256": "0d425dd3a7e9bc1dfd175410ca05b1b2cf6c9da2bd09a68cba14b42038b74a30",
+    "csv_record": 1788,
+    "reported_start": [
+      -67.2,
+      18.2
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Natrona, Wyoming, but the reported start (18.2, -67.2) is in the Caribbean. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10161496": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1965:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1965_c20260323.csv.gz",
+    "source_sha256": "d661fa8ce1c797d8c0889d9ffc8996824b2c63134d6dc72d3f74cb0b33ecf4f7",
+    "csv_record": 2095,
+    "reported_start": [
+      -67.2,
+      18.2
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Laramie, Wyoming, but the reported start (18.2, -67.2) is in the Caribbean. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10161755": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1969:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1969_c20260323.csv.gz",
+    "source_sha256": "678a98911e5186aa457b68837fef43110b3b7c50dc3cd2ac18d81fa10b0ff5cc",
+    "csv_record": 2055,
+    "reported_start": [
+      -66.1,
+      18.3
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Goshen, Wyoming, but the reported start (18.3, -66.1) is in the Caribbean. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10161769": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1969:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1969_c20260323.csv.gz",
+    "source_sha256": "678a98911e5186aa457b68837fef43110b3b7c50dc3cd2ac18d81fa10b0ff5cc",
+    "csv_record": 2069,
+    "reported_start": [
+      -65.3,
+      18.2
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Goshen, Wyoming, but the reported start (18.2, -65.3) is in the Caribbean. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10162873": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1972:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1972_c20260323.csv.gz",
+    "source_sha256": "701e402581b90cb3e51bce4cd678fbe4615a0f38360205b55a8f660f6a1e5440",
+    "csv_record": 1417,
+    "reported_start": [
+      -67.25,
+      18.4
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Platte, Wyoming, but the reported start (18.4, -67.25) is in the Caribbean. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:9993463": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1974:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1974_c20260323.csv.gz",
+    "source_sha256": "1101840c628a3c2d9a9f6e586b9b07456d0b93365fdcbeb84503cf096004fb8d",
+    "csv_record": 2530,
+    "reported_start": [
+      -156.0,
+      20.85
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Bulloch, Georgia, but the reported start (20.85, -156.0) is in Hawaii. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5606609": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1997:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
+    "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
+    "csv_record": 9014,
+    "reported_start": [
+      -12.42,
+      48.17
+    ],
+    "reported_end": [
+      -118.9,
+      48.22
+    ],
+    "reason": "NOAA labels this Nespelem, Washington, but the reported start (48.17, -12.42) is in the North Atlantic. The reported end is 48.22, -118.9. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5606610": {
+    "status": "disputed",
+    "reviewed": "2026-09-24",
+    "snapshot_id": "ncei:1997:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
+    "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
+    "csv_record": 9015,
+    "reported_start": [
+      -12.42,
+      48.17
+    ],
+    "reported_end": [
+      -118.9,
+      48.22
+    ],
+    "reason": "NOAA labels this Nespelem, Washington, but the reported start (48.17, -12.42) is in the North Atlantic. The reported end is 48.22, -118.9. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
   }
 }

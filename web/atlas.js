@@ -77,6 +77,7 @@ async function selectRecord(record,{center=false,push=true,focus=true}={}){
   if(el('photo-dialog').open)el('photo-dialog').close();
   selected=record;mediaId='';const token=++request;
   el('show-detail').disabled=false;el('center-selected').hidden=!record.point;
+  el('center-selected').textContent=positionStatus(record)==='disputed'?'Show disputed position':'Return to selection';
   mapUI?.select(record);
   movingSelection=true;
   try{if(center&&positionStatus(record)==='reported')mapUI?.center(record);}finally{movingSelection=false;}

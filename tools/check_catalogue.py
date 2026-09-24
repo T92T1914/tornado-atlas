@@ -2,15 +2,21 @@
 import hashlib
 import gzip
 import json
+import sys
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(root))
+from atlas.publication import location_review
+
+reviews = json.loads((root/'research/location-reviews.json').read_text(encoding='utf-8'))
 folder = root / 'web/catalogue'
 index = json.loads((folder/'index.json').read_text(encoding='utf-8'))
 assert gzip.decompress((folder/'index.json.gz').read_bytes()) == (folder/'index.json').read_bytes()
 records = index['records']
 assert len(records) == index['coverage']['current_source_records']
 assert len({row['id'] for row in records}) == len(records)
+assert set(reviews).issubset({row['id'] for row in records}), 'Review references an unavailable source record'
 cache = {}
 counts = {}
 for row in records:
@@ -21,6 +27,7 @@ for row in records:
         content = json.dumps(cache[target],ensure_ascii=False,separators=(',', ':'),allow_nan=False).encode()
         assert hashlib.sha256(content).hexdigest()[:20] in target.name, 'Detail content differs from its filename'
     detail = cache[target][row['id']]
+    assert detail.get('location_review') == location_review(detail, reviews), 'Published location review is stale or missing'
     assert row['rating'] == detail['rating']['reported']
     assert row['source_snapshot'] == detail['provenance']['snapshot_id']
     assert row['source_snapshot'] in index['sources']

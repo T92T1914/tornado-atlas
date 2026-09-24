@@ -769,3 +769,9 @@ footer p {
 .storm-photographs .fineprint {margin:12px 0 0}
 @media(max-width:900px){.hero-grid{grid-template-columns:1fr 1.2fr;gap:25px}.hero h1{font-size:66px}.hero .intro{font-size:15px}}
 @media(max-width:650px){.hero-grid,.visitor-questions{grid-template-columns:1fr}.hero-photograph{grid-row:2}.hero h1{font-size:58px;margin-bottom:20px}.hero .intro{font-size:14px}.exhibit-jumps{gap:12px 22px}.visitor-questions details{padding:18px}.hero-photograph figcaption{font-size:11px}}
+
+.playback-context {padding:0 24px 14px;font-size:13px}
+.playback-context label {display:flex;gap:10px;align-items:center;min-height:44px}
+.playback-context p {margin:4px 0 0}
+.legend span[hidden] {display:none}
+@media(max-width:650px){.playback-context{padding:0 15px 14px}}
