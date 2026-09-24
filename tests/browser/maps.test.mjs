@@ -95,6 +95,19 @@ test('phone map groups do not obscure most of each bin and open the record choos
   assert.ok(await page.locator('#results [data-record]').count());
 });
 
+test('wrapped USGS attribution leaves the map scale readable',async t=>{
+  const page=await fixture(t,phone);
+  await page.route('https://basemap.nationalmap.gov/**',route=>route.fulfill({contentType:'image/svg+xml',body:image}));
+  await page.goto(base+'/atlas.html');await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await page.waitForFunction(()=>document.querySelector('#map-status').textContent.startsWith('Modern USGS'));
+  for(const width of [320,390,1280]){
+    await page.setViewportSize({width,height:844});
+    const scale=await page.locator('.leaflet-control-scale').boundingBox(),credit=await page.locator('.leaflet-control-attribution').boundingBox();
+    assert.ok(scale.x+scale.width<=credit.x||scale.y+scale.height<=credit.y,`Scale overlaps attribution at ${width}px`);
+    assert.match(await page.locator('.leaflet-control-attribution').textContent(),/USGS The National Map and contributors/);
+  }
+});
+
 test('forced colors retain the remembrance label and path legend',
   {skip:process.env.ATLAS_BROWSER_ENGINE==='webkit'?'Forced-colors emulation is Chromium-only here':false},async t=>{
   const page=await fixture(t,{...phone,forcedColors:'active'});await exhibit(page);

@@ -65,6 +65,7 @@
 .map-selected.disputed {stroke:#f08bb2}
 .leaflet-control-attribution,.leaflet-control-scale-line {background:#fff!important;color:#222!important;font-size:10px!important}
 .leaflet-control-attribution a {color:#164875!important}
+.atlas-explorer .leaflet-bottom.leaflet-right {max-width:calc(100% - 110px)}
 .map-bottom {display:flex;flex-wrap:wrap;gap:8px;padding:10px;align-items:center}
 #map-count {font-size:12px;color:var(--muted);flex:1;min-width:160px}
 #map-status {font-size:12px;color:var(--muted);padding:0 12px;margin:0 0 10px}
