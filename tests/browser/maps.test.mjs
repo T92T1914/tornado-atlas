@@ -15,6 +15,31 @@ async function geography(page){
 }
 async function exhibit(page){await geography(page);await page.goto(base+'/index.html#path');await page.locator('#play:not([disabled])').waitFor();await page.locator('#map').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('#map').classList.contains('has-basemap'));}
 
+test('timeline controls wait for slow modules before accepting a published-time selection',async t=>{
+  const page=await fixture(t,phone);await geography(page);
+  let release,started;const gate=new Promise(resolve=>{release=resolve;}),pending=new Promise(resolve=>{started=resolve;});
+  await page.route('**/footage-view.mjs',async route=>{started();await gate;await route.continue().catch(()=>{});});
+  await page.goto(base+'/index.html#path');await pending;
+  try{
+    for(const id of ['play','published-position','timeline','media-time','camera-sample','playback-rate','path-zoom-in'])
+      assert.equal(await page.locator('#'+id).isDisabled(),true,id+' is unavailable while its handlers load');
+    assert.equal(await page.locator('#map .map-position[tabindex]').count(),0);
+  }finally{release();}
+  await page.locator('#play:not([disabled])').waitFor();await page.locator('#published-position').selectOption({index:12});
+  assert.equal(await page.locator('#clock').textContent(),'6:15:00 PM CDT');
+  assert.match(await page.locator('#position-basis').textContent(),/Published/);
+});
+
+test('a failed timeline module leaves controls unavailable and exposes a loading error',async t=>{
+  const page=await fixture(t,phone);await geography(page);
+  await page.route('**/footage-view.mjs',route=>route.fulfill({status:503,body:'Unavailable'}));
+  await page.goto(base+'/index.html#path');await page.locator('#error:visible').waitFor();
+  assert.ok((await page.locator('#error').textContent()).trim());
+  for(const id of ['play','published-position','timeline','media-time','camera-sample','playback-rate','path-zoom-in'])
+    assert.equal(await page.locator('#'+id).isDisabled(),true);
+  assert.equal(await page.locator('#map .map-position[tabindex]').count(),0);
+});
+
 test('mobile return to selection keeps the map visible and preserves source identity',async t=>{
   const page=await fixture(t,phone);await open(page);await search(page,'El Reno');
   await page.locator('#results [data-record="ncei:453682"]').tap();await detail(page,'ncei:453682');
@@ -93,6 +118,19 @@ test('phone map groups do not obscure most of each bin and open the record choos
   await group.tap();assert.equal(await page.locator('#results').isVisible(),true);
   assert.match(await page.locator('#browse-note').textContent(),/Temporary map group/);
   assert.ok(await page.locator('#results [data-record]').count());
+});
+
+test('wrapped USGS attribution leaves the map scale readable',async t=>{
+  const page=await fixture(t,phone);
+  await page.route('https://basemap.nationalmap.gov/**',route=>route.fulfill({contentType:'image/svg+xml',body:image}));
+  await page.goto(base+'/atlas.html');await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await page.waitForFunction(()=>document.querySelector('#map-status').textContent.startsWith('Modern USGS'));
+  for(const width of [320,390,1280]){
+    await page.setViewportSize({width,height:844});
+    const scale=await page.locator('.leaflet-control-scale').boundingBox(),credit=await page.locator('.leaflet-control-attribution').boundingBox();
+    assert.ok(scale.x+scale.width<=credit.x||scale.y+scale.height<=credit.y,`Scale overlaps attribution at ${width}px`);
+    assert.match(await page.locator('.leaflet-control-attribution').textContent(),/USGS The National Map and contributors/);
+  }
 });
 
 test('forced colors retain the remembrance label and path legend',

@@ -195,9 +195,17 @@ async function main() {
   });
 }
 async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage, photoContext) {
-  const {PlaybackClock, preparePositions, positionAt} = await import('./playback-model.mjs');
-  const {localStamp} = await import('./timeline-media-model.mjs');
-  const {mountCamera} = await import('./camera-view.mjs');
+  // Resolve dependencies before exposing controls or focusable map positions.
+  // The remaining setup is synchronous, so a slow module cannot leave a
+  // usable-looking control whose handler still depends on uninitialized state.
+  const [{PlaybackClock, preparePositions, positionAt}, {localStamp}, {mountCamera},
+    {mountPlaces}, {mountMapNavigation}, {mountGeography}, {mountDocumentary},
+    {mountFootage}] = await Promise.all([
+    import('./playback-model.mjs'), import('./timeline-media-model.mjs'),
+    import('./camera-view.mjs'), import('./places-view.mjs'),
+    import('./map-navigation.mjs'), import('./geography-view.mjs'),
+    import('./documentary-view.mjs'), import('./footage-view.mjs'),
+  ]);
   const svg = byId('map');
   const features = geojson.features;
   const positions = features.filter(f => f.geometry.type === 'Point');
@@ -245,11 +253,8 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   const bar = 2 * scale;
   svg.append(svgNode('path', {d:`M 50 355 v 5 h ${bar} v -5`,fill:'none',stroke:'#b3bbae','stroke-width':1.5}));
   svg.append(svgNode('text', {x:50,y:380,class:'axis-label'}, '≈ 2 km'));
-  const { mountPlaces } = await import('./places-view.mjs');
   mountPlaces(places, svg, project, photoContext);
-  const {mountMapNavigation}=await import('./map-navigation.mjs');
   const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
-  const {mountGeography}=await import('./geography-view.mjs');
   mountGeography(svg,project,byId('path-geography'));
   byId('path-zoom-in').addEventListener('click',()=>navigation.zoom(1/1.6));
   byId('path-zoom-out').addEventListener('click',()=>navigation.zoom(1.6));
@@ -260,8 +265,6 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   const slider = byId('timeline');
   slider.max = clock.duration;
   byId('media-time').max = clock.duration;
-  slider.disabled = false;
-  byId('play').disabled = false;
   function stop() {
     clock.pause(performance.now());
     if (animation !== null) cancelAnimationFrame(animation);
@@ -270,9 +273,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   function seek(seconds) {stop(); clock.seek(seconds); update();}
   byId('published-position').addEventListener('change',event=>{if(event.target.value!=='')seek(Number(event.target.value));});
   const updateCamera = mountCamera(cameras, svg, project, start, end, seek);
-  const {mountDocumentary}=await import('./documentary-view.mjs');
   const updateDocumentary=mountDocumentary(documentary,media,cameras,svg,project,start,end,seek,footage);
-  const {mountFootage}=await import('./footage-view.mjs');
   const updateFootage=mountFootage(footage,start,seek,stop);
   function update() {
     const selected = positionAt(timed, clock.seconds), [x,y] = project(selected.coordinates);
@@ -338,6 +339,8 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   document.addEventListener('visibilitychange', () => {if(document.hidden) {stop();update();}});
   byId('timeline-media-image').addEventListener('click',()=>{stop();update();});
   update();
+  for (const id of ['play','timeline','published-position','playback-rate',
+    'camera-sample','media-time','path-zoom-in','path-zoom-out','path-fit']) byId(id).disabled=false;
   function selectMinute(minute) {
     const selected = positions.findIndex(p => Number(p.properties.source_name.split(':')[1]) === minute);
     if (selected < 0) return;
