@@ -63,9 +63,10 @@ jobs:
           python tools/check_exhibit.py
           python tools/check_catalogue.py
       - name: Verify explorer browser journeys
+        env:
+          ATLAS_BROWSER_CHANNEL: chrome
         run: |
           npm ci --ignore-scripts --no-fund
-          npx playwright install --with-deps chromium
           npm run test:browser
   deploy:
     needs: verify

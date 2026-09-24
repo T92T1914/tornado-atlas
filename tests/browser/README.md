@@ -20,6 +20,13 @@ The suite still launches its own headless process and temporary contexts. It
 uses one browser at a time, binds its temporary server to loopback and closes
 both when finished. No clipboard, microphone, camera or audio access is needed.
 
+CI sets `ATLAS_BROWSER_CHANNEL=chrome` to use the hosted runner's installed
+Chrome. Ubuntu's AppArmor profile permits that installation to use its sandbox.
+Downloaded developer builds can fail before the tests begin under Ubuntu's
+user-namespace restrictions. The suite keeps Chromium sandboxing enabled and
+prints the actual browser version. See the
+[Chromium sandbox explanation](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md).
+
 Viewport emulation checks layout and interaction. It does not establish behavior
 on physical phones, screen readers, Firefox or Safari. The ordinary Python and
 Node suites remain separate checks in the publication workflow.
