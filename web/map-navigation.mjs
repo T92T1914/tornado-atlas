@@ -3,6 +3,12 @@ import {constrainView, zoomView, panView, wheelFactor} from './map-navigation-mo
 export function mountMapNavigation(svg, {extent, minWidth = extent[2] / 16, getView, setView}) {
   svg.classList.add('explorable-map');
   svg.setAttribute('tabindex', '0');
+  for(const path of svg.querySelectorAll('.map-path,.map-outline')) {
+    const casing=document.createElementNS(svg.namespaceURI,'path');
+    casing.setAttribute('d',path.getAttribute('d'));
+    casing.setAttribute('class',path.classList.contains('map-path')?'map-path-casing':'map-outline-casing');
+    casing.setAttribute('aria-hidden','true');path.before(casing);
+  }
   const read = getView || (() => svg.getAttribute('viewBox').split(/\s+/).map(Number));
   const write = view => {
     const next = constrainView(view, extent, minWidth);
@@ -15,9 +21,9 @@ export function mountMapNavigation(svg, {extent, minWidth = extent[2] / 16, getV
     }
     for(const element of svg.querySelectorAll('[data-map-label]')) {
       const [x,y]=element.dataset.mapLabel.split(',').map(Number);
-      element.setAttribute('x',x);element.setAttribute('y',y-17*scale);
-      element.setAttribute('font-size',12*scale);
-      element.style.strokeWidth=3*scale;
+      element.setAttribute('x',x);element.setAttribute('y',y-14*scale);
+      element.setAttribute('font-size',10*scale);
+      element.style.strokeWidth=2.5*scale;
     }
     svg.dispatchEvent(new CustomEvent('mapviewchange', {detail:next}));
   };

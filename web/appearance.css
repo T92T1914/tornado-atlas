@@ -40,7 +40,7 @@
 .map-outline,.land {fill:var(--muted);stroke:var(--muted)}
 .land {fill:var(--panel)}
 .map-position,.point {fill:var(--muted);background:var(--muted)}
-.map-position {fill:var(--text);stroke:var(--bg);stroke-width:1.8;opacity:1;cursor:pointer}
+.map-position {fill:var(--text);stroke:var(--bg);stroke-width:1.2;opacity:1;cursor:pointer}
 .map-position:hover,.map-position:focus {stroke:var(--text);fill:var(--bg);outline:none}
 .selected-halo,.selected-core {pointer-events:none}
 .selected-core {fill:var(--text);stroke:var(--bg)}
@@ -108,7 +108,7 @@ input,select {font-size:16px}
 @media(forced-colors:active) {
   :root[data-appearance],:root:not([data-appearance]) {--bg:Canvas;--panel:Canvas;--line:CanvasText;--text:CanvasText;--muted:CanvasText;
     --green:LinkText;--gold:Highlight;--control:ButtonFace;--control-hover:ButtonFace;
-    --selected:Canvas;--control-line:ButtonText}
+    --selected:Canvas;--control-line:ButtonText;--fatality:CanvasText}
   #map,#survey-map {background:Canvas;--text:CanvasText;--muted:CanvasText;--gold:Highlight}
   .map-outline {fill:Canvas;stroke:CanvasText}
   .map-path {stroke:CanvasText}

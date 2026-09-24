@@ -16,11 +16,11 @@ const recordError=make('p');recordError.id='record-error';recordError.setAttribu
 let mapUI=null,selected=null,mediaId='',restoring=true,movingSelection=false,restoreGeneration=0,area=null,group=null,records=[],matches=[],filtered=[],page=0,request=0,timer=null;
 let byId=new Map(),media={records:{}},mediaAvailable=true,detailCache=new Map();
 const pageSize=20,layout=document.querySelector('.atlas-layout');
-function viewMode(mode){layout.dataset.mobileView=mode;for(const name of ['map','list','detail'])el('show-'+name).setAttribute('aria-pressed',String(name===mode));if(mode==='list'){el('browse').hidden=false;el('selected-panel').hidden=true;}if(mode==='detail'&&selected){el('browse').hidden=true;el('selected-panel').hidden=false;}if(mode==='map')mapUI?.resize();}
+function viewMode(mode){if(mode!=='map'&&layout.classList.contains('expanded')){layout.classList.remove('expanded');el('expand-map').setAttribute('aria-pressed','false');el('expand-map').textContent='Expand map';}layout.dataset.mobileView=mode;for(const name of ['map','list','detail'])el('show-'+name).setAttribute('aria-pressed',String(name===mode));if(mode==='list'){el('browse').hidden=false;el('selected-panel').hidden=true;}if(mode==='detail'&&selected){el('browse').hidden=true;el('selected-panel').hidden=false;}if(mode==='map')mapUI?.resize();}
 function filters(){return {query:el('query').value,year:el('year').value,rating:el('rating').value,state:el('state').value,exhibits:el('exhibits').checked};}
 function sync({push=false}={}){
   if(restoring)return;
-  const href=location.pathname+writeExplorerLink({filters:filters(),recordId:selected?.id,view:mapUI?.view(),area,layer:el('layer').value,media:mediaId,quality:el('quality').value,hasMedia:el('has-media').checked});
+  const href=location.pathname+writeExplorerLink({filters:filters(),recordId:selected?.id,view:mapUI?.view(),area,layer:el('layer').value,media:mediaId,quality:el('quality').value,hasMedia:el('has-media').checked,panel:layout.dataset.mobileView});
   el('search-link').href=href;
   if(href!==location.pathname+location.search+location.hash)history[push?'pushState':'replaceState'](null,'',href);
 }
@@ -134,6 +134,7 @@ async function restore(){
   if(state.recordId&&byId.has(state.recordId)){
     selectionTask=selectRecord(byId.get(state.recordId),{push:false,focus:false});
   }else{viewMode('map');el('browse').hidden=false;el('selected-panel').hidden=true;if(state.recordId){recordError.hidden=false;recordError.textContent='That source ID is not in this catalogue. Your search still applies.';}}
+  viewMode(state.panel==='detail'&&!selected?'map':state.panel||(selected?'detail':'map'));
   restoring=false;sync();
   // Release the history guard before fetching details. A reader can choose
   // another record while this response is still in flight.
@@ -151,7 +152,7 @@ async function main(){
   Object.keys(catalogue.coverage.by_year).sort().forEach(year=>option(el('year'),year));
   [...new Set(records.map(r=>r.state).filter(Boolean))].sort().forEach(state=>option(el('state'),state));
   [...new Set(records.map(r=>r.rating).filter(r=>/^(EF|F)[0-5]$/.test(r||'')))].sort().forEach(r=>option(el('rating'),r));option(el('rating'),'unrated','Unrated / other');
-  try{mapUI=mountExplorerMap(el('world-map'),{onSelect:r=>selectRecord(r),onGroup:rows=>{group=new Set(rows.map(r=>r.id));page=0;renderResults();viewMode('list');mapUI.fit(rows);},onView:()=>{if(mapUI&&!movingSelection)sync();},onCount:s=>{el('map-count').textContent=`${s.visible.toLocaleString()} in view · ${s.missing.toLocaleString()} missing · ${s.disputed.toLocaleString()} disputed`;},onStatus:text=>{el('map-status').textContent=text;}});mapUI.setView([38,-97,4]);}catch(error){el('map-status').textContent=error.message;}
+  try{mapUI=mountExplorerMap(el('world-map'),{onSelect:r=>selectRecord(r),onGroup:rows=>{group=new Set(rows.map(r=>r.id));page=0;renderResults();viewMode('list');mapUI.fit(rows);sync({push:true});},onView:()=>{if(mapUI&&!movingSelection)sync();},onCount:s=>{el('map-count').textContent=`${s.visible.toLocaleString()} in view · ${s.missing.toLocaleString()} missing · ${s.disputed.toLocaleString()} disputed`;},onStatus:text=>{el('map-status').textContent=text;}});mapUI.setView([38,-97,4]);}catch(error){el('map-status').textContent=error.message;}
   for(const id of ['query','year','rating','state','quality','exhibits','has-media'])el(id).addEventListener(id==='query'?'input':'change',()=>{clearTimeout(timer);if(id==='query')timer=setTimeout(()=>applyFilters(),180);else applyFilters({push:true});});
   el('filters').addEventListener('submit',event=>{event.preventDefault();clearTimeout(timer);el('advanced').open=false;applyFilters({push:true});mapUI?.fit(matches);});
   el('advanced').addEventListener('keydown',event=>{if(event.key==='Escape'){el('advanced').open=false;el('advanced').querySelector('summary').focus();}});
@@ -159,11 +160,11 @@ async function main(){
   el('clear-group').onclick=()=>{group=null;page=0;renderResults();};
   el('prev-page').onclick=()=>{page--;renderResults();el('results').firstElementChild?.focus();};el('next-page').onclick=()=>{page++;renderResults();el('results').firstElementChild?.focus();};
   for(const [id,delta] of [['prev-record',-1],['next-record',1]])el(id).onclick=()=>{const list=currentList(),index=list.findIndex(r=>r.id===selected?.id);selectRecord(list[index+delta]);};
-  el('back-list').onclick=()=>{viewMode('list');el('results').querySelector(`[data-record="${selected?.id}"]`)?.focus();};
-  for(const mode of ['map','list','detail'])el('show-'+mode).onclick=()=>viewMode(mode);
+  el('back-list').onclick=()=>{viewMode('list');sync({push:true});el('results').querySelector(`[data-record="${selected?.id}"]`)?.focus();};
+  for(const mode of ['map','list','detail'])el('show-'+mode).onclick=()=>{viewMode(mode);sync({push:true});};
   el('fit').onclick=()=>mapUI?.fit(matches);el('zoom-in').onclick=()=>mapUI?.zoom(1);el('zoom-out').onclick=()=>mapUI?.zoom(-1);
   el('search-area').onclick=()=>{area=mapUI?.area()||null;applyFilters({push:true});};el('clear-area').onclick=()=>{area=null;applyFilters({push:true});};
-  el('center-selected').onclick=()=>{mapUI?.center(selected);viewMode('detail');};
+  el('center-selected').onclick=()=>{mapUI?.center(selected);viewMode('map');sync();};
   el('region').onchange=()=>{const region=el('region').value;if(region==='all')mapUI?.fit(records);else mapUI?.region(region);};
   el('layer').onchange=()=>{mapUI?.setLayer(el('layer').value);sync({push:true});};el('retry-map').onclick=()=>mapUI?.retry();
   el('expand-map').onclick=()=>{const expanded=layout.classList.toggle('expanded');el('expand-map').setAttribute('aria-pressed',String(expanded));el('expand-map').textContent=expanded?'Restore panels':'Expand map';mapUI?.resize();};

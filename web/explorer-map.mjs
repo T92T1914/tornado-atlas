@@ -48,11 +48,12 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
       const count=group.records.length,single=count===1,record=group.records[0];
       const label=single?`${record.title}, ${record.date||'date unknown'}, ${record.rating||'unrated'}`:`${count.toLocaleString()} source records. Select to browse this group.`;
       const content=document.createElement('span');content.textContent=single?'':compactCount(count);
-      // A group symbol sits at its grid-cell center. Individual records retain
-      // their exact reported coordinate when opened or displayed alone.
-      const point=single ? [record.point[1],record.point[0]] : map.unproject(group.anchor,zoom);
+      // The mean of visible members keeps edge groups inside the viewport.
+      // It represents a screen-space group, not an observed tornado location.
+      const point=single ? [record.point[1],record.point[0]] : map.unproject(group.point,zoom);
+      const size=single?16:count<10?24:count<1000?28:count<10000?32:36;
       const marker=L.marker(point,{keyboard:false,title:label,icon:L.divIcon({
-        className:single?'catalogue-pin':'catalogue-cluster',html:content,iconSize:single?[16,16]:[44,44]})});
+        className:single?'catalogue-pin':'catalogue-cluster',html:content,iconSize:[size,size]})});
       marker.on('click',()=>single?onSelect(record):onGroup(group.records));
       marker.addTo(markers);
       marker.getElement().setAttribute('aria-label',label);

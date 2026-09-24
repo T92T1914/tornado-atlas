@@ -2,7 +2,7 @@
   "name": "tornado-atlas-verification",
   "private": true,
   "scripts": {
-    "test:browser": "node --test --test-concurrency=1 tests/browser/explorer.test.mjs"
+    "test:browser": "node --test --test-concurrency=1 tests/browser/*.test.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0"

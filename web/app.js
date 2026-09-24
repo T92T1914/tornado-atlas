@@ -230,15 +230,16 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   }
   for (const position of positions) {
     const [x,y] = project(position.geometry.coordinates);
-    const dot = svgNode('circle', {cx:x,cy:y,r:4.5,class:'map-position',tabindex:0,role:'button','aria-label':'Go to '+position.properties.display_time});
+    const dot = svgNode('circle', {cx:x,cy:y,r:2.5,class:'map-position',tabindex:0,role:'button','aria-label':'Go to '+position.properties.display_time});
     dot.append(svgNode('title', {}, position.properties.display_time));
     const jump=()=>seek((Date.parse(position.properties.utc)-start)/1000);
     dot.addEventListener('click',jump);
     dot.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();jump();}});
     svg.append(dot);
+    const option=node('option',position.properties.display_time);option.value=(Date.parse(position.properties.utc)-Date.parse(positions[0].properties.utc))/1000;byId('published-position').append(option);
   }
-  const halo = svgNode('circle', {r:13,class:'selected-halo'});
-  const core = svgNode('circle', {r:5,class:'selected-core'});
+  const halo = svgNode('circle', {r:8,class:'selected-halo'});
+  const core = svgNode('circle', {r:3.5,class:'selected-core'});
   svg.append(halo,core);
   svg.append(svgNode('text', {x:909,y:45,class:'axis-label'}, 'N ↑'));
   const bar = 2 * scale;
@@ -267,6 +268,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     animation = null; byId('play').textContent = 'Play timeline';
   }
   function seek(seconds) {stop(); clock.seek(seconds); update();}
+  byId('published-position').addEventListener('change',event=>{if(event.target.value!=='')seek(Number(event.target.value));});
   const updateCamera = mountCamera(cameras, svg, project, start, end, seek);
   const {mountDocumentary}=await import('./documentary-view.mjs');
   const updateDocumentary=mountDocumentary(documentary,media,cameras,svg,project,start,end,seek,footage);
@@ -287,6 +289,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     const time = localStamp(selected.utc);
     byId('clock').textContent = time;
     slider.value = Math.floor(clock.seconds);
+    byId('published-position').value=selected.published?String((timed[selected.before].stamp-start)/1000):'';
     slider.setAttribute('aria-valuetext', time);
     byId('previous').disabled = clock.seconds === 0;
     byId('next').disabled = clock.seconds === clock.duration;

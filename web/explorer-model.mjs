@@ -30,7 +30,7 @@ export function readExplorerLink(search='',hash='') {
   return {...basic,view:view && Math.abs(view[0])<=85 && Math.abs(view[1])<=180 && view[2]>=0 && view[2]<=16 ? view:null,
     area:validArea(area)?area:null, layer:['local','topo','terrain'].includes(p.get('layer'))?p.get('layer'):'topo',
     media:p.get('media')||'',quality:['missing','disputed','reported'].includes(p.get('quality'))?p.get('quality'):'',
-    hasMedia:p.get('hasMedia')==='1'};
+    hasMedia:p.get('hasMedia')==='1',panel:['map','list','detail'].includes(p.get('panel'))?p.get('panel'):null};
 }
 export function writeExplorerLink(state) {
   const base=new URL(writeSearchLink(state.filters,state.recordId),'https://example.invalid/');
@@ -43,6 +43,7 @@ export function writeExplorerLink(state) {
   if (state.media) p.set('media',state.media);
   if (state.quality) p.set('quality',state.quality);
   if (state.hasMedia) p.set('hasMedia','1');
+  if (['map','list','detail'].includes(state.panel)) p.set('panel',state.panel);
   return `${p.size?'?'+p.toString():''}${base.hash}`;
 }
 

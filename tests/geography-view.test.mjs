@@ -66,3 +66,26 @@ test('only a validated geographic response can become a reference map image',asy
     }
   });
 });
+
+test('an image arriving after its timeout cannot resurrect the failed layer',async()=>{
+  const original={document:globalThis.document,fetch:globalThis.fetch,observer:globalThis.IntersectionObserver,setTimeout:globalThis.setTimeout,clearTimeout:globalThis.clearTimeout};
+  const nodes=[],timers=new Map();let next=0;
+  const create=tag=>{const node=new Element(tag);nodes.push(node);return node;};
+  globalThis.document={createElement:create,createElementNS:(_,tag)=>create(tag)};
+  globalThis.fetch=async()=>({ok:true,json:async()=>valid});
+  globalThis.IntersectionObserver=class{constructor(callback){this.callback=callback;}observe(){this.callback([{isIntersecting:true}]);}};
+  globalThis.setTimeout=fn=>{timers.set(++next,fn);return next;};globalThis.clearTimeout=id=>timers.delete(id);
+  try{
+    const svg=create('svg');svg.id='timeout';svg.viewBox={baseVal:{x:0,y:0,width:480,height:260}};
+    mountGeography(svg,project,create('section'));await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(timers.size,1);[...timers.values()][0]();
+    const status=nodes.find(node=>node.attributes.role==='status');assert.match(status.textContent,/timed out/);
+    nodes.find(node=>node.tag==='image').dispatchEvent(new Event('load'));
+    assert.equal(svg.classList.has('has-basemap'),false);assert.match(status.textContent,/timed out/);
+  }finally{
+    for(const [key,value] of Object.entries(original)){
+      const name=key==='observer'?'IntersectionObserver':key;
+      if(value===undefined)delete globalThis[name];else globalThis[name]=value;
+    }
+  }
+});

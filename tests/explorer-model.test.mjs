@@ -28,7 +28,7 @@ test('area boundaries retain exact points without world wrapping or guessing mis
   assert.equal(inside([181,0],[-180,-85,180,85]),false);
 });
 test('view, area, layer, attachment and stable identity round trip independently of clusters',()=>{
-  const state={filters:{query:'El Reno',year:'2013',rating:'EF3',state:'OKLAHOMA',exhibits:true},recordId:'ncei:453682',view:[35,-98,12],area:[-99,34,-97,36],layer:'local',media:'storm-2',quality:'reported',hasMedia:true};
+  const state={filters:{query:'El Reno',year:'2013',rating:'EF3',state:'OKLAHOMA',exhibits:true},recordId:'ncei:453682',view:[35,-98,12],area:[-99,34,-97,36],layer:'local',media:'storm-2',quality:'reported',hasMedia:true,panel:'map'};
   const url=new URL(writeExplorerLink(state),'https://example.com/atlas.html');assert.deepEqual(readExplorerLink(url.search,url.hash),state);
   assert.ok(!url.href.includes('cluster'));
 });
@@ -37,6 +37,16 @@ test('malformed views and areas cannot become guessed map positions',()=>{
   for(const query of ['?area=1,0,-1,1','?area=0,0,1,','?area=-181,-1,1,1'])assert.equal(readExplorerLink(query).area,null);
   assert.equal(readExplorerLink('?layer=unknown').layer,'topo');
   assert.equal(readExplorerLink('','#record=ncei%3A1').recordId,'ncei:1');
+  assert.equal(readExplorerLink('?panel=unavailable').panel,null);
+  assert.equal(readExplorerLink('','#record=ncei%3A1').panel,null);
+});
+
+test('each shared panel survives without encoding transient group membership',()=>{
+  for(const panel of ['map','list','detail']){
+    const url=new URL(writeExplorerLink({filters:{},recordId:'ncei:453682',panel}),'https://example.com/tornado-atlas/atlas.html');
+    assert.equal(readExplorerLink(url.search,url.hash).panel,panel);
+    assert.equal(url.pathname,'/tornado-atlas/atlas.html');
+  }
 });
 test('sharing an area preserves records on sub-meter boundaries',()=>{
   const area=[-97.123456789,35.123456789,-96.987654321,36.987654321];
