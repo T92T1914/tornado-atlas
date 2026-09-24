@@ -21,7 +21,7 @@ The NWS [wedge glossary](https://forecast.weather.gov/glossary.php?word=wedge) e
 * Caps drawing pixel ratio at two and drawing buffer dimensions at 2,048 by 1,600.
 * Clamps a delayed frame's animation step to 50 milliseconds, avoiding catch-up jumps after interruption. This can slow motion on a very slow device; it is not a physical clock.
 * Offers native keyboard controls for the form, view, visibility and motion, plus arrow-key orbit on the canvas.
-* Includes a fallback message for an unavailable renderer and a context-restoration handler. Context-loss and cross-device recovery are not yet browser-tested.
+* Keeps an unavailable or lost renderer's diagnosis visible while visitors adjust view and sequence controls. Context restoration recreates the drawing resources without restarting motion or resetting those controls.
 
 ## What would make a historical reconstruction different
 
@@ -32,3 +32,5 @@ The current El Reno footage notebook and geographic timeline are the start of th
 ## Verification boundary
 
 Model tests check deterministic particles, bounded allocation, geometric and camera validity, refresh-rate-independent normal timing, and suspension handling. They establish software behavior, not meteorological accuracy. Browser inspection checks whether controls and rendered views work; it is not a performance benchmark or validation of a physical tornado model.
+
+The isolated browser suite checks unavailable WebGL and uses the standard `WEBGL_lose_context` extension to exercise context loss and restoration when available. It verifies the failure message, disabled playback, preserved sequence controls and positive rendered pixels after recovery. Environments without that extension report the recovery check as skipped. This controlled browser check does not establish recovery from a physical GPU or driver failure on every device.
