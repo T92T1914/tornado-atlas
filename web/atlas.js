@@ -11,6 +11,8 @@ async function json(path){const response=await fetch(path);if(!response.ok)throw
 function option(select,value,text=value){const node=make('option',text);node.value=value;select.append(node);}
 function dateLabel(date){if(!date)return 'Date not reported';return new Intl.DateTimeFormat('en-US',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(new Date(date+'T00:00:00Z'));}
 const openPhoto=mountPhotoViewer();
+// Selection recovery must not erase an unrelated collection or media failure.
+const recordError=make('p');recordError.id='record-error';recordError.setAttribute('role','alert');recordError.hidden=true;el('filters').after(recordError);
 let mapUI=null,selected=null,mediaId='',restoring=true,movingSelection=false,restoreGeneration=0,area=null,group=null,records=[],matches=[],filtered=[],page=0,request=0,timer=null;
 let byId=new Map(),media={records:{}},mediaAvailable=true,detailCache=new Map();
 const pageSize=20,layout=document.querySelector('.atlas-layout');
@@ -71,6 +73,7 @@ function mediaPanel(record){
 }
 async function selectRecord(record,{center=false,push=true,focus=true}={}){
   if(!record)return;
+  recordError.hidden=true;
   if(el('photo-dialog').open)el('photo-dialog').close();
   selected=record;mediaId='';const token=++request;
   el('show-detail').disabled=false;el('center-selected').hidden=!record.point;
@@ -114,7 +117,7 @@ async function selectRecord(record,{center=false,push=true,focus=true}={}){
     panel.append(source);
   }catch(error){if(token!==request)return;panel.append(make('p',error.message),button('Retry this record',()=>selectRecord(record,{push:false})));}
 }
-function clearSelection(){request++;selected=null;mediaId='';mapUI?.select(null);el('show-detail').disabled=true;el('center-selected').hidden=true;if(el('photo-dialog').open)el('photo-dialog').close();}
+function clearSelection(){request++;selected=null;mediaId='';recordError.hidden=true;mapUI?.select(null);el('show-detail').disabled=true;el('center-selected').hidden=true;if(el('photo-dialog').open)el('photo-dialog').close();}
 async function restore(){
   const generation=++restoreGeneration;
   restoring=true;clearTimeout(timer);
@@ -130,7 +133,7 @@ async function restore(){
   let selectionTask=null;
   if(state.recordId&&byId.has(state.recordId)){
     selectionTask=selectRecord(byId.get(state.recordId),{push:false,focus:false});
-  }else{viewMode('map');el('browse').hidden=false;el('selected-panel').hidden=true;if(state.recordId){el('error').hidden=false;el('error').textContent='That source ID is not in this catalogue. Your search still applies.';}}
+  }else{viewMode('map');el('browse').hidden=false;el('selected-panel').hidden=true;if(state.recordId){recordError.hidden=false;recordError.textContent='That source ID is not in this catalogue. Your search still applies.';}}
   restoring=false;sync();
   // Release the history guard before fetching details. A reader can choose
   // another record while this response is still in flight.
