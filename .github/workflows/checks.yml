@@ -62,6 +62,12 @@ jobs:
         run: |
           python tools/check_exhibit.py
           python tools/check_catalogue.py
+      - name: Verify explorer browser journeys
+        env:
+          ATLAS_BROWSER_CHANNEL: chrome
+        run: |
+          npm ci --ignore-scripts --no-fund
+          npm run test:browser
   deploy:
     needs: verify
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
