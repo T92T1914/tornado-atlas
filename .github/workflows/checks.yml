@@ -68,6 +68,12 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-fund
           npm run test:browser
+      - name: Verify WebKit map and navigation behavior
+        env:
+          ATLAS_BROWSER_ENGINE: webkit
+        run: |
+          npx playwright install --with-deps webkit
+          npm run test:browser
   deploy:
     needs: verify
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

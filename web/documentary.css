@@ -1,12 +1,25 @@
-.geography-controls {padding:16px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
+.geography-controls {padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
 .geography-controls label {display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-weight:600}
 .geography-controls select {max-width:100%;padding:10px;font:inherit;color:var(--text);background:var(--control);border:1px solid var(--control-line);border-radius:5px}
 .geography-controls p {margin:10px 0 0;font-size:13px;line-height:1.6}
-.basemap-layer {pointer-events:none;filter:grayscale(1) invert(1) brightness(1.3);opacity:1}
-:root[data-appearance=light] .basemap-layer {filter:grayscale(1);opacity:.85}
+.basemap-layer {pointer-events:none;opacity:1}
+:root[data-appearance=light] .basemap-layer {filter:none}
+@media(prefers-color-scheme:light){:root:not([data-appearance]) .basemap-layer{filter:none}}
+.geography-controls summary {cursor:pointer;font-size:13px;min-height:32px;padding-top:6px}
+.geography-controls .geography-note {font-size:13px;margin-top:6px}
 .has-basemap .grid-line {opacity:.3}
-.has-basemap .map-outline {fill-opacity:.07;stroke:var(--text);stroke-width:2}
-.has-basemap .map-path {stroke:var(--text);stroke-width:3;filter:drop-shadow(0 0 1px var(--bg))}
+.explorable-map .map-path-casing,.explorable-map .map-outline-casing {fill:none;pointer-events:none;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.explorable-map .map-path-casing {stroke:#151515;stroke-width:5}
+.explorable-map .map-path {stroke:#fff;stroke-width:2;pointer-events:none;filter:none}
+.explorable-map .map-outline-casing {stroke:#fff;stroke-width:3.5}
+.explorable-map .map-outline {fill:#555;fill-opacity:.08;stroke:#242424;stroke-width:1.2;pointer-events:none}
+.explorable-map .selected-halo {fill:none;stroke:#fff;stroke-width:2}
+.explorable-map .selected-core {fill:#151515;stroke:#fff;stroke-width:1.5}
+.documentary-exhibit .legend .line {background:#fff;box-shadow:0 0 0 2px #151515}
+.documentary-exhibit .legend .outline {background:#ddd;border-color:#242424;box-shadow:0 0 0 1px #fff}
+.published-position-control {display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 24px;font-size:14px}
+.published-position-control select {font:inherit;min-height:44px;max-width:100%;padding:8px}
+.map-instructions {padding:0 24px;font-size:14px}.map-instructions summary{min-height:44px;cursor:pointer;padding:8px 0}
 .warning-layer {pointer-events:none}
 .warning-layer path {fill:none;stroke:var(--text);stroke-width:2;stroke-dasharray:8 5;vector-effect:non-scaling-stroke}
 .evidence-desk {padding:24px 0}
@@ -33,4 +46,12 @@
 #research-log .eyebrow {font-size:12px}
 #link-audit-summary {overflow-wrap:anywhere}
 @media(max-width:760px) {.evidence-cards {grid-template-columns:1fr}.geography-controls {padding:12px}.geography-controls select {width:100%}.comparison-dates {display:block}.comparison-dates span {display:block;margin:8px 0}}
-@media(forced-colors:active) {.basemap-layer {filter:none;opacity:.7}.warning-layer path {stroke:CanvasText}.comparison-frame {border:1px solid CanvasText}}
+@media(forced-colors:active) {
+  .basemap-layer {filter:none;opacity:.7}
+  .warning-layer path {stroke:CanvasText}.comparison-frame {border:1px solid CanvasText}
+  .explorable-map .map-path-casing,.explorable-map .map-outline-casing {stroke:Canvas}
+  .explorable-map .map-path,.explorable-map .map-outline {stroke:CanvasText}
+  .explorable-map .selected-halo {stroke:Highlight}
+  .explorable-map .selected-core {fill:CanvasText;stroke:Canvas}
+  .documentary-exhibit .legend .line {background:CanvasText;forced-color-adjust:none}
+}

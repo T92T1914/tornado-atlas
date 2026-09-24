@@ -10,8 +10,8 @@ export function fatalityMarker(place, svg, project, open) {
   const [x,y] = project(place.coordinates), ns = svg.namespaceURI;
   const group = document.createElementNS(ns, 'g');
   const mark = document.createElementNS(ns, 'path');
-  mark.setAttribute('d', `M ${x} ${y-10} l 10 10 l -10 10 l -10 -10 Z`);
-  mark.setAttribute('class', 'incident-marker');mark.dataset.mapSymbol = [x,y,10].join(',');
+  mark.setAttribute('d', `M ${x} ${y-7} l 7 7 l -7 7 l -7 -7 Z`);
+  mark.setAttribute('class', 'incident-marker');mark.dataset.mapSymbol = [x,y,7].join(',');
   mark.setAttribute('tabindex', '0');mark.setAttribute('role', 'button');
   const description = `${place.title}: ${fatalityLabel(place)}. ${place.people.join(', ')}. ${place.label}.`;
   mark.setAttribute('aria-label', description);
@@ -19,7 +19,7 @@ export function fatalityMarker(place, svg, project, open) {
   mark.addEventListener('click', open);
   mark.addEventListener('keydown', event => {if(['Enter',' '].includes(event.key)){event.preventDefault();open();}});
   const label = document.createElementNS(ns, 'text');
-  label.textContent = `${place.map_label} · ${fatalityLabel(place)}`;
+  label.textContent = `${place.map_label} · ${place.id==='twistex-recovery'?'approx. recovery':place.label}`;
   label.setAttribute('class', 'fatality-map-label');label.setAttribute('text-anchor', 'middle');
   label.dataset.mapLabel = [x,y].join(',');group.append(mark,label);return group;
 }

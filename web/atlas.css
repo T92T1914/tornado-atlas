@@ -32,7 +32,7 @@
 .search-row {display:flex;gap:8px;align-items:end;margin:12px 0 8px;flex-wrap:wrap}
 .wide-filter {flex:1;min-width:220px}
 .wide-filter span {display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-#query {width:100%;background:var(--panel);border:1px solid var(--control-line);padding:10px 12px;color:var(--text)}
+.atlas-explorer #query {font-size:16px;width:100%;background:var(--panel);border:1px solid var(--control-line);padding:10px 12px;color:var(--text)}
 #advanced {position:relative}
 .atlas-explorer summary {cursor:pointer;padding:10px 12px;border:1px solid var(--control-line);background:var(--control);line-height:22px}
 .filter-grid {position:absolute;right:0;top:50px;display:grid;grid-template-columns:1fr 1fr;gap:14px;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 25px #0005;width:min(560px,90vw);padding:18px;z-index:1200}
@@ -44,7 +44,7 @@
 .atlas-explorer .atlas-layout section {padding:0;margin:0;border:0}
 #map-panel,.browse-panel {border:1px solid var(--line);border-radius:8px;background:var(--panel);min-width:0;overflow:hidden}
 #map-panel {display:flex;flex-direction:column}
-.map-tools {display:flex;flex-wrap:wrap;gap:6px;padding:10px;position:relative;z-index:600}
+.atlas-explorer .map-tools {margin:0;display:flex;flex-wrap:wrap;gap:6px;padding:10px;position:relative;z-index:600}
 .map-tools button,.map-tools select,.map-tools summary {font-size:13px}
 .map-tools details[open] {position:static}
 .map-tools details[open]>:not(summary) {margin:10px}
@@ -52,10 +52,10 @@
 .map-tools details p {font-size:13px;max-width:650px}
 #world-map {width:100%;height:max(420px,calc(100dvh - 360px));flex:1;min-height:420px;background:var(--bg);z-index:1}
 .context-land {fill:var(--panel);stroke:var(--muted);fill-opacity:1}
-.usgs-tiles {filter:grayscale(1) invert(1) brightness(.7) contrast(1.15)}
+.usgs-tiles {filter:grayscale(1) invert(1) brightness(.9) contrast(1.05)}
 :root[data-appearance=light] .usgs-tiles {filter:none}
 @media(prefers-color-scheme:light){:root:not([data-appearance]) .usgs-tiles{filter:none}}
-.catalogue-cluster {display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#242424;color:#fff;font:700 13px Segoe UI,sans-serif;box-shadow:0 1px 5px #0009}
+.catalogue-cluster {display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#242424;color:#fff;font:700 11px Segoe UI,sans-serif;box-shadow:0 1px 5px #0009}
 .catalogue-cluster:hover {background:#555;outline:3px solid #fff}
 .catalogue-pin {background:#fff;border:3px solid #171717;border-radius:50%;box-shadow:0 0 0 1px #fff}
 .catalogue-pin:hover {outline:3px solid #fff}
@@ -109,7 +109,7 @@
  .filter-grid{position:absolute;top:50px;left:auto;right:0;width:calc(100vw - 20px);max-height:60dvh;overflow:auto;grid-template-columns:1fr}
  .mobile-views{display:flex;gap:6px;margin:8px 0}.mobile-views button{flex:1;font-size:13px}.atlas-explorer .mobile-views button[aria-pressed=true]{background:var(--text);color:var(--bg)}
  .atlas-layout{display:block}.browse-panel{max-height:none}.atlas-layout[data-mobile-view=map] .browse-panel{display:none}.atlas-layout:not([data-mobile-view=map]) #map-panel{display:none}
- .map-tools{padding:6px}.map-tools>select{max-width:145px}#expand-map{display:none}
+ .map-tools{padding:6px}.map-tools>select{max-width:145px}
  #world-map{height:max(330px,calc(100svh - 400px));min-height:330px;touch-action:pan-y}
  #map-count{flex-basis:100%}.map-bottom{padding:8px}.map-bottom button{font-size:12px}
  .atlas-layout.expanded .browse-panel{display:block}
