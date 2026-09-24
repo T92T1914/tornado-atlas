@@ -15,6 +15,36 @@ async function geography(page){
 }
 async function exhibit(page){await geography(page);await page.goto(base+'/index.html#path');await page.locator('#play:not([disabled])').waitFor();await page.locator('#map').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('#map').classList.contains('has-basemap'));}
 
+test('reviewed contradictory source positions require an explicit map reveal',async t=>{
+  const page=await fixture(t,phone);
+  for(const [id,view] of [['ncei:10161769','18.26359,-65.29827,11'],['ncei:5606609','48.17009,-12.41987,12'],['ncei:5606610','48.17009,-12.41987,12']]){
+    await open(page,'&view='+encodeURIComponent(view)+'&panel=detail#record='+encodeURIComponent(id));await detail(page,id);
+    assert.match(await page.locator('#detail').textContent(),/disputed start is excluded/);
+    assert.equal(await page.locator('#center-selected').textContent(),'Show disputed position');
+    assert.equal(await page.locator('#world-map .map-selected').count(),0);
+    assert.equal(await page.locator('#world-map .catalogue-pin[data-record="'+id+'"]').count(),0);
+    await page.getByRole('button',{name:'Show disputed reported position',exact:true}).tap();
+    assert.equal(await page.locator('#world-map .map-selected.disputed').count(),1);
+    assert.equal(await page.locator('#world-map .disputed-pin').textContent(),'?');
+    await page.locator('#show-detail').tap();assert.equal(await page.locator('#detail .eyebrow').textContent(),id);
+  }
+});
+
+test('recovery context is opt-in on playback and remains independent of its clock',async t=>{
+  const page=await fixture(t,phone);await exhibit(page);
+  const marker=page.locator('#map .incident-marker'),legend=page.locator('#playback-remembrance-legend');
+  assert.equal(await marker.isVisible(),false);assert.equal(await legend.isVisible(),false);
+  await page.locator('#survey-map .incident-marker').waitFor({state:'visible'});
+  await page.locator('#places-enabled').check();assert.equal(await marker.isVisible(),true);assert.equal(await legend.isVisible(),true);
+  assert.match(await page.locator('#places-status').textContent(),/independent of the selected time/);
+  const position=await marker.getAttribute('d');
+  await page.locator('#published-position').selectOption({index:12});
+  assert.equal(await marker.getAttribute('d'),position);
+  await page.locator('#places-enabled').uncheck();assert.equal(await marker.isVisible(),false);
+  await page.locator('#twistex-recovery a[href="#path"]').click();assert.equal(await marker.isVisible(),true);
+  assert.equal(await page.locator('#places-enabled').isChecked(),true);
+});
+
 test('timeline controls wait for slow modules before accepting a published-time selection',async t=>{
   const page=await fixture(t,phone);await geography(page);
   let release,started;const gate=new Promise(resolve=>{release=resolve;}),pending=new Promise(resolve=>{started=resolve;});
@@ -136,6 +166,7 @@ test('wrapped USGS attribution leaves the map scale readable',async t=>{
 test('forced colors retain the remembrance label and path legend',
   {skip:process.env.ATLAS_BROWSER_ENGINE==='webkit'?'Forced-colors emulation is Chromium-only here':false},async t=>{
   const page=await fixture(t,{...phone,forcedColors:'active'});await exhibit(page);
+  await page.locator('#places-enabled').check();
   const colors=await page.evaluate(()=>({
     text:getComputedStyle(document.body).color,
     label:getComputedStyle(document.querySelector('.fatality-map-label')).fill,
