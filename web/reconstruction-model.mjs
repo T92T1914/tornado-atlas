@@ -27,6 +27,29 @@ export function initialSeconds(search, duration) {
   return Number.isFinite(seconds) ? Math.min(duration,Math.max(0,seconds)) : 0;
 }
 
+export function replaySeconds(search,duration,anchors,start){
+  // Existing source-moment links can contain an older t value. Their known
+  // footage identity still selects the reviewed moment, as it did before.
+  const id=new URLSearchParams(search).get('footage');
+  const anchor=anchors.find(item=>item.id===id);
+  const seconds=anchor?(Date.parse(anchor.utc)-start)/1000:NaN;
+  return Number.isFinite(seconds)&&seconds>=0&&seconds<=duration?seconds:initialSeconds(search,duration);
+}
+
+export function replayURL(href,eventId,seconds,anchors,start){
+  const url=new URL(href);
+  url.searchParams.set('event',eventId);url.searchParams.set('t',seconds);
+  // The panel can display a printed clock throughout its second. Only the
+  // exact anchor may replace t on reload, so fractional seeks stay intact.
+  const anchor=anchors.find(item=>(Date.parse(item.utc)-start)/1000===seconds);
+  if(anchor)url.searchParams.set('footage',anchor.id);
+  else{
+    url.searchParams.delete('footage');
+    if(url.hash==='#registered-footage')url.hash='';
+  }
+  return url;
+}
+
 // Project only an azimuth direction, then normalize to a fixed screen symbol.
 // The arrow length is neither distance to a feature nor a camera field of view.
 export function observerGlyph(sample,origin,camera,width,height){

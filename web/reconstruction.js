@@ -2,13 +2,13 @@ import {mountChronology} from './chronology-view.mjs';
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
 import {frameAt} from './timeline-media-model.mjs';
 import {loadEventPackage,displayClock} from './event-package-model.mjs';
-import {localPoint, sceneProject, initialSeconds, funnelGlyph, observerGlyph} from './reconstruction-model.mjs';
+import {localPoint, sceneProject, replaySeconds, replayURL, funnelGlyph, observerGlyph} from './reconstruction-model.mjs';
 import {mountFootage} from './footage-view.mjs';
 import {mountReplayCamera} from './replay-camera-view.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
-let drawPending=null, frame=null, clock=null, redraw=()=>{}, refresh=()=>{};
+let drawPending=null, frame=null, clock=null, redraw=()=>{}, refresh=()=>{}, syncLocation=()=>{};
 const failedRadar=new Set();
 const requestDraw=()=>{if(drawPending===null) drawPending=requestAnimationFrame(()=>{drawPending=null;redraw();});};
 function pause(){clock?.pause(performance.now());if(frame!==null) cancelAnimationFrame(frame);frame=null;el('replay-play').textContent='Play timeline';}
@@ -51,14 +51,24 @@ async function start(){
   const bounds=[0,1].map(axis=>[Math.min(...path.map(p=>p[axis])),Math.max(...path.map(p=>p[axis]))]);
   const origin=bounds.map(([lo,hi])=>(lo+hi)/2), stagePath=path.map(p=>localPoint(p,origin)), stageBoundary=boundary.map(p=>localPoint(p,origin));
   clock=new PlaybackClock((positions.at(-1).stamp-positions[0].stamp)/1000);
-  clock.seek(initialSeconds(location.search,clock.duration));
+  const start=positions[0].stamp,anchors=data.footage.anchors;
+  clock.seek(replaySeconds(location.search,clock.duration,anchors,start));
+  syncLocation=(mode='replace',fragment=null)=>{
+    const url=replayURL(location.href,event.id,clock.seconds,anchors,start);
+    if(fragment)url.hash=fragment;
+    if(url.href!==location.href)history[mode==='push'?'pushState':'replaceState'](null,'',url);
+  };
+  function seek(seconds,{mode='push',fragment=null}={}){
+    pause();clock.seek(seconds);refresh();if(mode)syncLocation(mode,fragment);
+  }
+  function restore(){seek(replaySeconds(location.search,clock.duration,anchors,start),{mode:null});syncLocation();}
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
   let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null;
-  const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seconds=>{pause();clock.seek(seconds);refresh();},localStamp,data.footage.sources[0].creator);
+  const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seek,localStamp,data.footage.sources[0].creator);
   el('replay-camera-enabled').addEventListener('change',()=>{observer=updateObserver(current.utc);requestDraw();});
   el('replay-source-note').textContent=`The source supplies ${positions.length} minute positions and the center path. The moving marker uses linear interpolation between those positions. ${config.clock.basis}`;
   el('replay-geography-source').href=config.geography_source.url;
-  const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},positions[0].stamp,seconds=>{pause();clock.seek(seconds);refresh();},pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`});
+  const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},start,seconds=>seek(seconds,{mode:'replace'}),pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`,restoreInitialMoment:false,onMomentSelect:anchor=>seek((Date.parse(anchor.utc)-start)/1000,{fragment:'registered-footage'})});
   function readCamera(center){
     const camera={focus:el('replay-follow').checked?center:[0,0,0]};
     for(const key of ['azimuth','elevation','distance']){
@@ -125,11 +135,12 @@ async function start(){
     else el('replay-radar-note').textContent='No reviewed radar frame within the permitted age of this time.';
     if(match&&failedRadar.has(match.frame.file))el('replay-radar-note').textContent='This radar image could not load. The historical clock and source map remain available.';
   };
-  function animate(){frame=null;clock.tick(performance.now());refresh();if(clock.playing)frame=requestAnimationFrame(animate);else pause();}
-  el('replay-play').addEventListener('click',()=>{if(clock.playing){pause();refresh();return;}clock.play(performance.now());el('replay-play').textContent='Pause timeline';frame=requestAnimationFrame(animate);});
-  el('replay-time').addEventListener('input',()=>{pause();clock.seek(Number(el('replay-time').value));refresh();});
+  function animate(){frame=null;clock.tick(performance.now());refresh();if(clock.playing)frame=requestAnimationFrame(animate);else{pause();syncLocation();}}
+  el('replay-play').addEventListener('click',()=>{if(clock.playing){pause();refresh();syncLocation();return;}clock.play(performance.now());el('replay-play').textContent='Pause timeline';frame=requestAnimationFrame(animate);});
+  el('replay-time').addEventListener('input',()=>seek(Number(el('replay-time').value),{mode:'replace'}));
   el('replay-rate').addEventListener('change',()=>{clock.setRate(Number(el('replay-rate').value),performance.now());refresh();});
-  refresh();
+  window.addEventListener('popstate',restore);
+  refresh();syncLocation();
 }
 for(const key of ['azimuth','elevation','distance','follow','funnel'])el(`replay-${key}`).addEventListener('input',requestDraw);
 el('replay-reset').addEventListener('click',resetView);
@@ -144,7 +155,7 @@ canvas.addEventListener('keydown',e=>{const keys={ArrowLeft:[-5,0],ArrowRight:[5
 new ResizeObserver(requestDraw).observe(canvas);
 new MutationObserver(requestDraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-appearance']});
 matchMedia('(prefers-color-scheme: light)').addEventListener('change',requestDraw);
-document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();refresh();}else requestDraw();});
-reduceMotion.addEventListener('change',event=>{if(event.matches){pause();refresh();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();refresh();syncLocation();}else requestDraw();});
+reduceMotion.addEventListener('change',event=>{if(event.matches){pause();refresh();syncLocation();}});
 el('replay-radar-image').addEventListener('error',()=>{const image=el('replay-radar-image');failedRadar.add(image.getAttribute('src'));image.hidden=true;el('replay-radar-note').textContent='This radar image could not load. The historical clock and source map remain available.';});
 start().catch(error=>{pause();el('replay-error').textContent=error.message;el('replay-error').hidden=false;});

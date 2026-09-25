@@ -17,7 +17,7 @@ function youtubeAPI() {
   return api;
 }
 
-export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=localStamp,clockLabel='Historical clock (CDT)'}={}) {
+export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=localStamp,clockLabel='Historical clock (CDT)',onMomentSelect=null,restoreInitialMoment=true}={}) {
   if(![2,3].includes(headingLevel))throw new RangeError('Unsupported footage heading level');
   const host=document.getElementById('registered-footage');
   host.append(el('p','ORIGINAL FOOTAGE / CHECKED CLOCK READINGS','eyebrow'),el(`h${headingLevel}`,'See the storm at a recorded moment'),el('p',data.introduction));
@@ -42,7 +42,10 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=loc
   function freeze(){if(selected)seek((Date.parse(selected.utc)-start)/1000);else stop();}
   for(const anchor of data.anchors) {
     const button=el('button',formatTime(anchor.utc));button.type='button';button.dataset.anchor=anchor.id;button.setAttribute('aria-pressed','false');button.title=anchor.note;
-    button.addEventListener('click',()=>{const url=new URL(location.href);url.searchParams.set('footage',anchor.id);url.hash='registered-footage';history.replaceState(null,'',url);seek((Date.parse(anchor.utc)-start)/1000);});list.append(button);
+    button.addEventListener('click',()=>{
+      if(onMomentSelect){onMomentSelect(anchor);return;}
+      const url=new URL(location.href);url.searchParams.set('footage',anchor.id);url.hash='registered-footage';history.replaceState(null,'',url);seek((Date.parse(anchor.utc)-start)/1000);
+    });list.append(button);
   }
   function update(utc) {
     const next=anchorAt(data.anchors,utc);
@@ -75,7 +78,7 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=loc
   reset.addEventListener('click',()=>{freeze();cue();});unload.addEventListener('click',close);
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&ready)player.pauseVideo();});
   const initial=data.anchors.find(a=>a.id===new URL(location.href).searchParams.get('footage'));
-  if(initial)requestAnimationFrame(()=>seek((Date.parse(initial.utc)-start)/1000));
+  if(initial&&restoreInitialMoment)requestAnimationFrame(()=>seek((Date.parse(initial.utc)-start)/1000));
   return update;
 }
 

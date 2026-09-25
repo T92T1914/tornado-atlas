@@ -57,6 +57,31 @@ for the browser's SHA-256 API. See the
 [Web Crypto digest API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest)
 and [display-clock API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
 
+## Spatial replay navigation
+
+The replay owns its historical time and address together. Choosing a checked
+footage moment or recorded observer sample adds a history entry. Scrubbing,
+pausing and reaching the end update the current entry without adding a trail of
+animation frames. Back and Forward restore the selected time paused, updating
+the scene, radar, observer status and footage panel through the same clock.
+During playback the address retains the last saved selection until playback
+pauses or ends. The visible share link continues to identify the displayed whole
+second. Free-orbit settings and the observer toggle are not stored in the URL.
+
+Existing links with a known `footage` ID still select that reviewed moment,
+including older links whose `t` value differs. New navigation removes that ID
+when moving away. Numeric `t` values retain supported fractional seconds instead
+of being rounded during reload. A source clock shown throughout one printed
+second does not make every fractional time its exact anchor, so new addresses
+include `footage` only at the anchor itself. This preserves navigation precision
+without claiming greater historical clock accuracy or registering a new frame.
+
+The original documentary's footage links keep their existing behavior. The
+optional player remains unloaded until requested. Browser regressions use
+isolated local pages with external requests blocked and cover both appearances
+at desktop and narrow widths. They do not validate the external video host,
+physical devices or the historical source registration.
+
 ## Extending reviewed coverage
 
 Adding an index row alone does not create a replay. A new event needs its own
