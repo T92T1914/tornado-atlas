@@ -26,6 +26,11 @@ It is a starting point for the historical reconstruction, not a claim to have
 recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
 record the tested behavior and remaining gaps.
 
+The spatial replay keeps selected footage moments and observer times in browser
+history. Back and Forward restore the clock paused. Scrubbing or pausing updates
+the current address, so reloading does not return to an earlier footage choice.
+These links preserve navigation time, not new historical timing accuracy.
+
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
 also shows Joplin's research-readiness page, with a link to its documentary;
