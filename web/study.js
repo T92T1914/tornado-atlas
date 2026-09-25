@@ -125,7 +125,9 @@ function fail(message) {
 function stop(message = 'Paused') {
   running=false;last=null;
   if(frame) cancelAnimationFrame(frame);
-  frame=0;byId('motion').textContent='Play motion';status(message);
+  frame=0;byId('motion').textContent='Play motion';
+  // View and accessibility controls must not replace a renderer failure diagnosis.
+  if(gpu) status(message);
   requestFrame();
 }
 function requestFrame() { if (!frame && gpu && !document.hidden && inView) frame=requestAnimationFrame(draw); }
