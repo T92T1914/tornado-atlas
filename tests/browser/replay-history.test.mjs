@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,open} from './harness.mjs';
 
 const moment='robinson-01',sample='2013-05-31T23:09:38Z';
 async function time(page,seconds){
@@ -30,7 +30,7 @@ test('reloading after a footage moment and a camera selection keeps the newer ti
 
 test('Back returns to the prior evidence moment before leaving the replay',async t=>{
   const page=await fixture(t);
-  await page.goto(base+'/atlas.html?layer=local');
+  await open(page);
   await ready(page);
   await chooseMoment(page);
   await page.locator('#replay-camera-sample').selectOption(sample);
