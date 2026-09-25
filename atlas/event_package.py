@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .history import source_url
+from .cameras import validate_camera_context
 
 COVERAGE = {"positions": "published_minute_samples",
             "between_positions": "linear_longitude_latitude",
@@ -123,6 +124,8 @@ def validate_replay(config, bundle):
     for key in ("timeline_media", "footage"):
         if bundle[key]["event"] != config["event_id"]:
             raise ValueError("Evidence belongs to a different event")
+    if bundle.get("cameras") is not None:
+        validate_camera_context(bundle["cameras"], config["event_id"])
     if len(bundle["footage"]["sources"]) != 1:
         raise ValueError("Replay currently supports one registered footage source")
     footage_id = bundle["footage"]["sources"][0]["id"]

@@ -19,7 +19,8 @@ The atlas contains 80,318 NOAA source records covering US years 1950 through 202
 The atlas entrance now brings the documentary, spatial replay and wind laboratory
 together before the searchable collection. The spatial replay places El Reno's
 39 published minute positions on a three-dimensional stage, with orbit controls,
-a following camera, a shared clock and the available radar. The route comes from
+a following camera, a shared clock, available radar and optional recorded observer
+context. The route comes from
 the source record. The funnel is a drawing symbol, and the ground is flat.
 It is a starting point for the historical reconstruction, not a claim to have
 recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
@@ -176,13 +177,21 @@ positions, using the latest preceding frame within four minutes. The actual
 frame age and the filename-clock interpretation stay visible. The two storm
 photographs can be viewed beside the timeline, but remain explicitly untimed.
 
-An arrow marker follows Tim Marshall's published camera samples. Selecting
+The documentary map and spatial replay share Tim Marshall's published camera
+samples. In the spatial replay, enable the recorded observer layer or choose a
+sample to show its square and bearing arrow. Selecting
 6:09:38 PM, for example, shows that recorded camera location and moves the
 interpolated tornado marker to the same time. Camera samples are held at their
 recorded locations for at most 90 seconds, with their age displayed. The marker
 then disappears. The arrow shows the reported azimuth, not a measured viewing
 cone. The [camera and playback notes](research/camera-playback-2026-09-20.md)
 explain the source, gaps and display assumptions.
+
+The observer's source time, bearing and age remain readable when orbiting the
+scene. Whole path restores the overview without changing the selected historical
+time. This is context from Marshall's metadata, separate from Robinson's footage.
+It does not place that video at Marshall's camera or turn the free-orbit scene
+into a recorded viewpoint.
 
 The [form study](https://t92t1914.github.io/tornado-atlas/study.html) can play and
 scrub an authored sequence of changing shapes. The

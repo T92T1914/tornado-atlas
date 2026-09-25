@@ -23,8 +23,10 @@
     <div class="replay-layout">
       <section class="replay-stage" aria-label="Historical path scene">
         <div class="replay-bar"><strong id="replay-clock">Loading historical positions</strong><span>DOCUMENTED PATH / ILLUSTRATIVE FUNNEL</span></div>
-        <canvas id="replay-scene" tabindex="0" role="img" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
+        <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
         <p id="replay-basis" class="replay-caption"></p>
+        <p id="replay-camera-key" class="replay-caption" hidden>Square and arrow: recorded observer.</p>
+        <p id="replay-camera-offscreen" class="replay-caption" hidden>The recorded observer is outside this view. Whole path restores the overview. The sample's time and bearing remain available in the observer controls.</p>
         <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a></div>
         <label class="replay-time-label" for="replay-time">Historical time</label><input id="replay-time" type="range" min="0" max="2280" value="0" step="1" disabled>
         <p class="replay-help">Drag to orbit. Scroll to zoom. Keyboard: arrows turn the view, + and - zoom, Home restores the whole path. Playback pauses when the page is hidden.</p>
@@ -37,6 +39,15 @@
         <label class="replay-check"><input id="replay-follow" type="checkbox" checked> Follow the center position</label>
         <label class="replay-check"><input id="replay-funnel" type="checkbox" checked> Show the illustrative funnel symbol</label>
         <p class="replay-help">Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.</p>
+        <section id="replay-camera" class="replay-observer" aria-labelledby="replay-camera-name" hidden>
+          <h3 id="replay-camera-name">Recorded observer</h3>
+          <label class="replay-check"><input id="replay-camera-enabled" type="checkbox"> Show recorded observer position and bearing</label>
+          <label for="replay-camera-sample">Jump to a recorded sample</label>
+          <select id="replay-camera-sample" aria-describedby="replay-camera-status" disabled><option value="">Choose a recorded time</option></select>
+          <p id="replay-camera-status"></p><p id="replay-camera-count" class="replay-help"></p>
+          <p class="replay-help">The square and arrow mark a recorded observer, not the tornado or a view through that camera. <span id="replay-camera-separation"></span></p>
+          <details><summary>Observer source and uncertainty</summary><p id="replay-camera-method"></p><p id="replay-camera-credit"></p><a id="replay-camera-source" target="_blank" rel="noopener">Published camera metadata</a></details>
+        </section>
         <div class="replay-radar"><h3>Available radar</h3><img id="replay-radar-image" alt="" hidden><p id="replay-radar-note"></p><a id="replay-radar-source" href="index.html#path" data-event-documentary="#path">Radar and timing methods</a></div>
       </aside>
     </div>

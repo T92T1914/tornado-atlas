@@ -6,6 +6,13 @@ recovery from missing records or failed requests. They do not open a desktop
 window or reuse a browser profile. External requests are blocked, so these checks
 do not establish USGS availability or validate the historical source material.
 
+The spatial replay checks also exercise recorded observer selection, shared
+clock behavior, gaps, layer switching and separation from original footage.
+`replay-camera.test.mjs` covers both appearances at desktop and narrow widths.
+Set `ATLAS_SCREENSHOT_DIR` to an evidence directory outside the repository to
+retain its four rendered-page captures. These captures show only the owned
+headless fixture and do not inspect the desktop.
+
 Install the pinned test dependencies and Chromium, then run the suite:
 
 ```sh

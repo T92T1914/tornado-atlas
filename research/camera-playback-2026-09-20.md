@@ -71,3 +71,39 @@ The next reconstruction step is a small, explicitly registered ground-view
 sequence with usable source footage, permission for any reproduced frames,
 and stated timing and viewpoint uncertainty. A camera track alone cannot
 supply the visible funnel, rain curtain or debris evolution.
+
+## Shared spatial replay context, September 24
+
+The spatial replay now uses the same observer-selection model as the documentary
+map. The layer begins hidden. Choosing one of the 17 in-window samples enables
+it and pauses the shared historical clock at that exact second. A square marks
+the published location, with an arrow for the reported bearing. Turning the
+scene changes the arrow's projected direction. Its fixed screen length has no
+distance or field-of-view meaning.
+
+The controls distinguish an exact sample from a held sample, an expired sample
+and a hidden layer. They show the source time, bearing and age. Camera positions
+are never interpolated. The 6:24:20 sample remains visible at 6:25:50, but is
+hidden at 6:25:51. Rewinding restores the earlier source state. An observer
+outside the chosen view has a separate message and keeps its textual evidence.
+Whole path changes the scene view without changing historical time.
+
+This uses the same preserved metadata and source hashes described above. No
+new camera registration or footage review is claimed. Marshall's track stays
+explicitly separate from Dan Robinson's original footage. A shared clock alone
+does not establish that the location or direction applies to the video.
+
+Both publication and browser package validation now reject camera evidence from
+a different event, unsupported pose fields, malformed UTC, invalid coordinates
+or bearings, missing attribution or source hashes, and unreviewed display ages.
+A package without observer context can still run its geographic replay.
+
+Synthetic checks cover absent, exact, held and expired samples, rewind, playback
+rate changes and long frame gaps. Projection checks include north/east bearings,
+orbit changes, fixed symbol length and a close view where a visible observer's
+direction crosses the near plane. The browser tests exercise both appearances
+at 1280 and 390 pixels, keyboard focus, sample selection during playback, layer
+switching, a camera-free package and the documentary map's matching age rules.
+They run in isolated headless browsers with external requests blocked. This
+checks the local interface, not physical-phone behavior, screen-reader output,
+source-host availability or historical camera calibration.

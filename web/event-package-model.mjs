@@ -1,4 +1,5 @@
 import {validateChronology} from './chronology-model.mjs';
+import {validateCamera} from './camera-model.mjs';
 // The build validates the historical contract. The loader rejects mixed or
 // incomplete publications before any bundle reaches the shared renderer.
 const idPattern=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -62,6 +63,7 @@ export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,
   requireValue(hash===config.bundle_sha256,'The replay and its evidence bundle are from different revisions. Reload after publication finishes.');
   const data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
   requireValue(data.exhibit?.id===event.id&&data.timeline_media?.event===event.id&&data.footage?.event===event.id,'Evidence identity differs from the selected event.');
+  if(data.cameras!=null)validateCamera(data.cameras,event.id);
   requireValue(Object.entries(config.geography_source).every(([key,value])=>data.geometry?.source?.[key]===value),'Geography provenance differs from the reviewed package.');
   const points=data.geometry.features.filter(f=>f.geometry.type==='Point');
   requireValue(points.length>=2&&Date.parse(points[0].properties.utc)===Date.parse(config.clock.start_utc)&&Date.parse(points.at(-1).properties.utc)===Date.parse(config.clock.end_utc),'Historical positions differ from the declared coverage.');

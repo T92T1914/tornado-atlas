@@ -2,8 +2,9 @@ import {mountChronology} from './chronology-view.mjs';
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
 import {frameAt} from './timeline-media-model.mjs';
 import {loadEventPackage,displayClock} from './event-package-model.mjs';
-import {localPoint, sceneProject, initialSeconds, funnelGlyph} from './reconstruction-model.mjs';
+import {localPoint, sceneProject, initialSeconds, funnelGlyph, observerGlyph} from './reconstruction-model.mjs';
 import {mountFootage} from './footage-view.mjs';
+import {mountReplayCamera} from './replay-camera-view.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -52,7 +53,9 @@ async function start(){
   clock=new PlaybackClock((positions.at(-1).stamp-positions[0].stamp)/1000);
   clock.seek(initialSeconds(location.search,clock.duration));
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
-  let current=positionAt(positions,clock.seconds), lastText=null, radarFile=null;
+  let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null;
+  const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seconds=>{pause();clock.seek(seconds);refresh();},localStamp,data.footage.sources[0].creator);
+  el('replay-camera-enabled').addEventListener('change',()=>{observer=updateObserver(current.utc);requestDraw();});
   el('replay-source-note').textContent=`The source supplies ${positions.length} minute positions and the center path. The moving marker uses linear interpolation between those positions. ${config.clock.basis}`;
   el('replay-geography-source').href=config.geography_source.url;
   const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},positions[0].stamp,seconds=>{pause();clock.seek(seconds);refresh();},pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`});
@@ -89,11 +92,26 @@ async function start(){
       context.globalAlpha=1;
     }
     if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px Segoe UI, sans-serif';context.fillText('Center position',marker.x+12,marker.y+4);}
+    const glyph=observer?.visible?observerGlyph(observer.sample,origin,camera,rect.width,rect.height):null;
+    canvas.dataset.observerVisible=String(Boolean(glyph));
+    if(glyph){
+      const {x,y,dx,dy}=glyph,headX=x+dx,headY=y+dy;
+      context.strokeStyle=text;context.fillStyle=style.getPropertyValue('--bg');context.lineWidth=2;
+      context.fillRect(x-5,y-5,10,10);context.strokeRect(x-5,y-5,10,10);
+      context.beginPath();context.moveTo(x,y);context.lineTo(headX,headY);
+      context.moveTo(headX-dx*.25-dy*.18,headY-dy*.25+dx*.18);context.lineTo(headX,headY);context.lineTo(headX-dx*.25+dy*.18,headY-dy*.25-dx*.18);context.stroke();
+      if(rect.width>=600){
+        context.fillStyle=text;context.font='12px Segoe UI, sans-serif';
+        context.fillText('Recorded observer',Math.max(8,Math.min(rect.width-125,x+12)),Math.max(16,y-10));
+      }
+    }
+    el('replay-camera-key').hidden=!glyph||rect.width>=600;
+    el('replay-camera-offscreen').hidden=!observer?.visible||Boolean(glyph);
     const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px Segoe UI, sans-serif';context.fillText('N',north.x,north.y);}
     context.fillStyle=muted;context.font='11px Segoe UI, sans-serif';context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
   };
   refresh=()=>{
-    current=positionAt(positions,clock.seconds);requestDraw();
+    current=positionAt(positions,clock.seconds);observer=updateObserver(current.utc);requestDraw();
     const key=`${Math.floor(clock.seconds)}:${current.published}`;if(key===lastText)return;lastText=key;
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
     updateFootage(current.utc);
