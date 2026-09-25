@@ -74,7 +74,7 @@ test('synthetic second event uses the shared loader without historical claims',a
   const next=structuredClone(index),manifest=structuredClone(config),data=JSON.parse(bundle);
   next.schema_version=1;next.default_event='synthetic-test';next.events=[{id:'synthetic-test',title:'Synthetic fixture',documentary:'fixture.html',replay:'events/synthetic-test.json'}];
   manifest.event_id='synthetic-test';manifest.clock.time_zone='UTC';
-  data.exhibit.id='synthetic-test';data.timeline_media.event='synthetic-test';data.footage.event='synthetic-test';
+  data.exhibit.id='synthetic-test';data.timeline_media.event='synthetic-test';data.footage.event='synthetic-test';data.cameras.event='synthetic-test';
   const bytes=Buffer.from(JSON.stringify(data));
   manifest.bundle_sha256=Buffer.from(await webcrypto.subtle.digest('SHA-256',bytes)).toString('hex');
   const result=await loadEventPackage(null,fixture({'events.json':JSON.stringify(next),'events/synthetic-test.json':JSON.stringify(manifest),'data.json':bytes}));
@@ -93,4 +93,12 @@ test('chronology failure leaves no borrowed replay or partially accepted documen
 test('combined modes require a reviewed synchronization contract',()=>{
   const copy=structuredClone(index);copy.events[1].replay='events/joplin-2011.json';
   assert.throws(()=>selectEvent(copy,'joplin-2011'),/synchronization/);
+});
+
+test('camera evidence identity is checked even when bundle hash matches its package',async()=>{
+  const manifest=structuredClone(config),data=JSON.parse(bundle);
+  data.cameras.event='another-event';
+  const bytes=Buffer.from(JSON.stringify(data));
+  manifest.bundle_sha256=Buffer.from(await webcrypto.subtle.digest('SHA-256',bytes)).toString('hex');
+  await assert.rejects(loadEventPackage(null,fixture({'events/el-reno-2013.json':JSON.stringify(manifest),'data.json':bytes})),/Camera evidence belongs/);
 });

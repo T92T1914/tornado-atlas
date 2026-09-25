@@ -27,6 +27,25 @@ export function initialSeconds(search, duration) {
   return Number.isFinite(seconds) ? Math.min(duration,Math.max(0,seconds)) : 0;
 }
 
+// Project only an azimuth direction, then normalize to a fixed screen symbol.
+// The arrow length is neither distance to a feature nor a camera field of view.
+export function observerGlyph(sample,origin,camera,width,height){
+  const point=localPoint(sample.coordinates,origin),angle=sample.azimuth*Math.PI/180;
+  const start=sceneProject(point,camera,width,height);
+  if(!start||start.x<0||start.x>width||start.y<0||start.y>height)return null;
+  // Differentiate the projection at the observer. Projecting an arbitrary
+  // distant endpoint could cross the near plane and hide a visible observer.
+  const a=camera.azimuth*Math.PI/180,e=camera.elevation*Math.PI/180;
+  const east=Math.sin(angle),north=Math.cos(angle);
+  const horizontal=east*Math.cos(a)+north*Math.sin(a);
+  const vertical=(-east*Math.sin(a)+north*Math.cos(a))*Math.sin(e);
+  const depth=(-east*Math.sin(a)+north*Math.cos(a))*Math.cos(e);
+  const x=(start.x-width/2)/start.scale,y=-(start.y-height/2)/start.scale;
+  const dx=horizontal*start.depth-x*depth,dy=-vertical*start.depth+y*depth;
+  const length=Math.hypot(dx,dy);
+  return {x:start.x,y:start.y,dx:length>1e-8?dx/length*30:0,dy:length>1e-8?dy/length*30:0};
+}
+
 // A drawing glyph, not a measured funnel. Its parameters never come from EF rating.
 export function funnelGlyph(seconds, count=480) {
   if (!Number.isFinite(seconds) || !Number.isInteger(count) || count < 1 || count > 2000) throw new RangeError('Invalid glyph');

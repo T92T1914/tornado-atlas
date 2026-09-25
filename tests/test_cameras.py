@@ -1,9 +1,10 @@
 import json
+import copy
 from pathlib import Path
 import tempfile
 import unittest
 
-from atlas.cameras import FOLDER, load_cameras, parse_track
+from atlas.cameras import FOLDER, load_cameras, parse_track, validate_camera_context
 
 
 class CameraTests(unittest.TestCase):
@@ -63,3 +64,23 @@ class CameraTests(unittest.TestCase):
     def test_zero_and_full_circle_are_valid_bearings(self):
         for azimuth in (0, 360):
             self.assertEqual(parse_track(json.dumps([{**self.row, 'AzimuthCam1': azimuth}]))[0]['azimuth'], azimuth)
+
+    def test_shared_player_rejects_mixed_or_unsupported_camera_context(self):
+        original = load_cameras()
+        for mutate in (
+            lambda data: data.update(event='joplin-2011'),
+            lambda data: data.update(display_max_age_seconds=900),
+            lambda data: data.update(excerpt_sha256=''),
+            lambda data: data.update(source='https://user:pass@example.test/source'),
+            lambda data: data.update(samples=[]),
+            lambda data: data['samples'].reverse(),
+            lambda data: data['samples'][0].update(utc='2013-05-31T18:00:00-05:00'),
+            lambda data: data['samples'][0].update(utc='2013-02-30T23:00:00Z'),
+            lambda data: data['samples'][0].update(coordinates=[0, 91]),
+            lambda data: data['samples'][0].update(azimuth=True),
+            lambda data: data['samples'][0].update(field_of_view=90),
+        ):
+            data = copy.deepcopy(original)
+            mutate(data)
+            with self.assertRaises(ValueError):
+                validate_camera_context(data, 'el-reno-2013')

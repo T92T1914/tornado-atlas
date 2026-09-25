@@ -1,5 +1,6 @@
-import {frameAt, localStamp} from './timeline-media-model.mjs';
+import {localStamp} from './timeline-media-model.mjs';
 import {bearingOffset} from './playback-model.mjs';
+import {cameraAt,cameraStatus} from './camera-model.mjs';
 
 export function mountCamera(manifest, svg, project, start, end, seek) {
   const el = id => document.getElementById(id);
@@ -23,22 +24,20 @@ export function mountCamera(manifest, svg, project, start, end, seek) {
   function update(utc) {
     lastUtc = utc;
     const enabled = el('camera-enabled').checked;
-    const match = enabled ? frameAt(manifest.samples, utc, manifest.display_max_age_seconds) : null;
-    const key = `${enabled}:${match?.frame.utc || 'none'}:${match ? Math.floor(match.ageSeconds) : ''}:${match?.ageSeconds === 0}`;
+    const state = cameraAt(manifest,utc,enabled);
+    const key = `${state.status}:${state.sample?.utc || 'none'}:${Math.floor(state.ageSeconds)}`;
     if (key === lastKey) return;
     lastKey = key;
-    group.setAttribute('display', match ? 'inline' : 'none');
-    if (!match) {
-      el('camera-status').textContent = enabled ? 'No camera sample within the preceding 90 seconds. The camera marker is hidden.' : 'Camera overlay hidden.';
+    el('camera-status').textContent = cameraStatus(manifest,state,localStamp);
+    group.setAttribute('display', state.visible ? 'inline' : 'none');
+    if (!state.visible) {
       menu.value = '';
       return;
     }
-    const {frame, ageSeconds} = match, [x,y] = project(frame.coordinates);
+    const {sample:frame, ageSeconds} = state, [x,y] = project(frame.coordinates);
     group.setAttribute('transform',`translate(${x} ${y})`);
     const [dx,dy] = bearingOffset(frame.azimuth), [wingX,wingY] = bearingOffset((frame.azimuth+90)%360,5);
     arrow.setAttribute('d',`M0 0 L${dx} ${dy} M${dx*.7+wingX} ${dy*.7+wingY} L${dx} ${dy} L${dx*.7-wingX} ${dy*.7-wingY}`);
-    const age = Math.floor(ageSeconds);
-    el('camera-status').textContent = `Tim Marshall · camera 1 · ${frame.azimuth}° from north. Recorded at ${localStamp(frame.utc)}; ${ageSeconds === 0 ? 'exact sample time' : `${age < 1 ? 'less than 1' : age} ${age <= 1 ? 'second' : 'seconds'} old`}. Marker stays at that recorded location.`;
     // Only select an exact observation; do not imply that a held sample is current.
     menu.value = ageSeconds === 0 ? frame.utc : '';
   }
