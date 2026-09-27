@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tornado Atlas | Local curator</title>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="appearance.css"><link rel="stylesheet" href="curator.css">
+<script src="appearance.js"></script><script type="module" src="curator.mjs"></script></head>
+<body><a class="skip" href="#new-id">Skip to draft controls</a>
+<header><span class="brand">TORNADO ATLAS</span><div class="reading-appearance"><label for="reading-appearance">Appearance</label><select id="reading-appearance"><option value="system">Auto</option><option value="light">Clair</option><option value="dark">Obscur</option></select></div></header>
+<main><h1>Local research desk</h1><p>Keep source leads and private notes together, inspect a candidate, then submit it through the reviewed publication workflow. Saving here does not change the public archive.</p>
+<p id="status" role="status">Open the session URL printed by <code>python -m atlas.curator --store</code>. This editor uses a private directory outside the repository.</p><p id="error" role="alert" hidden></p>
+<section aria-labelledby="drafts-title"><h2 id="drafts-title">Choose the research context</h2>
+<div class="curator-grid"><form id="new-form"><label>Draft name<input id="new-id" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" placeholder="el-reno-source-review"></label><label>Reviewed event<select id="event-choice"></select></label><button type="submit">Start event draft</button></form>
+<div><form id="search-form"><label>Find a source record<input id="record-query" type="search" minlength="2" maxlength="160" placeholder="Town, date or source ID"></label><button type="submit">Find records</button></form><div id="record-results"></div></div>
+<div><label>Saved private drafts<select id="draft-choice"><option value="">Choose a saved draft</option></select></label><button id="reopen" type="button">Reopen draft</button></div></div></section>
+<div id="workspace" hidden><section aria-labelledby="current-title"><h2 id="current-title"></h2><p id="target-context"></p><p id="revision"></p>
+<label>Private notes<textarea id="private-notes" rows="3" maxlength="30000" placeholder="Research questions or permission notes. Excluded from the publication candidate."></textarea></label>
+<div class="actions"><button id="save" type="button">Save draft</button><button id="preview" type="button">Validate and preview candidate</button><button id="download" type="button" disabled>Download candidate JSON</button></div>
+<details><summary>Edit the full dossier and inspect disagreements</summary><p>This is the public candidate content. Keep attributed claims separate, retain competing source accounts and record their limitations. The validator preserves separate clock, position, review and rights fields. Private material belongs in the notes above.</p><label>Dossier JSON<textarea id="dossier-json" rows="16" spellcheck="false"></textarea></label></details>
+</section>
+<section aria-labelledby="intake-title"><h2 id="intake-title">Add a source lead or media annotation</h2><p>Intake records remain unreviewed and unregistered. A creator, uploader and rights holder are separate roles. This tool saves metadata and links only.</p>
+<button id="sample" type="button">Fill from a retained video sample</button>
+<form id="intake-form"><div class="curator-grid">
+<label>Stable intake key<input name="key" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="60" placeholder="robinson-clock-note"></label>
+<label>Kind<select name="kind"><option value="lead">Source lead</option><option value="photograph">Photograph</option><option value="video">Video segment or paused sample</option><option value="radar">Radar source</option></select></label>
+<label>Title<input name="title" required maxlength="8000"></label><label>Original HTTPS source link<input name="url" type="url" required maxlength="8000"></label>
+<label>Exact page, figure or segment locator<input name="locator" required maxlength="8000"></label><label>Creator name, if supported<input name="creator" maxlength="8000"></label>
+<label>Uploader name, if supported<input name="uploader" maxlength="8000"></label><label>Rights holder, if supported<input name="rights_holder" maxlength="8000"></label>
+<label>Attribution basis<input name="attribution_basis" maxlength="8000"></label><label>Rights state<select name="rights"><option value="unknown">Unknown</option><option value="links_only">Source links only</option><option value="restricted">Restricted</option></select></label>
+<label>Rights note<input name="rights_note" required maxlength="8000"></label><label>Capture time as reported<input name="capture_text" maxlength="8000" placeholder="Retain original clock and uncertainty"></label>
+<label>Publication or upload time<input name="publication_text" maxlength="8000"></label><label>Retrieval date and access scope<input name="retrieval_text" maxlength="8000"></label>
+<label>Reported place and role<input name="place_text" maxlength="8000" placeholder="No coordinates are inferred"></label>
+<label>Video start, presentation seconds<input name="video_start" type="number" min="0" max="86400" step="any"></label><label>Video end, presentation seconds<input name="video_end" type="number" min="0" max="86400" step="any"></label>
+</div><label>Attributed observation or research question<textarea name="account" required rows="3" maxlength="8000"></textarea></label><label>Limits, uncertainty and conflicting evidence<textarea name="limits" required rows="3" maxlength="8000"></textarea></label><button type="submit">Add intake and save</button></form>
+</section><section id="candidate-panel" hidden aria-labelledby="preview-title"><h2 id="preview-title">Publication candidate preview</h2><p id="preview-state"></p><div id="candidate-summary"></div><details><summary>Inspect complete exported JSON</summary><pre id="candidate-json"></pre></details></section></div>
+<section aria-labelledby="backup-title"><h2 id="backup-title">Backup and restore</h2><p>Backups contain private notes. Keep them out of public repositories. Restore leaves identical drafts unchanged and rejects conflicting content. Use a separate private store to inspect a differing backup.</p><div class="actions"><button id="backup" type="button">Download private backup</button><label>Restore a private backup<input id="restore-file" type="file" accept="application/json,.json"></label><button id="restore" type="button">Restore selected backup</button></div></section>
+</main><footer><p>Local authoring only. No media download, public write endpoint or automatic historical registration.</p></footer></body></html>

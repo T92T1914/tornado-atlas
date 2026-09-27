@@ -16,6 +16,27 @@ The atlas contains 80,318 NOAA source records covering US years 1950 through 202
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [El Reno spatial replay](https://T92T1914.github.io/tornado-atlas/reconstruction.html) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
 
+The [evidence dossiers](https://t92t1914.github.io/tornado-atlas/dossier.html)
+connect source records, attributed observations, credited creators and original
+media links. El Reno, Joplin and Blackwell share a dossier view, while any
+catalogue record can open a source dossier without inventing an event history.
+Evidence discovery distinguishes linked photographs, discrete video samples,
+chronology, radar and unresolved source disagreements. A media item with an
+unknown camera position is not advertised as registered imagery. The
+[archive contract](docs/archive-dossiers.md) explains the model and loading path.
+
+The [local research desk](docs/curator-workflow.md) starts from a record or event,
+keeps private notes outside the public tree, and saves drafts with conflict
+detection. Its structured intake separates attribution, clocks, location and
+rights. A candidate can be previewed, exported and reviewed without downloading
+the linked media or treating an unregistered sample as a reconstruction.
+
+The [radar comparison](https://t92t1914.github.io/tornado-atlas/radar-source.html)
+checks the complete NWRT source frames. The abrupt echo edge is present in the
+published original. All 12 retained PNGs matched their decoded source pixels,
+including the legend and printed label. The exact sampled footprint remains
+unresolved, and the viewer preserves that distinction.
+
 The atlas entrance now brings the documentary, spatial replay and wind laboratory
 together before the searchable collection. The spatial replay places El Reno's
 39 published minute positions on a three-dimensional stage, with orbit controls,

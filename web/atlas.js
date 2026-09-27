@@ -99,6 +99,7 @@ async function selectRecord(record,{center=false,push=true,focus=true}={}){
     panel.append(make('p',`${record.local_time||'Time unknown'} ${record.zone||''}. Source time label retained. Daylight time is not silently substituted.`));
     panel.append(anchor('Read the original NOAA source file',detail.provenance.source_url,'source-link'));
     const actions=make('div',undefined,'detail-actions');
+    actions.append(anchor('Open source dossier','dossier.html?record='+encodeURIComponent(record.id)));
     if(record.exhibit)actions.append(anchor('Open reviewed exhibit',record.exhibit));
     if(record.point)actions.append(button(detail.location_review?'Show disputed reported position':'Center this record',()=>{mapUI?.center(record);viewMode('map');sync();}));
     actions.append(anchor('Link to this record',el('search-link').href));panel.append(actions);

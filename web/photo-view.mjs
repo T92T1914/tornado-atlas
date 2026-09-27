@@ -1,4 +1,4 @@
-// One viewer for historical photographs, with the credit supplied by each source.
+// One viewer for historical images, with the credit supplied by each source.
 export function mountPhotoViewer() {
   const byId = id => document.getElementById(id);
   const dialog = byId('photo-dialog');
@@ -7,7 +7,7 @@ export function mountPhotoViewer() {
   const status = document.createElement('p');
   status.id = 'photo-status'; status.setAttribute('role', 'status');
   const retry = document.createElement('button');
-  retry.id = 'photo-retry'; retry.type = 'button'; retry.textContent = 'Retry photograph'; retry.hidden = true;
+  retry.id = 'photo-retry'; retry.type = 'button'; retry.textContent = 'Retry image'; retry.hidden = true;
   failure.after(status, retry);
   close.addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => {
@@ -25,7 +25,7 @@ export function mountPhotoViewer() {
     current = request;
     image.removeAttribute('src');
     image.replaceWith(request); image = request;
-    failure.hidden = true; retry.hidden = true; status.textContent = 'Loading photograph...';
+    failure.hidden = true; retry.hidden = true; status.textContent = 'Loading image...';
     request.addEventListener('load', () => {
       if (current !== request) return;
       request.hidden = false; status.textContent = '';

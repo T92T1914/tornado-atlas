@@ -2,6 +2,9 @@ name: Historical source or correction
 description: Help check a claim, photograph, location or timeline entry.
 title: "Evidence: "
 body:
+  - type: markdown
+    attributes:
+      value: "This issue is public. Do not include personal contact details, private logs, sensitive locations or media you lack permission to share. Submissions enter source review and do not directly change accepted history."
   - type: input
     id: exhibit
     attributes:

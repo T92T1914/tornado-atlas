@@ -138,12 +138,16 @@ sets out those boundaries and the remaining work.
 ## September 27 source review
 
 The [2015 photogrammetry study](https://doi.org/10.1175/MWR-D-15-0034.1)
-gives a focused lead for the first El Reno appearance interval. Figures 4, 9
-and 11 give photograph caption times of 23:24:41, 23:25:01 and 23:25:09 UTC
-on May 31, 2013. Atlas has reviewed the relevant method text and captions,
-but has not yet reviewed the figure pixels or registered those images.
-Direct image inspection, camera calibration inputs, timing uncertainty and
-a usable source comparison still need review, along with the reuse basis
-for any hosted imagery. The three published observations do not establish
-a continuous 28 second reconstruction. The existing geographic replay and
-observer context retain their current scope.
+is now linked through the [El Reno source card](https://t92t1914.github.io/tornado-atlas/dossier.html?event=el-reno-2013&source=wakimoto-2015).
+Section 2 and panels a to c of Figures 4, 9 and 11 were inspected, including
+the actual figure pixels. Their photograph labels give 23:24:41, 23:25:01
+and 23:25:09 UTC on May 31, 2013.
+
+The method uses photographer position, horizon targets and camera geometry.
+It adjusts radar observations for motion before comparison with a photograph.
+Atlas has not recovered the original photographs, full calibration inputs or
+an independently checked timing uncertainty. The paper's calibration accuracy
+cannot be assigned to another creator's footage. Figure hosting rights are
+also unresolved, so the dossier provides metadata and the original link.
+Three samples do not establish a continuous 28 second reconstruction. The
+existing geographic replay and observer context retain their current scope.
