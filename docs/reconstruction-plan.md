@@ -134,3 +134,16 @@ and viewpoint layer; it does not register the untimed ground photographs or
 complete the historical appearance scene. The
 [camera source and playback record](../research/camera-playback-2026-09-20.md)
 sets out those boundaries and the remaining work.
+
+## September 27 source review
+
+The [2015 photogrammetry study](https://doi.org/10.1175/MWR-D-15-0034.1)
+gives a focused lead for the first El Reno appearance interval. Figures 4, 9
+and 11 give photograph caption times of 23:24:41, 23:25:01 and 23:25:09 UTC
+on May 31, 2013. Atlas has reviewed the relevant method text and captions,
+but has not yet reviewed the figure pixels or registered those images.
+Direct image inspection, camera calibration inputs, timing uncertainty and
+a usable source comparison still need review, along with the reuse basis
+for any hosted imagery. The three published observations do not establish
+a continuous 28 second reconstruction. The existing geographic replay and
+observer context retain their current scope.
