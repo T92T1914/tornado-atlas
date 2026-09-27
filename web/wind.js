@@ -39,7 +39,7 @@ function draw(elapsed=0) {
   }
   ctx.globalAlpha=1;ctx.strokeStyle='#d6c5a0';ctx.lineWidth=1;ctx.setLineDash([5,6]);
   ctx.beginPath();ctx.arc(cx,cy,scale,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#b3bbae';ctx.font='11px Segoe UI';ctx.fillText('N ↑',18,24);ctx.fillText(`R = ${Math.round(s.radius/FOOT)} ft`,cx+scale+7,cy-8);
+  ctx.fillStyle='#b3bbae';ctx.font='11px '+getComputedStyle(canvas).fontFamily;ctx.fillText('N ↑',18,24);ctx.fillText(`R = ${Math.round(s.radius/FOOT)} ft`,cx+scale+7,cy-8);
   if (elapsed) for (const point of particles) {
     const w=windAt(point.x*s.radius,point.y*s.radius,s);
     const mx=point.x+w.u/s.radius*elapsed/2,my=point.y+w.v/s.radius*elapsed/2;
@@ -90,4 +90,5 @@ canvas.addEventListener('keydown',e=>{
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause('Paused while the page was hidden.');});
 new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible)pause('Paused while the field was out of view.');},{threshold:.1}).observe(canvas);
 new ResizeObserver(()=>draw()).observe(canvas);
+document.fonts.ready.then(()=>draw());
 resetParticles();update();

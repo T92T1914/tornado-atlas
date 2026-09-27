@@ -12,11 +12,11 @@ html {scroll-behavior:auto}
 .exhibit-meta {display:flex;flex-wrap:wrap;gap:8px 24px;margin:28px 0 0;color:var(--muted);font-size:14px}
 .exhibit-layout {display:grid;grid-template-columns:210px minmax(0,1fr);gap:48px;align-items:start}
 .contents-rail {position:sticky;top:24px;padding-top:50px;max-height:calc(100vh - 40px);overflow:auto}
-.contents-rail summary {font-weight:650;font-size:15px;cursor:pointer;padding:8px 0}
+.contents-rail summary {font-weight:600;font-size:15px;cursor:pointer;padding:8px 0}
 .contents-rail nav {display:flex;flex-direction:column;gap:3px;width:auto;margin-top:12px;font-size:14px}
 .contents-rail a {padding:8px 12px;border-left:2px solid var(--line);color:var(--muted);line-height:1.45}
 .contents-rail a:hover {color:var(--text);text-decoration:underline}
-.contents-rail a[aria-current=location] {border-color:var(--gold);color:var(--gold);background:#1b2822;font-weight:650}
+.contents-rail a[aria-current=location] {border-color:var(--gold);color:var(--gold);background:#1b2822;font-weight:600}
 .exhibit-story {min-width:0}
 .documentary-exhibit section {scroll-margin-top:8px}
 .documentary-exhibit .section-title {align-items:start;flex-wrap:wrap;gap:14px}
@@ -139,7 +139,7 @@ html {scroll-behavior:auto}
 .community-card h3 a {color:var(--text)}
 .community-card h4 {font-size:18px;line-height:1.5;margin:24px 0 8px}
 .community-card p {font-size:16px;line-height:1.75}
-.community-card .discussion-status {display:inline-block;font-size:13px;font-weight:650;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);border-radius:4px;margin:0}
+.community-card .discussion-status {display:inline-block;font-size:13px;font-weight:600;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);border-radius:4px;margin:0}
 .community-card .supported_detail {border-color:#8abf98;color:#b2d4b8}
 .community-card .unresolved {border-color:#a9b7c7;color:#c6d6e5}
 .discussion-conclusion {border-left:2px solid var(--line);padding-left:16px}

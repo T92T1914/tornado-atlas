@@ -13,7 +13,7 @@
 .passage {border-top:1px solid var(--line);margin-top:50px;padding-top:32px;scroll-margin-top:20px}
 .passage-layout {display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;margin:28px 0}
 .passage svg {display:block;width:100%;background:#101e1c;border:1px solid var(--line);border-radius:4px;margin-bottom:14px}
-.passage svg text {fill:#b3bbae;font:12px system-ui,sans-serif}
+.passage svg text {fill:#b3bbae;font:12px var(--interface-font)}
 .passage input[type=range] {width:100%;accent-color:var(--green)}
 .passage label {display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px}
 .passage output {color:#e7b679}
