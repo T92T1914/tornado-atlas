@@ -8,6 +8,8 @@ textarea {width:100%;resize:vertical;font-weight:400}
 button {cursor:pointer;min-height:44px}
 button:disabled {opacity:.55;cursor:default}
 select,input {width:100%}
+/* Bound native menu text to its control without clipping the page or rewriting option labels. */
+select {text-overflow:ellipsis;contain:paint}
 button:hover {border-color:var(--gold)}
 input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible {outline:2px solid var(--gold);outline-offset:3px}
 .actions {display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0}

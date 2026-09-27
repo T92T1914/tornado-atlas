@@ -6,8 +6,14 @@ import {fixture,base} from './harness.mjs';
 
 async function openDossier(page,suffix=''){
   await page.goto(base+'/dossier.html'+suffix);
-  await page.waitForFunction(()=>document.body.dataset.ready);
+  await page.waitForFunction(()=>document.body?.dataset.ready);
 }
+async function navigate(page, action){
+  const navigation=page.waitForEvent('framenavigated',frame=>frame===page.mainFrame());
+  await action();await navigation;
+  await page.waitForFunction(()=>document.body?.dataset.ready==='true');
+}
+
 test('installed Inter supplies actual dossier interface glyphs',{
   skip:process.env.ATLAS_REQUIRE_INTER!=='1'||process.env.ATLAS_BROWSER_ENGINE==='webkit'
 },async t=>{
@@ -35,19 +41,19 @@ for(const width of [390,1280])for(const appearance of ['dark','light'])test(`dos
   if(process.env.ATLAS_SCREENSHOT_DIR){await mkdir(process.env.ATLAS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`dossier-event-${width}-${appearance}.png`)});}
   const card=page.locator('#media-ER13-HARK-PHOTO-604');
   assert.match(await card.textContent(),/6:04 PM/);
-  await card.getByRole('link',{name:'Inspect the source card'}).click();
+  await navigate(page,()=>card.getByRole('link',{name:'Inspect the source card'}).click());
   await page.locator('#source-hark-account').waitFor();
   assert.match(await page.locator('#source-hark-account').textContent(),/Copyright 2013 William T. Hark/);
-  await page.locator('#media-ER13-HARK-PHOTO-604').getByRole('link',{name:'William T. Hark'}).first().click();
-  await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await navigate(page,()=>page.locator('#media-ER13-HARK-PHOTO-604').getByRole('link',{name:'William T. Hark'}).first().click());
+  await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.equal(await page.locator('h1').textContent(),'William T. Hark');
   assert.equal(await page.locator('.archive-card').count(),2);
-  await page.goBack();await page.waitForFunction(()=>document.body.dataset.ready==='true');
-  await page.getByRole('link',{name:'ncei:453682',exact:true}).click();
-  await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await page.goBack();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
+  await navigate(page,()=>page.getByRole('link',{name:'ncei:453682',exact:true}).click());
+  await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.match(await page.locator('#content').textContent(),/CSV logical record/);
   assert.equal(await page.locator('.source-narrative').count()>1,true);
-  await page.reload();await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await page.reload();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   await page.addStyleTag({content:'body {font-size:200%}'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   if(process.env.ATLAS_SCREENSHOT_DIR){await mkdir(process.env.ATLAS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`dossier-record-${width}-${appearance}.png`),fullPage:true});}
@@ -56,17 +62,17 @@ for(const width of [390,1280])for(const appearance of ['dark','light'])test(`dos
 test('discovery distinguishes registered evidence and sparse record coverage',async t=>{
   const page=await fixture(t);await openDossier(page);
   await page.getByRole('combobox',{name:'Evidence available'}).selectOption('registered');
-  await page.getByRole('button',{name:'Search',exact:true}).click();
-  await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await navigate(page,()=>page.getByRole('button',{name:'Search',exact:true}).click());
+  await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.match(await page.locator('#content').textContent(),/No reviewed dossier meets/);
-  await page.getByRole('link',{name:'Clear evidence filters'}).click();
+  await navigate(page,()=>page.getByRole('link',{name:'Clear evidence filters'}).click());
   await page.getByRole('combobox',{name:'Evidence available'}).selectOption('chronology');
-  await page.getByRole('button',{name:'Search',exact:true}).click();
-  await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await navigate(page,()=>page.getByRole('button',{name:'Search',exact:true}).click());
+  await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.equal(await page.locator('.archive-grid .archive-card').count(),1);
   assert.match(await page.locator('.archive-grid').textContent(),/Joplin/);
-  await page.getByRole('link',{name:'Wybark, Oklahoma'}).click();
-  await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  await navigate(page,()=>page.getByRole('link',{name:'Wybark, Oklahoma'}).click());
+  await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.match(await page.locator('#content').textContent(),/No reviewed canonical event association/);
   assert.match(await page.locator('.source-narrative').textContent(),/first segment of a two segment tornado/);
 });
@@ -75,7 +81,7 @@ test('failed or obsolete dossier has a useful retry and cannot display stale evi
   const page=await fixture(t);let fail=true;
   await page.route('**/archive/el-reno-2013-*.json',r=>fail?r.fulfill({status:503,body:'Unavailable'}):r.continue());
   await openDossier(page,'?event=el-reno-2013');assert.equal(await page.locator('h1').textContent(),'Evidence unavailable');
-  fail=false;await page.getByRole('link',{name:'Retry this view'}).click();await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  fail=false;await navigate(page,()=>page.getByRole('link',{name:'Retry this view'}).click());await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.match(await page.locator('h1').textContent(),/El Reno/);
   await openDossier(page,'?record=ncei:999999999999');assert.equal(await page.locator('h1').textContent(),'Evidence unavailable');
   assert.equal(await page.locator('.source-narrative').count(),0);
@@ -88,7 +94,7 @@ test('slow dossier keeps a readable loading state and navigation usable',async t
   assert.match(await page.locator('#content').textContent(),/Loading archive/);
   const navigation=page.getByRole('link',{name:'Map and catalogue',exact:true});
   await navigation.focus();assert.equal(await navigation.evaluate(e=>e===document.activeElement),true);
-  release();await page.waitForFunction(()=>document.body.dataset.ready==='true');
+  release();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.match(await page.locator('h1').textContent(),/El Reno/);
 });
 
@@ -108,8 +114,15 @@ test('event and source metadata downloads preserve original values and provenanc
 
 for(const width of [390,1280])test(`radar viewer preserves complete image ${width}`,async t=>{
   const page=await fixture(t,{viewport:{width,height:844}});
-  await page.goto(base+'/index.html');await page.locator('.timeline-media-enlarge').click();
-  await page.waitForFunction(()=>document.querySelector('#photo-full').naturalWidth===597);
+  await page.goto(base+'/index.html');
+  // The asynchronous exhibit fills sections below the map after its first frame.
+  // Wait for that layout and the source image before a pointer interaction.
+  await page.waitForFunction(()=>document.querySelector('#research-log')?.children.length>0&&document.querySelector('.timeline-media-enlarge img')?.naturalWidth===597);
+  await page.locator('.timeline-media-enlarge').click();
+  try{await page.waitForFunction(()=>document.querySelector('#photo-full')?.naturalWidth===597);}catch(error){
+    const state=await page.evaluate(()=>({open:document.querySelector('#photo-dialog')?.open,image:document.querySelector('#photo-full')?.outerHTML,title:document.querySelector('#photo-title')?.textContent,status:document.querySelector('#photo-status')?.textContent,mode:document.querySelector('#timeline-media-mode')?.value}));
+    assert.fail(JSON.stringify(state)+' '+error.message);
+  }
   assert.equal(await page.getByRole('button',{name:'Close viewer',exact:true}).isVisible(),true);
   const image=await page.locator('#photo-full').evaluate(e=>({width:e.naturalWidth,height:e.naturalHeight,fit:getComputedStyle(e).objectFit,box:e.getBoundingClientRect().toJSON(),dialog:document.querySelector('#photo-dialog').getBoundingClientRect().toJSON()}));
   assert.equal(image.height,599);assert.equal(image.fit,'contain');

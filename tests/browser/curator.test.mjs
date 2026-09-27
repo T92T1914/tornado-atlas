@@ -31,7 +31,13 @@ async function pageFor(t,width=1280){
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));t.after(()=>assert.deepEqual(errors,[]));
   await page.goto(url);await page.waitForFunction(()=>document.body.dataset.ready==='true');return page;
 }
-async function newDraft(page,id){await page.locator('#new-id').fill(id);await page.locator('#event-choice').selectOption('el-reno-2013');await page.getByRole('button',{name:'Start event draft',exact:true}).click();await page.waitForFunction(()=>!document.getElementById('workspace').hidden);}
+async function newDraft(page,id){await page.locator('#new-id').fill(id);await page.locator('#event-choice').selectOption('el-reno-2013');await page.getByRole('button',{name:'Start event draft',exact:true}).click();await page.waitForFunction(()=>!document.getElementById('workspace').hidden&&!document.querySelector('main').hasAttribute('aria-busy'));}
+async function fitsReadingWidth(page,context){
+  await page.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
+  const bounds=await page.evaluate(()=>({viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
+    overflowing:[...document.querySelectorAll('body *')].flatMap(el=>{const rect=el.getBoundingClientRect();return rect.width>0&&(rect.right>innerWidth+.5||rect.left<-.5||el.scrollWidth>el.clientWidth+1)?[{tag:el.tagName,id:el.id,name:el.getAttribute('name'),class:el.className,control:el.querySelector('input,select,textarea')?.id,text:el.childNodes[0]?.textContent?.slice(0,80),left:rect.left,right:rect.right,width:rect.width,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,font:getComputedStyle(el).font}]:[];}).slice(0,30)}));
+  assert.ok(bounds.documentWidth<=bounds.viewport,JSON.stringify({context,...bounds},null,2));
+}
 
 test('real retained media survives private save, idempotent intake, preview and candidate download',async t=>{
   const page=await pageFor(t);await newDraft(page,'browser-media-review');
@@ -59,7 +65,7 @@ test('390 pixel layouts, both appearances, keyboard and source-record context wo
   const page=await pageFor(t,390);await page.locator('#new-id').fill('sparse-source-review');await page.locator('#record-query').fill('ncei:432342');await page.locator('#record-query').press('Enter');
   const found=page.locator('#record-results button').first();await found.waitFor();await found.focus();await found.press('Enter');await page.waitForFunction(()=>!document.getElementById('workspace').hidden);
   assert.match(await page.locator('#target-context').textContent(),/Source record: ncei:432342/);
-  for(const appearance of ['dark','light','system']){await page.locator('#reading-appearance').selectOption(appearance);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
+  for(const appearance of ['dark','light','system']){await page.locator('#reading-appearance').selectOption(appearance);await fitsReadingWidth(page,`record ${appearance}`);}
   await page.getByRole('button',{name:'Validate and preview candidate'}).click();await page.locator('#candidate-panel').waitFor({state:'visible'});
   const exported=JSON.parse(await page.locator('#candidate-json').textContent());assert.deepEqual(exported.base,{event_id:null,dossier_sha256:null});assert.deepEqual(exported.dossier.records,[]);
   await page.locator('#record-query').fill('no-such-record-9876');await page.locator('#record-query').press('Enter');await page.getByText('No matching source records.',{exact:false}).waitFor();
@@ -108,7 +114,7 @@ test('research desk retains both appearances at narrow and wide reading widths',
   const page=await pageFor(t);await newDraft(page,'appearance-review');
   for(const width of [390,1280])for(const appearance of ['dark','light']){
     await page.setViewportSize({width,height:900});await page.locator('#reading-appearance').selectOption(appearance);
-    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await fitsReadingWidth(page,`event ${width} ${appearance}`);
     if(process.env.ATLAS_SCREENSHOT_DIR){
       await mkdir(process.env.ATLAS_SCREENSHOT_DIR,{recursive:true});await page.evaluate(()=>scrollTo(0,0));
       await page.screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`curator-${width}-${appearance}.png`)});
@@ -116,6 +122,22 @@ test('research desk retains both appearances at narrow and wide reading widths',
       await page.screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`curator-intake-${width}-${appearance}.png`)});
     }
   }
+});
+
+test('fallback font metrics and larger text do not widen the private research desk',async t=>{
+  const page=await pageFor(t,390);await newDraft(page,'fallback-width-review');
+  const labels=await page.locator('#draft-choice option').allTextContents();
+  assert.ok(labels.includes('El Reno, Oklahoma · May 31, 2013 (fallback-width-review)'));
+  for(const family of ['Arial, sans-serif','Georgia, serif','monospace'])for(const size of [16,24]){
+    await page.evaluate(({family,size})=>{document.documentElement.style.setProperty('--interface-font',family);document.body.style.fontSize=`${size}px`;},{family,size});
+    await fitsReadingWidth(page,`${family} ${size}px`);
+  }
+  assert.deepEqual(await page.locator('#draft-choice option').allTextContents(),labels);
+  await page.locator('#draft-choice').focus();await page.locator('#draft-choice').press('Home');
+  assert.equal(await page.locator('#draft-choice').inputValue(),'');
+  const lastValue=await page.locator('#draft-choice option').last().getAttribute('value');
+  await page.locator('#draft-choice').press('End');assert.equal(await page.locator('#draft-choice').inputValue(),lastValue);
+  assert.equal(await page.locator('#current-title').textContent(),'El Reno, Oklahoma · May 31, 2013');
 });
 
 test('installed Inter supplies curator interface glyphs while code and museum headings stay distinct',{
