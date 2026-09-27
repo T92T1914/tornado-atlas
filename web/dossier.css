@@ -1,0 +1,20 @@
+.archive-main {overflow-wrap:anywhere;max-width:1060px;margin:auto;padding:38px 24px}
+.archive-main h1 {font-size:clamp(2rem,5vw,3.8rem);line-height:1.14;margin:12px 0 24px}
+.archive-main h2 {font-size:1.8rem;margin:30px 0 16px}
+.archive-main h3 {font-size:1.3rem;margin:0 0 12px}
+.archive-main p {max-width:76ch;line-height:1.65;margin:12px 0}
+.archive-main a {text-underline-offset:3px;overflow-wrap:anywhere}
+.archive-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px}
+.archive-card {border:1px solid var(--line);background:var(--panel);padding:22px;border-radius:6px;min-width:0;margin:16px 0}
+.archive-card:target {outline:2px solid var(--text);outline-offset:4px}
+.archive-tools,.archive-links {display:flex;flex-wrap:wrap;gap:14px 24px;align-items:end;margin:20px 0}
+.archive-links {font-size:1rem}
+.archive-links a {display:inline-flex;align-items:center;min-height:44px}
+.archive-tools label {display:grid;gap:6px;max-width:100%}
+.archive-tools input,.archive-tools select {max-width:100%;font:inherit;padding:10px;background:var(--bg);color:var(--text);border:1px solid var(--line)}
+.archive-main dl {display:grid;grid-template-columns:minmax(100px,1fr) 3fr;gap:10px 20px;overflow-wrap:anywhere}
+.archive-main dt {font-weight:600}.archive-main dd {margin:0}
+.archive-main details {padding:10px 0}.archive-main summary {cursor:pointer;font-weight:600}
+.archive-main pre {white-space:pre-wrap;overflow-wrap:anywhere;font-size:.85rem}
+.archive-main :focus-visible {outline:2px solid var(--text);outline-offset:4px}
+@media(max-width:540px){.archive-main{padding:24px 16px}.archive-card{padding:16px}.archive-main dl{grid-template-columns:1fr}.archive-main dd{margin-bottom:10px}header{flex-wrap:wrap}}

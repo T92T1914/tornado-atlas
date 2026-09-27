@@ -1,0 +1,273 @@
+[
+  {
+    "id": "el-reno-2013",
+    "title": "El Reno, Oklahoma · May 31, 2013",
+    "coverage": "Exhibit",
+    "summary": "Follow the published path into its source record, storm imagery and surviving clock evidence. Historical appearance remains unregistered.",
+    "records": [
+      "ncei:453682"
+    ],
+    "routes": [
+      {
+        "label": "Path and shared historical clock",
+        "href": "index.html#path"
+      },
+      {
+        "label": "Survey observations",
+        "href": "survey.html"
+      },
+      {
+        "label": "Historical account and remembrance",
+        "href": "index.html#history"
+      },
+      {
+        "label": "Geographic replay and its limits",
+        "href": "reconstruction.html?event=el-reno-2013"
+      },
+      {
+        "label": "Warnings and validity times",
+        "href": "index.html#forecast"
+      },
+      {
+        "label": "Radar source and scan limits",
+        "href": "radar-source.html"
+      },
+      {
+        "label": "Scientific literature and bibliography",
+        "href": "index.html#sources"
+      },
+      {
+        "label": "Corrections and research log",
+        "href": "index.html#corrections"
+      }
+    ],
+    "sources": [
+      {
+        "identifier": "nws-event",
+        "title": "NWS Norman event account",
+        "url": "https://www.weather.gov/oun/events-20130531",
+        "locator": "El Reno tornado narrative and tornado table, Union City / El Reno / Yukon row.",
+        "access": "Retained event review and source text checked again on 2026-09-27.",
+        "revision": "Current page inspected 2026-09-27"
+      },
+      {
+        "identifier": "wakimoto-2015",
+        "title": "Wakimoto and colleagues, 2015 photogrammetric analysis",
+        "url": "https://doi.org/10.1175/MWR-D-15-0034.1",
+        "locator": "Section 2, printed pages 2658 to 2659; Figure 4 panels a to c, page 2664; Figure 9 panels a to c, page 2672; Figure 11 panels a to c, page 2677.",
+        "access": "Text and listed figure pixels inspected on 2026-09-27 in the eScholarship copy. Other figure panels were not inspected in this pass.",
+        "revision": "Inspected PDF SHA-256 b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
+        "rights": "Metadata and original links only. AMS copyright is present. No figure republication permission established."
+      }
+    ],
+    "observations": [
+      {
+        "id": "ending-disagreement",
+        "title": "Two reported ending times",
+        "source_id": "nws-event",
+        "locator": "El Reno narrative ending and Union City / El Reno / Yukon table row.",
+        "account": "The narrative and last published map position end at 6:42 PM CDT. The table and event record give 6:44 PM CDT.",
+        "limits": "These source statements are retained separately. No extra two minutes of reconstructed appearance is inferred.",
+        "status": {
+          "intake": "published",
+          "assertion": "disputed",
+          "temporal": "source_label",
+          "spatial": "unregistered",
+          "availability": "reviewed_available",
+          "rights": "links_only"
+        },
+        "time": {
+          "event": {
+            "reported": [
+              "6:42 PM CDT",
+              "6:44 PM CDT"
+            ],
+            "precision": "minute"
+          },
+          "capture": null,
+          "publication": null,
+          "retrieval": null,
+          "video": null,
+          "alignment": null
+        },
+        "place": {
+          "role": "not_applicable",
+          "reported": null,
+          "coordinates": null,
+          "basis": "Attributed source text only; no registered point."
+        },
+        "review": "Retained exhibit review; adapted without expanding inspection coverage."
+      },
+      {
+        "id": "photogrammetry-figure-samples",
+        "title": "Three published photographic samples",
+        "source_id": "wakimoto-2015",
+        "locator": "Figures 4(a), 9(a), 11(a), with their separate radar overlays in panels b and c.",
+        "account": "The photographs show an angle grid and horizon features. Their published times are 23:24:41, 23:25:01 and 23:25:09 UTC. The accompanying radar layers are separate measurements.",
+        "limits": "Atlas has inspected these figure pixels, not obtained the original photographs or calibration inputs. These samples do not establish continuous appearance, a transferable camera solution or permission to host the figures.",
+        "status": {
+          "intake": "published",
+          "assertion": "source_reported",
+          "temporal": "source_label",
+          "spatial": "unregistered",
+          "availability": "reviewed_available",
+          "rights": "links_only"
+        },
+        "time": {
+          "event": null,
+          "capture": {
+            "reported": [
+              "23:24:41 UTC",
+              "23:25:01 UTC",
+              "23:25:09 UTC"
+            ],
+            "basis": "Published figure labels on May 31, 2013"
+          },
+          "publication": "2015",
+          "retrieval": "2026-09-27",
+          "video": null,
+          "alignment": null
+        },
+        "place": {
+          "role": "camera",
+          "reported": "Paper identifies a site near the radar.",
+          "coordinates": null,
+          "basis": "No Atlas calibration or coordinate registration."
+        },
+        "review": "Agent visual inspection of the listed panels and Section 2. No human review or independent registration claimed."
+      }
+    ]
+  },
+  {
+    "id": "joplin-2011",
+    "title": "Joplin, Missouri · May 22, 2011",
+    "coverage": "Exhibit",
+    "summary": "Read warning chronology, damage research and remembrance without treating county segments or differing fatality counts as interchangeable.",
+    "records": [
+      "ncei:296617",
+      "ncei:296620"
+    ],
+    "routes": [
+      {
+        "label": "Documentary chapter, sources and remembrance",
+        "href": "joplin.html"
+      },
+      {
+        "label": "Warning chronology",
+        "href": "reconstruction.html?event=joplin-2011"
+      }
+    ],
+    "sources": [
+      {
+        "identifier": "nws-assessment",
+        "title": "NWS Central Region Service Assessment, July 2011",
+        "url": "https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf",
+        "locator": "Printed pages 1 to 3 and Table 1. Individual chronology entries retain their page locators.",
+        "access": "Retained selected report sections; not a new complete report review.",
+        "revision": "SHA-256 38e97e54efaaa1853cff5018e0b5ae041e70fc822d0c6c9228258a636fc16962"
+      }
+    ]
+  },
+  {
+    "id": "blackwell-1955",
+    "title": "Blackwell, Oklahoma · May 25, 1955",
+    "coverage": "Dossier",
+    "summary": "Compare historical accounts, reported clock conventions and aftermath. The Blackwell and Udall tornadoes remain separate, and the surviving accounts do not establish a continuous visual reconstruction.",
+    "records": [
+      "ncei:10096417"
+    ],
+    "routes": [
+      {
+        "label": "Historical chapter, aftermath and sources",
+        "href": "blackwell.html"
+      }
+    ],
+    "sources": [
+      {
+        "identifier": "nws-norman",
+        "title": "NWS Norman Blackwell outbreak account",
+        "url": "https://www.weather.gov/oun/events-19550525",
+        "locator": "Summary and Oklahoma tornado table, Blackwell row.",
+        "access": "Retained selected source text review, September 21, 2026.",
+        "revision": "Accessed 2026-09-21"
+      },
+      {
+        "identifier": "nws-wichita",
+        "title": "NWS Wichita reproduced historical storm report",
+        "url": "https://www.weather.gov/ict/udall_stormreport",
+        "locator": "Blackwell section and opening impact account.",
+        "access": "Retained full HTML text inspection. Transcription not checked against an original scan.",
+        "revision": "Accessed 2026-09-21"
+      }
+    ],
+    "observations": [
+      {
+        "id": "blackwell-clocks",
+        "title": "Unresolved historical clock labels",
+        "source_id": "nws-norman",
+        "locator": "Summary: 9:27 p.m. CDT. Blackwell table: 2126 beneath a CST heading.",
+        "account": "The narrative and table use different clock conventions.",
+        "limits": "The catalogue retains its original 21:26 CST label. A source disagreement does not justify silently applying daylight time.",
+        "status": {
+          "intake": "published",
+          "assertion": "disputed",
+          "temporal": "source_label",
+          "spatial": "unregistered",
+          "availability": "reviewed_available",
+          "rights": "links_only"
+        },
+        "time": {
+          "event": {
+            "reported": [
+              "9:27 p.m. CDT",
+              "2126 CST column"
+            ]
+          },
+          "capture": null,
+          "publication": null,
+          "retrieval": null,
+          "video": null,
+          "alignment": null
+        },
+        "place": {
+          "role": "not_applicable",
+          "reported": null,
+          "coordinates": null,
+          "basis": "Attributed source text only; no registered point."
+        },
+        "review": "Retained exhibit review; adapted without expanding inspection coverage."
+      },
+      {
+        "id": "blackwell-injuries",
+        "title": "A separate reported injury count",
+        "source_id": "nws-wichita",
+        "locator": "Opening impact account compared with Norman tornado table.",
+        "account": "The reproduced historical report gives 250 injuries. Norman lists 280.",
+        "limits": "No reconciliation or person level join has been established.",
+        "status": {
+          "intake": "published",
+          "assertion": "disputed",
+          "temporal": "unregistered",
+          "spatial": "unregistered",
+          "availability": "reviewed_available",
+          "rights": "links_only"
+        },
+        "time": {
+          "event": null,
+          "capture": null,
+          "publication": null,
+          "retrieval": null,
+          "video": null,
+          "alignment": null
+        },
+        "place": {
+          "role": "not_applicable",
+          "reported": null,
+          "coordinates": null,
+          "basis": "Attributed source text only; no registered point."
+        },
+        "review": "Retained exhibit review; adapted without expanding inspection coverage."
+      }
+    ]
+  }
+]

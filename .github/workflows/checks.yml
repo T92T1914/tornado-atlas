@@ -20,6 +20,8 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Check browser script
         run: |
+          node --check web/dossier.mjs
+          node --check web/curator.mjs
           node --check web/app.js
           node --check web/appearance.js
           node --check web/atlas.js
@@ -64,6 +66,7 @@ jobs:
         run: |
           python tools/check_exhibit.py
           python tools/check_catalogue.py
+          python tools/check_archive.py
       - name: Verify explorer browser journeys
         env:
           ATLAS_BROWSER_CHANNEL: chrome

@@ -10,7 +10,7 @@
   "license_url": "https://www.weather.gov/disclaimer",
   "changes": "Twelve complete, composited GIF frames exported as lossless PNGs. No cropping or recoloring.",
   "clock_basis": "Times are transcribed from the filename printed inside each radar frame and interpreted as UTC, consistent with the NWS event chronology. The printed label does not itself state a time zone; this clock interpretation is explicit, not an independent calibration.",
-  "interpretation": "Only a preceding frame up to four minutes old is shown. The radar view covers the wider storm area and is not registered as a geographic overlay on this map.",
+  "interpretation": "Historical NWRT phased-array reflectivity, in dBZ. The abrupt echo edge is present in the original published image, not an Atlas crop. NWRT could scan a limited azimuth sector, but this image alone does not establish the exact sampled footprint or the cause of every empty pixel. An unobserved area is not an observation of no rain. The full legend and printed source label are retained. Only a preceding frame up to four minutes old is shown. This regional product is not a georegistered overlay or a surface wind measurement.",
   "max_age_seconds": 240,
   "frames": [
     {

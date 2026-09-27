@@ -26,9 +26,10 @@ export function mountTimelineMedia(manifest, photos, openPhoto) {
       add('h4',localStamp(frame.utc));
       add('p','Source filename time interpreted as UTC. Clock details below.');
       ageLabel=add('p','');updateAge();
-      add('p','Regional reflectivity shows radar echoes, not the visible funnel or a surface wind-speed map.');
-      asset={title:'El Reno / regional radar',asset:frame.file,alt:frame.alt,caption:frame.source_label,
-        location:manifest.clock_basis,credit:manifest.credit+'. '+manifest.changes,source:manifest.source,license:manifest.license,licenseUrl:manifest.license_url};
+      add('p',manifest.interpretation);
+      const method=add('a','Read the source and frame comparison');method.href='radar-source.html';
+      asset={title:'Historical NWRT reflectivity / dBZ',asset:frame.file,alt:frame.alt,caption:frame.source_label,
+        location:manifest.clock_basis+' '+manifest.interpretation,credit:manifest.credit+'. '+manifest.changes,source:manifest.source,license:manifest.license,licenseUrl:manifest.license_url};
     } else {
       const photo=photos[Number(mode.value)];
       el('timeline-media-status').textContent='PHOTOGRAPH / TIME UNKNOWN';
