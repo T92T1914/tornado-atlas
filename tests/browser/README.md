@@ -37,3 +37,9 @@ prints the actual browser version. See the
 Viewport emulation checks layout and interaction. It does not establish behavior
 on physical phones, screen readers, Firefox or Safari. The ordinary Python and
 Node suites remain separate checks in the publication workflow.
+
+Typography checks retain selected source records and narrow keyboard controls.
+Set `ATLAS_REQUIRE_INTER=1` in a controlled Chrome environment with Inter installed
+to require positive glyph evidence for all six faces. Controlled specimens and
+ordinary interface elements are recorded separately. The fallback check is
+independent. This does not establish native client acceptance or font persistence.

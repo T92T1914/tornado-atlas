@@ -1,4 +1,12 @@
+/* Local Inter for owned interface text. Source imagery and serif exhibit headings retain their typography. */
+@font-face {font-family:"Atlas Inter";src:local("Inter Regular"),local("Inter-Regular");font-weight:400;font-style:normal;font-display:swap}
+@font-face {font-family:"Atlas Inter";src:local("Inter SemiBold"),local("Inter-SemiBold");font-weight:600;font-style:normal;font-display:swap}
+@font-face {font-family:"Atlas Inter";src:local("Inter Bold"),local("Inter-Bold");font-weight:700;font-style:normal;font-display:swap}
+@font-face {font-family:"Atlas Inter";src:local("Inter Italic"),local("Inter-Italic");font-weight:400;font-style:italic;font-display:swap}
+@font-face {font-family:"Atlas Inter";src:local("Inter SemiBold Italic"),local("Inter-SemiBoldItalic");font-weight:600;font-style:italic;font-display:swap}
+@font-face {font-family:"Atlas Inter";src:local("Inter Bold Italic"),local("Inter-BoldItalic");font-weight:700;font-style:italic;font-display:swap}
 :root {
+  --interface-font:"Atlas Inter",Inter,system-ui,"Segoe UI",Arial,sans-serif;
   color-scheme:dark;
   --bg:#101918;
   --panel:#15221f;
@@ -19,7 +27,8 @@ body {
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family:Segoe UI,Arial,sans-serif;
+  font-family:var(--interface-font);
+  font-synthesis:none;
   line-height:1.6
 }
 a {
@@ -55,7 +64,7 @@ header {
 .brand {
   font-size:14px;
   letter-spacing:2px;
-  font-weight:650;
+  font-weight:600;
   text-decoration:none;
   white-space:nowrap
 }
@@ -76,7 +85,7 @@ nav a {
 .local,.eyebrow {
   font-size:10px;
   letter-spacing:2px;
-  font-weight:650;
+  font-weight:600;
   color:var(--green)
 }
 main {
@@ -114,7 +123,7 @@ h1 {
 }
 h1 span {
   display:block;
-  font:20px Segoe UI,Arial,sans-serif;
+  font:20px var(--interface-font);
   letter-spacing:0;
   margin-top:18px;
   color:var(--muted)
@@ -202,7 +211,7 @@ h1 span {
 .axis-label {
   fill:#899d89;
   font-size:10px;
-  font-family:Segoe UI,Arial,sans-serif
+  font-family:var(--interface-font)
 }
 .map-outline {
   fill:#9cbd9c;
@@ -492,7 +501,7 @@ input[type=search] {
   color:var(--gold)
 }
 .video h3 {
-  font:17px Segoe UI,Arial,sans-serif;
+  font:17px var(--interface-font);
   line-height:1.4
 }
 .video h3 a {

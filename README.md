@@ -114,6 +114,12 @@ colors are not recolored. Community entries link back to the relevant map or
 gallery. The [design and research review](research/linked-evidence-design-2026-09-20.md)
 explains the ArcGIS reference, the evidence model and the remaining work.
 
+Interface text, controls and owned map labels request locally installed Inter
+at 400, 600 and 700, including genuine italic faces. Without those fonts, the
+browser uses its system fallback. The site does not download fonts. Existing
+serif exhibit titles, specialized symbols and the typography inside original
+photographs, radar and source figures retain their own appearance.
+
 The history now includes eleven linked sections on the storm environment,
 circulation, damage, human consequences, reconstruction and community evidence.
 The first documented remembrance location is the approximate TWISTEX vehicle

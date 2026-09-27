@@ -96,7 +96,7 @@ button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--se
 .report-contents {border:1px solid var(--line);padding:18px;margin:24px 0}
 .report-contents a {display:block;padding:7px 0}
 .place-record {margin:22px 0;padding:24px;border:1px solid var(--line);max-width:72ch}
-.place-kind {font-size:13px;font-weight:650;letter-spacing:.04em}
+.place-kind {font-size:13px;font-weight:600;letter-spacing:.04em}
 .place-record:target {outline:2px solid var(--text);outline-offset:4px}
 input::placeholder {color:var(--muted);opacity:1}
 input,select {font-size:16px}
@@ -125,15 +125,15 @@ input,select {font-size:16px}
 }
 
 /* Human impact has its own key, outside the EF color scale. */
-.fatality-map-label {fill:var(--fatality);stroke:var(--bg);stroke-width:3px;paint-order:stroke;stroke-linejoin:round;font-family:system-ui,sans-serif;font-weight:650;pointer-events:none}
+.fatality-map-label {fill:var(--fatality);stroke:var(--bg);stroke-width:3px;paint-order:stroke;stroke-linejoin:round;font-family:var(--interface-font);font-weight:600;pointer-events:none}
 .incident-marker:focus-visible {outline:none;stroke:var(--fatality);stroke-width:4;fill:var(--bg)}
-.fatality-badge {color:var(--fatality);font:600 13px/1.5 system-ui,sans-serif;letter-spacing:.03em}
+.fatality-badge {color:var(--fatality);font:600 13px/1.5 var(--interface-font);letter-spacing:.03em}
 .fatality-names {padding-left:20px;line-height:1.8}
 .fatality-legend {display:inline-flex;align-items:center;gap:6px}
 .survey-legend .fatality-legend::before {display:none}
 .survey-legend .fatality-legend {color:var(--fatality);font-weight:600}
 .impact-controls {border:1px solid var(--line);border-left:3px solid var(--fatality);padding:16px;margin:0 0 18px;background:var(--panel)}
-.impact-controls h4 {margin:0 0 8px;font:600 16px/1.5 system-ui,sans-serif}
+.impact-controls h4 {margin:0 0 8px;font:600 16px/1.5 var(--interface-font)}
 .impact-controls label {font-weight:600}
 .nearby-fatality {padding:14px;border-left:3px solid var(--fatality);margin:18px 0;background:var(--panel)}
 .nearby-fatality button {text-align:left;color:var(--fatality)}

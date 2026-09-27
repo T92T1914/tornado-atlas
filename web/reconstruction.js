@@ -101,7 +101,7 @@ async function start(){
       for(const p of particles){context.globalAlpha=.09;context.beginPath();context.arc(p.x,p.y,Math.max(1,Math.min(12,p.scale*.07)),0,Math.PI*2);context.fill();}
       context.globalAlpha=1;
     }
-    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px Segoe UI, sans-serif';context.fillText('Center position',marker.x+12,marker.y+4);}
+    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',marker.x+12,marker.y+4);}
     const glyph=observer?.visible?observerGlyph(observer.sample,origin,camera,rect.width,rect.height):null;
     canvas.dataset.observerVisible=String(Boolean(glyph));
     if(glyph){
@@ -111,14 +111,14 @@ async function start(){
       context.beginPath();context.moveTo(x,y);context.lineTo(headX,headY);
       context.moveTo(headX-dx*.25-dy*.18,headY-dy*.25+dx*.18);context.lineTo(headX,headY);context.lineTo(headX-dx*.25+dy*.18,headY-dy*.25-dx*.18);context.stroke();
       if(rect.width>=600){
-        context.fillStyle=text;context.font='12px Segoe UI, sans-serif';
+        context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;
         context.fillText('Recorded observer',Math.max(8,Math.min(rect.width-125,x+12)),Math.max(16,y-10));
       }
     }
     el('replay-camera-key').hidden=!glyph||rect.width>=600;
     el('replay-camera-offscreen').hidden=!observer?.visible||Boolean(glyph);
-    const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px Segoe UI, sans-serif';context.fillText('N',north.x,north.y);}
-    context.fillStyle=muted;context.font='11px Segoe UI, sans-serif';context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
+    const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('N',north.x,north.y);}
+    context.fillStyle=muted;context.font='11px '+getComputedStyle(canvas).fontFamily;context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
   };
   refresh=()=>{
     current=positionAt(positions,clock.seconds);observer=updateObserver(current.utc);requestDraw();
@@ -153,6 +153,7 @@ for(const name of ['pointerup','pointercancel','lostpointercapture'])canvas.addE
 canvas.addEventListener('wheel',e=>{e.preventDefault();zoom(Math.exp(Math.max(-200,Math.min(200,e.deltaY))*.002));},{passive:false});
 canvas.addEventListener('keydown',e=>{const keys={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,5],ArrowDown:[0,-5]};if(keys[e.key]){e.preventDefault();orbit(...keys[e.key]);}else if(['+','=','-','Home'].includes(e.key)){e.preventDefault();if(e.key==='Home')resetView();else zoom(e.key==='-'?1.15:1/1.15);}});
 new ResizeObserver(requestDraw).observe(canvas);
+document.fonts.ready.then(requestDraw);
 new MutationObserver(requestDraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-appearance']});
 matchMedia('(prefers-color-scheme: light)').addEventListener('change',requestDraw);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();refresh();syncLocation();}else requestDraw();});
