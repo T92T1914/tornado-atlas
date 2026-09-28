@@ -1,0 +1,19 @@
+{
+  "repo": "tornado-atlas",
+  "title": "Tornado Atlas",
+  "subtitle": "Explore the evidence",
+  "description": "Follow historical observations to sources and credited creators through reviewed dossiers. Catalogue records remain distinct from unique tornadoes and illustrative replay is not an appearance reconstruction.",
+  "helper": null,
+  "tokens": "web/appearance.css",
+  "source": "docs/archive-dossiers.md",
+  "pages": [
+    "web/dossier.html"
+  ],
+  "kind": "atlas",
+  "output": "web/share-preview.png",
+  "image_url": "https://t92t1914.github.io/tornado-atlas/share-preview.png",
+  "page_urls": {
+    "web/dossier.html": "https://t92t1914.github.io/tornado-atlas/dossier.html"
+  },
+  "alt": "Tornado Atlas. Explore the evidence. Authored summary of the linked evidence."
+}

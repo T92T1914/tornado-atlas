@@ -357,3 +357,5 @@ These are transferable skills for data engineering and software roles. This
 project does not establish meteorological forecasting skill or operational
 emergency-response readiness. The [responsive design research](research/responsive-evidence-2026-09-21.md)
 records the design choices and the validation limits.
+
+See [sharing previews](docs/sharing-preview.md) for the maintained link image and its source.

@@ -1,0 +1,3 @@
+# Optional sharing image authoring only. Publication checks use the standard library.
+fonttools==4.63.0
+pillow==12.3.0
