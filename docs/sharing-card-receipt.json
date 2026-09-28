@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "content": {
+    "title": "Tornado Atlas",
+    "subtitle": "Explore the evidence",
+    "panels": [
+      [
+        "Source record",
+        "Observation",
+        "what is claimed"
+      ],
+      [
+        "Exact locator",
+        "Source",
+        "where to inspect it"
+      ]
+    ],
+    "context": "Reviewed dossiers | Sources, creators and uncertainty",
+    "footer": "Source records remain distinct from unique tornadoes.",
+    "source_sha256": "a80aa9ba8819d2c88abb6f772a9f0d97ac9c6bcac260d06b63b65f9c8aa11d83"
+  },
+  "inputs_sha256_lf": {
+    "tools/render_share_preview.py": "659aed220e79634e83c6b465b77bb4aea894f4a20d3a53deb888bfca917254e2",
+    "docs/sharing-card.json": "7f2701f455e59ce96b4195a84131883a315484cdb1aa75ea073aa8a0969071f7",
+    "docs/archive-dossiers.md": "a80aa9ba8819d2c88abb6f772a9f0d97ac9c6bcac260d06b63b65f9c8aa11d83",
+    "web/appearance.css": "a0dfba561e0510ed8f7074b0d6718c4cd40960e329c7ac38e44816bf5fb6d0d1"
+  },
+  "png_sha256": "7c61b1f678abcd487025418e569350b56f0ec4f91e7fced71de7dafe1f6c59a4",
+  "dimensions": [
+    1280,
+    640
+  ],
+  "appearance": "obscur",
+  "opaque": true,
+  "renderer": {
+    "Pillow": "12.3.0"
+  },
+  "font_files": {
+    "Regular": {
+      "postscript": "Inter-Regular",
+      "weight": 400,
+      "italic": false,
+      "sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82"
+    },
+    "SemiBold": {
+      "postscript": "Inter-SemiBold",
+      "weight": 600,
+      "italic": false,
+      "sha256": "78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3"
+    },
+    "Bold": {
+      "postscript": "Inter-Bold",
+      "weight": 700,
+      "italic": false,
+      "sha256": "288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f"
+    },
+    "Italic": {
+      "postscript": "Inter-Italic",
+      "weight": 400,
+      "italic": true,
+      "sha256": "bbc051dd204b5019a1aa0bc0ae2aa8a05ab13e7a3f979fa357631dc7feb6833a"
+    }
+  },
+  "painted_labels": [
+    {
+      "text": "Tornado Atlas",
+      "face": "Inter-Bold",
+      "bounds": [
+        68,
+        52,
+        503,
+        100
+      ],
+      "size": 64
+    },
+    {
+      "text": "Explore the evidence",
+      "face": "Inter-SemiBold",
+      "bounds": [
+        68,
+        136,
+        493,
+        176
+      ],
+      "size": 42
+    },
+    {
+      "text": "Reviewed dossiers | Sources, creators and uncertainty",
+      "face": "Inter-Regular",
+      "bounds": [
+        68,
+        208,
+        841,
+        245
+      ],
+      "size": 30
+    },
+    {
+      "text": "Source record",
+      "face": "Inter-SemiBold",
+      "bounds": [
+        94,
+        298,
+        313,
+        322
+      ],
+      "size": 32
+    },
+    {
+      "text": "Observation",
+      "face": "Inter-Bold",
+      "bounds": [
+        94,
+        350,
+        431,
+        394
+      ],
+      "size": 56
+    },
+    {
+      "text": "what is claimed",
+      "face": "Inter-Regular",
+      "bounds": [
+        94,
+        451,
+        314,
+        475
+      ],
+      "size": 30
+    },
+    {
+      "text": "Exact locator",
+      "face": "Inter-SemiBold",
+      "bounds": [
+        682,
+        298,
+        885,
+        322
+      ],
+      "size": 32
+    },
+    {
+      "text": "Source",
+      "face": "Inter-Bold",
+      "bounds": [
+        682,
+        350,
+        917,
+        402
+      ],
+      "size": 68
+    },
+    {
+      "text": "where to inspect it",
+      "face": "Inter-Regular",
+      "bounds": [
+        682,
+        451,
+        944,
+        481
+      ],
+      "size": 30
+    },
+    {
+      "text": "Source records remain distinct from unique tornadoes.",
+      "face": "Inter-Italic",
+      "bounds": [
+        68,
+        548,
+        844,
+        578
+      ],
+      "size": 30
+    }
+  ],
+  "experimental_work_rerun": false,
+  "kind": "authored summary, not an application screenshot"
+}
