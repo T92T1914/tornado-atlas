@@ -45,7 +45,7 @@ function showDossier(doc,entry,index){
   if(!items.length)host.append(element('p','No evidence matches this link. The event and its original source routes remain available.'));
   for(const [item,type] of items)host.append(evidenceCard(item,doc,type));
   host.append(element('h2','Sources'));
-  for(const s of doc.sources.filter(s=>!sourceId||s.id===sourceId)){const card=element('article',undefined,'archive-card');card.id='source-'+s.id;card.append(element('h3',s.title),link('Read original source',s.url),element('p','Locator: '+s.locator),element('p','Access: '+s.access),element('p','Source revision: '+s.revision),element('p','Rights: '+s.rights),element('p',s.agent_processing),link('Evidence drawn from this source',route({event:doc.id,source:s.id})),link('Link to source card',route({event:doc.id,source:s.id})+'#'+card.id));host.append(card);}
+  for(const s of doc.sources.filter(s=>!sourceId||s.id===sourceId)){const card=element('article',undefined,'archive-card');card.id='source-'+s.id;card.append(element('h3',s.title),link('Read original source',s.url),element('p','Locator: '+s.locator),element('p','Access: '+s.access),element('p','Source revision: '+s.revision),element('p','Rights: '+s.rights),element('p',s.agent_processing),link('Evidence drawn from this source',route({event:doc.id,source:s.id})),document.createTextNode(' '),link('Link to source card',route({event:doc.id,source:s.id})+'#'+card.id));host.append(card);}
   host.append(element('h2','Reconstruction coverage'),element('p',doc.reconstruction.limits),element('p','Registered appearance intervals: '+doc.reconstruction.intervals.length),detail('Projection provenance',doc.provenance));
 }
 async function showRecord(index,id){

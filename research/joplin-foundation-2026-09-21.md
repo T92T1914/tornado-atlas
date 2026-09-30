@@ -80,3 +80,14 @@ registered, no image was assigned a frame time, and no new third-party asset was
 published. Each chronology entry opens PDF page 8 and names the printed-page
 locator. The original static account remains available when JavaScript or the
 source website fails. The last 5:48 p.m. entry does not imply tornado dissipation.
+
+## September 30 school refuge cases
+
+The [school refuge review](joplin-school-refuge-2026-09-30.md) adds two selected
+building cases from the original March 2014 NIST final report through the existing
+curator and dossier publication path. Printed pages 210 to 213 and their two
+school figures were inspected. The cards distinguish surviving refuge areas from
+unknown or absent occupancy. Exact source pages, figure rights and source limits
+remain visible. The entire report and other building cases remain unreviewed.
+Historical appearance remains unregistered. Existing county records, casualty
+counts and warning clocks are unchanged.
