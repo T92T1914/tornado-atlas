@@ -8,7 +8,8 @@ from atlas.archive import digest, dossiers, publication
 ROOT = Path(__file__).resolve().parents[1]
 OLD = 'archive/joplin-2011-c080b55cf2dfa5efc278.json'
 NEW_IDS = {'intake-nist-east-middle-refuge-2014', 'intake-nist-high-school-refuge-2014'}
-LATER_ADDITIONS = {'intake-nws-siren-cessation-2011'}
+LATER_ADDITIONS = {'intake-nws-siren-cessation-2011',
+                   'intake-nws-local-siren-warning-distinction-2011'}
 SCHOOL_REVISION = 'archive/joplin-2011-1f02a52e8fcabe1667db.json'
 
 
