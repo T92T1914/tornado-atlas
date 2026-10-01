@@ -1,0 +1,7 @@
+# When the first siren stopped
+
+The warning chronology records a three-minute alert, but a clock entry cannot establish how a resident understood it. The [July 2011 NWS assessment, printed page 5](https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf#page=11) describes the local siren burst and reports that several interviewees thought the threat was over when it stopped.
+
+The methods and footnote 4 on [printed page 4](https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf#page=10) identify 54 residents' perspectives from 63 interviews. Nine interviews were excluded because of second-hand accounts, unusable audio or irrelevant data. NWS describes a limited local case study. This finding supplies no population rate or individual response clock. [Printed page 9](https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf#page=15) explicitly leaves the relationship between response and survival unresolved.
+
+An agent visually read PDF pages 10, 11 and 15 on October 1, 2026 UTC. The retained original has SHA-256 `38e97e54efaaa1853cff5018e0b5ae041e70fc822d0c6c9228258a636fc16962`. Atlas adds an attributed paraphrase and original page links. It republishes no page, photograph or cited third-party work. The account describes historical policy and interviews, not current warning guidance. Existing warning clocks, county records, casualty accounts and reconstruction limits remain unchanged.
