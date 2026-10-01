@@ -83,6 +83,7 @@ class CuratorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Draft exceeds'):
             self.store.save(oversized, saved['revision'])
         self.assertEqual(saved, self.store.load(self.draft['id']))
+
         self.assertEqual(len(self.store.listing()), 1)
         self.assertEqual(self.store.backup()['drafts'], [self.draft])
         new = copy.deepcopy(self.draft)
@@ -94,6 +95,14 @@ class CuratorTests(unittest.TestCase):
         self.assertFalse(self.store.path(new['id']).exists())
         self.assertFalse(self.store.path(oversized['id']).exists())
         self.assertEqual(saved, self.store.load(self.draft['id']))
+
+    def test_intake_rejects_noncanonical_private_hosts_without_changing_draft(self):
+        original = copy.deepcopy(self.draft)
+        for url in ['https://127.1/source', 'https://0300.0250.1.1/source',
+                    'https://%31%32%37.0.0.1/source']:
+            with self.subTest(url=url), self.assertRaises(ValueError):
+                intake(self.draft, sample() | {'url': url})
+            self.assertEqual(self.draft, original)
 
     def test_export_is_candidate_with_base_and_no_private_notes(self):
         original = copy.deepcopy(self.draft)

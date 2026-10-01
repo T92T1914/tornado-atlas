@@ -36,6 +36,8 @@ Limits are 250 KB per draft, 100 drafts per store and 2 MB per backup/import req
 
 ## Candidate boundary
 
+Source hosts must use explicit spelling rather than percent-encoded authority text or abbreviated, octal or hexadecimal IPv4 forms. Internationalized hostnames are checked in their ASCII form while the supplied URL stays unchanged. These checks reject private address literals and ambiguous host forms. They do not resolve DNS, follow redirects or replace the curator's privacy and rights review.
+
 The candidate envelope records schema version, `atlas-curator-candidate` kind, original event identity and original generated dossier digest, plus the validated dossier. Private notes and the intake ledger are excluded. A later reviewed promotion must compare that base with current source output and reject stale candidates. Source-record-only drafts have a null event base and need a separate reviewed association before event promotion.
 
 Only the intake state changes to candidate during export. Source-reported values, assertion states, rights, clock and place qualifications remain intact. An unknown capture time or unavailable source does not become known because a JSON document validates. Review prose for personal information before committing, even after structural privacy checks pass.

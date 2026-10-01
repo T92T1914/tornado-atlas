@@ -46,13 +46,22 @@ def public_url(value):
     parsed = urlsplit(value)
     if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
         raise ValueError('Expected a public HTTPS source URL')
-    host = parsed.hostname.lower().rstrip('.')
+    if '%' in parsed.hostname or '\\' in parsed.netloc:
+        raise ValueError('Encoded or backslash source hosts require an explicit public hostname')
+    try:
+        host = parsed.hostname.encode('idna').decode('ascii').lower().rstrip('.')
+    except UnicodeError as error:
+        raise ValueError('Invalid public source hostname') from error
     if '.' not in host or host.endswith(('.local', '.localhost', '.internal', '.test', '.invalid')):
         raise ValueError('Local or private source URL cannot be published')
     try:
         address = ipaddress.ip_address(host)
     except ValueError:
-        pass
+        # Browsers interpret number-ending hosts as IPv4, including abbreviated,
+        # octal and hexadecimal forms. Require an explicit canonical IP literal.
+        tail = host.rsplit('.', 1)[-1]
+        if re.fullmatch(r'[0-9]+|0x[0-9a-f]*', tail):
+            raise ValueError('Noncanonical numeric source address cannot be published')
     else:
         if not address.is_global:
             raise ValueError('Private address cannot be published')

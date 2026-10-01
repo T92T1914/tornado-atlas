@@ -61,6 +61,37 @@ class ArchiveTests(unittest.TestCase):
         for relative, expected in publication().items():
             self.assertEqual(json.loads((ROOT / 'web' / relative).read_text(encoding='utf-8')), expected)
 
+    def test_private_host_alias_cannot_replace_a_reviewed_publication(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'research').mkdir()
+            config = [{'id': 'synthetic-publication', 'title': 'Synthetic publication',
+                       'coverage': 'Dossier', 'summary': 'A source-link validation fixture.',
+                       'records': [], 'routes': [], 'sources': [{
+                           'identifier': 'fixture-source', 'title': 'Synthetic source',
+                           'url': 'https://example.org/source', 'locator': 'Fixture paragraph.',
+                           'access': 'Synthetic access record.', 'revision': 'Fixture revision 1.'}]}]
+            (root / 'research/archive-dossiers.json').write_text(json.dumps(config), encoding='utf-8')
+            (root / 'research/record-aliases.json').write_text('{}', encoding='utf-8')
+            base = dossiers(root)[0]
+            candidate = {'schema_version': 1, 'kind': 'atlas-curator-candidate',
+                         'base': {'event_id': base['id'], 'dossier_sha256': digest(base)},
+                         'dossier': copy.deepcopy(base)}
+            path = root / 'candidate.json'
+            path.write_text(json.dumps(candidate), encoding='utf-8')
+            promote_candidate(path, 'Reviewed synthetic public-link fixture.', root)
+            retained_path = root / 'research/archive-curated/synthetic-publication.json'
+            retained = retained_path.read_bytes()
+            current = dossiers(root)[0]
+            candidate['base']['dossier_sha256'] = digest(current)
+            candidate['dossier'] = copy.deepcopy(current)
+            candidate['dossier']['sources'][0]['url'] = 'https://127.1/source'
+            path.write_text(json.dumps(candidate), encoding='utf-8')
+            with self.assertRaises(ValueError):
+                promote_candidate(path, 'A private host alias must not publish.', root)
+            self.assertEqual(retained, retained_path.read_bytes())
+            self.assertEqual(current, dossiers(root)[0])
+
     def test_reviewed_candidate_preserves_certainty_and_rejects_stale_sources(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
