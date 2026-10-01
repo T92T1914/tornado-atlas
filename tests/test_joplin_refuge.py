@@ -8,6 +8,8 @@ from atlas.archive import digest, dossiers, publication
 ROOT = Path(__file__).resolve().parents[1]
 OLD = 'archive/joplin-2011-c080b55cf2dfa5efc278.json'
 NEW_IDS = {'intake-nist-east-middle-refuge-2014', 'intake-nist-high-school-refuge-2014'}
+LATER_ADDITIONS = {'intake-nws-siren-cessation-2011'}
+SCHOOL_REVISION = 'archive/joplin-2011-1f02a52e8fcabe1667db.json'
 
 
 class JoplinRefugeTests(unittest.TestCase):
@@ -17,7 +19,7 @@ class JoplinRefugeTests(unittest.TestCase):
         current = next(d for d in dossiers() if d['id'] == old['id'])
         self.assertEqual(current['records'], old['records'])
         original_items = {row['id']: row for row in old['observations']}
-        retained = {row['id']: row for row in current['observations'] if row['id'] not in NEW_IDS}
+        retained = {row['id']: row for row in current['observations'] if row['id'] not in NEW_IDS | LATER_ADDITIONS}
         self.assertEqual(retained, original_items)
         self.assertEqual(current['media'], old['media'])
         self.assertEqual(current['reconstruction'], old['reconstruction'])
@@ -60,7 +62,8 @@ class JoplinRefugeTests(unittest.TestCase):
         self.assertNotIn('private_notes', actual)
         self.assertNotIn('intake', actual)
         self.assertEqual(actual['provenance']['publication_review']['reviewer_kind'], 'agent')
-        self.assertEqual(actual['provenance']['publication_review']['previous_dossier_sha256'],
+        school_revision = json.loads((ROOT / 'web' / SCHOOL_REVISION).read_text(encoding='utf-8'))
+        self.assertEqual(school_revision['provenance']['publication_review']['previous_dossier_sha256'],
                          '735c1ec99e9d1275197199d5eef6b9382d4eb48c4bc97cec9eecc08d98144744')
 
 
