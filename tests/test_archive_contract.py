@@ -7,7 +7,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from atlas.archive import clocks, digest, dossiers, evidence, place, source, status, validate_dossier
+from atlas.archive import clocks, digest, dossiers, evidence, place, public_url, source, status, validate_dossier
 
 
 def specimen():
@@ -107,6 +107,33 @@ class ArchiveContractTests(unittest.TestCase):
                     'utc': value, 'basis': 'Synthetic registration fixture.'}
                 with self.assertRaises(ValueError):
                     validate_dossier(doc)
+
+    def test_browser_normalized_private_hosts_cannot_enter_source_or_media_links(self):
+        urls = [
+            'https://127.1/source',
+            'https://0177.0.0.1/source',
+            'https://0x7f.0.0.1/source',
+            'https://0300.0250.1.1/source',
+            'https://%31%32%37.0.0.1/source',
+            'https://１２７.０.０.１/source',
+            r'https://127.0.0.1\example.org/source',
+        ]
+        for url in urls:
+            with self.subTest(source_url=url):
+                self.rejected(lambda d: d['sources'][0].update(url=url))
+            with self.subTest(media_url=url):
+                self.rejected(lambda d: d['media'][0].update(url=url))
+
+    def test_public_host_spelling_keeps_paths_queries_and_source_bytes_intact(self):
+        for url in ['https://www.weather.gov/source%20notes?loc=%31#figure-1',
+                    'https://123.example.org/source', 'https://münich.example.org/source',
+                    'https://8.8.8.8/source']:
+            with self.subTest(url=url):
+                self.assertIsNone(public_url(url))
+                doc = specimen()
+                doc['sources'][0]['url'] = url
+                self.assertIs(validate_dossier(doc), doc)
+                self.assertEqual(doc['sources'][0]['url'], url)
 
     def test_nonfinite_and_boolean_measurements_are_not_registered_values(self):
         for value in [float('nan'), float('inf'), True]:
