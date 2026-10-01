@@ -10,6 +10,9 @@ ROOT = Path(__file__).resolve().parents[1]
 OLD = 'archive/joplin-2011-1f02a52e8fcabe1667db.json'
 OLD_SHA256 = '56a7382c552441ef4315e4334d4756dd8085a432e5d3cb360995f885317c2b21'
 NEW_ID = 'intake-nws-siren-cessation-2011'
+LATER_IDS = {'intake-nws-local-siren-warning-distinction-2011'}
+SIREN_REVISION = 'archive/joplin-2011-8d3c839b9f9dafb8ff79.json'
+SIREN_SHA256 = '61d5e67f3392e69ed4a19d3b76df4144219aee9e03c783ce1e540918315c6b4a'
 
 
 class JoplinSirenResponseTests(unittest.TestCase):
@@ -18,10 +21,14 @@ class JoplinSirenResponseTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(raw).hexdigest(), OLD_SHA256)
         old = json.loads(raw)
         current = next(d for d in dossiers() if d['id'] == old['id'])
-        self.assertEqual([o for o in current['observations'] if o['id'] != NEW_ID], old['observations'])
+        self.assertEqual([o for o in current['observations'] if o['id'] not in {NEW_ID} | LATER_IDS], old['observations'])
+        self.assertEqual(current['observations'][:len(old['observations'])], old['observations'])
         for key in ('records', 'media', 'creators', 'reconstruction'):
             self.assertEqual(current[key], old[key])
-        self.assertEqual(current['provenance']['publication_review']['previous_dossier_sha256'], digest(old))
+        siren_raw = (ROOT / 'web' / SIREN_REVISION).read_bytes()
+        self.assertEqual(hashlib.sha256(siren_raw).hexdigest(), SIREN_SHA256)
+        siren_revision = json.loads(siren_raw)
+        self.assertEqual(siren_revision['provenance']['publication_review']['previous_dossier_sha256'], digest(old))
 
     def test_sample_and_policy_findings_remain_attributed_and_unregistered(self):
         doc = next(d for d in dossiers() if d['id'] == 'joplin-2011')
