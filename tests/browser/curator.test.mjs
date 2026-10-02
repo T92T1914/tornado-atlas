@@ -19,7 +19,7 @@ async function localSession(store){
     owned.stdout.on('data',data=>{text+=data.toString();const line=text.split('\n')[0];if(text.includes('\n')){clearTimeout(timer);try{resolve(JSON.parse(line).url);}catch(error){reject(error);}}});
   })};}catch(error){await stopSession(owned);throw error;}
 }
-async function stopSession(owned){if(owned&&owned.exitCode===null){const exited=once(owned,'exit');owned.kill();await exited;}}
+async function stopSession(owned){if(owned?.pid&&owned.exitCode===null&&owned.signalCode===null){const exited=once(owned,'exit');owned.kill();await exited;}}
 before(async()=>{
   directory=await mkdtemp(path.join(tmpdir(),'atlas-curator-check-'));
   ({child,url}=await localSession(path.join(directory,'private')));origin=new URL(url).origin;
