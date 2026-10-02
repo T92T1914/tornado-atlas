@@ -7,6 +7,7 @@ import sqlite3
 from pathlib import Path
 
 from .ncei import iter_records
+from .jma import SOURCE as JMA_SOURCE, URL as JMA_URL, iter_cases
 from .sources import DATA, NCEI_NAME, read_object
 
 
@@ -36,6 +37,12 @@ def connect(path: Path = DATA / "catalogue.sqlite3") -> sqlite3.Connection:
                 AND newer.revision>s.revision
             );
         CREATE INDEX IF NOT EXISTS records_year_rating ON records(year, rating);
+        CREATE TABLE IF NOT EXISTS jma_cases (
+            snapshot_id TEXT NOT NULL REFERENCES snapshots(id),
+            id TEXT NOT NULL, classification_code TEXT NOT NULL,
+            payload TEXT NOT NULL, raw_record TEXT NOT NULL, csv_record INTEGER NOT NULL,
+            PRIMARY KEY(snapshot_id, id)
+        );
     """)
     return connection
 
@@ -75,8 +82,80 @@ def import_ncei(connection: sqlite3.Connection, metadata: dict, data_dir: Path =
     return {"snapshot": identifier, "records": count, "status": "imported"}
 
 
+def import_jma(connection: sqlite3.Connection, metadata: dict, data_dir: Path = DATA) -> dict:
+    """Retain every case, while admitting only class 1 to tornado search."""
+    from datetime import timezone
+    from email.utils import parsedate_to_datetime
+
+    if not isinstance(metadata, dict):
+        raise ValueError("JMA retrieval metadata must be an object")
+    if type(metadata.get("bytes")) is not int or not 0 <= metadata["bytes"] <= 16_000_000:
+        raise ValueError("JMA metadata must record a byte count within 16 MB")
+    if metadata.get("url") != JMA_URL or metadata.get("resolved_url", JMA_URL) != JMA_URL:
+        raise ValueError("The reviewed JMA case CSV URL is required")
+    try:
+        modified = parsedate_to_datetime(metadata["last_modified"])
+        if modified.tzinfo is None:
+            raise ValueError
+        revision = modified.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    except (KeyError, TypeError, ValueError, OverflowError) as error:
+        raise ValueError("JMA import needs a timezone-bearing Last-Modified header") from error
+    content = read_object(metadata, data_dir)
+    identifier = f"jma:{revision}"
+    existing = connection.execute("SELECT sha256 FROM snapshots WHERE id=?", (identifier,)).fetchone()
+    if existing:
+        if existing["sha256"] != metadata["sha256"]:
+            raise ValueError("Same observed JMA revision has different bytes; source review required")
+        cases = connection.execute("SELECT COUNT(*) FROM jma_cases WHERE snapshot_id=?", (identifier,)).fetchone()[0]
+        count = connection.execute("SELECT COUNT(*) FROM records WHERE snapshot_id=?", (identifier,)).fetchone()[0]
+        return {"snapshot": identifier, "cases": cases, "records": count, "status": "already_imported"}
+    cases, count = 0, 0
+    classes = {}
+    with connection:
+        connection.execute("INSERT INTO snapshots VALUES (?,?,?,?,?,?)", (
+            identifier, JMA_SOURCE, "all_cases", revision, metadata["sha256"], json.dumps(metadata)))
+        for row_number, raw, record in iter_cases(content):
+            record["provenance"] = {"snapshot_id": identifier, "source_url": metadata["url"],
+                                    "sha256": metadata["sha256"], "csv_record": row_number,
+                                    "retrieved_at": metadata["retrieved_at"],
+                                    "revision_basis": "observed_http_last_modified"}
+            payload = json.dumps(record, ensure_ascii=False, allow_nan=False)
+            raw_json = json.dumps(raw, ensure_ascii=False)
+            connection.execute("INSERT INTO jma_cases VALUES (?,?,?,?,?,?)", (
+                identifier, record["id"], record["classification_code"], payload, raw_json, row_number))
+            cases += 1
+            classes[record["classification"]] = classes.get(record["classification"], 0) + 1
+            if record["confirmed_tornado"]:
+                search_text = " ".join(raw["values"]).lower()
+                connection.execute("INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?)", (
+                    identifier, record["id"], record["year"], "JP", record["rating"]["reported"],
+                    search_text, payload, raw_json, row_number))
+                count += 1
+        if not cases or not count:
+            raise ValueError("Empty or no-confirmed-tornado JMA revision requires source review")
+    return {"snapshot": identifier, "cases": cases, "records": count, "by_classification": classes,
+            "status": "imported", "count_basis": "Only explicitly classified tornado cases enter tornado search"}
+
+
+def search_jma_cases(connection: sqlite3.Connection, *, classification_code: str | None = None,
+                     limit: int = 20) -> list[dict]:
+    """Read retained current gust cases separately from the tornado catalogue."""
+    if type(limit) is not int or not 1 <= limit <= 100_000:
+        raise ValueError("Limit must be between 1 and 100000")
+    conditions = ["NOT EXISTS (SELECT 1 FROM snapshots newer WHERE newer.source=s.source "
+                  "AND newer.partition_key=s.partition_key AND newer.revision>s.revision)"]
+    values = []
+    if classification_code is not None:
+        conditions.append("c.classification_code=?")
+        values.append(classification_code)
+    values.append(limit)
+    rows = connection.execute("SELECT c.payload FROM jma_cases c JOIN snapshots s ON s.id=c.snapshot_id "
+                              "WHERE " + " AND ".join(conditions) + " ORDER BY c.id DESC LIMIT ?", values)
+    return [json.loads(row[0]) for row in rows]
+
+
 def search(connection: sqlite3.Connection, query: str = "", *, year: int | None = None,
-           rating: str | None = None, limit: int = 20) -> list[dict]:
+           rating: str | None = None, country: str | None = None, limit: int = 20) -> list[dict]:
     if not 1 <= limit <= 100_000:
         raise ValueError("Limit must be between 1 and 100000")
     conditions, values = ["instr(search_text, ?) > 0"], [query.lower()]
@@ -86,6 +165,9 @@ def search(connection: sqlite3.Connection, query: str = "", *, year: int | None 
     if rating is not None:
         conditions.append("rating=?")
         values.append(rating.upper())
+    if country is not None:
+        conditions.append("country=?")
+        values.append(country.upper())
     values.append(limit)
     rows = connection.execute("SELECT payload FROM current_records WHERE " + " AND ".join(conditions)
                               + " ORDER BY year DESC, id LIMIT ?", values)

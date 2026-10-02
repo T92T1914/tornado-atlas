@@ -75,6 +75,8 @@ def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict
     if not 0 < count <= 100_000:
         raise ValueError('Import between 1 and 100000 records before exporting the static atlas')
     records = search(connection, limit=count)
+    if any(record['source'] != 'noaa_ncei_storm_events' for record in records):
+        raise ValueError('International records require reviewed browser presentation before static export')
     identifiers = {record['id'] for record in records}
     if set(reviews) - identifiers:
         raise ValueError('Location review references an unavailable record')
