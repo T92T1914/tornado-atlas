@@ -118,6 +118,31 @@ class CuratorTests(unittest.TestCase):
             self.assertEqual(before['place'], after['place'])
         self.assertEqual(original, self.draft)
 
+    def test_malformed_source_text_cannot_save_export_or_partially_restore(self):
+        saved = self.store.save(self.draft, None)
+        before = self.store.path(self.draft['id']).read_bytes()
+        valid_new = copy.deepcopy(self.draft)
+        valid_new['id'] = 'before-malformed-source'
+        bad_values = {'title': '', 'url': None, 'locator': {'figure': 1},
+                      'access': 7, 'revision': True, 'rights': ['links only'],
+                      'agent_processing': 42}
+        for field, value in bad_values.items():
+            with self.subTest(field=field):
+                bad = copy.deepcopy(self.draft)
+                bad['dossier']['sources'][0][field] = value
+                with self.assertRaises(ValueError):
+                    candidate(bad)
+                with self.assertRaises(ValueError):
+                    self.store.save(bad, saved['revision'])
+                backup = {'schema_version': 1, 'kind': 'private-curator-backup',
+                          'drafts': [valid_new, bad]}
+                with self.assertRaises(ValueError):
+                    self.store.restore(backup)
+                self.assertFalse(self.store.path(valid_new['id']).exists())
+                self.assertEqual(self.store.path(self.draft['id']).read_bytes(), before)
+                self.assertEqual(self.store.load(self.draft['id']), saved)
+        self.assertEqual(self.draft['dossier'], self.base)
+
     def test_backup_restore_preflight_conflicts_and_idempotency(self):
         self.store.save(self.draft, None)
         backup = self.store.backup()

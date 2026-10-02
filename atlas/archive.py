@@ -104,9 +104,10 @@ def _validate_dossier(doc):
     for source in doc['sources']:
         if set(source) != {'id', 'title', 'url', 'locator', 'access', 'revision', 'rights', 'agent_processing'}:
             raise ValueError('Unexpected source fields')
+        if not all(isinstance(source[key], str) and source[key]
+                   for key in ('title', 'url', 'locator', 'access', 'revision', 'rights', 'agent_processing')):
+            raise ValueError('Source metadata must contain nonempty text')
         public_url(source['url'])
-        if not all(source[k] for k in ('locator', 'access', 'revision', 'rights', 'agent_processing')):
-            raise ValueError('Source locator, revision and processing must remain explicit')
     for creator in doc['creators']:
         if set(creator) != {'id', 'name', 'basis'} or not creator['basis']:
             raise ValueError('Attribution basis required; no inferred biography')

@@ -135,6 +135,15 @@ class ArchiveContractTests(unittest.TestCase):
                 self.assertIs(validate_dossier(doc), doc)
                 self.assertEqual(doc['sources'][0]['url'], url)
 
+    def test_source_metadata_requires_nonempty_text_before_publication(self):
+        for field in ('title', 'url', 'locator', 'access', 'revision', 'rights', 'agent_processing'):
+            for value in ('', None, False, True, 7, [], ['Figure 1'], {}, {'figure': 1}):
+                with self.subTest(field=field, value=value):
+                    doc = specimen()
+                    doc['sources'][0][field] = value
+                    with self.assertRaises(ValueError):
+                        validate_dossier(doc)
+
     def test_nonfinite_and_boolean_measurements_are_not_registered_values(self):
         for value in [float('nan'), float('inf'), True]:
             with self.subTest(video_value=value):
