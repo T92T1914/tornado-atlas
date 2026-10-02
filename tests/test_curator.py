@@ -51,6 +51,60 @@ class CuratorTests(unittest.TestCase):
         self.assertEqual(saved, self.store.load(self.draft['id']))
         self.assertEqual(saved, self.store.save(changed, saved['revision']))
 
+    def test_save_preserves_distinct_canonical_numeric_values(self):
+        for index, (before, after) in enumerate(((1, True), (1, 1.0), (0, False), (0, -0.0))):
+            with self.subTest(before=before, after=after):
+                original = copy.deepcopy(self.draft)
+                original['id'] = f'numeric-save-{index}'
+                original['dossier']['provenance']['synthetic_count'] = before
+                saved = self.store.save(original, None)
+                changed = copy.deepcopy(original)
+                changed['dossier']['provenance']['synthetic_count'] = after
+                self.assertEqual(original, changed)
+                self.assertNotEqual(digest(original), digest(changed))
+                updated = self.store.save(changed, saved['revision'])
+                self.assertEqual(digest(updated['draft']), digest(changed))
+                self.assertNotEqual(updated['revision'], saved['revision'])
+                self.assertEqual(self.store.load(original['id']), updated)
+                with self.assertRaises(Conflict):
+                    self.store.save(original, saved['revision'])
+
+    def test_restore_rejects_distinct_canonical_numeric_values_before_writing(self):
+        for index, (before, after) in enumerate(((1, True), (1, 1.0), (0, False), (0, -0.0))):
+            with self.subTest(before=before, after=after):
+                original = copy.deepcopy(self.draft)
+                original['id'] = f'numeric-restore-{index}'
+                original['dossier']['provenance']['synthetic_count'] = before
+                saved = self.store.save(original, None)
+                changed = copy.deepcopy(original)
+                changed['dossier']['provenance']['synthetic_count'] = after
+                extra = copy.deepcopy(self.draft)
+                extra['id'] = f'new-before-numeric-conflict-{index}'
+                backup = {'schema_version': 1, 'kind': 'private-curator-backup',
+                          'drafts': [extra, changed]}
+                raw = self.store.path(original['id']).read_bytes()
+                self.assertEqual(original, changed)
+                self.assertNotEqual(digest(original), digest(changed))
+                with self.assertRaises(Conflict):
+                    self.store.restore(backup)
+                self.assertFalse(self.store.path(extra['id']).exists())
+                self.assertEqual(self.store.path(original['id']).read_bytes(), raw)
+                self.assertEqual(self.store.load(original['id']), saved)
+
+    def test_canonical_identity_keeps_equivalent_saved_bytes_and_restore(self):
+        saved = self.store.save(self.draft, None)
+        path = self.store.path(self.draft['id'])
+        raw = (json.dumps(self.draft, ensure_ascii=False, separators=(',', ':')) + '\r\n').encode()
+        path.write_bytes(raw)
+        saved = self.store.load(self.draft['id'])
+        reordered = dict(reversed(list(self.draft.items())))
+        self.assertEqual(digest(reordered), digest(self.draft))
+        self.assertEqual(self.store.save(reordered, saved['revision']), saved)
+        self.assertEqual(self.store.restore({'schema_version': 1, 'kind': 'private-curator-backup',
+                                             'drafts': [reordered]}),
+                         {'restored': [], 'unchanged': 1})
+        self.assertEqual(path.read_bytes(), raw)
+
     def test_idempotent_intake_and_distinct_clocks_roles(self):
         changed, added = intake(self.draft, sample())
         self.assertTrue(added)

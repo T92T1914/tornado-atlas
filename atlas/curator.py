@@ -157,7 +157,7 @@ class Store:
             revision = current['revision'] if current else None
             if expected != revision:
                 raise Conflict('Saved draft changed. Reopen it before applying this edit. No file was overwritten.')
-            if current and current['draft'] == draft:
+            if current and digest(current['draft']) == digest(draft):
                 return current
             if not current and len(list(self.root.glob('*.json'))) >= 100:
                 raise ValueError('Store is limited to 100 drafts')
@@ -208,7 +208,7 @@ class Store:
             if len(names | {d['id'] for d in drafts}) > 100:
                 raise ValueError('Restored store would exceed 100 drafts')
             for draft in drafts:
-                if draft['id'] in names and self.load(draft['id'])['draft'] != draft:
+                if draft['id'] in names and digest(self.load(draft['id'])['draft']) != digest(draft):
                     raise Conflict('Backup differs from an existing draft. Restore into a separate private store.')
             restored = []
             for draft in drafts:
