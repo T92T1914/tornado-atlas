@@ -181,6 +181,18 @@ class Store:
                 raise ValueError('Backup exceeds the bounded import size. Export individual drafts instead.')
             return result
 
+    def backup_draft(self, identity, expected):
+        """Back up one saved revision without including another draft or saving edits."""
+        with self.lock:
+            saved = self.load(identity)
+            if expected != saved['revision']:
+                raise Conflict('Saved draft changed. Reopen it before downloading its private backup.')
+            result = {'schema_version': 1, 'kind': 'private-curator-backup',
+                      'drafts': [saved['draft']]}
+            if len(encoded(result)) > MAX_BODY:
+                raise ValueError('Saved draft backup exceeds the bounded import size')
+            return result
+
     def restore(self, backup):
         if not isinstance(backup, dict) or set(backup) != {'schema_version', 'kind', 'drafts'} or backup['schema_version'] != 1 or backup['kind'] != 'private-curator-backup':
             raise ValueError('Expected a private curator backup')
@@ -370,6 +382,10 @@ def server(app, port=0):
                     return self.send(200, {'records': [{'id': r['id'], 'title': r['title'], 'date': r.get('date'), 'rating': r.get('rating')} for r in rows]})
                 if not write and route == '/api/backup':
                     return self.send(200, app.store.backup())
+                if write and route == '/api/backup-draft':
+                    if set(payload) != {'id', 'revision'}:
+                        raise ValueError('Saved draft identity and expected revision are required')
+                    return self.send(200, app.store.backup_draft(payload['id'], payload['revision']))
                 if write and route == '/api/new':
                     return self.send(201, app.new(payload))
                 if write and route == '/api/save':

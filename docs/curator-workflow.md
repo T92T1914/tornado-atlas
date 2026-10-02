@@ -32,6 +32,10 @@ While a save, intake or preview request is pending, the editor holds its control
 
 Download a private backup before a substantial curation session. Restore validates the complete batch before writing, leaves byte-equivalent content unchanged and rejects an existing draft with differing content. Restore a conflicting backup into a separate private store. An interrupted restore can be repeated because each new draft is atomic and identical existing drafts are retained. If storage reports an error, reopen the affected draft before assuming it saved.
 
+For one open draft, **Download saved draft backup** preserves its complete saved content, including private notes, intake records and original event base. Save or reopen unsaved edits first. The server checks the saved revision, so another tab's newer save requires reopening before download. This action never saves edits, includes other drafts or publishes anything. Its private backup uses the same restore format as a whole-store backup. The separate candidate download still excludes private notes and intake records.
+
+A valid store can exceed the 2 MB whole-backup limit even when each draft fits its own limit. In that case, open each saved draft and download its private backup individually. Keep these files private and restore them one at a time into a separate store when inspecting conflicting versions.
+
 Limits are 250 KB per draft, 100 drafts per store and 2 MB per backup/import request. Oversized or malformed documents fail before publication. The service serves only the editor's allowlisted static assets, not the private store, the full checkout or arbitrary paths. It sends no cross-origin API permission headers and does not fetch submitted URLs.
 
 ## Candidate boundary

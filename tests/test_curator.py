@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 from atlas.archive import digest, dossiers, validate_dossier
-from atlas.curator import App, Conflict, MAX_DRAFT, ROOT, Store, candidate, decode, encoded, intake, server
+from atlas.curator import App, Conflict, MAX_BODY, MAX_DRAFT, ROOT, Store, candidate, decode, encoded, intake, server
 
 
 def sample():
@@ -158,6 +158,78 @@ class CuratorTests(unittest.TestCase):
         self.assertFalse(other.path(extra['id']).exists())
         self.assertEqual(other.backup(), backup)
 
+    def test_one_saved_draft_recovers_private_content_when_whole_backup_is_too_large(self):
+        selected, _ = intake(self.draft, sample())
+        selected['private_notes'] = 'PRIVATE selected research notes ' * 800
+        saved = self.store.save(selected, None)
+        for number in range(99):
+            other = copy.deepcopy(self.draft)
+            other['id'] = f'unrelated-{number}'
+            other['private_notes'] = 'PRIVATE unrelated research notes ' * 800
+            self.store.save(other, None)
+            # Stop at the first supported store that cannot use a whole backup.
+            try:
+                self.store.backup()
+            except ValueError as error:
+                self.assertIn('Export individual drafts', str(error))
+                break
+        else:
+            self.fail('The bounded fixture did not reach the whole-backup limit')
+        before = {p.name: p.read_bytes() for p in self.store.root.glob('*.json')}
+        with self.assertRaisesRegex(ValueError, 'Export individual drafts'):
+            self.store.backup()
+        backup = self.store.backup_draft(selected['id'], saved['revision'])
+        self.assertEqual(backup, {'schema_version': 1, 'kind': 'private-curator-backup',
+                                  'drafts': [selected]})
+        self.assertLessEqual(len(encoded(backup)), MAX_BODY)
+        self.assertNotIn('PRIVATE unrelated research notes', json.dumps(backup))
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.store.root.glob('*.json')})
+
+        recovered = Store(Path(self.temp.name) / 'one-draft-recovery')
+        self.assertEqual(recovered.restore(backup), {'restored': [selected['id']], 'unchanged': 0})
+        self.assertEqual(recovered.load(selected['id']), saved)
+        self.assertEqual(recovered.restore(backup), {'restored': [], 'unchanged': 1})
+        conflict = copy.deepcopy(backup)
+        conflict['drafts'][0]['private_notes'] = 'A different saved version'
+        extra = copy.deepcopy(self.draft)
+        extra['id'] = 'before-private-backup-conflict'
+        conflict['drafts'].insert(0, extra)
+        with self.assertRaises(Conflict):
+            recovered.restore(conflict)
+        self.assertFalse(recovered.path(extra['id']).exists())
+        self.assertEqual(recovered.load(selected['id']), saved)
+
+        public = candidate(selected)
+        self.assertNotIn('private_notes', public)
+        self.assertNotIn(selected['private_notes'], json.dumps(public))
+        self.assertNotIn('intake', public)
+        with self.assertRaisesRegex(ValueError, 'Expected a private curator backup'):
+            recovered.restore(public)
+
+    def test_saved_draft_backup_checks_revision_identity_and_size_without_writing(self):
+        first = self.store.save(self.draft, None)
+        changed = copy.deepcopy(self.draft)
+        changed['private_notes'] = 'Newer saved notes'
+        latest = self.store.save(changed, first['revision'])
+        before = self.store.path(self.draft['id']).read_bytes()
+        with self.assertRaisesRegex(Conflict, 'Reopen it before downloading'):
+            self.store.backup_draft(self.draft['id'], first['revision'])
+        for identity in ('../outside', 'x/y', 'UPPER', 'a' * 81, None):
+            with self.subTest(identity=identity), self.assertRaises(ValueError):
+                self.store.backup_draft(identity, latest['revision'])
+        with self.assertRaises(FileNotFoundError):
+            self.store.backup_draft('missing-saved-draft', latest['revision'])
+        backup = self.store.backup_draft(self.draft['id'], latest['revision'])
+        with patch('atlas.curator.MAX_BODY', len(encoded(backup))):
+            self.assertEqual(self.store.backup_draft(self.draft['id'], latest['revision']), backup)
+        with patch('atlas.curator.MAX_BODY', len(encoded(backup)) - 1):
+            with self.assertRaisesRegex(ValueError, 'bounded import size'):
+                self.store.backup_draft(self.draft['id'], latest['revision'])
+        self.store.path('oversized-saved-draft').write_bytes(b' ' * (MAX_DRAFT + 1))
+        with self.assertRaisesRegex(ValueError, 'Saved draft exceeds'):
+            self.store.backup_draft('oversized-saved-draft', None)
+        self.assertEqual(self.store.path(self.draft['id']).read_bytes(), before)
+
     def test_invalid_paths_payload_and_media_are_rejected(self):
         for identity in ('../outside', 'x/y', 'UPPER', 'a' * 81):
             with self.assertRaises(ValueError):
@@ -203,6 +275,22 @@ class CuratorTests(unittest.TestCase):
         status, raw = request('POST', '/api/new', {'id': 'event-copy', 'kind': 'event', 'target': self.base['id']})
         self.assertEqual(status, 201)
         saved = json.loads(raw)
+        backup_request = {'id': saved['draft']['id'], 'revision': saved['revision']}
+        self.assertEqual(request('POST', '/api/backup-draft', backup_request,
+                                 {'X-Curator-Token': ''})[0], 403)
+        self.assertEqual(request('POST', '/api/backup-draft', backup_request,
+                                 {'Origin': 'https://example.org'})[0], 403)
+        self.assertEqual(request('POST', '/api/backup-draft', {'id': '../outside',
+                                 'revision': saved['revision']})[0], 400)
+        self.assertEqual(request('POST', '/api/backup-draft', {'id': 'missing-draft',
+                                 'revision': saved['revision']})[0], 404)
+        self.assertEqual(request('POST', '/api/backup-draft', {'id': saved['draft']['id']})[0], 400)
+        self.assertEqual(request('POST', '/api/backup-draft', backup_request | {'revision': 'stale'})[0], 409)
+        status, raw = request('POST', '/api/backup-draft', backup_request)
+        self.assertEqual(status, 200)
+        self.assertEqual(json.loads(raw), {'schema_version': 1, 'kind': 'private-curator-backup',
+                                          'drafts': [saved['draft']]})
+        self.assertEqual(self.store.load(saved['draft']['id']), saved)
         self.assertEqual(request('POST', '/api/save', {'draft': saved['draft'], 'revision': 'stale'})[0], 409)
         status, raw = request('POST', '/api/new', {'id': 'record-copy', 'kind': 'record', 'target': 'ncei:432342'})
         self.assertEqual(status, 201)

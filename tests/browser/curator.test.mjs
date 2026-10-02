@@ -9,27 +9,38 @@ import {fileURLToPath} from 'node:url';
 import {chromium,webkit} from 'playwright';
 
 let child,browser,directory,url,origin;
+async function localSession(store){
+  const root=fileURLToPath(new URL('../../',import.meta.url));
+  const owned=spawn(process.platform==='win32'?'py':'python3',[...(process.platform==='win32'?['-3.11']:[]),'-B','-m','atlas.curator','--store',store],{cwd:root,stdio:['ignore','pipe','pipe'],windowsHide:true});
+  try{return {child:owned,url:await new Promise((resolve,reject)=>{
+    let text='';const timer=setTimeout(()=>reject(Error('Curator service did not start')),15000);
+    owned.once('error',error=>{clearTimeout(timer);reject(error);});
+    owned.once('exit',()=>{clearTimeout(timer);reject(Error('Curator service exited before startup'));});
+    owned.stdout.on('data',data=>{text+=data.toString();const line=text.split('\n')[0];if(text.includes('\n')){clearTimeout(timer);try{resolve(JSON.parse(line).url);}catch(error){reject(error);}}});
+  })};}catch(error){await stopSession(owned);throw error;}
+}
+async function stopSession(owned){if(owned&&owned.exitCode===null){const exited=once(owned,'exit');owned.kill();await exited;}}
 before(async()=>{
   directory=await mkdtemp(path.join(tmpdir(),'atlas-curator-check-'));
-  const root=fileURLToPath(new URL('../../',import.meta.url));
-  child=spawn(process.platform==='win32'?'py':'python3',[...(process.platform==='win32'?['-3.11']:[]),'-m','atlas.curator','--store',path.join(directory,'private')],{cwd:root,stdio:['ignore','pipe','pipe'],windowsHide:true});
-  url=await new Promise((resolve,reject)=>{
-    let text='';const timer=setTimeout(()=>reject(Error('Curator service did not start')),15000);
-    child.once('error',error=>{clearTimeout(timer);reject(error);});
-    child.once('exit',()=>{clearTimeout(timer);reject(Error('Curator service exited before startup'));});
-    child.stdout.on('data',data=>{text+=data.toString();const line=text.split('\n')[0];if(text.includes('\n')){clearTimeout(timer);try{resolve(JSON.parse(line).url);}catch(error){reject(error);}}});
-  });origin=new URL(url).origin;
+  ({child,url}=await localSession(path.join(directory,'private')));origin=new URL(url).origin;
   browser=await (process.env.ATLAS_BROWSER_ENGINE==='webkit'?webkit:chromium).launch({headless:true,
     ...(process.env.ATLAS_BROWSER_ENGINE==='webkit'?{}:{chromiumSandbox:true,
       ...(process.env.ATLAS_BROWSER_EXECUTABLE?{executablePath:process.env.ATLAS_BROWSER_EXECUTABLE}:process.env.ATLAS_BROWSER_CHANNEL?{channel:process.env.ATLAS_BROWSER_CHANNEL}:{}),args:['--mute-audio','--disable-gpu']})});
+  console.log(JSON.stringify({engine:process.env.ATLAS_BROWSER_ENGINE||'chromium',version:browser.version(),headless:true,scope:'isolated loopback curator'}));
 });
-after(async()=>{await browser?.close();if(child&&child.exitCode===null){const exited=once(child,'exit');child.kill();await exited;}if(directory)await rm(directory,{recursive:true,force:true});});
+after(async()=>{await browser?.close();await stopSession(child);if(directory)await rm(directory,{recursive:true,force:true});});
 
-async function pageFor(t,width=1280){
+async function pageFor(t,width=1280,sessionUrl=url){
   const context=await browser.newContext({viewport:{width,height:900},acceptDownloads:true,permissions:[],reducedMotion:'reduce'});t.after(()=>context.close());
-  await context.route('**/*',route=>route.request().url().startsWith(origin+'/')?route.continue():route.abort());
+  const allowed=new URL(sessionUrl).origin;
+  await context.route('**/*',route=>route.request().url().startsWith(allowed+'/')?route.continue():route.abort());
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));t.after(()=>assert.deepEqual(errors,[]));
-  await page.goto(url);await page.waitForFunction(()=>document.body.dataset.ready==='true');return page;
+  await page.goto(sessionUrl);await page.waitForFunction(()=>document.body.dataset.ready==='true');return page;
+}
+async function privateApi(page,route,payload,sessionUrl=url){
+  const address=new URL(sessionUrl),token=new URLSearchParams(address.hash.slice(1)).get('token');
+  const headers={'X-Curator-Token':token,'Origin':address.origin,...(payload===undefined?{}:{'Content-Type':'application/json'})};
+  return payload===undefined?page.request.get(address.origin+route,{headers}):page.request.post(address.origin+route,{headers,data:payload});
 }
 async function newDraft(page,id){await page.locator('#new-id').fill(id);await page.locator('#event-choice').selectOption('el-reno-2013');await page.getByRole('button',{name:'Start event draft',exact:true}).click();await page.waitForFunction(()=>!document.getElementById('workspace').hidden&&!document.querySelector('main').hasAttribute('aria-busy'));}
 async function fitsReadingWidth(page,context){
@@ -59,6 +70,83 @@ test('real retained media survives private save, idempotent intake, preview and 
   const download=page.waitForEvent('download');await page.getByRole('button',{name:'Download candidate JSON'}).click();const received=await download;const file=path.join(directory,'candidate-download.json');await received.saveAs(file);assert.deepEqual(JSON.parse(await readFile(file,'utf8')),result);
   const backupDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Download private backup'}).click();const backup=await backupDownload;const backupFile=path.join(directory,'private-backup.json');await backup.saveAs(backupFile);assert.match(await readFile(backupFile,'utf8'),/PRIVATE TEST NOTE/);
   await page.locator('#restore-file').setInputFiles(backupFile);await page.getByRole('button',{name:'Restore selected backup'}).click();await page.waitForFunction(()=>document.getElementById('status').textContent.includes('identical drafts were left unchanged'));
+});
+
+test('one saved private backup restores complete content when the whole store exceeds its limit',async t=>{
+  const page=await pageFor(t,390);await newDraft(page,'single-private-recovery');
+  await page.locator('#private-notes').fill('PRIVATE selected research notes '.repeat(800));
+  await page.getByRole('button',{name:'Fill from a retained video sample'}).click();
+  await page.getByRole('button',{name:'Add intake and save'}).click();await page.waitForFunction(()=>document.getElementById('status').textContent.startsWith('Intake saved'));
+  const selected=await (await privateApi(page,'/api/draft/single-private-recovery')).json();
+  for(let number=0;number<28;number++){
+    const unrelated=structuredClone(selected.draft);unrelated.id=`browser-unrelated-${number}`;unrelated.private_notes='PRIVATE unrelated research notes '.repeat(800);
+    assert.equal((await privateApi(page,'/api/save',{draft:unrelated,revision:null})).status(),200);
+  }
+  await page.getByRole('button',{name:'Download private backup',exact:true}).click();
+  await page.locator('#error').waitFor({state:'visible'});assert.match(await page.locator('#error').textContent(),/Export individual drafts/);
+  const incoming=page.waitForEvent('download');await page.getByRole('button',{name:'Download saved draft backup',exact:true}).click();
+  const download=await incoming;assert.equal(download.suggestedFilename(),'single-private-recovery-private-backup.json');
+  const file=path.join(directory,'one-saved-private-backup.json');await download.saveAs(file);
+  const backup=JSON.parse(await readFile(file,'utf8'));
+  assert.deepEqual(backup,{schema_version:1,kind:'private-curator-backup',drafts:[selected.draft]});
+  assert.doesNotMatch(JSON.stringify(backup),/PRIVATE unrelated research notes/);
+  assert.deepEqual(await (await privateApi(page,'/api/draft/single-private-recovery')).json(),selected);
+
+  const empty=await localSession(path.join(directory,'empty-recovery'));t.after(()=>stopSession(empty.child));
+  const restored=await pageFor(t,390,empty.url);await restored.locator('#restore-file').setInputFiles(file);
+  await restored.getByRole('button',{name:'Restore selected backup',exact:true}).click();
+  await restored.waitForFunction(()=>document.getElementById('status').textContent==='Restored 1 drafts. 0 identical drafts were left unchanged.');
+  assert.deepEqual(await (await privateApi(restored,'/api/draft/single-private-recovery',undefined,empty.url)).json(),selected);
+  assert.deepEqual((await (await privateApi(restored,'/api/session',undefined,empty.url)).json()).drafts.map(d=>d.id),['single-private-recovery']);
+  await restored.getByRole('button',{name:'Restore selected backup',exact:true}).click();
+  await restored.waitForFunction(()=>document.getElementById('status').textContent==='Restored 0 drafts. 1 identical drafts were left unchanged.');
+  await restored.locator('#draft-choice').selectOption('single-private-recovery');await restored.getByRole('button',{name:'Reopen draft',exact:true}).click();
+  await restored.waitForFunction(()=>!document.getElementById('workspace').hidden);
+  assert.equal(await restored.locator('#private-notes').inputValue(),selected.draft.private_notes);
+  await restored.getByRole('button',{name:'Validate and preview candidate',exact:true}).click();await restored.locator('#candidate-panel').waitFor({state:'visible'});
+  assert.doesNotMatch(await restored.locator('#candidate-json').textContent(),/PRIVATE selected research notes/);
+  const publicCandidate=JSON.parse(await restored.locator('#candidate-json').textContent());
+  assert.equal(publicCandidate.kind,'atlas-curator-candidate');assert.equal('intake' in publicCandidate,false);
+  const normalFont=await restored.locator('body').evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+  for(const [width,textScale] of [[390,1],[320,2]])for(const appearance of ['dark','light']){
+    await restored.setViewportSize({width,height:900});await restored.locator('body').evaluate((el,size)=>{el.style.fontSize=`${size}px`;},normalFont*textScale);
+    await restored.locator('#reading-appearance').selectOption(appearance);await fitsReadingWidth(restored,`private recovery ${width} ${textScale} ${appearance}`);
+    const bounds=await restored.evaluate(()=>({documentWidth:document.documentElement.scrollWidth,inner:innerWidth,visual:visualViewport?.width,
+      targetHeight:document.getElementById('backup-draft').getBoundingClientRect().height}));
+    assert.ok(bounds.documentWidth<=width+1,JSON.stringify({width,textScale,appearance,...bounds}));
+    assert.ok(bounds.targetHeight>=44,JSON.stringify(bounds));
+  }
+});
+
+test('private draft download refuses unsaved and stale content, and holds controls while pending',async t=>{
+  const first=await pageFor(t);await newDraft(first,'private-backup-revision');
+  const second=await pageFor(t);await second.locator('#draft-choice').selectOption('private-backup-revision');await second.getByRole('button',{name:'Reopen draft',exact:true}).click();
+  await second.waitForFunction(()=>!document.getElementById('workspace').hidden);
+  const original=await (await privateApi(first,'/api/draft/private-backup-revision')).json();
+  let downloads=0,requests=0;first.on('download',()=>downloads++);first.on('request',request=>{if(new URL(request.url()).pathname==='/api/backup-draft')requests++;});
+  await first.locator('#private-notes').fill('Unsaved notes stay in this editor');
+  await first.getByRole('button',{name:'Download saved draft backup',exact:true}).click();await first.locator('#error').waitFor({state:'visible'});
+  assert.match(await first.locator('#error').textContent(),/Unsaved edits are not backed up/);assert.equal(requests,0);assert.equal(downloads,0);
+  assert.deepEqual(await (await privateApi(first,'/api/draft/private-backup-revision')).json(),original);
+  assert.equal(await first.locator('#private-notes').inputValue(),'Unsaved notes stay in this editor');
+  await first.getByRole('button',{name:'Save draft',exact:true}).click();await first.waitForFunction(()=>document.getElementById('status').textContent.startsWith('Draft saved atomically'));
+  const latest=await (await privateApi(first,'/api/draft/private-backup-revision')).json();
+  let staleDownloads=0;second.on('download',()=>staleDownloads++);
+  await second.getByRole('button',{name:'Download saved draft backup',exact:true}).click();await second.locator('#error').waitFor({state:'visible'});
+  assert.match(await second.locator('#error').textContent(),/Reopen it before downloading/);assert.equal(staleDownloads,0);
+  assert.equal(await second.locator('#private-notes').inputValue(),original.draft.private_notes);
+  await second.getByRole('button',{name:'Reopen draft',exact:true}).click();await second.waitForFunction(()=>document.getElementById('private-notes').value==='Unsaved notes stay in this editor');
+  let release,arrived;const gate=new Promise(resolve=>{release=resolve;});const seen=new Promise(resolve=>{arrived=resolve;});
+  await second.route('**/api/backup-draft',async route=>{arrived();await gate;await route.continue();});
+  try{
+    const incoming=second.waitForEvent('download');await second.getByRole('button',{name:'Download saved draft backup',exact:true}).click();await seen;
+    for(const selector of ['#private-notes','#dossier-json','#save','#reopen','#backup-draft','#restore'])assert.equal(await second.locator(selector).isDisabled(),true,selector);
+    release();const received=await incoming;const file=path.join(directory,'revision-private-backup.json');await received.saveAs(file);
+    assert.deepEqual(JSON.parse(await readFile(file,'utf8')),{schema_version:1,kind:'private-curator-backup',drafts:[latest.draft]});
+    await second.waitForFunction(()=>!document.querySelector('main').hasAttribute('aria-busy'));
+    assert.equal(await second.locator('#backup-draft').isEnabled(),true);
+    assert.deepEqual(await (await privateApi(second,'/api/draft/private-backup-revision')).json(),latest);
+  }finally{release();await second.unroute('**/api/backup-draft');}
 });
 
 test('390 pixel layouts, both appearances, keyboard and source-record context work without registration',async t=>{
