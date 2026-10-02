@@ -25,6 +25,12 @@ chronology, radar and unresolved source disagreements. A media item with an
 unknown camera position is not advertised as registered imagery. The
 [archive contract](docs/archive-dossiers.md) explains the model and loading path.
 
+The [inspected-source directory](https://t92t1914.github.io/tornado-atlas/dossier.html?view=sources)
+searches source titles, locators, revision records and inspection scope across
+the current dossiers. Each result opens its exact dossier revision and retains
+the source's access and rights limits. Linked counts describe metadata entries,
+not complete source coverage or permission to host the media.
+
 The [local research desk](docs/curator-workflow.md) starts from a record or event,
 keeps private notes outside the public tree, and saves drafts with conflict
 detection. Its structured intake separates attribution, clocks, location and

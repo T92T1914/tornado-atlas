@@ -402,6 +402,27 @@ def dossier_history(doc, root=ROOT):
     return history
 
 
+def source_directory(docs):
+    """Keep each event's inspected source record separate, even at a shared URL."""
+    entries = []
+    for doc in docs:
+        identity = digest(doc)
+        for item in doc['sources']:
+            entries.append(dict(event_id=doc['id'], event_title=doc['title'],
+                dossier_sha256=identity, source=dict(item),
+                observations=sum(row['source_id'] == item['id'] for row in doc['observations']),
+                media=sum(row['source_id'] == item['id'] for row in doc['media'])))
+    entries.sort(key=lambda row: (row['event_title'].casefold(), row['source']['title'].casefold(),
+                                 row['event_id'], row['source']['id']))
+    directory = dict(schema_version=1, kind='atlas-source-directory', entries=entries,
+        scope='Source cards from the current published dossiers only. Linked counts describe metadata entries, '
+              'not independent sources, complete inspection, available media or hosting permission. '
+              'Records with the same URL remain separate because their locators and inspection scope may differ.')
+    if len(json.dumps(directory, ensure_ascii=False).encode()) > 256000:
+        raise ValueError('Source directory exceeds selective loading budget')
+    return directory
+
+
 def publication(root=ROOT):
     docs = dossiers(root)
     catalogue = read(root / 'web/catalogue/index.json')
@@ -423,7 +444,11 @@ def publication(root=ROOT):
                                     m['status']['temporal'] == 'discrete_anchor' and
                                     m['status']['spatial'] != 'unregistered' for m in doc['media']),
             'creators': doc['creators']})
+    directory = source_directory(docs)
+    directory_file = f"archive/sources-{digest(directory)[:20]}.json"
+    result[directory_file] = directory
     result['archive/index.json'] = dict(schema_version=1, events=entries,
+        source_directory=dict(file=directory_file, count=len(directory['entries'])),
         coverage=catalogue['coverage'], record_shards=shards,
         sparse_example='ncei:432342', coverage_definitions={
             'Catalogued': 'An identified source record. Further evidence may not have been researched.',
