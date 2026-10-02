@@ -12,6 +12,7 @@
 .archive-links a {display:inline-flex;align-items:center;min-height:44px}
 .archive-tools label {display:grid;grid-template-columns:minmax(0,1fr);gap:6px;max-width:100%;min-width:0}
 .archive-tools input,.archive-tools select {max-width:100%;font:inherit;padding:10px;background:var(--bg);color:var(--text);border:1px solid var(--line)}
+.archive-tools select {white-space:normal}
 .archive-main dl {display:grid;grid-template-columns:minmax(100px,1fr) 3fr;gap:10px 20px;overflow-wrap:anywhere}
 .archive-main dt {font-weight:600}.archive-main dd {margin:0}
 .archive-main details {padding:10px 0}.archive-main summary {cursor:pointer;font-weight:600}

@@ -42,6 +42,14 @@ for(const width of [308,1280])for(const appearance of ['dark','light'])test(`sou
   }
   await page.addStyleTag({content:'body {font-size:200%}'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  const eventFilter=page.getByRole('combobox',{name:'Dossier',exact:true});
+  for(const event of index.events){
+    await eventFilter.selectOption(event.id);
+    assert.equal(await eventFilter.inputValue(),event.id);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,
+      `Enlarged native select for ${event.id} stays within ${width} CSS pixels`);
+  }
+  await eventFilter.selectOption('');
   const destination=sourceCard.getByRole('link',{name:'Open source and its evidence',exact:true});
   await destination.focus();assert.equal(await destination.evaluate(node=>node===document.activeElement),true);
   if(process.env.ATLAS_SCREENSHOT_DIR){
