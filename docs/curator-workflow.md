@@ -44,6 +44,8 @@ Source hosts must use explicit spelling rather than percent-encoded authority te
 
 The candidate envelope records schema version, `atlas-curator-candidate` kind, original event identity and original generated dossier digest, plus the validated dossier. Private notes and the intake ledger are excluded. A later reviewed promotion must compare that base with current source output and reject stale candidates. Source-record-only drafts have a null event base and need a separate reviewed association before event promotion.
 
+Reviewed promotion retains the previous public dossier before replacing its current reviewed account. Two promotions before a publication build therefore keep both predecessors available for correction history. An existing equivalent snapshot keeps its original bytes. A conflicting snapshot or storage failure stops the replacement. Older missing predecessors remain documented gaps. This does not publish private notes or replace the separate Git review and site build.
+
 Only the intake state changes to candidate during export. Source-reported values, assertion states, rights, clock and place qualifications remain intact. An unknown capture time or unavailable source does not become known because a JSON document validates. Review prose for personal information before committing, even after structural privacy checks pass.
 
 The public site has no writable curator service. It can display this static explanation, but authoring requires the local command and session URL. No new hosted account, database service, background watcher or automatic publication credential is required.

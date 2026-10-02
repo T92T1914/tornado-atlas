@@ -322,6 +322,17 @@ def promote_candidate(path, basis, root=ROOT):
     for item in doc['observations'] + doc['media']:
         item['status']['intake'] = 'published'
     validate_dossier(doc)
+    # A second reviewed promotion can happen before the publication build.
+    # Retain the previous account first so that build timing cannot erase it.
+    retained = root / 'web/archive' / f"{current['id']}-{digest(current)[:20]}.json"
+    if retained.is_symlink():
+        raise ValueError('A retained dossier snapshot cannot be a link')
+    if retained.exists():
+        if (not retained.is_file() or retained.stat().st_size > 200_000
+                or digest(read(retained)) != digest(current)):
+            raise ValueError('An immutable retained dossier snapshot cannot be overwritten')
+    else:
+        write_json(retained, current)
     write_json(root / 'research/archive-curated' / (doc['id'] + '.json'),
                dict(schema_version=1, adapter_sha256=digest(adapter), review=review, dossier=doc))
     return {'event': doc['id'], 'dossier_sha256': digest(doc), 'review': review}
