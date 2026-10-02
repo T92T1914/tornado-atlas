@@ -11,6 +11,14 @@ const cases=[
   {name:'short landscape',viewport:{width:844,height:320},event:'blackwell-1955',appearance:'light'},
   {name:'320 reflow with enlarged text',viewport:{width:320,height:640},event:'el-reno-2013',appearance:'dark',enlarge:true},
 ];
+const actionRects=new WeakMap();
+async function touchAction(page,locator){
+  const rect=await locator.evaluate(node=>{const box=node.getBoundingClientRect();return {name:node.textContent.trim(),x:box.x,width:box.width,height:box.height,rectangles:node.getClientRects().length};});
+  assert.ok(rect.height>=44&&rect.width>=44,JSON.stringify(rect));
+  assert.equal(rect.rectangles,1,'A standalone action has one continuous target');
+  assert.ok(rect.x>=-1&&rect.x+rect.width<=page.viewportSize().width+1,JSON.stringify(rect));
+  const rows=actionRects.get(page)||[];rows.push(rect);actionRects.set(page,rows);
+}
 async function ready(page,scenario){
   await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   if(scenario.enlarge){
@@ -24,15 +32,19 @@ async function ready(page,scenario){
       document.body.dataset.touchTextEnlarged='true';
     });
   }
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,
-    JSON.stringify(await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}))));
+  const configured=scenario.viewport||page.viewportSize();
+  assert.ok(configured,'The fixture has a configured viewport');
+  const widths=await page.evaluate(()=>({document:document.documentElement.scrollWidth,layout:innerWidth,visual:visualViewport?.width}));
+  assert.equal(widths.document<=configured.width+1,true,JSON.stringify({configured:configured.width,...widths}));
 }
 async function follow(page,locator,scenario){
+  await touchAction(page,locator);
   await Promise.all([page.waitForEvent('framenavigated',frame=>frame===page.mainFrame()),locator.tap()]);
   await page.waitForLoadState('domcontentloaded');
   await ready(page,scenario);
 }
 async function downloadExact(page,locator,file,filename){
+  await touchAction(page,locator);
   const [download]=await Promise.all([page.waitForEvent('download'),locator.tap()]);
   assert.equal(download.suggestedFilename(),filename);
   assert.deepEqual(await readFile(await download.path()),await readFile(new URL('../../web/'+file,import.meta.url)));
@@ -62,12 +74,14 @@ for(const scenario of cases)test(`touch source and retained evidence journey ${s
   const sourceResult=page.locator('#source-results .archive-card');
   assert.ok((await sourceResult.textContent()).includes(row.source.rights));
   assert.ok((await sourceResult.textContent()).includes(row.source.access));
+  await touchAction(page,sourceResult.getByRole('link',{name:'Read original source',exact:true}));
   await follow(page,sourceResult.getByRole('link',{name:'Open source and its evidence',exact:true}),scenario);
   const pinned=page.url();
   assert.equal(new URL(pinned).searchParams.get('revision'),row.dossier_sha256);
   const sourceCard=page.locator('#source-'+row.source.id);
   for(const field of ['locator','access','revision','rights'])assert.ok((await sourceCard.textContent()).includes(row.source[field]),field);
   assert.equal(await sourceCard.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),row.source.url);
+  await touchAction(page,sourceCard.getByRole('link',{name:'Read original source',exact:true}));
   await downloadExact(page,page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}),entry.file,entry.id+'.json');
   await page.reload();await ready(page,scenario);
   assert.equal(page.url(),pinned);
@@ -76,7 +90,8 @@ for(const scenario of cases)test(`touch source and retained evidence journey ${s
   assert.equal(page.url(),filtered);
   assert.equal(await page.getByRole('searchbox',{name:'Search source cards'}).inputValue(),row.source.title);
   await page.goForward();await ready(page,scenario);assert.equal(page.url(),pinned);
-  await page.getByRole('link',{name:'Inspect revisions and correction history',exact:true}).tap();
+  const inspectHistory=page.getByRole('link',{name:'Inspect revisions and correction history',exact:true});
+  await touchAction(page,inspectHistory);await inspectHistory.tap();
   await page.locator('#correction-history').waitFor();
   const revision=page.locator('#revision-'+retained.dossier_sha256);
   await follow(page,revision.getByRole('link',{name:'Open this dossier revision',exact:true}),scenario);
@@ -103,9 +118,37 @@ for(const scenario of cases)test(`touch source and retained evidence journey ${s
   if(process.env.ATLAS_SCREENSHOT_DIR){
     await mkdir(process.env.ATLAS_SCREENSHOT_DIR,{recursive:true});
     await page.screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`touch-${entry.id}.png`)});
-    const input=await page.evaluate(()=>({width:innerWidth,height:innerHeight,touchPoints:navigator.maxTouchPoints,coarsePointer:matchMedia('(pointer:coarse)').matches,reducedMotion:matchMedia('(prefers-reduced-motion:reduce)').matches,textFixtureApplied:document.body.dataset.touchTextEnlarged==='true',userAgent:navigator.userAgent}));
-    await writeFile(path.join(process.env.ATLAS_SCREENSHOT_DIR,`touch-${entry.id}.json`),JSON.stringify({scenario,input,emulatedTouchEvents:touch.length,filteredPath:new URL(filtered).pathname+new URL(filtered).search,currentRevision:row.dossier_sha256,retainedRevision:retained.dossier_sha256,exactDownloads:2},null,2)+'\n');
+    const input=await page.evaluate(()=>({layoutViewportWidth:innerWidth,layoutViewportHeight:innerHeight,visualViewportWidth:visualViewport?.width,visualViewportHeight:visualViewport?.height,documentWidth:document.documentElement.scrollWidth,touchPoints:navigator.maxTouchPoints,coarsePointer:matchMedia('(pointer:coarse)').matches,reducedMotion:matchMedia('(prefers-reduced-motion:reduce)').matches,textFixtureApplied:document.body.dataset.touchTextEnlarged==='true',userAgent:navigator.userAgent}));
+    input.configuredViewport={...scenario.viewport};
+    await writeFile(path.join(process.env.ATLAS_SCREENSHOT_DIR,`touch-${entry.id}.json`),JSON.stringify({scenario,input,assertedActionRects:actionRects.get(page),emulatedTouchEvents:touch.length,filteredPath:new URL(filtered).pathname+new URL(filtered).search,currentRevision:row.dossier_sha256,retainedRevision:retained.dossier_sha256,exactDownloads:2},null,2)+'\n');
   }
+});
+
+test('reflow guard rejects content beyond the configured touch viewport',async t=>{
+  const scenario={viewport:{width:390,height:844}};
+  const page=await fixture(t,{...scenario,isMobile:true,hasTouch:true,reducedMotion:'reduce'});
+  await page.goto(base+'/dossier.html?view=sources');await ready(page,scenario);
+  await page.addStyleTag({content:'html {min-width:440px}'});
+  const widths=await page.evaluate(()=>({document:document.documentElement.scrollWidth,layout:innerWidth,visual:visualViewport?.width}));
+  assert.ok(widths.document>390);
+  await assert.rejects(ready(page,scenario),/"configured":390/);
+  if(process.env.ATLAS_SCREENSHOT_DIR){await mkdir(process.env.ATLAS_SCREENSHOT_DIR,{recursive:true});await writeFile(path.join(process.env.ATLAS_SCREENSHOT_DIR,'reflow-guard-counterfactual.json'),JSON.stringify({configured:390,...widths,oldGuardWouldPass:widths.document<=widths.layout+1,newGuardRejects:true},null,2)+'\n');}
+});
+
+test('standalone dossier actions preserve desktop focus and prose-inline creator links',async t=>{
+  const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});
+  await page.goto(base+'/dossier.html?view=sources');await ready(page,{});
+  const find=page.getByRole('button',{name:'Find sources',exact:true});
+  await touchAction(page,find);await find.focus();
+  assert.equal(await find.evaluate(node=>node===document.activeElement),true);
+  await page.goto(base+'/dossier.html?event=el-reno-2013');await ready(page,{});
+  const download=page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true});
+  await touchAction(page,download);await download.focus();
+  assert.equal(await download.evaluate(node=>node===document.activeElement),true);
+  const creator=page.locator('.archive-card p a').first();
+  assert.equal(await creator.evaluate(node=>getComputedStyle(node).display),'inline');
+  assert.equal(await creator.evaluate(node=>node.matches('.archive-card > a')),false);
+  assert.ok(await creator.textContent());
 });
 
 test('short touch viewport keeps record media dismissal and list return usable',async t=>{
