@@ -22,6 +22,14 @@ Run `python -m atlas.archive` to validate and build the projection. Run `python 
 
 A direct event visit loads the index and that event document. It does not fetch the complete media collection or third party images. A record visit hashes the stable ID to locate one of the existing catalogue shards. The source download contains only that selected public record. This uses the current catalogue count and shard map rather than copying thousands of records into another index.
 
+Each event also loads a small revision list. The correction-history section links the retained snapshots and their exact metadata downloads. A `revision` query identifies one indexed dossier SHA256, so its observations and source-card links stay in that same snapshot. Unknown or cross-event identities produce an unavailable view rather than silently showing current text. Existing links without a revision still open the current dossier.
+
+Related source-record links and creator pages continue to open the current catalogue and attribution views. The retained dossier preserves its own association basis, evidence and source cards. It does not claim that the catalogue or creator page has been rewound to that publication.
+
+Publication-review records retain their stated basis and predecessor identity. Field differences are calculated only when both snapshots are available. An absent predecessor remains an explicit gap, and a snapshot without a review record does not acquire an invented date or decision. The list puts the current dossier first and orders the rest by identifier. It is not a complete chronological history. Dossier identities remain separate from original source revisions and historical clock roles.
+
+The archive builder validates retained dossier filenames against their content identities and leaves their existing bytes untouched. It rejects malformed retained evidence and attempted immutable replacement. The new revision list does not expand source inspection, media hosting rights or historical registration.
+
 The public renderer creates text nodes for imported content. It does not interpret source text as HTML or instructions. External links use HTTPS source validation. Local and private address literals are rejected. These mechanical checks do not replace a curator's privacy and rights review before publication. No private notes or original EXIF belong in the public dossier schema.
 
 Metadata links are available even where media hosting is not permitted. Hashes are recorded only for retained bytes, such as the radar original and published PNG. A linked video is not a preserved original. No additional footage, photograph or source figure is downloaded by this view.

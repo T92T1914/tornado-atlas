@@ -41,9 +41,10 @@ for (const width of [308, 390, 768, 1280]) {
     assert.match(await card.textContent(), /unregistered/);
     const actionRequests = requests.slice(beforeDossier);
     const dossierRequests = actionRequests.map(request => request.url).filter(url => url.endsWith('.json'));
-    assert.equal(dossierRequests.length, 2);
+    assert.equal(dossierRequests.length, 3);
     assert.ok(dossierRequests.some(url => url.endsWith('/archive/index.json')));
     assert.ok(dossierRequests.some(url => /\/archive\/joplin-2011-[a-f0-9]{20}\.json$/.test(url)));
+    assert.ok(dossierRequests.some(url => /\/archive\/joplin-2011-history-[a-f0-9]{20}\.json$/.test(url)));
     // Scrolling to click the chapter link can trigger its retained lazy images.
     // Their initiating document is separate from the selected dossier's loading.
     const unexpected = actionRequests.filter(request => {
