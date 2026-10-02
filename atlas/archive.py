@@ -326,6 +326,82 @@ def promote_candidate(path, basis, root=ROOT):
     return {'event': doc['id'], 'dossier_sha256': digest(doc), 'review': review}
 
 
+def dossier_changes(before, after):
+    """Describe retained field differences without inferring a correction's cause."""
+    changes = []
+    for kind in ('sources', 'observations', 'media', 'creators', 'records'):
+        old = {row['id']: row for row in before[kind]}
+        new = {row['id']: row for row in after[kind]}
+        for identifier in sorted(old.keys() | new.keys()):
+            if identifier not in old:
+                changes.append(dict(kind=kind, id=identifier, change='added', fields=[]))
+            elif identifier not in new:
+                changes.append(dict(kind=kind, id=identifier, change='removed', fields=[]))
+            else:
+                fields = sorted(key for key in old[identifier].keys() | new[identifier].keys()
+                                if old[identifier].get(key) != new[identifier].get(key))
+                if fields:
+                    changes.append(dict(kind=kind, id=identifier, change='updated', fields=fields))
+    for key in ('title', 'coverage', 'summary', 'routes', 'reconstruction'):
+        if before[key] != after[key]:
+            changes.append(dict(kind='dossier', id=after['id'], change='updated', fields=[key]))
+    return changes
+
+
+def dossier_history(doc, root=ROOT):
+    """Index available immutable snapshots using declared predecessor identities."""
+    current = digest(doc)
+    retained = {current: doc}
+    pattern = re.compile(re.escape(doc['id']) + r'-[0-9a-f]{20}\.json')
+    for path in sorted((root / 'web/archive').glob(doc['id'] + '-*.json')):
+        if not pattern.fullmatch(path.name):
+            continue
+        if path.is_symlink() or path.stat().st_size > 200_000:
+            raise ValueError('Unsafe retained dossier file')
+        old = validate_dossier(read(path))
+        if old['id'] != doc['id'] or path.name != f"{doc['id']}-{digest(old)[:20]}.json":
+            raise ValueError('Retained dossier identity does not match its filename')
+        retained[digest(old)] = old
+    if len(retained) > 64:
+        raise ValueError('Dossier revision list exceeds selective loading budget')
+    versions = []
+    for identity in sorted(retained, key=lambda value: (value != current, value)):
+        snapshot = retained[identity]
+        review = snapshot['provenance'].get('publication_review')
+        previous = None
+        if review is not None:
+            required = {'reviewer_kind', 'reviewed_at', 'basis', 'candidate_sha256', 'previous_dossier_sha256'}
+            if not isinstance(review, dict) or set(review) != required or not all(isinstance(review[k], str) and review[k] for k in required):
+                raise ValueError('Malformed retained publication review')
+            if review['reviewer_kind'] != 'agent' or any(not re.fullmatch('[0-9a-f]{64}', review[k])
+                                                       for k in ('candidate_sha256', 'previous_dossier_sha256')):
+                raise ValueError('Invalid retained publication review identity')
+            stamp = datetime.fromisoformat(review['reviewed_at'].replace('Z', '+00:00'))
+            if stamp.tzinfo is None or stamp.utcoffset().total_seconds() != 0:
+                raise ValueError('Publication review timestamp requires explicit UTC')
+            previous = review['previous_dossier_sha256']
+        if previous == identity:
+            raise ValueError('A dossier cannot be its own predecessor')
+        versions.append(dict(dossier_sha256=identity,
+                             file=f"archive/{doc['id']}-{identity[:20]}.json",
+                             review=review, predecessor_available=previous in retained,
+                             changes=dossier_changes(retained[previous], snapshot) if previous in retained else None))
+    for identity in retained:
+        visited = set()
+        while identity in retained:
+            if identity in visited:
+                raise ValueError('Retained dossier predecessors cannot form a cycle')
+            visited.add(identity)
+            review = retained[identity]['provenance'].get('publication_review')
+            identity = review['previous_dossier_sha256'] if review else None
+    history = dict(schema_version=1, event_id=doc['id'], current_dossier_sha256=current,
+                   scope='Retained snapshots and recorded publication reviews only. Missing predecessors and unrecorded decisions remain gaps. Identifier order is not chronological order.',
+                   versions=versions)
+    if len(json.dumps(history, ensure_ascii=False).encode()) > 100_000:
+        raise ValueError('Dossier history exceeds selective loading budget')
+    return history
+
+
 def publication(root=ROOT):
     docs = dossiers(root)
     catalogue = read(root / 'web/catalogue/index.json')
@@ -334,8 +410,11 @@ def publication(root=ROOT):
     for doc in docs:
         filename = f"archive/{doc['id']}-{digest(doc)[:20]}.json"
         result[filename] = doc
+        history = dossier_history(doc, root)
+        history_file = f"archive/{doc['id']}-history-{digest(history)[:20]}.json"
+        result[history_file] = history
         entries.append({k: doc[k] for k in ('id', 'title', 'coverage', 'summary')} | {
-            'file': filename, 'records': [r['id'] for r in doc['records']],
+            'file': filename, 'history_file': history_file, 'records': [r['id'] for r in doc['records']],
             'evidence': sorted({m['kind'] for m in doc['media'] if m['status']['availability'] == 'reviewed_available'
                                 and m['status']['assertion'] != 'not_researched'} |
                                ({'chronology'} if doc['id'] == 'joplin-2011' else set()) |
@@ -357,8 +436,14 @@ def publication(root=ROOT):
 def build(root=ROOT):
     artifacts = publication(root)
     for relative, payload in artifacts.items():
-        write_json(root / 'web' / relative, payload)
-    return {'dossiers': len(artifacts) - 1, 'records': artifacts['archive/index.json']['coverage']['current_source_records']}
+        path = root / 'web' / relative
+        if relative != 'archive/index.json' and path.exists():
+            if read(path) != payload:
+                raise ValueError('An immutable archive document cannot be overwritten')
+            continue
+        write_json(path, payload)
+    index = artifacts['archive/index.json']
+    return {'dossiers': len(index['events']), 'records': index['coverage']['current_source_records']}
 
 
 if __name__ == '__main__':

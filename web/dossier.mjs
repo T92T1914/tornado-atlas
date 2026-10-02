@@ -3,6 +3,7 @@ const host=document.getElementById('content'), query=new URLSearchParams(locatio
 const element=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 function link(text,url){const n=element('a',text),u=new URL(url,location.href);if(!['https:','http:'].includes(u.protocol))throw Error('Unsupported link');n.href=u.href;if(u.origin!==location.origin){n.rel='noopener noreferrer';n.target='_blank';}return n;}
 function route(values){return 'dossier.html?'+new URLSearchParams(values);}
+function revisionRoute(doc,values={},version){return route({event:doc.id,...values,...(version?{revision:version.dossier_sha256}:{})});}
 async function json(file){const r=await fetch(file);if(!r.ok)throw Error('This evidence could not load. Its source may still be available through the catalogue.');return r.json();}
 const human=value=>value.replaceAll('_',' ');
 function detail(title,value){const n=element('details');n.append(element('summary',title),element('pre',typeof value==='string'?value:JSON.stringify(value,null,2)));return n;}
@@ -20,32 +21,70 @@ function listIndex(index){
   if(!rows.length)host.append(element('p','No reviewed dossier meets these filters. This is a coverage gap, not a finding that such evidence does not exist.'),link('Clear evidence filters','dossier.html'));
   host.append(element('h2','Start with a source record'),element('p','The same record view works across the imported catalogue. Wybark is a deliberately sparse example with a short official account and no reviewed event association.'),link('Wybark, Oklahoma · March 30, 2013',route({record:index.sparse_example})),detail('What the coverage descriptions mean',index.coverage_definitions));
 }
-function evidenceCard(item,doc,type){
+function evidenceCard(item,doc,type,version){
   const card=element('article',undefined,'archive-card');card.id=`${type}-${item.id}`;
   card.append(element('p',type==='media'?human(item.kind):'Observation or attributed claim','eyebrow'),element('h3',item.title),element('p',item.account),element('p',item.limits));
-  card.append(element('p','Exact locator: '+item.locator),link('Inspect the source card',route({event:doc.id,source:item.source_id})+'#source-'+item.source_id));
+  card.append(element('p','Exact locator: '+item.locator),link('Inspect the source card',revisionRoute(doc,{source:item.source_id},version)+'#source-'+item.source_id));
   const fields=element('dl');for(const [key,value] of Object.entries(item.status))fields.append(element('dt',human(key)),element('dd',human(value)));card.append(fields);
   if(type==='media'){
     card.append(link('Open original media at its source',item.url));
     for(const [role,id] of Object.entries(item.roles)){const name=doc.creators.find(c=>c.id===id);card.append(element('p',human(role)+': '));if(name)card.lastChild.append(link(name.name,route({creator:name.id})));else card.lastChild.append(document.createTextNode('Not established in this record.'));}
     card.append(detail('Parent and transformation', {parent:item.parent,transformation:item.transformation}));
   }
-  card.append(detail('Clock roles and registration',item.time),detail('Place and its limits',item.place),detail('Inspection coverage',item.review),link('Link to this evidence',route({event:doc.id,[type]:item.id})+'#'+card.id));return card;
+  card.append(detail('Clock roles and registration',item.time),detail('Place and its limits',item.place),detail('Inspection coverage',item.review),link('Link to this evidence',revisionRoute(doc,{[type]:item.id},version)+'#'+card.id));return card;
 }
-function showDossier(doc,entry,index){
+function showHistory(doc,history,selected){
+  const section=element('section');section.id='correction-history';
+  section.append(element('h2','Dossier revisions and correction history'),element('p',history.scope),element('p','Dossier identities describe the projected metadata. They are separate from each original source revision, publication date and event clock.'));
+  for(const version of history.versions){
+    const card=element('article',undefined,'archive-card');card.id='revision-'+version.dossier_sha256;
+    const current=version.dossier_sha256===history.current_dossier_sha256;
+    card.append(element('h3',current?'Current published dossier':'Retained dossier revision'),element('p','Dossier SHA256: '+version.dossier_sha256));
+    card.append(link(version.dossier_sha256===selected.dossier_sha256?'Link to this revision':'Open this dossier revision',revisionRoute(doc,{},version)+'#correction-history'));
+    const download=link('Download this revision (JSON)',version.file);download.download=doc.id+'-'+version.dossier_sha256.slice(0,12)+'.json';card.append(document.createTextNode(' '),download);
+    const review=version.review;
+    if(review){
+      card.append(element('p','Publication review: '+review.reviewed_at+' · '+human(review.reviewer_kind)),element('p',review.basis));
+      const previous=history.versions.find(v=>v.dossier_sha256===review.previous_dossier_sha256);
+      if(previous)card.append(link('Open the recorded predecessor',revisionRoute(doc,{},previous)+'#correction-history'));
+      else card.append(element('p','The recorded predecessor is not retained in this public archive. Its identity is '+review.previous_dossier_sha256+'. No comparison or missing account has been reconstructed.'));
+    }else card.append(element('p','No publication-review record is retained for this snapshot. Its position in a chronology has not been inferred.'));
+    if(version.dossier_sha256===selected.dossier_sha256&&version.changes!==null){
+      card.append(element('h4','Recorded field differences from the predecessor'),element('p','These differences show what metadata changed. The publication-review basis above states the inspected scope.'));
+      if(!version.changes.length)card.append(element('p','No evidence, source, attribution, association or display fields changed.'));
+      for(const change of version.changes){
+        const row=element('p',`${human(change.kind)} ${change.id}: ${change.change}${change.fields.length?' ('+change.fields.join(', ')+')':''}.`);
+        const type={sources:'source',observations:'observation',media:'media'}[change.kind];
+        const target=change.change==='removed'?history.versions.find(v=>v.dossier_sha256===review.previous_dossier_sha256):version;
+        if(type&&target){row.append(document.createTextNode(' '),link('Inspect this evidence revision',revisionRoute(doc,{[type]:change.id},target)+'#'+type+'-'+change.id));}
+        card.append(row);
+      }
+    }
+    section.append(card);
+  }
+  return section;
+}
+function showDossier(doc,entry,index,history,selected){
   document.title=doc.title+' | Tornado Atlas';
   host.replaceChildren(link('All evidence dossiers','dossier.html'),element('p',doc.coverage,'eyebrow'),element('h1',doc.title),element('p',doc.summary),links(doc.routes));
-  const download=link('Download dossier metadata (JSON)',entry.file);download.download=doc.id+'.json';host.append(download,element('p','This download contains metadata and source locators. It does not include third party media or establish hosting rights.'));
+  const download=link('Download dossier metadata (JSON)',selected?.file||entry.file);download.download=doc.id+'.json';host.append(download,element('p','This download contains metadata and source locators. It does not include third party media or establish hosting rights.'));
+  if(history){
+    const retained=selected.dossier_sha256!==history.current_dossier_sha256;
+    host.append(element('p',retained?'You are reading a retained dossier revision. Its accounts and inspection coverage have not been replaced by current text.':'You are reading the current published dossier.'),element('p','Dossier SHA256: '+selected.dossier_sha256),link('Inspect revisions and correction history','#correction-history'));
+    if(retained)host.append(document.createTextNode(' '),link('Return to the current dossier',route({event:doc.id})),element('p','Related source-record links and creator pages open current catalogue and attribution views. The evidence and source cards below belong to this retained dossier.'));
+  }
   host.append(element('h2','Related source records'));
   for(const row of doc.records){const card=element('article',undefined,'archive-card');card.append(link(row.id,route({record:row.id})),element('p',row.basis),element('p','Reviewed association, not a merged identity. Alternative joins: '+(row.alternatives.length?row.alternatives.join(', '):'none recorded.')));host.append(card);}
   host.append(element('h2','Evidence and open questions'));
   const chosen=query.get('media')||query.get('observation'),sourceId=query.get('source');
   const items=[...doc.observations.map(x=>[x,'observation']),...doc.media.map(x=>[x,'media'])].filter(([x])=>(!chosen||x.id===chosen)&&(!sourceId||x.source_id===sourceId));
-  if(chosen||sourceId)host.append(link('Show all evidence in this event',route({event:doc.id})));
+  if(chosen||sourceId)host.append(link('Show all evidence in this event',revisionRoute(doc,{},query.has('revision')?selected:undefined)));
   if(!items.length)host.append(element('p','No evidence matches this link. The event and its original source routes remain available.'));
-  for(const [item,type] of items)host.append(evidenceCard(item,doc,type));
+  const version=query.has('revision')?selected:undefined;
+  for(const [item,type] of items)host.append(evidenceCard(item,doc,type,version));
   host.append(element('h2','Sources'));
-  for(const s of doc.sources.filter(s=>!sourceId||s.id===sourceId)){const card=element('article',undefined,'archive-card');card.id='source-'+s.id;card.append(element('h3',s.title),link('Read original source',s.url),element('p','Locator: '+s.locator),element('p','Access: '+s.access),element('p','Source revision: '+s.revision),element('p','Rights: '+s.rights),element('p',s.agent_processing),link('Evidence drawn from this source',route({event:doc.id,source:s.id})),document.createTextNode(' '),link('Link to source card',route({event:doc.id,source:s.id})+'#'+card.id));host.append(card);}
+  for(const s of doc.sources.filter(s=>!sourceId||s.id===sourceId)){const card=element('article',undefined,'archive-card');card.id='source-'+s.id;card.append(element('h3',s.title),link('Read original source',s.url),element('p','Locator: '+s.locator),element('p','Access: '+s.access),element('p','Source revision: '+s.revision),element('p','Rights: '+s.rights),element('p',s.agent_processing),link('Evidence drawn from this source',revisionRoute(doc,{source:s.id},version)),document.createTextNode(' '),link('Link to source card',revisionRoute(doc,{source:s.id},version)+'#'+card.id));host.append(card);}
+  if(history)host.append(showHistory(doc,history,selected));
   host.append(element('h2','Reconstruction coverage'),element('p',doc.reconstruction.limits),element('p','Registered appearance intervals: '+doc.reconstruction.intervals.length),detail('Projection provenance',doc.provenance));
 }
 async function showRecord(index,id){
@@ -67,7 +106,18 @@ async function showRecord(index,id){
 async function main(){
   const index=await json('archive/index.json');
   if(query.has('record'))await showRecord(index,query.get('record'));
-  else if(query.has('event')){const entry=index.events.find(e=>e.id===query.get('event'));if(!entry)throw Error('This event is not in the reviewed dossier index.');showDossier(await json(entry.file),entry,index);}
+  else if(query.has('event')){
+    const entry=index.events.find(e=>e.id===query.get('event'));if(!entry)throw Error('This event is not in the reviewed dossier index.');
+    const history=entry.history_file?await json(entry.history_file):null;
+    if(history&&(history.event_id!==entry.id||history.schema_version!==1))throw Error('The dossier revision list does not match this event.');
+    if(history&&!history.versions.some(v=>v.dossier_sha256===history.current_dossier_sha256&&v.file===entry.file))throw Error('The current dossier and its revision list do not agree. No earlier account has been substituted.');
+    const identity=query.has('revision')?query.get('revision'):history?.current_dossier_sha256;
+    const selected=history?.versions.find(v=>v.dossier_sha256===identity);
+    if(query.has('revision')&&(!/^[0-9a-f]{64}$/.test(identity)||!selected))throw Error('That revision is not retained for this event. No current account has been substituted.');
+    if(history&&(!selected||selected.file!==`archive/${entry.id}-${selected.dossier_sha256.slice(0,20)}.json`))throw Error('The dossier revision identity is invalid.');
+    const doc=await json(selected?.file||entry.file);if(doc.id!==entry.id)throw Error('The dossier does not match this event.');
+    showDossier(doc,entry,index,history,selected);
+  }
   else if(query.has('creator')){
     const id=query.get('creator'),events=index.events.filter(e=>e.creators.some(c=>c.id===id)),creator=events[0]?.creators.find(c=>c.id===id);if(!creator)throw Error('No supported attribution matches this creator link.');
     host.replaceChildren(link('Evidence dossiers','dossier.html'),element('h1',creator.name),element('p',creator.basis),element('p','This page contains credited contributions, not a biography.'));

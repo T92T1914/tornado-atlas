@@ -17,12 +17,12 @@
     ],
     "context": "Reviewed dossiers | Sources, creators and uncertainty",
     "footer": "Source records remain distinct from unique tornadoes.",
-    "source_sha256": "a80aa9ba8819d2c88abb6f772a9f0d97ac9c6bcac260d06b63b65f9c8aa11d83"
+    "source_sha256": "20e7b856b5a30b3b704cdb219c73447eb325945a5c7436dbdb27245718e4822e"
   },
   "inputs_sha256_lf": {
     "tools/render_share_preview.py": "659aed220e79634e83c6b465b77bb4aea894f4a20d3a53deb888bfca917254e2",
     "docs/sharing-card.json": "7f2701f455e59ce96b4195a84131883a315484cdb1aa75ea073aa8a0969071f7",
-    "docs/archive-dossiers.md": "a80aa9ba8819d2c88abb6f772a9f0d97ac9c6bcac260d06b63b65f9c8aa11d83",
+    "docs/archive-dossiers.md": "20e7b856b5a30b3b704cdb219c73447eb325945a5c7436dbdb27245718e4822e",
     "web/appearance.css": "a0dfba561e0510ed8f7074b0d6718c4cd40960e329c7ac38e44816bf5fb6d0d1"
   },
   "png_sha256": "7c61b1f678abcd487025418e569350b56f0ec4f91e7fced71de7dafe1f6c59a4",
@@ -174,5 +174,15 @@
     }
   ],
   "experimental_work_rerun": false,
-  "kind": "authored summary, not an application screenshot"
+  "kind": "authored summary, not an application screenshot",
+  "metadata_revalidation": {
+    "source": "docs/archive-dossiers.md",
+    "previous_source_sha256_lf": "a80aa9ba8819d2c88abb6f772a9f0d97ac9c6bcac260d06b63b65f9c8aa11d83",
+    "current_source_sha256_lf": "20e7b856b5a30b3b704cdb219c73447eb325945a5c7436dbdb27245718e4822e",
+    "previous_receipt_sha256": "730075dca78dbc96d0aaf553a31546021ab6f0392e5d90b7e0d6a2e540f2ba4e",
+    "painted_content_unchanged": true,
+    "png_bytes_unchanged": true,
+    "image_rerendered": false,
+    "scope": "The amended dossier guide now describes retained revision navigation. Authored card content, renderer, palette, PNG bytes and original font and layout evidence are unchanged. This is metadata revalidation, not a new render or visual inspection."
+  }
 }
