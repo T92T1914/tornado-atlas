@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base,detail,photo} from './harness.mjs';
@@ -121,6 +122,32 @@ for(const scenario of cases)test(`touch source and retained evidence journey ${s
     const input=await page.evaluate(()=>({layoutViewportWidth:innerWidth,layoutViewportHeight:innerHeight,visualViewportWidth:visualViewport?.width,visualViewportHeight:visualViewport?.height,documentWidth:document.documentElement.scrollWidth,touchPoints:navigator.maxTouchPoints,coarsePointer:matchMedia('(pointer:coarse)').matches,reducedMotion:matchMedia('(prefers-reduced-motion:reduce)').matches,textFixtureApplied:document.body.dataset.touchTextEnlarged==='true',userAgent:navigator.userAgent}));
     input.configuredViewport={...scenario.viewport};
     await writeFile(path.join(process.env.ATLAS_SCREENSHOT_DIR,`touch-${entry.id}.json`),JSON.stringify({scenario,input,assertedActionRects:actionRects.get(page),emulatedTouchEvents:touch.length,filteredPath:new URL(filtered).pathname+new URL(filtered).search,currentRevision:row.dossier_sha256,retainedRevision:retained.dossier_sha256,exactDownloads:2},null,2)+'\n');
+  }
+});
+
+for(const scenario of cases)test(`touch source record export ${scenario.name}`,async t=>{
+  const page=await fixture(t,{viewport:scenario.viewport,isMobile:true,hasTouch:true,reducedMotion:'reduce',acceptDownloads:true});
+  const entry=index.events.find(row=>row.id===scenario.event),id=entry.records[0];
+  const prefix=createHash('sha256').update(id).digest('hex').slice(0,2);
+  const shard=JSON.parse(await readFile(new URL('../../web/catalogue/'+index.record_shards[prefix],import.meta.url),'utf8'));
+  const record=shard[id],expected=Buffer.from(JSON.stringify(record,null,2)+'\n');
+  assert.equal(record.id,id);
+  await page.goto(base+'/dossier.html?record='+encodeURIComponent(id));await ready(page,scenario);
+  assert.match(await page.locator('#content').textContent(),/This source record may describe a county segment/);
+  const download=page.getByRole('button',{name:'Download source record metadata',exact:true});
+  await touchAction(page,download);
+  const [exported]=await Promise.all([page.waitForEvent('download'),download.tap()]);
+  assert.equal(exported.suggestedFilename(),id.replace(':','-')+'.json');
+  assert.equal(await exported.failure(),null);
+  assert.deepEqual(await readFile(await exported.path()),expected);
+  if(process.env.ATLAS_SCREENSHOT_DIR){
+    await mkdir(process.env.ATLAS_SCREENSHOT_DIR,{recursive:true});
+    const name='record-export-'+entry.id;
+    await download.scrollIntoViewIfNeeded();
+    await page.screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,name+'.png')});
+    await writeFile(path.join(process.env.ATLAS_SCREENSHOT_DIR,name+'.json'),JSON.stringify({scenario,
+      record:id,sourceShard:index.record_shards[prefix],assertedActionRects:actionRects.get(page),
+      bytes:expected.length,sha256:createHash('sha256').update(expected).digest('hex'),exactExport:true},null,2)+'\n');
   }
 });
 
