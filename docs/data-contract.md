@@ -30,9 +30,11 @@ Bad coordinates, negative dimensions, unrecognized ratings, equal reported start
 
 ## International extension
 
-Future adapters must retain original scale, value or interval, authority, language, classification certainty, source record IDs, and time/position uncertainty. F, EF, IF, JEF, and TORRO remain separate scales. Normalization must not manufacture equivalent measured wind speeds.
+Adapters must retain original scale, value or interval, authority, language, classification certainty, source record IDs, and time/position uncertainty. F, EF, IF, JEF, and TORRO remain separate scales. Normalization must not manufacture equivalent measured wind speeds.
 
 JMA's CSV has duplicate blank header cells and explicit codes for tornadoes, other gusts, and uncertain phenomena. Its format guide distinguishes -9999 (unset) and -8888 (unknown); retain those meanings in the source record. Some casualty/damage values have shared-count flags. Do not sum those into national totals without reconciling the shared scope.
+
+The [local JMA adapter](jma-adapter.md) retains every ordered case in a separate case table. Only explicitly classified tornadoes enter ordinary tornado search. F/JEF intervals, original Japanese labels, reported uncertainty and shared-count scope remain available. It does not update the current static atlas export.
 
 ## Static atlas publication
 

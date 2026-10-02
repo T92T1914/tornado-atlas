@@ -25,7 +25,7 @@ photographs and rights records; a catalogue record alone does not supply them.
 ## Catalogue work
 
 * US imports now cover every year from 1950 through 2025. Next, review historical naming and source anomalies while preserving record-versus-event distinctions.
-* Implement JMA classification, sentinel values, encoding and rating conventions. Preserve uncertain and non-tornado phenomena without mixing them into confirmed tornado counts.
+* The local JMA adapter retains classifications, sentinel values, ordered source rows and F/JEF intervals. Continue with a reviewed browser export and presentation of those uncertainties. Keep ambiguous and non-tornado gust cases separate from confirmed tornado counts.
 * Investigate international research datasets and reuse terms before adding further adapters.
 * Group county segments only with supporting identifiers or reviewed reasoning.
 
