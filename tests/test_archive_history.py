@@ -6,7 +6,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from atlas.archive import build, digest, dossier_changes, dossier_history, dossiers, publication
+from atlas.archive import (build, digest, dossier_changes, dossier_history, dossiers,
+                           evidence, publication, source, validate_dossier)
 from atlas.publication import write_json
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -114,6 +115,132 @@ class ArchiveHistoryTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'immutable'):
                     build(root)
             self.assertEqual(path.read_bytes(), raw)
+
+
+class CanonicalHistoryValuesTests(unittest.TestCase):
+    @staticmethod
+    def dossier():
+        return dict(schema_version=1, id='synthetic-history', title='Synthetic history',
+                    coverage='Dossier', summary='One inert correction journey.',
+                    records=[], routes=[], creators=[], observations=[],
+                    sources=[source('source', 'Synthetic source', 'https://example.com/source',
+                                    'Fixture locator', 'Fixture only', 'Fixture revision')],
+                    media=[evidence('sample', 'Synthetic media', 'source', 'Fixture locator',
+                                    'Synthetic account.', 'No historical claim.',
+                                    kind='photograph', url='https://example.com/source',
+                                    roles=dict(creator=None, uploader=None, rights_holder=None),
+                                    parent=None, transformation={'sample_count': 1})],
+                    reconstruction={'appearance': 'unregistered', 'intervals': [],
+                                    'limits': 'Fixture only.'}, provenance={'adapter': 'fixture'})
+
+    def test_valid_nested_media_type_changes_follow_canonical_identity(self):
+        for old, new in [(1, True), (1, 1.0), (0.0, -0.0)]:
+            with self.subTest(old=repr(old), new=repr(new)):
+                before = self.dossier()
+                before['media'][0]['transformation'] = {'sample_count': old}
+                after = copy.deepcopy(before)
+                after['media'][0]['transformation'] = {'sample_count': new}
+                validate_dossier(before)
+                validate_dossier(after)
+                self.assertNotEqual(digest(before), digest(after))
+                self.assertEqual(dossier_changes(before, after), [
+                    dict(kind='media', id='sample', change='updated', fields=['transformation'])])
+
+    def test_valid_video_number_forms_change_history_without_admitting_booleans(self):
+        before = self.dossier()
+        before['media'][0]['time']['video'] = {'start_seconds': 0, 'end_seconds': 1}
+        after = copy.deepcopy(before)
+        after['media'][0]['time']['video']['end_seconds'] = 1.0
+        validate_dossier(before)
+        validate_dossier(after)
+        self.assertEqual(dossier_changes(before, after), [
+            dict(kind='media', id='sample', change='updated', fields=['time'])])
+        after['media'][0]['time']['video']['end_seconds'] = True
+        with self.assertRaisesRegex(ValueError, 'Video presentation bounds'):
+            validate_dossier(after)
+
+    def test_mapping_order_and_publication_provenance_do_not_invent_field_changes(self):
+        before = self.dossier()
+        before['media'][0]['transformation'] = {'a': 1, 'b': {'x': None, 'y': [1, True]}}
+        after = copy.deepcopy(before)
+        after['media'][0]['transformation'] = {'b': {'y': [1, True], 'x': None}, 'a': 1}
+        after['provenance']['synthetic_review'] = 'Deliberately outside the field comparison.'
+        validate_dossier(before)
+        validate_dossier(after)
+        self.assertEqual(dossier_changes(before, before), [])
+        self.assertEqual(dossier_changes(before, after), [])
+
+    def test_nested_missing_and_null_remain_distinct_valid_metadata(self):
+        before = self.dossier()
+        before['media'][0]['transformation'] = {}
+        after = copy.deepcopy(before)
+        after['media'][0]['transformation'] = {'sample_count': None}
+        validate_dossier(before)
+        validate_dossier(after)
+        expected = [dict(kind='media', id='sample', change='updated', fields=['transformation'])]
+        self.assertEqual(dossier_changes(before, after), expected)
+        self.assertEqual(dossier_changes(after, before), expected)
+
+    def test_comparison_helper_distinguishes_absent_row_field_without_weakening_validation(self):
+        present = self.dossier()
+        absent = copy.deepcopy(present)
+        absent['media'][0].pop('parent')
+        with self.assertRaisesRegex(ValueError, 'Unexpected evidence fields'):
+            validate_dossier(absent)
+        expected = [dict(kind='media', id='sample', change='updated', fields=['parent'])]
+        self.assertEqual(dossier_changes(absent, present), expected)
+        self.assertEqual(dossier_changes(present, absent), expected)
+
+    def test_dossier_values_follow_the_same_canonical_contract(self):
+        before = self.dossier()
+        before['reconstruction']['limits'] = {'sample_count': 1}
+        after = copy.deepcopy(before)
+        after['reconstruction']['limits']['sample_count'] = True
+        validate_dossier(before)
+        validate_dossier(after)
+        self.assertEqual(dossier_changes(before, after), [
+            dict(kind='dossier', id='synthetic-history', change='updated', fields=['reconstruction'])])
+
+    def test_row_and_field_sorting_additions_and_removals_remain_stable(self):
+        before = self.dossier()
+        first = evidence('a-kept', 'Synthetic observation', 'source', 'Fixture locator',
+                         'Initial account.', 'Fixture only.', review={'sample_count': 1})
+        last = copy.deepcopy(first)
+        last['id'] = 'z-removed'
+        before['observations'] = [last, first]
+        after = copy.deepcopy(before)
+        kept = after['observations'][1]
+        kept['review']['sample_count'] = True
+        kept['account'] = 'Corrected synthetic account.'
+        added = copy.deepcopy(first)
+        added['id'] = 'm-added'
+        after['observations'] = [added, kept]
+        validate_dossier(before)
+        validate_dossier(after)
+        self.assertEqual(dossier_changes(before, after), [
+            dict(kind='observations', id='a-kept', change='updated', fields=['account', 'review']),
+            dict(kind='observations', id='m-added', change='added', fields=[]),
+            dict(kind='observations', id='z-removed', change='removed', fields=[])])
+
+    def test_retained_history_reports_the_valid_correction_to_its_predecessor(self):
+        before = self.dossier()
+        after = copy.deepcopy(before)
+        after['media'][0]['transformation']['sample_count'] = True
+        after['provenance']['publication_review'] = {
+            'reviewer_kind': 'agent', 'reviewed_at': '2026-10-02T00:00:00Z',
+            'basis': 'Synthetic type correction with no historical claim.',
+            'candidate_sha256': digest(after), 'previous_dossier_sha256': digest(before)}
+        validate_dossier(before)
+        validate_dossier(after)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            write_json(root / 'web/archive' / f"{before['id']}-{digest(before)[:20]}.json", before)
+            history = dossier_history(after, root)
+        current = history['versions'][0]
+        self.assertEqual(current['dossier_sha256'], digest(after))
+        self.assertTrue(current['predecessor_available'])
+        self.assertEqual(current['changes'], [
+            dict(kind='media', id='sample', change='updated', fields=['transformation'])])
 
 
 if __name__ == '__main__':
