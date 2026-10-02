@@ -32,8 +32,6 @@ Related source-record links and creator pages continue to open the current catal
 
 Publication-review records retain their stated basis and predecessor identity. Field differences are calculated only when both snapshots are available. An absent predecessor remains an explicit gap, and a snapshot without a review record does not acquire an invented date or decision. The list puts the current dossier first and orders the rest by identifier. It is not a complete chronological history. Dossier identities remain separate from original source revisions and historical clock roles.
 
-Field comparisons use the same canonical JSON identity as dossier revisions. Boolean, integer and floating point forms remain distinct, while mapping key order does not create a correction. Publication provenance is outside this field list and remains recorded separately in the review.
-
 The archive builder validates retained dossier filenames against their content identities and leaves their existing bytes untouched. It rejects malformed retained evidence and attempted immutable replacement. The new revision list does not expand source inspection, media hosting rights or historical registration.
 
 The public renderer creates text nodes for imported content. It does not interpret source text as HTML or instructions. External links use HTTPS source validation. Local and private address literals are rejected. These mechanical checks do not replace a curator's privacy and rights review before publication. No private notes or original EXIF belong in the public dossier schema.

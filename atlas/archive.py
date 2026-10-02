@@ -347,7 +347,12 @@ def promote_candidate(path, basis, root=ROOT):
 
 
 def dossier_changes(before, after):
-    """Describe retained field differences without inferring a correction's cause."""
+    """Describe retained field differences without inferring a correction's cause.
+
+    Field values use canonical JSON identity. Numeric and boolean forms remain
+    distinct, while mapping key order is neutral. Publication provenance is
+    outside this field list and remains recorded in its separate review.
+    """
     changes = []
     for kind in ('sources', 'observations', 'media', 'creators', 'records'):
         old = {row['id']: row for row in before[kind]}
