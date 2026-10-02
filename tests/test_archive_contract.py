@@ -46,6 +46,24 @@ class ArchiveContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_dossier(doc)
 
+    def test_dossier_title_rejects_nontext_values(self):
+        for value in (None, False, True, 123, 1.5, [], ['title'], {}, {'title': 'text'}):
+            with self.subTest(title=value):
+                doc = specimen()
+                doc['title'] = value
+                with self.assertRaisesRegex(ValueError, '^Dossier title must be text$'):
+                    validate_dossier(doc)
+
+    def test_dossier_title_preserves_text_without_normalization(self):
+        for title in ('Synthetic title', 'Unicode title Ω 測', 'Cafe\u0301', '', '  title  ', ' '):
+            with self.subTest(title=title):
+                doc = specimen()
+                doc['title'] = title
+                before = copy.deepcopy(doc)
+                self.assertIs(validate_dossier(doc), doc)
+                self.assertEqual(doc, before)
+                self.assertEqual(doc['title'].encode('utf-8'), title.encode('utf-8'))
+
     def test_independent_restrictions_do_not_erase_a_valid_observation(self):
         doc = specimen()
         doc['media'][0]['status'].update(assertion='observed_sample', rights='restricted',
