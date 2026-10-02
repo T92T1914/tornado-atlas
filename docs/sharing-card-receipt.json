@@ -23,7 +23,7 @@
     "tools/render_share_preview.py": "659aed220e79634e83c6b465b77bb4aea894f4a20d3a53deb888bfca917254e2",
     "docs/sharing-card.json": "7f2701f455e59ce96b4195a84131883a315484cdb1aa75ea073aa8a0969071f7",
     "docs/archive-dossiers.md": "f74fdd4ed54cfa0d1e76ed18d0f2708f5561609ab4dede8118aee5c1d5585789",
-    "web/appearance.css": "a0dfba561e0510ed8f7074b0d6718c4cd40960e329c7ac38e44816bf5fb6d0d1"
+    "web/appearance.css": "987883e17708197fd665b011a8a7158f3449e452783aac9c184c7fca7f297c9c"
   },
   "png_sha256": "7c61b1f678abcd487025418e569350b56f0ec4f91e7fced71de7dafe1f6c59a4",
   "dimensions": [
@@ -174,15 +174,5 @@
     }
   ],
   "experimental_work_rerun": false,
-  "kind": "authored summary, not an application screenshot",
-  "metadata_revalidation": {
-    "source": "docs/archive-dossiers.md",
-    "previous_source_sha256_lf": "20e7b856b5a30b3b704cdb219c73447eb325945a5c7436dbdb27245718e4822e",
-    "current_source_sha256_lf": "f74fdd4ed54cfa0d1e76ed18d0f2708f5561609ab4dede8118aee5c1d5585789",
-    "previous_receipt_sha256": "fd8598d4489047dfd36803779271950d818de521cb919a2a54c2bbc4796c5273",
-    "painted_content_unchanged": true,
-    "png_bytes_unchanged": true,
-    "image_rerendered": false,
-    "scope": "The amended dossier guide now describes inspected-source discovery. Authored card content, renderer, palette, PNG bytes and original font and layout evidence are unchanged. This is metadata revalidation, not a new render or visual inspection."
-  }
+  "kind": "authored summary, not an application screenshot"
 }

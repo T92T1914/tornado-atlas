@@ -93,14 +93,16 @@ button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--se
 .explorable-map:focus-visible {outline:2px solid var(--text);outline-offset:3px}
 .map-tools {display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
 #path .map-tools,#path .map-tools + .fineprint {margin-left:24px;margin-right:24px}
-.report-contents {border:1px solid var(--line);padding:18px;margin:24px 0}
-.report-contents a {display:block;padding:7px 0}
+.report-contents {display:block;border:1px solid var(--line);padding:18px;margin:24px 0;font-size:14px}
+.report-contents strong {display:block;margin-bottom:8px}
+.report-contents a {display:flex;align-items:center;min-height:44px;padding:8px 0;line-height:1.5;overflow-wrap:anywhere}
 .place-record {margin:22px 0;padding:24px;border:1px solid var(--line);max-width:72ch}
 .place-kind {font-size:13px;font-weight:600;letter-spacing:.04em}
 .place-record:target {outline:2px solid var(--text);outline-offset:4px}
 input::placeholder {color:var(--muted);opacity:1}
 input,select {font-size:16px}
 .survey-record-links a,.survey-context a {display:inline-flex;align-items:center;min-height:44px}
+#damage #survey-observation {white-space:normal;min-height:44px}
 @media(prefers-reduced-motion:reduce) {
   *,*::before,*::after {scroll-behavior:auto!important;transition:none!important}
   .survey-photo-strip {scroll-snap-type:none}
