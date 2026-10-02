@@ -1,4 +1,5 @@
 import copy
+from contextlib import nullcontext
 import http.client
 import json
 from pathlib import Path
@@ -6,6 +7,7 @@ import tempfile
 import threading
 import unittest
 from unittest.mock import patch
+from urllib.parse import urlsplit
 
 from atlas.archive import digest, dossiers, validate_dossier
 from atlas.curator import App, Conflict, MAX_BODY, MAX_DRAFT, ROOT, Store, candidate, decode, encoded, intake, server
@@ -392,27 +394,44 @@ class CuratorTests(unittest.TestCase):
         self.assertEqual(self.store.load(saved['draft']['id']), saved)
         extra = copy.deepcopy(saved['draft'])
         extra['id'] = 'http-before-invalid-port'
-        for invalid_url, message in (
-            ('https://example.org:65536/source', 'Source URL port'),
-            ('https://[::ffff:8.8.8.8]suffix:443/source', 'Bracketed source host'),
-            ('https://prefix[::ffff:8.8.8.8]:443/source', 'Bracketed source host'),
+        saved_bytes = self.store.path(saved['draft']['id']).read_bytes()
+        bracket_errors = ('Bracketed source host must occupy the complete host part',
+                          'Invalid IPv6 URL')
+        for invalid_url, expected_errors in (
+            ('https://example.org:65536/source',
+             ('Source URL port must be a number from 0 to 65535',)),
+            ('https://[::ffff:8.8.8.8]suffix:443/source', bracket_errors),
+            ('https://prefix[::ffff:8.8.8.8]:443/source', bracket_errors),
         ):
             bad = copy.deepcopy(saved['draft'])
             bad['dossier']['sources'][0]['url'] = invalid_url
-            for route, payload in (
-                ('/api/intake', {'draft': saved['draft'], 'revision': saved['revision'],
-                                 'item': sample() | {'url': invalid_url}}),
-                ('/api/save', {'draft': bad, 'revision': saved['revision']}),
-                ('/api/candidate', {'draft': bad}),
-                ('/api/restore', {'schema_version': 1, 'kind': 'private-curator-backup',
-                                  'drafts': [extra, bad]}),
-            ):
-                with self.subTest(route=route, url=invalid_url):
-                    status, raw = request('POST', route, payload)
-                    self.assertEqual(status, 400)
-                    self.assertIn(message, json.loads(raw)['error'])
-                    self.assertEqual(self.store.load(saved['draft']['id']), saved)
-                    self.assertFalse(self.store.path(extra['id']).exists())
+            for early_parser_rejection in ((False, True) if '[' in invalid_url else (False,)):
+                def parse_source_url(value):
+                    # Patched Python versions reject the malformed bracket authority first.
+                    if early_parser_rejection and value == invalid_url:
+                        raise ValueError('Invalid IPv6 URL')
+                    return urlsplit(value)
+
+                parser = patch('atlas.archive.urlsplit', side_effect=parse_source_url) \
+                    if early_parser_rejection else nullcontext()
+                with parser:
+                    for route, payload in (
+                        ('/api/intake', {'draft': saved['draft'], 'revision': saved['revision'],
+                                         'item': sample() | {'url': invalid_url}}),
+                        ('/api/save', {'draft': bad, 'revision': saved['revision']}),
+                        ('/api/candidate', {'draft': bad}),
+                        ('/api/restore', {'schema_version': 1, 'kind': 'private-curator-backup',
+                                          'drafts': [extra, bad]}),
+                    ):
+                        with self.subTest(route=route, url=invalid_url,
+                                          early_parser_rejection=early_parser_rejection):
+                            status, raw = request('POST', route, payload)
+                            self.assertEqual(status, 400)
+                            errors = ('Invalid IPv6 URL',) if early_parser_rejection else expected_errors
+                            self.assertIn(json.loads(raw)['error'], errors)
+                            self.assertEqual(self.store.load(saved['draft']['id']), saved)
+                            self.assertEqual(self.store.path(saved['draft']['id']).read_bytes(), saved_bytes)
+                            self.assertFalse(self.store.path(extra['id']).exists())
         self.assertEqual(request('POST', '/api/save', {'draft': saved['draft'], 'revision': 'stale'})[0], 409)
         status, raw = request('POST', '/api/new', {'id': 'record-copy', 'kind': 'record', 'target': 'ncei:432342'})
         self.assertEqual(status, 201)
