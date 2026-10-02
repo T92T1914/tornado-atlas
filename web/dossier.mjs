@@ -1,4 +1,5 @@
 // Select one immutable dossier or one existing catalogue shard. Never preload media bytes.
+import {validateSourceDirectory,discoverSources} from './archive-discovery-model.mjs';
 const host=document.getElementById('content'), query=new URLSearchParams(location.search);
 const element=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 function link(text,url){const n=element('a',text),u=new URL(url,location.href);if(!['https:','http:'].includes(u.protocol))throw Error('Unsupported link');n.href=u.href;if(u.origin!==location.origin){n.rel='noopener noreferrer';n.target='_blank';}return n;}
@@ -10,6 +11,7 @@ function detail(title,value){const n=element('details');n.append(element('summar
 function links(rows){const n=element('nav',undefined,'archive-links');for(const row of rows)n.append(link(row.label,row.href));return n;}
 function listIndex(index){
   host.replaceChildren(element('h1','Follow an event into its evidence.'),element('p',`${index.coverage.current_source_records.toLocaleString()} US source records remain in the catalogue. These dossiers organize selected reviewed accounts. An empty evidence category means no reviewed item is linked here, not that no source exists.`));
+  if(index.source_directory)host.append(link('Browse inspected source cards',route({view:'sources'})),element('p','Search original source titles, locators and inspection records across the published dossiers.'));
   const form=element('form',undefined,'archive-tools');form.setAttribute('aria-label','Evidence discovery');
   const label=element('label','Search dossiers'),search=element('input');search.type='search';search.name='q';search.value=query.get('q')||'';label.append(search);
   const kindLabel=element('label','Evidence available'),kind=element('select');kind.name='evidence';
@@ -20,6 +22,36 @@ function listIndex(index){
   for(const e of rows){const card=element('article',undefined,'archive-card');card.append(element('p',e.coverage,'eyebrow'),element('h2',e.title),element('p',e.summary),link('Open evidence dossier',route({event:e.id})),element('p','Reviewed categories: '+e.evidence.join(', ')));grid.append(card);}host.append(grid);
   if(!rows.length)host.append(element('p','No reviewed dossier meets these filters. This is a coverage gap, not a finding that such evidence does not exist.'),link('Clear evidence filters','dossier.html'));
   host.append(element('h2','Start with a source record'),element('p','The same record view works across the imported catalogue. Wybark is a deliberately sparse example with a short official account and no reviewed event association.'),link('Wybark, Oklahoma · March 30, 2013',route({record:index.sparse_example})),detail('What the coverage descriptions mean',index.coverage_definitions));
+}
+async function showSources(index){
+  const reference=index.source_directory;
+  if(!reference||!/^archive\/sources-[0-9a-f]{20}\.json$/.test(reference.file))throw Error('No source directory is available in this archive publication.');
+  const directory=validateSourceDirectory(await json(reference.file),index);
+  document.title='Inspected source cards | Tornado Atlas';
+  host.replaceChildren(link('All evidence dossiers','dossier.html'),element('h1','Find an inspected source.'),element('p',directory.scope));
+  const form=element('form',undefined,'archive-tools');form.setAttribute('aria-label','Source discovery');form.method='get';
+  const view=element('input');view.type='hidden';view.name='view';view.value='sources';
+  const label=element('label','Search source cards'),search=element('input');search.type='search';search.name='q';search.value=query.get('q')||'';label.append(search);
+  const eventLabel=element('label','Dossier'),event=element('select');event.name='scope';
+  for(const row of [{id:'',title:'All published dossiers'},...index.events]){const option=element('option',row.title);option.value=row.id;event.append(option);}
+  const scope=query.get('scope')||'';
+  if(scope&&!index.events.some(row=>row.id===scope))throw Error('That dossier is not in this source directory. Browse the archive to find a published event.');
+  event.value=scope;eventLabel.append(event);
+  form.append(view,label,eventLabel,element('button','Find sources'));host.append(form);
+  const rows=discoverSources(directory,{query:search.value,event:scope});
+  host.append(element('p',`${rows.length} of ${directory.entries.length} inspected source cards match. These are selected dossier records, not a complete archive of original sources.`));
+  const grid=element('div',undefined,'archive-grid');grid.id='source-results';
+  for(const row of rows){
+    const source=row.source,card=element('article',undefined,'archive-card');
+    card.append(element('p',row.event_title,'eyebrow'),element('h2',source.title),element('p','Locator: '+source.locator),
+      element('p','Inspection scope: '+source.access),element('p','Source revision: '+source.revision),element('p','Rights: '+source.rights),
+      element('p',`${row.observations} linked observations; ${row.media} linked media records.`),
+      link('Open source and its evidence',route({event:row.event_id,source:source.id,revision:row.dossier_sha256})+'#source-'+source.id),
+      document.createTextNode(' '),link('Read original source',source.url));
+    grid.append(card);
+  }
+  host.append(grid);
+  if(!rows.length)host.append(element('p','No inspected source card meets these filters. Sources may exist outside this reviewed collection.'),link('Clear source filters',route({view:'sources'})));
 }
 function evidenceCard(item,doc,type,version){
   const card=element('article',undefined,'archive-card');card.id=`${type}-${item.id}`;
@@ -105,7 +137,8 @@ async function showRecord(index,id){
 }
 async function main(){
   const index=await json('archive/index.json');
-  if(query.has('record'))await showRecord(index,query.get('record'));
+  if(query.get('view')==='sources')await showSources(index);
+  else if(query.has('record'))await showRecord(index,query.get('record'));
   else if(query.has('event')){
     const entry=index.events.find(e=>e.id===query.get('event'));if(!entry)throw Error('This event is not in the reviewed dossier index.');
     const history=entry.history_file?await json(entry.history_file):null;

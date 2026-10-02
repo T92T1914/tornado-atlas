@@ -21,6 +21,7 @@ jobs:
       - name: Check browser script
         run: |
           node --check web/dossier.mjs
+          node --test tests/archive-discovery-model.test.mjs
           node --check web/curator.mjs
           node --check web/app.js
           node --check web/appearance.js
