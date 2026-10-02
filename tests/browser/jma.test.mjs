@@ -112,7 +112,9 @@ test('failed collection keeps official sources and offers a successful reload',a
  assert.equal(await page.locator('#case-query').isEnabled(),false);
  await page.locator('.jma-source-note').first().locator('summary').click();
  assert.equal(await page.getByRole('link',{name:'JMA database and collection criteria'}).isVisible(),true);
- fail=false;await page.locator('#case-reload').click();await page.waitForFunction(()=>document.body.dataset.ready==='true');
+ fail=false;
+ await Promise.all([page.waitForEvent('domcontentloaded'),page.locator('#case-reload').click()]);
+ await page.waitForFunction(()=>document.body?.dataset.ready==='true');
  assert.equal(await page.locator('#case-query').isEnabled(),true);
  assert.equal(await page.locator('[data-case]').count(),20);
 });
