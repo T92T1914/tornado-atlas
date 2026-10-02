@@ -359,11 +359,12 @@ def dossier_changes(before, after):
                 changes.append(dict(kind=kind, id=identifier, change='removed', fields=[]))
             else:
                 fields = sorted(key for key in old[identifier].keys() | new[identifier].keys()
-                                if old[identifier].get(key) != new[identifier].get(key))
+                                if key not in old[identifier] or key not in new[identifier]
+                                or digest(old[identifier][key]) != digest(new[identifier][key]))
                 if fields:
                     changes.append(dict(kind=kind, id=identifier, change='updated', fields=fields))
     for key in ('title', 'coverage', 'summary', 'routes', 'reconstruction'):
-        if before[key] != after[key]:
+        if digest(before[key]) != digest(after[key]):
             changes.append(dict(kind='dossier', id=after['id'], change='updated', fields=[key]))
     return changes
 
