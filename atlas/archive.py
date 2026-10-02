@@ -87,6 +87,8 @@ def _validate_dossier(doc):
                 'creators', 'sources', 'observations', 'media', 'reconstruction', 'provenance'}
     if set(doc) != required or doc['schema_version'] != 1:
         raise ValueError('Unsupported dossier fields or version')
+    if not isinstance(doc['title'], str):
+        raise ValueError('Dossier title must be text')
     if not re.fullmatch('[a-z0-9]+(?:-[a-z0-9]+)*', doc['id']):
         raise ValueError('Invalid dossier identity')
     if doc['coverage'] not in {'Catalogued', 'Dossier', 'Exhibit', 'Reconstruction'}:
