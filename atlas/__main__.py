@@ -23,6 +23,8 @@ def main():
     cases = commands.add_parser("jma-cases", help="Read retained gust cases without counting them as confirmed tornadoes")
     cases.add_argument("--classification-code", help="Original JMA phenomenon code, for example 6 for unknown")
     cases.add_argument("--limit", type=int, default=20)
+    publish_jma = commands.add_parser("publish-jma", help="Publish reviewed Japanese source cases separately from the US map")
+    publish_jma.add_argument("--output", type=Path, default=Path("outputs/jma-cases"))
     commands.add_parser("stats")
     find = commands.add_parser("search")
     find.add_argument("query", nargs="?", default="")
@@ -57,6 +59,9 @@ def main():
             result = import_jma(connection, metadata, data_dir=args.data_dir)
         elif args.command == "jma-cases":
             result = search_jma_cases(connection, classification_code=args.classification_code, limit=args.limit)
+        elif args.command == "publish-jma":
+            from .jma_publication import export_jma_cases
+            result = export_jma_cases(connection, args.output, data_dir=args.data_dir)
         elif args.command == "stats":
             result = stats(connection)
         elif args.command == "search":
