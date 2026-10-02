@@ -13,7 +13,8 @@
 <div><label>Saved private drafts<select id="draft-choice"><option value="">Choose a saved draft</option></select></label><button id="reopen" type="button">Reopen draft</button></div></div></section>
 <div id="workspace" hidden><section aria-labelledby="current-title"><h2 id="current-title"></h2><p id="target-context"></p><p id="revision"></p>
 <label>Private notes<textarea id="private-notes" rows="3" maxlength="30000" placeholder="Research questions or permission notes. Excluded from the publication candidate."></textarea></label>
-<div class="actions"><button id="save" type="button">Save draft</button><button id="preview" type="button">Validate and preview candidate</button><button id="download" type="button" disabled>Download candidate JSON</button></div>
+<div class="actions"><button id="save" type="button">Save draft</button><button id="preview" type="button">Validate and preview candidate</button><button id="download" type="button" disabled>Download candidate JSON</button><button id="backup-draft" type="button">Download saved draft backup</button></div>
+<p>Saved draft backups contain private notes and intake records. Save current edits before downloading, and keep the backup in a private location.</p>
 <details><summary>Edit the full dossier and inspect disagreements</summary><p>This is the public candidate content. Keep attributed claims separate, retain competing source accounts and record their limitations. The validator preserves separate clock, position, review and rights fields. Private material belongs in the notes above.</p><label>Dossier JSON<textarea id="dossier-json" rows="16" spellcheck="false"></textarea></label></details>
 </section>
 <section aria-labelledby="intake-title"><h2 id="intake-title">Add a source lead or media annotation</h2><p>Intake records remain unreviewed and unregistered. A creator, uploader and rights holder are separate roles. This tool saves metadata and links only.</p>
