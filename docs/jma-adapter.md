@@ -30,6 +30,22 @@ Damage length is reported in units of 100 meters and width in meters. Minimum an
 
 JMA uses a mutable CSV address. The catalogue uses the retained response's timezone-bearing `Last-Modified` header as an observed revision order, with the content hash identifying the exact bytes. This is not a publisher-signed release identifier. Different bytes under the same observed revision are rejected for review. A newer imported revision replaces that source's current set, including removals, while older snapshots and every original case remain in the database. An empty or zero-confirmed-tornado revision also requires review.
 
-The existing NOAA revisions and source partitions remain intact. Country filtering distinguishes the local source records. This adapter does not itself update the deployed static atlas, supply complete national coverage or establish that all cases identify unique tornadoes. Browser publication needs a separately reviewed export and presentation of the Japanese classifications, intervals and uncertainties.
+The existing NOAA revisions and source partitions remain intact. Country filtering distinguishes the local source records. The US browser export refuses international records before writing files. Complete national coverage and identification of unique physical storms remain outside this adapter's contract.
+
+## Separate source-record browser
+
+`web/japan.html` reads a separate processed index and loads one immutable detail shard when a visitor selects a case. Its retained snapshot contains 2,912 source cases and 1,576 classification-code-1 tornado records. The default view shows code 1. The other phenomenon classes remain available without becoming confirmed tornadoes. Source names and labels retain Japanese text. Missing fields, intervals, minute and angular uncertainties, shared-impact cells and the unresolved wind unit remain readable. No coordinates are placed on an assumed basemap.
+
+```text
+python -m atlas publish-jma --output web/jma-cases
+```
+
+This command makes no network request. It opens one current-source read transaction, verifies the cached source hash and byte count, normalizes every original row again and compares it with the saved case. A mismatched row, invalid source identity or caller's pending transaction refuses before output. A pending caller transaction is neither committed nor rolled back. The exporter limits the collection to 10,000 cases and the combined processed index and detail bytes to 64 MB. Those are packaging bounds, not completeness claims.
+
+All validation finishes before writing. Detail filenames include their content hash. Existing detail objects remain available, and the canonical plain JSON index is written last. Each file replacement is atomic. The output directory as a whole is not a filesystem transaction. A failed write can leave unused immutable objects or a newer gzip companion while the previous plain index remains current. The browser uses the plain index and its referenced detail files. The gzip companion is an optional download, not a separate synchronization contract.
+
+The export's source metadata contains public URLs, the exact original CSV hash, retrieval time and observed revision. It does not include local cache paths. Original raw rows remain in the local archive. Published detail objects identify the transformation and JMA attribution rather than claiming to be unmodified government output.
+
+Search, phenomenon, rating, selected case and results/record view travel in the address. Reload and Back/Forward restore that state. A selected case outside the filters remains available with a notice. The list renders at most 20 entries per page. A failed detail load preserves its original source link and offers a retry. An older request cannot replace a newer selection. At narrow widths, results and record are separate views with the same selection. Clair/Obscur uses the existing appearance controls and typography.
 
 Source: Japan Meteorological Agency. The adapter transforms the source format and classifications for the Tornado Atlas local catalogue. JMA's [use terms](https://www.jma.go.jp/jma/kishou/info/coment.html) refer to the [Public Data License 1.0](https://www.digital.go.jp/resources/open_data/public_data_license_v1.0), subject to its attribution and third-party-rights exceptions. This implementation is not a JMA publication or endorsement. The source's stated collection criteria and possible revisions remain relevant to any comparison of years or countries.
