@@ -44,10 +44,12 @@ async function privateApi(page,route,payload,sessionUrl=url){
 }
 async function newDraft(page,id){await page.locator('#new-id').fill(id);await page.locator('#event-choice').selectOption('el-reno-2013');await page.getByRole('button',{name:'Start event draft',exact:true}).click();await page.waitForFunction(()=>!document.getElementById('workspace').hidden&&!document.querySelector('main').hasAttribute('aria-busy'));}
 async function fitsReadingWidth(page,context){
+  const configuredWidth=page.viewportSize().width;
   await page.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
   const bounds=await page.evaluate(()=>({viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
     overflowing:[...document.querySelectorAll('body *')].flatMap(el=>{const rect=el.getBoundingClientRect();return rect.width>0&&(rect.right>innerWidth+.5||rect.left<-.5||el.scrollWidth>el.clientWidth+1)?[{tag:el.tagName,id:el.id,name:el.getAttribute('name'),class:el.className,control:el.querySelector('input,select,textarea')?.id,text:el.childNodes[0]?.textContent?.slice(0,80),left:rect.left,right:rect.right,width:rect.width,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,font:getComputedStyle(el).font}]:[];}).slice(0,30)}));
   assert.ok(bounds.documentWidth<=bounds.viewport,JSON.stringify({context,...bounds},null,2));
+  assert.ok(bounds.documentWidth<=configuredWidth+1,JSON.stringify({context,configuredWidth,...bounds},null,2));
 }
 
 test('real retained media survives private save, idempotent intake, preview and candidate download',async t=>{
@@ -216,10 +218,17 @@ test('fallback font metrics and larger text do not widen the private research de
   const page=await pageFor(t,390);await newDraft(page,'fallback-width-review');
   const labels=await page.locator('#draft-choice option').allTextContents();
   assert.ok(labels.includes('El Reno, Oklahoma · May 31, 2013 (fallback-width-review)'));
-  for(const family of ['Arial, sans-serif','Georgia, serif','monospace'])for(const size of [16,24]){
+  await page.getByRole('button',{name:'Validate and preview candidate',exact:true}).click();await page.locator('#candidate-panel').waitFor({state:'visible'});
+  const headings=await page.locator('main h2').allTextContents(),dossier=await page.locator('#dossier-json').inputValue(),candidate=await page.locator('#candidate-json').textContent();
+  for(const width of [390,320])for(const family of ['Arial, sans-serif','Georgia, serif','monospace'])for(const size of [16,24,32])for(const appearance of ['dark','light']){
+    await page.setViewportSize({width,height:900});await page.locator('#reading-appearance').selectOption(appearance);
     await page.evaluate(({family,size})=>{document.documentElement.style.setProperty('--interface-font',family);document.body.style.fontSize=`${size}px`;},{family,size});
-    await fitsReadingWidth(page,`${family} ${size}px`);
+    await fitsReadingWidth(page,`${width}px ${family} ${size}px ${appearance}`);
+    const headingBounds=await page.locator('#intake-title,#preview-title').evaluateAll(elements=>elements.map(el=>({id:el.id,text:el.textContent,clientWidth:el.clientWidth,scrollWidth:el.scrollWidth,font:getComputedStyle(el).font,overflowX:getComputedStyle(el).overflowX})));
+    if(width===320&&family==='monospace'&&size===32&&appearance==='dark')console.log(JSON.stringify({scope:'curator heading reflow',width,family,size,appearance,headingBounds}));
+    assert.ok(headingBounds.every(el=>el.scrollWidth<=el.clientWidth+1&&el.overflowX==='visible'),JSON.stringify({width,family,size,appearance,headingBounds}));
   }
+  assert.deepEqual(await page.locator('main h2').allTextContents(),headings);assert.equal(await page.locator('#dossier-json').inputValue(),dossier);assert.equal(await page.locator('#candidate-json').textContent(),candidate);
   assert.deepEqual(await page.locator('#draft-choice option').allTextContents(),labels);
   await page.locator('#draft-choice').focus();await page.locator('#draft-choice').press('Home');
   assert.equal(await page.locator('#draft-choice').inputValue(),'');
