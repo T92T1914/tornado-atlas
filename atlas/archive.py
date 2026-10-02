@@ -46,6 +46,14 @@ def public_url(value):
     parsed = urlsplit(value)
     if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
         raise ValueError('Expected a public HTTPS source URL')
+    try:
+        # Parsing alone does not validate a port; reading it checks its syntax and range.
+        _ = parsed.port
+    except ValueError as error:
+        raise ValueError('Source URL port must be a number from 0 to 65535') from error
+    if '[' in parsed.netloc or ']' in parsed.netloc:
+        if not re.fullmatch(r'\[[^\[\]]+\](?::[0-9]*)?', parsed.netloc):
+            raise ValueError('Bracketed source host must occupy the complete host part')
     if '%' in parsed.hostname or '\\' in parsed.netloc:
         raise ValueError('Encoded or backslash source hosts require an explicit public hostname')
     try:

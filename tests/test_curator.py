@@ -1,4 +1,5 @@
 import copy
+from contextlib import nullcontext
 import http.client
 import json
 from pathlib import Path
@@ -6,6 +7,7 @@ import tempfile
 import threading
 import unittest
 from unittest.mock import patch
+from urllib.parse import urlsplit
 
 from atlas.archive import digest, dossiers, validate_dossier
 from atlas.curator import App, Conflict, MAX_BODY, MAX_DRAFT, ROOT, Store, candidate, decode, encoded, intake, server
@@ -157,6 +159,51 @@ class CuratorTests(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(ValueError):
                 intake(self.draft, sample() | {'url': url})
             self.assertEqual(self.draft, original)
+
+    def test_invalid_source_ports_cannot_intake_save_export_or_partially_restore(self):
+        saved = self.store.save(self.draft, None)
+        before = self.store.path(self.draft['id']).read_bytes()
+        original = copy.deepcopy(self.draft)
+        extra = copy.deepcopy(self.draft)
+        extra['id'] = 'before-invalid-port'
+        for url in ('https://example.org:65536/source', 'https://example.org:abc/source',
+                    'https://[::ffff:8.8.8.8]suffix:443/source',
+                    'https://prefix[::ffff:8.8.8.8]:443/source'):
+            with self.subTest(url=url):
+                with self.assertRaises(ValueError):
+                    intake(self.draft, sample() | {'url': url})
+                self.assertEqual(self.draft, original)
+                bad = copy.deepcopy(self.draft)
+                bad['dossier']['sources'][0]['url'] = url
+                with self.assertRaises(ValueError):
+                    candidate(bad)
+                with self.assertRaises(ValueError):
+                    self.store.save(bad, saved['revision'])
+                with self.assertRaises(ValueError):
+                    self.store.restore({'schema_version': 1, 'kind': 'private-curator-backup',
+                                        'drafts': [extra, bad]})
+                self.assertFalse(self.store.path(extra['id']).exists())
+                self.assertEqual(self.store.path(self.draft['id']).read_bytes(), before)
+                self.assertEqual(self.store.load(self.draft['id']), saved)
+
+    def test_valid_source_ports_survive_private_save_and_candidate_export(self):
+        url = 'https://example.org:8443/source%20notes?loc=%31#figure-1'
+        changed, added = intake(self.draft, sample() | {'url': url})
+        self.assertTrue(added)
+        saved = self.store.save(changed, None)
+        reopened = self.store.load(changed['id'])
+        self.assertEqual(reopened, saved)
+        repeated, added = intake(reopened['draft'], sample() | {'url': url})
+        self.assertFalse(added)
+        self.assertEqual(repeated, changed)
+        exported = candidate(reopened['draft'])
+        self.assertEqual(exported['dossier']['sources'][-1]['url'], url)
+        media = exported['dossier']['media'][-1]
+        self.assertEqual(media['url'], url)
+        self.assertEqual(media['status'], changed['dossier']['media'][-1]['status'])
+        self.assertIsNone(media['time']['alignment'])
+        self.assertIsNone(media['place']['coordinates'])
+        self.assertNotIn('Private permission question', json.dumps(exported))
 
     def test_export_is_candidate_with_base_and_no_private_notes(self):
         original = copy.deepcopy(self.draft)
@@ -345,6 +392,46 @@ class CuratorTests(unittest.TestCase):
         self.assertEqual(json.loads(raw), {'schema_version': 1, 'kind': 'private-curator-backup',
                                           'drafts': [saved['draft']]})
         self.assertEqual(self.store.load(saved['draft']['id']), saved)
+        extra = copy.deepcopy(saved['draft'])
+        extra['id'] = 'http-before-invalid-port'
+        saved_bytes = self.store.path(saved['draft']['id']).read_bytes()
+        bracket_errors = ('Bracketed source host must occupy the complete host part',
+                          'Invalid IPv6 URL')
+        for invalid_url, expected_errors in (
+            ('https://example.org:65536/source',
+             ('Source URL port must be a number from 0 to 65535',)),
+            ('https://[::ffff:8.8.8.8]suffix:443/source', bracket_errors),
+            ('https://prefix[::ffff:8.8.8.8]:443/source', bracket_errors),
+        ):
+            bad = copy.deepcopy(saved['draft'])
+            bad['dossier']['sources'][0]['url'] = invalid_url
+            for early_parser_rejection in ((False, True) if '[' in invalid_url else (False,)):
+                def parse_source_url(value):
+                    # Patched Python versions reject the malformed bracket authority first.
+                    if early_parser_rejection and value == invalid_url:
+                        raise ValueError('Invalid IPv6 URL')
+                    return urlsplit(value)
+
+                parser = patch('atlas.archive.urlsplit', side_effect=parse_source_url) \
+                    if early_parser_rejection else nullcontext()
+                with parser:
+                    for route, payload in (
+                        ('/api/intake', {'draft': saved['draft'], 'revision': saved['revision'],
+                                         'item': sample() | {'url': invalid_url}}),
+                        ('/api/save', {'draft': bad, 'revision': saved['revision']}),
+                        ('/api/candidate', {'draft': bad}),
+                        ('/api/restore', {'schema_version': 1, 'kind': 'private-curator-backup',
+                                          'drafts': [extra, bad]}),
+                    ):
+                        with self.subTest(route=route, url=invalid_url,
+                                          early_parser_rejection=early_parser_rejection):
+                            status, raw = request('POST', route, payload)
+                            self.assertEqual(status, 400)
+                            errors = ('Invalid IPv6 URL',) if early_parser_rejection else expected_errors
+                            self.assertIn(json.loads(raw)['error'], errors)
+                            self.assertEqual(self.store.load(saved['draft']['id']), saved)
+                            self.assertEqual(self.store.path(saved['draft']['id']).read_bytes(), saved_bytes)
+                            self.assertFalse(self.store.path(extra['id']).exists())
         self.assertEqual(request('POST', '/api/save', {'draft': saved['draft'], 'revision': 'stale'})[0], 409)
         status, raw = request('POST', '/api/new', {'id': 'record-copy', 'kind': 'record', 'target': 'ncei:432342'})
         self.assertEqual(status, 201)

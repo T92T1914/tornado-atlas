@@ -135,6 +135,51 @@ class ArchiveContractTests(unittest.TestCase):
                 self.assertIs(validate_dossier(doc), doc)
                 self.assertEqual(doc['sources'][0]['url'], url)
 
+    def test_invalid_ports_cannot_enter_source_or_media_links(self):
+        for port in ('65536', '99999', '-1', 'abc', '+443', '443.0'):
+            url = f'https://example.org:{port}/source'
+            with self.subTest(source_url=url):
+                self.rejected(lambda d: d['sources'][0].update(url=url))
+            with self.subTest(media_url=url):
+                self.rejected(lambda d: d['media'][0].update(url=url))
+
+    def test_valid_explicit_ports_preserve_original_source_links(self):
+        for port in ('0', '443', '0443', '8443', '65535', ''):
+            url = f'https://example.org:{port}/source%20notes?loc=%31#figure-1'
+            with self.subTest(url=url):
+                self.assertIsNone(public_url(url))
+                doc = specimen()
+                doc['sources'][0]['url'] = url
+                doc['media'][0]['url'] = url
+                self.assertIs(validate_dossier(doc), doc)
+                self.assertEqual(doc['sources'][0]['url'], url)
+                self.assertEqual(doc['media'][0]['url'], url)
+
+    def test_bracketed_source_hosts_reject_surrounding_authority_text(self):
+        for url in ('https://[::ffff:8.8.8.8]suffix:443/source',
+                    'https://prefix[::ffff:8.8.8.8]:443/source'):
+            with self.subTest(source_url=url):
+                self.rejected(lambda d: d['sources'][0].update(url=url))
+            with self.subTest(media_url=url):
+                self.rejected(lambda d: d['media'][0].update(url=url))
+
+    def test_bracketed_source_hosts_preserve_valid_ports_and_private_address_policy(self):
+        for suffix in ('', ':', ':0', ':443', ':0443', ':8443', ':65535'):
+            url = f'https://[::ffff:8.8.8.8]{suffix}/source%20notes?loc=%31#figure-1'
+            with self.subTest(url=url):
+                doc = specimen()
+                doc['sources'][0]['url'] = url
+                doc['media'][0]['url'] = url
+                self.assertIs(validate_dossier(doc), doc)
+                self.assertEqual(doc['sources'][0]['url'], url)
+                self.assertEqual(doc['media'][0]['url'], url)
+        for url in ('https://[::ffff:127.0.0.1]:443/source',
+                    'https://[::ffff:192.168.1.1]:/source',
+                    'https://[2606:4700:4700::1111]/source'):
+            with self.subTest(existing_rejected_url=url):
+                with self.assertRaises(ValueError):
+                    public_url(url)
+
     def test_source_metadata_requires_nonempty_text_before_publication(self):
         for field in ('title', 'url', 'locator', 'access', 'revision', 'rights', 'agent_processing'):
             for value in ('', None, False, True, 7, [], ['Figure 1'], {}, {'figure': 1}):
