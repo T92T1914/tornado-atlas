@@ -5,7 +5,7 @@ import {createReadStream} from 'node:fs';
 import {stat} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
-import {chromium,webkit} from 'playwright';
+import {chromium,webkit,firefox} from 'playwright';
 
 // Serve the checked-in exhibit in an owned loopback server. No user profile,
 // display capture, clipboard, media playback or external tile service is used.
@@ -27,8 +27,10 @@ before(async()=>{
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   base=`http://127.0.0.1:${server.address().port}`;
-  browser=await (process.env.ATLAS_BROWSER_ENGINE==='webkit'?webkit:chromium).launch({headless:true,
-    ...(process.env.ATLAS_BROWSER_ENGINE==='webkit'?{}:{chromiumSandbox:true,
+  const engine=process.env.ATLAS_BROWSER_ENGINE || 'chromium';
+  assert.ok(['chromium','webkit','firefox'].includes(engine),'Known isolated browser engine required');
+  browser=await ({chromium,webkit,firefox}[engine]).launch({headless:true,
+    ...(engine!=='chromium'?{}:{chromiumSandbox:true,
     ...(process.env.ATLAS_BROWSER_EXECUTABLE?{executablePath:process.env.ATLAS_BROWSER_EXECUTABLE}:
       process.env.ATLAS_BROWSER_CHANNEL?{channel:process.env.ATLAS_BROWSER_CHANNEL}:{}),
     args:['--mute-audio','--disable-gpu']}),});

@@ -10,9 +10,30 @@ class FootageTests(unittest.TestCase):
     def test_preserved_register_is_valid(self):
         validate_footage(self.data)
 
-    def test_player_rejects_unsupported_multiple_versions(self):
+    def test_player_rejects_duplicate_versions(self):
         self.data['sources'].append(copy.deepcopy(self.data['sources'][0]))
         with self.assertRaises(ValueError): validate_footage(self.data)
+
+    def test_two_sources_keep_separate_samples_at_the_same_second(self):
+        source = copy.deepcopy(self.data['sources'][0])
+        source.update(id='synthetic-other-source', video_id='abcdefghijk',
+                      url='https://www.youtube.com/watch?v=abcdefghijk')
+        anchor = copy.deepcopy(self.data['anchors'][0])
+        anchor.update(id='synthetic-other-anchor', source_id=source['id'], video_seconds=20)
+        self.data['sources'].append(source)
+        self.data['anchors'].insert(1, anchor)
+        validate_footage(self.data)
+        self.data['anchors'].insert(2, copy.deepcopy(anchor))
+        with self.assertRaisesRegex(ValueError, 'distinct'):
+            validate_footage(self.data)
+
+    def test_bounded_source_count_and_unknown_source_are_rejected(self):
+        self.data['anchors'][0]['source_id'] = 'not-in-register'
+        with self.assertRaisesRegex(ValueError, 'known source'):
+            validate_footage(self.data)
+        self.data['sources'] *= 9
+        with self.assertRaisesRegex(ValueError, 'one to eight'):
+            validate_footage(self.data)
 
     def test_rejects_invented_continuous_coverage(self):
         self.data['anchors'][0]['end_utc'] = self.data['anchors'][1]['utc']

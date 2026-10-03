@@ -200,11 +200,12 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   // usable-looking control whose handler still depends on uninitialized state.
   const [{PlaybackClock, preparePositions, positionAt}, {localStamp}, {mountCamera},
     {mountPlaces}, {mountMapNavigation}, {mountGeography}, {mountDocumentary},
-    {mountFootage}] = await Promise.all([
+    {mountFootage}, {replaySeconds,replayURL}] = await Promise.all([
     import('./playback-model.mjs'), import('./timeline-media-model.mjs'),
     import('./camera-view.mjs'), import('./places-view.mjs'),
     import('./map-navigation.mjs'), import('./geography-view.mjs'),
     import('./documentary-view.mjs'), import('./footage-view.mjs'),
+    import('./reconstruction-model.mjs'),
   ]);
   const svg = byId('map');
   const features = geojson.features;
@@ -261,27 +262,37 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   byId('path-fit').addEventListener('click',navigation.reset);
   const timed = preparePositions(positions), start = timed[0].stamp, end = timed.at(-1).stamp;
   const clock = new PlaybackClock((end-start)/1000);
+  clock.seek(replaySeconds(location.search,clock.duration,footage.anchors,start));
   let animation = null, lastChapter = null, lastText = null;
   const slider = byId('timeline');
   slider.max = clock.duration;
   byId('media-time').max = clock.duration;
-  function stop() {
+  function syncLocation(mode='replace',fragment=null) {
+    const original=new URL(location.href),url=replayURL(original.href,footage.event,clock.seconds,footage.anchors,start);
+    if(!original.searchParams.has('event'))url.searchParams.delete('event');
+    if(fragment)url.hash=fragment;
+    if(url.href!==location.href)history[mode==='push'?'pushState':'replaceState'](null,'',url);
+  }
+  function stop(save=true) {
     clock.pause(performance.now());
     if (animation !== null) cancelAnimationFrame(animation);
     animation = null; byId('play').textContent = 'Play timeline';
+    if(save)syncLocation();
   }
-  function seek(seconds) {stop(); clock.seek(seconds); update();}
+  function seek(seconds,{mode='push',fragment=null}={}) {stop(mode!==null); clock.seek(seconds); update(); if(mode)syncLocation(mode,fragment);}
   byId('published-position').addEventListener('change',event=>{if(event.target.value!=='')seek(Number(event.target.value));});
   const updateCamera = mountCamera(cameras, svg, project, start, end, seek);
   const updateDocumentary=mountDocumentary(documentary,media,cameras,svg,project,start,end,seek,footage);
-  const updateFootage=mountFootage(footage,start,seek,stop);
+  const updateFootage=mountFootage(footage,start,seconds=>seek(seconds,{mode:'replace'}),stop,{restoreInitialMoment:false,onMomentSelect:anchor=>seek((Date.parse(anchor.utc)-start)/1000,{fragment:'registered-footage'})});
+  byId('footage-source').addEventListener('change',()=>{update();syncLocation();});
+  window.addEventListener('popstate',()=>{seek(replaySeconds(location.search,clock.duration,footage.anchors,start),{mode:null});syncLocation();});
   function update() {
     const selected = positionAt(timed, clock.seconds), [x,y] = project(selected.coordinates);
     for (const element of [halo,core]) {element.setAttribute('cx',x);element.setAttribute('cy',y);}
     // Expiry checks run on every frame, including between displayed whole seconds.
     updateCamera(selected.utc);
-    updateDocumentary(selected.utc);
     updateFootage(selected.utc);
+    updateDocumentary(selected.utc,byId('footage-source').value);
     updateMedia({properties:{utc:selected.utc,display_time:localStamp(selected.utc)}},Math.floor(clock.seconds));
     // Keep the marker smooth, but do not rebuild captions or image nodes each frame.
     const textKey = `${Math.floor(clock.seconds)}:${selected.published}`;
@@ -311,8 +322,8 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     button.addEventListener('click',()=>selectMinute(chapter.minute));
     byId('path-chapters').append(button);
   }
-  slider.addEventListener('input', () => seek(Number(slider.value)));
-  byId('media-time').addEventListener('input', () => seek(Number(byId('media-time').value)));
+  slider.addEventListener('input', () => seek(Number(slider.value),{mode:'replace'}));
+  byId('media-time').addEventListener('input', () => seek(Number(byId('media-time').value),{mode:'replace'}));
   byId('previous').addEventListener('click', () => {
     const previous = timed.filter(p => (p.stamp-start)/1000 < clock.seconds).at(-1);
     seek(previous ? (previous.stamp-start)/1000 : 0);
@@ -338,7 +349,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   });
   document.addEventListener('visibilitychange', () => {if(document.hidden) {stop();update();}});
   byId('timeline-media-image').addEventListener('click',()=>{stop();update();});
-  update();
+  update();syncLocation();
   for (const id of ['play','timeline','published-position','playback-rate',
     'camera-sample','media-time','path-zoom-in','path-zoom-out','path-fit']) byId(id).disabled=false;
   function selectMinute(minute) {

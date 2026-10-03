@@ -13,8 +13,8 @@ def validate_footage(data):
     date.fromisoformat(data['reviewed'])
     if data['mode'] != 'discrete_clock_anchors':
         raise ValueError('Continuous registration needs a separate coverage review')
-    if len(data['sources']) != 1:
-        raise ValueError('This player register supports one source version')
+    if not 1 <= len(data['sources']) <= 8:
+        raise ValueError('This player register supports one to eight source versions')
     sources = {}
     for source in data['sources']:
         if source['id'] in sources or not re.fullmatch(r'[A-Za-z0-9_-]{11}', source['video_id']):
@@ -29,7 +29,10 @@ def validate_footage(data):
         sources[source['id']] = source
     seen = set()
     last = None
+    source_seconds = set()
     for anchor in data['anchors']:
+        if anchor['source_id'] not in sources:
+            raise ValueError('Anchor needs a known source version')
         source = sources[anchor['source_id']]
         value = anchor['utc']
         if not isinstance(value, str) or not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:Z|\+00:00)', value):
@@ -37,8 +40,11 @@ def validate_footage(data):
         stamp = datetime.fromisoformat(value.replace('Z', '+00:00'))
         if stamp.utcoffset() is None or stamp.utcoffset().total_seconds() != 0 or stamp.date().isoformat() != '2013-05-31':
             raise ValueError('Clock anchor requires event UTC')
-        if last and stamp <= last:
-            raise ValueError('Anchors must be ordered and distinct')
+        if last and stamp < last:
+            raise ValueError('Anchors must be ordered')
+        if (anchor['source_id'], stamp) in source_seconds:
+            raise ValueError('Source clock anchors must be distinct')
+        source_seconds.add((anchor['source_id'], stamp))
         last = stamp
         seconds = anchor['video_seconds']
         if type(seconds) not in (float, int) or not math.isfinite(seconds) or not 0 <= seconds < source['duration_seconds']:

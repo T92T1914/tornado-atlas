@@ -6,6 +6,13 @@ const data=JSON.parse(readFileSync(new URL('../exhibits/el-reno-2013/footage.jso
 test('checked clock maps to the reviewed upload position',()=>{
   for(const anchor of data.anchors)assert.equal(anchorAt(data.anchors,anchor.utc),anchor);
 });
+
+test('coincident clocks select only the requested original version',()=>{
+  const a=data.anchors[0],b={...a,id:'synthetic-b',source_id:'other',video_seconds:20};
+  assert.equal(anchorAt([a,b],a.utc,'other'),b);
+  assert.equal(anchorAt([a,b],a.utc,a.source_id),a);
+  assert.equal(anchorAt([a,b],a.utc,'missing'),null);
+});
 test('gaps and later frames do not inherit a registration',()=>{
   const first=Date.parse(data.anchors[0].utc);
   for(const delta of [-60000,-500,-1,1000,30000,60000])assert.equal(anchorAt(data.anchors,new Date(first+delta).toISOString()),null);

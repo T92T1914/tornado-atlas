@@ -41,7 +41,10 @@ export function replayURL(href,eventId,seconds,anchors,start){
   url.searchParams.set('event',eventId);url.searchParams.set('t',seconds);
   // The panel can display a printed clock throughout its second. Only the
   // exact anchor may replace t on reload, so fractional seeks stay intact.
-  const anchor=anchors.find(item=>(Date.parse(item.utc)-start)/1000===seconds);
+  const linked=anchors.find(item=>item.id===url.searchParams.get('footage'));
+  const source=linked?.source_id || url.searchParams.get('footage_source');
+  if(linked?.source_id)url.searchParams.set('footage_source',linked.source_id);
+  const anchor=anchors.find(item=>(!source||item.source_id===source)&&(Date.parse(item.utc)-start)/1000===seconds);
   if(anchor)url.searchParams.set('footage',anchor.id);
   else{
     url.searchParams.delete('footage');

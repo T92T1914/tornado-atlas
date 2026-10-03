@@ -28,6 +28,20 @@ test('shared links cannot seek outside the documented historical window',()=>{
 
 const historyStart=Date.parse('2013-05-31T23:04:00Z');
 const historyAnchors=[{id:'source-moment',utc:'2013-05-31T23:17:03Z'}];
+
+test('a linked moment keeps its source when an explicit source conflicts',()=>{
+  const anchors=[{...historyAnchors[0],source_id:'a'},{...historyAnchors[0],id:'b-moment',source_id:'b'}];
+  const url=replayURL('https://example.test/reconstruction.html?footage=source-moment&footage_source=b','el-reno-2013',783,anchors,historyStart);
+  assert.equal(url.searchParams.get('footage'),'source-moment');
+  assert.equal(url.searchParams.get('footage_source'),'a');
+  assert.equal(replaySeconds(url.search,2280,anchors,historyStart),783);
+  const gap=replayURL(url.href,'el-reno-2013',782,anchors,historyStart);
+  assert.equal(gap.searchParams.get('footage'),null);
+  assert.equal(gap.searchParams.get('footage_source'),'a');
+  const directGap=replayURL('https://example.test/reconstruction.html?footage=b-moment','el-reno-2013',782,anchors,historyStart);
+  assert.equal(directGap.searchParams.get('footage'),null);
+  assert.equal(directGap.searchParams.get('footage_source'),'b');
+});
 test('replay URL preserves supported fractional historical times',()=>{
   const url=replayURL('https://example.test/reconstruction.html','el-reno-2013',58.25,historyAnchors,historyStart);
   assert.equal(replaySeconds(url.search,2280,historyAnchors,historyStart),58.25);

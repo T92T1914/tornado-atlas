@@ -1,9 +1,9 @@
 // Clock observations are points, not inferred continuous coverage.
-export function anchorAt(anchors, utc) {
+export function anchorAt(anchors, utc, sourceId=null) {
   const stamp = Date.parse(utc);
   if (!Number.isFinite(stamp)) return null;
   // A printed clock has one-second resolution; never reveal a future sample.
-  return anchors.find(a => Math.floor(Date.parse(a.utc)/1000) === Math.floor(stamp/1000)) || null;
+  return anchors.find(a => (!sourceId || a.source_id===sourceId) && Math.floor(Date.parse(a.utc)/1000) === Math.floor(stamp/1000)) || null;
 }
 export function sourceLink(source, anchor) {
   return `${source.url}&t=${Math.floor(anchor.video_seconds)}s`;

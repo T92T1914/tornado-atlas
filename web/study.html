@@ -21,8 +21,10 @@
       <form class="study-controls" onsubmit="return false" aria-label="Illustration controls">
         <fieldset class="form-sequence"><legend>Explore an evolving form</legend>
           <label class="check-control"><input id="sequence-enabled" type="checkbox"> Use the authored example sequence</label>
+          <label for="sequence-coverage">Example coverage</label><select id="sequence-coverage"><option value="continuous">Original continuous example</option><option value="bounded">Two windows with an unassigned gap</option></select>
+          <label for="sequence-rate">Sequence playback rate</label><select id="sequence-rate"><option value="1">1 second per second</option><option value="15">15 seconds per second</option></select>
           <label for="sequence-time">Sequence position <output id="sequence-progress"></output></label><input id="sequence-time" type="range" min="0" max="1" step=".001" value="0" disabled>
-          <p id="sequence-stage"></p><p class="control-note">Four authored shapes blend over 30 seconds. Scrub backward or play the motion. This example is not El Reno, a measured life cycle, or a sequence every tornado follows.</p>
+          <p id="sequence-stage" role="status"></p><p id="sequence-coverage-note" class="control-note">Four authored shapes blend over 30 seconds. Scrub backward or play the motion. This example is not El Reno, a measured life cycle, or a sequence every tornado follows.</p>
         </fieldset>
         <label for="shape">Funnel form</label><select id="shape"><option value="cone">Cone</option><option value="wedge">Wedge</option><option value="rope">Rope</option></select>
         <p class="control-note">Forms are visual presets. They do not assign an EF rating.</p>
