@@ -2208,7 +2208,8 @@
         "paragraphs": [
           "A photograph records a result. Interpreting it requires knowing what stood there before, how it was built and what connections failed. A collapsed wall in a wide shot does not reveal every foundation connection. This is why the survey account and close photographs matter alongside a dramatic overview.",
           "The mapped survey browser keeps each source feature attached to its own photographs. Select a point, read the reported damage indicator and degree of damage, and then inspect the original attachment. Its map position belongs to the survey feature; it does not automatically identify where the photographer stood. If the source has no photographer or capture time, the exhibit says so.",
-          "The local gallery and mapped attachments are separate collections. A caption that says EF3 is a claim about that damage example. It is not a measurement of every wind the storm produced. Likewise, a point outside a familiar drawing of the path cannot be reassigned to El Reno merely because it is nearby."
+          "The local gallery and mapped attachments are separate collections. A caption that says EF3 is a claim about that damage example. It is not a measurement of every wind the storm produced. Likewise, a point outside a familiar drawing of the path cannot be reassigned to El Reno merely because it is nearby.",
+          "The NWS captions offer a concrete comparison near Rother Road and SW 15th Street. Photo 3 describes all walls collapsed and assigns EF3. Photo 4 describes large roof sections removed while most walls remained standing and assigns EF2. These are different houses after the event. The captions do not establish identical construction or wind exposure, and the pair is not a before and after sequence."
         ],
         "sources": [
           {
@@ -2218,6 +2219,10 @@
           {
             "label": "Ground survey, construction evidence and rating discussion",
             "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf"
+          },
+          {
+            "label": "Inspect the roof-loss photograph, credit and missing camera registration",
+            "url": "https://t92t1914.github.io/tornado-atlas/dossier.html?event=el-reno-2013&media=nws-el-reno-roof-loss-04#media-nws-el-reno-roof-loss-04"
           }
         ]
       },

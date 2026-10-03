@@ -23,16 +23,21 @@ class JoplinWarningContextTests(unittest.TestCase):
         cls.old = json.loads(cls.raw)
         cls.doc = next(d for d in dossiers() if d['id'] == 'joplin-2011')
 
-    def test_ten_observations_and_latest_review_base_are_preserved(self):
+    def test_ten_observations_and_recorded_warning_review_base_are_preserved(self):
         self.assertEqual(hashlib.sha256(self.raw).hexdigest(), OLD_SHA256)
         self.assertEqual(len(self.old['observations']), 10)
         self.assertEqual(len(self.doc['observations']), 11)
         self.assertEqual(self.doc['observations'][:10], self.old['observations'])
         self.assertEqual(self.doc['observations'][10]['id'], NEW_ID)
-        for key in ('records', 'routes', 'media', 'creators', 'reconstruction'):
+        for key in ('records', 'routes', 'reconstruction'):
             self.assertEqual(self.doc[key], self.old[key])
-        self.assertEqual([s['id'] for s in self.doc['sources']], [s['id'] for s in self.old['sources']])
-        for old, new in zip(self.old['sources'], self.doc['sources']):
+        for key in ('media', 'creators'):
+            prior_ids = {row['id'] for row in self.old[key]}
+            self.assertEqual([row for row in self.doc[key] if row['id'] in prior_ids], self.old[key])
+        prior_source_ids = {row['id'] for row in self.old['sources']}
+        retained_sources = [row for row in self.doc['sources'] if row['id'] in prior_source_ids]
+        self.assertEqual([s['id'] for s in retained_sources], [s['id'] for s in self.old['sources']])
+        for old, new in zip(self.old['sources'], retained_sources):
             if old['id'] != 'nws-assessment':
                 self.assertEqual(old, new)
             else:
@@ -40,7 +45,12 @@ class JoplinWarningContextTests(unittest.TestCase):
                     self.assertEqual(old[key], new[key])
                 for key in ('locator', 'access', 'agent_processing'):
                     self.assertTrue(new[key].startswith(old[key]))
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], digest(self.old))
+        introduced_raw = (ROOT / 'web/archive/joplin-2011-30b168fee88e544e1ecd.json').read_bytes()
+        self.assertEqual(hashlib.sha256(introduced_raw).hexdigest(),
+                         'c46521edf5006a26d2b41bae294a0096b36169330d5183ddc427df1cb0964be9')
+        introduced = json.loads(introduced_raw)
+        self.assertEqual(introduced['provenance']['publication_review']['previous_dossier_sha256'], digest(self.old))
+        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], digest(introduced))
 
     def test_attribution_and_selected_page_scope_do_not_register_alert_clocks(self):
         row = next(o for o in self.doc['observations'] if o['id'] == NEW_ID)

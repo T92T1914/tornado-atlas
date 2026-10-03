@@ -12,7 +12,7 @@ import {chromium,webkit} from 'playwright';
 const root=fileURLToPath(new URL('../../web/',import.meta.url));
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript',
   '.css':'text/css','.json':'application/json','.gz':'application/gzip',
-  '.jpg':'image/jpeg','.png':'image/png','.svg':'image/svg+xml'};
+  '.jpg':'image/jpeg','.png':'image/png','.gif':'image/gif','.svg':'image/svg+xml'};
 let browser,server;
 export let base;
 before(async()=>{
