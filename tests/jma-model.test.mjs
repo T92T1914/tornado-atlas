@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath,boundedComparison} from '../web/jma-model.mjs';
+import {readFile} from 'node:fs/promises';
+import {readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath,boundedComparison,comparisonExport,comparisonExportText,comparisonQualifications} from '../web/jma-model.mjs';
 
 const cases=[
   {id:'jma:2026010101',case_id:'2026010101',year:2026,title:'東京都 *literal%',classification_code:'1',rating:'JEF1..JEF3'},
@@ -66,4 +67,60 @@ test('detail source identity must match the selected case and source snapshot',(
 test('detail paths cannot select an external endpoint or traverse directories',()=>{
   assert.equal(detailPath({detail_file:'details/ab-0123456789abcdef0123.json'}),'jma-cases/details/ab-0123456789abcdef0123.json');
   for(const path of ['../index.json','https://example.org/source.json','details/ab-wrong.json','details\\ab-0123456789abcdef0123.json'])assert.throws(()=>detailPath({detail_file:path}),/unsupported detail path/);
+});
+
+const retainedIndex=JSON.parse(await readFile(new URL('../web/jma-cases/index.json',import.meta.url)));
+const exportedRecords=[retainedIndex.records.find(record=>record.rating==='F1'),retainedIndex.records.find(record=>record.rating?.startsWith('JEF'))];
+const exportedEntries=await Promise.all(exportedRecords.map(async record=>({record,
+  detail:JSON.parse(await readFile(new URL('../web/jma-cases/'+record.detail_file,import.meta.url)))[record.id]})));
+
+test('portable comparison retains the ordered complete source records and qualifications',()=>{
+  const state={filters:{query:'東京都 + 100%',classCode:'6',rating:'unrated'},caseId:'jma:0000000000',panel:'list'};
+  const text=comparisonExportText(retainedIndex,exportedEntries,state),portable=JSON.parse(text);
+  assert.equal(portable.format,'tornado-atlas/jma-comparison');assert.equal(portable.schema_version,1);
+  assert.deepEqual(portable.source,retainedIndex.source);
+  assert.equal(portable.attribution,retainedIndex.attribution);assert.equal(portable.transformation,retainedIndex.transformation);
+  assert.deepEqual(portable.qualifications,comparisonQualifications);
+  assert.deepEqual(portable.cases.map(entry=>entry.index_record),exportedRecords);
+  assert.deepEqual(portable.cases.map(entry=>entry.detail),exportedEntries.map(entry=>entry.detail));
+  assert.deepEqual(portable.cases.map(entry=>entry.processed_detail_path),exportedRecords.map(detailPath));
+  assert.deepEqual(portable.cases.map(entry=>entry.detail.rating.scale),['F','JEF']);
+  assert.equal(portable.view_path,'japan.html'+writeCaseLink({...state,comparisonIds:exportedRecords.map(record=>record.id)}));
+  assert.equal(comparisonExportText(retainedIndex,exportedEntries,state),text);
+  assert.ok(text.endsWith('\n'));assert.ok(text.includes(exportedRecords[1].title));
+  assert.equal('created_at' in portable,false);assert.equal('totals' in portable,false);
+});
+
+test('portable values are detached without changing input records or cached details',()=>{
+  const before=JSON.stringify({index:retainedIndex,entries:exportedEntries}),portable=comparisonExport(retainedIndex,exportedEntries);
+  portable.source.sha256='changed';portable.cases[0].index_record.title='changed';
+  portable.cases[0].detail.time.begin.components[0].reported='changed';portable.qualifications.identity='changed';
+  assert.equal(JSON.stringify({index:retainedIndex,entries:exportedEntries}),before);
+  assert.notEqual(comparisonQualifications.identity,'changed');
+});
+
+test('incomplete duplicate unavailable and mismatched pairs refuse portable output',()=>{
+  for(const entries of [null,[],exportedEntries.slice(0,1),[...exportedEntries,exportedEntries[0]],[exportedEntries[0],exportedEntries[0]]])
+    assert.throws(()=>comparisonExportText(retainedIndex,entries));
+  for(const missing of [{record:exportedRecords[0],detail:null},{record:{id:'jma:0000000000',case_id:'0000000000'},detail:exportedEntries[0].detail}])
+    assert.throws(()=>comparisonExportText(retainedIndex,[missing,exportedEntries[1]]));
+  for(const key of ['id','country_code','classification_code','source_record_id']){
+    const changed=structuredClone(exportedEntries);changed[0].detail[key]='wrong';
+    assert.throws(()=>comparisonExportText(retainedIndex,changed),/does not match/);
+  }
+  for(const key of ['snapshot_id','sha256','source_url']){
+    const changed=structuredClone(exportedEntries);changed[1].detail.provenance[key]='wrong';
+    assert.throws(()=>comparisonExportText(retainedIndex,changed),/does not match/);
+  }
+  const path=structuredClone(exportedEntries);path[0].record.detail_file='../private.json';
+  assert.throws(()=>comparisonExportText(retainedIndex,path),/unsupported detail path/);
+});
+
+test('portable output refuses missing source metadata and bounds UTF-8 bytes',()=>{
+  for(const source of [{...retainedIndex.source,sha256:'wrong'},{...retainedIndex.source,snapshot_id:''},{...retainedIndex.source,url:'https://example.org/source.csv'}])
+    assert.throws(()=>comparisonExportText({...retainedIndex,source},exportedEntries),/source metadata/);
+  assert.throws(()=>comparisonExportText({...retainedIndex,attribution:undefined},exportedEntries),/source metadata/);
+  const changed=structuredClone(exportedEntries);changed[0].detail.narrative='雪'.repeat(400000);
+  assert.ok(JSON.stringify(changed).length<1024*1024);
+  assert.throws(()=>comparisonExportText(retainedIndex,changed),/one-megabyte/);
 });

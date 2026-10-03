@@ -1,4 +1,4 @@
-import {classLabels,readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath,boundedComparison} from './jma-model.mjs';
+import {classLabels,readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath,boundedComparison,comparisonExportText} from './jma-model.mjs';
 
 const el=id=>document.getElementById(id);
 const make=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
@@ -8,7 +8,7 @@ function link(text,href){const node=make('a',text),url=new URL(href,location.hre
 function datum(list,label,value){list.append(make('dt',label),make('dd',value));}
 function option(select,value,text=value){const node=make('option',text);node.value=value;select.append(node);}
 async function json(path){const response=await fetch(path);if(!response.ok)throw Error('Could not load this source file.');return response.json();}
-const pageSize=20,cache=new Map();
+const pageSize=20,cache=new Map(),comparisonDetails=new Map();
 let catalogue,records=[],byId=new Map(),matches=[],selected=null,selectedDetail=null,linkedCaseId='',comparisonIds=[],comparisonRequest=0,page=0,request=0,panel='list',restoring=false,timer;
 const filters=()=>({query:el('case-query').value,classCode:el('case-class').value,rating:el('case-rating').value});
 function view(mode){panel=mode;el('case-layout').dataset.panel=mode;el('case-list-view').setAttribute('aria-pressed',String(mode==='list'));el('case-record-view').setAttribute('aria-pressed',String(mode==='detail'));}
@@ -99,11 +99,30 @@ function setComparison(ids,{focus=false}={}){
   comparisonIds=boundedComparison(ids);renderComparison();sync(true);
   if(focus)(el('case-comparison-cards').firstElementChild||el('case-list-view')).focus();
 }
+function comparisonDownloadControl(){
+  const complete=comparisonIds.length===2&&comparisonIds.every(id=>comparisonDetails.has(id));
+  el('case-comparison-download').disabled=!complete;
+  el('case-comparison-download-note').textContent=complete?
+    'The JSON includes both complete processed records, source identity, attribution and unresolved qualifications. It does not combine them.':
+    'Load two complete source cases to download. Loading, failed or unavailable cases cannot be exported as a partial pair.';
+}
+function downloadComparison(){
+  try{
+    const entries=comparisonIds.map(id=>({record:byId.get(id),detail:comparisonDetails.get(id)}));
+    const text=comparisonExportText(catalogue,entries,{filters:filters(),caseId:linkedCaseId,panel});
+    const url=URL.createObjectURL(new Blob([text],{type:'application/json;charset=utf-8'}));
+    const anchor=make('a');anchor.href=url;
+    anchor.download='jma-comparison-'+entries.map(entry=>entry.record.case_id).join('-')+'.json';
+    document.body.append(anchor);
+    try{anchor.click();}finally{anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+    el('case-comparison-download-note').textContent='Comparison JSON prepared. Your browser handles the download.';
+  }catch(error){el('case-comparison-download-note').textContent=error.message;}
+}
 async function renderComparison(){
   const token=++comparisonRequest,host=el('case-comparison-cards');
   el('case-comparison').hidden=!comparisonIds.length;
   el('case-comparison-count').textContent=comparisonIds.length+' of 2 source cases retained. The pair stays available when filters or selected records change.';
-  host.replaceChildren();comparisonControl();
+  comparisonDetails.clear();host.replaceChildren();comparisonControl();comparisonDownloadControl();
   await Promise.all(comparisonIds.map(async id=>{
     const record=byId.get(id),card=make('section',undefined,'jma-comparison-card');
     card.dataset.comparisonCase=id;card.tabIndex=-1;host.append(card);
@@ -114,11 +133,13 @@ async function renderComparison(){
     if(!record){card.append(controls(),make('h3',id),make('p','Source case not found in the retained current snapshot. This comparison slot remains visible until you remove it.'));card.dataset.state='unavailable';return;}
     const load=async({keepFocus=false}={})=>{
       if(token!==comparisonRequest)return;
+      comparisonDetails.delete(id);comparisonDownloadControl();
       card.replaceChildren(controls(),japanese('h3',record.title),make('p','Loading the retained source details...'));card.dataset.state='loading';
       if(keepFocus)card.focus({preventScroll:true});
       try{
         const detail=await loadDetail(record);if(token!==comparisonRequest)return;
         renderDetail(detail,record,card,{comparison:true});card.prepend(controls());card.dataset.state='ready';
+        comparisonDetails.set(id,detail);comparisonDownloadControl();
       }catch(error){
         if(token!==comparisonRequest)return;
         card.append(make('p',error.message,'jma-warning'),button('Retry comparison case '+record.case_id,()=>load({keepFocus:card.contains(document.activeElement)})),link('Original JMA source',catalogue.source.url));card.dataset.state='failed';
@@ -186,6 +207,7 @@ async function main(){
   el('case-record-view').onclick=()=>{view('detail');sync(true);};
   el('case-compare-add').onclick=()=>{if(selectedDetail&&!comparisonIds.includes(selected.id)&&comparisonIds.length<2)setComparison([...comparisonIds,selected.id],{focus:true});};
   el('case-comparison-clear').onclick=()=>setComparison([],{focus:true});
+  el('case-comparison-download').onclick=downloadComparison;
   window.addEventListener('popstate',restore);
   window.addEventListener('hashchange',()=>{if(!location.hash||location.hash.startsWith('#case='))restore();});
   await restore();document.body.dataset.ready='true';

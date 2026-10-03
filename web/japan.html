@@ -29,7 +29,8 @@
 <section id="case-comparison" class="jma-comparison" aria-labelledby="case-comparison-title" hidden>
 <h2 id="case-comparison-title">Compare source cases</h2>
 <p>Keep one record while browsing another, then add the second record. Read each source classification, scale and reported interval separately. F and JEF are distinct damage scales. Timezone, coordinate datum and wind units remain unresolved. Damage areas do not establish visible funnel size. Shared casualty and building fields are not added into totals.</p>
-<p id="case-comparison-count" role="status"></p><button id="case-comparison-clear" type="button">Clear comparison</button>
+<p id="case-comparison-count" role="status"></p><div class="jma-comparison-actions"><button id="case-comparison-clear" type="button">Clear comparison</button><button id="case-comparison-download" type="button" disabled aria-describedby="case-comparison-download-note">Download comparison JSON</button></div>
+<p id="case-comparison-download-note" class="jma-fine" role="status">Load two complete source cases to download. The original source fields stay separate.</p>
 <div id="case-comparison-cards" class="jma-comparison-grid"></div>
 </section>
 <details id="case-provenance" class="jma-source-note"><summary>Retained source, processing and reuse</summary><div id="case-source-provenance"></div></details>

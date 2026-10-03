@@ -17,6 +17,14 @@ async function ready(page,record){
 const compared=(page,id)=>page.locator('[data-comparison-case="'+id+'"]');
 async function comparisonReady(page,record){await compared(page,record.id).locator('[lang=ja]').first().waitFor();await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='ready',record.id);}
 const comparisonQuery=records=>'?'+new URLSearchParams(records.map(record=>['compare',record.id])).toString();
+async function downloadedComparison(page,action=()=>page.locator('#case-comparison-download').click()){
+ const event=page.waitForEvent('download');await action();const download=await event;
+ assert.equal(await download.failure(),null);
+ const stream=await download.createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);
+ const bytes=Buffer.concat(chunks),text=bytes.toString('utf8');
+ assert.ok(bytes.length<=1024*1024);assert.ok(text.endsWith('\n'));
+ return {value:JSON.parse(text),bytes,filename:download.suggestedFilename()};
+}
 test('retained counts, default tornado class and bounded pagination',async t=>{
  const page=await fixture(t);await open(page);
  assert.match(await page.locator('#case-coverage').innerText(),/2,912.*1,576/);
@@ -256,5 +264,84 @@ test('two comparison cards keep keyboard controls and both appearances at phone 
   await inspect.focus();await page.keyboard.press('Enter');await ready(page,pair[1]);
   assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'detail');
   assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),pair.map(r=>r.id));
+ }
+});
+
+test('download an exact ordered F and JEF pair after browsing and reload',async t=>{
+ const page=await fixture(t,{acceptDownloads:true}),jef=tornadoes.find(record=>record.rating?.startsWith('JEF')),f=tornadoes.find(record=>record.rating==='F1');
+ await open(page,'#case='+encodeURIComponent(jef.id));await ready(page,jef);
+ await page.locator('#case-compare-add').click();await comparisonReady(page,jef);
+ assert.equal(await page.locator('#case-comparison-download').isEnabled(),false);
+ await page.locator('#case-back').click();await page.locator('#case-query').fill(f.case_id);await page.locator('#case-query').press('Enter');
+ await caseButton(page,f.id).click();await ready(page,f);await page.locator('#case-compare-add').click();await comparisonReady(page,f);
+ const exported=await downloadedComparison(page),pair=[jef,f];
+ assert.equal(exported.filename,'jma-comparison-'+pair.map(record=>record.case_id).join('-')+'.json');
+ assert.deepEqual(exported.value.source,index.source);assert.equal(exported.value.attribution,index.attribution);
+ assert.equal(exported.value.transformation,index.transformation);
+ assert.deepEqual(exported.value.cases.map(entry=>entry.index_record),pair);
+ assert.deepEqual(exported.value.cases.map(entry=>entry.detail),await Promise.all(pair.map(original)));
+ assert.deepEqual(exported.value.cases.map(entry=>entry.detail.rating.scale),['JEF','F']);
+ assert.match(exported.value.qualifications.identity,/not a merged event/);
+ const relative=new URL(exported.value.view_path,page.url());assert.equal(relative.origin,new URL(base).origin);
+ assert.deepEqual(relative.searchParams.getAll('compare'),pair.map(record=>record.id));
+ assert.equal(relative.searchParams.get('q'),f.case_id);
+ assert.equal(new URLSearchParams(relative.hash.slice(1)).get('case'),f.id);
+ const unchanged=await downloadedComparison(page);assert.deepEqual(unchanged.bytes,exported.bytes);
+ await page.reload();await page.waitForFunction(()=>document.body.dataset.ready==='true');for(const record of pair)await comparisonReady(page,record);
+ assert.deepEqual((await downloadedComparison(page)).bytes,exported.bytes);
+ assert.equal(await page.locator('#case-detail .eyebrow').innerText(),f.case_id);
+});
+
+test('download remains disabled through failure mismatch missing slot and recovery',async t=>{
+ const page=await fixture(t,{acceptDownloads:true}),first=tornadoes[0],second=tornadoes.find(record=>record.detail_file!==first.detail_file);let mode='failed';
+ const mismatched=JSON.parse(await readFile(new URL('../../web/jma-cases/'+second.detail_file,import.meta.url)));
+ mismatched[second.id].provenance.sha256='wrong-source';
+ await page.route('**/jma-cases/'+second.detail_file,route=>mode==='failed'?route.fulfill({status:503,body:'unavailable'}):mode==='mismatched'?route.fulfill({contentType:'application/json',body:JSON.stringify(mismatched)}):route.continue());
+ await open(page,comparisonQuery([first,second]));await comparisonReady(page,first);
+ const control=page.locator('#case-comparison-download'),retry=compared(page,second.id).getByRole('button',{name:'Retry comparison case '+second.case_id,exact:true});
+ assert.equal(await control.isEnabled(),false);assert.match(await page.locator('#case-comparison-download-note').innerText(),/cannot be exported as a partial pair/);
+ mode='mismatched';await retry.click();await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='failed',second.id);
+ assert.equal(await control.isEnabled(),false);assert.match(await compared(page,second.id).innerText(),/does not match/);
+ mode='ready';await retry.focus();await retry.press('Enter');await comparisonReady(page,second);
+ assert.equal(await control.isEnabled(),true);assert.equal(await compared(page,second.id).evaluate(node=>document.activeElement===node),true);
+ assert.deepEqual((await downloadedComparison(page)).value.cases.map(entry=>entry.detail),await Promise.all([first,second].map(original)));
+ await open(page,comparisonQuery([first,{id:'jma:0000000000'}]));await comparisonReady(page,first);
+ assert.equal(await control.isEnabled(),false);
+ assert.equal(await compared(page,'jma:0000000000').getAttribute('data-state'),'unavailable');
+});
+
+test('a removed pending source cannot enable download or contaminate its replacement pair',async t=>{
+ const page=await fixture(t,{acceptDownloads:true}),first=tornadoes[0],second=tornadoes.find(record=>record.detail_file!==first.detail_file),third=tornadoes.slice(0,20).find(record=>record.id!==first.id&&record.id!==second.id);
+ let release,started;const held=new Promise(resolve=>release=resolve),seen=new Promise(resolve=>started=resolve);t.after(()=>release());
+ await page.route('**/jma-cases/'+second.detail_file,async route=>{started();await held;await route.continue();});
+ await page.goto(base+'/japan.html'+comparisonQuery([first,second]));await seen;await comparisonReady(page,first);
+ assert.equal(await page.locator('#case-comparison-download').isEnabled(),false);
+ await compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}).click();
+ const response=page.waitForResponse(response=>response.url().endsWith(second.detail_file));release();await response;await page.waitForFunction(()=>document.body.dataset.ready==='true');
+ assert.equal(await page.locator('#case-comparison-download').isEnabled(),false);
+ assert.equal(await compared(page,second.id).count(),0);
+ await caseButton(page,third.id).click();await ready(page,third);await page.locator('#case-compare-add').click();
+ for(const record of [first,third])await comparisonReady(page,record);
+ assert.deepEqual((await downloadedComparison(page)).value.cases.map(entry=>entry.index_record.id),[first.id,third.id]);
+});
+
+test('phone touch and enlarged-text keyboard downloads preserve pair and view state',async t=>{
+ const page=await fixture(t,{acceptDownloads:true,hasTouch:true,isMobile:true}),pair=[tornadoes[0],index.records.find(record=>record.classification_code==='6')];
+ const query='日本 + & 100% '.repeat(20);
+ for(const width of [320,390])for(const appearance of ['light','dark']){
+  await page.setViewportSize({width,height:844});await open(page,comparisonQuery(pair)+'&q='+encodeURIComponent(query)+'#case='+encodeURIComponent(pair[0].id));
+  await page.locator('#reading-appearance').selectOption(appearance);for(const record of pair)await comparisonReady(page,record);
+  await page.addStyleTag({content:'html{font-size:150%}'});
+  const control=page.locator('#case-comparison-download');await control.scrollIntoViewIfNeeded();
+  const metrics=await control.evaluate(node=>({height:node.getBoundingClientRect().height,right:node.getBoundingClientRect().right,scroll:document.documentElement.scrollWidth,width:innerWidth}));
+  assert.ok(metrics.height>=44&&metrics.right<=width);assert.ok(metrics.scroll<=width);
+  const exported=await downloadedComparison(page,()=>control.tap());
+  assert.equal(new URL(exported.value.view_path,page.url()).searchParams.get('q'),query);
+  assert.equal(exported.value.cases[1].detail.confirmed_tornado,false);
+  assert.deepEqual(exported.value.cases[1].detail,await original(pair[1]));
+  await control.focus();const keyboard=await downloadedComparison(page,()=>control.press('Enter'));
+  assert.deepEqual(keyboard.bytes,exported.bytes);assert.equal(await control.evaluate(node=>document.activeElement===node),true);
+  await page.locator('#case-back').click();assert.equal(await page.locator('#case-browse').isVisible(),true);
+  assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),pair.map(record=>record.id));
  }
 });
