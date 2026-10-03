@@ -1,7 +1,7 @@
 .jma-browser main{padding:36px 48px}
 .jma-browser h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.15;max-width:24ch}
 .jma-browser h2{font-size:1.5rem;margin:0 0 12px}
-.jma-browser h3{font-size:1.1rem;margin:28px 0 12px}
+.jma-browser h3,.jma-browser h4{font-size:1.1rem;margin:28px 0 12px}
 .jma-browser [lang=ja]{font-family:var(--interface-font),"Noto Sans CJK JP","Yu Gothic",sans-serif}
 .jma-browser button,.jma-browser input,.jma-browser select{font:inherit;min-height:44px;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 12px}
 .jma-browser button{cursor:pointer}
@@ -26,14 +26,22 @@
 .jma-pagination output{flex:1;font-size:.9rem}
 .jma-source-note{padding:16px 20px;border:1px solid var(--line);margin:24px 0}
 .jma-source-note summary{cursor:pointer;min-height:32px;font-weight:600}
-#case-detail details{margin:18px 0;border-block:1px solid var(--line);padding:8px 0}
-#case-detail summary{cursor:pointer;min-height:44px;padding:8px 0;font-weight:600}
+#case-detail details,.jma-comparison-card details{margin:18px 0;border-block:1px solid var(--line);padding:8px 0}
+#case-detail summary,.jma-comparison-card summary{cursor:pointer;min-height:44px;padding:8px 0;font-weight:600}
 .jma-browser dl{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,2fr);gap:8px 16px;margin:12px 0 24px}
 .jma-browser dt{color:var(--muted)}
 .jma-browser dd{margin:0}
 .jma-browser dd,.jma-browser p,.jma-browser a,.jma-results strong{overflow-wrap:anywhere}
 .jma-source-label{padding:12px 0;border-block:1px solid var(--line)}
 .jma-warning{border-left:3px solid var(--gold);padding:8px 12px}
+.jma-comparison{margin-top:32px;border-top:1px solid var(--line);padding-top:24px}
+.jma-comparison-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:20px}
+.jma-comparison-card{min-width:0;border:1px solid var(--line);padding:20px}
+.jma-comparison-card>h3{font-size:1.4rem;margin:12px 0}
+.jma-comparison-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.jma-comparison-card dl{grid-template-columns:1fr;gap:4px}
+.jma-comparison-card dd{margin-bottom:12px}
+.jma-comparison-card[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 @media(max-width:720px){
  .jma-browser main{padding:24px 18px}
  .jma-layout{display:block}
@@ -46,4 +54,6 @@
  .jma-browser dd{margin:0 0 12px}
  .jma-view-controls a{margin-left:0}
  .jma-source-note{padding:14px}
+ .jma-comparison-grid{grid-template-columns:1fr}
+ .jma-comparison-card{padding:16px}
 }

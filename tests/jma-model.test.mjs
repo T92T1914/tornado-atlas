@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath} from '../web/jma-model.mjs';
+import {readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath,boundedComparison} from '../web/jma-model.mjs';
 
 const cases=[
   {id:'jma:2026010101',case_id:'2026010101',year:2026,title:'東京都 *literal%',classification_code:'1',rating:'JEF1..JEF3'},
@@ -26,12 +26,21 @@ test('Japanese text and punctuation are literal search terms',()=>{
 });
 test('query, unavailable filters and selected list/detail views roundtrip',()=>{
   for(const classCode of ['1','all','6','unknown',''])for(const panel of ['list','detail']){
-    const state={filters:{query:'東京都 + 100%',classCode,rating:'JEF1..JEF3'},caseId:'jma:2026010101',panel};
+    const state={filters:{query:'東京都 + 100%',classCode,rating:'JEF1..JEF3'},caseId:'jma:2026010101',panel,comparisonIds:[]};
     const link=writeCaseLink(state),split=link.indexOf('#');
     assert.deepEqual(readCaseLink(link.slice(0,split),link.slice(split)),state);
   }
   assert.equal(readCaseLink().panel,'list');
   assert.equal(readCaseLink('','#case=jma%3A2026010101').panel,'detail');
+});
+test('two retained cases travel independently of selected record and filters',()=>{
+  const state={filters:{query:'unrelated place',classCode:'6',rating:'unrated'},caseId:'jma:2026010101',panel:'list',comparisonIds:['jma:2000010101','jma:0000000000']};
+  const href=writeCaseLink(state),split=href.indexOf('#');
+  assert.deepEqual(readCaseLink(href.slice(0,split),href.slice(split)),state);
+  assert.deepEqual(readCaseLink('?compare=jma%3A2000010101&compare=jma%3A2000010101&compare=&compare=jma%3A2000010103&compare=extra').comparisonIds,['jma:2000010101','jma:2000010103']);
+  const first='jma:2000010101',second='jma:2000010103',third='jma:2026010101';
+  assert.deepEqual(boundedComparison([null,'',1,'https://example.org/source.json','jma:wrong',first,first,second,third]),[first,second]);
+  assert.deepEqual(readCaseLink(writeCaseLink({comparisonIds:[first,first,second,third]})).comparisonIds,[first,second]);
 });
 test('reported zero, unknown, unset, blank and invalid labels do not collapse',()=>{
   assert.equal(numberLabel({status:'reported',reported:'0',value:0}),'0');
