@@ -5,19 +5,24 @@ export const classLabels = {
   '7':'Tornado or funnel cloud', '8':'Downburst or gust front',
   '9':'Other', '-9999':'Unset phenomenon',
 };
+export function boundedComparison(ids=[]) {
+  return [...new Set(ids.filter(id=>typeof id==='string'&&/^jma:[0-9]{10}$/.test(id)))].slice(0,2);
+}
 export function readCaseLink(search='', hash='') {
   const params=new URLSearchParams(search);
   const caseId=new URLSearchParams(hash.replace(/^#/, '')).get('case')||'';
   return {filters:{query:params.get('q')||'',classCode:params.get('class')??'1',rating:params.get('rating')||''},
-    caseId,panel:params.get('panel')==='list'?'list':params.get('panel')==='detail'||caseId?'detail':'list'};
+    caseId,panel:params.get('panel')==='list'?'list':params.get('panel')==='detail'||caseId?'detail':'list',
+    comparisonIds:boundedComparison(params.getAll('compare'))};
 }
-export function writeCaseLink({filters={},caseId='',panel='list'}={}) {
+export function writeCaseLink({filters={},caseId='',panel='list',comparisonIds=[]}={}) {
   const params=new URLSearchParams();
   if(filters.query)params.set('q',filters.query);
   if(filters.classCode!==undefined&&filters.classCode!=='1')params.set('class',filters.classCode);
   if(filters.rating)params.set('rating',filters.rating);
   if(panel==='detail')params.set('panel','detail');
   else if(caseId)params.set('panel','list');
+  for(const id of boundedComparison(comparisonIds))params.append('compare',id);
   const query=params.toString();
   return (query?'?'+query:'')+(caseId?'#case='+encodeURIComponent(caseId):'');
 }

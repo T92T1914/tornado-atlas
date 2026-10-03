@@ -1,4 +1,4 @@
-import {classLabels,readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath} from './jma-model.mjs';
+import {classLabels,readCaseLink,writeCaseLink,filterCases,numberLabel,intervalLabel,validDetail,detailPath,boundedComparison} from './jma-model.mjs';
 
 const el=id=>document.getElementById(id);
 const make=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
@@ -9,10 +9,10 @@ function datum(list,label,value){list.append(make('dt',label),make('dd',value));
 function option(select,value,text=value){const node=make('option',text);node.value=value;select.append(node);}
 async function json(path){const response=await fetch(path);if(!response.ok)throw Error('Could not load this source file.');return response.json();}
 const pageSize=20,cache=new Map();
-let catalogue,records=[],byId=new Map(),matches=[],selected=null,page=0,request=0,panel='list',restoring=false,timer;
+let catalogue,records=[],byId=new Map(),matches=[],selected=null,selectedDetail=null,linkedCaseId='',comparisonIds=[],comparisonRequest=0,page=0,request=0,panel='list',restoring=false,timer;
 const filters=()=>({query:el('case-query').value,classCode:el('case-class').value,rating:el('case-rating').value});
 function view(mode){panel=mode;el('case-layout').dataset.panel=mode;el('case-list-view').setAttribute('aria-pressed',String(mode==='list'));el('case-record-view').setAttribute('aria-pressed',String(mode==='detail'));}
-function sync(push=false){const href=location.pathname+writeCaseLink({filters:filters(),caseId:selected?.id||'',panel});el('case-view-link').href=href;if(!restoring&&href!==location.pathname+location.search+location.hash)history[push?'pushState':'replaceState'](null,'',href);}
+function sync(push=false){const href=location.pathname+writeCaseLink({filters:filters(),caseId:linkedCaseId,panel,comparisonIds});el('case-view-link').href=href;if(!restoring&&href!==location.pathname+location.search+location.hash)history[push?'pushState':'replaceState'](null,'',href);}
 function navigation(){const index=matches.findIndex(record=>record.id===selected?.id);el('case-previous').disabled=index<=0;el('case-next').disabled=index<0||index>=matches.length-1;const notice=el('case-outside-filters');if(notice)notice.hidden=index>=0;}
 function results(){
   const fragment=document.createDocumentFragment();
@@ -30,7 +30,7 @@ function results(){
   navigation();
 }
 function apply(push=false){page=0;matches=filterCases(records,filters());results();sync(push);}
-function section(panel,title,collapsed=false){const node=make(collapsed?'details':'section');node.append(make(collapsed?'summary':'h3',title));const values=make('dl');node.append(values);panel.append(node);return values;}
+function section(panel,title,collapsed=false,heading='h3'){const node=make(collapsed?'details':'section');node.append(make(collapsed?'summary':heading,title));const values=make('dl');node.append(values);panel.append(node);return values;}
 function calendar(values,title,time){datum(values,title,time.local||time.components.map(numberLabel).join(' / '));datum(values,title+' uncertainty, minus minutes',numberLabel(time.uncertainty_minus_minutes));datum(values,title+' uncertainty, plus minutes',numberLabel(time.uncertainty_plus_minutes));}
 function position(values,title,position){
   const fields=position.reported_components;
@@ -39,58 +39,102 @@ function position(values,title,position){
   datum(values,title+' longitude, degrees / minutes / seconds',[4,5,6].map(i=>numberLabel(fields[i])).join(' / '));
   datum(values,title+' longitude uncertainty, arcseconds',numberLabel(fields[7]));
 }
-function renderDetail(detail,record){
-  const host=el('case-detail');
-  host.replaceChildren(make('span',record.case_id,'eyebrow'),japanese('h2',record.title));
+function renderDetail(detail,record,host=el('case-detail'),{comparison=false}={}){
+  const fields=(title,collapsed=false)=>section(host,title,collapsed,comparison?'h4':'h3');
+  host.replaceChildren(make('span',record.case_id,'eyebrow'),japanese(comparison?'h3':'h2',record.title));
   host.append(make('p',(classLabels[record.classification_code]||'Source phenomenon')+' · '+(record.rating||'Rating unresolved')+' · '+record.year,'jma-source-label'));
   host.append(japanese('p',detail.classification_reported));
   host.append(make('p','Reported beginning: '+(detail.time.begin.local||detail.time.begin.components.map(numberLabel).join(' / '))));
   host.append(make('p','Timezone, coordinate datum and the separate wind unit remain unresolved. Full source fields and uncertainties are available below.','jma-fine'));
   host.append(make('p',detail.confirmed_tornado?'JMA explicitly classifies this source case as a tornado.':'This source case is not counted as an explicitly classified tornado.'));
-  const notice=make('p','This selected case is outside your current filters. Its source details remain available.','jma-warning');notice.id='case-outside-filters';host.append(notice);
+  if(!comparison){const notice=make('p','This selected case is outside your current filters. Its source details remain available.','jma-warning');notice.id='case-outside-filters';host.append(notice);}
   host.append(link('Read the original JMA case CSV',detail.provenance.source_url));
-  const rating=section(host,'Damage rating');
+  const rating=fields('Damage rating');
   datum(rating,'Reported scale',detail.rating.scale||'Unresolved');
   datum(rating,'Minimum category',numberLabel(detail.rating.source_minimum));datum(rating,'Maximum category',numberLabel(detail.rating.source_maximum));
   host.append(make('p','F and JEF are distinct damage scales. This is not a measured wind speed.','jma-fine'));
-  const time=section(host,'Reported calendar and time',true);
+  const time=fields('Reported calendar and time',true);
   calendar(time,'Beginning',detail.time.begin);calendar(time,'Ending',detail.time.end);
   datum(time,'Timezone','Unresolved in this adapter');datum(time,'UTC conversion','Not performed');
-  const coordinates=section(host,'Reported reference coordinates',true);
+  const coordinates=fields('Reported reference coordinates',true);
   position(coordinates,'Beginning',detail.spatial.begin);position(coordinates,'Ending',detail.spatial.end);
   datum(coordinates,'Coordinate datum','Unresolved in this adapter');
   coordinates.parentElement.append(make('p','These source reference points do not create a surveyed track or an interpolated appearance. They are not placed on an assumed basemap.','jma-fine'));
-  const dimensions=section(host,'Reported damage area');
+  const dimensions=fields('Reported damage area');
   datum(dimensions,'Damage width, meters',intervalLabel(detail.dimensions.width_interval));
   datum(dimensions,'Damage length, meters',intervalLabel(detail.dimensions.length_interval));
   datum(dimensions,'Original length values, units of 100 meters',numberLabel(detail.dimensions.length_interval.reported_minimum)+' / '+numberLabel(detail.dimensions.length_interval.reported_maximum));
   host.append(make('p','These damage-area intervals are not visible funnel width. Other gust phenomena can describe damage-area diameters.','jma-fine'));
-  const impacts=section(host,'Reported casualty and building fields',true);
+  const impacts=fields('Reported casualty and building fields',true);
   for(const [name,value] of Object.entries(detail.impacts)){
     const label=japanese('dt',name);const output=make('dd',numberLabel(value.count)+' · Shared-scope source cell: '+(value.shared_scope_reported||'Blank')+'. Not aggregated.');
     impacts.append(label,output);
   }
   impacts.parentElement.append(make('p','Shared-scope cells can contain a flag or a complete associated case ID. No figures on this page are added into an event or national total.','jma-fine'));
-  const wind=section(host,'Separate wind field',true);
+  const wind=fields('Separate wind field',true);
   datum(wind,'Original source value',numberLabel(detail.wind.reported));datum(wind,'Unit and measurement basis','Unresolved in this adapter');
   const source=make('details');source.append(make('summary','Case provenance and parser notes'));const provenance=make('dl');source.append(provenance);
   for(const [label,value] of [['Source case ID',detail.source_record_id],['Source snapshot',detail.provenance.snapshot_id],['Original CSV logical record',detail.provenance.csv_record],['Source SHA-256',detail.provenance.sha256],['Retrieved',detail.provenance.retrieved_at],['Revision basis','Observed HTTP Last-Modified, not a publisher-signed release']])datum(provenance,label,String(value));
   source.append(link('Processed detail object',detailPath(record)));
   for(const note of detail.quality_notes)source.append(make('p',note.replaceAll('_',' '),'jma-fine'));
   if(!detail.quality_notes.length)source.append(make('p','No parser flags. This does not certify the historical account.'));
-  host.append(source);navigation();
+  host.append(source);if(!comparison)navigation();
+}
+async function loadDetail(record){
+  const path=detailPath(record);
+  if(!cache.has(path))cache.set(path,json(path).catch(error=>{cache.delete(path);throw error;}));
+  const details=await cache.get(path),detail=details?.[record.id];
+  if(!validDetail(detail,record,catalogue.source)){cache.delete(path);throw Error('The detail does not match this retained source case.');}
+  return detail;
+}
+function comparisonControl(){
+  const included=comparisonIds.includes(selected?.id),full=comparisonIds.length===2;
+  el('case-compare-add').disabled=!selectedDetail||included||full;
+  el('case-compare-hint').textContent=!selectedDetail?'Choose and load a record to add its retained source details.':
+    included?'This record is already in the comparison. Browse another record to choose a second case.':
+    full?'Two cases are retained. Remove one from the comparison before adding another.':
+    comparisonIds.length?'One case is retained. Add this record to compare their source fields.':'Add this record, then browse another case to compare their source fields.';
+}
+function setComparison(ids,{focus=false}={}){
+  comparisonIds=boundedComparison(ids);renderComparison();sync(true);
+  if(focus)(el('case-comparison-cards').firstElementChild||el('case-list-view')).focus();
+}
+async function renderComparison(){
+  const token=++comparisonRequest,host=el('case-comparison-cards');
+  el('case-comparison').hidden=!comparisonIds.length;
+  el('case-comparison-count').textContent=comparisonIds.length+' of 2 source cases retained. The pair stays available when filters or selected records change.';
+  host.replaceChildren();comparisonControl();
+  await Promise.all(comparisonIds.map(async id=>{
+    const record=byId.get(id),card=make('section',undefined,'jma-comparison-card');
+    card.dataset.comparisonCase=id;card.tabIndex=-1;host.append(card);
+    const controls=()=>{const actions=make('div',undefined,'jma-comparison-actions');
+      actions.append(button('Remove case '+(record?.case_id||id)+' from comparison',()=>setComparison(comparisonIds.filter(value=>value!==id),{focus:true})));
+      if(record)actions.append(button('Inspect case '+record.case_id,()=>{choose(record);el('case-panel').scrollIntoView({block:'start'});}));
+      return actions;};
+    if(!record){card.append(controls(),make('h3',id),make('p','Source case not found in the retained current snapshot. This comparison slot remains visible until you remove it.'));card.dataset.state='unavailable';return;}
+    const load=async({keepFocus=false}={})=>{
+      if(token!==comparisonRequest)return;
+      card.replaceChildren(controls(),japanese('h3',record.title),make('p','Loading the retained source details...'));card.dataset.state='loading';
+      if(keepFocus)card.focus({preventScroll:true});
+      try{
+        const detail=await loadDetail(record);if(token!==comparisonRequest)return;
+        renderDetail(detail,record,card,{comparison:true});card.prepend(controls());card.dataset.state='ready';
+      }catch(error){
+        if(token!==comparisonRequest)return;
+        card.append(make('p',error.message,'jma-warning'),button('Retry comparison case '+record.case_id,()=>load({keepFocus:card.contains(document.activeElement)})),link('Original JMA source',catalogue.source.url));card.dataset.state='failed';
+      }
+    };
+    await load();
+  }));
 }
 async function choose(record,{push=true,focus=true,reveal=true}={}){
-  selected=record;el('case-record-view').disabled=false;const token=++request;
+  selected=record;selectedDetail=null;linkedCaseId=record.id;comparisonControl();el('case-record-view').disabled=false;const token=++request;
   if(reveal)view('detail');results();sync(push);const host=el('case-detail');
   host.replaceChildren(japanese('h2',record.title),make('p','Loading the source case...'));
   if(focus)host.focus({preventScroll:true});
   try{
-    const path=detailPath(record);
-    if(!cache.has(path))cache.set(path,json(path).catch(error=>{cache.delete(path);throw error;}));
-    const details=await cache.get(path);if(token!==request)return;
-    const detail=details[record.id];if(!validDetail(detail,record,catalogue.source))throw Error('The detail does not match this retained source case.');
-    renderDetail(detail,record);
+    const detail=await loadDetail(record);if(token!==request)return;
+    renderDetail(detail,record);selectedDetail=detail;comparisonControl();
   }catch(error){
     if(token!==request)return;
     host.append(make('p',error.message,'jma-warning'),button('Retry this case',()=>choose(record,{push:false})),link('Original JMA source',catalogue.source.url));
@@ -103,7 +147,7 @@ async function restore(){
     if(![...select.options].some(node=>node.value===value)){option(select,value,'Unavailable: '+value);select.lastElementChild.dataset.unavailable='true';}
     select.value=value;
   }
-  el('case-query').value=state.filters.query;selected=null;request++;el('case-record-view').disabled=true;
+  el('case-query').value=state.filters.query;selected=null;selectedDetail=null;linkedCaseId=state.caseId;comparisonIds=state.comparisonIds;request++;el('case-record-view').disabled=true;
   apply();view(state.panel);
   let task=null;
   if(state.caseId&&byId.has(state.caseId)){
@@ -113,11 +157,10 @@ async function restore(){
   }
   else if(state.caseId){el('case-detail').replaceChildren(make('h2','Source case not found.'),make('p','This ID is not in the retained current snapshot. Your filters still apply.'));view('detail');}
   else {view('list');el('case-detail').replaceChildren(make('h2','Choose a source case.'),make('p','Original source classifications and uncertainty remain available.'));}
-  restoring=false;
-  // Do not erase an unavailable incoming case ID from the address.
-  if(!state.caseId||byId.has(state.caseId))sync();
-  else el('case-view-link').href=location.href;
-  if(task)await task;
+  const comparisonTask=renderComparison();restoring=false;
+  // Canonicalize comparison slots while retaining an unavailable selected ID.
+  sync();
+  await Promise.all([task,comparisonTask]);
 }
 async function main(){
   catalogue=await json('jma-cases/index.json');
@@ -141,6 +184,8 @@ async function main(){
   el('case-back').onclick=()=>{view('list');sync(true);el('case-results').querySelector('[aria-pressed=true]')?.focus();};
   el('case-list-view').onclick=()=>{view('list');sync(true);};
   el('case-record-view').onclick=()=>{view('detail');sync(true);};
+  el('case-compare-add').onclick=()=>{if(selectedDetail&&!comparisonIds.includes(selected.id)&&comparisonIds.length<2)setComparison([...comparisonIds,selected.id],{focus:true});};
+  el('case-comparison-clear').onclick=()=>setComparison([],{focus:true});
   window.addEventListener('popstate',restore);
   window.addEventListener('hashchange',()=>{if(!location.hash||location.hash.startsWith('#case='))restore();});
   await restore();document.body.dataset.ready='true';

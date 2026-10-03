@@ -14,6 +14,9 @@ async function open(page,suffix=''){
 async function ready(page,record){
  await page.waitForFunction(id=>document.querySelector('#case-detail .eyebrow')?.textContent===id&&document.querySelector('#case-detail a')?.textContent==='Read the original JMA case CSV',record.case_id);
 }
+const compared=(page,id)=>page.locator('[data-comparison-case="'+id+'"]');
+async function comparisonReady(page,record){await compared(page,record.id).locator('[lang=ja]').first().waitFor();await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='ready',record.id);}
+const comparisonQuery=records=>'?'+new URLSearchParams(records.map(record=>['compare',record.id])).toString();
 test('retained counts, default tornado class and bounded pagination',async t=>{
  const page=await fixture(t);await open(page);
  assert.match(await page.locator('#case-coverage').innerText(),/2,912.*1,576/);
@@ -133,5 +136,125 @@ test('phone widths in Clair and Obscur preserve readable record and controls',as
   await page.locator('#case-back').click();
   assert.equal(await page.locator('#case-browse').isVisible(),true);
   assert.equal(await page.locator('#case-panel').isVisible(),false);
+ }
+});
+test('retain an F and JEF case while browsing, with source bounds and provenance',async t=>{
+ const page=await fixture(t),jef=tornadoes.find(r=>r.rating?.startsWith('JEF')),f=tornadoes.find(r=>r.rating==='F1');
+ await open(page,'#case='+encodeURIComponent(jef.id));await ready(page,jef);
+ await page.locator('#case-compare-add').click();await comparisonReady(page,jef);
+ await page.locator('#case-back').click();await page.locator('#case-query').fill(f.case_id);await page.locator('#case-query').press('Enter');
+ await caseButton(page,f.id).click();await ready(page,f);
+ await page.locator('#case-compare-add').click();await comparisonReady(page,f);
+ assert.equal(await page.locator('[data-comparison-case]').count(),2);
+ assert.equal(await page.locator('#case-compare-add').isEnabled(),false);
+ assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),[jef.id,f.id]);
+ for(const record of [jef,f]){
+  const card=compared(page,record.id),detail=await original(record);
+  for(const summary of await card.locator('summary').all())await summary.click();
+  const text=await card.innerText();
+  assert.ok(text.includes(detail.classification_reported));
+  assert.ok(text.includes('Reported scale\n'+detail.rating.scale));
+  assert.ok(text.includes('Minimum category\n'+detail.rating.source_minimum.reported));
+  assert.ok(text.includes('Maximum category\n'+detail.rating.source_maximum.reported));
+  assert.ok(text.includes('Beginning uncertainty, minus minutes\n'+detail.time.begin.uncertainty_minus_minutes.reported));
+  assert.ok(text.includes('UTC conversion\nNot performed'));
+  assert.ok(text.includes(detail.provenance.sha256));
+  assert.ok(text.includes('Shared-scope source cell:')&&text.includes('Not aggregated.'));
+  assert.equal(await card.getByRole('link',{name:'Read the original JMA case CSV',exact:true}).getAttribute('href'),index.source.url);
+ }
+ const fText=await compared(page,f.id).innerText();
+ assert.ok(fText.includes('Minimum: 100 m. Maximum: 100 m.')&&fText.includes('Minimum: 1500 m. Maximum: 1500 m.'));
+ assert.ok(fText.includes('Unknown (-8888)'));
+ assert.equal(await page.locator('[id="case-outside-filters"]').count(),1);
+});
+test('comparison survives filters, selected record, reload and removal history',async t=>{
+ const page=await fixture(t,{viewport:{width:390,height:844}}),first=tornadoes[0],second=tornadoes[1];
+ await open(page,comparisonQuery([first,second])+'&class=6#case='+encodeURIComponent(first.id));
+ await comparisonReady(page,first);await comparisonReady(page,second);
+ await page.locator('#case-back').click();await page.locator('#case-class').selectOption('all');
+ await page.reload();await page.waitForFunction(()=>document.body.dataset.ready==='true');
+ await comparisonReady(page,first);await comparisonReady(page,second);
+ assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'list');
+ await compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}).click();
+ assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),[first.id]);
+ await page.goBack();await comparisonReady(page,second);
+ assert.equal(await page.locator('[data-comparison-case]').count(),2);
+ await page.goForward();await comparisonReady(page,first);
+ assert.equal(await page.locator('[data-comparison-case]').count(),1);
+ await page.locator('#case-comparison-clear').click();assert.equal(await page.locator('#case-comparison').isVisible(),false);
+ assert.equal(new URL(page.url()).searchParams.has('compare'),false);
+});
+test('uncertain and unavailable comparison cases remain separate and removable',async t=>{
+ const page=await fixture(t),uncertain=index.records.find(r=>r.classification_code==='6'),missing={id:'jma:0000000000'};
+ await open(page,comparisonQuery([uncertain,missing]));await comparisonReady(page,uncertain);
+ assert.ok((await compared(page,uncertain.id).innerText()).includes('not counted as an explicitly classified tornado'));
+ assert.ok((await compared(page,uncertain.id).innerText()).includes('Unset (-9999)'));
+ assert.equal(await compared(page,missing.id).getAttribute('data-state'),'unavailable');
+ assert.ok((await compared(page,missing.id).innerText()).includes('Source case not found'));
+ await compared(page,missing.id).getByRole('button',{name:'Remove case '+missing.id+' from comparison',exact:true}).click();
+ assert.equal(await page.locator('[data-comparison-case]').count(),1);
+ assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'list');
+});
+
+test('unavailable selected case canonicalizes comparison links and history',async t=>{
+ const page=await fixture(t),pair=tornadoes.slice(0,2),missing='jma:0000000000';
+ const params=new URLSearchParams([['compare',pair[0].id],['compare',pair[0].id],['compare','not-a-case'],['compare',pair[1].id],['compare',tornadoes[2].id]]);
+ await open(page,'?'+params+'#case='+encodeURIComponent(missing));
+ for(const record of pair)await comparisonReady(page,record);
+ const check=async()=>{
+  const saved=new URL(await page.locator('#case-view-link').getAttribute('href'),page.url());
+  assert.deepEqual(saved.searchParams.getAll('compare'),pair.map(r=>r.id));
+  assert.equal(new URLSearchParams(saved.hash.slice(1)).get('case'),missing);
+  assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),pair.map(r=>r.id));
+ };
+ await check();await page.locator('#case-class').selectOption('all');
+ await page.goBack();for(const record of pair)await comparisonReady(page,record);await check();
+ await page.goForward();for(const record of pair)await comparisonReady(page,record);await check();
+ await page.reload();await page.waitForFunction(()=>document.body.dataset.ready==='true');await check();
+ assert.match(await page.locator('#case-detail').innerText(),/Source case not found/);
+});
+test('failed or mismatched comparison detail retries without losing the other source',async t=>{
+ const page=await fixture(t),first=tornadoes[0],second=tornadoes.find(r=>r.detail_file!==first.detail_file);let mode='failed';
+ const mismatched=JSON.parse(await readFile(new URL('../../web/jma-cases/'+second.detail_file,import.meta.url)));
+ mismatched[second.id].provenance.sha256='wrong-source';
+ await page.route('**/jma-cases/'+second.detail_file,route=>mode==='failed'?route.fulfill({status:503,body:'unavailable'}):mode==='mismatched'?route.fulfill({contentType:'application/json',body:JSON.stringify(mismatched)}):route.continue());
+ await open(page,comparisonQuery([first,second]));await comparisonReady(page,first);
+ const card=compared(page,second.id);assert.equal(await card.getAttribute('data-state'),'failed');
+ assert.equal(await card.getByRole('link',{name:'Original JMA source',exact:true}).getAttribute('href'),index.source.url);
+ const firstSource=compared(page,first.id).getByText('Case provenance and parser notes',{exact:true});await firstSource.click();
+ const retry=card.getByRole('button',{name:'Retry comparison case '+second.case_id,exact:true});
+ mode='mismatched';await retry.focus();await retry.press('Enter');
+ await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='failed',second.id);
+ assert.equal(await card.evaluate(node=>document.activeElement===node),true);
+ assert.ok((await card.innerText()).includes('does not match this retained source case'));
+ mode='ready';await retry.focus();await retry.press('Enter');
+ await comparisonReady(page,first);await comparisonReady(page,second);
+ assert.equal(await card.evaluate(node=>document.activeElement===node),true);
+ assert.equal(await firstSource.locator('..').getAttribute('open'),'');
+ assert.equal(await page.locator('[data-comparison-case]').count(),2);
+});
+test('removed comparison cannot return when its old request completes',async t=>{
+ const page=await fixture(t),first=tornadoes[0],second=tornadoes.find(r=>r.detail_file!==first.detail_file);let release,started;
+ const held=new Promise(r=>release=r),seen=new Promise(r=>started=r);t.after(()=>release());
+ await page.route('**/jma-cases/'+second.detail_file,async route=>{started();await held;await route.continue();});
+ await page.goto(base+'/japan.html'+comparisonQuery([first,second]));await seen;await comparisonReady(page,first);
+ await compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}).click();
+ const response=page.waitForResponse(response=>response.url().endsWith(second.detail_file));release();await response;
+ await page.waitForFunction(()=>document.body.dataset.ready==='true');
+ assert.equal(await compared(page,second.id).count(),0);
+ assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),[first.id]);
+});
+test('two comparison cards keep keyboard controls and both appearances at phone widths',async t=>{
+ const page=await fixture(t),pair=[tornadoes[0],tornadoes.find(r=>r.rating==='F1')];
+ for(const width of [320,390])for(const appearance of ['dark','light']){
+  await page.setViewportSize({width,height:844});await open(page,comparisonQuery(pair));
+  await page.locator('#reading-appearance').selectOption(appearance);for(const record of pair)await comparisonReady(page,record);
+  const metrics=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,controls:[...document.querySelectorAll('#case-comparison button')].map(n=>({height:n.getBoundingClientRect().height,right:n.getBoundingClientRect().right})),cards:[...document.querySelectorAll('[data-comparison-case]')].map(n=>n.getBoundingClientRect().width)}));
+  assert.ok(metrics.scroll<=width,'No comparison overflow at '+width+'/'+appearance);
+  assert.ok(metrics.controls.every(n=>n.height>=44&&n.right<=width));assert.ok(metrics.cards.every(value=>value>0&&value<=width));
+  const inspect=compared(page,pair[1].id).getByRole('button',{name:'Inspect case '+pair[1].case_id,exact:true});
+  await inspect.focus();await page.keyboard.press('Enter');await ready(page,pair[1]);
+  assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'detail');
+  assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),pair.map(r=>r.id));
  }
 });
