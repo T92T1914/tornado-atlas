@@ -21,6 +21,8 @@ ADDITIONS = {
 # Hospital photographs use the source-specific checks in test_joplin_hospital.py.
 HOSPITAL_ADDITIONS = {'nist-west-tower', 'nist-west-tower-south-windows'}
 ROOF_ADDITION = {'nist-home-depot-roof'}
+# Later warning documents have their own preservation checks in test_archive_history.py.
+WARNING_ADDITIONS = {'nws-blackwell-warning1', 'nws-blackwell-warning2'}
 
 
 class ContextImageTests(unittest.TestCase):
@@ -43,6 +45,8 @@ class ContextImageTests(unittest.TestCase):
                 expected_additions = ADDITIONS[event]
                 if event == 'joplin-2011':
                     expected_additions = expected_additions | HOSPITAL_ADDITIONS | ROOF_ADDITION
+                elif event == 'blackwell-1955':
+                    expected_additions = expected_additions | WARNING_ADDITIONS
                 self.assertEqual({row['id'] for row in current['media']} -
                                  {row['id'] for row in old['media']}, expected_additions)
 
