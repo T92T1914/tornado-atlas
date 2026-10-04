@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from .footage import validate_footage
 from .publication import write_json
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -254,16 +255,30 @@ def dossiers(root=ROOT, *, include_curated=True):
                     place=place(photo['place'], role='camera'), review=photo['review']))
             relative = 'exhibits/el-reno-2013/footage.json'
             footage = read(root / relative); inputs.append(relative)
-            film = footage['sources'][0]
-            doc['creators'].append(dict(id='robinson', name=film['creator'], basis='Retained original upload attribution.'))
-            doc['sources'].append(source(film['id'], film['title'], film['url'],
-                'Seven retained paused clock samples; no continuous audit.', footage['coverage'] + ' ' + film['limits'],
-                'Reviewed ' + footage['reviewed'], film['rights']))
+            validate_footage(footage)
+            films = {film['id']: film for film in footage['sources']}
+            creator_ids = {}
+            for film in footage['sources']:
+                legacy = film['id'] == 'robinson-dashcam'
+                creator_id = 'robinson' if legacy else 'footage-' + digest(film['id'])[:24]
+                creator_ids[film['id']] = creator_id
+                doc['creators'].append(dict(id=creator_id, name=film['creator'],
+                    basis='Retained original upload attribution.'))
+                count = sum(anchor['source_id'] == film['id'] for anchor in footage['anchors'])
+                samples = 'sample' if count == 1 else 'samples'
+                locator = ('Seven retained paused clock samples; no continuous audit.' if legacy and count == 7
+                    else f'{count} retained paused clock {samples}; no continuous audit.')
+                doc['sources'].append(source(film['id'], film['title'], film['url'], locator,
+                    footage['coverage'] + ' ' + film['limits'], 'Reviewed ' + footage['reviewed'], film['rights']))
             for anchor in footage['anchors']:
-                doc['media'].append(evidence(anchor['id'], 'Dashcam clock sample', film['id'],
+                film = films[anchor['source_id']]
+                creator_id = creator_ids[film['id']]
+                legacy = film['id'] == 'robinson-dashcam'
+                doc['media'].append(evidence(anchor['id'], 'Dashcam clock sample' if legacy else 'Video clock sample', film['id'],
                     f"Video position {anchor['video_seconds']} seconds; paused sample, not an interval.",
                     anchor['note'], footage['method'] + ' ' + film['limits'], kind='video', url=film['url'] + '&t=' + str(int(anchor['video_seconds'])),
-                    roles=dict(creator='robinson', uploader='robinson', rights_holder='robinson'), parent=None,
+                    roles=dict(creator=creator_id, uploader=creator_id if legacy else None,
+                        rights_holder=creator_id if legacy else None), parent=None,
                     transformation='No bytes acquired or hosted. Original player link only.',
                     status=status(temporal='discrete_anchor', assertion='observed_sample'),
                     time=clocks(video={'start_seconds': anchor['video_seconds'], 'end_seconds': anchor['video_seconds']},

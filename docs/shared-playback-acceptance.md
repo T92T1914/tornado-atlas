@@ -14,6 +14,8 @@ The implementation uses the documented [YouTube iframe API](https://developers.g
 
 The published exhibit still contains one reviewed source version and seven paused samples. The second source in the browser tests is explicitly synthetic. Neither the source-switch test nor a matching clock connects Dan Robinson's footage to Tim Marshall's separate camera track.
 
+The archive projection also follows each anchor's source identity. Its original link, creator, rights statement, clock basis and limits come from that source. Alternate uploader and rights-holder identities remain unknown where the register does not establish them. Source ordering does not change those associations. The existing single-source archive documents retain their reviewed identities.
+
 ## Authored form coverage
 
 The existing form study retains its original continuous example. Its additional bounded example has two authored windows:
@@ -30,7 +32,7 @@ The sequence uses the existing `PlaybackClock`. Time is evaluated from a wall-cl
 
 ## Executed checks and remaining evidence
 
-The affected Python checks passed 48 tests. The six changed pure-model and component files passed 23 tests. They exercise separate source identities, coincident clock samples, the existing package contract, missing coverage and different frame schedules. A control callback followed by an earlier frame timestamp is also tested against the actual study module.
+The affected Python checks passed 50 tests after the archive caller correction. The six changed pure-model and component files passed 23 tests. They exercise separate source identities, coincident clock samples, the existing package contract, missing coverage and different frame schedules. A control callback followed by an earlier frame timestamp is also tested against the actual study module.
 
 Thirty distinct isolated Chromium scenarios have passed across the applicable final checks. Twenty affected source, documentary and history cases passed after independent review corrections. Ten unchanged camera and study cases passed in the preceding run. They include both appearances, 390-pixel and desktop layouts, URL history, a synthetic provider's late callback and refusal, actual WebGL draw calls across a gap, and actual browser graphics-context loss and recovery. External provider requests were blocked by the browser fixture. This is not a live YouTube acceptance test or a physical-phone result.
 
