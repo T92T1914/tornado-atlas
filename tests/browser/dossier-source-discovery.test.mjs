@@ -11,6 +11,20 @@ const directory=JSON.parse(await readFile(new URL('../../web/'+reference.file,im
 const beforeContextBytes=await readFile(new URL('../../web/archive/sources-8dc7eef20cf389698566.json',import.meta.url));
 assert.equal(createHash('sha256').update(beforeContextBytes).digest('hex'),'c38e5f6c1edce63eda09c72cb3fb90e97ac565323b54ec7fb16401c4b8a98150');
 const beforeContext=JSON.parse(beforeContextBytes.toString('utf8'));
+const beforeRoofBytes=await readFile(new URL('../../web/archive/sources-84709658c77157e8a0c0.json',import.meta.url));
+assert.equal(createHash('sha256').update(beforeRoofBytes).digest('hex'),'2084de3c5f1971fdb95397f203c8b5a54f8a8f678efe940405d2f7ffe7e9266b');
+const beforeRoof=JSON.parse(beforeRoofBytes.toString('utf8'));
+const assessment=directory.entries.find(row=>row.event_id==='joplin-2011'&&row.source.id==='nws-assessment');
+const priorAssessment=beforeRoof.entries.find(row=>row.event_id==='joplin-2011'&&row.source.id==='nws-assessment');
+assert.deepEqual(assessment.source,priorAssessment.source);
+assert.deepEqual([assessment.event_title,assessment.observations,assessment.media],
+  [priorAssessment.event_title,priorAssessment.observations,priorAssessment.media]);
+async function sourceMatches(page){
+  return page.locator('#source-results').getByRole('link',{name:'Open source and its evidence',exact:true}).evaluateAll(nodes=>nodes.map(node=>{
+    const query=new URL(node.href).searchParams;
+    return {event:query.get('event'),source:query.get('source'),revision:query.get('revision')};
+  }));
+}
 async function open(page,suffix='?view=sources'){
   await page.goto(base+'/dossier.html'+suffix);
   await page.waitForFunction(()=>document.body?.dataset.ready);
@@ -33,8 +47,12 @@ for(const width of [308,1280])for(const appearance of ['dark','light'])test(`sou
   await page.locator('#reading-appearance').selectOption(appearance);
   await page.getByRole('searchbox',{name:'Search source cards'}).fill('  Printed page 13  ');
   await follow(page,page.getByRole('button',{name:'Find sources',exact:true}));
-  assert.equal(await page.locator('#source-results .archive-card').count(),1);
-  const sourceCard=page.locator('#source-results .archive-card');
+  const expectedMatches=['nist-home-depot-roof','nws-assessment'].map(source=>
+    ({event:'joplin-2011',source,revision:assessment.dossier_sha256}));
+  assert.deepEqual(await sourceMatches(page),expectedMatches,
+    'The locator substring retains the assessment and also matches the new printed page 137 figure');
+  const sourceCard=page.locator('#source-results .archive-card').filter({has:page.locator('a[href*="source=nws-assessment"]')});
+  assert.equal(await sourceCard.count(),1);
   assert.match(await sourceCard.textContent(),/Joplin/);
   assert.match(await sourceCard.textContent(),/not a full-report visual review/);
   assert.match(await sourceCard.textContent(),/Rights: Metadata and credited links only/);
@@ -70,7 +88,7 @@ for(const width of [308,1280])for(const appearance of ['dark','light'])test(`sou
   await page.goBack();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.equal(await page.getByRole('searchbox',{name:'Search source cards'}).inputValue(),'  Printed page 13  ');
   await page.reload();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
-  assert.equal(await page.locator('#source-results .archive-card').count(),1);
+  assert.deepEqual(await sourceMatches(page),expectedMatches);
 });
 
 test('source filters keep shared URLs distinct and disclose missing coverage',async t=>{
