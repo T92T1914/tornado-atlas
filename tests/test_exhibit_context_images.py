@@ -18,6 +18,8 @@ ADDITIONS = {
     'joplin-2011': {'nist-joplin-survivor-interview'},
     'el-reno-2013': {'nws-el-reno-roof-loss-04'},
 }
+# Hospital photographs use the source-specific checks in test_joplin_hospital.py.
+HOSPITAL_ADDITIONS = {'nist-west-tower', 'nist-west-tower-south-windows'}
 
 
 class ContextImageTests(unittest.TestCase):
@@ -37,8 +39,11 @@ class ContextImageTests(unittest.TestCase):
                     by_id = {row.get('id', row.get('href')): row for row in current[field]}
                     for prior in old[field]:
                         self.assertEqual(by_id[prior.get('id', prior.get('href'))], prior)
+                expected_additions = ADDITIONS[event]
+                if event == 'joplin-2011':
+                    expected_additions = expected_additions | HOSPITAL_ADDITIONS
                 self.assertEqual({row['id'] for row in current['media']} -
-                                 {row['id'] for row in old['media']}, ADDITIONS[event])
+                                 {row['id'] for row in old['media']}, expected_additions)
 
     def test_available_context_images_do_not_acquire_storm_alignment_or_coordinates(self):
         for event, ids in ADDITIONS.items():
