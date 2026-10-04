@@ -5,13 +5,23 @@ import {fixture,base} from './harness.mjs';
 
 // The fixtures serve local originals only. Original source links are inspected,
 // never opened; external services and all user browser state remain excluded.
+async function loadedOriginal(page,image,source){
+  await image.scrollIntoViewIfNeeded();
+  // Scrolling can initiate lazy loading. Wait for the final original source,
+  // rather than decoding a pending source selection that WebKit may abort.
+  await page.waitForFunction(source=>{
+    const image=document.querySelector(`img[src="${source}"]`);
+    return image?.currentSrc===new URL(source,document.baseURI).href&&image.complete&&
+      image.naturalWidth>0&&image.naturalHeight>0;
+  },source);
+}
+
 for(const width of [1280,390,320]){
   test(`Blackwell map, remembrance and enlargement at ${width}px`,async t=>{
     const page=await fixture(t,{viewport:{width,height:900}});
     await page.goto(base+'/blackwell.html');
     const map=page.locator('img[src="assets/blackwell-1955/nws-smoothed-damage.gif"]');
-    await map.scrollIntoViewIfNeeded();
-    await map.evaluate(image=>image.decode());
+    await loadedOriginal(page,map,'assets/blackwell-1955/nws-smoothed-damage.gif');
     assert.deepEqual(await map.evaluate(image=>[image.naturalWidth,image.naturalHeight]),[700,700]);
     assert.ok((await map.getAttribute('alt')).includes('damage contours'));
     assert.ok(await page.locator('#damage-survey').innerText().then(text=>text.includes('does not preserve every building entry')));
@@ -26,8 +36,7 @@ for(const width of [1280,390,320]){
       await page.screenshot({path:path.join(process.env.ATLAS_CONTEXT_SCREENSHOT_DIR,'blackwell-map-390.png')});
     }
     const memorial=page.locator('img[src="assets/blackwell-1955/nws-memorial-2005.jpg"]');
-    await memorial.scrollIntoViewIfNeeded();
-    await memorial.evaluate(image=>image.decode());
+    await loadedOriginal(page,memorial,'assets/blackwell-1955/nws-memorial-2005.jpg');
     assert.deepEqual(await memorial.evaluate(image=>[image.naturalWidth,image.naturalHeight]),[800,600]);
     assert.ok(await page.locator('#remembrance').innerText().then(text=>text.includes('remembrance in 2005, not the tornado itself')));
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal document overflow');
@@ -40,8 +49,7 @@ for(const width of [1280,390,320]){
     const page=await fixture(t,{viewport:{width,height:900}});
     await page.goto(base+'/joplin.html#survivor-investigation');
     const image=page.locator('img[src="assets/joplin-2011/nist-interview.jpg"]');
-    await image.scrollIntoViewIfNeeded();
-    await image.evaluate(image=>image.decode());
+    await loadedOriginal(page,image,'assets/joplin-2011/nist-interview.jpg');
     const metrics=await image.evaluate(image=>({width:image.clientWidth,natural:[image.naturalWidth,image.naturalHeight]}));
     assert.deepEqual(metrics.natural,[288,216]);
     assert.ok(metrics.width>0&&metrics.width<=288,'Small original is not enlarged beyond available pixels');
