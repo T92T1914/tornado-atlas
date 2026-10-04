@@ -29,8 +29,11 @@ class JoplinWarningContextTests(unittest.TestCase):
         self.assertEqual(len(self.doc['observations']), 11)
         self.assertEqual(self.doc['observations'][:10], self.old['observations'])
         self.assertEqual(self.doc['observations'][10]['id'], NEW_ID)
-        for key in ('records', 'routes', 'reconstruction'):
+        for key in ('records', 'reconstruction'):
             self.assertEqual(self.doc[key], self.old[key])
+        self.assertEqual(self.doc['routes'], self.old['routes'] + [{
+            'label': 'Hospital frame, windows and loss of function',
+            'href': 'joplin.html#hospital-envelope'}])
         for key in ('media', 'creators'):
             prior_ids = {row['id'] for row in self.old[key]}
             self.assertEqual([row for row in self.doc[key] if row['id'] in prior_ids], self.old[key])
@@ -50,7 +53,14 @@ class JoplinWarningContextTests(unittest.TestCase):
                          'c46521edf5006a26d2b41bae294a0096b36169330d5183ddc427df1cb0964be9')
         introduced = json.loads(introduced_raw)
         self.assertEqual(introduced['provenance']['publication_review']['previous_dossier_sha256'], digest(self.old))
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], digest(introduced))
+        pre_hospital_raw = (ROOT / 'web/archive/joplin-2011-01b24def4c0f59517dd4.json').read_bytes()
+        self.assertEqual(hashlib.sha256(pre_hospital_raw).hexdigest(),
+                         'c7c6c12c7bbf8f3f3fd9afae55b23dd0a79a5726fa0ea95e7531136c082d2c38')
+        pre_hospital = json.loads(pre_hospital_raw)
+        self.assertEqual(pre_hospital['provenance']['publication_review']['previous_dossier_sha256'],
+                         digest(introduced))
+        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'],
+                         digest(pre_hospital))
 
     def test_attribution_and_selected_page_scope_do_not_register_alert_clocks(self):
         row = next(o for o in self.doc['observations'] if o['id'] == NEW_ID)

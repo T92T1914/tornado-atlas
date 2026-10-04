@@ -104,8 +104,10 @@ The [Joplin chapter](https://t92t1914.github.io/tornado-atlas/joplin.html) adds
 the 2011 warning sequence, the original NWS path figure, credited storm and
 damage photographs, and the NWS/NIST investigations. The earlier direct and
 indirect death accounts remain distinct from the city's later remembrance of
-161 people. Individual names, located damage and a timed reconstruction still
-need further research. The [source and coverage record](research/joplin-foundation-2026-09-21.md)
+161 people. Two NIST hospital photographs now compare a standing concrete frame
+with failed windows and the loss of hospital function. Their source pages,
+separate annotations and reuse basis remain available from the chapter and dossier.
+Individual names, located damage and a timed reconstruction still need further research. The [source and coverage record](research/joplin-foundation-2026-09-21.md)
 shows what has actually been checked.
 
 ## Run locally
