@@ -20,6 +20,7 @@ ADDITIONS = {
 }
 # Hospital photographs use the source-specific checks in test_joplin_hospital.py.
 HOSPITAL_ADDITIONS = {'nist-west-tower', 'nist-west-tower-south-windows'}
+ROOF_ADDITION = {'nist-home-depot-roof'}
 
 
 class ContextImageTests(unittest.TestCase):
@@ -41,7 +42,7 @@ class ContextImageTests(unittest.TestCase):
                         self.assertEqual(by_id[prior.get('id', prior.get('href'))], prior)
                 expected_additions = ADDITIONS[event]
                 if event == 'joplin-2011':
-                    expected_additions = expected_additions | HOSPITAL_ADDITIONS
+                    expected_additions = expected_additions | HOSPITAL_ADDITIONS | ROOF_ADDITION
                 self.assertEqual({row['id'] for row in current['media']} -
                                  {row['id'] for row in old['media']}, expected_additions)
 

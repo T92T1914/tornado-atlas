@@ -77,10 +77,11 @@ for (const width of [308, 390, 768, 1280]) {
       assert.deepEqual(current[key], old[key]);
     }
     assert.deepEqual(current.routes, [...old.routes, {
-      href: 'joplin.html#hospital-envelope', label: 'Hospital frame, windows and loss of function'}]);
+      href: 'joplin.html#hospital-envelope', label: 'Hospital frame, windows and loss of function'}, {
+      href: 'joplin.html#roof-bracing', label: 'How roof loss removed wall support'}]);
     assert.deepEqual(current.creators, [...old.creators, {id: 'nist', name: 'National Institute of Standards and Technology',
       basis: 'The original NIST investigation overview credits the survivor-interview photograph to NIST. Individual photographer and subjects are not identified in that caption.'}]);
-    const addedMedia = ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows'];
+    const addedMedia = ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof'];
     assert.deepEqual(current.media.filter(row => !addedMedia.includes(row.id)), old.media);
     assert.deepEqual(current.media.map(row => row.id), [...old.media.map(row => row.id), ...addedMedia]);
     const interview = current.media.find(row => row.id === 'nist-joplin-survivor-interview');

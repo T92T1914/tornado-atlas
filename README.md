@@ -99,6 +99,7 @@ inferred from the timestamp. An exhibit search and six short reading guides
 help readers find passages and understand timing, viewpoint and rating limits.
 The [footage registration record](research/footage-registration-2026-09-21.md)
 documents what was inspected.
+The [bounded Robinson registration decision](research/robinson-registration-decision-2026-10-04.md) checks two retained clock anchors against the Survey Project's own camera metadata. Sparse positions and directions exist, but the metadata identifies a Vimeo source whose relationship to the selected YouTube upload remains unverified. A continuous appearance interval remains unregistered until video identity, timing, camera calibration and footage inspection are tied together.
 
 The [Joplin chapter](https://t92t1914.github.io/tornado-atlas/joplin.html) adds
 the 2011 warning sequence, the original NWS path figure, credited storm and
@@ -107,6 +108,7 @@ indirect death accounts remain distinct from the city's later remembrance of
 161 people. Two NIST hospital photographs now compare a standing concrete frame
 with failed windows and the loss of hospital function. Their source pages,
 separate annotations and reuse basis remain available from the chapter and dossier.
+A separate [Home Depot roof case](https://t92t1914.github.io/tornado-atlas/joplin.html#roof-bracing) uses an attributed NIST photograph and annotation to explain how roof loss could also remove wall support. Its observed damage and possible failure sequence stay distinct, with source rights and exact figure derivation recorded.
 Individual names, located damage and a timed reconstruction still need further research. The [source and coverage record](research/joplin-foundation-2026-09-21.md)
 shows what has actually been checked.
 
