@@ -41,3 +41,17 @@ The independent review found source restoration, contradictory URL identities, l
 The retained El Reno [photogrammetry review](reconstruction-plan.md#september-27-source-review) establishes three inspected figure times. Original photographs, complete calibration inputs, independently checked timing uncertainty and hosting rights remain unresolved. Those samples cannot establish a continuous 28-second appearance reconstruction. This increment preserves that boundary. A historical interval needs its own supported camera, clock, appearance observations, uncertainty and rights before it can use a reviewed schema or acquire a reconstruction label.
 
 Firefox webpage journeys require the matching Playwright test binary, which was absent from the existing local cache during this increment. Native Firefox themes are a separate project and acceptance question. No user browser profile, game process, native application setting or graphics driver was changed for these checks.
+
+## October 4 paused-status repair
+
+The optional player now replaces its buffering or running message when the
+current source reports that playback is paused. It keeps the historical clock,
+source choice and address unchanged. Unassigned intervals keep their gap
+message, and callbacks from a closed source cannot replace the current status.
+
+The new synthetic-provider regression reproduced the stale buffering message
+on the unchanged source. After the repair, all seven affected isolated Chrome
+journeys passed, including source history, gaps, reload and late callbacks.
+External requests were blocked. These checks establish the status transition
+in the fixture, not the cause of a particular original-provider observation,
+normal-speed footage review or new historical registration.

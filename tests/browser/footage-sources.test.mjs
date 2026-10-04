@@ -134,3 +134,42 @@ test('a direct alternate-source moment retains its source through a gap and relo
   assert.equal(await page.locator('#replay-time').inputValue(),'782');
   assert.match(await page.locator('#footage-status').textContent(),/No checked video frame/);
 });
+
+test('paused provider status clears buffering without changing evidence',async t=>{
+  const page=await fixture(t);await sources(page);
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=783&context=kept');
+  await page.locator('#footage-source:visible').waitFor();
+  await page.getByRole('button',{name:'Load original YouTube player',exact:true}).click();
+  await page.waitForFunction(()=>window.providerFixture.players[0]?.muted);
+  const status=page.locator('.footage-controls + .footage-player + p');
+  const before={url:page.url(),time:await page.locator('#replay-time').inputValue(),
+    source:await page.locator('#footage-source').inputValue()};
+  await page.evaluate(()=>window.providerFixture.players[0].state(3));
+  assert.match(await status.textContent(),/buffering.*map stays paused/);
+  await page.evaluate(()=>window.providerFixture.players[0].state(2));
+  assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+  assert.deepEqual({url:page.url(),time:await page.locator('#replay-time').inputValue(),
+    source:await page.locator('#footage-source').inputValue()},before);
+  assert.match(await status.textContent(),/Source playback is paused.*map remains at the checked moment/);
+  assert.doesNotMatch(await status.textContent(),/buffering|Source playback is running/);
+  await page.evaluate(()=>window.providerFixture.players[0].state(1));
+  assert.match(await status.textContent(),/Source playback is running/);
+  await page.evaluate(()=>window.providerFixture.players[0].state(2));
+  assert.match(await status.textContent(),/Source playback is paused/);
+  await page.locator('#replay-time').fill('782');
+  const gap=await status.textContent();
+  assert.match(gap,/Unreviewed intervals are left unassigned/);
+  await page.evaluate(()=>window.providerFixture.players[0].state(2));
+  assert.equal(await status.textContent(),gap);
+  assert.equal(await page.locator('.footage-player').isVisible(),false);
+  await page.locator('#replay-time').fill('783');
+  await page.locator('#footage-source').selectOption('synthetic-source-b');
+  const changed=await status.textContent();
+  await page.evaluate(()=>{const old=window.providerFixture.players[0];old.state(2);old.state(3);});
+  assert.equal(await status.textContent(),changed);
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  assert.equal(await page.evaluate(()=>window.providerFixture.players[0].destroyed),true);
+  assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
+  assert.equal(await page.locator('#replay-time').inputValue(),'783');
+  assert.equal(new URL(page.url()).searchParams.get('context'),'kept');
+});
