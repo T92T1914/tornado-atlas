@@ -73,13 +73,16 @@ for (const width of [308, 390, 768, 1280]) {
     assert.equal(createHash('sha256').update(oldBytes).digest('hex'), oldHash);
     const old = JSON.parse(oldBytes.toString('utf8'));
     assert.deepEqual(current.observations.slice(0, 10), old.observations);
-    for (const key of ['records', 'routes', 'reconstruction']) {
+    for (const key of ['records', 'reconstruction']) {
       assert.deepEqual(current[key], old[key]);
     }
+    assert.deepEqual(current.routes, [...old.routes, {
+      href: 'joplin.html#hospital-envelope', label: 'Hospital frame, windows and loss of function'}]);
     assert.deepEqual(current.creators, [...old.creators, {id: 'nist', name: 'National Institute of Standards and Technology',
       basis: 'The original NIST investigation overview credits the survivor-interview photograph to NIST. Individual photographer and subjects are not identified in that caption.'}]);
-    assert.deepEqual(current.media.filter(row => row.id !== 'nist-joplin-survivor-interview'), old.media);
-    assert.deepEqual(current.media.map(row => row.id), [...old.media.map(row => row.id), 'nist-joplin-survivor-interview']);
+    const addedMedia = ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows'];
+    assert.deepEqual(current.media.filter(row => !addedMedia.includes(row.id)), old.media);
+    assert.deepEqual(current.media.map(row => row.id), [...old.media.map(row => row.id), ...addedMedia]);
     const interview = current.media.find(row => row.id === 'nist-joplin-survivor-interview');
     assert.equal(interview.source_id, 'nist-investigation-photo');
     assert.equal(interview.url, 'https://www.nist.gov/sites/default/files/images/2018/10/12/joplin.jpg');
