@@ -9,6 +9,9 @@
 .footage-player[hidden],.footage-controls [hidden] {display:none}
 .footage-caption {padding:0 0 16px}
 .footage-status {font-weight:600}
+#footage-source {display:block;width:100%;max-width:100%;margin:10px 0;padding:12px;border:1px solid var(--control-line);background:var(--control);color:var(--text);font:inherit}
+#footage-source[hidden] {display:none}
+.footage-moments button[hidden] {display:none}
 .footage-table {overflow-x:auto;margin:18px 0}
 .footage-table table {border-collapse:collapse;width:100%;font-size:13px}
 .footage-table th,.footage-table td {text-align:left;padding:12px;border-bottom:1px solid var(--line)}

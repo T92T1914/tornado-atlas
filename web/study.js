@@ -1,11 +1,14 @@
 import { PRESETS, particles, advanceTime, cameraMatrix } from './vortex-model.mjs';
-import { formAt } from './evolution-model.mjs';
+import { formAt, boundedFormAt } from './evolution-model.mjs';
+import { PlaybackClock } from './playback-model.mjs';
 
 const byId = id => document.getElementById(id);
 const canvas = byId('scene');
 const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, depth: false, powerPreference: 'low-power' });
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let gpu = null, frame = 0, time = 0, last = null, running = false, inView = true;
+const sequenceClock=new PlaybackClock(30,1);
+const sequenceForm=()=>byId('sequence-coverage').value==='bounded'?boundedFormAt(Number(byId('sequence-time').value)*30):formAt(Number(byId('sequence-time').value));
 
 const particleVertex = `#version 300 es
 precision highp float;
@@ -117,12 +120,14 @@ function initialize() {
 }
 function status(message) { byId('motion-status').textContent=message; }
 function fail(message) {
+  if(sequenceClock.playing){sequenceClock.pause(performance.now());time=sequenceClock.seconds;byId('sequence-time').value=time/30;sequenceReadout();}
   running = false; gpu = null; last = null;
   if(frame) cancelAnimationFrame(frame);
   frame=0; byId('motion').disabled=true; byId('motion').textContent='Play motion';
   byId('scene-failure').hidden=false; status(message);
 }
 function stop(message = 'Paused') {
+  if(byId('sequence-enabled').checked&&sequenceClock.playing){sequenceClock.pause(performance.now());time=sequenceClock.seconds;byId('sequence-time').value=time/30;sequenceReadout();}
   running=false;last=null;
   if(frame) cancelAnimationFrame(frame);
   frame=0;byId('motion').textContent='Play motion';
@@ -134,8 +139,9 @@ function requestFrame() { if (!frame && gpu && !document.hidden && inView) frame
 function draw(now) {
   frame=0;
   if (!gpu || document.hidden || !inView) return;
-  if(last !== null) time=advanceTime(time,(now-last)/1000,running);
   const evolving=byId('sequence-enabled').checked;
+  if(evolving&&running)time=sequenceClock.tick(performance.now());
+  else if(last !== null)time=advanceTime(time,(now-last)/1000,running);
   if(evolving && running) {
     byId('sequence-time').value=Math.min(1,time/30);
     sequenceReadout();
@@ -151,12 +157,14 @@ function draw(now) {
   gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
   gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);
   gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
-  const sequence=evolving?formAt(Number(byId('sequence-time').value)):null;
+  const sequence=evolving?sequenceForm():null;
+  canvas.dataset.appearanceCoverage=evolving?(sequence?'assigned':'gap'):'manual';
   const u=gpu.uniforms, shape=sequence?.shape || PRESETS[byId('shape').value];
   gl.uniformMatrix4fv(u.camera,false,camera);gl.uniform3f(u.shape,shape.base,shape.flare,shape.bend);
   gl.uniform1f(u.time,time);gl.uniform1f(u.extent,sequence?.extent ?? Number(byId('condensation').value)/100);
   gl.uniform1f(u.viewportHeight,height);gl.uniform1f(u.maxPoint,gpu.maxPoint);
-  gl.uniform1i(u.dust,byId('dust').checked?1:0);gl.drawArrays(gl.POINTS,0,gpu.count);
+  gl.uniform1i(u.dust,byId('dust').checked?1:0);
+  if(!evolving||sequence)gl.drawArrays(gl.POINTS,0,gpu.count);
   if(running) requestFrame();
 }
 function syncControls() {
@@ -164,7 +172,7 @@ function syncControls() {
     const suffix=id==='condensation'?'%':id==='distance'?'':'°';
     byId(id+'-value').textContent=(id==='distance'?Number(byId(id).value).toFixed(1):byId(id).value)+suffix;
   }
-  byId('scene-form').textContent=byId('sequence-enabled').checked?'AUTHORED FORM SEQUENCE':PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
+  byId('scene-form').textContent=byId('sequence-enabled').checked?(sequenceForm()?'AUTHORED FORM SEQUENCE':'GAP / NO ASSIGNED FORM'):PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
   requestFrame();
 }
 for (const id of ['shape','condensation','azimuth','elevation','distance','dust']) byId(id).addEventListener('input',syncControls);
@@ -177,10 +185,11 @@ byId('quality').addEventListener('change',() => {
 byId('motion').addEventListener('click',() => {
   if(running) {stop();return;}
   if(byId('sequence-enabled').checked && time>=30) time=0;
+  if(byId('sequence-enabled').checked){sequenceClock.seek(time);sequenceClock.play(performance.now());}
   running=true;last=null;byId('motion').textContent='Pause motion';status('Illustrative motion playing');requestFrame();
 });
 byId('reset-view').addEventListener('click',() => {
-  stop();time=0;byId('sequence-time').value=0;sequenceReadout();
+  stop();time=0;sequenceClock.seek(0);byId('sequence-time').value=0;sequenceReadout();
   for(const [id,value] of Object.entries({azimuth:25,elevation:12,distance:7})) byId(id).value=value;
   syncControls();
 });
@@ -216,13 +225,16 @@ canvas.addEventListener('webglcontextrestored',initialize);
 function sequenceReadout() {
   const value=Number(byId('sequence-time').value);
   byId('sequence-progress').textContent=`${Math.round(value*100)}% of authored sequence`;
-  byId('sequence-stage').textContent=formAt(value).label;
+  byId('sequence-stage').textContent=sequenceForm()?.label || 'No assigned form between 10 and 22 seconds. The last form is not held or blended across this gap.';
+  byId('scene-form').textContent=byId('sequence-enabled').checked?(sequenceForm()?'AUTHORED FORM SEQUENCE':'GAP / NO ASSIGNED FORM'):PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
 }
 byId('sequence-enabled').addEventListener('change',()=>{
-  stop();time=Number(byId('sequence-time').value)*30;
+  stop();time=Number(byId('sequence-time').value)*30;sequenceClock.seek(time);
   for(const id of ['shape','condensation']) byId(id).disabled=byId('sequence-enabled').checked;
   byId('sequence-time').disabled=!byId('sequence-enabled').checked;
   syncControls();sequenceReadout();
 });
-byId('sequence-time').addEventListener('input',()=>{stop();time=Number(byId('sequence-time').value)*30;sequenceReadout();requestFrame();});
+byId('sequence-time').addEventListener('input',()=>{const requested=Number(byId('sequence-time').value)*30;stop();time=requested;sequenceClock.seek(time);byId('sequence-time').value=time/30;sequenceReadout();requestFrame();});
+byId('sequence-coverage').addEventListener('change',()=>{stop();byId('sequence-coverage-note').textContent=byId('sequence-coverage').value==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';sequenceReadout();requestFrame();});
+byId('sequence-rate').addEventListener('change',()=>{sequenceClock.setRate(Number(byId('sequence-rate').value),performance.now());});
 sequenceReadout();syncControls();initialize();

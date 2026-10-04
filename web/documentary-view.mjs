@@ -11,20 +11,21 @@ export function mountDocumentary(data,media,cameras,svg,project,start,end,seek,f
   const toggle=el('input');toggle.type='checkbox';toggle.id='warning-polygons';
   const label=el('label',null,'warning-toggle');label.append(toggle,document.createTextNode(' Show archived warning polygons on the path'));host.append(label,el('p','Dashed boundaries are areas warned by NWS, not the tornado footprint. Only the selected, preserved bulletins are represented.','fineprint'));
   const layer=document.createElementNS('http://www.w3.org/2000/svg','g');layer.setAttribute('class','warning-layer');layer.setAttribute('aria-hidden','true');svg.append(layer);
-  let last=null,lastKey=null;
-  function update(utc) {
+  let last=null,lastKey=null,lastSource=footage.sources[0].id;
+  function update(utc,sourceId=lastSource) {
+    lastSource=sourceId;
     last=utc;const available=issuedAt(data.warnings,utc),latest=available.at(-1),r=frameAt(media.frames,utc,media.max_age_seconds),c=frameAt(cameras.samples,utc,cameras.display_max_age_seconds);
     const active=activeWarnings(data.warnings,utc);
-    const recorded=anchorAt(footage.anchors,utc);
-    const key=JSON.stringify([latest?.id,r?.frame.utc,c?.frame.utc,recorded?.id,toggle.checked,active.map(item=>item.id)]);if(key===lastKey)return;lastKey=key;
+    const recorded=anchorAt(footage.anchors,utc,sourceId),source=footage.sources.find(row=>row.id===recorded?.source_id);
+    const key=JSON.stringify([latest?.id,r?.frame.utc,c?.frame.utc,sourceId,recorded?.id,toggle.checked,active.map(item=>item.id)]);if(key===lastKey)return;lastKey=key;
     warning.replaceChildren(el('h4','Latest reviewed bulletin'));
     if(latest) warning.append(el('p',localStamp(latest.issued)),el('strong',latest.title),el('p',latest.summary),link('Read the original bulletin',latest.source));
     else warning.append(el('p','No reviewed bulletin issued by this time.'));
     radar.replaceChildren(el('h4','Radar available'));
     radar.append(el('p',r?localStamp(r.frame.utc):'No frame within the preceding four minutes.'),el('p','Regional reflectivity. Available frames remain discrete; intermediate images are not generated.','fineprint'));
     camera.replaceChildren(el('h4','Camera evidence'));
-    if(recorded){
-      camera.append(el('p',`Dan Robinson · ${localStamp(recorded.utc)}`),el('p','Checked video clock. Camera position and bearing are not registered.','fineprint'));
+    if(recorded&&source){
+      camera.append(el('p',`${source.creator} · ${localStamp(recorded.utc)}`),el('p','Checked video clock. Camera position and bearing are not registered.','fineprint'));
       const jump=el('a','View the original footage below');jump.href='#registered-footage';camera.append(jump);
     }else camera.append(el('p','No checked video frame assigned to this second.','fineprint'));
     camera.append(el('p',c?`Separate camera: Tim Marshall · ${localStamp(c.frame.utc)} · ${c.frame.azimuth}°`:'No Marshall position sample within the preceding 90 seconds.'),el('p','Marshall entries contain published position and bearing only.','fineprint'));

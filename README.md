@@ -58,6 +58,14 @@ history. Back and Forward restore the clock paused. Scrubbing or pausing updates
 the current address, so reloading does not return to an earlier footage choice.
 These links preserve navigation time, not new historical timing accuracy.
 
+The documentary and spatial replay now share source-version selection and clock
+restoration. Switching a source closes its player and leaves gaps unassigned.
+The form study also has two bounded authored windows separated by an empty gap,
+using the same wall-clock model as geographic playback. The published historical
+register remains one source and seven paused samples. See the
+[shared playback acceptance record](docs/shared-playback-acceptance.md) for
+the software checks and the evidence still needed for historical appearance.
+
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
 also shows Joplin's research-readiness page, with a link to its documentary;

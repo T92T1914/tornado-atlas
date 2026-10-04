@@ -151,3 +151,17 @@ cannot be assigned to another creator's footage. Figure hosting rights are
 also unresolved, so the dossier provides metadata and the original link.
 Three samples do not establish a continuous 28 second reconstruction. The
 existing geographic replay and observer context retain their current scope.
+
+## October 3 shared playback increment
+
+The discrete footage register and player now support separate original source
+versions, including checked frames at the same historical second. Source switching
+closes the previous player and preserves clock and URL history. The published
+El Reno register still has one source and seven paused samples.
+
+The existing form study also has a bounded authored example with two windows
+and an empty gap. It uses the geographic player's wall-clock model, preserving
+sequence time across drawing-quality changes and reverse seeks. These are
+laboratory fixtures, not newly registered historical appearance. The
+[implementation and acceptance record](shared-playback-acceptance.md) explains
+the behavior, executed checks and missing historical prerequisites.

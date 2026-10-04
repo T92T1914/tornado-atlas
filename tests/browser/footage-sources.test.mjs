@@ -1,0 +1,136 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {fixture,base} from './harness.mjs';
+
+// Two authored provider versions at one clock reading. This tests the software
+// contract, not the availability or registration of another historical upload.
+async function sources(page,{delayed=false}={}){
+  const root=new URL('../../web/',import.meta.url);
+  const data=JSON.parse(await readFile(new URL('data.json',root),'utf8'));
+  const config=JSON.parse(await readFile(new URL('events/el-reno-2013.json',root),'utf8'));
+  const source={...data.footage.sources[0],id:'synthetic-source-b',creator:'Synthetic provider B',video_id:'abcdefghijk',url:'https://www.youtube.com/watch?v=abcdefghijk'};
+  const anchor={...data.footage.anchors[0],id:'synthetic-anchor-b',source_id:source.id,video_seconds:20,note:'Synthetic source-switch test, not a historical observation.'};
+  data.footage.sources.push(source);data.footage.anchors.splice(1,0,anchor);
+  const body=JSON.stringify(data);config.bundle_sha256=createHash('sha256').update(body).digest('hex');
+  await page.route('**/data.json',route=>route.fulfill({contentType:'application/json',body}));
+  await page.route('**/events/el-reno-2013.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(config)}));
+  await page.addInitScript(({delayed})=>{
+    window.providerFixture={players:[],delayed};
+    window.YT={Player:class{
+      constructor(mount,options){
+        this.options=options;this.destroyed=false;this.seeks=[];this.pauses=0;
+        this.frame=document.createElement('iframe');this.frame.title='Synthetic provider test';mount.replaceWith(this.frame);
+        window.providerFixture.players.push(this);
+        if(!window.providerFixture.delayed)queueMicrotask(()=>this.ready());
+      }
+      ready(){this.options.events.onReady({target:this});}
+      mute(){this.muted=true;}
+      pauseVideo(){this.pauses++;this.options.events.onStateChange({target:this,data:2});}
+      seekTo(value){this.seeks.push(value);}
+      destroy(){this.destroyed=true;this.frame.remove();}
+      state(value){this.options.events.onStateChange({target:this,data:value});}
+      error(){this.options.events.onError({target:this,data:101});}
+    }};
+  },{delayed});
+}
+
+for(const width of [1280,390])test(`one source-owned player at ${width}px with history, buffering and gaps`,async t=>{
+  const page=await fixture(t,{viewport:{width,height:1000}});await sources(page);
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=783');
+  await page.locator('#footage-source:visible').waitFor();
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  await page.getByRole('button',{name:'Load original YouTube player',exact:true}).click();
+  await page.waitForFunction(()=>window.providerFixture.players[0]?.muted);
+  assert.equal(await page.evaluate(()=>window.providerFixture.players[0].options.videoId),'MxgU1QcFMJM');
+  await page.locator('#footage-source').selectOption('synthetic-source-b');
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  assert.equal(await page.evaluate(()=>window.providerFixture.players[0].destroyed),true);
+  assert.match(await page.locator('#footage-status').textContent(),/Synthetic provider B.*0:20/);
+  await page.getByRole('button',{name:'Load original YouTube player',exact:true}).click();
+  await page.waitForFunction(()=>window.providerFixture.players[1]?.muted);
+  assert.equal(await page.evaluate(()=>window.providerFixture.players[1].options.videoId),'abcdefghijk');
+  assert.equal(await page.locator('#registered-footage iframe').count(),1);
+  const visiblePauses=await page.evaluate(()=>window.providerFixture.players[1].pauses);
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});window.providerFixture.players[1].state(1);delete document.hidden;});
+  assert.ok(await page.evaluate(()=>window.providerFixture.players[1].pauses)>visiblePauses);
+  await page.locator('#replay-play').click();
+  await page.evaluate(()=>window.providerFixture.players[1].state(3));
+  assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+  assert.equal(await page.locator('#replay-time').inputValue(),'783');
+  assert.match(await page.locator('.footage-controls + .footage-player + p').textContent(),/buffering.*map stays paused/);
+  await page.locator('#replay-time').fill('782');
+  assert.match(await page.locator('#footage-status').textContent(),/No checked video frame/);
+  const pauses=await page.evaluate(()=>window.providerFixture.players[1].pauses);
+  await page.evaluate(()=>window.providerFixture.players[1].state(1));
+  assert.ok(await page.evaluate(()=>window.providerFixture.players[1].pauses)>pauses);
+  assert.equal(await page.locator('.footage-player').isVisible(),false);
+  await page.locator('#replay-time').fill('783');
+  assert.match(await page.locator('#footage-status').textContent(),/Synthetic provider B/);
+  await page.goBack();
+  assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
+  assert.equal(await page.evaluate(()=>window.providerFixture.players[1].destroyed),true);
+  await page.goForward();
+  assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+});
+
+test('source history restores the default in an unassigned second',async t=>{
+  const page=await fixture(t);await sources(page);
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=782');
+  await page.locator('#footage-source:visible').waitFor();
+  await page.locator('#footage-source').selectOption('synthetic-source-b');
+  await page.goBack();
+  assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
+  assert.equal(await page.locator('#replay-time').inputValue(),'782');
+  assert.equal(await page.getByRole('button',{name:'Load original YouTube player',exact:true}).isDisabled(),true);
+  await page.goForward();
+  assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+});
+
+test('a valid linked anchor takes precedence over a conflicting source',async t=>{
+  const page=await fixture(t);await sources(page);
+  const data=JSON.parse(await readFile(new URL('../../web/data.json',import.meta.url),'utf8'));
+  await page.goto(base+`/reconstruction.html?event=el-reno-2013&t=782&footage=${data.footage.anchors[0].id}&footage_source=synthetic-source-b`);
+  await page.locator('#footage-source:visible').waitFor();
+  assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
+  assert.equal(await page.locator('#replay-time').inputValue(),'783');
+  assert.equal(new URL(page.url()).searchParams.get('footage_source'),'robinson-dashcam');
+  await page.locator('#replay-time').fill('782');
+  assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
+  assert.match(await page.locator('#footage-status').textContent(),/No checked video frame/);
+});
+
+test('a late provider callback cannot resurrect a closed source',async t=>{
+  const page=await fixture(t);await sources(page,{delayed:true});
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=783');
+  await page.locator('#footage-source:visible').waitFor();
+  await page.getByRole('button',{name:'Load original YouTube player',exact:true}).click();
+  await page.waitForFunction(()=>window.providerFixture.players.length===1);
+  await page.locator('#footage-source').selectOption('synthetic-source-b');
+  await page.evaluate(()=>window.providerFixture.players[0].ready());
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  assert.equal(await page.evaluate(()=>window.providerFixture.players[0].destroyed),true);
+  await page.getByRole('button',{name:'Load original YouTube player',exact:true}).click();
+  await page.waitForFunction(()=>window.providerFixture.players.length===2);
+  await page.evaluate(()=>{const player=window.providerFixture.players[1];player.ready();player.error();});
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  assert.match(await page.locator('.footage-controls + .footage-player + p').textContent(),/could not play/);
+  assert.match(await page.getByRole('link',{name:'Watch this moment on the original upload'}).getAttribute('href'),/abcdefghijk&t=20s/);
+});
+
+test('a direct alternate-source moment retains its source through a gap and reload',async t=>{
+  const page=await fixture(t);await sources(page);
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&footage=synthetic-anchor-b');
+  await page.locator('#footage-source:visible').waitFor();
+  assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
+  await page.locator('#replay-time').fill('782');
+  assert.equal(new URL(page.url()).searchParams.get('footage_source'),'synthetic-source-b');
+  await page.reload();await page.locator('#footage-source:visible').waitFor();
+  assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
+  assert.equal(await page.locator('#replay-time').inputValue(),'782');
+  assert.match(await page.locator('#footage-status').textContent(),/No checked video frame/);
+});

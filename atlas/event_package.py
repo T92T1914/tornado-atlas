@@ -126,11 +126,9 @@ def validate_replay(config, bundle):
             raise ValueError("Evidence belongs to a different event")
     if bundle.get("cameras") is not None:
         validate_camera_context(bundle["cameras"], config["event_id"])
-    if len(bundle["footage"]["sources"]) != 1:
-        raise ValueError("Replay currently supports one registered footage source")
-    footage_id = bundle["footage"]["sources"][0]["id"]
+    footage_ids = {source['id'] for source in bundle['footage']['sources']}
     for anchor in bundle["footage"]["anchors"]:
-        if anchor["source_id"] != footage_id:
+        if anchor["source_id"] not in footage_ids:
             raise ValueError("Footage anchor does not identify the supported source")
         if not start <= utc(anchor["utc"]) <= end:
             raise ValueError("Footage anchor outside geographic coverage")

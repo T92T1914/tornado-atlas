@@ -61,14 +61,16 @@ async function start(){
   function seek(seconds,{mode='push',fragment=null}={}){
     pause();clock.seek(seconds);refresh();if(mode)syncLocation(mode,fragment);
   }
-  function restore(){seek(replaySeconds(location.search,clock.duration,anchors,start),{mode:null});syncLocation();}
+  function restore(){lastText=null;seek(replaySeconds(location.search,clock.duration,anchors,start),{mode:null});syncLocation();}
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
   let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null;
-  const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seek,localStamp,data.footage.sources[0].creator);
+  const footageCreators=[...new Set(data.footage.sources.map(source=>source.creator))].join(' and ');
+  const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seek,localStamp,footageCreators);
   el('replay-camera-enabled').addEventListener('change',()=>{observer=updateObserver(current.utc);requestDraw();});
   el('replay-source-note').textContent=`The source supplies ${positions.length} minute positions and the center path. The moving marker uses linear interpolation between those positions. ${config.clock.basis}`;
   el('replay-geography-source').href=config.geography_source.url;
   const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},start,seconds=>seek(seconds,{mode:'replace'}),pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`,restoreInitialMoment:false,onMomentSelect:anchor=>seek((Date.parse(anchor.utc)-start)/1000,{fragment:'registered-footage'})});
+  el('footage-source').addEventListener('change',()=>{lastText=null;refresh();syncLocation();});
   function readCamera(center){
     const camera={focus:el('replay-follow').checked?center:[0,0,0]};
     for(const key of ['azimuth','elevation','distance']){
@@ -122,7 +124,7 @@ async function start(){
   };
   refresh=()=>{
     current=positionAt(positions,clock.seconds);observer=updateObserver(current.utc);requestDraw();
-    const key=`${Math.floor(clock.seconds)}:${current.published}`;if(key===lastText)return;lastText=key;
+    const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;if(key===lastText)return;lastText=key;
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
     updateFootage(current.utc);
     el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);

@@ -2,6 +2,46 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 
+for(const width of [1280,390])test(`bounded form windows remain separate at ${width}px`,async t=>{
+  const page=await fixture(t,{viewport:{width,height:1000}});
+  await page.goto(base+'/study.html');
+  await page.locator('#sequence-enabled').check();
+  await page.locator('#sequence-coverage').selectOption('bounded');
+  assert.match(await page.locator('#sequence-coverage-note').textContent(),/not historical observations/);
+  await page.locator('#sequence-time').fill('0.5');
+  assert.match(await page.locator('#sequence-stage').textContent(),/No assigned form/);
+  assert.match(await page.locator('#scene-form').textContent(),/GAP/);
+  await page.locator('#scene').scrollIntoViewIfNeeded();
+  const available=await page.locator('#scene').evaluate(canvas=>{
+    const gl=canvas.getContext('webgl2');if(!gl)return false;
+    window.boundedDraws={gl,points:0,lines:0};
+    const draw=gl.drawArrays;
+    gl.drawArrays=function(...args){
+      if(args[0]===gl.POINTS)window.boundedDraws.points++;
+      if(args[0]===gl.LINES)window.boundedDraws.lines++;
+      return draw.apply(this,args);
+    };return true;
+  });
+  if(!available){t.skip('Isolated browser has no WebGL2 for actual draw checks');return;}
+  await page.locator('#quality').selectOption('3600');
+  await page.waitForFunction(()=>window.boundedDraws.lines>0);
+  assert.equal(await page.evaluate(()=>window.boundedDraws.points),0,'No funnel drawing across the gap');
+  assert.equal(await page.locator('#scene').getAttribute('data-appearance-coverage'),'gap');
+  assert.equal(await page.locator('#sequence-time').inputValue(),'0.5');
+  await page.locator('#sequence-time').fill('0.1');
+  await page.waitForFunction(()=>window.boundedDraws.points>0);
+  assert.equal(await page.locator('#scene').getAttribute('data-appearance-coverage'),'assigned');
+  await page.locator('#quality').selectOption('7200');
+  await page.locator('#sequence-rate').selectOption('15');
+  assert.equal(await page.locator('#sequence-time').inputValue(),'0.1','Quality and paused rate changes preserve time');
+  await page.locator('#sequence-time').fill('0.9');
+  assert.match(await page.locator('#sequence-stage').textContent(),/broad authored form/);
+  await page.locator('#sequence-time').fill('0.5');
+  assert.match(await page.locator('#sequence-stage').textContent(),/No assigned form/);
+  assert.equal(await page.locator('#motion').textContent(),'Play motion');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+});
+
 async function assertUnavailable(page,message){
   assert.equal(await page.locator('#scene-failure').isVisible(),true);
   assert.equal(await page.locator('#motion').isDisabled(),true);

@@ -12,6 +12,68 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_retained_single_source_projection_keeps_its_reviewed_identity(self):
+        expected = {
+            'el-reno-2013': '900cc2c8a99db11a4858006bc3c9d768f468feb1cb88d404d005aa0938b961b4',
+            'joplin-2011': 'c080b55cf2dfa5efc278ba9405840a366af984e984034eb0e7f0db60507fc721',
+            'blackwell-1955': '51d56cb1f0c100423c8748081cd95e1be2da642ab1bbda16cf808777b9c9aed5',
+        }
+        self.assertEqual({doc['id']: digest(doc) for doc in dossiers(include_curated=False)}, expected)
+
+    def test_each_footage_anchor_keeps_its_own_source_and_clock(self):
+        original = dossiers(include_curated=False)[0]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative in original['provenance']['inputs']:
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / relative, target)
+            # Limit this authored fixture to El Reno. No retained evidence is edited.
+            config_path = root / 'research/archive-dossiers.json'
+            config = json.loads(config_path.read_text(encoding='utf-8'))
+            config_path.write_text(json.dumps([row for row in config if row['id'] == 'el-reno-2013']), encoding='utf-8')
+            footage_path = root / 'exhibits/el-reno-2013/footage.json'
+            footage = json.loads(footage_path.read_text(encoding='utf-8'))
+            second = copy.deepcopy(footage['sources'][0])
+            second.update(id='synthetic-second', creator='Synthetic second creator',
+                video_id='abcdefghijk', url='https://www.youtube.com/watch?v=abcdefghijk',
+                title='Synthetic alternate-source fixture', rights='Synthetic source rights record.',
+                clock_basis='Synthetic independent clock basis.', limits='Synthetic source limits.')
+            footage['sources'].append(second)
+            anchor = copy.deepcopy(footage['anchors'][0])
+            anchor.update(id='synthetic-second-01', source_id=second['id'], video_seconds=12,
+                note='Synthetic coincident UTC sample, not inspected historical footage.')
+            footage['anchors'].insert(1, anchor)
+            footage_path.write_text(json.dumps(footage), encoding='utf-8')
+            projected = dossiers(root, include_curated=False)[0]
+            item = next(row for row in projected['media'] if row['id'] == anchor['id'])
+            self.assertEqual(item['source_id'], second['id'])
+            self.assertEqual(item['url'], second['url'] + '&t=12')
+            self.assertEqual(item['time']['alignment']['utc'], anchor['utc'])
+            self.assertEqual(item['time']['capture']['basis'], second['clock_basis'])
+            self.assertIn(second['limits'], item['limits'])
+            self.assertIsNone(item['roles']['uploader'])
+            self.assertIsNone(item['roles']['rights_holder'])
+            creator = next(row for row in projected['creators'] if row['id'] == item['roles']['creator'])
+            self.assertEqual(creator['name'], second['creator'])
+            self.assertEqual(next(row for row in projected['sources'] if row['id'] == second['id'])['rights'], second['rights'])
+            self.assertEqual(next(row for row in projected['sources'] if row['id'] == second['id'])['locator'],
+                '1 retained paused clock sample; no continuous audit.')
+            for old in original['media']:
+                self.assertEqual(next(row for row in projected['media'] if row['id'] == old['id']), old)
+            footage['sources'].reverse()
+            footage_path.write_text(json.dumps(footage), encoding='utf-8')
+            reordered = dossiers(root, include_curated=False)[0]
+            self.assertEqual(reordered['media'], projected['media'])
+            self.assertEqual({row['id']: row for row in reordered['sources']},
+                {row['id']: row for row in projected['sources']})
+            self.assertEqual({row['id']: row for row in reordered['creators']},
+                {row['id']: row for row in projected['creators']})
+            footage['anchors'][1]['source_id'] = 'missing-source'
+            footage_path.write_text(json.dumps(footage), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'known source version'):
+                dossiers(root, include_curated=False)
+
     def test_map_is_a_distinct_media_kind_without_registration(self):
         doc = copy.deepcopy(dossiers()[0])
         item = doc['media'][0]
