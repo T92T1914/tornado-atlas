@@ -20,7 +20,8 @@ class BlackwellLineageTests(unittest.TestCase):
         current = next(d for d in dossiers() if d['id'] == old['id'])
         self.assertEqual(current['records'], old['records'])
         self.assertEqual([o for o in current['observations'] if o['id'] != NEW_ID], old['observations'])
-        self.assertEqual(current['media'], old['media'])
+        prior_media_ids = {row['id'] for row in old['media']}
+        self.assertEqual([row for row in current['media'] if row['id'] in prior_media_ids], old['media'])
         self.assertEqual(current['reconstruction'], old['reconstruction'])
         for original_source in old['sources']:
             self.assertIn(original_source, current['sources'])

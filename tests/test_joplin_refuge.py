@@ -22,7 +22,8 @@ class JoplinRefugeTests(unittest.TestCase):
         original_items = {row['id']: row for row in old['observations']}
         retained = {row['id']: row for row in current['observations'] if row['id'] not in NEW_IDS | LATER_ADDITIONS}
         self.assertEqual(retained, original_items)
-        self.assertEqual(current['media'], old['media'])
+        prior_media_ids = {row['id'] for row in old['media']}
+        self.assertEqual([row for row in current['media'] if row['id'] in prior_media_ids], old['media'])
         self.assertEqual(current['reconstruction'], old['reconstruction'])
 
     def test_refuge_metadata_remains_source_reported_links_only_and_unregistered(self):

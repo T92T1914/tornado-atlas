@@ -235,7 +235,7 @@ def intake(draft, row):
                 'publication_text', 'retrieval_text', 'place_text', 'video_start', 'video_end'}
     if not isinstance(row, dict) or set(row) != required or not ID.fullmatch(row.get('key', '')):
         raise ValueError('Complete bounded intake fields and a stable key are required')
-    if row['kind'] not in {'lead', 'photograph', 'video', 'radar'} or row['rights'] not in {'links_only', 'unknown', 'restricted'}:
+    if row['kind'] not in {'lead', 'photograph', 'video', 'radar', 'map'} or row['rights'] not in {'links_only', 'unknown', 'restricted'}:
         raise ValueError('Intake supports leads and source links, never automatic media hosting')
     for key in required - {'video_start', 'video_end'}:
         if not isinstance(row[key], str) or len(row[key]) > 8000:

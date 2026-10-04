@@ -20,10 +20,14 @@ class ElRenoAerialSurveyTests(unittest.TestCase):
         old = json.loads(raw)
         current = next(d for d in dossiers() if d['id'] == old['id'])
         self.assertEqual([o for o in current['observations'] if o['id'] != NEW_ID], old['observations'])
-        self.assertEqual([s for s in current['sources'] if s['id'] != SOURCE_ID], old['sources'])
-        for key in ('records', 'routes', 'media', 'creators', 'reconstruction'):
+        prior_source_ids = {row['id'] for row in old['sources']}
+        self.assertEqual([s for s in current['sources'] if s['id'] in prior_source_ids], old['sources'])
+        for key in ('records', 'routes', 'creators', 'reconstruction'):
             self.assertEqual(current[key], old[key])
-        self.assertEqual(current['provenance']['publication_review']['previous_dossier_sha256'], digest(old))
+        prior_media_ids = {row['id'] for row in old['media']}
+        self.assertEqual([row for row in current['media'] if row['id'] in prior_media_ids], old['media'])
+        introduced = json.loads((ROOT / 'web/archive/el-reno-2013-06dd86bd23866e8be810.json').read_text(encoding='utf-8'))
+        self.assertEqual(introduced['provenance']['publication_review']['previous_dossier_sha256'], digest(old))
         self.assertEqual(current['provenance']['inputs'], old['provenance']['inputs'])
 
     def test_survey_dates_and_publication_do_not_register_an_event_clock(self):

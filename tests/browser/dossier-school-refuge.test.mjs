@@ -1,12 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdir} from 'node:fs/promises';
+import {mkdir, readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fixture, base} from './harness.mjs';
 
 const oldFile = 'archive/joplin-2011-c080b55cf2dfa5efc278.json';
 const eastId = 'intake-nist-east-middle-refuge-2014';
 const highId = 'intake-nist-high-school-refuge-2014';
+const beforeContextBytes = await readFile(new URL('../../web/archive/joplin-2011-30b168fee88e544e1ecd.json', import.meta.url));
+assert.equal(createHash('sha256').update(beforeContextBytes).digest('hex'), 'c46521edf5006a26d2b41bae294a0096b36169330d5183ddc427df1cb0964be9');
+const beforeContext = JSON.parse(beforeContextBytes.toString('utf8'));
 async function ready(page) {
   await page.waitForFunction(() => document.body?.dataset.ready === 'true');
 }
@@ -49,7 +53,25 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
     assert.equal(observed.status.rights, 'links_only');
     assert.equal(observed.time.alignment, null);
     assert.equal(observed.place.coordinates, null);
-    assert.equal(exported.media.length, 0);
+    for (const field of ['records', 'observations', 'reconstruction']) {
+      assert.deepEqual(exported[field], beforeContext[field], `The interview does not replace prior ${field}`);
+    }
+    assert.deepEqual(exported.sources.filter(row => row.id !== 'nist-investigation-photo'), beforeContext.sources);
+    assert.deepEqual(exported.sources.map(row => row.id), [...beforeContext.sources.map(row => row.id), 'nist-investigation-photo']);
+    assert.deepEqual(exported.media.map(row => row.id), ['nist-joplin-survivor-interview']);
+    const interview = exported.media[0];
+    assert.equal(interview.source_id, 'nist-investigation-photo');
+    assert.equal(interview.kind, 'photograph');
+    assert.equal(interview.url, 'https://www.nist.gov/sites/default/files/images/2018/10/12/joplin.jpg');
+    assert.equal(interview.transformation.asset, 'assets/joplin-2011/nist-interview.jpg');
+    assert.equal(interview.transformation.sha256, '64fc398f1a1de2b359fca67b9ace89dc639e98397130472b779a80bd7305cd1c');
+    assert.deepEqual([interview.transformation.width, interview.transformation.height], [288, 216]);
+    assert.deepEqual(interview.status, {intake: 'published', assertion: 'source_reported', temporal: 'unregistered',
+      spatial: 'unregistered', availability: 'reviewed_available', rights: 'permitted_hosting'});
+    for (const key of ['event', 'capture', 'publication', 'video', 'alignment']) assert.equal(interview.time[key], null);
+    assert.equal(interview.place.coordinates, null);
+    assert.deepEqual(exported.creators, [{id: 'nist', name: 'National Institute of Standards and Technology',
+      basis: 'The original NIST investigation overview credits the survivor-interview photograph to NIST. Individual photographer and subjects are not identified in that caption.'}]);
 
     await navigate(page, () => east.getByRole('link', {name: 'Inspect the source card'}).click());
     const source = page.locator('#source-nist-school-refuge');

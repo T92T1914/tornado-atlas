@@ -17,7 +17,7 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_three_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 2, 'joplin-2011': 5, 'blackwell-1955': 2}
+        counts = {'el-reno-2013': 3, 'joplin-2011': 6, 'blackwell-1955': 3}
         for entry in index['events']:
             history = artifacts[entry['history_file']]
             self.assertEqual(history['event_id'], entry['id'])
@@ -65,8 +65,12 @@ class ArchiveHistoryTests(unittest.TestCase):
         self.assertEqual(len(changed), 1)
         self.assertEqual(changed[0]['change'], 'updated')
         self.assertEqual(changed[0]['fields'], ['account', 'review'])
+        warning_addition = next(v for v in history['versions'] if v['dossier_sha256'].startswith('30b168fee88e'))
+        self.assertEqual([r['change'] for r in warning_addition['changes'] if r['kind'] == 'observations'], ['added'])
         current = history['versions'][0]
-        self.assertEqual([r['change'] for r in current['changes'] if r['kind'] == 'observations'], ['added'])
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'observations'], [])
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'media'], [
+            {'kind': 'media', 'id': 'nist-joplin-survivor-interview', 'change': 'added', 'fields': []}])
 
     def test_tampered_retained_identity_cannot_be_indexed(self):
         doc = dossiers()[0]

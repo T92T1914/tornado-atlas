@@ -165,7 +165,7 @@ def _validate_dossier(doc):
             raise ValueError('No result requires date, scope and search method')
         if item in doc['media']:
             public_url(item['url'])
-            if item['kind'] not in {'photograph', 'video', 'radar'}:
+            if item['kind'] not in {'photograph', 'video', 'radar', 'map'}:
                 raise ValueError('Unknown media kind')
             if set(item['roles']) != {'creator', 'uploader', 'rights_holder'}:
                 raise ValueError('Creator and uploader roles must be separate')

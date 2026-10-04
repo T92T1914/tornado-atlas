@@ -15,7 +15,7 @@ function listIndex(index){
   const form=element('form',undefined,'archive-tools');form.setAttribute('aria-label','Evidence discovery');
   const label=element('label','Search dossiers'),search=element('input');search.type='search';search.name='q';search.value=query.get('q')||'';label.append(search);
   const kindLabel=element('label','Evidence available'),kind=element('select');kind.name='evidence';
-  for(const [value,text] of [['','Any reviewed evidence'],['photograph','Linked photographs'],['video','Discrete video samples'],['radar','Historical radar'],['chronology','Chronology'],['source_disagreement','Source disagreements'],['registered','Media with reviewed time and place']]){const o=element('option',text);o.value=value;kind.append(o);}kind.value=query.get('evidence')||'';
+  for(const [value,text] of [['','Any reviewed evidence'],['photograph','Linked photographs'],['video','Discrete video samples'],['radar','Historical radar'],['map','Source maps'],['chronology','Chronology'],['source_disagreement','Source disagreements'],['registered','Media with reviewed time and place']]){const o=element('option',text);o.value=value;kind.append(o);}kind.value=query.get('evidence')||'';
   kindLabel.append(kind);const button=element('button','Search');form.append(label,kindLabel,button);form.method='get';host.append(form);
   const grid=element('div',undefined,'archive-grid'),needle=search.value.toLowerCase();
   const rows=index.events.filter(e=>[e.title,e.summary,...e.creators.map(c=>c.name)].join(' ').toLowerCase().includes(needle)&&(!kind.value||(kind.value==='registered'?e.registered_media>0:e.evidence.includes(kind.value))));

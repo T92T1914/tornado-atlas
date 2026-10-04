@@ -1,12 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,mkdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
 
 const index=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
 const reference=index.source_directory;
 const directory=JSON.parse(await readFile(new URL('../../web/'+reference.file,import.meta.url),'utf8'));
+const beforeContextBytes=await readFile(new URL('../../web/archive/sources-8dc7eef20cf389698566.json',import.meta.url));
+assert.equal(createHash('sha256').update(beforeContextBytes).digest('hex'),'c38e5f6c1edce63eda09c72cb3fb90e97ac565323b54ec7fb16401c4b8a98150');
+const beforeContext=JSON.parse(beforeContextBytes.toString('utf8'));
 async function open(page,suffix='?view=sources'){
   await page.goto(base+'/dossier.html'+suffix);
   await page.waitForFunction(()=>document.body?.dataset.ready);
@@ -74,9 +78,18 @@ test('source filters keep shared URLs distinct and disclose missing coverage',as
   await page.getByRole('combobox',{name:'Dossier',exact:true}).selectOption('el-reno-2013');
   await page.getByRole('searchbox',{name:'Search source cards'}).fill('https://www.weather.gov/oun/events-20130531');
   await follow(page,page.getByRole('button',{name:'Find sources',exact:true}));
-  assert.equal(await page.locator('#source-results .archive-card').count(),2,'Event narrative and radar loop retain distinct source cards');
+  assert.equal(await page.locator('#source-results .archive-card').count(),3,'Event narrative, radar loop and the named roof-loss photograph retain distinct source cards');
   const destinations=await page.locator('#source-results').getByRole('link',{name:'Open source and its evidence',exact:true}).evaluateAll(nodes=>nodes.map(node=>new URL(node.href).searchParams.get('source')));
-  assert.deepEqual(new Set(destinations),new Set(['nws-event','nwrt-loop']));
+  assert.deepEqual(destinations.toSorted(),['nws-event','nws-el-reno-roof-loss','nwrt-loop'].toSorted());
+  for(const id of ['nws-event','nwrt-loop']){
+    const prior=beforeContext.entries.find(row=>row.event_id==='el-reno-2013'&&row.source.id===id);
+    assert.ok(prior,'The original source row is retained');
+    assert.deepEqual(directory.entries.find(row=>row.event_id==='el-reno-2013'&&row.source.id===id).source,prior.source);
+  }
+  const photo=directory.entries.find(row=>row.event_id==='el-reno-2013'&&row.source.id==='nws-el-reno-roof-loss');
+  assert.equal(photo.media,1);
+  assert.equal(photo.observations,0);
+  assert.match(photo.source.locator,/photograph 4; collection explicitly credited to NWS\/NOAA survey personnel/);
   await page.getByRole('searchbox',{name:'Search source cards'}).fill('No inspected source with this synthetic phrase');
   await follow(page,page.getByRole('button',{name:'Find sources',exact:true}));
   assert.equal(await page.locator('#source-results .archive-card').count(),0);

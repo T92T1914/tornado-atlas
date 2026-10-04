@@ -12,6 +12,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_map_is_a_distinct_media_kind_without_registration(self):
+        doc = copy.deepcopy(dossiers()[0])
+        item = doc['media'][0]
+        item['kind'] = 'map'
+        validate_dossier(doc)
+        self.assertIsNone(item['place']['coordinates'])
+        self.assertIsNone(item['time']['alignment'])
+        item['kind'] = 'diagram-of-unknown-contract'
+        with self.assertRaisesRegex(ValueError, 'Unknown media kind'):
+            validate_dossier(doc)
+
     def test_projection_preserves_source_values_and_separate_clocks(self):
         doc = dossiers()[0]
         photo = doc['media'][0]

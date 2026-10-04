@@ -23,8 +23,11 @@ class JoplinSirenResponseTests(unittest.TestCase):
         current = next(d for d in dossiers() if d['id'] == old['id'])
         self.assertEqual([o for o in current['observations'] if o['id'] not in {NEW_ID} | LATER_IDS], old['observations'])
         self.assertEqual(current['observations'][:len(old['observations'])], old['observations'])
-        for key in ('records', 'media', 'creators', 'reconstruction'):
+        for key in ('records', 'reconstruction'):
             self.assertEqual(current[key], old[key])
+        for key in ('media', 'creators'):
+            prior_ids = {row['id'] for row in old[key]}
+            self.assertEqual([row for row in current[key] if row['id'] in prior_ids], old[key])
         siren_raw = (ROOT / 'web' / SIREN_REVISION).read_bytes()
         self.assertEqual(hashlib.sha256(siren_raw).hexdigest(), SIREN_SHA256)
         siren_revision = json.loads(siren_raw)
