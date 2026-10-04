@@ -17,7 +17,7 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_three_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 3, 'joplin-2011': 8, 'blackwell-1955': 3}
+        counts = {'el-reno-2013': 3, 'joplin-2011': 8, 'blackwell-1955': 4}
         for entry in index['events']:
             history = artifacts[entry['history_file']]
             self.assertEqual(history['event_id'], entry['id'])
@@ -39,6 +39,35 @@ class ArchiveHistoryTests(unittest.TestCase):
                          '900cc2c8a99db11a4858006bc3c9d768f468feb1cb88d404d005aa0938b961b4')
         self.assertIsNone(oldest['changes'])
         self.assertIn('not chronological', history['scope'])
+
+    def test_blackwell_warning_images_preserve_the_prior_event_record(self):
+        doc = next(d for d in dossiers() if d['id'] == 'blackwell-1955')
+        history = dossier_history(doc)
+        current = history['versions'][0]
+        prior_sha = '54ce2e5ef8f7a616c7766adde8d075e42e846a99e1a5e5f3ebfb4b34ca248a09'
+        self.assertEqual(current['review']['previous_dossier_sha256'], prior_sha)
+        prior = next(version for version in history['versions'] if version['dossier_sha256'] == prior_sha)
+        old = json.loads((ROOT / 'web' / prior['file']).read_text(encoding='utf-8'))
+        for field in ('observations', 'records', 'reconstruction'):
+            self.assertEqual(doc[field], old[field])
+        for field in ('sources', 'media', 'creators'):
+            for row in old[field]:
+                self.assertIn(row, doc[field])
+        added = [row for row in doc['media'] if row['id'] not in {m['id'] for m in old['media']}]
+        self.assertEqual([row['id'] for row in added], ['nws-blackwell-warning1', 'nws-blackwell-warning2'])
+        for row in added:
+            self.assertEqual(row['status']['temporal'], 'unregistered')
+            self.assertEqual(row['status']['spatial'], 'unregistered')
+            self.assertEqual(row['status']['rights'], 'permitted_hosting')
+            self.assertIsNone(row['place']['coordinates'])
+            for role in ('event', 'capture', 'publication', 'video', 'alignment'):
+                self.assertIsNone(row['time'][role])
+            self.assertIsNone(row['roles']['creator'])
+            self.assertIsNone(row['roles']['rights_holder'])
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'observations'], [])
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'media'], [
+            {'kind': 'media', 'id': 'nws-blackwell-warning1', 'change': 'added', 'fields': []},
+            {'kind': 'media', 'id': 'nws-blackwell-warning2', 'change': 'added', 'fields': []}])
 
     def test_field_differences_keep_stable_identity_and_do_not_infer_causes(self):
         before = dossiers()[0]
