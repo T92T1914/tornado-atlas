@@ -56,9 +56,9 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
     for (const field of ['records', 'observations', 'reconstruction']) {
       assert.deepEqual(exported[field], beforeContext[field], `The interview does not replace prior ${field}`);
     }
-    assert.deepEqual(exported.sources.filter(row => !['nist-investigation-photo', 'nist-hospital-envelope'].includes(row.id)), beforeContext.sources);
-    assert.deepEqual(exported.sources.map(row => row.id), [...beforeContext.sources.map(row => row.id), 'nist-investigation-photo', 'nist-hospital-envelope']);
-    assert.deepEqual(exported.media.map(row => row.id), ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows']);
+    assert.deepEqual(exported.sources.filter(row => !['nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof'].includes(row.id)), beforeContext.sources);
+    assert.deepEqual(exported.sources.map(row => row.id), [...beforeContext.sources.map(row => row.id), 'nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof']);
+    assert.deepEqual(exported.media.map(row => row.id), ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof']);
     const interview = exported.media[0];
     assert.equal(interview.source_id, 'nist-investigation-photo');
     assert.equal(interview.kind, 'photograph');

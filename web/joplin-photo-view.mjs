@@ -1,4 +1,4 @@
-// Enhance two source-linked photographs with the existing accessible viewer.
+// Enhance source-linked photographs with the existing accessible viewer.
 // Image links remain useful without JavaScript. No session data is retained.
 import {mountPhotoViewer} from './photo-view.mjs';
 
@@ -33,6 +33,8 @@ function showFromLocation() {
   const figure = link.closest('figure');
   const image = link.querySelector('img');
   const source = figure.querySelector('figcaption a[href*="#page="]');
+  const annotated = link.dataset.photoKind === 'annotated-figure';
+  const itemRights = figure.closest('.documentary-note').querySelector('a[href$="#page=4"]');
   currentId = link.dataset.photoId;
   opener = link;
   openPhoto({
@@ -41,11 +43,14 @@ function showFromLocation() {
     alt: image.alt,
     caption: figure.querySelector('figcaption').textContent,
     location: 'Camera capture time and position remain unregistered. No historical clock or viewpoint is assigned.',
-    credit: 'National Institute of Standards and Technology. Complete embedded report photograph, with no separate holder credited for this figure. No endorsement is implied.',
+    credit: annotated ? 'National Institute of Standards and Technology. Complete photograph rectangle and NIST annotation from the report, retained as a PNG derivative. No separate holder is credited for this figure. No endorsement is implied.' :
+      'National Institute of Standards and Technology. Complete embedded report photograph, with no separate holder credited for this figure. No endorsement is implied.',
     source: source.href,
     license: "Read the report's item-specific rights statement",
-    licenseUrl: rights.href,
+    licenseUrl: (itemRights || rights).href,
   });
+  document.getElementById('photo-original').textContent = annotated ?
+    'Open the complete photograph and NIST annotation' : 'Open the complete embedded photograph';
 }
 for (const [id, link] of links) {
   link.addEventListener('click', event => {

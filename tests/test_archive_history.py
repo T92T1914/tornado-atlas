@@ -17,7 +17,7 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_three_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 3, 'joplin-2011': 7, 'blackwell-1955': 3}
+        counts = {'el-reno-2013': 3, 'joplin-2011': 8, 'blackwell-1955': 3}
         for entry in index['events']:
             history = artifacts[entry['history_file']]
             self.assertEqual(history['event_id'], entry['id'])
@@ -71,12 +71,17 @@ class ArchiveHistoryTests(unittest.TestCase):
         self.assertEqual([r for r in interview_addition['changes'] if r['kind'] == 'observations'], [])
         self.assertEqual([r for r in interview_addition['changes'] if r['kind'] == 'media'], [
             {'kind': 'media', 'id': 'nist-joplin-survivor-interview', 'change': 'added', 'fields': []}])
-        current = history['versions'][0]
-        self.assertEqual(current['review']['previous_dossier_sha256'], interview_addition['dossier_sha256'])
-        self.assertEqual([r for r in current['changes'] if r['kind'] == 'observations'], [])
-        self.assertEqual([r for r in current['changes'] if r['kind'] == 'media'], [
+        hospital_addition = next(v for v in history['versions'] if v['dossier_sha256'].startswith('2ff06de762b0'))
+        self.assertEqual(hospital_addition['review']['previous_dossier_sha256'], interview_addition['dossier_sha256'])
+        self.assertEqual([r for r in hospital_addition['changes'] if r['kind'] == 'observations'], [])
+        self.assertEqual([r for r in hospital_addition['changes'] if r['kind'] == 'media'], [
             {'kind': 'media', 'id': 'nist-west-tower', 'change': 'added', 'fields': []},
             {'kind': 'media', 'id': 'nist-west-tower-south-windows', 'change': 'added', 'fields': []}])
+        current = history['versions'][0]
+        self.assertEqual(current['review']['previous_dossier_sha256'], hospital_addition['dossier_sha256'])
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'observations'], [])
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'media'], [
+            {'kind': 'media', 'id': 'nist-home-depot-roof', 'change': 'added', 'fields': []}])
 
     def test_tampered_retained_identity_cannot_be_indexed(self):
         doc = dossiers()[0]

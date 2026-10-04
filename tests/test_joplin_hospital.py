@@ -17,11 +17,14 @@ class HospitalExhibitTests(unittest.TestCase):
     def test_previous_evidence_and_chronology_are_unchanged(self):
         for key in ('observations', 'records', 'reconstruction', 'creators', 'summary', 'coverage'):
             self.assertEqual(self.doc[key], self.before[key], key)
-        self.assertEqual(self.doc['sources'][:-1], self.before['sources'])
-        self.assertEqual(self.doc['media'][:-2], self.before['media'])
-        self.assertEqual(self.doc['routes'][:-1], self.before['routes'])
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'],
+        self.assertEqual(self.doc['sources'][:-2], self.before['sources'])
+        self.assertEqual(self.doc['media'][:-3], self.before['media'])
+        self.assertEqual(self.doc['routes'][:-2], self.before['routes'])
+        hospital = json.loads((ROOT / 'web/archive/joplin-2011-2ff06de762b0d24a3451.json').read_text(encoding='utf-8'))
+        self.assertEqual(hospital['provenance']['publication_review']['previous_dossier_sha256'],
                          '01b24def4c0f59517dd4c799ffb19f53db60a94c6fad1803c477e9047e22bec1')
+        for field in ('sources', 'media', 'routes'):
+            self.assertEqual(self.doc[field][:-1], hospital[field], field)
 
     def test_photos_are_complete_bounded_unregistered_report_sources(self):
         expected = [
@@ -46,7 +49,7 @@ class HospitalExhibitTests(unittest.TestCase):
             self.assertIn('not an original camera file', photo['transformation']['recipe'])
 
     def test_rights_and_mechanism_limits_remain_visible(self):
-        source = self.doc['sources'][-1]
+        source = next(row for row in self.doc['sources'] if row['id'] == 'nist-hospital-envelope')
         self.assertEqual(source['id'], 'nist-hospital-envelope')
         self.assertIn('PDF page 4', source['rights'])
         self.assertIn('Curtis Lynn Geise', source['rights'])
