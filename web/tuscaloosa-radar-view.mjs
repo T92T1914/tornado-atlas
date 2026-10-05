@@ -15,6 +15,8 @@ function returnFocus() {
   const target = opener;
   if (!target) return;
   requestAnimationFrame(() => {
+    const focus = document.activeElement;
+    if (focus && focus !== document.body && focus !== target && !dialog.contains(focus)) return;
     if (!dialog.open && currentId === null && opener === target && !selectedLink() &&
       document.visibilityState !== 'hidden') target.focus({preventScroll:true});
   });
