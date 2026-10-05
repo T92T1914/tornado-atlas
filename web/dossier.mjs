@@ -136,6 +136,7 @@ async function showRecord(index,id){
   button.onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)+'\n'],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=id.replace(':','-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};host.append(button);
 }
 async function main(){
+  host.replaceChildren(element('h1','Loading archive...'),element('p','The current documentary chapter links below remain available while this evidence loads.'));
   const index=await json('archive/index.json');
   if(query.get('view')==='sources')await showSources(index);
   else if(query.has('record'))await showRecord(index,query.get('record'));
