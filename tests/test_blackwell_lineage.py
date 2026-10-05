@@ -17,9 +17,12 @@ class BlackwellLineageTests(unittest.TestCase):
         raw = (ROOT / 'web' / OLD).read_bytes()
         self.assertEqual(hashlib.sha256(raw).hexdigest(), OLD_SHA256)
         old = json.loads(raw)
+        increment = json.loads((ROOT / 'web/archive/blackwell-1955-254585ae31741f76ffdf.json').read_bytes())
+        self.assertEqual([o for o in increment['observations'] if o['id'] != NEW_ID], old['observations'])
         current = next(d for d in dossiers() if d['id'] == old['id'])
         self.assertEqual(current['records'], old['records'])
-        self.assertEqual([o for o in current['observations'] if o['id'] != NEW_ID], old['observations'])
+        for observation in increment['observations']:
+            self.assertIn(observation, current['observations'])
         prior_media_ids = {row['id'] for row in old['media']}
         self.assertEqual([row for row in current['media'] if row['id'] in prior_media_ids], old['media'])
         self.assertEqual(current['reconstruction'], old['reconstruction'])

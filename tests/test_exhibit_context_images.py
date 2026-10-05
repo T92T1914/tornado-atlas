@@ -38,8 +38,12 @@ class ContextImageTests(unittest.TestCase):
                 latest = self.docs[event]
                 # Assert the established image increment at its immutable
                 # revision; later radar evidence has its own exact tests.
-                current = (json.loads((ROOT / 'web/archive/joplin-2011-22debeaf0abaa4cb5c06.json').read_bytes())
-                           if event == 'joplin-2011' else latest)
+                increment_files = {
+                    'joplin-2011': 'joplin-2011-22debeaf0abaa4cb5c06.json',
+                    'blackwell-1955': 'blackwell-1955-a90a7539209f78940922.json',
+                }
+                current = (json.loads((ROOT / 'web/archive' / increment_files[event]).read_bytes())
+                           if event in increment_files else latest)
                 for field in ('records', 'reconstruction', 'observations'):
                     self.assertEqual(current[field], old[field])
                 for field in ('sources', 'media', 'creators', 'routes'):
@@ -53,8 +57,10 @@ class ContextImageTests(unittest.TestCase):
                     expected_additions = expected_additions | WARNING_ADDITIONS
                 self.assertEqual({row['id'] for row in current['media']} -
                                  {row['id'] for row in old['media']}, expected_additions)
-                for field in ('records', 'reconstruction', 'observations'):
+                for field in ('records', 'reconstruction'):
                     self.assertEqual(latest[field], current[field])
+                for row in current['observations']:
+                    self.assertIn(row, latest['observations'])
                 for field in ('sources', 'media', 'creators', 'routes'):
                     by_id = {row.get('id', row.get('href')): row for row in latest[field]}
                     for prior in current[field]:

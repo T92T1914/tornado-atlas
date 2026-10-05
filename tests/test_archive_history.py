@@ -17,7 +17,7 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_three_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 4}
+        counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 5}
         for entry in index['events']:
             history = artifacts[entry['history_file']]
             self.assertEqual(history['event_id'], entry['id'])
@@ -41,9 +41,16 @@ class ArchiveHistoryTests(unittest.TestCase):
         self.assertIn('not chronological', history['scope'])
 
     def test_blackwell_warning_images_preserve_the_prior_event_record(self):
-        doc = next(d for d in dossiers() if d['id'] == 'blackwell-1955')
-        history = dossier_history(doc)
-        current = history['versions'][0]
+        latest = next(d for d in dossiers() if d['id'] == 'blackwell-1955')
+        history = dossier_history(latest)
+        current = next(version for version in history['versions']
+                       if version['dossier_sha256'] == 'a90a7539209f7894092248384251566a6db9e4b669d748d498d5df8b4001fc87')
+        doc = json.loads((ROOT / 'web' / current['file']).read_text(encoding='utf-8'))
+        for field in ('records', 'reconstruction'):
+            self.assertEqual(latest[field], doc[field])
+        for field in ('observations', 'sources', 'media', 'creators', 'routes'):
+            for row in doc[field]:
+                self.assertIn(row, latest[field])
         prior_sha = '54ce2e5ef8f7a616c7766adde8d075e42e846a99e1a5e5f3ebfb4b34ca248a09'
         self.assertEqual(current['review']['previous_dossier_sha256'], prior_sha)
         prior = next(version for version in history['versions'] if version['dossier_sha256'] == prior_sha)
