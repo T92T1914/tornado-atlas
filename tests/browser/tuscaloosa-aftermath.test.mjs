@@ -5,6 +5,17 @@ import {fixture,base} from './harness.mjs';
 
 const id='birmingham-aftermath-april29',file='birmingham-aftermath-april29.jpg';
 const survey='https://www.weather.gov/bmx/event_04272011tuscbirm';
+async function decoded(page){
+  const image=page.locator(`[data-photo-id="${id}"] img`);
+  await image.scrollIntoViewIfNeeded();
+  // Scrolling starts a lazy request. Require its actual pixels before decode,
+  // as in the hospital photograph journey, rather than decode an idle source.
+  await page.waitForFunction(id=>{
+    const image=document.querySelector(`[data-photo-id="${id}"] img`);
+    return image?.complete&&image.naturalWidth===800&&image.naturalHeight===600;
+  },id);
+  await image.evaluate(image=>image.decode());
+}
 async function shown(page){await page.waitForFunction(()=>{
   const img=document.getElementById('photo-full');
   return document.getElementById('photo-dialog').open&&!img.hidden&&img.naturalWidth===800&&img.naturalHeight===600;
@@ -29,7 +40,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     await page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready');
     await page.locator('#reading-appearance').selectOption(appearance);
     const link=page.locator(`[data-photo-id="${id}"]`);
-    await link.locator('img').scrollIntoViewIfNeeded();await link.locator('img').evaluate(img=>img.decode());
+    await decoded(page);
     if(width<600)await link.tap();else{await link.focus();await page.keyboard.press('Enter');}
     await shown(page);await photoText(page);
     assert.equal(new URL(page.url()).searchParams.get('photo'),id);
@@ -68,6 +79,29 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     assert.equal(requests.some(u=>!u.startsWith(base+'/')),false);
   });
 }
+test('a deferred aftermath photograph loads before decode acceptance',{timeout:15000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:844},hasTouch:true,isMobile:true});
+  let release,requested;
+  const held=new Promise(resolve=>{release=resolve;});
+  const seen=new Promise(resolve=>{requested=resolve;});
+  t.after(()=>release());
+  await page.route('**/'+file,async route=>{requested();await held;await route.continue();});
+  let deadline;
+  try{
+    await page.goto(base+'/tuscaloosa.html#birmingham-aftermath');
+    await page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready');
+    await page.locator(`[data-photo-id="${id}"] img`).scrollIntoViewIfNeeded();
+    await Promise.race([seen,new Promise((resolve,reject)=>{
+      deadline=setTimeout(()=>reject(new Error('The visible lazy aftermath image was not requested')),10000);
+    })]);
+    assert.equal(await page.locator(`[data-photo-id="${id}"] img`).evaluate(image=>
+      image.complete&&image.naturalWidth>0),false,'A held image request is not loaded-photo acceptance');
+  }finally{clearTimeout(deadline);release();}
+  await decoded(page);
+  assert.deepEqual(await page.locator(`[data-photo-id="${id}"] img`).evaluate(image=>
+    [image.naturalWidth,image.naturalHeight]),[800,600]);
+});
+
 test('failed aftermath image retains its own credit and retries the publication copy',async t=>{
   const page=await fixture(t);let failing=true;
   await page.route('**/'+file,route=>failing?route.fulfill({status:503,body:'Unavailable'}):route.continue());
