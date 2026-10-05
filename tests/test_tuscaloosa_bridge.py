@@ -1,4 +1,4 @@
-"""A second documentary photograph must retain its own evidence and privacy limits."""
+"""An infrastructure documentary photograph must retain its own evidence and privacy limits."""
 
 import copy
 import hashlib
@@ -11,11 +11,11 @@ from atlas.archive import digest, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
 EVENT = 'tuscaloosa-birmingham-2011'
-MEDIA = 'apartment-complex-aftermath'
-SOURCE = 'bmx-apartment-complex'
-ASSET = 'assets/tuscaloosa-birmingham-2011/apartment-complex-april29.jpg'
-PUBLIC_SHA = '67502ee34b2f76a9d875d688caf026344d38325b8bfb27a5ebf3a38484142b47'
-PREVIOUS_SHA = '1eca25f06fa270ce9e71e2c2963f6c6b84f06eb2e5d7737a50f2189aafd1fca4'
+MEDIA = 'railway-bridge-aftermath'
+SOURCE = 'bmx-railway-bridge'
+ASSET = 'assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg'
+PUBLIC_SHA = '1abcd76e5b905f157c39da7d3ee39b0b1e4966810211f16410c5a21f097a8a59'
+PREVIOUS_SHA = 'a1d19787e5730aa6216e3606955ce25a6edefc112891326875e8dc5101bbe115'
 
 
 class PhotoFigure(HTMLParser):
@@ -29,7 +29,7 @@ class PhotoFigure(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        if tag == 'figure' and attrs.get('id') == 'apartment-complex':
+        if tag == 'figure' and attrs.get('id') == 'railway-bridge':
             self.in_figure = True
             self.figure = attrs
         if self.in_figure:
@@ -47,7 +47,7 @@ class PhotoFigure(HTMLParser):
             self.text.append(data)
 
 
-class TuscaloosaComplexTests(unittest.TestCase):
+class TuscaloosaBridgeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.doc = next(d for d in dossiers() if d['id'] == EVENT)
@@ -58,26 +58,23 @@ class TuscaloosaComplexTests(unittest.TestCase):
 
     def test_previous_evidence_and_registration_are_unchanged(self):
         self.assertEqual(digest(self.prior), PREVIOUS_SHA)
-        self.assertEqual(len(self.prior['media']), 3)
-        self.assertEqual(len(self.prior['sources']), 7)
+        self.assertEqual(len(self.prior['media']), 4)
+        self.assertEqual(len(self.prior['sources']), 8)
         self.assertEqual(len(self.prior['observations']), 11)
         self.assertEqual(len(self.prior['records']), 3)
         for field in ('observations', 'records', 'reconstruction', 'creators', 'title', 'coverage'):
             self.assertEqual(self.doc[field], self.prior[field], field)
-        self.assertEqual(self.doc['media'][:3], self.prior['media'])
-        self.assertEqual(self.doc['sources'][:7], self.prior['sources'])
-        self.assertEqual(self.doc['media'][3]['id'], MEDIA)
-        self.assertEqual(self.doc['sources'][7]['id'], SOURCE)
-        complex_revision = json.loads((ROOT / 'web/archive/tuscaloosa-birmingham-2011-a1d19787e5730aa6216e.json').read_text(encoding='utf-8'))
-        self.assertEqual(complex_revision['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS_SHA)
-        self.assertEqual(self.item, complex_revision['media'][3])
-        self.assertEqual(self.source, complex_revision['sources'][7])
+        self.assertEqual(self.doc['media'][:-1], self.prior['media'])
+        self.assertEqual(self.doc['sources'][:-1], self.prior['sources'])
+        self.assertEqual(self.doc['media'][-1]['id'], MEDIA)
+        self.assertEqual(self.doc['sources'][-1]['id'], SOURCE)
+        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS_SHA)
         self.assertLess((ROOT / f'exhibits/{EVENT}/dossier.json').stat().st_size, 50_000)
 
-    def test_item_attribution_does_not_assign_a_complex_or_camera(self):
+    def test_item_attribution_does_not_assign_a_bridge_or_camera(self):
         self.assertEqual(self.item['source_id'], SOURCE)
         self.assertEqual(self.item['kind'], 'photograph')
-        self.assertEqual(self.item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/1.JPG')
+        self.assertEqual(self.item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/2.JPG')
         self.assertEqual(self.source['url'], self.item['url'])
         self.assertEqual(self.item['roles'], {'creator': None, 'uploader': 'nws-birmingham', 'rights_holder': None})
         self.assertEqual(self.item['status']['rights'], 'permitted_hosting')
@@ -87,13 +84,13 @@ class TuscaloosaComplexTests(unittest.TestCase):
         self.assertIsNone(self.item['place']['coordinates'])
         for clock in ('capture', 'publication', 'video', 'alignment'):
             self.assertIsNone(self.item['time'][clock])
-        self.assertIn('Apartment Complex Leveled', self.item['locator'])
+        self.assertIn('Train Bridge Demolished', self.item['locator'])
         self.assertIn('NWS BMX', self.source['rights'])
         self.assertIn('Item-specific agency-material inference', self.source['rights'])
         self.assertIn('Photographer employment is unknown', self.source['rights'])
-        self.assertIn('45a73d56eb19a476511d2121cbfc07049766fe2464655de4e70ef74a0b1ecca0', self.source['revision'])
-        self.assertNotIn('Chastain Manor', self.item['place']['reported'])
-        self.assertNotIn('Alberta City', self.item['place']['reported'])
+        self.assertIn('485386e762936039cc9d3d404e550ae407e724d8c98db4b0e217c560a413855d', self.source['revision'])
+        self.assertNotIn('Black Warrior', self.item['place']['reported'])
+        self.assertNotIn('Tuscaloosa city', self.item['place']['reported'])
 
     def test_public_jpeg_has_no_private_header_and_retains_the_original_scan(self):
         transform = self.item['transformation']
@@ -101,7 +98,7 @@ class TuscaloosaComplexTests(unittest.TestCase):
         self.assertEqual(transform['sha256'], PUBLIC_SHA)
         self.assertEqual((transform['width'], transform['height']), (800, 600))
         raw = (ROOT / 'web' / ASSET).read_bytes()
-        self.assertEqual((len(raw), hashlib.sha256(raw).hexdigest()), (131362, PUBLIC_SHA))
+        self.assertEqual((len(raw), hashlib.sha256(raw).hexdigest()), (148308, PUBLIC_SHA))
         self.assertEqual(raw[:2], b'\xff\xd8')
         cursor, frame = 2, None
         while raw[cursor:cursor + 2] != b'\xff\xda':
@@ -118,9 +115,9 @@ class TuscaloosaComplexTests(unittest.TestCase):
         self.assertEqual(frame, (800, 600, 3))
         scan = cursor + 2 + int.from_bytes(raw[cursor + 2:cursor + 4], 'big')
         self.assertEqual(raw[-2:], b'\xff\xd9')
-        self.assertEqual(len(raw[scan:-2]), 130987)
+        self.assertEqual(len(raw[scan:-2]), 147938)
         self.assertEqual(hashlib.sha256(raw[scan:-2]).hexdigest(),
-                         '0f028b909fcd98614777ce7a378110e60fc2f0f0640233ca4f17bb7a946f59dc')
+                         'fbbad686acb0172ec2a986ae717f49e2f8a8cce22ec3590163897fdb7ff329a2')
 
     def test_new_figure_joins_the_item_and_has_a_real_local_fallback(self):
         figure = PhotoFigure()

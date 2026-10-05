@@ -140,7 +140,7 @@ class TuscaloosaExhibitTests(unittest.TestCase):
         }
         radar = [m for m in self.doc['media'] if m['kind'] == 'radar']
         self.assertEqual({m['id'] for m in radar}, set(expected))
-        self.assertEqual(len(self.links.images), 5)  # Radar pair, two photographs and empty viewer.
+        self.assertEqual(len(self.links.images), 6)  # Radar pair, three photographs and empty viewer.
         for item in radar:
             identity, width, height = expected[item['id']]
             raw = (ROOT / 'web' / item['transformation']['asset']).read_bytes()
@@ -177,8 +177,8 @@ class TuscaloosaExhibitTests(unittest.TestCase):
     def test_photo_has_a_separate_identity_and_no_embedded_private_metadata(self):
         photos = [m for m in self.doc['media'] if m['kind'] == 'photograph']
         self.assertEqual([m['id'] for m in photos],
-                         ['birmingham-aftermath-april29', 'apartment-complex-aftermath'])
-        self.assertEqual(len(self.doc['media']), 4)
+                         ['birmingham-aftermath-april29', 'apartment-complex-aftermath', 'railway-bridge-aftermath'])
+        self.assertEqual(len(self.doc['media']), 5)
         item = photos[0]
         self.assertEqual(item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG')
         self.assertEqual(item['roles'], dict(creator=None, uploader='nws-birmingham', rights_holder=None))

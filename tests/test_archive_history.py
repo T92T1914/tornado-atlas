@@ -18,7 +18,7 @@ class ArchiveHistoryTests(unittest.TestCase):
         artifacts = publication()
         index = artifacts['archive/index.json']
         counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 5,
-                  'tuscaloosa-birmingham-2011': 4}
+                  'tuscaloosa-birmingham-2011': 5}
         self.assertEqual({e['id'] for e in index['events']}, set(counts))
         for entry in index['events']:
             history = artifacts[entry['history_file']]
@@ -45,7 +45,8 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_tuscaloosa_second_photo_is_an_addition_after_the_first_photo(self):
         doc = next(d for d in dossiers() if d['id'] == 'tuscaloosa-birmingham-2011')
         history = dossier_history(doc)
-        current = history['versions'][0]
+        current = next(v for v in history['versions'] if v['dossier_sha256'] ==
+                       'a1d19787e5730aa6216e3606955ce25a6edefc112891326875e8dc5101bbe115')
         previous_sha = '1eca25f06fa270ce9e71e2c2963f6c6b84f06eb2e5d7737a50f2189aafd1fca4'
         self.assertEqual(current['review']['previous_dossier_sha256'], previous_sha)
         self.assertTrue(current['predecessor_available'])
