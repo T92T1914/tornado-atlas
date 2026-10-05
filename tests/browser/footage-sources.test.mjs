@@ -36,6 +36,53 @@ async function sources(page,{delayed=false}={}){
   },{delayed});
 }
 
+for(const width of [1280,320])test(`visible share link restores selected source, checked moment and gap at ${width}px`,async t=>{
+  const page=await fixture(t,{viewport:{width,height:900},hasTouch:width===320});
+  await sources(page);
+  // Optional local failure proof uses the unchanged accepted consumer bytes.
+  // It changes only the loopback response, never the retained source or data.
+  if(process.env.ATLAS_SHARE_BASELINE_SOURCE){
+    const body=await readFile(process.env.ATLAS_SHARE_BASELINE_SOURCE);
+    assert.equal(createHash('sha256').update(body).digest('hex'),'60bad7f02a68510bbe860e61ce9f3e923f69f715d1b9b2a1df9a9fac7646d7c8');
+    await page.route('**/reconstruction.js',route=>route.fulfill({contentType:'text/javascript',body}));
+  }
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=783.5&context=kept');
+  await page.locator('#footage-source:visible').waitFor();
+  await page.locator('#footage-source').selectOption('synthetic-source-b');
+  await page.waitForFunction(()=>new URL(location.href).searchParams.get('footage_source')==='synthetic-source-b');
+  assert.equal(new URL(page.url()).searchParams.get('t'),'783.5');
+  assert.equal(new URL(page.url()).searchParams.has('footage'),false,'A fractional address does not claim an exact anchor');
+  const link=page.locator('#replay-link');
+  const shared=new URL(await link.getAttribute('href'),page.url());
+  assert.equal(shared.searchParams.get('t'),'783','The existing whole-second share contract is preserved');
+  assert.equal(shared.searchParams.get('footage_source'),'synthetic-source-b');
+  assert.equal(shared.searchParams.get('footage'),'synthetic-anchor-b');
+  assert.equal(shared.searchParams.get('context'),'kept');
+  await link.focus();
+  await Promise.all([page.waitForURL(shared.href),page.keyboard.press('Enter')]);
+  await page.locator('#footage-source:visible').waitFor();
+  assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
+  assert.equal(await page.locator('#replay-time').inputValue(),'783');
+  assert.match(await page.locator('#footage-status').textContent(),/Synthetic provider B.*0:20/);
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  assert.equal(await page.evaluate(()=>window.providerFixture.players.length),0,'Opening the link never loads the provider');
+  await page.locator('#replay-time').fill('782');
+  const gap=new URL(await link.getAttribute('href'),page.url());
+  assert.equal(gap.searchParams.get('t'),'782');
+  assert.equal(gap.searchParams.get('footage_source'),'synthetic-source-b');
+  assert.equal(gap.searchParams.has('footage'),false,'The gap has no invented anchor');
+  assert.notEqual(gap.hash,'#registered-footage');
+  await page.goto(gap.href);
+  await page.locator('#footage-source:visible').waitFor();
+  assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
+  assert.equal(await page.locator('#replay-time').inputValue(),'782');
+  assert.match(await page.locator('#footage-status').textContent(),/No checked video frame/);
+  assert.equal(await page.getByRole('button',{name:'Load original YouTube player',exact:true}).isDisabled(),true);
+  assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  assert.equal(await page.evaluate(()=>window.providerFixture.players.length),0);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+});
+
 for(const width of [1280,390])test(`one source-owned player at ${width}px with history, buffering and gaps`,async t=>{
   const page=await fixture(t,{viewport:{width,height:1000}});await sources(page);
   await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=783');

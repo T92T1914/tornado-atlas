@@ -35,7 +35,7 @@ jobs:
           node --check web/chronology-view.mjs
           node --test tests/chronology-model.test.mjs
           node --test tests/event-package-model.test.mjs
-          node --test tests/reconstruction-model.test.mjs
+          node --test tests/reconstruction-model.test.mjs tests/reconstruction-share-consumer.test.mjs
           node --check web/wind.js
           node --check web/passage.js
           node --test tests/passage-clock-controls.test.mjs
