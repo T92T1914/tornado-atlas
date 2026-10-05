@@ -36,7 +36,9 @@ for(const [width,appearance,fallback] of [[320,'dark'],[390,'dark'],[1280,'light
     });
     assert.ok(layout.width<=layout.viewport+1,`Doubled text must fit the viewport: ${JSON.stringify(layout)}`);
     const chapter=page.locator('.documentary-contents a[href="#path"]');
-    await chapter.focus();await page.keyboard.press('Enter');
+    await chapter.focus();
+    await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/tuscaloosa.html')&&
+      url.hash==='#path',{waitUntil:'domcontentloaded'}),page.keyboard.press('Enter')]);
     assert.equal(new URL(page.url()).hash,'#path');
     assert.equal(await page.locator('#path .documentary-timeline li').count(),6);
     assert.match(await page.locator('#warnings').textContent(),/best practice/i);
