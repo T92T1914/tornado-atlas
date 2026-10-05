@@ -91,7 +91,11 @@ test('slow dossier keeps a readable loading state and navigation usable',async t
   const page=await fixture(t);let release;const gate=new Promise(resolve=>{release=resolve;});
   await page.route('**/archive/el-reno-2013-*.json',async route=>{await gate;await route.continue();});
   await page.goto(base+'/dossier.html?event=el-reno-2013');
+  await page.waitForFunction(()=>document.querySelector('#content h1')?.textContent==='Loading archive...');
   assert.match(await page.locator('#content').textContent(),/Loading archive/);
+  assert.equal(await page.evaluate(()=>document.body.dataset.ready),undefined);
+  const chapter=page.locator('#documentary-chapters a[href="joplin.html"]');
+  await chapter.focus();assert.equal(await chapter.evaluate(e=>e===document.activeElement),true);
   const navigation=page.getByRole('link',{name:'Map and catalogue',exact:true});
   await navigation.focus();assert.equal(await navigation.evaluate(e=>e===document.activeElement),true);
   release();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
