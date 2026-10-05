@@ -19,4 +19,8 @@
 .archive-main details {padding:10px 0}.archive-main summary {cursor:pointer;font-weight:600}
 .archive-main pre {white-space:pre-wrap;overflow-wrap:anywhere;font-size:.85rem}
 .archive-main :focus-visible {outline:2px solid var(--text);outline-offset:4px}
+.documentary-fallback {padding:24px 0 0;margin-top:24px;border-top:1px solid var(--line);border-bottom:0}
+.documentary-fallback h2 {font-size:1.5em;margin:0 0 12px}
+.documentary-fallback nav {font-size:inherit;gap:8px 24px}
+.documentary-fallback nav a {display:inline-flex;align-items:center;min-height:44px;max-width:100%;text-decoration:underline}
 @media(max-width:540px){.archive-main{padding:24px 16px}.archive-card{padding:16px}.archive-main dl{grid-template-columns:1fr}.archive-main dd{margin-bottom:10px}header{flex-wrap:wrap}}
