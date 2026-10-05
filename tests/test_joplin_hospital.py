@@ -15,16 +15,19 @@ class HospitalExhibitTests(unittest.TestCase):
         self.before = json.loads((ROOT / 'web/archive/joplin-2011-01b24def4c0f59517dd4.json').read_text(encoding='utf-8'))
 
     def test_previous_evidence_and_chronology_are_unchanged(self):
-        for key in ('observations', 'records', 'reconstruction', 'creators', 'summary', 'coverage'):
-            self.assertEqual(self.doc[key], self.before[key], key)
-        self.assertEqual(self.doc['sources'][:-2], self.before['sources'])
-        self.assertEqual(self.doc['media'][:-3], self.before['media'])
-        self.assertEqual(self.doc['routes'][:-2], self.before['routes'])
         hospital = json.loads((ROOT / 'web/archive/joplin-2011-2ff06de762b0d24a3451.json').read_text(encoding='utf-8'))
+        # Check this increment at its immutable boundary, then check that later
+        # reviewed additions still preserve its rows in the current dossier.
+        for key in ('observations', 'records', 'reconstruction', 'creators', 'summary', 'coverage'):
+            self.assertEqual(hospital[key], self.before[key], key)
+        self.assertEqual(hospital['sources'][:-1], self.before['sources'])
+        self.assertEqual(hospital['media'][:-2], self.before['media'])
+        self.assertEqual(hospital['routes'][:-1], self.before['routes'])
         self.assertEqual(hospital['provenance']['publication_review']['previous_dossier_sha256'],
                          '01b24def4c0f59517dd4c799ffb19f53db60a94c6fad1803c477e9047e22bec1')
-        for field in ('sources', 'media', 'routes'):
-            self.assertEqual(self.doc[field][:-1], hospital[field], field)
+        for field in ('sources', 'media', 'routes', 'observations', 'creators', 'records'):
+            self.assertEqual(self.doc[field][:len(hospital[field])], hospital[field], field)
+        self.assertEqual(self.doc['reconstruction'], hospital['reconstruction'])
 
     def test_photos_are_complete_bounded_unregistered_report_sources(self):
         expected = [

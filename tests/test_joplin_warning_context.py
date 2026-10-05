@@ -31,11 +31,12 @@ class JoplinWarningContextTests(unittest.TestCase):
         self.assertEqual(self.doc['observations'][10]['id'], NEW_ID)
         for key in ('records', 'reconstruction'):
             self.assertEqual(self.doc[key], self.old[key])
-        self.assertEqual(self.doc['routes'], self.old['routes'] + [{
+        retained_routes = self.old['routes'] + [{
             'label': 'Hospital frame, windows and loss of function',
             'href': 'joplin.html#hospital-envelope'}, {
             'label': 'How roof loss removed wall support',
-            'href': 'joplin.html#roof-bracing'}])
+            'href': 'joplin.html#roof-bracing'}]
+        self.assertEqual(self.doc['routes'][:len(retained_routes)], retained_routes)
         for key in ('media', 'creators'):
             prior_ids = {row['id'] for row in self.old[key]}
             self.assertEqual([row for row in self.doc[key] if row['id'] in prior_ids], self.old[key])
@@ -67,7 +68,8 @@ class JoplinWarningContextTests(unittest.TestCase):
         hospital = json.loads(hospital_raw)
         self.assertEqual(hospital['provenance']['publication_review']['previous_dossier_sha256'],
                          digest(pre_hospital))
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'],
+        roof = json.loads((ROOT / 'web/archive/joplin-2011-22debeaf0abaa4cb5c06.json').read_text(encoding='utf-8'))
+        self.assertEqual(roof['provenance']['publication_review']['previous_dossier_sha256'],
                          digest(hospital))
 
     def test_attribution_and_selected_page_scope_do_not_register_alert_clocks(self):
