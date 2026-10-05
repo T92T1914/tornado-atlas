@@ -1,8 +1,10 @@
 import {MPH,FOOT,loadAt,samplePassage} from './wind-model.mjs';
 import {componentHistory} from './component-model.mjs';
+import {PlaybackClock} from './playback-model.mjs';
 const el=id=>document.getElementById(id);
 const controls=['travel','offset','threshold','capacity'];
-let result,field,component,running=false,raf=0,last=null,progress=0,visible=true;
+const clock=new PlaybackClock(24,1);
+let result,field,component,raf=0,visible=true;
 const x=i=>52+i/480*636;
 let y=speed=>180-speed;
 function settings() {
@@ -50,27 +52,35 @@ function rebuild() {
   el('passage-range').textContent=`Time at or above ${el('threshold').value} mph within the displayed window`;
   show();
 }
-function pause() {running=false;cancelAnimationFrame(raf);last=null;for(const id of ['passage-play','component-play'])el(id).textContent='Play passage';}
-function frame(now) {
-  if (!running) return;
-  if (last!==null) progress+=Math.min(now-last,100)/24000*480;
-  last=now;el('passage-time').value=Math.min(480,Math.round(progress));show();
-  if(progress>=480) return pause();
-  raf=requestAnimationFrame(frame);
+function syncTime() {el('passage-time').value=Math.round(clock.seconds/clock.duration*480);show();}
+function pause() {
+  clock.pause(performance.now());cancelAnimationFrame(raf);raf=0;
+  for(const id of ['passage-play','component-play'])el(id).textContent='Play passage';
+  if(result)syncTime();
+}
+function frame() {
+  raf=0;if(!clock.playing)return;
+  // Controls and frames use the same monotonic clock. An RAF timestamp can
+  // precede a control callback's performance.now() in the same display frame.
+  clock.tick(performance.now());syncTime();
+  if(clock.playing)raf=requestAnimationFrame(frame);else pause();
 }
 function togglePlay() {
-  if(running) return pause();if(document.hidden || !visible) return;
-  progress=Number(el('passage-time').value);if(progress>=480)progress=0;
-  running=true;last=null;for(const id of ['passage-play','component-play'])el(id).textContent='Pause passage';raf=requestAnimationFrame(frame);
+  if(clock.playing)return pause();if(document.hidden || !visible)return;
+  clock.play(performance.now());syncTime();
+  for(const id of ['passage-play','component-play'])el(id).textContent='Pause passage';raf=requestAnimationFrame(frame);
+}
+function seek(index) {
+  pause();clock.seek(Number(index)/480*clock.duration);syncTime();
 }
 for(const id of ['passage-play','component-play'])el(id).addEventListener('click',togglePlay);
-el('passage-time').addEventListener('input',()=>{pause();show();});
-el('component-time').addEventListener('input',()=>{pause();el('passage-time').value=el('component-time').value;show();});
+el('passage-time').addEventListener('input',()=>seek(el('passage-time').value));
+el('component-time').addEventListener('input',()=>seek(el('component-time').value));
 controls.forEach(id=>el(id).addEventListener('input',rebuild));
 el('wind-controls').addEventListener('input',rebuild);
 el('wind-reset').addEventListener('click',()=>queueMicrotask(()=>{
   for(const id of controls) el(id).value=el(id).defaultValue;
-  el('passage-time').value=0;
+  clock.seek(0);
   rebuild();
 }));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
