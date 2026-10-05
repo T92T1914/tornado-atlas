@@ -1,5 +1,12 @@
 /* A reading layer over the same curated chapters used by the map. */
 import {sourceMatches} from './source-filter.mjs';
+export function mountReaderLayout() {
+  const contents = document.getElementById('exhibit-contents');
+  const narrow = matchMedia('(max-width:1080px)');
+  const adapt = () => { contents.open = !narrow.matches; };
+  adapt();
+  narrow.addEventListener('change', adapt);
+}
 export function mountReader(reading, chapters, selectMinute) {
   const create = (tag, text, className) => {
     const element = document.createElement(tag);
@@ -72,10 +79,6 @@ export function mountReader(reading, chapters, selectMinute) {
   filterSources();
 
   const contents = document.getElementById('exhibit-contents');
-  const narrow = matchMedia('(max-width:1080px)');
-  const adapt = () => { contents.open = !narrow.matches; };
-  adapt();
-  narrow.addEventListener('change', adapt);
   const anchors = [...contents.querySelectorAll('a')];
   const sections = anchors.map(anchor => document.getElementById(anchor.hash.slice(1)));
   let scheduled = false;
