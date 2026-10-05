@@ -2,6 +2,7 @@
 
 import copy
 from datetime import datetime
+import hashlib
 from html.parser import HTMLParser
 import json
 from pathlib import Path
@@ -132,13 +133,44 @@ class TuscaloosaExhibitTests(unittest.TestCase):
             if parsed.path == 'tuscaloosa.html' and parsed.fragment:
                 self.assertIn(parsed.fragment, self.links.ids)
 
-    def test_uninspected_pixels_are_not_a_published_media_feature(self):
-        self.assertEqual(self.doc['media'], [])
-        self.assertEqual(self.links.images, [])
+    def test_only_the_inspected_original_radar_pair_is_published(self):
+        expected = {
+            'kbmx-reflectivity-county-crossing': ('3d4581d6ca3bf8eda91f2bfd665e9c48d9ae7261d72286fe205d2b29c0d7ce18', 755, 583),
+            'kbmx-storm-relative-velocity-county-crossing': ('34591f78f45cb8ff46ba385b74ccc50aca9b9e0f7292cd15b63c31d998215d63', 756, 567),
+        }
+        self.assertEqual({m['id'] for m in self.doc['media']}, set(expected))
+        self.assertEqual(len(self.links.images), 3)  # Pair plus the empty shared viewer.
+        for item in self.doc['media']:
+            identity, width, height = expected[item['id']]
+            raw = (ROOT / 'web' / item['transformation']['asset']).read_bytes()
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), identity)
+            self.assertIn(raw[:6], (b'GIF87a', b'GIF89a'))
+            self.assertEqual((int.from_bytes(raw[6:8], 'little'), int.from_bytes(raw[8:10], 'little')), (width, height))
+            self.assertEqual(item['transformation']['sha256'], identity)
+            self.assertEqual(item['kind'], 'radar')
+            self.assertEqual(item['status']['rights'], 'permitted_hosting')
+            self.assertEqual(item['status']['temporal'], 'source_label')
+            self.assertEqual(item['status']['spatial'], 'unregistered')
+            self.assertEqual(item['roles'], dict(creator=None, uploader='nws-birmingham', rights_holder=None))
+            for clock in ('capture', 'publication', 'video', 'alignment'):
+                self.assertIsNone(item['time'][clock])
+            self.assertIsNone(item['place']['coordinates'])
+            self.assertIn('no visible color scale', item['limits'])
+        self.assertIn('no timestamp, units or color key', self.html)
         self.assertEqual(self.links.frames, [])
         assessment = next(s for s in self.doc['sources'] if s['id'] == 'april-warning-assessment')
         self.assertIn('No report figure pixels visually inspected', assessment['access'])
         self.assertIn('do not clear every figure', assessment['rights'])
+
+    def test_media_increment_preserves_the_prior_dossier_and_reviewed_accounts(self):
+        prior_path = ROOT / 'web/archive/tuscaloosa-birmingham-2011-52bd3ebb4b7537641971.json'
+        prior = json.loads(prior_path.read_text(encoding='utf-8'))
+        self.assertEqual(self.doc['observations'], prior['observations'])
+        self.assertEqual(self.doc['records'], prior['records'])
+        self.assertEqual(self.doc['reconstruction'], prior['reconstruction'])
+        self.assertEqual(self.doc['sources'][:4], prior['sources'])
+        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'],
+                         '52bd3ebb4b75376419719cc44ec1bb9421eee9bc558e14d1b54b9060e433944a')
 
     def test_new_prose_preserves_voice_and_public_boundary(self):
         for text in (self.html, DOSSIER.read_text(encoding='utf-8')):
