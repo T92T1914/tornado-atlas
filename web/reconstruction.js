@@ -129,7 +129,7 @@ async function start(){
     updateFootage(current.utc);
     el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?'Published source minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
-    el('replay-link').href=`reconstruction.html?event=${encodeURIComponent(event.id)}&t=${Math.floor(clock.seconds)}`;
+    el('replay-link').href=replayURL(location.href,event.id,Math.floor(clock.seconds),anchors,start).href;
     const media=data.timeline_media;
     const match=frameAt(media.frames,current.utc,media.max_age_seconds);
     const image=el('replay-radar-image');image.hidden=!match||failedRadar.has(match?.frame.file);
