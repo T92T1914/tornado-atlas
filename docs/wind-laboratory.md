@@ -19,8 +19,10 @@ Density is fixed at 1.225 kg/m³. Area and coefficient are explicit inputs.
 With those inputs held fixed, doubling speed quadruples calculated force.
 Dynamic pressure here is not a central atmospheric pressure deficit.
 
-There is no structural failure model, debris simulation, safety assessment,
-terrain, vertical flow, turbulence or damage-rating output. The
+The component experiment adds the assumed-capacity rule described below. It
+does not model a real structure or validate a building failure. There is no
+debris simulation, safety assessment, terrain, vertical flow, turbulence or
+damage-rating output. The
 [NWS EF-scale explanation](https://www.weather.gov/oun/efscale) describes why
 damage indicators and degrees of damage are part of an actual rating.
 
@@ -50,6 +52,28 @@ slider can inspect individual samples. Motion begins paused and stops when
 the view is hidden or moved out of view. Changing any model setting pauses
 the passage and recomputes the graph.
 
+## A component with an assumed capacity
+
+The component experiment uses the passage's sampled drag forces and a total
+load capacity chosen by the visitor, in kilonewtons. The rule assumes an intact
+component before evaluating the sequence. A force strictly greater than that
+capacity marks it failed, including at the first sample, and it stays failed
+through later samples even when the wind falls. Equality
+does not trigger failure. The first exceedance is a sample time, not an exact
+failure time between samples.
+
+The passage and component sliders inspect the same sequence. Rewinding shows
+the state at that earlier sample. Changing an input pauses playback and rebuilds
+the hypothetical experiment. Reset restores the controls and returns to its
+first sample. The detached panel is a state diagram, not calculated debris
+motion.
+
+Capacity is an assumption, not a measured resistance for a roof, wall or other
+building part. The rule has no fatigue, deformation, changing area, pressure
+coupling or impact loads. It is not a historical reconstruction, structural
+safety assessment or EF rating. A real structural archetype would need its own
+sourced load and resistance definitions and independent validation.
+
 ## Checks
 
 Ten analytic tests check the center, peak, inverse-distance outer
@@ -59,3 +83,9 @@ checks of the stated equations, not validation of a real tornado or building.
 The passage tests include a known central crossing, offset symmetry without
 background wind, clipped exposure time, and the invariant that doubling travel
 speed halves the time axis and exposure while preserving the sampled winds.
+Component checks cover strict capacity exceedance, persistent failure after
+wind falls, equality, changed area and speed, an exceedance at the first sample,
+and rejection of invalid capacity or unordered times. Consumer checks exercise
+the paired sliders, shared clock, pause, rewind, settings, reset and visibility
+transitions. These verify the stated software rules, without validating a real
+component or building.
