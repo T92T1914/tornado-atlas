@@ -37,6 +37,18 @@ async function keyboardFollow(page,link){
   await page.waitForLoadState('domcontentloaded',{timeout:10000});
 }
 async function dossierReady(page){await page.waitForFunction(()=>document.body?.dataset.ready==='true');}
+async function appearanceState(page,{choice,enabled,background}){
+  const control=page.locator('#reading-appearance'),help=page.locator('#reading-appearance-help');
+  assert.equal(await control.inputValue(),choice);
+  assert.equal(await control.isEnabled(),enabled);
+  assert.equal(await control.evaluate(node=>node.selectedOptions[0].textContent),{system:'Auto',light:'Clair',dark:'Obscur'}[choice]);
+  assert.equal(await help.count(),1);
+  assert.equal(await help.isVisible(),!enabled);
+  assert.equal(await page.locator('html').getAttribute('data-appearance'),choice==='system'?null:choice);
+  const colors=await page.evaluate(()=>({variable:getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(),body:getComputedStyle(document.body).backgroundColor}));
+  assert.equal(colors.variable,background);
+  assert.equal(colors.body,background==='#090909'?'rgb(9, 9, 9)':'rgb(248, 247, 243)');
+}
 
 for(const appearance of ['dark','light'])test(`documentary fallback works without JavaScript at 320px in ${appearance}`,{timeout:30000},async t=>{
   const page=await fixture(t,{viewport:{width:320,height:844},javaScriptEnabled:false,colorScheme:appearance}),requests=[];
@@ -46,7 +58,7 @@ for(const appearance of ['dark','light'])test(`documentary fallback works withou
   assert.equal(await page.locator('#documentary-js-required').isVisible(),true);
   assert.equal(await page.locator('#content > p').textContent(),'Browse the evidence archive or read a current documentary chapter below.');
   assert.match(await page.locator('#documentary-js-required').textContent(),/search, evidence cards and revision metadata require JavaScript/);
-  assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()),appearance==='dark'?'#090909':'#f8f7f3');
+  await appearanceState(page,{choice:'system',enabled:false,background:appearance==='dark'?'#090909':'#f8f7f3'});
   const sizes=()=>section.locator('h2,p,nav a').evaluateAll(nodes=>nodes.map(node=>parseFloat(getComputedStyle(node).fontSize)));
   const before=await sizes();
   // Inline styles do not depend on a stylesheet load event in a no-script page.
@@ -67,6 +79,7 @@ for(const appearance of ['dark','light'])test(`documentary fallback works withou
   await page.goBack();await fallback(page);
   await page.goto(base+'/dossier.html?event='+entry.id+'&revision='+retained.dossier_sha256);
   const direct=await fallback(page);
+  await appearanceState(page,{choice:'system',enabled:false,background:appearance==='dark'?'#090909':'#f8f7f3'});
   assert.equal(await page.locator('#documentary-js-required').isVisible(),true);
   assert.equal(await page.locator('#content .archive-card').count(),0);
   assert.equal(new URL(page.url()).searchParams.get('revision'),retained.dossier_sha256);
@@ -77,12 +90,65 @@ for(const appearance of ['dark','light'])test(`documentary fallback works withou
   assert.equal(await page.locator('#source-survey').count(),1);
 });
 
+for(const appearance of ['dark','light'])test(`a blocked appearance script leaves Auto disabled and follows ${appearance}`,{timeout:30000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:844},colorScheme:appearance});let scriptRequested=false;
+  await page.addInitScript(()=>localStorage.setItem('tornado-atlas-appearance','light'));
+  await page.route('**/appearance.js',route=>{scriptRequested=true;return route.fulfill({status:503,contentType:'text/javascript',body:''});});
+  await page.goto(base+'/dossier.html?event='+entry.id);await dossierReady(page);
+  const section=await fallback(page);
+  assert.equal(scriptRequested,true);
+  await appearanceState(page,{choice:'system',enabled:false,background:appearance==='dark'?'#090909':'#f8f7f3'});
+  assert.match(await page.locator('#content').textContent(),/current published dossier/);
+  await keyboardFollow(page,section.getByRole('link',{name:'Tuscaloosa and Birmingham, 2011',exact:true}));
+  assert.equal(new URL(page.url()).pathname,'/tuscaloosa.html');
+  assert.equal(await page.locator('#sources').count(),1);
+});
+
+test('initialized appearance restores saved choices and changes the actual palette',{timeout:30000},async t=>{
+  const page=await fixture(t,{colorScheme:'light'});
+  await page.goto(base+'/dossier.html');await dossierReady(page);
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  // Native selection dispatches the production change handler, not a test copy.
+  await page.locator('#reading-appearance').selectOption('light');
+  await appearanceState(page,{choice:'light',enabled:true,background:'#f8f7f3'});
+  assert.equal(await page.evaluate(()=>localStorage.getItem('tornado-atlas-appearance')),'light');
+  await page.reload();await dossierReady(page);
+  await appearanceState(page,{choice:'light',enabled:true,background:'#f8f7f3'});
+  await page.locator('#reading-appearance').selectOption('system');
+  await appearanceState(page,{choice:'system',enabled:true,background:'#f8f7f3'});
+  assert.equal(await page.evaluate(()=>localStorage.getItem('tornado-atlas-appearance')),'system');
+  await page.emulateMedia({colorScheme:'dark'});
+  await appearanceState(page,{choice:'system',enabled:true,background:'#090909'});
+  await page.reload();await dossierReady(page);
+  await appearanceState(page,{choice:'system',enabled:true,background:'#090909'});
+  await page.locator('#reading-appearance').selectOption('dark');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('tornado-atlas-appearance')),'dark');
+  await page.emulateMedia({colorScheme:'light'});
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await page.reload();await dossierReady(page);
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+});
+
+test('appearance controls remain functional when preference storage is unavailable',{timeout:30000},async t=>{
+  const page=await fixture(t,{colorScheme:'light'});
+  await page.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new DOMException('Storage unavailable','SecurityError');}}));
+  await page.goto(base+'/dossier.html');await dossierReady(page);
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await page.locator('#reading-appearance').selectOption('light');
+  await appearanceState(page,{choice:'light',enabled:true,background:'#f8f7f3'});
+  await page.locator('#reading-appearance').selectOption('system');
+  await appearanceState(page,{choice:'system',enabled:true,background:'#f8f7f3'});
+  await page.reload();await dossierReady(page);
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+});
+
 test('a missing dossier module leaves the native documentary route usable',{timeout:30000},async t=>{
   const page=await fixture(t),requests=[];let moduleRequested=false;
   page.on('request',request=>requests.push(request.url()));
   await page.route('**/dossier.mjs',route=>{moduleRequested=true;return route.fulfill({status:503,contentType:'text/javascript',body:''});});
   await page.goto(base+'/dossier.html?event='+entry.id+'&revision='+retained.dossier_sha256);
   const section=await fallback(page);
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
   assert.equal(moduleRequested,true);
   assert.equal(await page.locator('#content > p').textContent(),'Browse the evidence archive or read a current documentary chapter below.');
   assert.equal(await page.locator('#content .archive-card').count(),0);
