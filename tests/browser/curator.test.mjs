@@ -6,7 +6,7 @@ import {mkdtemp,readFile,rm,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {chromium,webkit} from 'playwright';
+import {chromium,webkit,firefox} from 'playwright';
 
 let child,browser,directory,url,origin;
 async function localSession(store){
@@ -23,8 +23,10 @@ async function stopSession(owned){if(owned?.pid&&owned.exitCode===null&&owned.si
 before(async()=>{
   directory=await mkdtemp(path.join(tmpdir(),'atlas-curator-check-'));
   ({child,url}=await localSession(path.join(directory,'private')));origin=new URL(url).origin;
-  browser=await (process.env.ATLAS_BROWSER_ENGINE==='webkit'?webkit:chromium).launch({headless:true,
-    ...(process.env.ATLAS_BROWSER_ENGINE==='webkit'?{}:{chromiumSandbox:true,
+  const engine=process.env.ATLAS_BROWSER_ENGINE||'chromium';
+  assert.ok(['chromium','webkit','firefox'].includes(engine));
+  browser=await ({chromium,webkit,firefox}[engine]).launch({headless:true,
+    ...(engine!=='chromium'?{}:{chromiumSandbox:true,
       ...(process.env.ATLAS_BROWSER_EXECUTABLE?{executablePath:process.env.ATLAS_BROWSER_EXECUTABLE}:process.env.ATLAS_BROWSER_CHANNEL?{channel:process.env.ATLAS_BROWSER_CHANNEL}:{}),args:['--mute-audio','--disable-gpu']})});
   console.log(JSON.stringify({engine:process.env.ATLAS_BROWSER_ENGINE||'chromium',version:browser.version(),headless:true,scope:'isolated loopback curator'}));
 });
@@ -238,7 +240,7 @@ test('fallback font metrics and larger text do not widen the private research de
 });
 
 test('installed Inter supplies curator interface glyphs while code and museum headings stay distinct',{
-  skip:process.env.ATLAS_REQUIRE_INTER!=='1'||process.env.ATLAS_BROWSER_ENGINE==='webkit'
+  skip:process.env.ATLAS_REQUIRE_INTER!=='1'||['webkit','firefox'].includes(process.env.ATLAS_BROWSER_ENGINE)
 },async t=>{
   const page=await pageFor(t);await page.evaluate(()=>document.fonts.ready);
   const session=await page.context().newCDPSession(page);

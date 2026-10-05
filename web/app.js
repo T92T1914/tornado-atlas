@@ -174,8 +174,10 @@ async function main() {
   const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
   const {mountComparison,mountResearchLog} = await import('./documentary-view.mjs');
   mountComparison(data.documentary.comparison);
+  const { mountReader, mountReaderLayout } = await import('./reader-view.mjs');
+  // Resolve the upstream responsive layout before playback becomes interactive.
+  mountReaderLayout();
   const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage, {points:data.survey.points,media:data.survey_media,openPhoto,lazy:true});
-  const { mountReader } = await import('./reader-view.mjs');
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
   mountReader(data.reading, history.chapters.map(chapter => ({...chapter, map_time:mapTimes.get(chapter.minute)})), selectMinute);
@@ -190,8 +192,9 @@ async function main() {
   requestAnimationFrame(() => {
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); }
-    catch { return; }
+    catch { id = null; }
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
+    document.body.dataset.exhibitReady = 'true';
   });
 }
 async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage, photoContext) {
@@ -359,4 +362,4 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   }
   return selectMinute;
 }
-main().catch(error => {byId('error').hidden=false;byId('error').textContent=error.message;});
+main().catch(error => {document.body.dataset.exhibitReady='error';byId('error').hidden=false;byId('error').textContent=error.message;});

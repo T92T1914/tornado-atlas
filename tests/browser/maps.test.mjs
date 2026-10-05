@@ -164,7 +164,7 @@ test('wrapped USGS attribution leaves the map scale readable',async t=>{
 });
 
 test('forced colors retain the remembrance label and path legend',
-  {skip:process.env.ATLAS_BROWSER_ENGINE==='webkit'?'Forced-colors emulation is Chromium-only here':false},async t=>{
+  {skip:process.env.ATLAS_BROWSER_ENGINE==='webkit'?'Forced-colors emulation is unavailable in this WebKit fixture':false},async t=>{
   const page=await fixture(t,{...phone,forcedColors:'active'});await exhibit(page);
   await page.locator('#places-enabled').check();
   const colors=await page.evaluate(()=>({
@@ -265,7 +265,7 @@ test('desktop keyboard navigation and enlarged text preserve controls and media 
 });
 
 test('touch dragging changes the enabled map without activating a record on release',
-  {skip:process.env.ATLAS_BROWSER_ENGINE==='webkit'?'Chromium CDP touch protocol only':false},async t=>{
+  {skip:['webkit','firefox'].includes(process.env.ATLAS_BROWSER_ENGINE)?'Chromium CDP touch protocol only':false},async t=>{
   const page=await fixture(t,phone);await open(page);await search(page,'El Reno');
   await page.locator('#results [data-record="ncei:453682"]').tap();await detail(page,'ncei:453682');await page.locator('#show-map').tap();
   await page.getByText('Layers & help',{exact:true}).tap();await page.locator('#map-drag').check();await page.getByText('Layers & help',{exact:true}).tap();

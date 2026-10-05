@@ -56,9 +56,9 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
     for (const field of ['records', 'observations', 'reconstruction']) {
       assert.deepEqual(exported[field], beforeContext[field], `The interview does not replace prior ${field}`);
     }
-    assert.deepEqual(exported.sources.filter(row => !['nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof'].includes(row.id)), beforeContext.sources);
-    assert.deepEqual(exported.sources.map(row => row.id), [...beforeContext.sources.map(row => row.id), 'nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof']);
-    assert.deepEqual(exported.media.map(row => row.id), ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof']);
+    assert.deepEqual(exported.sources.filter(row => !['nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof', 'nist-joplin-radar-sequence'].includes(row.id)), beforeContext.sources);
+    assert.deepEqual(exported.sources.map(row => row.id), [...beforeContext.sources.map(row => row.id), 'nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof', 'nist-joplin-radar-sequence']);
+    assert.deepEqual(exported.media.map(row => row.id), ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof', 'nist-joplin-radar-sequence']);
     const interview = exported.media[0];
     assert.equal(interview.source_id, 'nist-investigation-photo');
     assert.equal(interview.kind, 'photograph');
@@ -70,7 +70,7 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
       spatial: 'unregistered', availability: 'reviewed_available', rights: 'permitted_hosting'});
     for (const key of ['event', 'capture', 'publication', 'video', 'alignment']) assert.equal(interview.time[key], null);
     assert.equal(interview.place.coordinates, null);
-    assert.deepEqual(exported.creators, [{id: 'nist', name: 'National Institute of Standards and Technology',
+    assert.deepEqual(exported.creators.filter(row=>row.id!=='noaa-radar'), [{id: 'nist', name: 'National Institute of Standards and Technology',
       basis: 'The original NIST investigation overview credits the survivor-interview photograph to NIST. Individual photographer and subjects are not identified in that caption.'}]);
 
     await navigate(page, () => east.getByRole('link', {name: 'Inspect the source card'}).click());

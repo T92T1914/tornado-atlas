@@ -33,7 +33,7 @@ for(const appearance of ['dark','light'])test(`${appearance} typography preserve
     await page.locator('#selected-panel').screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`interface-${appearance}.png`)});}
 });
 test('six installed faces supply interface and separate diagnostic glyphs',{
-  skip:process.env.ATLAS_REQUIRE_INTER!=='1'||process.env.ATLAS_BROWSER_ENGINE==='webkit'
+  skip:process.env.ATLAS_REQUIRE_INTER!=='1'||['webkit','firefox'].includes(process.env.ATLAS_BROWSER_ENGINE)
 },async t=>{
   const page=await fixture(t);await open(page);
   await page.evaluate(faces=>{
@@ -58,7 +58,7 @@ test('unavailable Inter keeps readable fallback and original media styling',asyn
   await page.addStyleTag({content:':root {--interface-font:"Atlas unavailable font",Arial,sans-serif}'});
   await page.locator('#introduction').filter({hasText:/\S/}).waitFor();
   assert.match(await page.locator('#introduction').evaluate(e=>getComputedStyle(e).fontFamily),/Atlas unavailable font/);
-  if(process.env.ATLAS_BROWSER_ENGINE!=='webkit'){
+  if(!['webkit','firefox'].includes(process.env.ATLAS_BROWSER_ENGINE)){
     const fonts=await providers(page,'#introduction');assert.ok(fonts.length);assert.ok(fonts.every(f=>!f.postScriptName.startsWith('Inter')));}
   const photo=page.locator('#hero-photograph img').first();await photo.waitFor();
   assert.equal(await photo.evaluate(e=>getComputedStyle(e).filter),'none');

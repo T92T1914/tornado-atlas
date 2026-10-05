@@ -15,7 +15,8 @@ IDENTIFIER = 'nist-home-depot-roof'
 class RoofBracingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.doc = next(doc for doc in dossiers() if doc['id'] == 'joplin-2011')
+        cls.current = next(doc for doc in dossiers() if doc['id'] == 'joplin-2011')
+        cls.doc = json.loads((ROOT / 'web/archive/joplin-2011-22debeaf0abaa4cb5c06.json').read_text(encoding='utf-8'))
         raw = (ROOT / 'web/archive/joplin-2011-2ff06de762b0d24a3451.json').read_bytes()
         assert hashlib.sha256(raw).hexdigest() == '1aeea5638cd482a4b6a96d034be77f8ac1a7006192a982ffb4377495673f44a2'
         cls.before = json.loads(raw)
@@ -32,6 +33,9 @@ class RoofBracingTests(unittest.TestCase):
         self.assertEqual(self.doc['media'][-1]['id'], IDENTIFIER)
         self.assertEqual(self.doc['routes'][-1], {'label': 'How roof loss removed wall support', 'href': 'joplin.html#roof-bracing'})
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], digest(self.before))
+        for field in ('sources', 'media', 'routes', 'observations', 'creators', 'records'):
+            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
+        self.assertEqual(self.current['reconstruction'], self.doc['reconstruction'])
 
     def test_full_annotated_figure_identity_and_metadata_exclusion(self):
         transform = self.media['transformation']

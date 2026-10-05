@@ -15,7 +15,7 @@ async function navigate(page, action){
 }
 
 test('installed Inter supplies actual dossier interface glyphs',{
-  skip:process.env.ATLAS_REQUIRE_INTER!=='1'||process.env.ATLAS_BROWSER_ENGINE==='webkit'
+  skip:process.env.ATLAS_REQUIRE_INTER!=='1'||['webkit','firefox'].includes(process.env.ATLAS_BROWSER_ENGINE)
 },async t=>{
   const page=await fixture(t);await openDossier(page,'?event=el-reno-2013');
   await page.evaluate(()=>document.fonts.ready);

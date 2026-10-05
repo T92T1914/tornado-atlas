@@ -39,7 +39,11 @@ before(async()=>{
 after(async()=>{await browser?.close();if(server){server.closeAllConnections();await new Promise(r=>server.close(r));}});
 
 export async function fixture(t,options={}){
-  const context=await browser.newContext({viewport:{width:1280,height:800},acceptDownloads:false,permissions:[],...options});
+  const supportedOptions={...options};
+  // Firefox supports narrow viewports and touch input, but not Playwright's
+  // mobile viewport mode. Keep that acceptance distinction explicit.
+  if(browser.browserType().name()==='firefox') delete supportedOptions.isMobile;
+  const context=await browser.newContext({viewport:{width:1280,height:800},acceptDownloads:false,permissions:[],...supportedOptions});
   t.after(()=>context.close());
   // Keep ordinary checks deterministic and prevent external protocol navigation.
   await context.route('**/*',route=>route.request().url().startsWith(base+'/')?route.continue():route.abort());

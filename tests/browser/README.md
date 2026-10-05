@@ -34,9 +34,18 @@ user-namespace restrictions. The suite keeps Chromium sandboxing enabled and
 prints the actual browser version. See the
 [Chromium sandbox explanation](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md).
 
-Viewport emulation checks layout and interaction. It does not establish behavior
-on physical phones, screen readers, Firefox or Safari. The ordinary Python and
-Node suites remain separate checks in the publication workflow.
+The same suite can run in Firefox and WebKit with `ATLAS_BROWSER_ENGINE=firefox`
+or `ATLAS_BROWSER_ENGINE=webkit`, after installing the matching pinned Playwright
+test browser. The hosted workflow exercises all three engines sequentially.
+Firefox uses a narrow viewport and touch input without Playwright's unsupported
+mobile viewport mode. Chromium-only CDP gestures and font-provider checks remain
+separate and are skipped on the other engines.
+
+These are isolated webpage checks. They do not establish physical-phone,
+spoken-screen-reader, branded Safari or native browser-theme acceptance. The
+ordinary Python and Node suites remain separate checks in the workflow. Local
+launch failures must remain failures or unavailable results, even if hosted
+checks subsequently succeed.
 
 Typography checks retain selected source records and narrow keyboard controls.
 Set `ATLAS_REQUIRE_INTER=1` in a controlled Chrome environment with Inter installed
