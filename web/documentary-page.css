@@ -1,5 +1,6 @@
 .documentary-intro {max-width:850px;padding:40px 0 30px;border:0}
 .documentary-intro h1 {font-size:clamp(40px,6vw,76px);line-height:1.04;letter-spacing:-2px;margin:22px 0}
+.documentary-intro h1,.documentary-reading h2,.documentary-reading h3 {overflow-wrap:anywhere}
 .documentary-deck {font-size:clamp(20px,2vw,25px);font-family:Georgia,serif}
 .documentary-intro>p:last-child {font-size:16px;color:var(--muted)}
 .documentary-hero {margin:0;max-width:1040px}
@@ -15,7 +16,7 @@
 .documentary-contents {display:flex;flex-wrap:wrap;gap:10px 24px;padding:20px 0;border-bottom:1px solid var(--line);font-size:14px}
 .documentary-reading {max-width:850px}
 .documentary-reading section {padding:48px 0;scroll-margin-top:20px}
-.documentary-reading h2 {font:clamp(28px,3.5vw,39px)/1.2 Georgia,serif;letter-spacing:-.6px;overflow-wrap:anywhere}
+.documentary-reading h2 {font:clamp(28px,3.5vw,39px)/1.2 Georgia,serif;letter-spacing:-.6px}
 .documentary-reading p {font-size:16px;line-height:1.9}
 .documentary-reading h3 {font-size:18px;margin-bottom:6px}
 .documentary-timeline {list-style:none;padding:0}
