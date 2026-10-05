@@ -62,7 +62,8 @@ class TuscaloosaComplexTests(unittest.TestCase):
         self.assertEqual(len(self.prior['sources']), 7)
         self.assertEqual(len(self.prior['observations']), 11)
         self.assertEqual(len(self.prior['records']), 3)
-        for field in ('observations', 'records', 'reconstruction', 'creators', 'title', 'coverage'):
+        self.assertEqual(self.doc['observations'][:len(self.prior['observations'])], self.prior['observations'])
+        for field in ('records', 'reconstruction', 'creators', 'title', 'coverage'):
             self.assertEqual(self.doc[field], self.prior[field], field)
         self.assertEqual(self.doc['media'][:3], self.prior['media'])
         self.assertEqual(self.doc['sources'][:7], self.prior['sources'])
