@@ -9,7 +9,7 @@ from pathlib import Path
 import unittest
 from urllib.parse import parse_qs, urlsplit
 
-from atlas.archive import validate_dossier
+from atlas.archive import dossiers, validate_dossier
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -111,8 +111,11 @@ class TuscaloosaExhibitTests(unittest.TestCase):
 
     def test_documentary_links_resolve_to_actual_sources_observations_and_anchors(self):
         self.assertEqual(len(self.links.ids), len(set(self.links.ids)))
-        observations = {o['id'] for o in self.doc['observations']}
-        sources = {s['id'] for s in self.doc['sources']}
+        # The standalone input remains a retained stage. New documentary links
+        # must resolve through the current reviewed publication.
+        current = next(d for d in dossiers() if d['id'] == self.doc['id'])
+        observations = {o['id'] for o in current['observations']}
+        sources = {s['id'] for s in current['sources']}
         for href in self.links.hrefs:
             parsed = urlsplit(href)
             if not parsed.path and parsed.fragment:
@@ -127,7 +130,7 @@ class TuscaloosaExhibitTests(unittest.TestCase):
                     self.assertIn(query['observation'][0], observations)
                 if 'record' in query:
                     self.assertIn(query['record'][0], self.records)
-        for route in self.doc['routes']:
+        for route in current['routes']:
             parsed = urlsplit(route['href'])
             self.assertTrue((ROOT / 'web' / parsed.path).is_file())
             if parsed.path == 'tuscaloosa.html' and parsed.fragment:
