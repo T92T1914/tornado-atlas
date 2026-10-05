@@ -14,6 +14,14 @@ segments use the earlier stored segment, so a loop can make the assignment
 ambiguous. This is a browsing aid for this local exhibit, not a general geodesic
 measurement service.
 
+Selecting an observation now emphasizes the segment used for that comparison.
+A square marks its calculated nearest point, and a dashed connector joins that
+point to the surveyed feature. The original feature keeps its own selection
+outline and coordinates. The explanation beside the map names the selected
+record and distances. The assessment also reports the approximate nearest point
+and offset in text, so the comparison remains readable without operating the map.
+Fatality selection and an empty damage result clear this survey annotation.
+
 Neither distance nor list order establishes an impact time, instantaneous width,
 wind field or camera position. The line and outline come from the retained
 [NWS El Reno KMZ](https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz),

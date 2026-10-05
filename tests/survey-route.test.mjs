@@ -12,10 +12,27 @@ test('independent equatorial right-angle fixture has expected distances and clam
   assert.ok(Math.abs(route.lengthKm-(factor+111.195))<1e-9);
   assert.ok(Math.abs(route.positions.get(1).alongKm-.5*factor)<1e-9);
   assert.ok(Math.abs(route.positions.get(1).offsetKm-11.1195)<1e-9);
+  assert.deepEqual(route.positions.get(1).coordinates,[.5,0]);
+  assert.equal(route.positions.get(1).segmentIndex,0);
+  assert.deepEqual(route.positions.get(1).segment,[[0,0],[1,0]]);
   assert.ok(Math.abs(route.positions.get(2).alongKm-(factor+55.5975))<1e-9);
+  assert.deepEqual(route.positions.get(2).coordinates,[1,.5]);
+  assert.equal(route.positions.get(2).segmentIndex,1);
   assert.equal(route.positions.get(3).alongKm,0);
+  assert.deepEqual(route.positions.get(3).coordinates,[0,0]);
   assert.equal(JSON.stringify({points,shape}),before);
   assert.deepEqual(orderSurvey([points[1],points[0],points[2]],route,'path').map(p=>p.id),[3,1,2]);
+});
+
+test('nearest mapped point retains the earlier original segment at a loop and skips zero-length segments',()=>{
+  const point={id:1,coordinates:[.5,.1]};
+  const shape=geometry([[0,0],[0,0],[1,0],[0,0]]),before=JSON.stringify({point,shape});
+  const position=surveyRoute([point],shape).positions.get(1);
+  assert.equal(position.segmentIndex,1);
+  assert.deepEqual(position.coordinates,[.5,0]);
+  assert.deepEqual(position.segment,[[0,0],[1,0]]);
+  position.segment[0][0]=99;
+  assert.equal(JSON.stringify({point,shape}),before);
 });
 test('ambiguous/missing paths and repeated vertices do not manufacture a route',()=>{
   const shape=geometry([[0,0],[0,0],[1,0]]);

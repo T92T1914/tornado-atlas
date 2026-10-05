@@ -14,7 +14,7 @@ export function surveyRoute(points, geometry) {
   for (let i = 1; i < vertices.length; i++) {
     const start = vertices[i - 1], delta = vertices[i].map((v, axis) => v - start[axis]);
     const size = Math.hypot(...delta);
-    if (size > 0) segments.push({start, delta, size, distance: length});
+    if (size > 0) segments.push({start, delta, size, distance: length, index: i - 1});
     length += size;
   }
   if (!segments.length) return null;
@@ -30,6 +30,10 @@ export function surveyRoute(points, geometry) {
       // Ties retain the earlier stored segment, including where the line loops.
       if (nearest === null || offset < nearest.offsetKm) nearest = {
         alongKm: segment.distance + fraction * segment.size, offsetKm: offset,
+        coordinates: line[segment.index].map((value, axis) =>
+          value + fraction * (line[segment.index + 1][axis] - value)),
+        segmentIndex: segment.index,
+        segment: line.slice(segment.index, segment.index + 2).map(p => [...p]),
       };
     }
     positions.set(point.id, nearest);
