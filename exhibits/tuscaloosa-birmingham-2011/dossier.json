@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "id": "tuscaloosa-birmingham-2011",
+  "title": "Tuscaloosa and Birmingham, April 27, 2011",
+  "coverage": "Exhibit",
+  "summary": "Follow one documented tornado through three retained county records, contrasting damage, warning communication and source definitions. No geographic replay or registered appearance is claimed.",
+  "records": [
+    {
+      "id": "ncei:314625",
+      "basis": "Greene segment narrative names the continuing Tuscaloosa and Birmingham tornado. Continuation targets Tuscaloosa County FIPS 125. Its end matches the Tuscaloosa segment beginning, and its start matches the approximate survey beginning. Reviewed October 5, 2026 against retained continuation, endpoints and original survey text. No source fields merged.",
+      "status": "reviewed_association",
+      "alternatives": []
+    },
+    {
+      "id": "ncei:314662",
+      "basis": "Tuscaloosa segment follows the same named damage progression. Its beginning matches Greene end, continuation targets Jefferson County FIPS 073, and its ending matches Jefferson beginning. Reviewed October 5, 2026 against retained continuation, endpoints and original survey text. No source fields merged.",
+      "status": "reviewed_association",
+      "alternatives": []
+    },
+    {
+      "id": "ncei:314663",
+      "basis": "Jefferson segment continues the same surveyed track from western Jefferson County to northeast of Birmingham. Its beginning matches Tuscaloosa end and its ending matches the approximate survey ending. Reviewed October 5, 2026 against retained continuation, endpoints and original survey text. No source fields merged.",
+      "status": "reviewed_association",
+      "alternatives": []
+    }
+  ],
+  "routes": [
+    {
+      "label": "Read the documentary account",
+      "href": "tuscaloosa.html"
+    },
+    {
+      "label": "Follow the survey progression",
+      "href": "tuscaloosa.html#path"
+    },
+    {
+      "label": "Understand the source disagreements",
+      "href": "tuscaloosa.html#counts"
+    },
+    {
+      "label": "Browse the catalogue",
+      "href": "atlas.html"
+    }
+  ],
+  "creators": [
+    {
+      "id": "nws-birmingham",
+      "name": "National Weather Service Birmingham",
+      "basis": "Organizational author and publisher of the official survey. Individual linked-image creators remain separately unqualified."
+    },
+    {
+      "id": "nws-assessment",
+      "name": "National Weather Service assessment team",
+      "basis": "Organizational author of the December 2011 service assessment. Report contributors and figure credits are not treated as one universal image creator."
+    },
+    {
+      "id": "noaa-ncei",
+      "name": "NOAA National Centers for Environmental Information",
+      "basis": "Publisher of the retained Storm Events snapshot, with NWS Storm Survey reporting entity in the three selected records."
+    }
+  ],
+  "sources": [
+    {
+      "id": "bmx-track-survey",
+      "title": "NWS Birmingham: Tuscaloosa and Birmingham EF4 survey",
+      "url": "https://www.weather.gov/bmx/event_04272011tuscbirm",
+      "locator": "Summary. complete written progression from northern Greene County to the ending northeast of Birmingham. radar and damage-image captions.",
+      "access": "Original official page text and captions inspected October 5, 2026. No linked photograph or radar pixels inspected. One previously selected NOAA aerial request returned HTTP 403. that item was not retried or read through an alternate image route.",
+      "revision": "Undated official page, accessed October 5, 2026. This is not a recovered 2011 page revision.",
+      "rights": "Attributed links and narrative interpretation. NWS government-content and third-party exceptions were read separately. No hosted photograph, radar derivative or blanket image rights claim.",
+      "agent_processing": "Agent-authored source-linked interpretation from the stated inspected portions. Source reports remain attributed. No human eyewitness review, visual media review or deployed acceptance is claimed."
+    },
+    {
+      "id": "april-warning-assessment",
+      "title": "NWS: The Historic Tornadoes of April 2011, December 2011",
+      "url": "https://www.weather.gov/media/publications/assessments/historic_tornadoes.pdf",
+      "locator": "Printed pages 5 to 9 (PDF 13 to 17), 17 and 18 (PDF 25 and 26), 29 and 30 (PDF 37 and 38), 35 to 37 (PDF 43 to 45), and Appendix C (PDF 60 and 61). Table 1 is printed page 6. Figure 16 caption is printed page 35.",
+      "access": "Selected original report text inspected through the accessible document reader. Title, publication date and cover credits inspected. One bounded original-file retrieval returned HTTP 403, with no body retained. No report figure pixels visually inspected or derivative created.",
+      "revision": "December 2011 service assessment, inspected October 5, 2026. Publication clock is separate from tornado time.",
+      "rights": "Source-linked government report text and attributed interpretation. Cover credits include agency and named contributors and do not clear every figure. Figure 16 caption credits Gary Woodall, NWS Phoenix. its pixels and any embedded exceptions are uninspected.",
+      "agent_processing": "Selected original text paraphrased with report locators. The broader outbreak review, interview limits and source-clock disagreements remain explicit. No figure inspection or population inference is claimed."
+    },
+    {
+      "id": "ncei-county-segments",
+      "title": "NOAA NCEI: retained 2011 Storm Events county records",
+      "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2011_c20260323.csv.gz",
+      "locator": "Event IDs 314625, 314662 and 314663. CSV logical records 43832, 71567 and 73094. Narrative, continuation, time, spatial, rating, dimensions, impacts and provenance fields.",
+      "access": "Current generated source-detail records inspected offline at the existing repository revision. No fresh source-file download. Greene to Tuscaloosa to Jefferson continuation and shared boundary endpoints checked against the original survey narrative.",
+      "revision": "Snapshot ncei:2011:20260323, originally retrieved September 20, 2026. Retained source-provenance SHA256 be3b40cd098a879be12c2c3e614700560bd537e6178bba8b1aaf099f665dda40.",
+      "rights": "Credited NOAA government dataset and source links. Catalogue records remain distinct from third-party photographs. Three county records of the underlying survey are not three independent observations.",
+      "agent_processing": "Existing retained records inspected, with original clock convention, county scope and direct/indirect classifications preserved. The source-provenance hash is inherited from the retained record, not a new original-file integrity measurement."
+    },
+    {
+      "id": "nws-content-rights",
+      "title": "NWS: use of government and third-party data and products",
+      "url": "https://www.weather.gov/disclaimer",
+      "locator": "Use of NOAA/NWS Data and Products. Use of Third-Party Data and Products.",
+      "access": "Original official policy text inspected October 5, 2026. Attribution, public-domain exceptions, alteration, no-endorsement and third-party limitations read.",
+      "revision": "Policy accessed October 5, 2026. no publication or last-revision date established.",
+      "rights": "Rights guidance is separate from factual relevance and does not establish original item provenance. No item is cleared for image hosting by this policy alone.",
+      "agent_processing": "Policy used to bound public narrative/source links and to preserve the unqualified original-image boundary. No creator contact or new hosting permission obtained."
+    }
+  ],
+  "observations": [
+    {
+      "id": "one-track-many-records",
+      "title": "A track association across three county records",
+      "source_id": "ncei-county-segments",
+      "locator": "Event IDs 314625, 314662 and 314663: continuation fields, shared boundary endpoints and opening narratives.",
+      "account": "Greene continues into Tuscaloosa. Tuscaloosa continues into Jefferson. The corresponding boundary endpoints match. Their narratives describe the same tornado beginning in northern Greene County and crossing Tuscaloosa and the western Birmingham suburbs.",
+      "limits": "The reviewed association retains all three source IDs and county-specific fields. An episode ID, date or proximity alone is not the association basis. Source endpoints do not produce a surveyed route or historical appearance.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011. separate source clocks retained.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "event_association",
+        "reported": "Northern Greene County, southern Tuscaloosa County and western Jefferson County",
+        "coordinates": null,
+        "basis": "Source narrative and continuation association. no new map point."
+      },
+      "review": "Retained continuation, endpoints and narratives inspected against original NWS survey text. No camera or appearance registration."
+    },
+    {
+      "id": "survey-start",
+      "title": "Approximate survey starting point",
+      "source_id": "bmx-track-survey",
+      "locator": "Survey summary: Approximate Start Point/Time.",
+      "account": "The survey reports an approximate beginning at latitude 33.0297, longitude -87.9350, at 4:43 p.m. on April 27, 2011. The retained Greene segment begins at the same rounded coordinates and 15:43 CST-6.",
+      "limits": "An approximate tornado endpoint is not a camera location, surveyed building or minute-by-minute track. No coordinate precision beyond the reported values is inferred.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "source_label",
+        "spatial": "source_reported",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011, approximately 4:43 p.m. CDT. NCEI source 15:43 CST-6.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "approximate_tornado_endpoint",
+        "reported": "Approximate track beginning in northern Greene County",
+        "coordinates": [
+          -87.935,
+          33.0297
+        ],
+        "basis": "Approximate longitude/latitude printed by NWS Birmingham and matched to retained Greene source endpoint. Not a camera or surveyed building."
+      },
+      "review": "Printed survey endpoint and retained county endpoint inspected. No new coordinate measurement, imagery or camera calibration."
+    },
+    {
+      "id": "survey-end",
+      "title": "Approximate survey ending point",
+      "source_id": "bmx-track-survey",
+      "locator": "Survey summary: Approximate End Point/Time. final damage progression.",
+      "account": "The survey reports an approximate ending at latitude 33.6311, longitude -86.7436, at 6:14 p.m. on April 27, 2011. The retained Jefferson segment ends at the same rounded coordinates and 17:14 CST-6.",
+      "limits": "The survey places the ending west of Alabama 79. NCEI gives a different approximate distance from Tarrant in its narrative. Neither description is refined into a new measured endpoint or camera position.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "source_label",
+        "spatial": "source_reported",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011, approximately 6:14 p.m. CDT. NCEI source 17:14 CST-6.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "approximate_tornado_endpoint",
+        "reported": "Approximate track ending northeast of Birmingham",
+        "coordinates": [
+          -86.7436,
+          33.6311
+        ],
+        "basis": "Approximate longitude/latitude printed by NWS Birmingham and matched to retained Jefferson source endpoint. Not a camera or surveyed building."
+      },
+      "review": "Printed survey endpoint and retained county endpoint inspected. Different narrative distances remain source-labeled. No new coordinate measurement or camera calibration."
+    },
+    {
+      "id": "tuscaloosa-damage-progression",
+      "title": "Damage crossed homes, commerce and emergency operations",
+      "source_id": "bmx-track-survey",
+      "locator": "Written account from the Black Warrior River and Interstate 359 through Cedar Crest, Alberta City and Chastain Manor.",
+      "account": "The survey describes destroyed buildings near Interstate 359, including the county Emergency Operations Center, then damaged stores, homes, Alberta Elementary School and apartments along its northeastward progression.",
+      "limits": "Named affected places provide documentary context. No exact building coordinate, arrival minute, casualty location, visible-funnel size or independent failure mechanism is assigned.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011. arrival times at individual places unregistered.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "affected_area",
+        "reported": "Tuscaloosa: Interstate 359, 15th Street/McFarland Boulevard, Cedar Crest, Alberta City and Chastain Manor",
+        "coordinates": null,
+        "basis": "Attributed named places in survey text. no building geocoding."
+      },
+      "review": "Original written survey progression inspected. No damage-photo pixels, building registration or optical appearance inspected."
+    },
+    {
+      "id": "holt-brookwood-progression",
+      "title": "Danger beyond Tuscaloosa city limits",
+      "source_id": "bmx-track-survey",
+      "locator": "Written account from east of Holt through Holt Lake and north of Brookwood near Hannah Creek Road/County Road 59.",
+      "account": "The survey follows destroyed houses and mobile homes toward Holt Lock and Dam Road and Recreation Area Road, damage at the Holt Lake marina, and lower EF3 damage north of Brookwood.",
+      "limits": "The written progression and local rating contrasts are source reports. No continuous width evolution, georeferenced polygon, camera registration or street-level wind measurement has been derived.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011. arrival times at individual places unregistered.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "affected_area",
+        "reported": "Holt area, Holt Lake and north of Brookwood",
+        "coordinates": null,
+        "basis": "Attributed named places in survey text. no building geocoding."
+      },
+      "review": "Original written survey progression inspected. No video, radar or photograph pixels inspected."
+    },
+    {
+      "id": "jefferson-damage-progression",
+      "title": "Violent damage and differing building outcomes in Jefferson County",
+      "source_id": "bmx-track-survey",
+      "locator": "Written account from Concord and Pleasant Grove through McDonald Chapel, Smithfield Estates, Interstate 65 and U.S. 31.",
+      "account": "The survey identifies EF4 damage at Concord and Pleasant Grove, then EF2 damage at McDonald Chapel and Smithfield Estates. At McDonald Chapel it contrasts severely damaged pier-and-beam homes with a brick home that lost its roof. Near Interstate 65 it reports the track maximum width.",
+      "limits": "This is one survey/reporting stream and an attributed damage interpretation. Building outcomes alone do not isolate exposure, construction, debris impact or failure sequence. No wind field or victim location is inferred.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011. arrival times at individual places unregistered.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "affected_area",
+        "reported": "Western and northern Birmingham suburbs, Interstate 65 and U.S. 31",
+        "coordinates": null,
+        "basis": "Attributed named places in survey text. no building geocoding."
+      },
+      "review": "Original survey contrast and the retained Jefferson narrative inspected. No visual comparison or independent structural experiment."
+    },
+    {
+      "id": "damage-reading-limits",
+      "title": "Damage width and inferred wind remain distinct from appearance",
+      "source_id": "bmx-track-survey",
+      "locator": "Summary rating, estimated maximum wind and maximum width. McDonald Chapel contrast. Interstate 65 account.",
+      "account": "The survey's whole-track rating is EF4, estimated maximum wind is 190 mph, and maximum reported width is 2,600 yards near Interstate 65. Its written damage descriptions distinguish local outcomes along the track.",
+      "limits": "The wind estimate is damage-based, not a sensor reading at every home. A damage width is not condensation-funnel diameter and does not establish time-varying optical appearance. Visual similarity is not a measurement.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011. whole-track maxima do not define minute-by-minute values.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "damage_interpretation",
+        "reported": "Whole track and source-named damage areas",
+        "coordinates": null,
+        "basis": "Original survey maxima and text, without a new measured footprint."
+      },
+      "review": "Printed source summary and related written damage account inspected. No measured wind or visual geometry obtained."
+    },
+    {
+      "id": "warning-message-management",
+      "title": "Two storms and the challenge of managing one warning area",
+      "source_id": "april-warning-assessment",
+      "locator": "Printed pages 17 and 18 (PDF 25 and 26): Warngen findings and Tuscaloosa warning examples.",
+      "account": "The assessment describes a 4:15 p.m. CDT western Tuscaloosa County warning polygon containing two supercells on separate tracks. It also reports omitted Tuscaloosa city naming in some warning text immediately before the tornado, with local landmarks listed instead.",
+      "limits": "These documented message and management problems do not mean no warning existed. This is a wider outbreak review. No local warning lead time is calculated from an outbreak-wide average.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011. one example labeled 4:15 p.m. CDT by the assessment.",
+        "capture": null,
+        "publication": "December 2011",
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "warning_area",
+        "reported": "Western Tuscaloosa County warning area",
+        "coordinates": null,
+        "basis": "Source description. no warning polygon acquired or registered."
+      },
+      "review": "Selected original report text inspected. No source figure pixels or new warning geometry inspected."
+    },
+    {
+      "id": "warning-last-mile",
+      "title": "Receiving a warning and reaching shelter were separate questions",
+      "source_id": "april-warning-assessment",
+      "locator": "Printed pages 29 and 30 (PDF 37 and 38), 35 to 37 (PDF 43 to 45), Appendix C (PDF 60 and 61).",
+      "account": "The report describes police using bullhorns along Tuscaloosa streets, disrupted power and communication, and limited shelter availability. Survivor interviews across affected states were conducted 10 to 13 days after the outbreak.",
+      "limits": "The sample was not random or representative, excluded hospital interviews with severely injured people and direct interviews with deceased victims' families, and did not use a structured questionnaire. Its themes are not population percentages or proof of every resident action.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011 outbreak. interviews 10 to 13 days later, with individual interview times unregistered.",
+        "capture": null,
+        "publication": "December 2011",
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "response_context",
+        "reported": "Tuscaloosa examples within the broader April 2011 outbreak",
+        "coordinates": null,
+        "basis": "Source interview context, without inferred participant or fatality locations."
+      },
+      "review": "Selected original report passages and Appendix C method limits inspected. No representative social survey or interview audio reviewed."
+    },
+    {
+      "id": "fatality-definitions",
+      "title": "Different reported totals and direct/indirect classifications",
+      "source_id": "ncei-county-segments",
+      "locator": "Event IDs 314625, 314662 and 314663 impacts and narrative. compare NWS survey summary and assessment Table 1, printed page 6 (PDF 14).",
+      "account": "The survey page lists 65 fatalities. The December 2011 assessment summary lists 66 for Tuscaloosa and Jefferson. The retained 2026 NCEI revision reports 44 direct and 8 indirect deaths in Tuscaloosa, 20 direct and 0 indirect in Jefferson, and none in Greene. The Tuscaloosa narrative includes deaths reported in the months afterward.",
+      "limits": "Attribution, revision, county scope and direct/indirect definitions remain separate. No canonical summed total or reason for every difference is established. No names, deaths or recovery locations are mapped from these counts.",
+      "status": {
+        "intake": "published",
+        "assertion": "disputed",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011 event and later reported indirect deaths, without individual death dates assigned.",
+        "capture": null,
+        "publication": "Survey date unestablished. assessment December 2011. NCEI snapshot March 23, 2026.",
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "reported_impact_scope",
+        "reported": "Greene, Tuscaloosa and Jefferson County source scopes",
+        "coordinates": null,
+        "basis": "County source definitions. no individual fatality location."
+      },
+      "review": "Original survey/assessment figures and retained county impact fields inspected. Differences remain attributed and unresolved. no casualty identity register or reconciled census inspected."
+    },
+    {
+      "id": "source-clock-scope",
+      "title": "Source clock conventions and differing summary scope",
+      "source_id": "ncei-county-segments",
+      "locator": "Three segment begin/end clock fields. NWS survey approximate times. assessment Table 1, printed page 6 (PDF 14).",
+      "account": "The retained segments report 15:43 to 15:48, 15:48 to 16:35, and 16:35 to 17:14 under CST-6. The importer retains standard-time labels and converts the combined interval to 21:43 through 23:14 UTC. The survey reports approximate 4:43 to 6:14 p.m. CDT. Assessment Table 1 labels Time (CST) and reports 3:50 to 4:45 p.m. for Tuscaloosa and Jefferson.",
+      "limits": "Standard-time conversion explains the one-hour clock-label difference at matching survey endpoints. It does not reconcile the assessment's shorter interval, register a camera or establish each place's arrival minute. No synchronized playback or position interpolation is supplied.",
+      "status": {
+        "intake": "published",
+        "assertion": "disputed",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "April 27, 2011. original clock labels and intervals retained in the attributed account.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "source_clock_scope",
+        "reported": "County-segment clocks and whole-track summary",
+        "coordinates": null,
+        "basis": "Printed and retained source intervals. no camera or neighborhood registration."
+      },
+      "review": "Original clock conventions and retained parsed UTC fields inspected. The shorter assessment row remains unresolved rather than silently adjusted."
+    }
+  ],
+  "media": [],
+  "reconstruction": {
+    "appearance": "unregistered",
+    "intervals": [],
+    "limits": "No registered camera, visually inspected video interval, optical appearance, digitized survey footprint or historical wind field is published. Reported county endpoints are not a surveyed route. Contextual photographs remain useful candidates but require original pixels and item-specific attribution and rights inspection."
+  },
+  "provenance": {
+    "input_kind": "Standalone source-backed schema 1 dossier, processed by the existing Atlas archive pipeline",
+    "source_basis_revision": "2d692a7bf183235a4c6aeb034d1ec8962644ddfb",
+    "research_record": "research/tuscaloosa-foundation-2026-10-05.md",
+    "reviewed_on": "2026-10-05",
+    "review_scope": "Selected original survey/report text and retained county records, with explicit access, rights and clock limits. This record is not independent review or deployed-browser acceptance.",
+    "inputs": {
+      "ncei_snapshot_reported_sha256": "be3b40cd098a879be12c2c3e614700560bd537e6178bba8b1aaf099f665dda40"
+    }
+  }
+}
