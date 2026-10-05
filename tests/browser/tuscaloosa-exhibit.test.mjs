@@ -47,7 +47,8 @@ for(const [width,appearance,fallback] of [[320,'dark'],[390,'dark'],[1280,'light
       (/\.jpg/i.test(u)&&![
         base+'/assets/tuscaloosa-birmingham-2011/birmingham-aftermath-april29.jpg',
         base+'/assets/tuscaloosa-birmingham-2011/apartment-complex-april29.jpg',
-        base+'/assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg'
+        base+'/assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg',
+        base+'/assets/tuscaloosa-birmingham-2011/aerial-context-april29.jpg'
       ].includes(u))),false);
     await page.goto(base+'/dossier.html?event=tuscaloosa-birmingham-2011');
     await page.waitForFunction(()=>document.body?.dataset.ready==='true');
