@@ -14,16 +14,17 @@ export function surveyState(url) {
   const value = params.get('survey');
   return {id: value && /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : null,
     rating: params.get('surveyRating') || '', query: params.get('surveySearch') || '',
-    photosOnly: params.get('surveyPhotos') !== '0'};
+    photosOnly: params.get('surveyPhotos') !== '0', order: params.get('surveyOrder') === 'path' ? 'path' : 'records'};
 }
 
 export function surveyLink(url, state) {
   const result = new URL(url, 'https://example.invalid');
-  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos', 'fatality']) result.searchParams.delete(key);
+  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos', 'surveyOrder', 'fatality']) result.searchParams.delete(key);
   if (state.id !== null) result.searchParams.set('survey',String(state.id));
   if (state.rating) result.searchParams.set('surveyRating',state.rating);
   if (state.query) result.searchParams.set('surveySearch',state.query);
   result.searchParams.set('surveyPhotos',state.photosOnly ? '1' : '0');
+  if (state.order === 'path') result.searchParams.set('surveyOrder', 'path');
   result.hash = 'survey-explorer'; return result.href;
 }
 
@@ -31,7 +32,7 @@ export function surveyLink(url, state) {
 export function surveyPageLink(url, destination) {
   const current = new URL(url, 'https://example.invalid');
   const result = new URL(destination, current);
-  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos', 'fatality']) {
+  for (const key of ['survey', 'surveyRating', 'surveySearch', 'surveyPhotos', 'surveyOrder', 'fatality']) {
     if (current.searchParams.has(key)) result.searchParams.set(key, current.searchParams.get(key));
   }
   result.hash = 'survey-explorer';

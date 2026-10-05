@@ -16,9 +16,21 @@ async function follow(page,locator){
 for(const entry of index.events)for(const width of [308,1280])test(`retained evidence journey ${entry.id} ${width}`,async t=>{
   const history=JSON.parse(await readFile(new URL('../../web/'+entry.history_file,import.meta.url),'utf8'));
   const old=history.versions.find(v=>v.dossier_sha256!==history.current_dossier_sha256);
-  const expected=JSON.parse(await readFile(new URL('../../web/'+old.file,import.meta.url),'utf8'));
   const page=await fixture(t,{viewport:{width,height:900}}),requests=[];
   page.on('request',request=>requests.push(request.url()));
+  if(!old){
+    assert.equal(history.versions.length,1,'A first publication must not invent a predecessor');
+    await open(page,'?event='+entry.id);
+    assert.match(await page.locator('#content').textContent(),/current published dossier/);
+    assert.equal(await page.locator('#correction-history .archive-card').count(),1);
+    assert.equal(await page.getByRole('link',{name:'Return to the current dossier',exact:true}).count(),0);
+    const saved=await page.request.get(await page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}).getAttribute('href'));
+    assert.equal((await saved.json()).id,entry.id);
+    await page.addStyleTag({content:'body {font-size:200%}'});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    return;
+  }
+  const expected=JSON.parse(await readFile(new URL('../../web/'+old.file,import.meta.url),'utf8'));
   await open(page,'?event='+entry.id+'&revision='+old.dossier_sha256);
   assert.match(await page.locator('#content').textContent(),/reading a retained dossier revision/);
   assert.match(await page.locator('#content').textContent(),/creator pages open current catalogue/);

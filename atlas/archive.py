@@ -220,6 +220,24 @@ def evidence(identifier, title, source_id, locator, account, limits, **extras):
                 review='Retained exhibit review; adapted without expanding inspection coverage.') | extras
 
 
+def _reviewed_dossier(doc, root, include_curated):
+    validate_dossier(doc)
+    curated = root / 'research/archive-curated' / (doc['id'] + '.json')
+    if not include_curated or not curated.exists():
+        return doc
+    override = read(curated)
+    if set(override) != {'schema_version', 'adapter_sha256', 'review', 'dossier'} or override['schema_version'] != 1:
+        raise ValueError('Malformed reviewed candidate')
+    if override['adapter_sha256'] != digest(doc):
+        raise ValueError('Retained source projection changed; rebase and review the candidate before publication')
+    if override['review']['reviewer_kind'] != 'agent' or not override['review']['basis']:
+        raise ValueError('Reviewed candidate requires an explicit processing basis')
+    reviewed = validate_dossier(override['dossier'])
+    if reviewed['id'] != doc['id']:
+        raise ValueError('Candidate changed its canonical event identity')
+    return reviewed
+
+
 def dossiers(root=ROOT, *, include_curated=True):
     config = read(root / 'research/archive-dossiers.json')
     aliases = read(root / 'research/record-aliases.json')
@@ -309,21 +327,19 @@ def dossiers(root=ROOT, *, include_curated=True):
                     time=clocks(event={'reported': row['source_time'], 'precision': row['precision']},
                         alignment={'utc': row['utc'], 'basis': chronology['clock']['basis']})))
         doc['provenance']['inputs'] = {p: hashlib.sha256((root / p).read_bytes()).hexdigest() for p in inputs}
-        validate_dossier(doc)
-        curated = root / 'research/archive-curated' / (doc['id'] + '.json')
-        if include_curated and curated.exists():
-            override = read(curated)
-            if set(override) != {'schema_version', 'adapter_sha256', 'review', 'dossier'} or override['schema_version'] != 1:
-                raise ValueError('Malformed reviewed candidate')
-            if override['adapter_sha256'] != digest(doc):
-                raise ValueError('Retained source projection changed; rebase and review the candidate before publication')
-            if override['review']['reviewer_kind'] != 'agent' or not override['review']['basis']:
-                raise ValueError('Reviewed candidate requires an explicit processing basis')
-            reviewed = validate_dossier(override['dossier'])
-            if reviewed['id'] != doc['id']:
-                raise ValueError('Candidate changed its canonical event identity')
-            doc = reviewed
-        result.append(doc)
+        result.append(_reviewed_dossier(doc, root, include_curated))
+    # New authored exhibits use the same dossier schema and publication path.
+    # Existing adapted exhibits retain their exact source inputs and review hashes.
+    adapted_ids = {doc['id'] for doc in result}
+    for path in sorted((root / 'exhibits').glob('*/dossier.json')):
+        if path.parent.name in adapted_ids:
+            continue
+        if path.stat().st_size > 200_000:
+            raise ValueError('Dossier exceeds selective loading budget')
+        doc = validate_dossier(read(path))
+        if doc['id'] != path.parent.name:
+            raise ValueError('Authored dossier identity must match its exhibit directory')
+        result.append(_reviewed_dossier(doc, root, include_curated))
     return result
 
 

@@ -18,7 +18,7 @@ The atlas contains 80,318 NOAA source records covering US years 1950 through 202
 
 The [evidence dossiers](https://t92t1914.github.io/tornado-atlas/dossier.html)
 connect source records, attributed observations, credited creators and original
-media links. El Reno, Joplin and Blackwell share a dossier view, while any
+media links. El Reno, Joplin, Blackwell and Tuscaloosa share a dossier view, while any
 catalogue record can open a source dossier without inventing an event history.
 Evidence discovery distinguishes linked photographs, discrete video samples,
 chronology, radar and unresolved source disagreements. A media item with an
@@ -111,6 +111,10 @@ separate annotations and reuse basis remain available from the chapter and dossi
 A separate [Home Depot roof case](https://t92t1914.github.io/tornado-atlas/joplin.html#roof-bracing) uses an attributed NIST photograph and annotation to explain how roof loss could also remove wall support. Its observed damage and possible failure sequence stay distinct, with source rights and exact figure derivation recorded.
 Individual names, located damage and a timed reconstruction still need further research. The [source and coverage record](research/joplin-foundation-2026-09-21.md)
 shows what has actually been checked.
+
+The [Tuscaloosa and Birmingham account](https://t92t1914.github.io/tornado-atlas/tuscaloosa.html) follows the NWS survey through rural Greene County, Tuscaloosa and the western Birmingham suburbs. Three retained county records remain separately inspectable. The account explains warning management, damage estimates and unresolved fatality and clock differences. Photograph access and inspection are still incomplete, so it does not claim a registered camera, inspected footage or historical appearance reconstruction.
+
+The El Reno survey can also browse observations by approximate distance along the published center line. This spatial order and each point's offset are aids to reading the survey, not impact times or wind measurements. The [method and limits](docs/spatial-survey-order.md) preserve the original record order and source geometry.
 
 ## Run locally
 

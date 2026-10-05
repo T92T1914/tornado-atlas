@@ -18,7 +18,40 @@ class ArchiveTests(unittest.TestCase):
             'joplin-2011': 'c080b55cf2dfa5efc278ba9405840a366af984e984034eb0e7f0db60507fc721',
             'blackwell-1955': '51d56cb1f0c100423c8748081cd95e1be2da642ab1bbda16cf808777b9c9aed5',
         }
-        self.assertEqual({doc['id']: digest(doc) for doc in dossiers(include_curated=False)}, expected)
+        self.assertEqual({doc['id']: digest(doc) for doc in dossiers(include_curated=False) if doc['id'] in expected}, expected)
+
+    def test_authored_exhibit_uses_existing_validation_and_review_lifecycle(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'research').mkdir()
+            (root / 'research/archive-dossiers.json').write_text('[]', encoding='utf-8')
+            (root / 'research/record-aliases.json').write_text('{}', encoding='utf-8')
+            base = copy.deepcopy(dossiers()[0])
+            base['id'] = 'synthetic-authored'
+            target = root / 'exhibits/synthetic-authored/dossier.json'
+            target.parent.mkdir(parents=True)
+            target.write_text(json.dumps(base), encoding='utf-8')
+            self.assertEqual(dossiers(root), [base])
+            revised = copy.deepcopy(base)
+            revised['summary'] = 'Synthetic reviewed revision, not historical evidence.'
+            candidate = root / 'candidate.json'
+            candidate.write_text(json.dumps(dict(schema_version=1, kind='atlas-curator-candidate',
+                base=dict(event_id=base['id'], dossier_sha256=digest(base)), dossier=revised)), encoding='utf-8')
+            promote_candidate(candidate, 'Synthetic lifecycle regression.', root)
+            published = dossiers(root)[0]
+            self.assertEqual(published['summary'], revised['summary'])
+            self.assertEqual(published['observations'], revised['observations'])
+            self.assertEqual(published['media'], revised['media'])
+            self.assertEqual(published['provenance']['publication_review']['basis'], 'Synthetic lifecycle regression.')
+            self.assertEqual(dossiers(root, include_curated=False), [base])
+            base['summary'] = 'Changed authored source after review.'
+            target.write_text(json.dumps(base), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'rebase and review'):
+                dossiers(root)
+            base['id'] = 'wrong-directory'
+            target.write_text(json.dumps(base), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'identity must match'):
+                dossiers(root)
 
     def test_each_footage_anchor_keeps_its_own_source_and_clock(self):
         original = dossiers(include_curated=False)[0]

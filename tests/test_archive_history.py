@@ -14,10 +14,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ArchiveHistoryTests(unittest.TestCase):
-    def test_three_events_have_exact_retained_revision_routes(self):
+    def test_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 5}
+        counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 5,
+                  'tuscaloosa-birmingham-2011': 1}
+        self.assertEqual({e['id'] for e in index['events']}, set(counts))
         for entry in index['events']:
             history = artifacts[entry['history_file']]
             self.assertEqual(history['event_id'], entry['id'])
