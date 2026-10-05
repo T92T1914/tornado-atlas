@@ -85,7 +85,14 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   for (const f of geometry.features.filter(f=>f.geometry.type==='LineString'))
     svg.append(svgNode('path',{d:path(f.geometry.coordinates),class:'map-path'}));
   const dots=svgNode('g',{}), halo=svgNode('circle',{r:10,class:'survey-selected',visibility:'hidden'});
-  svg.append(dots,halo,svgNode('text',{x:900,y:35,class:'axis-label'},'N ↑'),
+  const lineSelection=svgNode('g',{id:'survey-line-selection',visibility:'hidden','aria-hidden':'true','pointer-events':'none'});
+  const lineSegment=svgNode('path',{id:'survey-line-segment',fill:'none',stroke:'var(--text)','stroke-width':5,'vector-effect':'non-scaling-stroke'});
+  const lineCasing=svgNode('path',{fill:'none',stroke:'var(--bg)','stroke-width':8,'vector-effect':'non-scaling-stroke'});
+  const connector=svgNode('path',{id:'survey-line-connector',fill:'none',stroke:'var(--text)','stroke-width':2,'stroke-dasharray':'6 5','vector-effect':'non-scaling-stroke'});
+  const connectorCasing=svgNode('path',{fill:'none',stroke:'var(--bg)','stroke-width':4,'vector-effect':'non-scaling-stroke'});
+  const linePoint=svgNode('rect',{id:'survey-line-point',fill:'var(--bg)',stroke:'var(--text)','stroke-width':2,'vector-effect':'non-scaling-stroke'});
+  lineSelection.append(lineCasing,lineSegment,connectorCasing,connector,linePoint);
+  svg.append(lineSelection,dots,halo,svgNode('text',{x:900,y:35,class:'axis-label'},'N ↑'),
     svgNode('path',{d:`M 50 355 v 5 h ${2*scale} v -5`,fill:'none',stroke:'#b3bbae','stroke-width':1.5}),
     svgNode('text',{x:50,y:383,class:'axis-label'},'≈ 2 km'));
   mapPanel.append(svg);
@@ -100,6 +107,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   }
   const fatalityKey=el('span','◆ Fatalities','fatality-legend');fatalityKey.style.setProperty('--swatch','var(--fatality)');legend.append(fatalityKey);
   mapPanel.append(legend,el('p','Scroll to zoom around the pointer. Drag to explore, or pinch on a touchscreen. Keyboard: arrows to pan, + and - to zoom, Home for the whole path. The map shows surveyed features, not camera positions.','fineprint'));
+  const lineContext=el('p',null,'fineprint');lineContext.id='survey-line-context';lineContext.setAttribute('role','status');mapPanel.append(lineContext);
   const controls=el('div',null,'survey-controls'), label=el('label','Observation ');
   const select=el('select');select.id='survey-observation';label.htmlFor=select.id;label.append(select);
   select.setAttribute('aria-label','Observation');
@@ -110,6 +118,28 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   const strip=el('div',null,'survey-photo-strip');strip.id='survey-photo-strip';strip.setAttribute('aria-label','Photographs at matching survey locations');host.append(strip);
   let visible=[], selectedId=initial.id;
   const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
+  let nearestLinePoint=null;
+  function sizeLinePoint() {
+    if(!nearestLinePoint)return;
+    const transform=svg.getScreenCTM();
+    const renderedScale=transform?Math.hypot(transform.a,transform.b):(svg.clientWidth||960)/navigation.read()[2];
+    const size=10/renderedScale;
+    linePoint.setAttribute('x',nearestLinePoint[0]-size/2);linePoint.setAttribute('y',nearestLinePoint[1]-size/2);
+    linePoint.setAttribute('width',size);linePoint.setAttribute('height',size);
+  }
+  svg.addEventListener('mapviewchange',sizeLinePoint);
+  function compareLine(point) {
+    const position=point&&route?.positions.get(point.id);
+    lineSelection.setAttribute('visibility',position?'visible':'hidden');
+    nearestLinePoint=position?project(position.coordinates):null;
+    lineContext.textContent='';lineContext.hidden=!position;delete lineSelection.dataset.record;
+    if(!position)return;
+    lineSelection.dataset.record=point.id;
+    const segmentPath=path(position.segment),connectionPath=path([point.coordinates,position.coordinates]);
+    lineSegment.setAttribute('d',segmentPath);lineCasing.setAttribute('d',segmentPath);
+    connector.setAttribute('d',connectionPath);connectorCasing.setAttribute('d',connectionPath);sizeLinePoint();
+    lineContext.textContent=`Record ${point.id}: approximately ${position.alongKm.toFixed(1)} km along the stored ${route.lengthKm.toFixed(1)} km line and ${position.offsetKm.toFixed(1)} km from it. The square marks the nearest mapped point, beside the emphasized segment. Dashes connect the surveyed feature to that point. This spatial comparison does not establish when damage occurred.`;
+  }
   mountGeography(svg,project,mapPanel);
   function zoomState(){const width=navigation.read()[2];zoomOut.disabled=width>=960;zoomIn.disabled=width<=navigation.minWidth;}
   svg.addEventListener('mapviewchange',zoomState);
@@ -119,7 +149,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   const impactUI=mountSurveyImpacts(places,svg,project,mapPanel,navigation,showFatality);
   function showFatality(place) {
     selectedId='fatality:'+place.id;select.value=selectedId;previous.disabled=next.disabled=true;
-    halo.setAttribute('visibility','hidden');
+    halo.setAttribute('visibility','hidden');compareLine(null);
     for(const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed','false');
     fillFatalityRecord(detail,place,{points:survey.points,media,openPhoto,remembranceUrl:reportLink('#remembrance')});
     const share=el('a','Link to this fatality record');share.id='fatality-share';
@@ -133,6 +163,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     updateAlternate(surveyLink(location.href,{id:selectedId,rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value}));
     previous.disabled=index<=0;next.disabled=index<0 || index===visible.length-1;
     detail.replaceChildren();detail.classList.remove('fatality-record');halo.setAttribute('visibility',point?'visible':'hidden');
+    compareLine(point);
     if (!point) {detail.append(el('p','No survey observations match these filters.'));return;}
     const [x,y]=project(point.coordinates);halo.setAttribute('cx',x);halo.setAttribute('cy',y);
     navigation.centerOn([x,y]);
@@ -153,7 +184,8 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
       el('p',`${point.coordinates[1].toFixed(5)}°N, ${Math.abs(point.coordinates[0]).toFixed(5)}°W. Surveyed feature location; camera position and positional accuracy are not established here.`,'fineprint'));
     if(route) {
       const position=route.positions.get(point.id);
-      detail.append(el('p',`Nearest mapped segment: approximately ${position.alongKm.toFixed(1)} km from the first stored center-line vertex and ${position.offsetKm.toFixed(1)} km from the line. This local planar calculation is a browsing aid, not an impact time, instantaneous width or wind measurement.`,'fineprint'));
+      const comparison=el('p',`Nearest mapped segment: its calculated nearest point is approximately ${position.coordinates[1].toFixed(3)}°N, ${Math.abs(position.coordinates[0]).toFixed(3)}°W, ${position.alongKm.toFixed(1)} km along the stored line and ${position.offsetKm.toFixed(1)} km from this surveyed feature. This local planar calculation is a browsing aid, not an impact time, instantaneous width or wind measurement.`,'fineprint');
+      comparison.id='survey-line-detail';detail.append(comparison);
     }
     if(photos.length) detail.append(el('p','Source: NOAA/NWS Damage Assessment Toolkit. Photographer: not identified in the attachment metadata. Capture time: not provided.','fineprint'));
     detail.append(damageExplanation(point.indicator,point.degree,point.rating));
