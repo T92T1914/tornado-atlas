@@ -57,18 +57,24 @@ class TuscaloosaBridgeTests(unittest.TestCase):
         cls.html = (ROOT / 'web/tuscaloosa.html').read_text(encoding='utf-8')
 
     def test_previous_evidence_and_registration_are_unchanged(self):
+        bridge_sha = '11a6678e22a1f3fab562a7cddb07891279bd6e7d03b83f2d57d08bd12614e8df'
+        bridge = json.loads((ROOT / 'web/archive' / f'{EVENT}-{bridge_sha[:20]}.json').read_text(encoding='utf-8'))
+        self.assertEqual(digest(bridge), bridge_sha)
         self.assertEqual(digest(self.prior), PREVIOUS_SHA)
         self.assertEqual(len(self.prior['media']), 4)
         self.assertEqual(len(self.prior['sources']), 8)
         self.assertEqual(len(self.prior['observations']), 11)
         self.assertEqual(len(self.prior['records']), 3)
         for field in ('observations', 'records', 'reconstruction', 'creators', 'title', 'coverage'):
-            self.assertEqual(self.doc[field], self.prior[field], field)
-        self.assertEqual(self.doc['media'][:-1], self.prior['media'])
-        self.assertEqual(self.doc['sources'][:-1], self.prior['sources'])
-        self.assertEqual(self.doc['media'][-1]['id'], MEDIA)
-        self.assertEqual(self.doc['sources'][-1]['id'], SOURCE)
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS_SHA)
+            self.assertEqual(bridge[field], self.prior[field], field)
+            self.assertEqual(self.doc[field], bridge[field], field)
+        self.assertEqual(bridge['media'][:-1], self.prior['media'])
+        self.assertEqual(bridge['sources'][:-1], self.prior['sources'])
+        self.assertEqual(bridge['media'][-1]['id'], MEDIA)
+        self.assertEqual(bridge['sources'][-1]['id'], SOURCE)
+        self.assertEqual(bridge['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS_SHA)
+        self.assertEqual(self.doc['media'][:len(bridge['media'])], bridge['media'])
+        self.assertEqual(self.doc['sources'][:len(bridge['sources'])], bridge['sources'])
         self.assertLess((ROOT / f'exhibits/{EVENT}/dossier.json').stat().st_size, 50_000)
 
     def test_item_attribution_does_not_assign_a_bridge_or_camera(self):
