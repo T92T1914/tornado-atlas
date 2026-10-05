@@ -4,12 +4,38 @@ import {fixture,base} from './harness.mjs';
 
 const report='https://www.weather.gov/ict/udall_stormreport';
 const observations=['blackwell-tonkawa-barograph','blackwell-debris-directions'];
-async function ready(page){await page.waitForFunction(()=>document.body?.dataset.ready==='true');}
+const diagnostics=new WeakMap();
+function observe(page){
+  const events=[];
+  const retain=value=>{events.push(value);if(events.length>60)events.shift();};
+  diagnostics.set(page,{events,retain});
+  page.on('framenavigated',frame=>{if(frame===page.mainFrame())retain({kind:'navigation',url:frame.url()});});
+  page.on('request',request=>retain({kind:'request',url:request.url()}));
+  page.on('requestfinished',request=>retain({kind:'requestfinished',url:request.url()}));
+  page.on('requestfailed',request=>retain({kind:'requestfailed',url:request.url(),failure:request.failure()?.errorText}));
+  page.on('response',response=>{if(response.status()>=400)retain({kind:'http_failure',url:response.url(),status:response.status()});});
+  page.on('pageerror',error=>retain({kind:'pageerror',message:error.message.slice(0,300)}));
+}
+async function ready(page){
+  try{await page.waitForFunction(()=>document.body?.dataset.ready==='true');}
+  catch(error){
+    let timer,state;
+    try{state=await Promise.race([
+      page.evaluate(()=>({ready:document.body?.dataset.ready??null,documentReady:document.readyState,
+        title:document.title,headings:[...document.querySelectorAll('h1')].slice(0,3).map(node=>node.textContent.slice(0,200)),
+        explanation:document.querySelector('#content')?.textContent?.slice(0,600)??null})).catch(e=>({unavailable:e.message.slice(0,300)})),
+      new Promise(resolve=>{timer=setTimeout(()=>resolve({unavailable:'Diagnostic snapshot exceeded 500 ms'}),500);})
+    ]);}finally{clearTimeout(timer);}
+    console.error('BLACKWELL_READINESS_DIAGNOSTIC '+JSON.stringify({url:page.url(),state,events:diagnostics.get(page)?.events??[]}));
+    throw error;
+  }
+}
 async function fits(page){assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal document overflow');}
 
 for(const [width,height,appearance] of [[1280,900,'light'],[1280,900,'dark'],[390,844,'light'],[390,844,'dark'],[700,320,'light']]){
   test(`Blackwell pressure and debris source journey ${width}x${height} ${appearance}`,async t=>{
     const page=await fixture(t,{viewport:{width,height},hasTouch:width<800,isMobile:width<800});
+    observe(page);
     await page.goto(base+'/blackwell.html#pressure-damage');
     await page.locator('#reading-appearance').selectOption(appearance);
     const chapter=page.locator('#pressure-damage');
@@ -20,6 +46,7 @@ for(const [width,height,appearance] of [[1280,900,'light'],[1280,900,'dark'],[39
     await fits(page);
     for(const id of observations){
       const link=chapter.locator(`a[href*="observation=${id}"]`);
+      diagnostics.get(page).retain({kind:'activation',observation:id,href:await link.getAttribute('href')});
       if(width===390)await link.tap();else await link.click();
       await ready(page);
       const card=page.locator('#observation-'+id);
@@ -55,7 +82,7 @@ test('Blackwell pressure observation can be reached through keyboard traversal',
     t.skip('Sequential link Tab is not established in the isolated Windows WebKit fixture. Linux WebKit and other engines still require traversal.');
     return;
   }
-  const page=await fixture(t);await page.goto(base+'/blackwell.html#pressure-damage');
+  const page=await fixture(t);observe(page);await page.goto(base+'/blackwell.html#pressure-damage');
   let reached=false;
   for(let step=0;step<70;step++){
     await page.keyboard.press('Tab');
