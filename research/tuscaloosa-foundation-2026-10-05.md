@@ -158,3 +158,7 @@ survey stop and read its damage contrast alongside the exact source passage.
 Named places, approximate source endpoints and a digitized survey footprint must
 remain distinct. This contribution does not geocode those stops, join endpoints
 into a survey path, or make a historical wind/structural simulation claim.
+
+## Independent source corrections before integration
+
+The final source review corrected the initial warning interpretation. Printed page 17 uses Talking Rock and Cullman as examples of omitted city names. Printed page 18 presents added Tuscaloosa landmarks as a best practice. The 4:15 p.m. CDT time belongs to issuance for the original supercell. The subsequent second supercell has no exact development time in that passage. The account and dossier now retain that sequence without assigning different tracks. Figure 16 is on printed page 37, PDF page 45. Caption text has been inspected, but its pixels remain uninspected. Earlier draft wording is retained in Git history rather than treated as an accepted source conclusion.

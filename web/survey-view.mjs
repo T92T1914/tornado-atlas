@@ -6,6 +6,7 @@ import {fillFatalityRecord} from './fatality-view.mjs';
 import {surveyPhotos} from './survey-photos.mjs';
 import {fatalityLabel, nearbyFatalities, fatalityLink} from './impact-model.mjs';
 import {filterSurvey, ratingColors, surveyProjection, surveyState, surveyLink, surveyPageLink} from './survey-model.mjs';
+import {surveyRoute, orderSurvey} from './survey-route.mjs';
 
 const byId = id => document.getElementById(id);
 const el = (tag, text, className) => {
@@ -24,6 +25,7 @@ const svgNode = (tag, attrs, text) => {
 export function mountSurvey(survey, geometry, media, openPhoto, places = [], pageOptions = {}) {
   const host = byId('survey-explorer');
   const initial = surveyState(location.href);
+  const route = surveyRoute(survey.points, geometry);
   host.append(el('p', 'PLACES AND PHOTOGRAPHS', 'eyebrow'), el('h3', 'Explore the damage, one place at a time'),
     el('p',`${media.photo_count} photographs are linked to ${media.records_with_photos} survey locations. Choose a photograph or a map point to see its recorded assessment and original image.`));
   const alternate = el('a', pageOptions.alternateLabel || 'Open the focused map and photo viewer', 'survey-alternate');
@@ -56,6 +58,14 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   photoLabel.append(photosOnly,document.createTextNode('Only locations with linked photographs'));
   const reset=el('button','Reset filters');reset.type='button';reset.id='survey-reset';
   const options=el('div',null,'survey-options');options.append(photoLabel,reset);host.append(options);
+  const orderLabel=el('label','Browse order '), order=el('select');order.id='survey-order';orderLabel.htmlFor=order.id;
+  for(const [value,text] of [['records','Preserved survey order'],['path','Along the mapped center line']]) {
+    const option=el('option',text);option.value=value;order.append(option);
+  }
+  order.value=route?initial.order:'records';order.disabled=!route;
+  orderLabel.append(order);
+  options.append(orderLabel);
+  if(route) host.append(el('p',`The stored NWS center line is approximately ${route.lengthKm.toFixed(1)} km long. Path order places each survey feature beside its nearest line segment. It follows the stored vertices, including loops; it does not establish when damage occurred.`,'fineprint'));
   const workspace=el('div',null,'survey-workspace'), mapPanel=el('div',null,'survey-map-panel'), inspector=el('div',null,'survey-inspector');
   workspace.append(mapPanel,inspector);host.append(workspace);
 
@@ -112,14 +122,15 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     halo.setAttribute('visibility','hidden');
     for(const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed','false');
     fillFatalityRecord(detail,place,{points:survey.points,media,openPhoto,remembranceUrl:reportLink('#remembrance')});
-    const share=el('a','Link to this fatality record');share.id='fatality-share';share.href=fatalityLink(location.href,place.id);detail.append(share);
+    const share=el('a','Link to this fatality record');share.id='fatality-share';
+    share.href=fatalityLink(surveyLink(location.href,{id:null,rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value}),place.id);detail.append(share);
     updateAlternate(share.href);
   }
   const targetMissing=el('p',null,'fineprint');targetMissing.id='survey-link-status';host.append(targetMissing);
   function show(id) {
     const index=visible.findIndex(p=>p.id===id), point=visible[index];
     selectedId=point?.id ?? null;select.value=point?String(point.id):'';
-    updateAlternate(surveyLink(location.href,{id:selectedId,rating:rating.value,query:search.value,photosOnly:photosOnly.checked}));
+    updateAlternate(surveyLink(location.href,{id:selectedId,rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value}));
     previous.disabled=index<=0;next.disabled=index<0 || index===visible.length-1;
     detail.replaceChildren();detail.classList.remove('fatality-record');halo.setAttribute('visibility',point?'visible':'hidden');
     if (!point) {detail.append(el('p','No survey observations match these filters.'));return;}
@@ -140,14 +151,18 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     } else detail.append(el('p','No original photograph is linked in the preserved attachment response for this record.','survey-photo-empty'));
     detail.append(el('p','Recorded assessment','eyebrow'),el('p',point.degree),
       el('p',`${point.coordinates[1].toFixed(5)}°N, ${Math.abs(point.coordinates[0]).toFixed(5)}°W. Surveyed feature location; camera position and positional accuracy are not established here.`,'fineprint'));
+    if(route) {
+      const position=route.positions.get(point.id);
+      detail.append(el('p',`Nearest mapped segment: approximately ${position.alongKm.toFixed(1)} km from the first stored center-line vertex and ${position.offsetKm.toFixed(1)} km from the line. This local planar calculation is a browsing aid, not an impact time, instantaneous width or wind measurement.`,'fineprint'));
+    }
     if(photos.length) detail.append(el('p','Source: NOAA/NWS Damage Assessment Toolkit. Photographer: not identified in the attachment metadata. Capture time: not provided.','fineprint'));
     detail.append(damageExplanation(point.indicator,point.degree,point.rating));
     const share=el('a','Link to this observation');share.id='survey-share';
-    share.href=surveyLink(location.href,{id:point.id,rating:rating.value,query:search.value,photosOnly:photosOnly.checked});
+    share.href=surveyLink(location.href,{id:point.id,rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value});
     const links=el('div',null,'survey-record-links');links.append(source,share);detail.append(links);
   }
   function filter() {
-    visible=filterSurvey(survey.points,rating.value,search.value,photosOnly.checked?media.photos:null);
+    visible=orderSurvey(filterSurvey(survey.points,rating.value,search.value,photosOnly.checked?media.photos:null),route,order.value);
     count.textContent=`${visible.length} of ${survey.included_count} survey locations`;
     select.replaceChildren();dots.replaceChildren();strip.replaceChildren();select.disabled=!visible.length&&!places.length;
     if(places.length) {
@@ -174,8 +189,8 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     const selectedPlace=places.find(place=>'fatality:'+place.id===selectedId);
     if(selectedPlace) impactUI.show(selectedPlace);else show(visible.some(p=>p.id===selectedId)?selectedId:visible[0]?.id);
   }
-  rating.addEventListener('change',filter);search.addEventListener('input',filter);photosOnly.addEventListener('change',filter);
-  reset.addEventListener('click',()=>{rating.value='';search.value='';photosOnly.checked=true;targetMissing.textContent='';filter();});
+  rating.addEventListener('change',filter);search.addEventListener('input',filter);photosOnly.addEventListener('change',filter);order.addEventListener('change',filter);
+  reset.addEventListener('click',()=>{rating.value='';search.value='';photosOnly.checked=true;order.value='records';targetMissing.textContent='';filter();});
   select.addEventListener('change',()=>{const place=places.find(p=>'fatality:'+p.id===select.value);if(place)impactUI.show(place);else show(Number(select.value));});
   previous.addEventListener('click',()=>show(visible[visible.findIndex(p=>p.id===selectedId)-1]?.id));
   next.addEventListener('click',()=>show(visible[visible.findIndex(p=>p.id===selectedId)+1]?.id));
@@ -186,6 +201,10 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     el('p','EF labels are individual assessments. TSTM/Wind is the source’s thunderstorm-wind classification. N/A and UNKNOWN have no EF rating. None is converted into a tornado wind speed.'),
     el('p',`Snapshot: ${survey.source.retrieved_at.slice(0,10)}. Coordinates preserved; local map projection is approximate. The recorded storm-date field is used to retrieve the regional survey, not to animate failures.`),queryLink,
     el('p',media.source.association),el('p',media.source.rights));
+  if(route) {
+    const pathSource=el('a','Inspect the original NWS center line and outline');pathSource.href=route.source.source_url;pathSource.target='_blank';pathSource.rel='noopener';
+    methodology.append(el('p','Distance uses an approximate local plane at the center line’s mean latitude. Nearest-segment assignment can be ambiguous near loops. Survey order remains available and source coordinates are unchanged.'),pathSource);
+  }
   host.append(methodology);
   const context=el('nav',null,'survey-context');context.setAttribute('aria-label','Read around these observations');
   for (const [text,href] of [['Read the storm history','#history'],['Explore the EF3 / EF5 discussion','#el-reno-ef5-debate'],['Remember those who died','#remembrance']]) {

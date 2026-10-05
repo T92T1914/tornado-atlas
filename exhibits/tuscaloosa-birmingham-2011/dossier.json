@@ -74,10 +74,10 @@
       "id": "april-warning-assessment",
       "title": "NWS: The Historic Tornadoes of April 2011, December 2011",
       "url": "https://www.weather.gov/media/publications/assessments/historic_tornadoes.pdf",
-      "locator": "Printed pages 5 to 9 (PDF 13 to 17), 17 and 18 (PDF 25 and 26), 29 and 30 (PDF 37 and 38), 35 to 37 (PDF 43 to 45), and Appendix C (PDF 60 and 61). Table 1 is printed page 6. Figure 16 caption is printed page 35.",
+      "locator": "Printed pages 5 to 9 (PDF 13 to 17), 17 and 18 (PDF 25 and 26), 29 and 30 (PDF 37 and 38), 35 to 37 (PDF 43 to 45), and Appendix C (PDF 60 and 61). Table 1 is printed page 6. Figure 16 caption is printed page 37 (PDF 45).",
       "access": "Selected original report text inspected through the accessible document reader. Title, publication date and cover credits inspected. One bounded original-file retrieval returned HTTP 403, with no body retained. No report figure pixels visually inspected or derivative created.",
       "revision": "December 2011 service assessment, inspected October 5, 2026. Publication clock is separate from tornado time.",
-      "rights": "Source-linked government report text and attributed interpretation. Cover credits include agency and named contributors and do not clear every figure. Figure 16 caption credits Gary Woodall, NWS Phoenix. its pixels and any embedded exceptions are uninspected.",
+      "rights": "Source-linked government report text and attributed interpretation. Cover credits include agency and named contributors and do not clear every figure. Figure 16 caption credits Gary Woodall, NWS Phoenix. Its pixels and any embedded exceptions are uninspected.",
       "agent_processing": "Selected original text paraphrased with report locators. The broader outbreak review, interview limits and source-clock disagreements remain explicit. No figure inspection or population inference is claimed."
     },
     {
@@ -330,8 +330,8 @@
       "title": "Two storms and the challenge of managing one warning area",
       "source_id": "april-warning-assessment",
       "locator": "Printed pages 17 and 18 (PDF 25 and 26): Warngen findings and Tuscaloosa warning examples.",
-      "account": "The assessment describes a 4:15 p.m. CDT western Tuscaloosa County warning polygon containing two supercells on separate tracks. It also reports omitted Tuscaloosa city naming in some warning text immediately before the tornado, with local landmarks listed instead.",
-      "limits": "These documented message and management problems do not mean no warning existed. This is a wider outbreak review. No local warning lead time is calculated from an outbreak-wide average.",
+      "account": "The assessment describes a warning issued at 4:15 p.m. CDT for a supercell in western Tuscaloosa County. A new supercell then formed within the polygon, making pathcasts difficult to manage. It separately identifies the named Tuscaloosa landmarks in the warning immediately before the tornado struck as a best practice.",
+      "limits": "These are distinct source findings, not proof that no warning existed or that Tuscaloosa was omitted from the location list. The report discusses city-name omissions elsewhere. This is a wider outbreak review. No local warning lead time is calculated from an outbreak-wide average.",
       "status": {
         "intake": "published",
         "assertion": "source_reported",
@@ -416,7 +416,7 @@
         "coordinates": null,
         "basis": "County source definitions. no individual fatality location."
       },
-      "review": "Original survey/assessment figures and retained county impact fields inspected. Differences remain attributed and unresolved. no casualty identity register or reconciled census inspected."
+      "review": "Original survey/assessment reported totals and retained county impact fields inspected. Differences remain attributed and unresolved. no casualty identity register or reconciled census inspected."
     },
     {
       "id": "source-clock-scope",
@@ -462,7 +462,8 @@
     "research_record": "research/tuscaloosa-foundation-2026-10-05.md",
     "reviewed_on": "2026-10-05",
     "review_scope": "Selected original survey/report text and retained county records, with explicit access, rights and clock limits. This record is not independent review or deployed-browser acceptance.",
-    "inputs": {
+    "inputs": {},
+    "inherited_source_identities": {
       "ncei_snapshot_reported_sha256": "be3b40cd098a879be12c2c3e614700560bd537e6178bba8b1aaf099f665dda40"
     }
   }

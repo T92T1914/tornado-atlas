@@ -36,7 +36,7 @@ test('photo availability combines with rating and text, without inventing covera
 });
 
 test('shared links restore the observation and all filters while keeping unrelated parameters', () => {
-  const state={id:165486,rating:'EF3',query:'rigid frames & roof',photosOnly:false};
+  const state={id:165486,rating:'EF3',query:'rigid frames & roof',photosOnly:false,order:'path'};
   const url=surveyLink('https://example.org/exhibit/?time=9&survey=123#path',state);
   assert.deepEqual(surveyState(url),state);
   assert.equal(new URL(url).searchParams.get('time'),'9');
