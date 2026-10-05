@@ -35,7 +35,11 @@ class ContextImageTests(unittest.TestCase):
                 raw = (ROOT / 'web/archive' / f'{event}-{identity}.json').read_bytes()
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), checksum)
                 old = json.loads(raw)
-                current = self.docs[event]
+                latest = self.docs[event]
+                # Assert the established image increment at its immutable
+                # revision; later radar evidence has its own exact tests.
+                current = (json.loads((ROOT / 'web/archive/joplin-2011-22debeaf0abaa4cb5c06.json').read_bytes())
+                           if event == 'joplin-2011' else latest)
                 for field in ('records', 'reconstruction', 'observations'):
                     self.assertEqual(current[field], old[field])
                 for field in ('sources', 'media', 'creators', 'routes'):
@@ -49,6 +53,12 @@ class ContextImageTests(unittest.TestCase):
                     expected_additions = expected_additions | WARNING_ADDITIONS
                 self.assertEqual({row['id'] for row in current['media']} -
                                  {row['id'] for row in old['media']}, expected_additions)
+                for field in ('records', 'reconstruction', 'observations'):
+                    self.assertEqual(latest[field], current[field])
+                for field in ('sources', 'media', 'creators', 'routes'):
+                    by_id = {row.get('id', row.get('href')): row for row in latest[field]}
+                    for prior in current[field]:
+                        self.assertEqual(by_id[prior.get('id', prior.get('href'))], prior)
 
     def test_available_context_images_do_not_acquire_storm_alignment_or_coordinates(self):
         for event, ids in ADDITIONS.items():

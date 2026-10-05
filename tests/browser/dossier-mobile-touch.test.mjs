@@ -228,7 +228,7 @@ test('touch source discovery can retry an unavailable directory and clear an emp
 });
 
 test('default narrow map lets a touch swipe scroll the page without changing the selected source',
-  {skip:process.env.ATLAS_BROWSER_ENGINE==='webkit'?'Native scrolling probe uses the available Chromium CDP touch protocol':false},async t=>{
+  {skip:['webkit','firefox'].includes(process.env.ATLAS_BROWSER_ENGINE)?'Native scrolling probe uses the available Chromium CDP touch protocol':false},async t=>{
   const page=await fixture(t,{viewport:{width:390,height:640},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
   await page.goto(base+'/atlas.html?layer=local');await page.waitForFunction(()=>document.body.dataset.ready==='true');
   await page.locator('#query').tap();await page.locator('#query').fill('El Reno');

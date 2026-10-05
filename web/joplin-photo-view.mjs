@@ -1,4 +1,4 @@
-// Enhance source-linked photographs with the existing accessible viewer.
+// Enhance source-linked photographs and radar figures with the shared viewer.
 // Image links remain useful without JavaScript. No session data is retained.
 import {mountPhotoViewer} from './photo-view.mjs';
 
@@ -34,6 +34,7 @@ function showFromLocation() {
   const image = link.querySelector('img');
   const source = figure.querySelector('figcaption a[href*="#page="]');
   const annotated = link.dataset.photoKind === 'annotated-figure';
+  const radar = link.dataset.photoKind === 'radar-figure';
   const itemRights = figure.closest('.documentary-note').querySelector('a[href$="#page=4"]');
   currentId = link.dataset.photoId;
   opener = link;
@@ -42,14 +43,16 @@ function showFromLocation() {
     asset: link.href,
     alt: image.alt,
     caption: figure.querySelector('figcaption').textContent,
-    location: 'Camera capture time and position remain unregistered. No historical clock or viewpoint is assigned.',
-    credit: annotated ? 'National Institute of Standards and Technology. Complete photograph rectangle and NIST annotation from the report, retained as a PNG derivative. No separate holder is credited for this figure. No endorsement is implied.' :
+    location: radar ? 'The figure retains seven source-reported UTC radar labels. It does not register an optical camera, a street-level wind field or a historical appearance interval.' :
+      'Camera capture time and position remain unregistered. No historical clock or viewpoint is assigned.',
+    credit: radar ? 'NOAA radar images, enhanced by NIST. Complete report figure, annotations, source credit and original caption retained as a PNG derivative. No government endorsement is implied.' :
+      annotated ? 'National Institute of Standards and Technology. Complete photograph rectangle and NIST annotation from the report, retained as a PNG derivative. No separate holder is credited for this figure. No endorsement is implied.' :
       'National Institute of Standards and Technology. Complete embedded report photograph, with no separate holder credited for this figure. No endorsement is implied.',
     source: source.href,
     license: "Read the report's item-specific rights statement",
     licenseUrl: (itemRights || rights).href,
   });
-  document.getElementById('photo-original').textContent = annotated ?
+  document.getElementById('photo-original').textContent = radar ? 'Open the complete radar figure and caption' : annotated ?
     'Open the complete photograph and NIST annotation' : 'Open the complete embedded photograph';
 }
 for (const [id, link] of links) {
