@@ -8,7 +8,20 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]) {
     const requests=[];page.on('request',r=>requests.push(r.url()));
     await page.goto(base+'/tuscaloosa.html');
     await page.locator('#reading-appearance').selectOption(appearance);
-    await page.addStyleTag({content:'body {font-size:200%}'});
+    const ratio=await page.evaluate(()=>{
+      const paragraph=document.querySelector('.documentary-reading p');
+      const before=parseFloat(getComputedStyle(paragraph).fontSize);
+      // Emulate doubled text, including fixed pixel rules. Changing only
+      // body's font size would leave much of this article unchanged.
+      const rows=[...document.querySelectorAll('main *')].filter(node=>
+        [...node.childNodes].some(child=>child.nodeType===Node.TEXT_NODE&&child.textContent.trim()));
+      const baseline=rows.map(node=>({node,font:parseFloat(getComputedStyle(node).fontSize),
+        line:parseFloat(getComputedStyle(node).lineHeight)}));
+      for(const {node,font,line} of baseline){node.style.fontSize=font*2+'px';
+        if(Number.isFinite(line))node.style.lineHeight=line*2+'px';}
+      return parseFloat(getComputedStyle(paragraph).fontSize)/before;
+    });
+    assert.equal(ratio,2,'The actual article text is doubled');
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
     const chapter=page.locator('.documentary-contents a[href="#path"]');
     await chapter.focus();await page.keyboard.press('Enter');
@@ -23,7 +36,9 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]) {
     assert.equal(await source.count(),1);
     assert.equal(await source.locator('a[href="https://www.weather.gov/bmx/event_04272011tuscbirm"]').count()>0,true);
     const record=page.getByRole('link',{name:'ncei:314662',exact:true});
-    await record.focus();await page.keyboard.press('Enter');
+    await record.focus();
+    await Promise.all([page.waitForEvent('framenavigated',frame=>frame===page.mainFrame()),
+      page.keyboard.press('Enter')]);
     await page.waitForFunction(()=>document.body.dataset.ready==='true');
     assert.match(await page.locator('#content').textContent(),/44/);
     assert.match(await page.locator('#content').textContent(),/Tuscaloosa/);
