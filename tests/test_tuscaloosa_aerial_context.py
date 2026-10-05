@@ -15,6 +15,7 @@ SOURCE = 'bmx-aerial-context'
 ASSET = 'assets/tuscaloosa-birmingham-2011/aerial-context-april29.jpg'
 PUBLIC_SHA = 'df7c4593844902834ce3b428a7b021e8c530efd2b16ac5fe8698c3d7e92b703c'
 PREVIOUS_SHA = '11a6678e22a1f3fab562a7cddb07891279bd6e7d03b83f2d57d08bd12614e8df'
+AERIAL_SHA = '35b450a43834125500a844d47856b6248f24bc00defcc6d746ecafdf8da6544a'
 SCAN_SHA = '2076720f92f92e725aaf85c3826c5d955228cdabd742c977810dc87075436a43'
 
 
@@ -50,7 +51,10 @@ class Figure(HTMLParser):
 class TuscaloosaAerialContextTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.doc = next(d for d in dossiers() if d['id'] == EVENT)
+        # Test the exact accepted photo increment even after a later, distinct
+        # documentary source is published. Current preservation is checked too.
+        cls.doc = json.loads((ROOT / 'web/archive' / f'{EVENT}-{AERIAL_SHA[:20]}.json').read_text(encoding='utf-8'))
+        cls.current = next(d for d in dossiers() if d['id'] == EVENT)
         cls.prior = json.loads((ROOT / 'web/archive' / f'{EVENT}-{PREVIOUS_SHA[:20]}.json').read_text(encoding='utf-8'))
         cls.item = next(m for m in cls.doc['media'] if m['id'] == MEDIA)
         cls.source = next(s for s in cls.doc['sources'] if s['id'] == SOURCE)
@@ -58,6 +62,7 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         cls.raw = (ROOT / 'web' / ASSET).read_bytes()
 
     def test_every_prior_account_and_media_value_is_preserved(self):
+        self.assertEqual(digest(self.doc), AERIAL_SHA)
         self.assertEqual(digest(self.prior), PREVIOUS_SHA)
         self.assertEqual((len(self.prior['media']), len(self.prior['sources'])), (5, 9))
         self.assertEqual((len(self.doc['media']), len(self.doc['sources'])), (6, 10))
@@ -74,6 +79,13 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         self.assertEqual(self.prior['provenance']['publication_review']['previous_dossier_sha256'],
                          'a1d19787e5730aa6216e3606955ce25a6edefc112891326875e8dc5101bbe115')
         self.assertLess((ROOT / f'exhibits/{EVENT}/dossier.json').stat().st_size, 50_000)
+
+    def test_current_publication_preserves_all_accepted_photo_values(self):
+        for field in ('media', 'records', 'reconstruction', 'creators', 'title', 'coverage', 'summary'):
+            self.assertEqual(self.current[field], self.doc[field], field)
+        for field in ('observations', 'sources', 'routes'):
+            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
+        self.assertEqual(validate_dossier(self.current), self.current)
 
     def test_source_attribution_and_clocks_do_not_register_a_camera_or_path(self):
         url = 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/3.JPG'
@@ -164,7 +176,7 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
     def test_publication_and_history_expose_only_the_added_photo_and_source(self):
         artifacts = publication()
         entry = next(e for e in artifacts['archive/index.json']['events'] if e['id'] == EVENT)
-        self.assertEqual(artifacts[entry['file']], self.doc)
+        self.assertEqual(artifacts[entry['file']], self.current)
         self.assertEqual(entry['registered_media'], 0)
         sources_file = next(name for name in artifacts if name.startswith('archive/sources-'))
         rows = [row for row in artifacts[sources_file]['entries'] if row['event_id'] == EVENT and row['source']['id'] == SOURCE]
