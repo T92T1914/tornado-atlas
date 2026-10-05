@@ -30,17 +30,20 @@ function showFromLocation() {
   const figure = link.closest('figure');
   currentId = link.dataset.photoId;
   opener = link;
+  const photograph = figure.dataset.photoKind === 'photograph';
   openPhoto({
-    title: figure.querySelector('h3').textContent + ' at the reported county crossing',
+    title: figure.querySelector('h3').textContent + (photograph ? '' : ' at the reported county crossing'),
     asset: link.href,
     alt: link.querySelector('img').alt,
     caption: figure.querySelector('figcaption').textContent,
-    location: 'Source caption: April 27, 2011, 5:38 p.m., KBMX 0.5-degree product. The caption does not repeat a time-zone label. No independent alignment, raster registration or surface-wind measurement is assigned.',
-    credit: 'Original National Weather Service Birmingham radar product, preserved unchanged. Individual image maker is not named. NWS material is not subject to copyright protection. No government endorsement is implied.',
+    location: photograph ? figure.dataset.photoLocation : 'Source caption: April 27, 2011, 5:38 p.m., KBMX 0.5-degree product. The caption does not repeat a time-zone label. No independent alignment, raster registration or surface-wind measurement is assigned.',
+    credit: photograph ? figure.dataset.photoCredit : 'Original National Weather Service Birmingham radar product, preserved unchanged. Individual image maker is not named. NWS material is not subject to copyright protection. No government endorsement is implied.',
     source: 'https://www.weather.gov/bmx/event_04272011tuscbirm',
     license: 'Read the NWS material and third-party rights policy',
     licenseUrl: 'https://www.weather.gov/disclaimer',
   });
+  document.getElementById('photo-original').textContent = photograph ?
+    'Open the metadata-stripped publication copy' : 'Open the original radar image';
 }
 for (const [id, link] of links) {
   link.addEventListener('click', event => {
