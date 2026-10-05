@@ -394,7 +394,7 @@ select:focus-visible,summary:focus-visible {outline:2px solid var(--gold);outlin
 .damage-photos img {height:220px}
 .damage-photos h3 {font-size:15px;margin:10px 0 3px}
 .damage-photos p {font-size:12px;color:var(--muted)}
-#photo-dialog {width:min(1100px,94vw);max-height:92vh;overflow:auto;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:22px}
+#photo-dialog {width:min(1100px,94vw);max-height:92vh;overflow:auto;overflow-wrap:anywhere;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:22px}
 #photo-dialog::backdrop {background:#050908db}
 .photo-dialog-bar {display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:16px}
 .photo-dialog-bar h2 {font:24px Georgia,serif;margin:0}

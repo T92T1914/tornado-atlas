@@ -99,6 +99,26 @@
       "revision": "Policy accessed October 5, 2026. no publication or last-revision date established.",
       "rights": "Rights guidance is separate from factual relevance and does not establish original item provenance. No item is cleared for image hosting by this policy alone.",
       "agent_processing": "Policy used to bound public narrative/source links and to preserve the unqualified original-image boundary. No creator contact or new hosting permission obtained."
+    },
+    {
+      "id": "bmx-kbmx-radar-pair",
+      "title": "NWS Birmingham: paired KBMX radar products at the county crossing",
+      "url": "https://www.weather.gov/bmx/event_04272011tuscbirm",
+      "locator": "Radar Data section: the linked r2238.gif reflectivity image, v2238.gif storm-relative velocity image and their separate product captions.",
+      "access": "Selected original page radar captions and original HTML inspected October 5, 2026 UTC. Complete pixels of both linked original single-frame GIFs inspected separately. No other damage photograph, raw radar volume or continuous radar interval inspected in this addition.",
+      "revision": "Undated official page accessed October 5, 2026 UTC. Retained HTML: 78940 bytes, SHA256 d06e6a1db1feb57f934e56cfe18da118099dc97ba9ff47a8f8fcc8036434df6e. Image byte identities are recorded per media item. This is not a recovered 2011 page revision.",
+      "rights": "The original page specifically identifies these two images as KBMX 0.5-degree radar data products. No separate third-party source or copyright credit occurs in their captions or inspected complete images. The NWS use policy permits unaltered government products with attribution and without implying endorsement. These selected NWS products are not subject to copyright protection. Policy: https://www.weather.gov/disclaimer. This item-specific decision does not clear the page's other photographs. No individual image maker or rights holder is inferred.",
+      "agent_processing": "Agent reading of the named original captions and full-image pixel inspection. Original GIF bytes are preserved unchanged. The page-reported product types and time remain separate from absent embedded legends, unregistered location and unavailable raw data. No human review, image enhancement, measured wind speed or historical appearance registration is claimed."
+    },
+    {
+      "id": "bmx-radar-product-explanation",
+      "title": "NWS Birmingham: what reflectivity and storm-relative motion show",
+      "url": "https://www.weather.gov/bmx/radar_aboutnwsradar_whatitshows",
+      "locator": "Reflectivity and Velocity paragraphs, especially radial motion, beam-height limits and storm-motion subtraction.",
+      "access": "Selected original page text inspected on October 5, 2026 UTC. This is product-method context, not a new inspection of the 2011 raw radar volume.",
+      "revision": "Current page retrieved October 5, 2026. Its original publication date is not established.",
+      "rights": "Original NWS explanatory text is paraphrased with attribution under the NWS material policy. No figures from this explanatory page are copied.",
+      "agent_processing": "Used only to explain the distinction between the two named products. No color-to-value conversion, beam calibration or event-specific measurement is derived."
     }
   ],
   "observations": [
@@ -450,7 +470,102 @@
       "review": "Original clock conventions and retained parsed UTC fields inspected. The shorter assessment row remains unresolved rather than silently adjusted."
     }
   ],
-  "media": [],
+  "media": [
+    {
+      "id": "kbmx-reflectivity-county-crossing",
+      "title": "Reflectivity at the reported county crossing",
+      "source_id": "bmx-kbmx-radar-pair",
+      "locator": "Radar Data section: linked r2238.gif, described by its caption as KBMX 0.5-degree reflectivity at 538 pm while crossing the Tuscaloosa-Jefferson County line.",
+      "account": "The original image displays a curved band of colored radar bins, including a bend near Bull City and North Johns, against labeled places and roads. The source identifies the product as KBMX reflectivity at the reported county crossing. The caption reports 5:38 p.m. on the event page for April 27, 2011.",
+      "limits": "This is one source-labeled raster snapshot. It has no visible color scale, product timestamp, elevation label or radar legend, so its colors are not translated into numerical values. The page caption supplies the product identity, 0.5-degree elevation angle and reported time. Its clock is not independently verified or aligned. Radar returns are not an optical tornado outline, measured surface winds, a surveyed damage footprint or a continuous animation. Place labels are retained for context without deriving coordinates or a beam footprint.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "permitted_hosting"
+      },
+      "time": {
+        "event": "April 27, 2011, 5:38 p.m. in the source caption. The radar caption does not repeat a time-zone label.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05T11:13:21.663242+00:00",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "radar_product_context",
+        "reported": "Tuscaloosa-Jefferson County line, as described by the source caption.",
+        "coordinates": null,
+        "basis": "Caption-level event context and original displayed place names only. No georeferencing, camera position, exact storm coordinate or beam footprint is derived."
+      },
+      "review": "Complete original single-frame GIF pixels and corresponding source caption inspected by an agent on October 5, 2026 UTC. No embedded timestamp or color key is visible. No raw-radar, quantitative velocity, independent clock or historical appearance verification is claimed.",
+      "kind": "radar",
+      "url": "https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/r2238.gif",
+      "roles": {
+        "creator": null,
+        "uploader": "nws-birmingham",
+        "rights_holder": null
+      },
+      "parent": null,
+      "transformation": {
+        "recipe": "Complete original single-frame GIF preserved byte-for-byte. No crop, recoloring, enhancement, rescaling or animation created. The source filename is an identifier, not an independently verified timestamp.",
+        "asset": "assets/tuscaloosa-birmingham-2011/kbmx-reflectivity-2238.gif",
+        "sha256": "3d4581d6ca3bf8eda91f2bfd665e9c48d9ae7261d72286fe205d2b29c0d7ce18",
+        "width": 755,
+        "height": 583,
+        "alt": "A KBMX reflectivity image with colored radar bins over labeled places including Bull City, North Johns, Oak Grove and Bessemer. A curved return band bends near Bull City and North Johns. No color scale or timestamp is visible."
+      }
+    },
+    {
+      "id": "kbmx-storm-relative-velocity-county-crossing",
+      "title": "Storm-relative velocity at the same reported time",
+      "source_id": "bmx-kbmx-radar-pair",
+      "locator": "Radar Data section: linked v2238.gif, described by its caption as KBMX 0.5-degree storm-relative velocity at 538 pm while crossing the Tuscaloosa-Jefferson County line.",
+      "account": "The original image displays adjacent green and bright red, pink and orange radar bins near Bull City and North Johns, within a broader colored field and labeled place/road context. The source identifies the product as KBMX storm-relative velocity at the same reported county crossing. The caption reports 5:38 p.m. on the event page for April 27, 2011.",
+      "limits": "This is one source-labeled raster snapshot. It has no visible color scale, product timestamp, elevation label or radar legend, so its colors are not translated into numerical values. The page caption supplies the product identity, 0.5-degree elevation angle and reported time. Its clock is not independently verified or aligned. Radar returns are not an optical tornado outline, measured surface winds, a surveyed damage footprint or a continuous animation. Place labels are retained for context without deriving coordinates or a beam footprint.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "permitted_hosting"
+      },
+      "time": {
+        "event": "April 27, 2011, 5:38 p.m. in the source caption. The radar caption does not repeat a time-zone label.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05T11:13:22.049077+00:00",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "radar_product_context",
+        "reported": "Tuscaloosa-Jefferson County line, as described by the source caption.",
+        "coordinates": null,
+        "basis": "Caption-level event context and original displayed place names only. No georeferencing, camera position, exact storm coordinate or beam footprint is derived."
+      },
+      "review": "Complete original single-frame GIF pixels and corresponding source caption inspected by an agent on October 5, 2026 UTC. No embedded timestamp or color key is visible. No raw-radar, quantitative velocity, independent clock or historical appearance verification is claimed.",
+      "kind": "radar",
+      "url": "https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/v2238.gif",
+      "roles": {
+        "creator": null,
+        "uploader": "nws-birmingham",
+        "rights_holder": null
+      },
+      "parent": null,
+      "transformation": {
+        "recipe": "Complete original single-frame GIF preserved byte-for-byte. No crop, recoloring, enhancement, rescaling or animation created. The source filename is an identifier, not an independently verified timestamp.",
+        "asset": "assets/tuscaloosa-birmingham-2011/kbmx-storm-relative-velocity-2238.gif",
+        "sha256": "34591f78f45cb8ff46ba385b74ccc50aca9b9e0f7292cd15b63c31d998215d63",
+        "width": 756,
+        "height": 567,
+        "alt": "A KBMX storm-relative velocity image with adjoining green and bright red, pink and orange bins near Bull City and North Johns, and a larger red/pink field across the labeled map. No color scale or timestamp is visible."
+      }
+    }
+  ],
   "reconstruction": {
     "appearance": "unregistered",
     "intervals": [],
@@ -465,6 +580,21 @@
     "inputs": {},
     "inherited_source_identities": {
       "ncei_snapshot_reported_sha256": "be3b40cd098a879be12c2c3e614700560bd537e6178bba8b1aaf099f665dda40"
+    },
+    "media_increment": {
+      "source_basis_revision": "52dd25a7588026e03c06707b7d36b39bb3d06aed",
+      "research_record": "research/tuscaloosa-media-2026-10-05.md",
+      "reviewed_on": "2026-10-05",
+      "scope": "Two complete original NWS KBMX radar products and their captions, independently inspected during composition. Their original bytes, absent legend/timestamp and independent clock/location limits remain explicit. Prior observations, source accounts, record associations, reconstruction limits and immutable snapshots are preserved.",
+      "retained_media_bytes": 339428,
+      "source_html_sha256": "d06e6a1db1feb57f934e56cfe18da118099dc97ba9ff47a8f8fcc8036434df6e"
+    },
+    "publication_review": {
+      "reviewer_kind": "agent",
+      "reviewed_at": "2026-10-05T11:26:41.866761+00:00",
+      "basis": "Original NWS captions, complete radar pixels, unchanged byte identities and item-specific rights were inspected during composition. This prepares a reviewed media increment, without claiming native, public deployment or historical registration acceptance.",
+      "candidate_sha256": "45c0cd8749ee13cc7ac13e2628ef7c067a83d49f5d4ca754d69b050ed14b840d",
+      "previous_dossier_sha256": "52bd3ebb4b75376419719cc44ec1bb9421eee9bc558e14d1b54b9060e433944a"
     }
   }
 }
