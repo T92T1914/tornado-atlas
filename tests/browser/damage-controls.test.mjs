@@ -20,7 +20,7 @@ async function geometry(page){
     const select=controls.querySelector('select');
     return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,controls:rect(controls),
       controlsScrollWidth:controls.scrollWidth,controlsClientWidth:controls.clientWidth,
-      label:rect(select.parentElement),select:rect(select),selectWhiteSpace:getComputedStyle(select).whiteSpace,
+      label:rect(select.parentElement),select:rect(select),
       buttons:[...controls.querySelectorAll('button')].map(button=>({id:button.id,...rect(button)}))};
   });
 }
@@ -48,6 +48,23 @@ async function checkSelection(page,record){
   assert.equal(await page.locator('#survey-detail > .eyebrow').first().textContent(),`NWS DAT RECORD ${record.id} · ${record.rating}`);
   assert.equal(new URL(await page.locator('#survey-share').getAttribute('href')).searchParams.get('survey'),String(record.id));
   checkBounds(await geometry(page));
+  // A native select may keep its own single-line presentation. The full
+  // selected assessment must remain readable in the ordinary document.
+  for(const selector of ['#survey-detail > .eyebrow:first-child','#survey-detail h4']){
+    const text=page.locator(selector);
+    assert.equal(await text.isVisible(),true,'The full selected assessment is available');
+    const bounds=await text.evaluate(node=>{
+      const range=document.createRange();range.selectNodeContents(node);
+      const box=node.getBoundingClientRect();
+      return {viewport:innerWidth,box:{x:box.x,right:box.right,bottom:box.bottom,y:box.y},
+        lines:[...range.getClientRects()].map(line=>({x:line.x,right:line.right,y:line.y,bottom:line.bottom}))};
+    });
+    assert.ok(bounds.box.x>=-1&&bounds.box.right<=bounds.viewport+1,'Selected assessment fits the viewport');
+    for(const line of bounds.lines){
+      assert.ok(line.x>=bounds.box.x-1&&line.right<=bounds.box.right+1&&
+        line.y>=bounds.box.y-1&&line.bottom<=bounds.box.bottom+1,'Full assessment text is not clipped');
+    }
+  }
 }
 async function exercise(page,width,appearance,enlarged=false){
   await page.goto(base+'/index.html');await ready(page);await page.locator('#reading-appearance').selectOption(appearance);
@@ -60,9 +77,13 @@ async function exercise(page,width,appearance,enlarged=false){
       const nodes=[controls,...controls.querySelectorAll('label,select,button')],sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));
       nodes.forEach((node,index)=>node.style.fontSize=sizes[index]*2+'px');
     });
+    const sizes=await page.locator('#survey-detail').evaluate(detail=>({
+      title:parseFloat(getComputedStyle(detail.querySelector('h4')).fontSize)*2,
+      eyebrow:parseFloat(getComputedStyle(detail.querySelector('.eyebrow')).fontSize)*2,
+    }));
+    await page.addStyleTag({content:`#survey-detail h4{font-size:${sizes.title}px} #survey-detail > .eyebrow:first-child{font-size:${sizes.eyebrow}px}`});
   }
   let metrics=await geometry(page);checkBounds(metrics);
-  assert.equal(metrics.selectWhiteSpace,'normal','Native option text can wrap inside its survey column');
   await capture(page,`damage-${appearance}-${width}${enlarged?'-enlarged':''}`,metrics);
   const longest=records.reduce((best,record)=>record.indicator.length>best.indicator.length?record:best);
   await checkSelection(page,longest);
@@ -86,4 +107,13 @@ for(const appearance of ['dark','light'])for(const width of widths){
 for(const appearance of ['dark','light'])test(`El Reno damage controls ${appearance} with doubled text at 320px`,async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
   await exercise(page,320,appearance,true);
+});
+
+test('selected-assessment readability rejects a clipped long label',async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900}});
+  await page.goto(base+'/index.html');await ready(page);
+  const longest=records.reduce((best,record)=>record.indicator.length>best.indicator.length?record:best);
+  await checkSelection(page,longest);
+  await page.addStyleTag({content:'#survey-detail h4{width:80px;white-space:nowrap;overflow:hidden}'});
+  await assert.rejects(()=>checkSelection(page,longest),/Full assessment text is not clipped/);
 });

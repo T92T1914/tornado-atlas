@@ -18,6 +18,16 @@ async function ready(page) {
 async function fits(page) {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 }
+async function decoded(image) {
+  await image.scrollIntoViewIfNeeded();
+  // Scrolling requests a lazy image, but does not establish that its current
+  // request is available. Require actual load success before asking to decode.
+  await image.page().waitForFunction(selector => {
+    const image = document.querySelector(selector);
+    return image?.complete && image.naturalWidth > 0;
+  }, '#hospital-envelope img[src="' + await image.getAttribute('src') + '"]');
+  await image.evaluate(image => image.decode());
+}
 async function viewer(page, id, width) {
   await page.waitForFunction(({id, width}) => {
     const dialog = document.getElementById('photo-dialog');
@@ -55,8 +65,7 @@ for (const viewport of [{width: 320, height: 740}, {width: 390, height: 844},
       await fits(page);
       for (const photo of photos) {
         const image = account.locator(`img[src$="${photo.file}"]`);
-        await image.scrollIntoViewIfNeeded();
-        await image.evaluate(image => image.decode());
+        await decoded(image);
         assert.deepEqual(await image.evaluate(image => [image.naturalWidth, image.naturalHeight]),
           [photo.width, photo.height]);
         assert.ok((await image.getAttribute('alt')).length > 60);
@@ -169,6 +178,37 @@ test('failed local photograph retains its account, alt description and exact sou
   await account.getByRole('link', {name: photos[0].record, exact: true}).click();
   await ready(page);
   assert.match(await page.locator('#media-nist-west-tower').textContent(), /not the order of failures/);
+  await fits(page);
+});
+
+test('a deferred hospital photograph is loaded before decode acceptance', {timeout:15000}, async t => {
+  const page = await fixture(t, {viewport: {width: 320, height: 740}});
+  let release, requested;
+  const held = new Promise(resolve => {release = resolve;});
+  const seen = new Promise(resolve => {requested = resolve;});
+  t.after(() => release());
+  await page.route('**/assets/joplin-2011/nist-west-tower.jpg', async route => {
+    requested();
+    await held;
+    await route.continue();
+  });
+  const image = page.locator('#hospital-envelope img[src$="nist-west-tower.jpg"]');
+  let requestDeadline;
+  try {
+    await page.goto(base + '/joplin.html#hospital-envelope');
+    await page.waitForFunction(() => document.body.dataset.photoViewer === 'ready');
+    await image.scrollIntoViewIfNeeded();
+    await Promise.race([seen, new Promise((resolve, reject) => {
+      requestDeadline = setTimeout(() => reject(new Error('The visible lazy photograph was not requested')), 10000);
+    })]);
+    assert.equal(await image.evaluate(image => image.complete && image.naturalWidth > 0), false,
+      'A request that is still held is not photograph acceptance');
+  } finally {
+    clearTimeout(requestDeadline);
+    release();
+  }
+  await decoded(image);
+  assert.deepEqual(await image.evaluate(image => [image.naturalWidth, image.naturalHeight]), [901, 541]);
   await fits(page);
 });
 
