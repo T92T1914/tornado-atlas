@@ -41,7 +41,7 @@ export function mountChronology(container,data,event){
   function pause(){clock.pause(performance.now());if(frame!==null)cancelAnimationFrame(frame);frame=null;play.textContent='Play chronology';}
   function seek(seconds,{historyMode='push'}={}){pause();clock.seek(seconds);refresh();if(historyMode)history[historyMode==='push'?'pushState':'replaceState'](null,'',url(clock.seconds));}
   function restore(){const value=new URLSearchParams(location.search).get('t');const seconds=value===null?0:Number(value);seek(Number.isFinite(seconds)?seconds:0,{historyMode:null});}
-  function animate(now){frame=null;clock.tick(now);refresh();if(clock.playing)frame=requestAnimationFrame(animate);else {play.textContent='Play chronology';history.replaceState(null,'',url(clock.seconds));}}
+  function animate(){frame=null;clock.tick(performance.now());refresh();if(clock.playing)frame=requestAnimationFrame(animate);else {play.textContent='Play chronology';history.replaceState(null,'',url(clock.seconds));}}
   play.addEventListener('click',()=>{if(clock.playing){pause();refresh();history.replaceState(null,'',url(clock.seconds));}else{clock.play(performance.now());play.textContent='Pause chronology';frame=requestAnimationFrame(animate);}});
   picker.addEventListener('change',()=>seek((Date.parse(data.entries[Number(picker.value)].utc)-start)/1000));
   previous.addEventListener('click',()=>{const earlier=data.entries.filter(entry=>Date.parse(entry.utc)<start+clock.seconds*1000);seek((Date.parse((earlier.at(-1)||data.entries[0]).utc)-start)/1000);});
