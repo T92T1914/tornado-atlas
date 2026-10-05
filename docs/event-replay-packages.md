@@ -120,6 +120,12 @@ Back and forward restore the selected time paused. Hidden pages pause playback.
 No media player or external source needs to load for the evidence text to work.
 The documentary page remains a noninteractive alternative.
 
+Controls and animation callbacks read the same monotonic wall clock. A queued
+animation frame can carry an earlier timestamp than a speed change handled
+during that display frame. The chronology reads the current clock when the
+callback runs, so that schedule does not halt playback. Minute selection and
+documentary precision remain unchanged.
+
 The existing exhibit build publishes the chronology under `web/events/`.
 `check_exhibit.py` compares it with the reviewed input. Python checks the archived
 source hash. Browser validation checks schema, event joins, ordering and source
