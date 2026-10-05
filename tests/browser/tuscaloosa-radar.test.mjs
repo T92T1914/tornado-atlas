@@ -8,7 +8,7 @@ const pairs=[
   {id:'kbmx-storm-relative-velocity-county-crossing',file:'kbmx-storm-relative-velocity-2238.gif',width:756,height:567},
 ];
 const source='https://www.weather.gov/bmx/event_04272011tuscbirm';
-async function ready(page){await page.waitForFunction(()=>document.body.dataset.photoViewer==='ready');}
+async function ready(page){await page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready');}
 async function shown(page,row){await page.waitForFunction(row=>{
   const img=document.getElementById('photo-full');
   return document.getElementById('photo-dialog').open&&!img.hidden&&img.naturalWidth===row.width&&img.naturalHeight===row.height;
@@ -51,11 +51,18 @@ for(const [width,height,appearance] of [[320,844,'dark'],[390,844,'light'],[1280
         const baseline=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));
         nodes.forEach((node,i)=>node.style.fontSize=baseline[i]*2+'px');
       });
-      assert.ok(await page.locator('#photo-dialog').evaluate(dialog=>dialog.scrollWidth<=dialog.clientWidth+1),'Doubled viewer text fits');
+      const layout=await page.locator('#photo-dialog').evaluate(dialog=>({
+        client:dialog.clientWidth,scroll:dialog.scrollWidth,
+        text:[...dialog.querySelectorAll('h2,p,a,button')].map(node=>({
+          text:node.textContent,client:node.clientWidth,scroll:node.scrollWidth,
+          font:getComputedStyle(node).fontFamily,wrap:getComputedStyle(node).overflowWrap,
+        })).filter(row=>row.scroll>row.client+1),
+      }));
+      assert.ok(layout.scroll<=layout.client+1,`Doubled viewer text fits: ${JSON.stringify(layout)}`);
       await page.locator('#photo-close').click();await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
     }
     const record=section.getByRole('link',{name:'Inspect the reflectivity record, credits and limits',exact:true});
-    await record.click();await page.waitForFunction(()=>document.body.dataset.ready==='true');
+    await record.click();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
     const media=page.locator('#media-'+pairs[0].id);await media.waitFor();
     assert.match(await media.textContent(),/permitted hosting/);
     assert.match(await media.textContent(),/unregistered/);
