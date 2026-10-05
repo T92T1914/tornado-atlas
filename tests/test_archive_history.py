@@ -18,7 +18,7 @@ class ArchiveHistoryTests(unittest.TestCase):
         artifacts = publication()
         index = artifacts['archive/index.json']
         counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 5,
-                  'tuscaloosa-birmingham-2011': 3}
+                  'tuscaloosa-birmingham-2011': 4}
         self.assertEqual({e['id'] for e in index['events']}, set(counts))
         for entry in index['events']:
             history = artifacts[entry['history_file']]
@@ -41,6 +41,24 @@ class ArchiveHistoryTests(unittest.TestCase):
                          '900cc2c8a99db11a4858006bc3c9d768f468feb1cb88d404d005aa0938b961b4')
         self.assertIsNone(oldest['changes'])
         self.assertIn('not chronological', history['scope'])
+
+    def test_tuscaloosa_second_photo_is_an_addition_after_the_first_photo(self):
+        doc = next(d for d in dossiers() if d['id'] == 'tuscaloosa-birmingham-2011')
+        history = dossier_history(doc)
+        current = history['versions'][0]
+        previous_sha = '1eca25f06fa270ce9e71e2c2963f6c6b84f06eb2e5d7737a50f2189aafd1fca4'
+        self.assertEqual(current['review']['previous_dossier_sha256'], previous_sha)
+        self.assertTrue(current['predecessor_available'])
+        first_photo = next(v for v in history['versions'] if v['dossier_sha256'] == previous_sha)
+        self.assertEqual(first_photo['review']['previous_dossier_sha256'],
+                         '82ac763506249130a2e9fe9f8d99407b20ff08cf87e4e2dce42d4c455d2b6229')
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'media'], [
+            {'kind': 'media', 'id': 'apartment-complex-aftermath', 'change': 'added', 'fields': []}])
+        self.assertEqual([r for r in current['changes'] if r['kind'] == 'sources'], [
+            {'kind': 'sources', 'id': 'bmx-apartment-complex', 'change': 'added', 'fields': []}])
+        for kind in ('observations', 'records', 'creators'):
+            self.assertEqual([r for r in current['changes'] if r['kind'] == kind], [])
+        self.assertFalse(any(r['change'] == 'removed' for r in current['changes']))
 
     def test_blackwell_warning_images_preserve_the_prior_event_record(self):
         latest = next(d for d in dossiers() if d['id'] == 'blackwell-1955')

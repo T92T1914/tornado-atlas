@@ -140,7 +140,7 @@ class TuscaloosaExhibitTests(unittest.TestCase):
         }
         radar = [m for m in self.doc['media'] if m['kind'] == 'radar']
         self.assertEqual({m['id'] for m in radar}, set(expected))
-        self.assertEqual(len(self.links.images), 4)  # Radar pair, photograph and empty viewer.
+        self.assertEqual(len(self.links.images), 5)  # Radar pair, two photographs and empty viewer.
         for item in radar:
             identity, width, height = expected[item['id']]
             raw = (ROOT / 'web' / item['transformation']['asset']).read_bytes()
@@ -176,8 +176,9 @@ class TuscaloosaExhibitTests(unittest.TestCase):
 
     def test_photo_has_a_separate_identity_and_no_embedded_private_metadata(self):
         photos = [m for m in self.doc['media'] if m['kind'] == 'photograph']
-        self.assertEqual([m['id'] for m in photos], ['birmingham-aftermath-april29'])
-        self.assertEqual(len(self.doc['media']), 3)
+        self.assertEqual([m['id'] for m in photos],
+                         ['birmingham-aftermath-april29', 'apartment-complex-aftermath'])
+        self.assertEqual(len(self.doc['media']), 4)
         item = photos[0]
         self.assertEqual(item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG')
         self.assertEqual(item['roles'], dict(creator=None, uploader='nws-birmingham', rights_holder=None))
@@ -226,7 +227,8 @@ class TuscaloosaExhibitTests(unittest.TestCase):
             self.assertEqual(self.doc[field], prior[field])
         self.assertEqual(self.doc['media'][:2], prior['media'])
         self.assertEqual(self.doc['sources'][:6], prior['sources'])
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'],
+        aftermath = json.loads((ROOT / 'web/archive/tuscaloosa-birmingham-2011-1eca25f06fa270ce9e71.json').read_text(encoding='utf-8'))
+        self.assertEqual(aftermath['provenance']['publication_review']['previous_dossier_sha256'],
                          '82ac763506249130a2e9fe9f8d99407b20ff08cf87e4e2dce42d4c455d2b6229')
 
     def test_new_prose_preserves_voice_and_public_boundary(self):

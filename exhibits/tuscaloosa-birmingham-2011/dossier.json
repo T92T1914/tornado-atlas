@@ -42,6 +42,10 @@
       "href": "tuscaloosa.html#counts"
     },
     {
+      "label": "Inspect the apartment-complex aftermath",
+      "href": "tuscaloosa.html#apartment-complex"
+    },
+    {
       "label": "Browse the catalogue",
       "href": "atlas.html"
     }
@@ -133,6 +137,16 @@
       "revision": "Original downloaded JPEG: 170803 bytes, SHA256 533b3afe03f4d868faee8b5c94c5d6b1f4a3e0a383b40f397b6e254ced4bc2df. Survey HTML: 78940 bytes, SHA256 d06e6a1db1feb57f934e56cfe18da118099dc97ba9ff47a8f8fcc8036434df6e. Original publication/revision date is unknown.",
       "rights": "Item-specific hosting basis: embedded NWS BMX credit and official survey association, with no separate third-party credit or restriction in the inspected item. The NWS use policy gives agency material a public-domain default unless marked otherwise and reserves third-party products. This is a narrow inference for this image, not proof of the unnamed photographer employment or blanket clearance of the page. Attribution retained; no government endorsement implied.",
       "agent_processing": "Removed only the EXIF APP1 segment for the publication copy. All retained JPEG coding and main scan bytes and decoded RGB pixels remain identical. No crop, recompression, recoloring, enhancement or rescaling. Embedded agency credit and printed date remain visible. Private original retained; no metadata coordinates or calibrated capture clock published."
+    },
+    {
+      "id": "bmx-apartment-complex",
+      "title": "NWS Birmingham: Apartment Complex Leveled",
+      "url": "https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/1.JPG",
+      "locator": "Survey image 1.JPG, caption Apartment Complex Leveled. Complete 800 by 600 pixels, visible NWS BMX credit and printed 04/29/2011.",
+      "access": "Complete original pixels and exact caption independently inspected October 5, 2026 UTC. The cell names no complex, photographer or separate restriction.",
+      "revision": "Original 140519 bytes, SHA256 45a73d56eb19a476511d2121cbfc07049766fe2464655de4e70ef74a0b1ecca0. Original publication date unknown.",
+      "rights": "Item-specific agency-material inference from visible NWS BMX credit, official context and no contrary credit or restriction. NWS policy gives agency material a public-domain default and separately reserves third-party products. Photographer employment is unknown. No blanket survey clearance or endorsement implied.",
+      "agent_processing": "EXIF APP1 removed only. All retained JPEG coding/scan bytes and decoded pixels unchanged. Original retained privately. No coordinates or metadata clocks published."
     }
   ],
   "observations": [
@@ -625,6 +639,53 @@
         "height": 600,
         "alt": "An elevated view of houses with damaged or missing roofs, debris across streets and yards, and damaged trees among standing structures. NWS BMX is printed at bottom left and 04/29/2011 at bottom right."
       }
+    },
+    {
+      "id": "apartment-complex-aftermath",
+      "title": "An apartment complex in the survey photograph",
+      "source_id": "bmx-apartment-complex",
+      "locator": "Complete 1.JPG, official caption Apartment Complex Leveled.",
+      "account": "An elevated view shows debris-covered building footprints and remaining wall or roof portions beside loop roads, parking bays, a pond and woods. It adds complex-scale context beside the neighborhood view. The apartment-complex description comes from the survey caption.",
+      "limits": "The complex and exact locality are unnamed. Printed April 29, 2011 is a source date label, not a verified capture clock. No camera position, bearing, impact minute, wind speed, damage rating, failure mechanism, victim location or before/after match is derived.",
+      "status": {
+        "intake": "published",
+        "assertion": "observed_sample",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "permitted_hosting"
+      },
+      "time": {
+        "event": "Associated with the April 27, 2011 tornado by the official survey.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "aftermath_context",
+        "reported": "Unnamed apartment complex in the survey caption.",
+        "coordinates": null,
+        "basis": "Event association only. No named city, complex or registered camera inferred."
+      },
+      "review": "Complete pixels, exact caption and narrow rights basis independently reviewed. EXIF-only removal verified against the private original, with equal decoded pixels and retained coding/scan bytes.",
+      "kind": "photograph",
+      "url": "https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/1.JPG",
+      "roles": {
+        "creator": null,
+        "uploader": "nws-birmingham",
+        "rights_holder": null
+      },
+      "parent": null,
+      "transformation": {
+        "recipe": "EXIF APP1 removed only. No crop, recompression, recoloring or rescaling. Visible NWS BMX credit and printed date preserved.",
+        "asset": "assets/tuscaloosa-birmingham-2011/apartment-complex-april29.jpg",
+        "sha256": "67502ee34b2f76a9d875d688caf026344d38325b8bfb27a5ebf3a38484142b47",
+        "width": 800,
+        "height": 600,
+        "alt": "Elevated view of debris-covered building footprints and remaining wall or roof portions beside loop roads, parking bays, a pond and woods. NWS BMX and 04/29/2011 remain visible."
+      }
     }
   ],
   "reconstruction": {
@@ -652,10 +713,10 @@
     },
     "publication_review": {
       "reviewer_kind": "agent",
-      "reviewed_at": "2026-10-05T13:09:17.006040+00:00",
-      "basis": "Complete original photograph, exact official caption, visible NWS credit/date and item-specific current policy inspected independently. Lossless metadata removal verified. This prepares one documentary photograph; deployment, native devices and historical registration remain separate acceptance.",
-      "candidate_sha256": "685dc421cd880f3de5dbdccc4550a97154a54ed078bf482788fb706d0dd2d80e",
-      "previous_dossier_sha256": "82ac763506249130a2e9fe9f8d99407b20ff08cf87e4e2dce42d4c455d2b6229"
+      "reviewed_at": "2026-10-05T15:19:14.228728+00:00",
+      "basis": "Independent original-pixel, exact-caption and item-specific rights review. EXIF-only publication copy verified. One documentary image, without camera registration or native-device acceptance.",
+      "candidate_sha256": "13854c796baffcab1c3d81ac2c4c623326ab46b88e13d1145fdfa451573ba41e",
+      "previous_dossier_sha256": "1eca25f06fa270ce9e71e2c2963f6c6b84f06eb2e5d7737a50f2189aafd1fca4"
     },
     "aftermath_increment": {
       "source_basis_revision": "5ad93be47d1c728bbc0eca48492b96dfcd717fe2",
@@ -665,6 +726,12 @@
       "previous_dossier_sha256": "82ac763506249130a2e9fe9f8d99407b20ff08cf87e4e2dce42d4c455d2b6229",
       "publication_media_bytes": 159895,
       "source_media_sha256": "533b3afe03f4d868faee8b5c94c5d6b1f4a3e0a383b40f397b6e254ced4bc2df"
+    },
+    "complex_increment": {
+      "source_basis_revision": "ba1e0535901bb855e5d68cacaf1349338cbf974c",
+      "research_record": "research/tuscaloosa-complex-2026-10-05.md",
+      "previous_dossier_sha256": "1eca25f06fa270ce9e71e2c2963f6c6b84f06eb2e5d7737a50f2189aafd1fca4",
+      "scope": "One unregistered complex-scale photograph. Earlier sources, media, observations, record associations and reconstruction limits preserved."
     }
   }
 }
