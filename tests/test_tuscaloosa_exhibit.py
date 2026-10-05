@@ -133,14 +133,15 @@ class TuscaloosaExhibitTests(unittest.TestCase):
             if parsed.path == 'tuscaloosa.html' and parsed.fragment:
                 self.assertIn(parsed.fragment, self.links.ids)
 
-    def test_only_the_inspected_original_radar_pair_is_published(self):
+    def test_the_inspected_original_radar_pair_remains_unchanged(self):
         expected = {
             'kbmx-reflectivity-county-crossing': ('3d4581d6ca3bf8eda91f2bfd665e9c48d9ae7261d72286fe205d2b29c0d7ce18', 755, 583),
             'kbmx-storm-relative-velocity-county-crossing': ('34591f78f45cb8ff46ba385b74ccc50aca9b9e0f7292cd15b63c31d998215d63', 756, 567),
         }
-        self.assertEqual({m['id'] for m in self.doc['media']}, set(expected))
-        self.assertEqual(len(self.links.images), 3)  # Pair plus the empty shared viewer.
-        for item in self.doc['media']:
+        radar = [m for m in self.doc['media'] if m['kind'] == 'radar']
+        self.assertEqual({m['id'] for m in radar}, set(expected))
+        self.assertEqual(len(self.links.images), 4)  # Radar pair, photograph and empty viewer.
+        for item in radar:
             identity, width, height = expected[item['id']]
             raw = (ROOT / 'web' / item['transformation']['asset']).read_bytes()
             self.assertEqual(hashlib.sha256(raw).hexdigest(), identity)
@@ -169,8 +170,64 @@ class TuscaloosaExhibitTests(unittest.TestCase):
         self.assertEqual(self.doc['records'], prior['records'])
         self.assertEqual(self.doc['reconstruction'], prior['reconstruction'])
         self.assertEqual(self.doc['sources'][:4], prior['sources'])
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'],
+        radar_stage = json.loads((ROOT / 'web/archive/tuscaloosa-birmingham-2011-82ac763506249130a2e9.json').read_text(encoding='utf-8'))
+        self.assertEqual(radar_stage['provenance']['publication_review']['previous_dossier_sha256'],
                          '52bd3ebb4b75376419719cc44ec1bb9421eee9bc558e14d1b54b9060e433944a')
+
+    def test_photo_has_a_separate_identity_and_no_embedded_private_metadata(self):
+        photos = [m for m in self.doc['media'] if m['kind'] == 'photograph']
+        self.assertEqual([m['id'] for m in photos], ['birmingham-aftermath-april29'])
+        self.assertEqual(len(self.doc['media']), 3)
+        item = photos[0]
+        self.assertEqual(item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG')
+        self.assertEqual(item['roles'], dict(creator=None, uploader='nws-birmingham', rights_holder=None))
+        self.assertEqual(item['status']['rights'], 'permitted_hosting')
+        self.assertEqual(item['status']['temporal'], 'source_label')
+        self.assertEqual(item['status']['spatial'], 'unregistered')
+        self.assertIsNone(item['place']['coordinates'])
+        for clock in ('capture', 'publication', 'video', 'alignment'):
+            self.assertIsNone(item['time'][clock])
+        self.assertIn('printed April 29, 2011 date', item['limits'])
+        self.assertIn('No recompression', item['transformation']['recipe'])
+        raw = (ROOT / 'web' / item['transformation']['asset']).read_bytes()
+        identity = '2a7c08901d95a8943b53c1d55da6b1f0d6b1c45f717220f7d747856d318507cf'
+        self.assertEqual(len(raw), 159895)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), identity)
+        self.assertEqual(item['transformation']['sha256'], identity)
+        self.assertEqual(raw[:2], b'\xff\xd8')
+        # Inspect actual JPEG segments before the scan, not a substring-only claim.
+        cursor = 2
+        dimensions = None
+        while raw[cursor:cursor+2] != b'\xff\xda':
+            self.assertEqual(raw[cursor], 0xff)
+            marker = raw[cursor+1]
+            length = int.from_bytes(raw[cursor+2:cursor+4], 'big')
+            self.assertGreaterEqual(length, 2)
+            self.assertNotIn(marker, (0xe1, 0xed, 0xfe), 'No EXIF/XMP, IPTC or comment metadata')
+            if marker in (0xc0, 0xc1, 0xc2):
+                dimensions = (int.from_bytes(raw[cursor+7:cursor+9], 'big'),
+                              int.from_bytes(raw[cursor+5:cursor+7], 'big'))
+            cursor += length + 2
+            self.assertLess(cursor, len(raw))
+        self.assertEqual(dimensions, (800, 600))
+        scan = cursor + 2 + int.from_bytes(raw[cursor+2:cursor+4], 'big')
+        self.assertEqual(raw[-2:], b'\xff\xd9')
+        self.assertEqual(len(raw[scan:-2]), 159529)
+        self.assertEqual(hashlib.sha256(raw[scan:-2]).hexdigest(),
+                         'a470babc948025825f475490af4e848e5c7c149f9228e5af42a978eac16368d1')
+        source = next(s for s in self.doc['sources'] if s['id'] == item['source_id'])
+        self.assertIn('533b3afe03f4d868faee8b5c94c5d6b1f4a3e0a383b40f397b6e254ced4bc2df', source['revision'])
+        self.assertIn('embedded NWS BMX credit', source['rights'])
+        self.assertIn('narrow inference', source['rights'])
+
+    def test_aftermath_increment_preserves_the_immediate_radar_predecessor(self):
+        prior = json.loads((ROOT / 'web/archive/tuscaloosa-birmingham-2011-82ac763506249130a2e9.json').read_text(encoding='utf-8'))
+        for field in ('observations', 'records', 'reconstruction'):
+            self.assertEqual(self.doc[field], prior[field])
+        self.assertEqual(self.doc['media'][:2], prior['media'])
+        self.assertEqual(self.doc['sources'][:6], prior['sources'])
+        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'],
+                         '82ac763506249130a2e9fe9f8d99407b20ff08cf87e4e2dce42d4c455d2b6229')
 
     def test_new_prose_preserves_voice_and_public_boundary(self):
         for text in (self.html, DOSSIER.read_text(encoding='utf-8')):

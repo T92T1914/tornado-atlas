@@ -34,6 +34,10 @@
       "href": "tuscaloosa.html#path"
     },
     {
+      "label": "Inspect the Birmingham aftermath photograph",
+      "href": "tuscaloosa.html#birmingham-aftermath"
+    },
+    {
       "label": "Understand the source disagreements",
       "href": "tuscaloosa.html#counts"
     },
@@ -119,6 +123,16 @@
       "revision": "Current page retrieved October 5, 2026. Its original publication date is not established.",
       "rights": "Original NWS explanatory text is paraphrased with attribution under the NWS material policy. No figures from this explanatory page are copied.",
       "agent_processing": "Used only to explain the distinction between the two named products. No color-to-value conversion, beam calibration or event-specific measurement is derived."
+    },
+    {
+      "id": "bmx-birmingham-aftermath",
+      "title": "NWS Birmingham: destruction just north of Birmingham",
+      "url": "https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG",
+      "locator": "Official April 27 survey, Storm Damage Images, 6.JPG: Destruction just north of Birmingham. Complete 800 by 600 image, including NWS BMX credit and printed 04/29/2011 date.",
+      "access": "Complete original image visually inspected at original resolution by two agents on October 5, 2026 UTC. The exact linked survey caption, embedded credit/date and source-specific reuse basis were checked. No other damage photographs were cleared by this review.",
+      "revision": "Original downloaded JPEG: 170803 bytes, SHA256 533b3afe03f4d868faee8b5c94c5d6b1f4a3e0a383b40f397b6e254ced4bc2df. Survey HTML: 78940 bytes, SHA256 d06e6a1db1feb57f934e56cfe18da118099dc97ba9ff47a8f8fcc8036434df6e. Original publication/revision date is unknown.",
+      "rights": "Item-specific hosting basis: embedded NWS BMX credit and official survey association, with no separate third-party credit or restriction in the inspected item. The NWS use policy gives agency material a public-domain default unless marked otherwise and reserves third-party products. This is a narrow inference for this image, not proof of the unnamed photographer employment or blanket clearance of the page. Attribution retained; no government endorsement implied.",
+      "agent_processing": "Removed only the EXIF APP1 segment for the publication copy. All retained JPEG coding and main scan bytes and decoded RGB pixels remain identical. No crop, recompression, recoloring, enhancement or rescaling. Embedded agency credit and printed date remain visible. Private original retained; no metadata coordinates or calibrated capture clock published."
     }
   ],
   "observations": [
@@ -564,6 +578,53 @@
         "height": 567,
         "alt": "A KBMX storm-relative velocity image with adjoining green and bright red, pink and orange bins near Bull City and North Johns, and a larger red/pink field across the labeled map. No color scale or timestamp is visible."
       }
+    },
+    {
+      "id": "birmingham-aftermath-april29",
+      "title": "A damaged neighborhood north of Birmingham",
+      "source_id": "bmx-birmingham-aftermath",
+      "locator": "Complete 6.JPG, captioned Destruction just north of Birmingham on the NWS April 27, 2011 event survey. Visible NWS BMX mark and printed 04/29/2011 date.",
+      "account": "An elevated view shows houses with damaged or missing roofs, debris across streets and yards, and damaged trees among standing structures. The photograph makes the neighborhood scale of the aftermath visible. Its source associates it with the April 27 tornado and describes the area only as just north of Birmingham.",
+      "limits": "The image bears a printed April 29, 2011 date, without a verified capture time or time zone. No exact camera position, building identity, arrival time, damage rating, wind speed, victim location or registered geometry is derived. The individual photographer is unnamed. Inconsistent original metadata dimensions do not prove a resizing history. This is an aftermath photograph, not a storm-motion interval or before/after pair.",
+      "status": {
+        "intake": "published",
+        "assertion": "observed_sample",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "permitted_hosting"
+      },
+      "time": {
+        "event": "Associated with the April 27, 2011 tornado by the official survey page.",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-05",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "aftermath_context",
+        "reported": "Just north of Birmingham, as described by the source caption.",
+        "coordinates": null,
+        "basis": "Source locality only. No camera coordinate or registered damage feature is assigned."
+      },
+      "review": "Complete original pixels, exact caption, visible agency credit/date and current NWS use policy independently inspected. The publication copy was verified for absent EXIF, identical retained coding/scan bytes, equal decoded pixels and unchanged dimensions. No historical registration or physical-device acceptance claimed.",
+      "kind": "photograph",
+      "url": "https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG",
+      "roles": {
+        "creator": null,
+        "uploader": "nws-birmingham",
+        "rights_holder": null
+      },
+      "parent": null,
+      "transformation": {
+        "recipe": "Metadata-stripped publication copy: only EXIF APP1 removed. Retained coding and scan bytes and decoded pixels are unchanged. No recompression, crop, recoloring or rescaling; visible NWS BMX credit and printed date preserved.",
+        "asset": "assets/tuscaloosa-birmingham-2011/birmingham-aftermath-april29.jpg",
+        "sha256": "2a7c08901d95a8943b53c1d55da6b1f0d6b1c45f717220f7d747856d318507cf",
+        "width": 800,
+        "height": 600,
+        "alt": "An elevated view of houses with damaged or missing roofs, debris across streets and yards, and damaged trees among standing structures. NWS BMX is printed at bottom left and 04/29/2011 at bottom right."
+      }
     }
   ],
   "reconstruction": {
@@ -591,10 +652,19 @@
     },
     "publication_review": {
       "reviewer_kind": "agent",
-      "reviewed_at": "2026-10-05T11:26:41.866761+00:00",
-      "basis": "Original NWS captions, complete radar pixels, unchanged byte identities and item-specific rights were inspected during composition. This prepares a reviewed media increment, without claiming native, public deployment or historical registration acceptance.",
-      "candidate_sha256": "45c0cd8749ee13cc7ac13e2628ef7c067a83d49f5d4ca754d69b050ed14b840d",
-      "previous_dossier_sha256": "52bd3ebb4b75376419719cc44ec1bb9421eee9bc558e14d1b54b9060e433944a"
+      "reviewed_at": "2026-10-05T13:09:17.006040+00:00",
+      "basis": "Complete original photograph, exact official caption, visible NWS credit/date and item-specific current policy inspected independently. Lossless metadata removal verified. This prepares one documentary photograph; deployment, native devices and historical registration remain separate acceptance.",
+      "candidate_sha256": "685dc421cd880f3de5dbdccc4550a97154a54ed078bf482788fb706d0dd2d80e",
+      "previous_dossier_sha256": "82ac763506249130a2e9fe9f8d99407b20ff08cf87e4e2dce42d4c455d2b6229"
+    },
+    "aftermath_increment": {
+      "source_basis_revision": "5ad93be47d1c728bbc0eca48492b96dfcd717fe2",
+      "research_record": "research/tuscaloosa-aftermath-2026-10-05.md",
+      "reviewed_on": "2026-10-05",
+      "scope": "One agency-credited contextual damage photograph with a metadata-stripped publication copy. Existing observations, associations, radar images and historical appearance limits remain unchanged. No camera or clock registration is assigned.",
+      "previous_dossier_sha256": "82ac763506249130a2e9fe9f8d99407b20ff08cf87e4e2dce42d4c455d2b6229",
+      "publication_media_bytes": 159895,
+      "source_media_sha256": "533b3afe03f4d868faee8b5c94c5d6b1f4a3e0a383b40f397b6e254ced4bc2df"
     }
   }
 }
