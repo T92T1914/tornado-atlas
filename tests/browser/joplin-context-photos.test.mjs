@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {settledFragment} from './fragment-ready.mjs';
+import {waitForDossier} from './dossier-readiness.mjs';
 import path from 'node:path';
+import {setTimeout as delay} from 'node:timers/promises';
 import {fixture, base} from './harness.mjs';
 
 const items = [
@@ -15,15 +17,55 @@ const items = [
    rights:'https://commons.wikimedia.org/wiki/File:22_May_2011_Joplin_tornado_damage.jpg#Licensing',
    sourceId:'commons-nws-joplin-aftermath'},
 ];
-const ready = page => page.waitForFunction(() => document.body.dataset.photoViewer === 'ready');
+const ready = page => page.waitForFunction(() => location.pathname.endsWith('/joplin.html') &&
+  document.body?.dataset.photoViewer === 'ready' && Boolean(document.getElementById('photo-dialog')));
+async function decoded(image, item) {
+  // Lazy scrolling is not load success. Keep the expected current request and
+  // decode within the same 10-second bound, including on a no-script page.
+  const deadline = performance.now() + 10000;
+  let timer, stopped = false, last;
+  const operation = (async () => {
+    while (!stopped && performance.now() < deadline) {
+      last = await image.evaluate(image => ({connected: image.isConnected, complete: image.complete,
+        width: image.naturalWidth, height: image.naturalHeight,
+        file: new URL(image.currentSrc || image.src).pathname}));
+      if (stopped || performance.now() >= deadline)
+        throw new Error('Expected image did not load and decode within 10000ms: ' + JSON.stringify(last));
+      if (last.connected && last.complete && last.width === item.width && last.height === item.height &&
+          last.file.endsWith('/' + item.file)) {
+        await image.evaluate(async (image, {width, height, file}) => {
+          const source = image.currentSrc || image.src;
+          const expected = () => image.isConnected && image.complete && image.naturalWidth === width &&
+            image.naturalHeight === height && new URL(image.currentSrc || image.src).pathname.endsWith('/' + file);
+          if (!expected()) throw new Error('Expected image changed before decode');
+          await image.decode();
+          if (!expected() || (image.currentSrc || image.src) !== source)
+            throw new Error('Expected image changed during decode');
+        }, {width:item.width, height:item.height, file:item.file});
+        if (stopped || performance.now() >= deadline)
+          throw new Error('Expected image decode exceeded its 10000ms bound');
+        return;
+      }
+      const remaining = deadline - performance.now();
+      if (remaining > 0) await delay(Math.min(25, remaining));
+    }
+    throw new Error('Expected image did not load and decode within 10000ms: ' + JSON.stringify(last));
+  })();
+  try {
+    await Promise.race([operation, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Expected image did not load and decode within 10000ms: ' +
+        JSON.stringify(last))), Math.max(1, deadline - performance.now()));
+    })]);
+  } finally {stopped = true; clearTimeout(timer);}
+}
 async function shown(page, item) {
   await page.waitForFunction(({width,height,file}) => {
     const image=document.getElementById('photo-full');
-    return document.getElementById('photo-dialog').open && !image.hidden && image.complete &&
+    return document.getElementById('photo-dialog')?.open && image && !image.hidden && image.complete &&
       image.naturalWidth===width && image.naturalHeight===height &&
       new URL(image.currentSrc || image.src).pathname.endsWith('/'+file);
   }, item);
-  await page.locator('#photo-full').evaluate(image => image.decode());
+  await decoded(page.locator('#photo-full'), item);
 }
 async function labels(page, item) {
   assert.match(await page.locator('#photo-title').textContent(), item.title);
@@ -52,7 +94,7 @@ for (const [width,appearance] of [[320,'dark'], [1280,'light']]) {
     for (const item of items) {
       const opener=page.locator(`a[data-photo-id="${item.id}"]`);
       await opener.scrollIntoViewIfNeeded();
-      await opener.locator('img').evaluate(image => image.decode());
+      await decoded(opener.locator('img'), item);
       if(width<600) await opener.tap(); else {await opener.focus();await page.keyboard.press('Enter');}
       await shown(page,item); await labels(page,item);
       if(process.env.ATLAS_SCREENSHOT_DIR) await page.screenshot({
@@ -71,12 +113,15 @@ for (const [width,appearance] of [[320,'dark'], [1280,'light']]) {
     assert.match(await page.locator('#photo-license').getAttribute('href'),/#page=4$/);
     await page.keyboard.press('Escape');await closed(page,'nist-west-tower');
     const item=items[1];
-    await page.locator(`a[href*="media=${item.id}"]`).click();
-    await page.waitForFunction(()=>document.body.dataset.ready==='true');
+    const mediaLink=page.locator(`a[href*="media=${item.id}"]`);
+    const mediaTarget={href:await mediaLink.evaluate(link=>link.href),elementId:'media-'+item.id};
+    await mediaLink.click();await waitForDossier(page,mediaTarget);
     const media=page.locator('#media-'+item.id); await media.waitFor();
     assert.match(await media.textContent(),/May 23, 2011 at 13:19/);
     assert.match(await media.textContent(),/unregistered/);
-    await media.getByRole('link',{name:'Inspect the source card',exact:true}).click();
+    const sourceLink=media.getByRole('link',{name:'Inspect the source card',exact:true});
+    const sourceTarget={href:await sourceLink.evaluate(link=>link.href),elementId:'source-'+item.sourceId};
+    await sourceLink.click();await waitForDossier(page,sourceTarget);
     await page.locator('#source-'+item.sourceId).waitFor();
     assert.match(await page.locator('#source-'+item.sourceId).textContent(),/PD-US-NOAA-NWS/);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -121,7 +166,7 @@ test('Joplin original photographs and visibility account remain useful without J
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   const opener=page.locator(`[data-photo-id="${items[1].id}"]`);
   await settledFragment(page, 'visibility', items[1].id);
-  await opener.scrollIntoViewIfNeeded();await opener.locator('img').evaluate(image=>image.decode());
+  await opener.scrollIntoViewIfNeeded();await decoded(opener.locator('img'), items[1]);
   await opener.focus();
   await Promise.all([page.waitForURL(url=>url.pathname.endsWith('damage.jpg')),page.keyboard.press('Enter')]);
 });

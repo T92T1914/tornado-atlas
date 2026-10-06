@@ -46,6 +46,8 @@ jobs:
           node --check web/wind.js
           node --check web/passage.js
           node --test tests/passage-clock-controls.test.mjs
+          node --test tests/passage-values.test.mjs
+          node tools/build_wind_sample_table.mjs --check
           node --check web/damage-view.mjs
           node --check web/photo-view.mjs
           node --check web/tuscaloosa-radar-view.mjs

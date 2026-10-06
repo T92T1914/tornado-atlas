@@ -11,6 +11,9 @@ const highId = 'intake-nist-high-school-refuge-2014';
 const beforeContextBytes = await readFile(new URL('../../web/archive/joplin-2011-30b168fee88e544e1ecd.json', import.meta.url));
 assert.equal(createHash('sha256').update(beforeContextBytes).digest('hex'), 'c46521edf5006a26d2b41bae294a0096b36169330d5183ddc427df1cb0964be9');
 const beforeContext = JSON.parse(beforeContextBytes.toString('utf8'));
+const reviewedBytes = await readFile(new URL('../../web/archive/joplin-2011-47a506c259e731b4c8e8.json', import.meta.url));
+assert.equal(createHash('sha256').update(reviewedBytes).digest('hex'), '4515786871b2e983092685ffcf9bc327fa15874fd8dc455af0f3f62f2b3188f9');
+const reviewed = JSON.parse(reviewedBytes.toString('utf8'));
 async function ready(page) {
   await page.waitForFunction(() => document.body?.dataset.ready === 'true');
 }
@@ -54,11 +57,18 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
     assert.equal(observed.time.alignment, null);
     assert.equal(observed.place.coordinates, null);
     for (const field of ['records', 'observations', 'reconstruction']) {
-      assert.deepEqual(exported[field], beforeContext[field], `The interview does not replace prior ${field}`);
+      assert.deepEqual(reviewed[field], beforeContext[field], `The interview does not replace prior ${field}`);
     }
-    assert.deepEqual(exported.sources.filter(row => !['nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof', 'nist-joplin-radar-sequence'].includes(row.id)), beforeContext.sources);
-    assert.deepEqual(exported.sources.map(row => row.id), [...beforeContext.sources.map(row => row.id), 'nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof', 'nist-joplin-radar-sequence']);
-    assert.deepEqual(exported.media.map(row => row.id), ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof', 'nist-joplin-radar-sequence']);
+    assert.deepEqual(reviewed.sources.filter(row => !['nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof', 'nist-joplin-radar-sequence'].includes(row.id)), beforeContext.sources);
+    assert.deepEqual(reviewed.sources.map(row => row.id), [...beforeContext.sources.map(row => row.id), 'nist-investigation-photo', 'nist-hospital-envelope', 'nist-home-depot-roof', 'nist-joplin-radar-sequence']);
+    assert.deepEqual(reviewed.media.map(row => row.id), ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof', 'nist-joplin-radar-sequence']);
+    for (const field of ['observations', 'sources', 'media', 'creators']) {
+      const retainedIds = new Set(reviewed[field].map(row => row.id));
+      assert.deepEqual(exported[field].filter(row => retainedIds.has(row.id)), reviewed[field],
+        `The current download preserves every complete established ${field} record`);
+    }
+    for (const field of ['records', 'reconstruction']) assert.deepEqual(exported[field], reviewed[field]);
+    assert.deepEqual(exported.routes.slice(0, reviewed.routes.length), reviewed.routes);
     const interview = exported.media[0];
     assert.equal(interview.source_id, 'nist-investigation-photo');
     assert.equal(interview.kind, 'photograph');
@@ -70,7 +80,7 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
       spatial: 'unregistered', availability: 'reviewed_available', rights: 'permitted_hosting'});
     for (const key of ['event', 'capture', 'publication', 'video', 'alignment']) assert.equal(interview.time[key], null);
     assert.equal(interview.place.coordinates, null);
-    assert.deepEqual(exported.creators.filter(row=>row.id!=='noaa-radar'), [{id: 'nist', name: 'National Institute of Standards and Technology',
+    assert.deepEqual(reviewed.creators.filter(row=>row.id!=='noaa-radar'), [{id: 'nist', name: 'National Institute of Standards and Technology',
       basis: 'The original NIST investigation overview credits the survivor-interview photograph to NIST. Individual photographer and subjects are not identified in that caption.'}]);
 
     await navigate(page, () => east.getByRole('link', {name: 'Inspect the source card'}).click());

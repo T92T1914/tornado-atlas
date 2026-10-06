@@ -24,7 +24,7 @@ for (const stop of stops) {
   });
 }
 
-function showSelection({focus = false, scroll = true} = {}) {
+function showSelection({focus = false, scroll = true, behavior = 'auto'} = {}) {
   const requested = new URL(location.href).searchParams.get('stop');
   currentStopParameter = requested;
   const index = stops.findIndex(stop => stop.id === requested);
@@ -39,7 +39,7 @@ function showSelection({focus = false, scroll = true} = {}) {
     'That place is not in this account. The complete written progression remains below.' :
     `Place ${selected + 1} of ${stops.length}. Written survey order, without assigned arrival times.`;
   if (scroll && (focus || index >= 0)) {
-    stops[selected].scrollIntoView({block: 'start'});
+    stops[selected].scrollIntoView({block: 'start', behavior});
     if (focus) stops[selected].focus({preventScroll: true});
   }
 }
@@ -70,9 +70,10 @@ window.addEventListener('popstate', () => {
     showSelection({scroll: false});
     const destination = location.href;
     // Native history restores its viewport after popstate. Place the selected
-    // account afterward, unless a newer choice or navigation supersedes it.
+    // account immediately afterward, without starting another smooth scroll.
+    // A newer choice or navigation still supersedes this queued placement.
     pendingHistorySelection = setTimeout(() => {
-      if (location.href === destination) showSelection({focus: true});
+      if (location.href === destination) showSelection({focus: true, behavior: 'instant'});
     }, 0);
   }
 });

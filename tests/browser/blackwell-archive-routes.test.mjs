@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {fixture, base} from './harness.mjs';
+import {waitForDossier} from './dossier-readiness.mjs';
 
 const gallery = 'https://legacy-westhist.libraries.ou.edu/locations/docs/westhist/flora/tornado.html';
-const ready = page => page.waitForFunction(() => document.body.dataset.ready === 'true');
 
 for (const [width, appearance] of [[320, 'dark'], [1280, 'light']]) {
   test(`Blackwell archive routes: ${width}px ${appearance}, caption identity and keyboard source navigation`, async t => {
@@ -19,13 +19,15 @@ for (const [width, appearance] of [[320, 'dark'], [1280, 'light']]) {
       const item = page.locator('#archive-flora' + number);
       assert.equal(await item.locator('.archive-original').getAttribute('href'), gallery);
       const evidence = item.locator('a[href*="observation="]');
+      const evidenceTarget = {href: await evidence.evaluate(link => link.href), elementId: 'observation-' + id + '-caption'};
       await evidence.focus();
       await page.keyboard.press('Enter');
-      await ready(page);
+      await waitForDossier(page, evidenceTarget);
       assert.equal(new URL(page.url()).searchParams.get('observation'), id + '-caption');
       assert.match(await page.locator('#observation-' + id + '-caption').textContent(), /not an independent visual description/);
       const source = page.locator('#observation-' + id + '-caption a').first();
-      await source.click(); await ready(page);
+      const sourceTarget = {href: await source.evaluate(link => link.href), elementId: 'source-' + id};
+      await source.click(); await waitForDossier(page, sourceTarget);
       assert.equal(new URL(page.url()).searchParams.get('source'), id);
       assert.match(await page.locator('#source-' + id).textContent(), /Photographer and copyright holder unknown/);
       assert.match(await page.locator('#source-' + id).textContent(), /Complete image pixels were not visually inspected/);

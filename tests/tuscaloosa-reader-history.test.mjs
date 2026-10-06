@@ -13,8 +13,8 @@ const script = new vm.Script(sourceBytes.toString('utf8'), {filename: 'web/tusca
 const stopIds = ['path-greene', 'path-tuscaloosa', 'path-holt',
   'path-concord', 'path-birmingham', 'path-end'];
 
-function readerFixture(initial = 'path-birmingham') {
-  const effects = [], tasks = new Map(), microtasks = [];
+function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) {
+  const effects = [], tasks = new Map(), microtasks = [], animations = [];
   let nextTask = 0, scrollY = 0;
   const document = {activeElement: null, body: {dataset: {}}};
   class Element {
@@ -32,7 +32,13 @@ function readerFixture(initial = 'path-birmingham') {
     }
     append(child) {this.children.push(child);}
     add(option) {this.children.push(option);}
-    scrollIntoView() {scrollY = this.top; effects.push(['scroll', this.id]);}
+    scrollIntoView({behavior = 'auto'} = {}) {
+      effects.push(['scroll', this.id, behavior]);
+      // CSSOM View starts a new scroll by aborting the previous motion.
+      animations.length = 0;
+      if (animateAuto && behavior !== 'instant') animations.push(this);
+      else scrollY = this.top;
+    }
     focus() {document.activeElement = this; effects.push(['focus', this.id]);}
   }
   const nodes = new Map();
@@ -66,6 +72,8 @@ function readerFixture(initial = 'path-birmingham') {
   });
   script.runInContext(context, {timeout: 1000});
   assert.equal(document.body.dataset.surveyReader, 'ready');
+  // Initial navigation has settled before the explicit history fixture begins.
+  while (animations.length) scrollY = animations.shift().top;
   effects.length = 0;
   const flushTasks = () => {
     let count = 0;
@@ -93,7 +101,8 @@ function readerFixture(initial = 'path-birmingham') {
     assert.equal(history.scrollRestoration, 'auto', 'Native restoration must remain enabled');
   };
   return {nativeBack, flushTasks, choose, expectViewport, effects, nodes, document,
-    viewport: () => scrollY, queued: () => tasks.size};
+    viewport: () => scrollY, queued: () => tasks.size, pendingAnimations: () => animations.length,
+    flushAnimations: () => {while (animations.length) scrollY = animations.shift().top;}};
 }
 
 test('changed-stop Back places the selected stop after native persisted-scroll restoration', () => {
@@ -135,4 +144,35 @@ test('photo history that interrupts a pending stop change cannot revive its old 
   page.effects.length = 0; page.flushTasks();
   assert.equal(page.queued(), 0); assert.equal(page.document.activeElement, photoOpener);
   assert.equal(page.viewport(), 2750); assert.deepEqual(page.effects, []);
+});
+
+
+test('changed-stop history places the intended account immediately when auto scrolling is animated', () => {
+  // Adverse visual model, not a reproduction of the hosted WebKit ordering.
+  const page = readerFixture('path-birmingham', {animateAuto: true});
+  page.nativeBack('path-concord'); page.flushTasks();
+  page.expectViewport('path-concord');
+  assert.equal(page.pendingAnimations(), 0, 'History placement must not leave an auto-scroll animation pending');
+  assert.deepEqual(page.effects.filter(([kind]) => kind === 'scroll'), [['scroll', 'path-concord', 'instant']]);
+});
+
+test('ordinary named-place choice retains auto scrolling and its intended focus', () => {
+  const page = readerFixture('path-birmingham', {animateAuto: true});
+  page.choose('path-end');
+  assert.equal(page.document.activeElement.id, 'path-end');
+  assert.equal(page.pendingAnimations(), 1, 'Ordinary navigation keeps its existing CSS-derived motion');
+  assert.deepEqual(page.effects.filter(([kind]) => kind === 'scroll'), [['scroll', 'path-end', 'auto']]);
+  page.flushAnimations(); page.expectViewport('path-end');
+});
+
+
+test('changed-stop history aborts an earlier ordinary smooth scroll instead of reviving its destination', () => {
+  const page = readerFixture('path-birmingham', {animateAuto: true});
+  page.choose('path-end');
+  assert.equal(page.pendingAnimations(), 1);
+  page.nativeBack('path-concord'); page.flushTasks(); page.expectViewport('path-concord');
+  assert.equal(page.pendingAnimations(), 0, 'Instant history placement aborts the earlier animated choice');
+  page.flushAnimations(); page.expectViewport('path-concord');
+  assert.deepEqual(page.effects.filter(([kind]) => kind === 'scroll'),
+    [['scroll', 'path-end', 'auto'], ['scroll', 'path-concord', 'instant']]);
 });

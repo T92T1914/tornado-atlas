@@ -7,3 +7,6 @@
 .survey-reader p {margin-bottom:0;overflow-wrap:anywhere}
 .documentary-timeline .survey-selected {border-left:3px solid var(--text);background:var(--panel)}
 .documentary-timeline li:focus-visible {outline:3px solid var(--text);outline-offset:3px}
+
+/* The Tuscaloosa note remains readable when text outgrows its indented list. */
+.documentary-note li {overflow-wrap:anywhere}
