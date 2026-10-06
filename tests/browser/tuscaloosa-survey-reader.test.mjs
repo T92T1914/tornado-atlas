@@ -10,45 +10,79 @@ const selected = (page, id) => page.waitForFunction(id =>
   document.querySelector('#path .survey-selected')?.id === id &&
   document.getElementById('survey-place').value === id, id);
 const readerPageErrors = new WeakMap();
-// Test-only event observations. These describe public state, not private reader
-// callbacks or proof of the cause of a hosted browser's history behavior.
+// Test-only observations installed before navigation and recreated on reload.
+// They describe public state, not private callbacks or proof of a failure's cause.
 async function observeHistoryEvents(page) {
-  await page.evaluate(() => {
-    const rows = [], counts = {popstate:0,pageshow:0,pagehide:0};
+  await page.addInitScript(() => {
+    if (!location.pathname.endsWith('/tuscaloosa.html')) return;
+    const limits = {popstate:8,pageshow:4,pagehide:4,'reader-ready':1,
+      DOMContentLoaded:1,load:1,scroll:8,resize:4};
+    const rows = [], counts = Object.fromEntries(Object.keys(limits).map(event => [event,0]));
     const tasks = new Set(), frames = new Set();
-    let omitted = 0, stopped = false;
+    let omitted = 0, phaseGroups = 0, stopped = false;
+    const rect = node => {
+      if (!node?.isConnected) return null;
+      const value = node.getBoundingClientRect();
+      return {top:value.top,bottom:value.bottom,left:value.left,right:value.right,
+        width:value.width,height:value.height,documentTop:value.top + scrollY};
+    };
     const capture = (event, phase, ordinal, persisted) => {
       if (stopped) return;
       if (rows.length >= 64) {omitted++; return;}
       const target = document.querySelector('#path .survey-selected');
-      const rect = target?.getBoundingClientRect();
-      rows.push({event,phase,ordinal,persisted,url:location.href.slice(0,512),
+      const root = document.documentElement;
+      const images = [...document.querySelectorAll('#satellite-context img')].slice(0,2).map(image => ({
+        figure:image.closest('figure')?.id||null,src:image.getAttribute('src')?.slice(0,256)||null,
+        width:image.getAttribute('width'),height:image.getAttribute('height'),complete:image.complete,
+        naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,rect:rect(image)}));
+      rows.push({event,phase,ordinal,persisted,time:performance.now(),url:location.href.slice(0,512),
+        navigation:performance.getEntriesByType('navigation')[0]?.type||null,
+        readyState:document.readyState,readerReady:document.body?.dataset.surveyReader||null,
+        readerHidden:document.getElementById('survey-reader')?.hidden??null,
         selected:target?.id||null,active:document.activeElement?.id||null,scrollX,scrollY,
-        target:rect?{top:rect.top,bottom:rect.bottom}:null});
+        viewport:{width:innerWidth,height:innerHeight},target:rect(target),path:rect(document.getElementById('path')),
+        documentWidth:root?.scrollWidth??null,documentHeight:root?.scrollHeight??null,
+        scrollBehavior:root?getComputedStyle(root).scrollBehavior:null,scrollRestoration:history.scrollRestoration,
+        fontsStatus:document.fonts?.status||null,font:target?getComputedStyle(target).font.slice(0,256):null,images});
     };
-    const listeners = Object.keys(counts).map(event => {
-      const listener = value => {
-        const ordinal = ++counts[event], persisted = Boolean(value.persisted);
-        capture(event,'event',ordinal,persisted);
-        // Bound scheduled observations as well as stored rows.
-        if (ordinal > 16) {omitted += 3; return;}
-        queueMicrotask(() => capture(event,'microtask',ordinal,persisted));
-        const task = setTimeout(() => {
-          tasks.delete(task); capture(event,'task',ordinal,persisted);
-        },0);
-        tasks.add(task);
-        const frame = requestAnimationFrame(() => {
-          frames.delete(frame); capture(event,'frame',ordinal,persisted);
-        });
-        frames.add(frame);
-      };
-      window.addEventListener(event,listener); return [event,listener];
+    const observe = (event, value = {}) => {
+      if (stopped) return;
+      const ordinal = ++counts[event], persisted = Boolean(value.persisted);
+      if (ordinal > limits[event]) {omitted++; return;}
+      capture(event,'event',ordinal,persisted);
+      // Scroll/resize are immediate-only. At most twelve other event groups
+      // schedule a microtask, a zero-delay observation and one rendering frame.
+      if (event === 'scroll' || event === 'resize') return;
+      if (phaseGroups >= 12) {omitted += 3; return;}
+      phaseGroups++;
+      queueMicrotask(() => capture(event,'microtask',ordinal,persisted));
+      const task = setTimeout(() => {
+        tasks.delete(task); capture(event,'task',ordinal,persisted);
+      },0);
+      tasks.add(task);
+      const frame = requestAnimationFrame(() => {
+        frames.delete(frame); capture(event,'frame',ordinal,persisted);
+      });
+      frames.add(frame);
+    };
+    const listeners = Object.keys(counts).filter(event => event !== 'reader-ready').map(event => {
+      const target = event === 'DOMContentLoaded' ? document : window;
+      const listener = value => observe(event,value);
+      target.addEventListener(event,listener,{passive:true}); return [target,event,listener];
     });
+    const readyObserver = new MutationObserver(() => {
+      if (document.body?.dataset.surveyReader !== 'ready') return;
+      readyObserver.disconnect(); observe('reader-ready');
+    });
+    readyObserver.observe(document,{subtree:true,attributes:true,attributeFilter:['data-survey-reader']});
+    capture('observer','installed',0,false);
     window.__atlasSurveyHistoryTrace = {
-      snapshot: () => ({counts:{...counts},rows:[...rows],omitted}),
+      snapshot: () => ({counts:{...counts},rows:[...rows],omitted,phaseGroups,
+        limits:{rows:64,phaseGroups:12,events:{...limits}}}),
       stop: () => {
         stopped = true;
-        for (const [event,listener] of listeners) window.removeEventListener(event,listener);
+        readyObserver.disconnect();
+        for (const [target,event,listener] of listeners) target.removeEventListener(event,listener);
         for (const task of tasks) clearTimeout(task);
         for (const frame of frames) cancelAnimationFrame(frame);
         tasks.clear(); frames.clear();
@@ -67,7 +101,7 @@ async function stopHistoryEvents(page) {
     })]);
   } finally {clearTimeout(timer);}
 }
-// Failure-only observations retain the original assertion/error and 10s wait.
+// Bounded snapshots retain the original assertions/errors and 10s waits.
 async function failureObservation(page, id = null) {
   let timer;
   try {
@@ -137,9 +171,9 @@ for (const [width, appearance] of [[320, 'dark'], [1280, 'light']]) {
     };
     page.on('pageerror', recordError); t.after(() => page.off('pageerror', recordError));
     const requests = []; page.on('request', request => requests.push(request.url()));
-    await page.goto(base + '/tuscaloosa.html?context=survey#path'); await ready(page);
     await observeHistoryEvents(page);
     t.after(() => stopHistoryEvents(page));
+    await page.goto(base + '/tuscaloosa.html?context=survey#path'); await ready(page);
     await page.locator('#reading-appearance').selectOption(appearance);
     await page.locator('#survey-place').selectOption('path-concord'); await selected(page, 'path-concord');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'path-concord');
@@ -155,6 +189,8 @@ for (const [width, appearance] of [[320, 'dark'], [1280, 'light']]) {
     await selectedInView(page, 'path-birmingham');
     await page.reload(); await ready(page); await selected(page, 'path-birmingham');
     await selectedInView(page, 'path-birmingham');
+    // A diagnostic pass is observable too. It does not establish a repair.
+    console.log('TUSCALOOSA_READER_RELOAD_OBSERVATION ' + JSON.stringify(await failureObservation(page,'path-birmingham')));
     const url = new URL(page.url());
     assert.equal(url.searchParams.get('context'), 'survey'); assert.equal(url.hash, '#path');
     assert.equal(await page.locator('#path .documentary-timeline > li:visible').count(), 6);
