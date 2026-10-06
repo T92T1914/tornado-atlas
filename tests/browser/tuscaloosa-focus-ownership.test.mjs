@@ -6,6 +6,39 @@ import {fixture,base} from './harness.mjs';
 const gallery=await readFile(new URL('../../web/tuscaloosa-radar-view.mjs',import.meta.url),'utf8');
 const id='aerial-context-aftermath';
 
+async function historySettled(page){
+  await page.waitForFunction(()=>!document.getElementById('photo-dialog').open&&
+    !new URL(location.href).searchParams.has('photo'));
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+}
+
+for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
+  test(`closing a photograph preserves a destination chosen before history returns ${width} ${appearance}`,{timeout:30000},async t=>{
+    const page=await fixture(t,{viewport:{width,height:844},hasTouch:width<600,isMobile:width<600});
+    await page.goto(base+'/tuscaloosa.html?context=focus#aerial-context');
+    await page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready');
+    await page.locator('#reading-appearance').selectOption(appearance);
+    const opener=page.locator('a[data-photo-id="'+id+'"]');
+    const selector='#aerial-context a[href*="media=aerial-context-aftermath"]';
+    const destination=page.locator(selector);
+    await opener.focus();await page.keyboard.press('Enter');
+    await page.waitForFunction(()=>document.getElementById('photo-dialog').open);
+    // Keep the browser's real close, history and animation-frame processing.
+    assert.equal(await page.evaluate(selector=>{
+      document.getElementById('photo-dialog').close();
+      const destination=document.querySelector(selector);destination.focus();
+      return document.activeElement===destination;
+    },selector),true);
+    await historySettled(page);
+    assert.equal(await destination.evaluate(node=>node===document.activeElement),true,
+      'The destination chosen before history returns must retain focus');
+    await Promise.all([page.waitForURL('**/dossier.html?**'),page.keyboard.press('Enter')]);
+    await page.waitForFunction(()=>document.body?.dataset.ready==='true');
+    assert.equal(new URL(page.url()).searchParams.get('media'),id);
+    assert.equal(await page.locator('#media-'+id).count(),1);
+  });
+}
+
 async function closedWithQueuedFocus(t,viewport){
   const page=await fixture(t,{viewport});
   await page.addInitScript(()=>{window.__photoFocusFrames=[];});

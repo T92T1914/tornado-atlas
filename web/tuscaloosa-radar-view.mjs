@@ -14,11 +14,15 @@ function selectedLink() {
 function returnFocus() {
   const target = opener;
   if (!target) return;
+  // History traversal can clear outside focus after popstate but before this frame.
+  const claim = document.activeElement;
+  const destination = claim && claim !== document.body && claim !== target &&
+    !dialog.contains(claim) ? claim : target;
   requestAnimationFrame(() => {
     const focus = document.activeElement;
     if (focus && focus !== document.body && focus !== target && !dialog.contains(focus)) return;
     if (!dialog.open && currentId === null && opener === target && !selectedLink() &&
-      document.visibilityState !== 'hidden') target.focus({preventScroll:true});
+      document.visibilityState !== 'hidden' && destination.isConnected) destination.focus({preventScroll:true});
   });
 }
 function showFromLocation() {
