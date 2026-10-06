@@ -9,7 +9,31 @@ const id='aerial-context-aftermath';
 async function historySettled(page){
   await page.waitForFunction(()=>!document.getElementById('photo-dialog').open&&
     !new URL(location.href).searchParams.has('photo'));
-  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>{
+    window.__photoFocusRecord?.('first-settled-frame');
+    requestAnimationFrame(()=>{window.__photoFocusRecord?.('second-settled-frame');resolve();});
+  })));
+}
+
+async function passiveFocusTrace(page){
+  await page.evaluate(()=>{
+    const trace=[];
+    const identify=node=>node?{tag:node.tagName,id:node.id||null,
+      photoId:node.dataset?.photoId||null,
+      href:node.getAttribute?.('href')?.slice(0,160)||null}:null;
+    window.__photoFocusTrace=trace;
+    window.__photoFocusRecord=(kind,event)=>{
+      if(trace.length>=80)return;
+      trace.push({kind,active:identify(document.activeElement),
+        target:identify(event?.target),related:identify(event?.relatedTarget),
+        dialogOpen:document.getElementById('photo-dialog').open,
+        photo:new URL(location.href).searchParams.get('photo'),
+        stack:kind==='focusin'?new Error().stack?.slice(0,1200).split(String.fromCharCode(10)).slice(0,7):undefined});
+    };
+    for(const kind of ['focusin','focusout','close'])
+      document.addEventListener(kind,event=>window.__photoFocusRecord(kind,event),true);
+    window.addEventListener('popstate',event=>window.__photoFocusRecord('popstate',event),true);
+  });
 }
 
 for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
@@ -23,15 +47,20 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     const destination=page.locator(selector);
     await opener.focus();await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.getElementById('photo-dialog').open);
+    await passiveFocusTrace(page);
     // Keep the browser's real close, history and animation-frame processing.
     assert.equal(await page.evaluate(selector=>{
+      window.__photoFocusRecord('before-close');
       document.getElementById('photo-dialog').close();
       const destination=document.querySelector(selector);destination.focus();
+      window.__photoFocusRecord('destination-chosen');
       return document.activeElement===destination;
     },selector),true);
     await historySettled(page);
-    assert.equal(await destination.evaluate(node=>node===document.activeElement),true,
-      'The destination chosen before history returns must retain focus');
+    const settled=await destination.evaluate(node=>({focused:node===document.activeElement,
+      trace:window.__photoFocusTrace}));
+    assert.equal(settled.focused,true,
+      'The destination chosen before history returns must retain focus. Bounded passive trace: '+JSON.stringify(settled.trace));
     await Promise.all([page.waitForURL('**/dossier.html?**'),page.keyboard.press('Enter')]);
     await page.waitForFunction(()=>document.body?.dataset.ready==='true');
     assert.equal(new URL(page.url()).searchParams.get('media'),id);
