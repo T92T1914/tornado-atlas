@@ -17,6 +17,7 @@ SOURCE = 'bmx-pre-event-outlooks'
 OBSERVATION = 'pre-event-outlook-progression'
 URL = 'https://www.weather.gov/bmx/event_04272011hwo'
 PRIOR = '35b450a43834125500a844d47856b6248f24bc00defcc6d746ecafdf8da6544a'
+OUTLOOK_SHA = '51dee7670bcc10fbe2a64a7bc53f2bfe20ca9afbab777b1c777e1657cb3b73be'
 WARNING_SHA = 'f0b3a4ff2c42e16e6c43f2540f4ad714bfd2dfc6854a0d19b2769b4f96e5468e'
 ISSUES = [('2011-04-22T06:49', 'April 22, 2011', '6:49 a.m. CDT'),
           ('2011-04-26T05:54', 'April 26, 2011', '5:54 a.m. CDT'),
@@ -111,7 +112,10 @@ class TuscaloosaOutlookHTMLTests(unittest.TestCase):
 class TuscaloosaOutlookPublicationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.doc = next(doc for doc in dossiers() if doc['id'] == EVENT)
+        # Keep the accepted outlook publication as its own exact subject.
+        # A later photograph must preserve it, not redefine its predecessor.
+        cls.doc = json.loads((ROOT / 'web/archive' / f'{EVENT}-{OUTLOOK_SHA[:20]}.json').read_text(encoding='utf-8'))
+        cls.current = next(doc for doc in dossiers() if doc['id'] == EVENT)
         cls.prior = json.loads((ROOT / 'web/archive' / f'{EVENT}-{PRIOR[:20]}.json').read_text(encoding='utf-8'))
         cls.source = next(source for source in cls.doc['sources'] if source['id'] == SOURCE)
         cls.item = next(item for item in cls.doc['observations'] if item['id'] == OBSERVATION)
@@ -130,11 +134,22 @@ class TuscaloosaOutlookPublicationTests(unittest.TestCase):
 
     def test_current_publication_keeps_every_prior_evidence_value(self):
         self.assertEqual(digest(self.prior), PRIOR)
+        self.assertEqual(digest(self.doc), OUTLOOK_SHA)
         for field in ('title', 'coverage', 'summary', 'records', 'creators', 'media', 'reconstruction'):
             self.assertEqual(self.doc[field], self.prior[field], field)
         self.assertEqual(self.doc['sources'][:-1], self.prior['sources'])
         self.assertEqual(self.doc['observations'][:-1], self.prior['observations'])
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PRIOR)
+
+    def test_current_publication_preserves_the_complete_accepted_outlook(self):
+        for field in ('title', 'coverage', 'summary', 'records', 'creators', 'observations', 'reconstruction'):
+            self.assertEqual(self.current[field], self.doc[field], field)
+        for field in ('media', 'sources', 'routes'):
+            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
+        for key, value in self.doc['provenance'].items():
+            if key != 'publication_review':
+                self.assertEqual(self.current['provenance'][key], value, key)
+        self.assertIs(validate_dossier(self.current), self.current)
 
     def test_forecast_context_cannot_acquire_a_guessed_map_point(self):
         doc = copy.deepcopy(self.doc)
