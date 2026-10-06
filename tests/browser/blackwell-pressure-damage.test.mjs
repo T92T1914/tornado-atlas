@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
+import {waitForSettledTouchTarget} from './touch-target-readiness.mjs';
 
 const report='https://www.weather.gov/ict/udall_stormreport';
 const observations=['blackwell-tonkawa-barograph','blackwell-debris-directions'];
@@ -132,6 +133,10 @@ for(const [width,height,appearance] of [[1280,900,'light'],[1280,900,'dark'],[39
       const observationRoute={href:new URL(await link.getAttribute('href'),page.url()).href,
         elementId:'observation-'+id};
       diagnostics.get(page).retain({kind:'activation',observation:id,href:observationRoute.href});
+      if(width===390){
+        await link.scrollIntoViewIfNeeded();
+        await waitForSettledTouchTarget(page,link);
+      }
       await transition(page,()=>width===390?link.tap():link.click(),observationRoute);
       const card=page.locator('#observation-'+id);
       await card.waitFor();
