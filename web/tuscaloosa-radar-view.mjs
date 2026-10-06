@@ -79,6 +79,8 @@ dialog.addEventListener('close', () => {
   if (ownedEntry === currentId) {
     // History can clear the visitor's new destination before popstate arrives.
     closingDestination = outsideFocus(opener);
+    // Consume this close before the asynchronous history traversal.
+    currentId = null;
     history.back();
   }
   else {
