@@ -13,29 +13,36 @@ function adjacent(value,steps) {
   return view.getFloat64(0,false);
 }
 
-test('the retained hosted one- and two-step numerical differences are accepted',()=>{
-  assertSampledWindNumbers(hosted,expected,'Retained hosted row');
+test('each retained calculation matches its own realm exactly',()=>{
+  assertSampledWindNumbers(hosted,hosted,'Retained browser row');
   assertSampledWindNumbers(expected,expected);
+  assert.throws(()=>assertSampledWindNumbers(hosted,expected),
+    {name:'AssertionError',message:/wind \(m\/s\): exact same-realm value required/});
+  const pressure=[...expected];pressure[3]=0.09878833108095847;
+  const otherRealm=[...expected];otherRealm[3]=0.09878833108095833;
+  assertSampledWindNumbers(pressure,pressure,'Retained ten-step browser pressure');
+  assertSampledWindNumbers(otherRealm,otherRealm,'Retained Node pressure');
+  assert.throws(()=>assertSampledWindNumbers(pressure,otherRealm),
+    {name:'AssertionError',message:/pressure \(kPa\): exact same-realm value required/});
 });
 
-test('each calculated column accepts at most eight adjacent binary64 values',()=>{
-  for(let column=1;column<6;column++) {
-    for(const steps of [-8,8])assertSampledWindNumbers(changed(column,adjacent(expected[column],steps)),expected);
-    for(const steps of [-9,9])assert.throws(()=>assertSampledWindNumbers(changed(column,adjacent(expected[column],steps)),expected),
-      {name:'AssertionError',message:/9 binary64 steps exceeds 8/});
+test('every numeric column rejects one adjacent representable value',()=>{
+  for(let column=0;column<6;column++) {
+    for(const steps of [-1,1])assert.throws(()=>assertSampledWindNumbers(changed(column,adjacent(expected[column],steps)),expected),
+      {name:'AssertionError',message:/exact same-realm value required/});
   }
 });
 
 test('sample time remains exact even when a change is one representable value',()=>{
   assert.throws(()=>assertSampledWindNumbers(changed(0,adjacent(expected[0],1)),expected),
-    {name:'AssertionError',message:/model time \(s\): exact value required/});
+    {name:'AssertionError',message:/model time \(s\): exact same-realm value required/});
 });
 
 test('a changed load hidden by the same displayed decimals still fails',()=>{
   const altered=expected[4]+1e-12;
   assert.equal(altered.toFixed(3),expected[4].toFixed(3));
   assert.throws(()=>assertSampledWindNumbers(changed(4,altered),expected),
-    {name:'AssertionError',message:/drag \(kN\).*binary64 steps exceeds 8/});
+    {name:'AssertionError',message:/drag \(kN\): exact same-realm value required/});
 });
 
 test('nonfinite numbers and malformed numeric cells fail in every column',()=>{
@@ -50,7 +57,7 @@ test('mph versus m/s and kPa or kN versus base SI units cannot pass',()=>{
   for(const [column,value] of [[1,expected[2]],[2,expected[1]],[3,expected[3]*1000],
     [4,expected[4]*1000],[5,expected[5]/1000]])
     assert.throws(()=>assertSampledWindNumbers(changed(column,value),expected),
-      {name:'AssertionError',message:/binary64 steps exceeds 8/});
+      {name:'AssertionError',message:/exact same-realm value required/});
 });
 
 test('negative loads and nonzero replacements for an exact zero fail',()=>{
@@ -59,6 +66,6 @@ test('negative loads and nonzero replacements for an exact zero fail',()=>{
       {name:'AssertionError',message:/nonnegative calculated values required/});
     const zero=[...expected];zero[column]=0;
     const tiny=[...zero];tiny[column]=Number.MIN_VALUE;
-    assert.throws(()=>assertSampledWindNumbers(tiny,zero),{name:'AssertionError',message:/exact value required/});
+    assert.throws(()=>assertSampledWindNumbers(tiny,zero),{name:'AssertionError',message:/exact same-realm value required/});
   }
 });

@@ -10,6 +10,63 @@ const selected = (page, id) => page.waitForFunction(id =>
   document.querySelector('#path .survey-selected')?.id === id &&
   document.getElementById('survey-place').value === id, id);
 const readerPageErrors = new WeakMap();
+// Test-only event observations. These describe public state, not private reader
+// callbacks or proof of the cause of a hosted browser's history behavior.
+async function observeHistoryEvents(page) {
+  await page.evaluate(() => {
+    const rows = [], counts = {popstate:0,pageshow:0,pagehide:0};
+    const tasks = new Set(), frames = new Set();
+    let omitted = 0, stopped = false;
+    const capture = (event, phase, ordinal, persisted) => {
+      if (stopped) return;
+      if (rows.length >= 64) {omitted++; return;}
+      const target = document.querySelector('#path .survey-selected');
+      const rect = target?.getBoundingClientRect();
+      rows.push({event,phase,ordinal,persisted,url:location.href.slice(0,512),
+        selected:target?.id||null,active:document.activeElement?.id||null,scrollX,scrollY,
+        target:rect?{top:rect.top,bottom:rect.bottom}:null});
+    };
+    const listeners = Object.keys(counts).map(event => {
+      const listener = value => {
+        const ordinal = ++counts[event], persisted = Boolean(value.persisted);
+        capture(event,'event',ordinal,persisted);
+        // Bound scheduled observations as well as stored rows.
+        if (ordinal > 16) {omitted += 3; return;}
+        queueMicrotask(() => capture(event,'microtask',ordinal,persisted));
+        const task = setTimeout(() => {
+          tasks.delete(task); capture(event,'task',ordinal,persisted);
+        },0);
+        tasks.add(task);
+        const frame = requestAnimationFrame(() => {
+          frames.delete(frame); capture(event,'frame',ordinal,persisted);
+        });
+        frames.add(frame);
+      };
+      window.addEventListener(event,listener); return [event,listener];
+    });
+    window.__atlasSurveyHistoryTrace = {
+      snapshot: () => ({counts:{...counts},rows:[...rows],omitted}),
+      stop: () => {
+        stopped = true;
+        for (const [event,listener] of listeners) window.removeEventListener(event,listener);
+        for (const task of tasks) clearTimeout(task);
+        for (const frame of frames) cancelAnimationFrame(frame);
+        tasks.clear(); frames.clear();
+      }
+    };
+  });
+}
+async function stopHistoryEvents(page) {
+  if (page.isClosed()) return; // The owned context already destroys its observers.
+  let timer;
+  const stopped = page.evaluate(() => window.__atlasSurveyHistoryTrace?.stop());
+  stopped.catch(() => {});
+  try {
+    await Promise.race([stopped,new Promise((_,reject) => {
+      timer = setTimeout(() => reject(Error('History observation cleanup exceeded 500 ms')),500);
+    })]);
+  } finally {clearTimeout(timer);}
+}
 // Failure-only observations retain the original assertion/error and 10s wait.
 async function failureObservation(page, id = null) {
   let timer;
@@ -38,7 +95,8 @@ async function failureObservation(page, id = null) {
         scrollX,scrollY,viewport:{width:innerWidth,height:innerHeight},documentWidth:document.documentElement.scrollWidth,
         scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior,
         scrollRestoration:history.scrollRestoration,offenders,offendersOmitted:Math.max(0,offenders-rows.length),
-        nodesOmitted:Math.max(0,nodes.length-1200),rows};
+        nodesOmitted:Math.max(0,nodes.length-1200),rows,
+        historyEvents:window.__atlasSurveyHistoryTrace?.snapshot()||null};
     }, id);
     snapshot.catch(() => {});
     const observed = await Promise.race([snapshot,new Promise((_,reject) => {
@@ -80,6 +138,8 @@ for (const [width, appearance] of [[320, 'dark'], [1280, 'light']]) {
     page.on('pageerror', recordError); t.after(() => page.off('pageerror', recordError));
     const requests = []; page.on('request', request => requests.push(request.url()));
     await page.goto(base + '/tuscaloosa.html?context=survey#path'); await ready(page);
+    await observeHistoryEvents(page);
+    t.after(() => stopHistoryEvents(page));
     await page.locator('#reading-appearance').selectOption(appearance);
     await page.locator('#survey-place').selectOption('path-concord'); await selected(page, 'path-concord');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'path-concord');

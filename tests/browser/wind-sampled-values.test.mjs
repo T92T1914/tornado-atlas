@@ -5,7 +5,7 @@ import path from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 import {fixture,base} from './harness.mjs';
 import {defaultExperiment} from '../../tools/build_wind_sample_table.mjs';
-import {samplePassage,loadAt,MPH} from '../../web/wind-model.mjs';
+import {samplePassage,loadAt,MPH,FOOT} from '../../web/wind-model.mjs';
 import {componentHistory} from '../../web/component-model.mjs';
 import {assertSampledWindNumbers} from '../wind-numeric-acceptance.mjs';
 
@@ -15,21 +15,51 @@ async function ready(page) {
   await page.waitForFunction(()=>document.body.dataset.windSamples==='ready');
   assert.equal(await page.locator('#sampled-values-body tr').count(),481);
 }
-async function expectedRows(page,field=defaults.field,capacity=defaults.capacity) {
-  const samples=samplePassage(field,{threshold:defaults.threshold}).samples;
-  const states=componentHistory(samples,{...field,capacity}).states;
+async function expectedRows(page,field=defaults.field,capacity=defaults.capacity,realm='browser') {
+  let expected;
+  if(realm==='browser') {
+    // Compute the pure model separately from the table adapter in the actual
+    // tested engine. Expected settings come from this test, not table cells.
+    const reference=await page.evaluate(async ({field,capacity,threshold})=>{
+      const [{samplePassage,loadAt,MPH,FOOT},{componentHistory}]=await Promise.all([
+        import(new URL('./wind-model.mjs',location.href).href),
+        import(new URL('./component-model.mjs',location.href).href),
+      ]);
+      const number=id=>Number(document.getElementById(id).value);
+      const samples=samplePassage(field,{threshold}).samples;
+      const states=componentHistory(samples,{...field,capacity}).states;
+      return {MPH,FOOT,field:{peak:number('peak')*MPH,radius:number('radius')*FOOT,
+        background:number('background')*MPH,travel:number('travel')*MPH,
+        offset:number('offset'),area:number('area'),coefficient:number('coefficient')},
+        threshold:number('threshold')*MPH,capacity:number('capacity')*1000,
+        rows:samples.map((sample,index)=>({values:[sample.time,sample.speed/MPH,sample.speed,
+          loadAt(sample.speed,field).pressure/1000,states[index].force/1000,states[index].ratio],
+          failed:states[index].failed}))};
+    },{field,capacity,threshold:defaults.threshold});
+    assert.equal(reference.MPH,MPH);assert.equal(reference.FOOT,FOOT);
+    assert.deepEqual(reference.field,field,'Actual controls must match independently expected settings');
+    assert.equal(reference.threshold,defaults.threshold);assert.equal(reference.capacity,capacity);
+    expected=reference.rows;
+  } else {
+    assert.equal(realm,'node-static','Known calculation realm required');
+    // Unavailable-script rows are the unchanged, Node-generated default table.
+    const samples=samplePassage(field,{threshold:defaults.threshold}).samples;
+    const states=componentHistory(samples,{...field,capacity}).states;
+    expected=samples.map((sample,index)=>({values:[sample.time,sample.speed/MPH,sample.speed,
+      loadAt(sample.speed,field).pressure/1000,states[index].force/1000,states[index].ratio],
+      failed:states[index].failed}));
+  }
   const observed=await page.locator('#sampled-values-body tr').evaluateAll(rows=>rows.map(row=>({
     values:[...row.querySelectorAll('td[data-value]')].map(cell=>Number(cell.dataset.value)),
     display:[...row.querySelectorAll('td[data-value]')].map(cell=>cell.textContent),
     state:row.cells[7].textContent,
   })));
+  assert.equal(expected.length,481);
   assert.equal(observed.length,481);
   for(const [index,row] of observed.entries()) {
-    const sample=samples[index],state=states[index];
-    assertSampledWindNumbers(row.values,[sample.time,sample.speed/MPH,sample.speed,
-      loadAt(sample.speed,field).pressure/1000,state.force/1000,state.ratio],`Wind sample ${index+1}`);
+    assertSampledWindNumbers(row.values,expected[index].values,`Wind sample ${index+1}`);
     assert.deepEqual(row.display,row.values.map((value,column)=>value.toFixed([2,2,2,3,3,3][column])));
-    assert.equal(row.state,state.failed?'Failed under this rule':'Capacity not exceeded so far');
+    assert.equal(row.state,expected[index].failed?'Failed under this rule':'Capacity not exceeded so far');
   }
 }
 async function nativeHorizontalScroll(page) {
@@ -146,14 +176,14 @@ test('Complete default wind samples remain keyboard-readable without scripts', {
   assert.equal(await page.locator('#sampled-values-body tr').count(),481);
   assert.ok(await page.locator('#sampled-values-static').isVisible());
   assert.equal(await page.locator('#sampled-values-controls').isVisible(),false);
-  await expectedRows(page);
+  await expectedRows(page,defaults.field,defaults.capacity,'node-static');
   await page.locator('#sampled-values-details summary').focus();await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
   assert.equal(await page.evaluate(()=>document.activeElement.id),'sampled-values-region');
   await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowRight');
   await nativeHorizontalScroll(page);
   await page.locator('#travel').focus();await page.keyboard.press('End');
-  await expectedRows(page); // The visible fallback explicitly retains default assumptions.
+  await expectedRows(page,defaults.field,defaults.capacity,'node-static'); // The fallback retains declared defaults.
   assert.match(await page.locator('#sampled-values-assumptions').textContent(),/travel 30.0 mph/);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
 });
@@ -167,6 +197,6 @@ test('Unavailable passage module retains the complete declared default calculati
   assert.ok(await page.locator('#sampled-values-static').isVisible());
   assert.equal(await page.locator('#sampled-values-controls').isVisible(),false);
   await page.locator('#sampled-values-details summary').click();
-  await expectedRows(page);
+  await expectedRows(page,defaults.field,defaults.capacity,'node-static');
   assert.match(await page.locator('#sampled-values-static').textContent(),/controls cannot recalculate it/);
 });

@@ -1,16 +1,9 @@
 import assert from 'node:assert/strict';
 
-// Test-only binary64 allowance for values computed in different JS engines.
-// The retained hosted mismatch is one step in wind and two in derived loads.
-// Eight adjacent representable values leave a small margin for that arithmetic,
-// without decimal rounding, an absolute-error floor or a tolerance on state.
-export const MAX_WIND_SAMPLE_ULPS=8n;
+// Compare a table with the pure model in the same calculation realm.
+// Browser calculations use the tested engine. Static fallback rows use their
+// Node generator. This is exact consumer agreement, not cross-engine accuracy.
 const fields=['model time (s)','wind (mph)','wind (m/s)','pressure (kPa)','drag (kN)','load / capacity'];
-const bits=new DataView(new ArrayBuffer(8));
-function positiveBits(value) {
-  bits.setFloat64(0,value,false);
-  return bits.getBigUint64(0,false);
-}
 
 export function assertSampledWindNumbers(actual,expected,label='Wind sample') {
   assert.ok(Array.isArray(actual)&&Array.isArray(expected),`${label}: numeric arrays required`);
@@ -19,12 +12,7 @@ export function assertSampledWindNumbers(actual,expected,label='Wind sample') {
   for(const [index,value] of actual.entries()) {
     const reference=expected[index],cell=`${label}, ${fields[index]}`;
     assert.ok(Number.isFinite(value)&&Number.isFinite(reference),`${cell}: finite numbers required`);
-    // The sampling clock and exact zero remain identity checks.
-    if(index===0||reference===0) {assert.equal(value,reference,`${cell}: exact value required`);continue;}
-    assert.ok(value>=0&&reference>=0,`${cell}: nonnegative calculated values required`);
-    const left=positiveBits(value),right=positiveBits(reference);
-    const distance=left>right?left-right:right-left;
-    assert.ok(distance<=MAX_WIND_SAMPLE_ULPS,
-      `${cell}: ${distance} binary64 steps exceeds ${MAX_WIND_SAMPLE_ULPS}; actual ${value}, expected ${reference}`);
+    if(index>0)assert.ok(value>=0&&reference>=0,`${cell}: nonnegative calculated values required`);
+    assert.equal(value,reference,`${cell}: exact same-realm value required`);
   }
 }

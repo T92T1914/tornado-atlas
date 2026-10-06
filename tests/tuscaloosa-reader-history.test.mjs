@@ -23,12 +23,18 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
       this.classes = new Set();
       this.classList = {toggle: (name, active) => active ? this.classes.add(name) : this.classes.delete(name)};
     }
-    addEventListener(name, callback) {
+    addEventListener(name, callback, {capture = false} = {}) {
       if (!this.listeners.has(name)) this.listeners.set(name, []);
-      this.listeners.get(name).push(callback);
+      this.listeners.get(name).push({callback,capture});
     }
-    dispatch(name) {
-      for (const callback of this.listeners.get(name) || []) callback({preventDefault() {}});
+    dispatch(name, options = {}) {
+      const event = {button:0,ctrlKey:false,metaKey:false,shiftKey:false,altKey:false,
+        defaultPrevented:false,detail:1,preventDefault() {this.defaultPrevented = true;},...options};
+      // Model target capture before target bubbling, without reimplementing the reader.
+      for (const {callback} of [...this.listeners.get(name) || []].sort((a,b) => Number(b.capture)-Number(a.capture))) {
+        callback(event);
+      }
+      return event;
     }
     append(child) {this.children.push(child);}
     add(option) {this.children.push(option);}
@@ -45,6 +51,8 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
   const add = (id, top) => {const node = new Element(id, top); nodes.set(id, node); return node;};
   const reader = add('survey-reader', 100);
   const select = add('survey-place', 110);
+  const photoLink = add('photo-opener', 2750);
+  photoLink.dataset = {photoId:'eo1-tuscaloosa-track'};
   add('survey-previous', 140); add('survey-next', 140); add('survey-status', 160);
   const stops = stopIds.map((id, index) => {
     const stop = add(id, 400 + index * 400), div = new Element();
@@ -59,6 +67,9 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
   document.getElementById = id => nodes.get(id);
   document.querySelector = selector => {
     assert.equal(selector, '#path .documentary-timeline'); return {children: stops};
+  };
+  document.querySelectorAll = selector => {
+    assert.equal(selector, 'a[data-photo-id]'); return [photoLink];
   };
   document.createElement = tag => {assert.equal(tag, 'a'); return new Element();};
   const window = new Element(), location = {href: 'https://example.test/tuscaloosa.html?stop=' + initial + '#path'};
@@ -75,6 +86,17 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
   });
   script.runInContext(context, {timeout: 1000});
   assert.equal(document.body.dataset.surveyReader, 'ready');
+  let photoEntries = 0;
+  // The real photo adapter uses this target gate, pushState and showFromLocation.
+  // It does not dispatch popstate while opening a viewer-owned photo entry.
+  photoLink.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey ||
+      event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const url = new URL(location.href); url.searchParams.set('photo',photoLink.dataset.photoId);
+    history.pushState(null,'',url); photoEntries++;
+    document.activeElement = {id:'photo-close'};
+  });
   // Initial navigation has settled before the explicit history fixture begins.
   while (animations.length) scrollY = animations.shift().top;
   effects.length = 0;
@@ -116,6 +138,12 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
     assert.equal(history.scrollRestoration, 'auto', 'Native restoration must remain enabled');
   };
   return {nativeBack, flushTasks, flushFrames, choose, expectViewport, effects, nodes, document,
+    openPhoto: options => photoLink.dispatch('click',options), photoEntries: () => photoEntries,
+    closePhotoBack: id => {
+      nativeBack(id,2750);
+      // Model the adapter restoring its opener, then let pending reader work run.
+      document.activeElement = photoLink;
+    },
     restorePersistedViewport, pagehide: () => window.dispatch('pagehide'),
     viewport: () => scrollY, queued: () => tasks.size, queuedFrames: () => frames.size,
     pendingAnimations: () => animations.length,
@@ -228,5 +256,47 @@ test('page departure cancels pending task and rendering-frame placement', () => 
     page.pagehide(); page.effects.length = 0; page.flushTasks();
     assert.equal(page.queued(), 0); assert.equal(page.queuedFrames(), 0);
     assert.deepEqual(page.effects, []);
+  }
+});
+
+test('an unchanged duplicate popstate cannot cancel the pending changed-stop task', () => {
+  // An explicit event-lifetime model, not an observed hosted WebKit sequence.
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.nativeBack('path-concord');
+  page.flushTasks(); page.expectViewport('path-concord');
+  assert.equal(page.effects.filter(([kind]) => kind === 'scroll').length, 1);
+});
+
+test('an unchanged duplicate popstate cannot cancel the pending placement frame', () => {
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.flushTasks({render: false});
+  page.nativeBack('path-concord'); page.flushFrames();
+  page.expectViewport('path-concord');
+  assert.equal(page.effects.filter(([kind]) => kind === 'scroll').length, 1);
+});
+
+for (const [label, afterTask, detail] of [
+  ['task',false,1],['frame',true,1],['keyboard button-zero activation',true,0]
+]) {
+  test(`an eligible photo opening supersedes pending reader ${label} before pushState and owned Back`, () => {
+    const page = readerFixture();
+    page.nativeBack('path-concord');
+    if (afterTask) page.flushTasks({render:false});
+    page.openPhoto({detail});
+    assert.equal(page.photoEntries(),1,'The modeled real target adapter opened its owned entry');
+    page.closePhotoBack('path-concord'); page.effects.length = 0; page.flushTasks();
+    assert.equal(page.document.activeElement.id,'photo-opener','Pending reader placement must not steal photo-opener focus');
+    assert.equal(page.viewport(),2750,'Pending reader placement must not overwrite the photo return viewport');
+    assert.deepEqual(page.effects,[],'Photo return must not revive stale reader placement');
+  });
+}
+
+test('nonprimary, modified and already-prevented photo clicks preserve pending reader ownership', () => {
+  for (const options of [{button:1},{button:2},{ctrlKey:true},{metaKey:true},
+    {shiftKey:true},{altKey:true},{defaultPrevented:true}]) {
+    const page = readerFixture();
+    page.nativeBack('path-concord'); page.flushTasks({render:false});
+    page.openPhoto(options); assert.equal(page.photoEntries(),0);
+    page.flushFrames(); page.expectViewport('path-concord');
   }
 });

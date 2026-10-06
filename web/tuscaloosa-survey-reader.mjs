@@ -9,10 +9,12 @@ const status = document.getElementById('survey-status');
 let currentStopParameter;
 let pendingHistorySelection;
 let pendingHistoryFrame;
+let pendingHistoryDestination;
 
 function cancelHistorySelection() {
   clearTimeout(pendingHistorySelection);
   cancelAnimationFrame(pendingHistoryFrame);
+  pendingHistoryDestination = undefined;
 }
 
 for (const stop of stops) {
@@ -70,18 +72,34 @@ next.addEventListener('click', () => {
   const index = stops.findIndex(stop => stop.id === select.value);
   if (index + 1 < stops.length) choose(stops[index + 1].id);
 });
+// An eligible gallery opening owns focus before its target handler pushes
+// a photo entry without popstate. Later handlers can still cancel that opening.
+for (const link of document.querySelectorAll('a[data-photo-id]')) {
+  link.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey ||
+      event.shiftKey || event.altKey) return;
+    cancelHistorySelection();
+  }, {capture: true});
+}
 window.addEventListener('popstate', () => {
+  const destination = location.href;
+  // A repeated event for the same destination does not supersede its placement.
+  if (destination === pendingHistoryDestination) return;
   cancelHistorySelection();
   if (new URL(location.href).searchParams.get('stop') !== currentStopParameter) {
     showSelection({scroll: false});
-    const destination = location.href;
+    pendingHistoryDestination = destination;
     // Apply this reader's changed-stop placement in the next rendering update
     // after the history task, without starting another smooth scroll.
     // A newer choice, photo traversal or page departure cancels both stages.
     pendingHistorySelection = setTimeout(() => {
-      if (location.href !== destination) return;
+      if (location.href !== destination) {
+        if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
+        return;
+      }
       pendingHistoryFrame = requestAnimationFrame(() => {
         if (location.href === destination) showSelection({focus: true, behavior: 'instant'});
+        if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
       });
     }, 0);
   }
