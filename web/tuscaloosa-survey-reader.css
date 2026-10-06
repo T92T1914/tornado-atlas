@@ -1,0 +1,9 @@
+.survey-reader {border:1px solid var(--line);background:var(--panel);padding:18px;scroll-margin-top:20px}
+.survey-reader[hidden] {display:none}
+.survey-reader label {display:block;font-weight:600;margin-bottom:8px}
+.survey-reader select {width:100%;min-width:0;white-space:normal}
+.survey-reader-actions {display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.survey-reader button {white-space:normal;min-height:44px}
+.survey-reader p {margin-bottom:0;overflow-wrap:anywhere}
+.documentary-timeline .survey-selected {border-left:3px solid var(--text);background:var(--panel)}
+.documentary-timeline li:focus-visible {outline:3px solid var(--text);outline-offset:3px}

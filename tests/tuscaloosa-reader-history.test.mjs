@@ -1,0 +1,138 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import vm from 'node:vm';
+
+// Offline ordering fixture, not browser/layout acceptance. Execute the actual
+// reader bytes; only DOM, event dispatch, viewport and queued tasks are modeled.
+const sourceURL = new URL('../web/tuscaloosa-survey-reader.mjs', import.meta.url);
+const sourceBytes = readFileSync(sourceURL);
+console.log('Actual reader SHA256: ' + createHash('sha256').update(sourceBytes).digest('hex'));
+const script = new vm.Script(sourceBytes.toString('utf8'), {filename: 'web/tuscaloosa-survey-reader.mjs'});
+const stopIds = ['path-greene', 'path-tuscaloosa', 'path-holt',
+  'path-concord', 'path-birmingham', 'path-end'];
+
+function readerFixture(initial = 'path-birmingham') {
+  const effects = [], tasks = new Map(), microtasks = [];
+  let nextTask = 0, scrollY = 0;
+  const document = {activeElement: null, body: {dataset: {}}};
+  class Element {
+    constructor(id = '', top = 0) {
+      this.id = id; this.top = top; this.children = []; this.listeners = new Map();
+      this.classes = new Set();
+      this.classList = {toggle: (name, active) => active ? this.classes.add(name) : this.classes.delete(name)};
+    }
+    addEventListener(name, callback) {
+      if (!this.listeners.has(name)) this.listeners.set(name, []);
+      this.listeners.get(name).push(callback);
+    }
+    dispatch(name) {
+      for (const callback of this.listeners.get(name) || []) callback({preventDefault() {}});
+    }
+    append(child) {this.children.push(child);}
+    add(option) {this.children.push(option);}
+    scrollIntoView() {scrollY = this.top; effects.push(['scroll', this.id]);}
+    focus() {document.activeElement = this; effects.push(['focus', this.id]);}
+  }
+  const nodes = new Map();
+  const add = (id, top) => {const node = new Element(id, top); nodes.set(id, node); return node;};
+  const reader = add('survey-reader', 100);
+  const select = add('survey-place', 110);
+  add('survey-previous', 140); add('survey-next', 140); add('survey-status', 160);
+  const stops = stopIds.map((id, index) => {
+    const stop = add(id, 400 + index * 400), div = new Element();
+    stop.querySelector = selector => {
+      if (selector === ':scope > span') return {textContent: id};
+      if (selector === 'div') return div;
+      throw new Error('Unexpected stop selector: ' + selector);
+    };
+    stop.returnLink = () => div.children[0];
+    return stop;
+  });
+  document.getElementById = id => nodes.get(id);
+  document.querySelector = selector => {
+    assert.equal(selector, '#path .documentary-timeline'); return {children: stops};
+  };
+  document.createElement = tag => {assert.equal(tag, 'a'); return new Element();};
+  const window = new Element(), location = {href: 'https://example.test/tuscaloosa.html?stop=' + initial + '#path'};
+  const history = {scrollRestoration: 'auto', pushState(_state, _unused, url) {location.href = String(url);}};
+  const scheduleTask = callback => {const id = ++nextTask; tasks.set(id, callback); return id;};
+  window.setTimeout = scheduleTask; window.clearTimeout = id => tasks.delete(id);
+  const context = vm.createContext({document, window, location, history, URL,
+    Option: class {constructor(label, value) {this.textContent = label; this.value = value;}},
+    setTimeout: scheduleTask, clearTimeout: window.clearTimeout,
+    queueMicrotask(callback) {microtasks.push(callback);},
+  });
+  script.runInContext(context, {timeout: 1000});
+  assert.equal(document.body.dataset.surveyReader, 'ready');
+  effects.length = 0;
+  const flushTasks = () => {
+    let count = 0;
+    while (tasks.size) {
+      assert.ok(++count <= 12, 'Reader tasks must be bounded');
+      const [id, callback] = tasks.entries().next().value;
+      tasks.delete(id); callback();
+    }
+  };
+  function nativeBack(id, restoredY = reader.top, photo = null) {
+    const url = new URL(location.href); url.searchParams.set('stop', id);
+    if (photo) url.searchParams.set('photo', photo); else url.searchParams.delete('photo');
+    location.href = url.href; window.dispatch('popstate');
+    while (microtasks.length) microtasks.shift()();
+    // Explicit adverse model: persisted viewport is restored after popstate.
+    scrollY = restoredY; effects.push(['native-restoration', restoredY]);
+  }
+  const choose = id => {select.value = id; select.dispatch('change');};
+  const expectViewport = id => {
+    const target = nodes.get(id);
+    assert.equal(select.value, id, 'Restored selector must name the intended stop');
+    assert.equal(target.classes.has('survey-selected'), true, 'Intended stop must be selected');
+    assert.equal(scrollY, target.top, 'Selected stop must win over older native restored viewport');
+    assert.equal(document.activeElement?.id, id, 'Focus must belong to the selected stop');
+    assert.equal(history.scrollRestoration, 'auto', 'Native restoration must remain enabled');
+  };
+  return {nativeBack, flushTasks, choose, expectViewport, effects, nodes, document,
+    viewport: () => scrollY, queued: () => tasks.size};
+}
+
+test('changed-stop Back places the selected stop after native persisted-scroll restoration', () => {
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.flushTasks(); page.expectViewport('path-concord');
+});
+
+test('rapid changed-stop traversals never apply the superseded Concord callback', () => {
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.nativeBack('path-holt');
+  page.effects.length = 0; page.flushTasks(); page.expectViewport('path-holt');
+  assert.equal(page.effects.some(([kind, id]) => ['scroll', 'focus'].includes(kind) && id === 'path-concord'), false);
+});
+
+test('a direct newer choice cancels an older queued history destination', () => {
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.choose('path-end');
+  page.effects.length = 0; page.flushTasks(); page.expectViewport('path-end');
+  assert.equal(page.effects.some(([kind, id]) => ['scroll', 'focus'].includes(kind) && id !== 'path-end'), false);
+});
+
+test('photo-only traversal preserves external focus and its native viewport', () => {
+  const page = readerFixture('path-holt');
+  const photoOpener = {id: 'photo-opener'}; page.document.activeElement = photoOpener;
+  page.nativeBack('path-holt', 2750, 'eo1-tuscaloosa-track');
+  page.effects.length = 0; page.flushTasks();
+  assert.equal(page.queued(), 0); assert.equal(page.document.activeElement, photoOpener);
+  assert.equal(page.viewport(), 2750); assert.deepEqual(page.effects, []);
+});
+
+test('photo history that interrupts a pending stop change cannot revive its old focus callback', () => {
+  const page = readerFixture();
+  page.nativeBack('path-concord');
+  const photoOpener = {id: 'photo-opener'}; page.document.activeElement = photoOpener;
+  page.nativeBack('path-concord', 2750, 'eo1-tuscaloosa-track');
+  // Return to the captured URL before tasks run. URL equality alone must not
+  // revive the stop callback superseded by these photo-only traversals.
+  page.nativeBack('path-concord', 2750);
+  page.effects.length = 0; page.flushTasks();
+  assert.equal(page.queued(), 0); assert.equal(page.document.activeElement, photoOpener);
+  assert.equal(page.viewport(), 2750); assert.deepEqual(page.effects, []);
+});

@@ -17,8 +17,8 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 5,
-                  'tuscaloosa-birmingham-2011': 9}
+        counts = {'el-reno-2013': 3, 'joplin-2011': 11, 'blackwell-1955': 6,
+                  'tuscaloosa-birmingham-2011': 10}
         self.assertEqual({e['id'] for e in index['events']}, set(counts))
         for entry in index['events']:
             history = artifacts[entry['history_file']]
@@ -139,10 +139,10 @@ class ArchiveHistoryTests(unittest.TestCase):
         self.assertEqual([r for r in roof_addition['changes'] if r['kind'] == 'observations'], [])
         self.assertEqual([r for r in roof_addition['changes'] if r['kind'] == 'media'], [
             {'kind': 'media', 'id': 'nist-home-depot-roof', 'change': 'added', 'fields': []}])
-        current = history['versions'][0]
-        self.assertEqual(current['review']['previous_dossier_sha256'], roof_addition['dossier_sha256'])
-        self.assertEqual([r for r in current['changes'] if r['kind'] == 'observations'], [])
-        self.assertEqual([r for r in current['changes'] if r['kind'] == 'media'], [
+        radar_addition = next(v for v in history['versions'] if v['dossier_sha256'].startswith('47a506c259e7'))
+        self.assertEqual(radar_addition['review']['previous_dossier_sha256'], roof_addition['dossier_sha256'])
+        self.assertEqual([r for r in radar_addition['changes'] if r['kind'] == 'observations'], [])
+        self.assertEqual([r for r in radar_addition['changes'] if r['kind'] == 'media'], [
             {'kind': 'media', 'id': 'nist-joplin-radar-sequence', 'change': 'added', 'fields': []}])
 
     def test_tampered_retained_identity_cannot_be_indexed(self):
