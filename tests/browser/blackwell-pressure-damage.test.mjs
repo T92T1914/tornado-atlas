@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
+import {waitForDossier} from './dossier-readiness.mjs';
 
 const report='https://www.weather.gov/ict/udall_stormreport';
 const observations=['blackwell-tonkawa-barograph','blackwell-debris-directions'];
@@ -16,8 +17,8 @@ function observe(page){
   page.on('response',response=>{if(response.status()>=400)retain({kind:'http_failure',url:response.url(),status:response.status()});});
   page.on('pageerror',error=>retain({kind:'pageerror',message:error.message.slice(0,300)}));
 }
-async function ready(page){
-  try{await page.waitForFunction(()=>document.body?.dataset.ready==='true');}
+async function ready(page,expected){
+  try{await waitForDossier(page,expected);}
   catch(error){
     let timer,state;
     try{state=await Promise.race([
@@ -26,9 +27,19 @@ async function ready(page){
         explanation:document.querySelector('#content')?.textContent?.slice(0,600)??null})).catch(e=>({unavailable:e.message.slice(0,300)})),
       new Promise(resolve=>{timer=setTimeout(()=>resolve({unavailable:'Diagnostic snapshot exceeded 500 ms'}),500);})
     ]);}finally{clearTimeout(timer);}
-    console.error('BLACKWELL_READINESS_DIAGNOSTIC '+JSON.stringify({url:page.url(),state,events:diagnostics.get(page)?.events??[]}));
+    console.error('BLACKWELL_READINESS_DIAGNOSTIC '+JSON.stringify({expected,url:page.url(),state,events:diagnostics.get(page)?.events??[]}));
     throw error;
   }
+}
+async function transition(page,action,expected){
+  // Register the document-specific wait before touch, click or history activation.
+  // Settle both paths so a trigger failure cannot leave an unhandled waiter.
+  const settled=ready(page,expected).then(()=>({}),error=>({error}));
+  let activationError;
+  try{await action();}catch(error){activationError=error;}
+  const result=await settled;
+  if(activationError)throw activationError;
+  if(result.error)throw result.error;
 }
 async function fits(page){assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal document overflow');}
 
@@ -46,9 +57,10 @@ for(const [width,height,appearance] of [[1280,900,'light'],[1280,900,'dark'],[39
     await fits(page);
     for(const id of observations){
       const link=chapter.locator(`a[href*="observation=${id}"]`);
-      diagnostics.get(page).retain({kind:'activation',observation:id,href:await link.getAttribute('href')});
-      if(width===390)await link.tap();else await link.click();
-      await ready(page);
+      const observationRoute={href:new URL(await link.getAttribute('href'),page.url()).href,
+        elementId:'observation-'+id};
+      diagnostics.get(page).retain({kind:'activation',observation:id,href:observationRoute.href});
+      await transition(page,()=>width===390?link.tap():link.click(),observationRoute);
       const card=page.locator('#observation-'+id);
       await card.waitFor();
       assert.match(await card.textContent(),/source reported/);
@@ -58,11 +70,13 @@ for(const [width,height,appearance] of [[1280,900,'light'],[1280,900,'dark'],[39
         assert.match(await card.textContent(),/about 2055 CST/);
         assert.match(await card.textContent(),/time checks absent/);
       }else assert.match(await card.textContent(),/not measured wind speeds/);
-      await card.getByRole('link',{name:'Inspect the source card',exact:true}).click();
-      await ready(page);
+      const sourceLink=card.getByRole('link',{name:'Inspect the source card',exact:true});
+      const sourceRoute={href:new URL(await sourceLink.getAttribute('href'),page.url()).href,
+        elementId:'source-nws-wichita'};
+      await transition(page,()=>sourceLink.click(),sourceRoute);
       const source=page.locator('#source-nws-wichita');await source.waitFor();
       assert.equal(await source.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),report);
-      await page.goBack();await ready(page);await card.waitFor();
+      await transition(page,()=>page.goBack(),observationRoute);await card.waitFor();
       await page.goBack();await chapter.waitFor();
       assert.equal(new URL(page.url()).hash,'#pressure-damage');
     }
@@ -89,7 +103,10 @@ test('Blackwell pressure observation can be reached through keyboard traversal',
     if(await page.evaluate(()=>document.activeElement?.getAttribute('href')?.includes('observation=blackwell-tonkawa-barograph'))){reached=true;break;}
   }
   assert.ok(reached,'Reach the observation link through Tab');
-  await page.keyboard.press('Enter');await ready(page);
+  const observationLink=page.locator('#pressure-damage a[href*="observation=blackwell-tonkawa-barograph"]');
+  await transition(page,()=>page.keyboard.press('Enter'),{
+    href:new URL(await observationLink.getAttribute('href'),page.url()).href,
+    elementId:'observation-blackwell-tonkawa-barograph'});
   await page.locator('#observation-blackwell-tonkawa-barograph').waitFor();
   assert.equal(new URL(page.url()).searchParams.get('observation'),'blackwell-tonkawa-barograph');
 });
