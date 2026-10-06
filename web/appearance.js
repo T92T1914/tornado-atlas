@@ -21,5 +21,8 @@
       apply(choice);
       try { localStorage.setItem('tornado-atlas-appearance', choice); } catch { /* Optional preference. */ }
     });
+    select.disabled = false;
+    const help = document.getElementById('reading-appearance-help');
+    if (help) help.hidden = true;
   });
 })();
