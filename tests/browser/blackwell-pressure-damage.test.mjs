@@ -6,28 +6,100 @@ import {waitForDossier} from './dossier-readiness.mjs';
 const report='https://www.weather.gov/ict/udall_stormreport';
 const observations=['blackwell-tonkawa-barograph','blackwell-debris-directions'];
 const diagnostics=new WeakMap();
-function observe(page){
-  const events=[];
-  const retain=value=>{events.push(value);if(events.length>60)events.shift();};
-  diagnostics.set(page,{events,retain});
-  page.on('framenavigated',frame=>{if(frame===page.mainFrame())retain({kind:'navigation',url:frame.url()});});
-  page.on('request',request=>retain({kind:'request',url:request.url()}));
-  page.on('requestfinished',request=>retain({kind:'requestfinished',url:request.url()}));
-  page.on('requestfailed',request=>retain({kind:'requestfailed',url:request.url(),failure:request.failure()?.errorText}));
-  page.on('response',response=>{if(response.status()>=400)retain({kind:'http_failure',url:response.url(),status:response.status()});});
-  page.on('pageerror',error=>retain({kind:'pageerror',message:error.message.slice(0,300)}));
+function ownedURL(value){
+  try{const url=new URL(value);return url.origin===new URL(base).origin?url.href.slice(0,512):'[outside owned loopback]';}
+  catch{return '[unavailable]';}
+}
+async function observe(page){
+  const record={events:[],omitted:0};
+  const retain=value=>{if(record.events.length===60){record.events.shift();record.omitted++;}record.events.push(value);};
+  record.retain=retain;diagnostics.set(page,record);
+  page.on('framenavigated',frame=>{if(frame===page.mainFrame())retain({kind:'navigation',url:ownedURL(frame.url())});});
+  page.on('request',request=>retain({kind:'request',url:ownedURL(request.url())}));
+  page.on('requestfinished',request=>retain({kind:'requestfinished',url:ownedURL(request.url())}));
+  page.on('requestfailed',request=>retain({kind:'requestfailed',url:ownedURL(request.url()),failure:request.failure()?.errorText?.slice(0,100)}));
+  page.on('response',response=>{if(response.status()>=400)retain({kind:'http_failure',url:ownedURL(response.url()),status:response.status()});});
+  page.on('pageerror',error=>retain({kind:'pageerror',message:error.message.replace(/[a-z][\w+.-]*:\/\/[^\s)]+/gi,ownedURL).slice(0,300)}));
+  page.on('console',message=>{
+    const text=message.text(),prefix='BLACKWELL_INPUT ';
+    if(!text.startsWith(prefix))return;
+    if(text.length>4096){record.omitted++;return;}
+    try{retain(JSON.parse(text.slice(prefix.length)));}catch{record.omitted++;}
+  });
+  await page.addInitScript(origin=>{
+    if(location.origin!==origin)return;
+    const observedDocument=document;
+    let emitted=0,omitted=0,scrolls=0,scrollsOmitted=0,summaries=0,summariesOmitted=0,sequence=0,pendingFinals=0;
+    const number=value=>Number.isFinite(value)?Math.round(Math.max(-1e9,Math.min(1e9,value))*1000)/1000:null;
+    const href=value=>{if(!value)return null;try{const url=new URL(value,location.href);return url.origin===origin?url.href.slice(0,512):null;}catch{return null;}};
+    const describe=node=>({tag:node?.tagName?.slice(0,24)||null,id:node?.id?.slice(0,80)||null,
+      href:href(node?.closest?.('a')?.href||'')});
+    const rectangles=node=>node?[...node.getClientRects()].slice(0,4).map(r=>[r.x,r.y,r.width,r.height].map(number)):[];
+    const state=()=>{
+      const link=document.querySelector('#pressure-damage a[href*="observation=blackwell-tonkawa-barograph"]');
+      const viewport=visualViewport;
+      return {href:href(location.href),time:number(performance.now()),scroll:[number(scrollX),number(scrollY)],
+        viewport:[number(innerWidth),number(innerHeight)],visualViewport:viewport?
+          [viewport.offsetLeft,viewport.offsetTop,viewport.pageLeft,viewport.pageTop,viewport.width,viewport.height,viewport.scale].map(number):null,
+        pressureLink:describe(link),pressureRects:rectangles(link),
+        scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior.slice(0,24),
+        touchAction:link?getComputedStyle(link).touchAction.slice(0,32):null};
+    };
+    const emit=row=>{
+      if(emitted===48){omitted++;return false;}
+      const text=JSON.stringify(row);
+      if(text.length>4000){omitted++;return false;}
+      emitted++;console.log('BLACKWELL_INPUT '+text);return true;
+    };
+    const counts=()=>({emitted,omitted,scrollsOmitted,summariesOmitted,pendingFinals});
+    window.__blackwellInputCounts=counts;
+    for(const type of ['pointerdown','pointerup','pointercancel','touchstart','touchend','touchcancel','click']){
+      window.addEventListener(type,event=>{
+        if(emitted===48){omitted++;return;}
+        const point=event.changedTouches?.[0]||event,id=++sequence,anchor=event.target?.closest?.('a');
+        const x=number(point.clientX),y=number(point.clientY);
+        const retained=emit({kind:'input',id,type,trusted:event.isTrusted,cancelable:event.cancelable,
+          pointerType:event.pointerType?.slice(0,16)||null,detail:number(event.detail),
+          capturedDefaultPrevented:event.defaultPrevented,finalSample:'pending post-dispatch task',
+          target:describe(event.target),anchor:describe(anchor),anchorRects:rectangles(anchor),point:[x,y],
+          hit:describe(x!==null&&y!==null?document.elementFromPoint(x,y):null),...state()});
+        if(!retained)return;
+        pendingFinals++;
+        // Capture can precede later listeners. A separate task observes the final
+        // flag without delaying input; navigation may make this sample unavailable.
+        setTimeout(()=>{
+          pendingFinals--;
+          if(document===observedDocument&&location.origin===origin)
+            emit({kind:'input-final',id,type,href:href(location.href),defaultPrevented:event.defaultPrevented,
+              timing:'post-dispatch task in the same document'});
+        },0);
+      },{capture:true,passive:true});
+    }
+    window.addEventListener('scroll',()=>{if(scrolls++<8)emit({kind:'scroll',...state()});else scrollsOmitted++;},{passive:true});
+    window.addEventListener('pagehide',()=>{
+      // At most eight summaries expose omissions across native history returns.
+      if(summaries++>=8){summariesOmitted++;return;}
+      console.log('BLACKWELL_INPUT '+JSON.stringify({kind:'input-summary',href:href(location.href),...counts()}));
+    },{passive:true});
+  },new URL(base).origin);
 }
 async function ready(page,expected){
   try{await waitForDossier(page,expected);}
   catch(error){
     let timer,state;
     try{state=await Promise.race([
-      page.evaluate(()=>({ready:document.body?.dataset.ready??null,documentReady:document.readyState,
-        title:document.title,headings:[...document.querySelectorAll('h1')].slice(0,3).map(node=>node.textContent.slice(0,200)),
-        explanation:document.querySelector('#content')?.textContent?.slice(0,600)??null})).catch(e=>({unavailable:e.message.slice(0,300)})),
+      page.evaluate(origin=>location.origin!==origin?{unavailable:'Outside owned loopback'}:{
+        ready:document.body?.dataset.ready?.slice(0,20)??null,documentReady:document.readyState,
+        title:document.title.slice(0,200),headings:[...document.querySelectorAll('h1')].slice(0,3).map(node=>node.textContent.slice(0,200)),
+        explanation:document.querySelector('#content')?.textContent?.slice(0,600)??null,
+        inputCounts:window.__blackwellInputCounts?.()??null
+      },new URL(base).origin).catch(e=>({unavailable:e.name.slice(0,100)})),
       new Promise(resolve=>{timer=setTimeout(()=>resolve({unavailable:'Diagnostic snapshot exceeded 500 ms'}),500);})
     ]);}finally{clearTimeout(timer);}
-    console.error('BLACKWELL_READINESS_DIAGNOSTIC '+JSON.stringify({expected,url:page.url(),state,events:diagnostics.get(page)?.events??[]}));
+    console.error('BLACKWELL_READINESS_DIAGNOSTIC '+JSON.stringify({
+      expected:{href:ownedURL(expected.href),elementId:expected.elementId.slice(0,100)},url:ownedURL(page.url()),state,
+      events:diagnostics.get(page)?.events??[],eventsOmitted:diagnostics.get(page)?.omitted??0
+    }));
     throw error;
   }
 }
@@ -46,7 +118,7 @@ async function fits(page){assert.ok(await page.evaluate(()=>document.documentEle
 for(const [width,height,appearance] of [[1280,900,'light'],[1280,900,'dark'],[390,844,'light'],[390,844,'dark'],[700,320,'light']]){
   test(`Blackwell pressure and debris source journey ${width}x${height} ${appearance}`,async t=>{
     const page=await fixture(t,{viewport:{width,height},hasTouch:width<800,isMobile:width<800});
-    observe(page);
+    await observe(page);
     await page.goto(base+'/blackwell.html#pressure-damage');
     await page.locator('#reading-appearance').selectOption(appearance);
     const chapter=page.locator('#pressure-damage');
@@ -96,7 +168,7 @@ test('Blackwell pressure observation can be reached through keyboard traversal',
     t.skip('Sequential link Tab is not established in the isolated Windows WebKit fixture. Linux WebKit and other engines still require traversal.');
     return;
   }
-  const page=await fixture(t);observe(page);await page.goto(base+'/blackwell.html#pressure-damage');
+  const page=await fixture(t);await observe(page);await page.goto(base+'/blackwell.html#pressure-damage');
   let reached=false;
   for(let step=0;step<70;step++){
     await page.keyboard.press('Tab');
