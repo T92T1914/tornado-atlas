@@ -10,3 +10,6 @@
 
 /* The Tuscaloosa note remains readable when text outgrows its indented list. */
 .documentary-note li {overflow-wrap:anywhere}
+
+/* Keep the museum name inside this page's header when visitors enlarge text. */
+header .brand {min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}

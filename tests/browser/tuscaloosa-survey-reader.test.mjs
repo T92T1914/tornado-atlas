@@ -9,6 +9,7 @@ const ready = page => page.waitForFunction(() =>
 const selected = (page, id) => page.waitForFunction(id =>
   document.querySelector('#path .survey-selected')?.id === id &&
   document.getElementById('survey-place').value === id, id);
+const readerPageErrors = new WeakMap();
 // Failure-only observations retain the original assertion/error and 10s wait.
 async function failureObservation(page, id = null) {
   let timer;
@@ -40,9 +41,10 @@ async function failureObservation(page, id = null) {
         nodesOmitted:Math.max(0,nodes.length-1200),rows};
     }, id);
     snapshot.catch(() => {});
-    return await Promise.race([snapshot,new Promise((_,reject) => {
+    const observed = await Promise.race([snapshot,new Promise((_,reject) => {
       timer=setTimeout(() => reject(Error('Failure snapshot exceeded 500 ms')),500);
     })]);
+    return {...observed,pageErrors:readerPageErrors.get(page) || {rows:[],omitted:0}};
   } catch(error) {return {collectionError:{name:String(error.name).slice(0,80),message:String(error.message).slice(0,512)}};}
   finally {clearTimeout(timer);}
 }
@@ -70,6 +72,12 @@ async function assertPageFits(page) {
 for (const [width, appearance] of [[320, 'dark'], [1280, 'light']]) {
   test(`Tuscaloosa survey reader: ${width}px ${appearance}, named places and reversible history`, async t => {
     const page = await fixture(t, {viewport: {width, height: 844}, hasTouch: width < 600, isMobile: width < 600});
+    const errors = {rows:[],omitted:0}; readerPageErrors.set(page, errors);
+    const recordError = error => {
+      if (errors.rows.length < 8) errors.rows.push({name:String(error.name).slice(0,80),message:String(error.message).slice(0,512)});
+      else errors.omitted++;
+    };
+    page.on('pageerror', recordError); t.after(() => page.off('pageerror', recordError));
     const requests = []; page.on('request', request => requests.push(request.url()));
     await page.goto(base + '/tuscaloosa.html?context=survey#path'); await ready(page);
     await page.locator('#reading-appearance').selectOption(appearance);

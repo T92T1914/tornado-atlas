@@ -8,6 +8,12 @@ const next = document.getElementById('survey-next');
 const status = document.getElementById('survey-status');
 let currentStopParameter;
 let pendingHistorySelection;
+let pendingHistoryFrame;
+
+function cancelHistorySelection() {
+  clearTimeout(pendingHistorySelection);
+  cancelAnimationFrame(pendingHistoryFrame);
+}
 
 for (const stop of stops) {
   const label = stop.querySelector(':scope > span').textContent;
@@ -46,7 +52,7 @@ function showSelection({focus = false, scroll = true, behavior = 'auto'} = {}) {
 
 function choose(id) {
   if (!stops.some(stop => stop.id === id)) return;
-  clearTimeout(pendingHistorySelection);
+  cancelHistorySelection();
   const url = new URL(location.href);
   if (url.searchParams.get('stop') !== id) {
     url.searchParams.set('stop', id);
@@ -65,18 +71,22 @@ next.addEventListener('click', () => {
   if (index + 1 < stops.length) choose(stops[index + 1].id);
 });
 window.addEventListener('popstate', () => {
-  clearTimeout(pendingHistorySelection);
+  cancelHistorySelection();
   if (new URL(location.href).searchParams.get('stop') !== currentStopParameter) {
     showSelection({scroll: false});
     const destination = location.href;
-    // Native history restores its viewport after popstate. Place the selected
-    // account immediately afterward, without starting another smooth scroll.
-    // A newer choice or navigation still supersedes this queued placement.
+    // Apply this reader's changed-stop placement in the next rendering update
+    // after the history task, without starting another smooth scroll.
+    // A newer choice, photo traversal or page departure cancels both stages.
     pendingHistorySelection = setTimeout(() => {
-      if (location.href === destination) showSelection({focus: true, behavior: 'instant'});
+      if (location.href !== destination) return;
+      pendingHistoryFrame = requestAnimationFrame(() => {
+        if (location.href === destination) showSelection({focus: true, behavior: 'instant'});
+      });
     }, 0);
   }
 });
+window.addEventListener('pagehide', cancelHistorySelection);
 reader.hidden = false;
 showSelection();
 document.body.dataset.surveyReader = 'ready';

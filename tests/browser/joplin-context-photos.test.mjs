@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {settledFragment} from './fragment-ready.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
+import {noScriptImage} from './no-script-image.mjs';
 import path from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 import {fixture, base} from './harness.mjs';
@@ -21,7 +22,7 @@ const ready = page => page.waitForFunction(() => location.pathname.endsWith('/jo
   document.body?.dataset.photoViewer === 'ready' && Boolean(document.getElementById('photo-dialog')));
 async function decoded(image, item) {
   // Lazy scrolling is not load success. Keep the expected current request and
-  // decode within the same 10-second bound, including on a no-script page.
+  // decode within the same 10-second bound on the script-enabled viewer.
   const deadline = performance.now() + 10000;
   let timer, stopped = false, last;
   const operation = (async () => {
@@ -166,9 +167,23 @@ test('Joplin original photographs and visibility account remain useful without J
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   const opener=page.locator(`[data-photo-id="${items[1].id}"]`);
   await settledFragment(page, 'visibility', items[1].id);
-  await opener.scrollIntoViewIfNeeded();await decoded(opener.locator('img'), items[1]);
+  await opener.scrollIntoViewIfNeeded();
+  await noScriptImage(opener.locator('img'), {...items[1],source:base+'/assets/joplin-2011/'+items[1].file},
+    process.env.ATLAS_SCREENSHOT_DIR && path.join(process.env.ATLAS_SCREENSHOT_DIR,'joplin-aftermath-no-script.png'));
   await opener.focus();
   await Promise.all([page.waitForURL(url=>url.pathname.endsWith('damage.jpg')),page.keyboard.press('Enter')]);
+});
+
+test('no-script Joplin photograph rejects a blank bitmap at the correct source and dimensions', async t => {
+  const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:844}});
+  await page.route('**/damage.jpg',route=>route.fulfill({contentType:'image/svg+xml',body:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768"><rect width="1024" height="768" fill="white"/></svg>'}));
+  await page.goto(base+'/joplin.html#visibility');
+  const image=page.locator('[data-photo-id="nws-joplin-aftermath"] img');
+  await settledFragment(page,'visibility','nws-joplin-aftermath');
+  await image.scrollIntoViewIfNeeded();
+  await assert.rejects(()=>noScriptImage(image,{...items[1],source:base+'/assets/joplin-2011/damage.jpg'}),
+    {name:'AssertionError',message:/nonblank photograph bitmap required/});
 });
 
 test('Joplin long original attribution remains readable at enlarged text in short landscape', async t => {

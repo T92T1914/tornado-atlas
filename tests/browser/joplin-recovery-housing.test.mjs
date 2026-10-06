@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {settledFragment} from './fragment-ready.mjs';
+import {noScriptImage} from './no-script-image.mjs';
 import path from 'node:path';
 import {fixture, base} from './harness.mjs';
 
@@ -129,7 +130,10 @@ test('Joplin housing account and full-frame image remain useful without JavaScri
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   const opener=page.locator(`[data-photo-id="${id}"]`);
   await settledFragment(page, 'recovery', id);
-  await opener.scrollIntoViewIfNeeded();await decode(opener.locator('img'));await opener.focus();
+  await opener.scrollIntoViewIfNeeded();
+  await noScriptImage(opener.locator('img'),{source:base+'/assets/joplin-2011/'+file,width:1280,height:569},
+    process.env.ATLAS_SCREENSHOT_DIR && path.join(process.env.ATLAS_SCREENSHOT_DIR,'joplin-housing-no-script.png'));
+  await opener.focus();
   await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/'+file)),page.keyboard.press('Enter')]);
 });
 

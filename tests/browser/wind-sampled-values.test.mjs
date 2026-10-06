@@ -7,6 +7,7 @@ import {fixture,base} from './harness.mjs';
 import {defaultExperiment} from '../../tools/build_wind_sample_table.mjs';
 import {samplePassage,loadAt,MPH} from '../../web/wind-model.mjs';
 import {componentHistory} from '../../web/component-model.mjs';
+import {assertSampledWindNumbers} from '../wind-numeric-acceptance.mjs';
 
 const html=await readFile(new URL('../../web/wind.html',import.meta.url),'utf8');
 const defaults=defaultExperiment(html);
@@ -19,13 +20,15 @@ async function expectedRows(page,field=defaults.field,capacity=defaults.capacity
   const states=componentHistory(samples,{...field,capacity}).states;
   const observed=await page.locator('#sampled-values-body tr').evaluateAll(rows=>rows.map(row=>({
     values:[...row.querySelectorAll('td[data-value]')].map(cell=>Number(cell.dataset.value)),
+    display:[...row.querySelectorAll('td[data-value]')].map(cell=>cell.textContent),
     state:row.cells[7].textContent,
   })));
   assert.equal(observed.length,481);
   for(const [index,row] of observed.entries()) {
     const sample=samples[index],state=states[index];
-    assert.deepEqual(row.values,[sample.time,sample.speed/MPH,sample.speed,
-      loadAt(sample.speed,field).pressure/1000,state.force/1000,state.ratio]);
+    assertSampledWindNumbers(row.values,[sample.time,sample.speed/MPH,sample.speed,
+      loadAt(sample.speed,field).pressure/1000,state.force/1000,state.ratio],`Wind sample ${index+1}`);
+    assert.deepEqual(row.display,row.values.map((value,column)=>value.toFixed([2,2,2,3,3,3][column])));
     assert.equal(row.state,state.failed?'Failed under this rule':'Capacity not exceeded so far');
   }
 }

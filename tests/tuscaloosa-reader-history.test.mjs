@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 import vm from 'node:vm';
 
 // Offline ordering fixture, not browser/layout acceptance. Execute the actual
-// reader bytes; only DOM, event dispatch, viewport and queued tasks are modeled.
+// reader bytes; only DOM, event dispatch, viewport, tasks and frames are modeled.
 const sourceURL = new URL('../web/tuscaloosa-survey-reader.mjs', import.meta.url);
 const sourceBytes = readFileSync(sourceURL);
 console.log('Actual reader SHA256: ' + createHash('sha256').update(sourceBytes).digest('hex'));
@@ -14,8 +14,8 @@ const stopIds = ['path-greene', 'path-tuscaloosa', 'path-holt',
   'path-concord', 'path-birmingham', 'path-end'];
 
 function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) {
-  const effects = [], tasks = new Map(), microtasks = [], animations = [];
-  let nextTask = 0, scrollY = 0;
+  const effects = [], tasks = new Map(), frames = new Map(), microtasks = [], animations = [];
+  let nextTask = 0, nextFrame = 0, scrollY = 0;
   const document = {activeElement: null, body: {dataset: {}}};
   class Element {
     constructor(id = '', top = 0) {
@@ -65,9 +65,12 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
   const history = {scrollRestoration: 'auto', pushState(_state, _unused, url) {location.href = String(url);}};
   const scheduleTask = callback => {const id = ++nextTask; tasks.set(id, callback); return id;};
   window.setTimeout = scheduleTask; window.clearTimeout = id => tasks.delete(id);
+  const scheduleFrame = callback => {const id = ++nextFrame; frames.set(id, callback); return id;};
+  window.requestAnimationFrame = scheduleFrame; window.cancelAnimationFrame = id => frames.delete(id);
   const context = vm.createContext({document, window, location, history, URL,
     Option: class {constructor(label, value) {this.textContent = label; this.value = value;}},
     setTimeout: scheduleTask, clearTimeout: window.clearTimeout,
+    requestAnimationFrame: scheduleFrame, cancelAnimationFrame: window.cancelAnimationFrame,
     queueMicrotask(callback) {microtasks.push(callback);},
   });
   script.runInContext(context, {timeout: 1000});
@@ -75,13 +78,22 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
   // Initial navigation has settled before the explicit history fixture begins.
   while (animations.length) scrollY = animations.shift().top;
   effects.length = 0;
-  const flushTasks = () => {
+  const flushFrames = () => {
+    let count = 0;
+    while (frames.size) {
+      assert.ok(++count <= 12, 'Reader frames must be bounded');
+      const [id, callback] = frames.entries().next().value;
+      frames.delete(id); callback();
+    }
+  };
+  const flushTasks = ({render = true} = {}) => {
     let count = 0;
     while (tasks.size) {
       assert.ok(++count <= 12, 'Reader tasks must be bounded');
       const [id, callback] = tasks.entries().next().value;
       tasks.delete(id); callback();
     }
+    if (render) flushFrames();
   };
   function nativeBack(id, restoredY = reader.top, photo = null) {
     const url = new URL(location.href); url.searchParams.set('stop', id);
@@ -92,6 +104,9 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
     scrollY = restoredY; effects.push(['native-restoration', restoredY]);
   }
   const choose = id => {select.value = id; select.dispatch('change');};
+  const restorePersistedViewport = y => {
+    scrollY = y; document.activeElement = null; effects.push(['native-restoration', y]);
+  };
   const expectViewport = id => {
     const target = nodes.get(id);
     assert.equal(select.value, id, 'Restored selector must name the intended stop');
@@ -100,8 +115,10 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
     assert.equal(document.activeElement?.id, id, 'Focus must belong to the selected stop');
     assert.equal(history.scrollRestoration, 'auto', 'Native restoration must remain enabled');
   };
-  return {nativeBack, flushTasks, choose, expectViewport, effects, nodes, document,
-    viewport: () => scrollY, queued: () => tasks.size, pendingAnimations: () => animations.length,
+  return {nativeBack, flushTasks, flushFrames, choose, expectViewport, effects, nodes, document,
+    restorePersistedViewport, pagehide: () => window.dispatch('pagehide'),
+    viewport: () => scrollY, queued: () => tasks.size, queuedFrames: () => frames.size,
+    pendingAnimations: () => animations.length,
     flushAnimations: () => {while (animations.length) scrollY = animations.shift().top;}};
 }
 
@@ -175,4 +192,41 @@ test('changed-stop history aborts an earlier ordinary smooth scroll instead of r
   page.flushAnimations(); page.expectViewport('path-concord');
   assert.deepEqual(page.effects.filter(([kind]) => kind === 'scroll'),
     [['scroll', 'path-end', 'auto'], ['scroll', 'path-concord', 'instant']]);
+});
+
+test('a restored viewport after the queued task cannot replace the selected history account', () => {
+  // Adverse order, not a recorded WebKit trace: restore after the first task,
+  // before the next rendering update. The actual reader must retain ownership.
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.flushTasks({render: false});
+  page.restorePersistedViewport(100); page.flushFrames();
+  page.expectViewport('path-concord');
+});
+
+test('a newer choice between the task and rendering frame cancels the old placement', () => {
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.flushTasks({render: false});
+  page.choose('path-end'); page.effects.length = 0; page.flushFrames();
+  page.expectViewport('path-end'); assert.equal(page.queuedFrames(), 0);
+  assert.deepEqual(page.effects, []);
+});
+
+test('photo-only interruption cannot revive a queued rendering frame through URL equality', () => {
+  const page = readerFixture();
+  page.nativeBack('path-concord'); page.flushTasks({render: false});
+  const opener = {id: 'photo-opener'}; page.document.activeElement = opener;
+  page.nativeBack('path-concord', 2750, 'eo1-tuscaloosa-track');
+  page.nativeBack('path-concord', 2750); page.effects.length = 0; page.flushFrames();
+  assert.equal(page.queuedFrames(), 0); assert.equal(page.document.activeElement, opener);
+  assert.equal(page.viewport(), 2750); assert.deepEqual(page.effects, []);
+});
+
+test('page departure cancels pending task and rendering-frame placement', () => {
+  for (const afterTask of [false, true]) {
+    const page = readerFixture(); page.nativeBack('path-concord');
+    if (afterTask) page.flushTasks({render: false});
+    page.pagehide(); page.effects.length = 0; page.flushTasks();
+    assert.equal(page.queued(), 0); assert.equal(page.queuedFrames(), 0);
+    assert.deepEqual(page.effects, []);
+  }
 });
