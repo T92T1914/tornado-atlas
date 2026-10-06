@@ -76,6 +76,8 @@ dialog.addEventListener('close', () => {
     return;
   }
   if (ownedEntry === currentId) {
+    // Consume this close before the asynchronous history traversal.
+    currentId = null;
     history.back();
   } else {
     // A direct image-view link has no viewer-owned predecessor to navigate to.
