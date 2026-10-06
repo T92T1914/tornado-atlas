@@ -1,6 +1,8 @@
 name: Verify and publish museum
 on:
   push:
+    branches: [main, 'release/**']
+    tags: ['**']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -8,6 +10,10 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    concurrency:
+      group: atlas-verify-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -76,24 +82,37 @@ jobs:
           python tools/check_catalogue.py
           python tools/check_archive.py
           python tools/check_jma_cases.py
+      - name: Install browser test dependencies
+        id: browser_dependencies
+        run: npm ci --ignore-scripts --no-fund
       - name: Verify explorer browser journeys
+        if: ${{ !cancelled() && steps.browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_CHANNEL: chrome
         run: |
-          npm ci --ignore-scripts --no-fund
-          npm run test:browser
+          python tools/run_browser_checks.py chromium -- npm run test:browser
       - name: Verify WebKit map and navigation behavior
+        if: ${{ !cancelled() && steps.browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_ENGINE: webkit
         run: |
           npx playwright install --with-deps webkit
-          npm run test:browser
+          python tools/run_browser_checks.py webkit -- npm run test:browser
       - name: Verify Firefox catalogue and exhibit journeys
+        if: ${{ !cancelled() && steps.browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_ENGINE: firefox
         run: |
           npx playwright install --with-deps firefox
-          npm run test:browser
+          python tools/run_browser_checks.py firefox -- npm run test:browser
+      - name: Retain bounded browser failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failure-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: ci-diagnostics/
+          retention-days: 7
+          if-no-files-found: warn
   deploy:
     needs: verify
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
