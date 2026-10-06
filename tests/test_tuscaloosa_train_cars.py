@@ -19,6 +19,7 @@ ORIGINAL_SHA = 'a5dcbf3aeae597b7ec58e6617cb30ac4dc5dca9489d7b22f3f8077d92b198a49
 PUBLIC_SHA = '7d3f623f672efe61a65fc975feddddcc2e5ec58007b731a84da97bb3f8c6dd61'
 SCAN_SHA = 'd10d3bdc7ff991dcbb504f38ac9407a5644863d11d13f385e9929fbfc610489d'
 PRIOR_SHA = '51dee7670bcc10fbe2a64a7bc53f2bfe20ca9afbab777b1c777e1657cb3b73be'
+TRAIN_SHA = '890095f5efe240af075c4c1aa7c7a63af403cc0bf9b8a07ab38ddd49b65f5dbb'
 ADAPTER_SHA = '35b450a43834125500a844d47856b6248f24bc00defcc6d746ecafdf8da6544a'
 STANDALONE_SHA = '70c3287ca062c2aa109214620bc7fc300c88ac2f9500709f1b8b95bf537d216d'
 ALT = ('Elevated view of light-colored rail cars along an upper track and others scattered or angled '
@@ -84,7 +85,8 @@ class TrainHTML(HTMLParser):
 class TuscaloosaTrainCarsTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.doc = next(doc for doc in dossiers() if doc['id'] == EVENT)
+        cls.current = next(doc for doc in dossiers() if doc['id'] == EVENT)
+        cls.doc = json.loads((ROOT / 'web/archive' / f'{EVENT}-{TRAIN_SHA[:20]}.json').read_text(encoding='utf-8'))
         cls.prior = json.loads((ROOT / 'web/archive' / f'{EVENT}-{PRIOR_SHA[:20]}.json').read_text(encoding='utf-8'))
         cls.wrapper = json.loads((ROOT / f'research/archive-curated/{EVENT}.json').read_text(encoding='utf-8'))
         cls.item = next(item for item in cls.doc['media'] if item['id'] == MEDIA)
@@ -94,7 +96,8 @@ class TuscaloosaTrainCarsTests(unittest.TestCase):
         cls.view.feed(cls.html)
         cls.raw = (ROOT / 'web' / ASSET).read_bytes()
 
-    def test_exact_current_wrapper_preserves_the_accepted_outlook_publication(self):
+    def test_exact_retained_train_revision_preserves_the_accepted_outlook_publication(self):
+        self.assertEqual(digest(self.doc), TRAIN_SHA)
         self.assertEqual(digest(self.prior), PRIOR_SHA)
         self.assertEqual(tuple(len(self.prior[key]) for key in ('media', 'sources', 'observations', 'records', 'routes')),
                          (6, 11, 12, 3, 8))
@@ -112,8 +115,11 @@ class TuscaloosaTrainCarsTests(unittest.TestCase):
             if key != 'publication_review':
                 self.assertEqual(self.doc['provenance'][key], value, key)
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PRIOR_SHA)
-        self.assertEqual(self.wrapper['review']['previous_dossier_sha256'], PRIOR_SHA)
-        self.assertEqual(self.wrapper['dossier'], self.doc)
+        self.assertEqual(self.wrapper['dossier'], self.current)
+        for field in ('media', 'sources', 'creators', 'routes'):
+            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
+        for field in ('observations', 'records', 'reconstruction', 'title', 'summary', 'coverage'):
+            self.assertEqual(self.current[field], self.doc[field], field)
         self.assertEqual(self.wrapper['adapter_sha256'], ADAPTER_SHA)
         standalone = (ROOT / f'exhibits/{EVENT}/dossier.json').read_bytes()
         self.assertEqual((len(standalone), hashlib.sha256(standalone).hexdigest()), (49883, STANDALONE_SHA))
@@ -123,14 +129,15 @@ class TuscaloosaTrainCarsTests(unittest.TestCase):
     def test_publication_and_history_identify_only_the_intended_increment(self):
         artifacts = publication()
         entry = next(entry for entry in artifacts['archive/index.json']['events'] if entry['id'] == EVENT)
-        self.assertEqual(artifacts[entry['file']], self.doc)
+        self.assertEqual(artifacts[entry['file']], self.current)
         self.assertEqual(entry['registered_media'], 0)
         directory = artifacts[artifacts['archive/index.json']['source_directory']['file']]
         rows = [row for row in directory['entries'] if row['event_id'] == EVENT and row['source']['id'] == SOURCE]
         self.assertEqual(len(rows), 1)
         self.assertEqual((rows[0]['observations'], rows[0]['media']), (0, 1))
         self.assertEqual(rows[0]['source'], self.source)
-        latest = dossier_history(self.doc)['versions'][0]
+        latest = next(version for version in dossier_history(self.current)['versions']
+                      if version['dossier_sha256'] == TRAIN_SHA)
         self.assertEqual(latest['dossier_sha256'], digest(self.doc))
         self.assertTrue(latest['predecessor_available'])
         self.assertEqual(latest['review']['previous_dossier_sha256'], PRIOR_SHA)

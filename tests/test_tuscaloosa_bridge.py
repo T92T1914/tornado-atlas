@@ -67,7 +67,7 @@ class TuscaloosaBridgeTests(unittest.TestCase):
         self.assertEqual(len(self.prior['records']), 3)
         for field in ('observations', 'records', 'reconstruction', 'creators', 'title', 'coverage'):
             self.assertEqual(bridge[field], self.prior[field], field)
-            if field == 'observations':
+            if field in ('observations', 'creators'):
                 self.assertEqual(self.doc[field][:len(bridge[field])], bridge[field], field)
             else:
                 self.assertEqual(self.doc[field], bridge[field], field)

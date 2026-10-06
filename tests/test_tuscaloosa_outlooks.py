@@ -142,8 +142,9 @@ class TuscaloosaOutlookPublicationTests(unittest.TestCase):
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PRIOR)
 
     def test_current_publication_preserves_the_complete_accepted_outlook(self):
-        for field in ('title', 'coverage', 'summary', 'records', 'creators', 'observations', 'reconstruction'):
+        for field in ('title', 'coverage', 'summary', 'records', 'observations', 'reconstruction'):
             self.assertEqual(self.current[field], self.doc[field], field)
+        self.assertEqual(self.current['creators'][:len(self.doc['creators'])], self.doc['creators'])
         for field in ('media', 'sources', 'routes'):
             self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
         for key, value in self.doc['provenance'].items():

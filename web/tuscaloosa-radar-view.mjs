@@ -43,19 +43,22 @@ function showFromLocation() {
   currentId = link.dataset.photoId;
   opener = link;
   const photograph = figure.dataset.photoKind === 'photograph';
+  const satellite = figure.dataset.photoKind === 'satellite';
+  const contextImage = photograph || satellite;
   openPhoto({
-    title: figure.querySelector('h3').textContent + (photograph ? '' : ' at the reported county crossing'),
+    title: figure.querySelector('h3').textContent + (contextImage ? '' : ' at the reported county crossing'),
     asset: link.href,
     alt: link.querySelector('img').alt,
     caption: figure.querySelector('figcaption').textContent,
-    location: photograph ? figure.dataset.photoLocation : 'Source caption: April 27, 2011, 5:38 p.m., KBMX 0.5-degree product. The caption does not repeat a time-zone label. No independent alignment, raster registration or surface-wind measurement is assigned.',
-    credit: photograph ? figure.dataset.photoCredit : 'Original National Weather Service Birmingham radar product, preserved unchanged. Individual image maker is not named. NWS material is not subject to copyright protection. No government endorsement is implied.',
-    source: 'https://www.weather.gov/bmx/event_04272011tuscbirm',
-    license: 'Read the NWS material and third-party rights policy',
-    licenseUrl: 'https://www.weather.gov/disclaimer',
+    location: contextImage ? figure.dataset.photoLocation : 'Source caption: April 27, 2011, 5:38 p.m., KBMX 0.5-degree product. The caption does not repeat a time-zone label. No independent alignment, raster registration or surface-wind measurement is assigned.',
+    credit: contextImage ? figure.dataset.photoCredit : 'Original National Weather Service Birmingham radar product, preserved unchanged. Individual image maker is not named. NWS material is not subject to copyright protection. No government endorsement is implied.',
+    source: figure.dataset.photoSource || 'https://www.weather.gov/bmx/event_04272011tuscbirm',
+    license: figure.dataset.photoRightsLabel || 'Read the NWS material and third-party rights policy',
+    licenseUrl: figure.dataset.photoRights || 'https://www.weather.gov/disclaimer',
   });
-  document.getElementById('photo-original').textContent = photograph ?
-    'Open the metadata-stripped publication copy' : 'Open the original radar image';
+  document.getElementById('photo-source').textContent = figure.dataset.photoSourceLabel || 'Original survey and image captions';
+  document.getElementById('photo-original').textContent = figure.dataset.photoOriginalLabel || (photograph ?
+    'Open the metadata-stripped publication copy' : 'Open the original radar image');
 }
 for (const [id, link] of links) {
   link.addEventListener('click', event => {
