@@ -13,7 +13,8 @@ const script = new vm.Script(sourceBytes.toString('utf8'), {filename: 'web/tusca
 const stopIds = ['path-greene', 'path-tuscaloosa', 'path-holt',
   'path-concord', 'path-birmingham', 'path-end'];
 
-function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) {
+function readerFixture(initial = 'path-birmingham',
+  {animateAuto = false, settleInitial = true, initialPhoto = null, viewerOpen = Boolean(initialPhoto)} = {}) {
   const effects = [], tasks = new Map(), frames = new Map(), microtasks = [], animations = [];
   let nextTask = 0, nextFrame = 0, scrollY = 0;
   const document = {activeElement: null, body: {dataset: {}}};
@@ -53,6 +54,9 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
   const select = add('survey-place', 110);
   const photoLink = add('photo-opener', 2750);
   photoLink.dataset = {photoId:'eo1-tuscaloosa-track'};
+  const photoDialog = add('photo-dialog');
+  photoDialog.open = viewerOpen;
+  if (photoDialog.open) document.activeElement = {id:'photo-close'};
   add('survey-previous', 140); add('survey-next', 140); add('survey-status', 160);
   const stops = stopIds.map((id, index) => {
     const stop = add(id, 400 + index * 400), div = new Element();
@@ -72,7 +76,10 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
     assert.equal(selector, 'a[data-photo-id]'); return [photoLink];
   };
   document.createElement = tag => {assert.equal(tag, 'a'); return new Element();};
-  const window = new Element(), location = {href: 'https://example.test/tuscaloosa.html?stop=' + initial + '#path'};
+  const initialURL = new URL('https://example.test/tuscaloosa.html#path');
+  if (initial !== null) initialURL.searchParams.set('stop',initial);
+  if (initialPhoto) initialURL.searchParams.set('photo',initialPhoto);
+  const window = new Element(), location = {href:initialURL.href};
   const history = {scrollRestoration: 'auto', pushState(_state, _unused, url) {location.href = String(url);}};
   const scheduleTask = callback => {const id = ++nextTask; tasks.set(id, callback); return id;};
   window.setTimeout = scheduleTask; window.clearTimeout = id => tasks.delete(id);
@@ -95,11 +102,9 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
     event.preventDefault();
     const url = new URL(location.href); url.searchParams.set('photo',photoLink.dataset.photoId);
     history.pushState(null,'',url); photoEntries++;
+    photoDialog.open = true;
     document.activeElement = {id:'photo-close'};
   });
-  // Initial navigation has settled before the explicit history fixture begins.
-  while (animations.length) scrollY = animations.shift().top;
-  effects.length = 0;
   const flushFrames = () => {
     let count = 0;
     while (frames.size) {
@@ -117,6 +122,13 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
     }
     if (render) flushFrames();
   };
+  // Existing history cases begin after the actual initial lifecycle has settled.
+  // Reload cases retain its stages and explicitly model the native overwrite.
+  if (settleInitial) {
+    window.dispatch('pageshow',{persisted:false}); flushTasks();
+    while (animations.length) scrollY = animations.shift().top;
+  }
+  effects.length = 0;
   function nativeBack(id, restoredY = reader.top, photo = null) {
     const url = new URL(location.href); url.searchParams.set('stop', id);
     if (photo) url.searchParams.set('photo', photo); else url.searchParams.delete('photo');
@@ -138,8 +150,12 @@ function readerFixture(initial = 'path-birmingham', {animateAuto = false} = {}) 
     assert.equal(history.scrollRestoration, 'auto', 'Native restoration must remain enabled');
   };
   return {nativeBack, flushTasks, flushFrames, choose, expectViewport, effects, nodes, document,
+    history, pageshow: persisted => window.dispatch('pageshow',{persisted}),
+    returnToReader: () => nodes.get(select.value).returnLink().dispatch('click'),
+    queueNativeAnimation: y => animations.push({top:y}),
     openPhoto: options => photoLink.dispatch('click',options), photoEntries: () => photoEntries,
     closePhotoBack: id => {
+      photoDialog.open = false;
       nativeBack(id,2750);
       // Model the adapter restoring its opener, then let pending reader work run.
       document.activeElement = photoLink;
@@ -299,4 +315,103 @@ test('nonprimary, modified and already-prevented photo clicks preserve pending r
     page.openPhoto(options); assert.equal(page.photoEntries(),0);
     page.flushFrames(); page.expectViewport('path-concord');
   }
+});
+
+test('one initial valid-stop placement wins over modeled reload scroll without taking focus', () => {
+  // Adverse lifecycle ordering, not a simulation of WebKit's internal algorithm.
+  // The old reader scrolls early; native fragment/restoration then replaces it.
+  const page = readerFixture('path-birmingham',{settleInitial:false,animateAuto:true});
+  page.restorePersistedViewport(100); page.queueNativeAnimation(100);
+  const focus = {id:'preserved-focus'}; page.document.activeElement = focus;
+  page.pageshow(false); page.flushTasks({render:false});
+  page.restorePersistedViewport(100); page.document.activeElement = focus;
+  page.flushFrames();
+  assert.equal(page.viewport(),page.nodes.get('path-birmingham').top);
+  assert.equal(page.nodes.get('path-birmingham').classes.has('survey-selected'),true);
+  assert.equal(page.document.activeElement,focus,'Initial placement must not claim focus');
+  assert.equal(page.pendingAnimations(),0,'Instant initial placement must abort older motion');
+  assert.equal(page.history.scrollRestoration,'auto');
+  assert.deepEqual(page.effects.filter(([kind]) => kind === 'scroll'),[['scroll','path-birmingham','instant']]);
+  page.flushAnimations();
+  assert.equal(page.viewport(),page.nodes.get('path-birmingham').top);
+  page.effects.length = 0; page.restorePersistedViewport(140); page.effects.length = 0;
+  page.pageshow(false); page.pageshow(true); page.flushTasks();
+  assert.equal(page.viewport(),140,'Consumed initial placement must not restart');
+  assert.deepEqual(page.effects,[]);
+});
+
+test('absent or unknown initial stop retains native fragment and viewport restoration', () => {
+  for (const initial of [null,'unknown']) {
+    const page = readerFixture(initial,{settleInitial:false});
+    page.restorePersistedViewport(140); page.effects.length = 0;
+    page.pageshow(false); page.flushTasks();
+    assert.equal(page.viewport(),140); assert.deepEqual(page.effects,[]);
+    assert.equal(page.history.scrollRestoration,'auto');
+    assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
+test('initial photo URL intent or an already open viewer keeps its viewport and focus', () => {
+  for (const options of [{initialPhoto:'eo1-tuscaloosa-track',viewerOpen:false},{viewerOpen:true}]) {
+    const page = readerFixture('path-birmingham',{settleInitial:false,...options});
+    page.restorePersistedViewport(2750);
+    const focus = {id:'photo-close'}; page.document.activeElement = focus; page.effects.length = 0;
+    page.pageshow(false); page.flushTasks();
+    assert.equal(page.viewport(),2750); assert.equal(page.document.activeElement,focus);
+    assert.deepEqual(page.effects,[]); assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
+const initialStages = ['before-pageshow','pending-task','pending-frame'];
+function pendingInitial(stage) {
+  const page = readerFixture('path-birmingham',{settleInitial:false,animateAuto:true});
+  page.restorePersistedViewport(100);
+  if (stage !== 'before-pageshow') page.pageshow(false);
+  if (stage === 'pending-frame') page.flushTasks({render:false});
+  return page;
+}
+
+test('a newer choice invalidates initial placement before scheduling or during either stage', () => {
+  for (const stage of initialStages) {
+    const page = pendingInitial(stage); page.choose('path-end'); page.effects.length = 0;
+    page.pageshow(false); page.flushTasks(); page.flushAnimations(); page.expectViewport('path-end');
+    assert.deepEqual(page.effects,[]); assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
+test('the real return link owns focus and scroll over not-yet-scheduled or queued initial placement', () => {
+  for (const stage of initialStages) {
+    const page = pendingInitial(stage); page.returnToReader(); page.effects.length = 0;
+    page.pageshow(false); page.flushTasks(); page.flushAnimations();
+    assert.equal(page.viewport(),100); assert.equal(page.document.activeElement.id,'survey-place');
+    assert.deepEqual(page.effects,[]); assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
+test('eligible gallery opening and its owned Back cannot revive initial placement through URL equality', () => {
+  for (const stage of initialStages) {
+    const page = pendingInitial(stage); page.openPhoto();
+    assert.equal(page.photoEntries(),1); page.closePhotoBack('path-birmingham'); page.effects.length = 0;
+    page.pageshow(false); page.flushTasks();
+    assert.equal(page.viewport(),2750); assert.equal(page.document.activeElement.id,'photo-opener');
+    assert.deepEqual(page.effects,[]); assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
+test('page departure invalidates initial placement before pageshow and at both queued stages', () => {
+  for (const stage of initialStages) {
+    const page = pendingInitial(stage); page.pagehide(); page.effects.length = 0;
+    page.pageshow(false); page.flushTasks();
+    assert.equal(page.viewport(),100); assert.deepEqual(page.effects,[]);
+    assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
+test('persisted pageshow does not initialize a restored document', () => {
+  const page = readerFixture('path-birmingham',{settleInitial:false});
+  page.restorePersistedViewport(140); page.effects.length = 0;
+  page.pageshow(true); page.flushTasks();
+  assert.equal(page.viewport(),140); assert.deepEqual(page.effects,[]);
+  assert.equal(page.history.scrollRestoration,'auto');
+  assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
 });

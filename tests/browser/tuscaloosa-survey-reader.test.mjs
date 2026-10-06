@@ -155,6 +155,33 @@ const selectedInView = async (page, id) => {
   }
 };
 
+// Reload must finish at the selected account, rather than merely cross it
+// during an older smooth scroll. Keep the original visibility assertion too.
+async function selectedPlacementSettled(page, id) {
+  await page.evaluate(id => {
+    window.__atlasSurveyPlacementSamples = {id, values: []};
+  }, id);
+  try {
+    await page.waitForFunction(id => {
+      const target = document.getElementById(id);
+      const state = window.__atlasSurveyPlacementSamples;
+      const rect = target.getBoundingClientRect();
+      if (!target.classList.contains('survey-selected') || rect.top < -1 ||
+          rect.top >= innerHeight || rect.left >= innerWidth || rect.right <= 0) {
+        state.values.length = 0;
+        return false;
+      }
+      state.values.push(rect.top);
+      if (state.values.length > 3) state.values.shift();
+      return state.id === id && state.values.length === 3 &&
+        Math.max(...state.values) - Math.min(...state.values) <= 1;
+    }, id);
+  } catch (error) {
+    console.error('TUSCALOOSA_READER_SETTLED_DIAGNOSTIC ' + JSON.stringify(await failureObservation(page,id)));
+    throw error;
+  }
+}
+
 async function assertPageFits(page) {
   const fits = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
   assert.ok(fits, fits ? undefined : 'Tuscaloosa page exceeded its viewport: ' +
@@ -189,6 +216,7 @@ for (const [width, appearance] of [[320, 'dark'], [1280, 'light']]) {
     await selectedInView(page, 'path-birmingham');
     await page.reload(); await ready(page); await selected(page, 'path-birmingham');
     await selectedInView(page, 'path-birmingham');
+    await selectedPlacementSettled(page, 'path-birmingham');
     // A diagnostic pass is observable too. It does not establish a repair.
     console.log('TUSCALOOSA_READER_RELOAD_OBSERVATION ' + JSON.stringify(await failureObservation(page,'path-birmingham')));
     const url = new URL(page.url());

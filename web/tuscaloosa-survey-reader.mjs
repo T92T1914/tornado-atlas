@@ -10,8 +10,10 @@ let currentStopParameter;
 let pendingHistorySelection;
 let pendingHistoryFrame;
 let pendingHistoryDestination;
+let initialSelectionEligible = false;
 
 function cancelHistorySelection() {
+  initialSelectionEligible = false;
   clearTimeout(pendingHistorySelection);
   cancelAnimationFrame(pendingHistoryFrame);
   pendingHistoryDestination = undefined;
@@ -27,6 +29,7 @@ for (const stop of stops) {
   stop.querySelector('div').append(returnLink);
   returnLink.addEventListener('click', event => {
     event.preventDefault();
+    cancelHistorySelection();
     reader.scrollIntoView({block: 'start'});
     select.focus({preventScroll: true});
   });
@@ -50,6 +53,24 @@ function showSelection({focus = false, scroll = true, behavior = 'auto'} = {}) {
     stops[selected].scrollIntoView({block: 'start', behavior});
     if (focus) stops[selected].focus({preventScroll: true});
   }
+}
+
+function queuePlacement(focus) {
+  const destination = location.href;
+  pendingHistoryDestination = destination;
+  pendingHistorySelection = setTimeout(() => {
+    if (location.href !== destination) {
+      if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
+      return;
+    }
+    pendingHistoryFrame = requestAnimationFrame(() => {
+      if (location.href === destination && (focus ||
+        (!new URL(location.href).searchParams.has('photo') && !document.getElementById('photo-dialog')?.open))) {
+        showSelection({focus, behavior: 'instant'});
+      }
+      if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
+    });
+  }, 0);
 }
 
 function choose(id) {
@@ -88,23 +109,25 @@ window.addEventListener('popstate', () => {
   cancelHistorySelection();
   if (new URL(location.href).searchParams.get('stop') !== currentStopParameter) {
     showSelection({scroll: false});
-    pendingHistoryDestination = destination;
     // Apply this reader's changed-stop placement in the next rendering update
     // after the history task, without starting another smooth scroll.
     // A newer choice, photo traversal or page departure cancels both stages.
-    pendingHistorySelection = setTimeout(() => {
-      if (location.href !== destination) {
-        if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
-        return;
-      }
-      pendingHistoryFrame = requestAnimationFrame(() => {
-        if (location.href === destination) showSelection({focus: true, behavior: 'instant'});
-        if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
-      });
-    }, 0);
+    queuePlacement(true);
   }
+});
+window.addEventListener('pageshow', event => {
+  if (event.persisted || !initialSelectionEligible) return;
+  initialSelectionEligible = false;
+  const url = new URL(location.href);
+  if (url.searchParams.get('stop') !== currentStopParameter || url.searchParams.has('photo') ||
+    document.getElementById('photo-dialog')?.open) return;
+  // Place one valid explicit initial stop after native load/fragment placement.
+  // A newer reader/gallery action owns the viewport; initial placement never
+  // takes focus or disables native restoration for other navigation.
+  queuePlacement(false);
 });
 window.addEventListener('pagehide', cancelHistorySelection);
 reader.hidden = false;
-showSelection();
+showSelection({scroll: false});
+initialSelectionEligible = stops.some(stop => stop.id === currentStopParameter);
 document.body.dataset.surveyReader = 'ready';
