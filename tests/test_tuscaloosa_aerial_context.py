@@ -81,8 +81,9 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         self.assertLess((ROOT / f'exhibits/{EVENT}/dossier.json').stat().st_size, 50_000)
 
     def test_current_publication_preserves_all_accepted_photo_values(self):
-        for field in ('records', 'reconstruction', 'creators', 'title', 'coverage', 'summary'):
+        for field in ('records', 'reconstruction', 'title', 'coverage', 'summary'):
             self.assertEqual(self.current[field], self.doc[field], field)
+        self.assertEqual(self.current['creators'][:len(self.doc['creators'])], self.doc['creators'])
         for field in ('media', 'observations', 'sources', 'routes'):
             self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
         self.assertEqual(validate_dossier(self.current), self.current)
@@ -169,7 +170,7 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
                      'APRIL 27, 2011 · CENTRAL ALABAMA'):
             self.assertIn(text, self.html)
         self.assertEqual(self.html.count('◎'), 1)
-        self.assertEqual(self.html.count('·'), 14)  # Retained separators and the train source/research route.
+        self.assertEqual(self.html.count('·'), 18)  # Retained separators plus the satellite source routes.
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)
 
