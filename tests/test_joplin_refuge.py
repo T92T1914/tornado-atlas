@@ -8,8 +8,6 @@ from atlas.archive import digest, dossiers, publication
 ROOT = Path(__file__).resolve().parents[1]
 OLD = 'archive/joplin-2011-c080b55cf2dfa5efc278.json'
 NEW_IDS = {'intake-nist-east-middle-refuge-2014', 'intake-nist-high-school-refuge-2014'}
-LATER_ADDITIONS = {'intake-nws-siren-cessation-2011',
-                   'intake-nws-local-siren-warning-distinction-2011'}
 SCHOOL_REVISION = 'archive/joplin-2011-1f02a52e8fcabe1667db.json'
 
 
@@ -20,7 +18,10 @@ class JoplinRefugeTests(unittest.TestCase):
         current = next(d for d in dossiers() if d['id'] == old['id'])
         self.assertEqual(current['records'], old['records'])
         original_items = {row['id']: row for row in old['observations']}
-        retained = {row['id']: row for row in current['observations'] if row['id'] not in NEW_IDS | LATER_ADDITIONS}
+        school = json.loads((ROOT / 'web' / SCHOOL_REVISION).read_text(encoding='utf-8'))
+        self.assertEqual(school['observations'][:len(old['observations'])], old['observations'])
+        self.assertEqual({row['id'] for row in school['observations'][len(old['observations']):]}, NEW_IDS)
+        retained = {row['id']: row for row in current['observations'] if row['id'] in original_items}
         self.assertEqual(retained, original_items)
         prior_media_ids = {row['id'] for row in old['media']}
         self.assertEqual([row for row in current['media'] if row['id'] in prior_media_ids], old['media'])

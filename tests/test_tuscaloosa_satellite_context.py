@@ -13,6 +13,7 @@ from atlas.archive import digest, dossier_history, dossiers, publication, valida
 ROOT = Path(__file__).resolve().parents[1]
 EVENT = 'tuscaloosa-birmingham-2011'
 PREVIOUS = '890095f5efe240af075c4c1aa7c7a63af403cc0bf9b8a07ab38ddd49b65f5dbb'
+SATELLITE_SHA = 'acf5660d7495f756a4b4d865ae85c4ba17c5a1e44b7295f26bcc0cdfb4354b34'
 GOES = 'goes-east-storm-context'
 EO1 = 'eo1-tuscaloosa-track'
 GOES_SHA = '8001a4a3c13b16293b99f80ef00e231b14dd3e6e908a9976f2cd498f55387c00'
@@ -53,17 +54,25 @@ class TuscaloosaSatelliteTests(unittest.TestCase):
         cls.view.feed(cls.html)
 
     def test_exact_predecessor_is_preserved_with_only_named_additions(self):
+        satellite = json.loads((ROOT / f'web/archive/{EVENT}-{SATELLITE_SHA[:20]}.json').read_text(encoding='utf-8'))
+        self.assertEqual(digest(satellite), SATELLITE_SHA)
         self.assertEqual(digest(self.prior), PREVIOUS)
-        self.assertEqual(tuple(len(self.doc[k]) for k in ('media', 'sources', 'observations', 'creators', 'records', 'routes')),
+        self.assertEqual(tuple(len(satellite[k]) for k in ('media', 'sources', 'observations', 'creators', 'records', 'routes')),
                          (9, 14, 12, 6, 3, 10))
         for key in ('media', 'sources', 'creators', 'routes'):
-            self.assertEqual(self.doc[key][:len(self.prior[key])], self.prior[key], key)
+            self.assertEqual(satellite[key][:len(self.prior[key])], self.prior[key], key)
         for key in ('observations', 'records', 'reconstruction', 'title', 'summary', 'coverage'):
-            self.assertEqual(self.doc[key], self.prior[key], key)
-        self.assertEqual([m['id'] for m in self.doc['media'][7:]], [GOES, EO1])
-        self.assertEqual([s['id'] for s in self.doc['sources'][12:]], ['nesdis-goes-storm', 'nasa-eo1-track'])
+            self.assertEqual(satellite[key], self.prior[key], key)
+        self.assertEqual([m['id'] for m in satellite['media'][7:]], [GOES, EO1])
+        self.assertEqual([s['id'] for s in satellite['sources'][12:]], ['nesdis-goes-storm', 'nasa-eo1-track'])
+        for key in ('media', 'sources', 'observations', 'creators', 'routes'):
+            self.assertEqual(self.doc[key][:len(satellite[key])], satellite[key], key)
+        for key in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
+            self.assertEqual(self.doc[key], satellite[key], key)
+        self.assertIs(validate_dossier(satellite), satellite)
         self.assertIs(validate_dossier(self.doc), self.doc)
-        version = dossier_history(self.doc)['versions'][0]
+        version = next(version for version in dossier_history(self.doc)['versions']
+                       if version['dossier_sha256'] == SATELLITE_SHA)
         self.assertEqual(version['review']['previous_dossier_sha256'], PREVIOUS)
         self.assertTrue(version['predecessor_available'])
         self.assertFalse(any(row['change'] != 'added' for row in version['changes'] if row['kind'] != 'dossier'))

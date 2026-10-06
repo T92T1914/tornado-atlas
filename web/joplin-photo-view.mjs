@@ -32,12 +32,29 @@ function showFromLocation() {
   }
   const figure = link.closest('figure');
   const image = link.querySelector('img');
+  currentId = link.dataset.photoId;
+  opener = link;
+  if (link.dataset.photoKind === 'context-photograph') {
+    openPhoto({
+      title: link.dataset.photoTitle,
+      asset: link.href,
+      alt: image.alt,
+      caption: figure.querySelector('figcaption').textContent,
+      location: link.dataset.photoLocation,
+      credit: link.dataset.photoCredit,
+      source: link.dataset.photoSource,
+      license: link.dataset.photoLicense,
+      licenseUrl: link.dataset.photoRights,
+    });
+    document.getElementById('photo-source').textContent = 'Inspect the original file, credit and reuse record';
+    document.getElementById('photo-original').textContent =
+      link.dataset.photoOriginalLabel || 'Open the unchanged original photograph';
+    return;
+  }
   const source = figure.querySelector('figcaption a[href*="#page="]');
   const annotated = link.dataset.photoKind === 'annotated-figure';
   const radar = link.dataset.photoKind === 'radar-figure';
   const itemRights = figure.closest('.documentary-note').querySelector('a[href$="#page=4"]');
-  currentId = link.dataset.photoId;
-  opener = link;
   openPhoto({
     title: link.getAttribute('aria-label').replace(/^Open the /, ''),
     asset: link.href,
@@ -52,6 +69,7 @@ function showFromLocation() {
     license: "Read the report's item-specific rights statement",
     licenseUrl: (itemRights || rights).href,
   });
+  document.getElementById('photo-source').textContent = 'Complete source figure and caption';
   document.getElementById('photo-original').textContent = radar ? 'Open the complete radar figure and caption' : annotated ?
     'Open the complete photograph and NIST annotation' : 'Open the complete embedded photograph';
 }

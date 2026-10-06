@@ -3,17 +3,17 @@ import json
 from pathlib import Path
 import unittest
 
-from atlas.archive import dossiers
-
 ROOT = Path(__file__).resolve().parents[1]
 PRIOR = ROOT / 'web/archive/blackwell-1955-a90a7539209f78940922.json'
+PRESSURE_REVISION = ROOT / 'web/archive/blackwell-1955-cc230959464007bb4cbc.json'
 NEW_IDS = {'blackwell-tonkawa-barograph', 'blackwell-debris-directions'}
 
 
 class BlackwellPressureDamageTests(unittest.TestCase):
     def setUp(self):
         self.prior = json.loads(PRIOR.read_bytes())
-        self.current = next(d for d in dossiers() if d['id'] == 'blackwell-1955')
+        # This test describes that exact increment, not every later current dossier.
+        self.current = json.loads(PRESSURE_REVISION.read_bytes())
         self.items = {o['id']: o for o in self.current['observations'] if o['id'] in NEW_IDS}
 
     def test_increment_preserves_existing_evidence_and_only_adds_two_observations(self):

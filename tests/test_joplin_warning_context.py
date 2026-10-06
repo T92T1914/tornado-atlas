@@ -26,7 +26,14 @@ class JoplinWarningContextTests(unittest.TestCase):
     def test_ten_observations_and_recorded_warning_review_base_are_preserved(self):
         self.assertEqual(hashlib.sha256(self.raw).hexdigest(), OLD_SHA256)
         self.assertEqual(len(self.old['observations']), 10)
-        self.assertEqual(len(self.doc['observations']), 11)
+        introduced_raw = (ROOT / 'web/archive/joplin-2011-30b168fee88e544e1ecd.json').read_bytes()
+        self.assertEqual(hashlib.sha256(introduced_raw).hexdigest(),
+                         'c46521edf5006a26d2b41bae294a0096b36169330d5183ddc427df1cb0964be9')
+        introduced = json.loads(introduced_raw)
+        self.assertEqual(len(introduced['observations']), 11)
+        self.assertEqual(introduced['observations'][:10], self.old['observations'])
+        self.assertEqual(introduced['observations'][10]['id'], NEW_ID)
+        self.assertEqual(self.doc['observations'][:11], introduced['observations'])
         self.assertEqual(self.doc['observations'][:10], self.old['observations'])
         self.assertEqual(self.doc['observations'][10]['id'], NEW_ID)
         for key in ('records', 'reconstruction'):
@@ -51,10 +58,6 @@ class JoplinWarningContextTests(unittest.TestCase):
                     self.assertEqual(old[key], new[key])
                 for key in ('locator', 'access', 'agent_processing'):
                     self.assertTrue(new[key].startswith(old[key]))
-        introduced_raw = (ROOT / 'web/archive/joplin-2011-30b168fee88e544e1ecd.json').read_bytes()
-        self.assertEqual(hashlib.sha256(introduced_raw).hexdigest(),
-                         'c46521edf5006a26d2b41bae294a0096b36169330d5183ddc427df1cb0964be9')
-        introduced = json.loads(introduced_raw)
         self.assertEqual(introduced['provenance']['publication_review']['previous_dossier_sha256'], digest(self.old))
         pre_hospital_raw = (ROOT / 'web/archive/joplin-2011-01b24def4c0f59517dd4.json').read_bytes()
         self.assertEqual(hashlib.sha256(pre_hospital_raw).hexdigest(),

@@ -73,8 +73,31 @@ The initial working queue is:
 3. **Blackwell 1955:** develop the contrasting historical dossier and inspect the
    surviving visual evidence. Keep recorded observations, testimony and later
    interpretations distinguishable.
-4. Expand the infamous-storm shortlist and add contrasting weaker and
-   international events as their evidence is assembled.
+4. **Tuscaloosa-Birmingham 2011:** deepen the existing damage, warning, radar and
+   satellite account. Qualify original storm imagery and footage independently
+   of the aftermath photographs and written survey progression.
+
+The current priority is depth across these four existing main dossiers before
+another main event is added. El Reno supplies the visitor standard: a substantial
+account, purposeful media, usable source routes, chronological or geographic
+context where supported, and clear uncertainty. Each event should approach that
+useful depth through its own surviving evidence. Equal numbers of photographs
+or a borrowed replay would not establish equally complete accounts.
+
+Photographs, inspected video intervals, radar and historical documents belong
+where they explain the storm, warnings, surroundings, damage, response or
+remembrance. A contextual photograph can be useful without a registered camera.
+An archival link can remain useful while hosting permission is unresolved.
+Neither becomes reconstruction evidence merely by joining a dossier. Preserve
+the complete readable account and original source routes when a map, script,
+image or external player is unavailable.
+
+Keep additional event leads private while depth across the existing dossiers
+remains the priority. Review their remaining narrative, media and usability gaps
+against the El Reno standard before expanding the main collection. Source
+scarcity and rights gaps remain visible rather than being filled with unrelated imagery. This
+priority does not turn the existing geographic replay, authored form study or
+Wind Lab into a historical appearance or wind reconstruction.
 
 This is a working sequence, not a fixed ranking of notoriety. Events can move
 forward when better evidence is available, and research can continue on another

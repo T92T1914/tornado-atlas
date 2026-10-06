@@ -116,9 +116,9 @@ class TuscaloosaTrainCarsTests(unittest.TestCase):
                 self.assertEqual(self.doc['provenance'][key], value, key)
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PRIOR_SHA)
         self.assertEqual(self.wrapper['dossier'], self.current)
-        for field in ('media', 'sources', 'creators', 'routes'):
+        for field in ('media', 'sources', 'creators', 'routes', 'observations'):
             self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
-        for field in ('observations', 'records', 'reconstruction', 'title', 'summary', 'coverage'):
+        for field in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
             self.assertEqual(self.current[field], self.doc[field], field)
         self.assertEqual(self.wrapper['adapter_sha256'], ADAPTER_SHA)
         standalone = (ROOT / f'exhibits/{EVENT}/dossier.json').read_bytes()

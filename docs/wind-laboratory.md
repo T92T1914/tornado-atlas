@@ -52,6 +52,20 @@ slider can inspect individual samples. Motion begins paused and stops when
 the view is hidden or moved out of view. Changing any model setting pauses
 the passage and recomputes the graph.
 
+The sampled-values table provides the same complete 481-point sequence in
+numerical form. It lists model time, wind in mph and m/s, dynamic pressure,
+drag, load relative to capacity and the component state. Its assumptions and
+units stay beside it. Rounded values are for reading; the capacity rule uses
+the unrounded force. A displayed ratio of 1.000 can therefore accompany a
+failure just above capacity.
+
+The default table is checked into the page and remains readable without
+scripts. In that case it retains the stated defaults, even if a browser lets
+the controls move. With scripts available, settings update the existing rows.
+Playback changes only the selected marker, without moving focus or rewriting
+the numerical cells. The explicit show action opens the table and focuses the
+selected row. The table region supports keyboard scrolling across its columns.
+
 ## A component with an assumed capacity
 
 The component experiment uses the passage's sampled drag forces and a total
@@ -89,3 +103,11 @@ and rejection of invalid capacity or unordered times. Consumer checks exercise
 the paired sliders, shared clock, pause, rewind, settings, reset and visibility
 transitions. These verify the stated software rules, without validating a real
 component or building.
+
+The default-table generator reads the actual HTML defaults and uses the same
+wind and component functions. `node tools/build_wind_sample_table.mjs --check`
+requires an exact match. Numeric checks cover all rows, stale defaults, units,
+strict capacity equality and the separation of model time from playback time.
+The actual passage consumer checks that selection and playback leave computed
+cells and row ownership intact. Browser journeys check reading, settings,
+reset, focus and the no-script or unavailable-module fallback separately.

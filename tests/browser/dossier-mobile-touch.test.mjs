@@ -13,6 +13,15 @@ const cases=[
   {name:'320 reflow with enlarged text',viewport:{width:320,height:640},event:'el-reno-2013',appearance:'dark',enlarge:true},
 ];
 const actionRects=new WeakMap();
+function isMediaRequest(url){
+  const request=new URL(url);
+  return /youtube|harkphoto/.test(request.hostname)||/\/catalogue\/|\.pdf|\.png|\.jpg/.test(request.pathname);
+}
+test('metadata request guard distinguishes source-search text from requested media',()=>{
+  assert.equal(isMediaRequest(base+'/dossier.html?q='+encodeURIComponent('First FEMA modular homes arrive in Joplin (5967939747).jpg')),false);
+  assert.equal(isMediaRequest(base+'/dossier.html?q='+encodeURIComponent('https://youtube.com/watch?v=example')),false);
+  for(const url of [base+'/catalogue/detail.json',base+'/assets/example.jpg',base+'/assets/example.png',base+'/report.pdf','https://www.youtube.com/embed/example','https://harkphoto.com/example'])assert.equal(isMediaRequest(url),true,url);
+});
 async function touchAction(page,locator){
   const rect=await locator.evaluate(node=>{const box=node.getBoundingClientRect();return {name:node.textContent.trim(),x:box.x,width:box.width,height:box.height,rectangles:node.getClientRects().length};});
   assert.ok(rect.height>=44&&rect.width>=44,JSON.stringify(rect));
@@ -115,7 +124,7 @@ for(const scenario of cases)test(`touch source and retained evidence journey ${s
   await page.goBack();await ready(page,scenario);
   assert.equal(new URL(page.url()).searchParams.get('revision'),retained.dossier_sha256);
   assert.ok(touch.length>=8,'This journey dispatches actual emulated touch events rather than mouse clicks');
-  assert.equal(requests.some(url=>/\/catalogue\/|youtube|harkphoto|\.pdf|\.png|\.jpg/.test(url)),false);
+  assert.equal(requests.some(isMediaRequest),false,JSON.stringify(requests.filter(isMediaRequest)));
   if(process.env.ATLAS_SCREENSHOT_DIR){
     await mkdir(process.env.ATLAS_SCREENSHOT_DIR,{recursive:true});
     await page.screenshot({path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`touch-${entry.id}.png`)});

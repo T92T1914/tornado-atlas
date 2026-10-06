@@ -1,9 +1,11 @@
 import {MPH,FOOT,loadAt,samplePassage} from './wind-model.mjs';
 import {componentHistory} from './component-model.mjs';
 import {PlaybackClock} from './playback-model.mjs';
+import {attachPassageValues} from './passage-values.mjs';
 const el=id=>document.getElementById(id);
 const controls=['travel','offset','threshold','capacity'];
 const clock=new PlaybackClock(24,1);
+const sampledValues=attachPassageValues(document);
 let result,field,component,raf=0,visible=true;
 const x=i=>52+i/480*636;
 let y=speed=>180-speed;
@@ -29,11 +31,13 @@ function show() {
   el('component-panel').classList.toggle('failed',state.failed);
   el('component-connections').setAttribute('opacity',state.failed?'0':'1');
   el('component-diagram').setAttribute('aria-label',state.failed?'Schematic detached component: the assumed capacity has been exceeded earlier in this passage.':'Schematic attached component: assumed capacity has not been exceeded so far in this passage.');
+  sampledValues.select(index);
 }
 function rebuild() {
   pause();field=settings();const threshold=Number(el('threshold').value)*MPH;
   result=samplePassage(field,{threshold});
   component=componentHistory(result.samples,{...field,capacity:Number(el('capacity').value)*1000});
+  sampledValues.rebuild({field,result,component,threshold,capacity:Number(el('capacity').value)*1000});
   el('capacity-value').textContent=`${Number(el('capacity').value).toFixed(1)} kN`;
   el('component-peak').textContent=`${(component.peak/1000).toFixed(2)} kN`;
   el('component-first').textContent=component.firstFailureTime===null?'Not exceeded in this sampled window':`${component.firstFailureTime.toFixed(1)} s from closest approach (first failing sample)`;

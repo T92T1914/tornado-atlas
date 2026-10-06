@@ -1,12 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
 import {fixture, base} from './harness.mjs';
 
 const id = 'intake-nws-local-siren-warning-distinction-2011';
 const oldFile = 'archive/joplin-2011-8d3c839b9f9dafb8ff79.json';
 const oldHash = '61d5e67f3392e69ed4a19d3b76df4144219aee9e03c783ce1e540918315c6b4a';
 const report = 'https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf';
+const reviewedBytes = await readFile(new URL('../../web/archive/joplin-2011-47a506c259e731b4c8e8.json', import.meta.url));
+assert.equal(createHash('sha256').update(reviewedBytes).digest('hex'), '4515786871b2e983092685ffcf9bc327fa15874fd8dc455af0f3f62f2b3188f9');
+const reviewed = JSON.parse(reviewedBytes.toString('utf8'));
 async function ready(page) {
   await page.waitForFunction(() => document.body?.dataset.ready === 'true');
 }
@@ -59,7 +63,7 @@ for (const width of [308, 390, 768, 1280]) {
     assert.equal(response.ok(), true);
     const current = await response.json();
     const item = current.observations.find(row => row.id === id);
-    assert.equal(current.observations.length, 11);
+    assert.equal(reviewed.observations.length, 11);
     assert.equal(current.sources.filter(source => source.id === 'nws-assessment').length, 1);
     assert.equal(item.source_id, 'nws-assessment');
     assert.equal(item.time.alignment, null);
@@ -72,20 +76,28 @@ for (const width of [308, 390, 768, 1280]) {
     const oldBytes = await oldResponse.body();
     assert.equal(createHash('sha256').update(oldBytes).digest('hex'), oldHash);
     const old = JSON.parse(oldBytes.toString('utf8'));
+    assert.deepEqual(reviewed.observations.slice(0, 10), old.observations);
+    assert.equal(reviewed.observations[10].id, id);
     assert.deepEqual(current.observations.slice(0, 10), old.observations);
     for (const key of ['records', 'reconstruction']) {
       assert.deepEqual(current[key], old[key]);
     }
-    assert.deepEqual(current.routes, [...old.routes, {
+    assert.deepEqual(reviewed.routes, [...old.routes, {
       href: 'joplin.html#hospital-envelope', label: 'Hospital frame, windows and loss of function'}, {
       href: 'joplin.html#roof-bracing', label: 'How roof loss removed wall support'}, {
       href: 'joplin.html#radar-reading', label: 'What radar measured above the damage layer'}]);
-    assert.deepEqual(current.creators.filter(row=>row.id!=='noaa-radar'), [...old.creators, {id: 'nist', name: 'National Institute of Standards and Technology',
+    assert.deepEqual(reviewed.creators.filter(row=>row.id!=='noaa-radar'), [...old.creators, {id: 'nist', name: 'National Institute of Standards and Technology',
       basis: 'The original NIST investigation overview credits the survivor-interview photograph to NIST. Individual photographer and subjects are not identified in that caption.'}]);
     assert.equal(current.creators.filter(row=>row.id==='noaa-radar').length,1);
     const addedMedia = ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof', 'nist-joplin-radar-sequence'];
-    assert.deepEqual(current.media.filter(row => !addedMedia.includes(row.id)), old.media);
-    assert.deepEqual(current.media.map(row => row.id), [...old.media.map(row => row.id), ...addedMedia]);
+    assert.deepEqual(reviewed.media.filter(row => !addedMedia.includes(row.id)), old.media);
+    assert.deepEqual(reviewed.media.map(row => row.id), [...old.media.map(row => row.id), ...addedMedia]);
+    for (const field of ['observations', 'sources', 'media', 'creators']) {
+      const retainedIds = new Set(reviewed[field].map(row => row.id));
+      assert.deepEqual(current[field].filter(row => retainedIds.has(row.id)), reviewed[field],
+        `The current download preserves every complete established ${field} record`);
+    }
+    assert.deepEqual(current.routes.slice(0, reviewed.routes.length), reviewed.routes);
     const interview = current.media.find(row => row.id === 'nist-joplin-survivor-interview');
     assert.equal(interview.source_id, 'nist-investigation-photo');
     assert.equal(interview.url, 'https://www.nist.gov/sites/default/files/images/2018/10/12/joplin.jpg');
