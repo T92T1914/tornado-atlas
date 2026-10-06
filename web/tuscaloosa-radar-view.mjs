@@ -7,17 +7,22 @@ const links = new Map([...document.querySelectorAll('a[data-photo-id]')]
 const dialog = document.getElementById('photo-dialog');
 const openPhoto = mountPhotoViewer();
 let currentId = null, ownedEntry = null, opener = null;
+let closingDestination = null;
 
 function selectedLink() {
   return links.get(new URL(location.href).searchParams.get('photo'));
 }
+function outsideFocus(target) {
+  const focus = document.activeElement;
+  return focus && focus !== document.body && focus !== target &&
+    !dialog.contains(focus) ? focus : null;
+}
 function returnFocus() {
   const target = opener;
+  const previousClaim = closingDestination;
+  closingDestination = null;
   if (!target) return;
-  // History traversal can clear outside focus after popstate but before this frame.
-  const claim = document.activeElement;
-  const destination = claim && claim !== document.body && claim !== target &&
-    !dialog.contains(claim) ? claim : target;
+  const destination = outsideFocus(target) || previousClaim || target;
   requestAnimationFrame(() => {
     const focus = document.activeElement;
     if (focus && focus !== document.body && focus !== target && !dialog.contains(focus)) return;
@@ -34,6 +39,7 @@ function showFromLocation() {
     return;
   }
   const figure = link.closest('figure');
+  closingDestination = null;
   currentId = link.dataset.photoId;
   opener = link;
   const photograph = figure.dataset.photoKind === 'photograph';
@@ -70,7 +76,11 @@ dialog.addEventListener('close', () => {
     returnFocus();
     return;
   }
-  if (ownedEntry === currentId) history.back();
+  if (ownedEntry === currentId) {
+    // History can clear the visitor's new destination before popstate arrives.
+    closingDestination = outsideFocus(opener);
+    history.back();
+  }
   else {
     // A direct viewer URL has no viewer-owned predecessor to navigate to.
     const url = new URL(location.href);

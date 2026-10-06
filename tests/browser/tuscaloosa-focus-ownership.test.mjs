@@ -68,7 +68,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
   });
 }
 
-async function closedWithQueuedFocus(t,viewport){
+async function closedWithQueuedFocus(t,viewport,claimSelector=null){
   const page=await fixture(t,{viewport});
   await page.addInitScript(()=>{window.__photoFocusFrames=[];});
   // Hold only this gallery's focus-restoration callback. Other page clocks run normally.
@@ -81,7 +81,16 @@ async function closedWithQueuedFocus(t,viewport){
   const opener=page.locator('a[data-photo-id="'+id+'"]');
   await opener.click();
   await page.waitForFunction(()=>document.getElementById('photo-dialog').open);
-  await page.locator('#photo-close').click();
+  if(claimSelector){
+    assert.equal(await page.evaluate(selector=>{
+      const destination=document.querySelector(selector);
+      document.getElementById('photo-dialog').addEventListener('close',()=>{
+        window.__outsideClaimAtClose=document.activeElement===destination;
+      },{capture:true,once:true});
+      document.getElementById('photo-dialog').close();destination.focus();
+      return document.activeElement===destination;
+    },claimSelector),true);
+  }else await page.locator('#photo-close').click();
   await page.waitForFunction(()=>!document.getElementById('photo-dialog').open&&
     !new URL(location.href).searchParams.has('photo')&&window.__photoFocusFrames.length>0);
   return {page,opener};
@@ -112,6 +121,17 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     assert.equal(await page.locator('#media-'+id).count(),1);
   });
 }
+
+test('a carried close destination cannot replace a newer outside destination',{timeout:30000},async t=>{
+  const first='#aerial-context a[href*="media=aerial-context-aftermath"]';
+  const {page}=await closedWithQueuedFocus(t,{width:1280,height:844},first);
+  assert.equal(await page.evaluate(()=>window.__outsideClaimAtClose),true);
+  const next=page.locator('#reading-appearance');
+  await next.focus();
+  assert.equal(await next.evaluate(node=>node===document.activeElement),true);
+  assert.ok(await releaseFocus(page)>0);
+  assert.equal(await next.evaluate(node=>node===document.activeElement),true);
+});
 
 test('closing a photograph restores its opener when focus remains unclaimed',{timeout:30000},async t=>{
   const {page,opener}=await closedWithQueuedFocus(t,{width:1280,height:844});
