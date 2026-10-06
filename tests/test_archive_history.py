@@ -18,7 +18,7 @@ class ArchiveHistoryTests(unittest.TestCase):
         artifacts = publication()
         index = artifacts['archive/index.json']
         counts = {'el-reno-2013': 3, 'joplin-2011': 9, 'blackwell-1955': 5,
-                  'tuscaloosa-birmingham-2011': 7}
+                  'tuscaloosa-birmingham-2011': 8}
         self.assertEqual({e['id'] for e in index['events']}, set(counts))
         for entry in index['events']:
             history = artifacts[entry['history_file']]

@@ -50,6 +50,7 @@ class TuscaloosaExhibitTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.doc = json.loads(DOSSIER.read_text(encoding='utf-8'))
+        cls.current = next(doc for doc in dossiers() if doc['id'] == cls.doc['id'])
         cls.html = (ROOT / 'web/tuscaloosa.html').read_text(encoding='utf-8')
         cls.links = Links()
         cls.links.feed(cls.html)
@@ -143,7 +144,7 @@ class TuscaloosaExhibitTests(unittest.TestCase):
         }
         radar = [m for m in self.doc['media'] if m['kind'] == 'radar']
         self.assertEqual({m['id'] for m in radar}, set(expected))
-        self.assertEqual(len(self.links.images), 7)  # Radar pair, four photographs and empty viewer.
+        self.assertEqual(len(self.links.images), 8)  # Radar pair, five photographs and empty viewer.
         for item in radar:
             identity, width, height = expected[item['id']]
             raw = (ROOT / 'web' / item['transformation']['asset']).read_bytes()
@@ -178,11 +179,14 @@ class TuscaloosaExhibitTests(unittest.TestCase):
                          '52bd3ebb4b75376419719cc44ec1bb9421eee9bc558e14d1b54b9060e433944a')
 
     def test_photo_has_a_separate_identity_and_no_embedded_private_metadata(self):
-        photos = [m for m in self.doc['media'] if m['kind'] == 'photograph']
+        # The standalone projection is an immutable adapter. Current photo
+        # coverage is the reviewed publication, including the outlook overlay.
+        photos = [m for m in self.current['media'] if m['kind'] == 'photograph']
         self.assertEqual([m['id'] for m in photos],
                          ['birmingham-aftermath-april29', 'apartment-complex-aftermath',
-                          'railway-bridge-aftermath', 'aerial-context-aftermath'])
-        self.assertEqual(len(self.doc['media']), 6)
+                          'railway-bridge-aftermath', 'aerial-context-aftermath',
+                          'train-cars-aftermath'])
+        self.assertEqual(len(self.current['media']), 7)
         item = photos[0]
         self.assertEqual(item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG')
         self.assertEqual(item['roles'], dict(creator=None, uploader='nws-birmingham', rights_holder=None))
