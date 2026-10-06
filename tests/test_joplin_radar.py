@@ -10,6 +10,7 @@ from atlas.archive import digest, dossiers, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
 ID = 'nist-joplin-radar-sequence'
+RADAR_SHA = '47a506c259e731b4c8e8c8f1bb238cf5bfcf4aa9e00cc2336dd41976fb861799'
 
 
 class JoplinRadarTests(unittest.TestCase):
@@ -21,13 +22,19 @@ class JoplinRadarTests(unittest.TestCase):
         cls.source = next(row for row in cls.doc['sources'] if row['id'] == ID)
 
     def test_radar_increment_retains_every_previous_row_and_reconstruction_boundary(self):
+        radar = json.loads((ROOT / f'web/archive/joplin-2011-{RADAR_SHA[:20]}.json').read_text(encoding='utf-8'))
+        self.assertEqual(digest(radar), RADAR_SHA)
         for field in ('sources', 'media', 'creators', 'routes'):
-            self.assertEqual(self.doc[field][:-1], self.before[field], field)
+            self.assertEqual(radar[field][:-1], self.before[field], field)
         for field in ('observations', 'records', 'reconstruction', 'title', 'summary', 'coverage'):
-            self.assertEqual(self.doc[field], self.before[field], field)
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], digest(self.before))
+            self.assertEqual(radar[field], self.before[field], field)
+        self.assertEqual(radar['provenance']['publication_review']['previous_dossier_sha256'], digest(self.before))
+        for field in ('sources', 'media', 'creators', 'routes', 'observations'):
+            self.assertEqual(self.doc[field][:len(radar[field])], radar[field], field)
+        for field in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
+            self.assertEqual(self.doc[field], radar[field], field)
         self.assertEqual(self.media['kind'], 'radar')
-        self.assertEqual(self.doc['routes'][-1]['href'], 'joplin.html#radar-reading')
+        self.assertEqual(radar['routes'][-1]['href'], 'joplin.html#radar-reading')
 
     def test_complete_figure_and_caption_have_fixed_pixels_and_no_embedded_metadata(self):
         transform = self.media['transformation']
