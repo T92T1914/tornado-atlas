@@ -18,11 +18,28 @@ const items=[
 ];
 const ready=page=>page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready');
 async function shown(page,item){
-  await page.waitForFunction(({width,height,file})=>{
-    const i=document.getElementById('photo-full');
-    return document.getElementById('photo-dialog')?.open && i && !i.hidden && i.complete &&
-      i.naturalWidth===width && i.naturalHeight===height && new URL(i.currentSrc||i.src).pathname.endsWith('/'+file);
-  },item);
+  const deadline=performance.now()+10000;
+  let timer;
+  try{
+    await page.waitForFunction(({width,height,file})=>{
+      const i=document.getElementById('photo-full');
+      return document.getElementById('photo-dialog')?.open && i && !i.hidden && i.complete &&
+        i.naturalWidth===width && i.naturalHeight===height && new URL(i.currentSrc||i.src).pathname.endsWith('/'+file);
+    },item,{timeout:Math.max(1,deadline-performance.now())});
+    assert.ok(performance.now()<deadline,'Expected satellite image readiness must stay within its 10-second bound');
+    await Promise.race([page.locator('#photo-full').evaluate(async (image,{source,width,height})=>{
+      const original=image.currentSrc||image.src;
+      const expected=()=>image.isConnected && !image.hidden && image.complete &&
+        image.naturalWidth===width && image.naturalHeight===height && (image.currentSrc||image.src)===source;
+      if(!expected())throw Error('Expected satellite image changed before decode');
+      await image.decode();
+      if(!expected() || (image.currentSrc||image.src)!==original)throw Error('Expected satellite image changed during decode');
+    },{source:base+'/'+item.file,width:item.width,height:item.height}),new Promise((_,reject)=>{
+      timer=setTimeout(()=>reject(Error('Expected satellite image decode exceeded its 10-second bound')),
+        Math.max(1,deadline-performance.now()));
+    })]);
+    assert.ok(performance.now()<deadline,'Expected satellite image decode must stay within its 10-second bound');
+  }finally{clearTimeout(timer);}
   await noScriptImage(page.locator('#photo-full'),{source:base+'/'+item.file,width:item.width,height:item.height});
 }
 async function labels(page,item){

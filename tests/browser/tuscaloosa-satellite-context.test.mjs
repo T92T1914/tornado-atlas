@@ -44,7 +44,13 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     const requests=[];page.on('request',request=>requests.push(request.url()));
     await page.goto(base+'/tuscaloosa.html?context=satellite#satellite-context');await ready(page);
     await page.locator('#reading-appearance').selectOption(appearance);
-    assert.match(await page.locator('#satellite-context').textContent(),/not an aligned before and after pair/);
+    const context=await page.locator('#satellite-context').textContent();
+    assert.match(context,/These three images preserve different views and their own source clocks/);
+    assert.match(context,/not an aligned before and after pair/);
+    assert.match(context,/unknown acquisition clock and color meaning kept explicit/);
+    const scar=await page.locator('#landsat-scar').textContent();
+    assert.match(scar,/no printed legend, scale or acquisition date/);
+    assert.match(scar,/colors are not used here as damage ratings or wind measurements/);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     for(const item of entries){
       const opener=page.locator(`[data-photo-id="${item.id}"]`);
@@ -116,7 +122,7 @@ test('satellite descriptions and source routes remain useful without JavaScript'
   const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:844}});
   await page.goto(base+'/tuscaloosa.html#satellite-context');
   const section=page.locator('#satellite-context');
-  for(const phrase of ['different places, scales and dates','22:15 UTC','May 2 acquisition','contrail','different fields of view'])
+  for(const phrase of ['These three images preserve different views and their own source clocks','22:15 UTC','May 2 acquisition','contrail','different fields of view'])
     assert.ok((await section.textContent()).includes(phrase),phrase);
   for(const item of entries){
     assert.equal(await page.locator(`#${item.figure} a[href="${item.source}"]`).count(),1);
