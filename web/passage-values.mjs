@@ -29,7 +29,8 @@ export function renderSampleRows(rows) {
 }
 
 export function assumptionText({field,result,threshold,capacity}) {
-  return `Peak swirl ${numeric(field.peak/MPH,1)} mph, core radius ${numeric(field.radius/FOOT,0)} ft, eastward background ${numeric(field.background/MPH,1)} mph, travel ${numeric(field.travel/MPH,1)} mph, probe offset ${numeric(field.offset,1)} R, reference area ${numeric(field.area,1)} m², drag coefficient ${numeric(field.coefficient,1)}, density 1.225 kg/m³, comparison ${numeric(threshold/MPH,1)} mph and assumed capacity ${numeric(capacity/1000,1)} kN. The 481 samples cover model time ${numeric(-result.halfTime,2)} to ${numeric(result.halfTime,2)} seconds as the center moves from -6 R to +6 R.`;
+  const spacing=2*result.halfTime/(result.samples.length-1);
+  return `Peak swirl ${numeric(field.peak/MPH,1)} mph, core radius ${numeric(field.radius/FOOT,0)} ft, eastward background ${numeric(field.background/MPH,1)} mph, travel ${numeric(field.travel/MPH,1)} mph, probe offset ${numeric(field.offset,1)} R, reference area ${numeric(field.area,1)} m², drag coefficient ${numeric(field.coefficient,1)}, density 1.225 kg/m³, comparison ${numeric(threshold/MPH,1)} mph and assumed capacity ${numeric(capacity/1000,1)} kN. The 481 samples cover model time ${numeric(-result.halfTime,2)} to ${numeric(result.halfTime,2)} seconds as the center moves from -6 R to +6 R. Nominal spacing is approximately ${numeric(spacing,3)} model seconds between samples. A brief peak or capacity exceedance can fall between samples.`;
 }
 
 export function renderSampleSection(experiment) {

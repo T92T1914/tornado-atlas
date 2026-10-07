@@ -42,6 +42,18 @@ test('numeric readings follow changed area, capacity and travel without changing
   }
 });
 
+test('nominal spacing follows model time and changed travel with independent expected labels',()=>{
+  assert.equal(experiment.result.samples.length,481);
+  assert.match(assumptionText(experiment),/Nominal spacing is approximately 0\.284 model seconds between samples/);
+  for(const [travel,label]of [[60,'0.142'],[80,'0.107']]) {
+    const changed=calculated({...experiment.field,travel:travel*MPH});
+    assert.equal(changed.result.samples.length,481);
+    assert.ok(assumptionText(changed).includes(`Nominal spacing is approximately ${label} model seconds between samples`));
+  }
+  assert.match(html,/Nominal spacing is approximately 0\.284 model seconds between samples/);
+  assert.match(html,/A brief peak or capacity exceedance can fall between samples/);
+});
+
 test('strict equality stays intact while later failure persists and earlier samples rewind',()=>{
   const field={...experiment.field,peak:50,radius:100,travel:10,offset:0,area:1,coefficient:1};
   const preliminary=calculated(field);
