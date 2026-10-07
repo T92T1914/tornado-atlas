@@ -28,12 +28,12 @@ class TuscaloosaSurveyReaderTests(unittest.TestCase):
 
     def test_all_previous_evidence_and_media_are_preserved(self):
         old = json.loads((ROOT / 'web/archive' / PREVIOUS).read_text(encoding='utf-8'))
-        for field in ('records', 'routes', 'media', 'reconstruction'):
+        for field in ('records', 'reconstruction'):
             self.assertEqual(self.doc[field], old[field], field)
-        for field in ('sources', 'observations', 'creators'):
+        for field in ('sources', 'observations', 'creators', 'routes', 'media'):
             for row in old[field]:
                 self.assertIn(row, self.doc[field], field)
-        self.assertEqual(len(self.doc['media']), 9)
+        self.assertEqual(len(self.doc['media']), 10)
 
     def test_method_record_has_original_authors_and_separate_clock_roles(self):
         source = next(row for row in self.doc['sources'] if row['id'] == 'tuscaloosa-field-survey-method')
