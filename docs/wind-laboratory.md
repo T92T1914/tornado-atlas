@@ -47,6 +47,22 @@ samples; the comparison is not a damage threshold. The peak is the highest
 sampled value, not an analytic optimizer result. Force uses the same generic
 area and coefficient as the stationary experiment.
 
+The nominal spacing is `2 * halfTime / (sampleCount - 1)` model seconds. At
+500 ft radius and 30 mph travel, the 481 samples are about 0.284 model seconds
+apart. The assumptions show that spacing to three decimal places. It changes
+with model settings and is separate from the 24-second playback clock. A brief
+peak or capacity exceedance can fall between samples.
+
+For one off-grid example, use 105 mph peak swirl, 500 ft radius, 30 mph travel,
+0.7 R offset, zero background wind, 1 m² area, drag coefficient 1.2 and an
+assumed 1.6 kN capacity. The continuous zero-background peak from the stated
+equations is 1619.417 N. The current 480 intervals, with 481 samples, see only
+1594.503 N and no capacity exceedance. A separate API check with 960 intervals
+and about 0.142 model seconds between samples sees 1615.622 N and an exceedance.
+These two grids illustrate a missed peak and changed sampled state. They do not
+establish convergence for every setting, add a public resolution control or
+validate a real component.
+
 Playback takes 24 display seconds, independent of the model-time axis. The
 slider can inspect individual samples. Motion begins paused and stops when
 the view is hidden or moved out of view. Changing any model setting pauses
@@ -90,7 +106,7 @@ sourced load and resistance definitions and independent validation.
 
 ## Checks
 
-Ten analytic tests check the center, peak, inverse-distance outer
+Analytic checks cover the center, peak, inverse-distance outer
 field, background-vector reinforcement/opposition, squared-speed and area
 scaling, unit conversions, continuity, and invalid input rejection. These are
 checks of the stated equations, not validation of a real tornado or building.
@@ -103,6 +119,14 @@ and rejection of invalid capacity or unordered times. Consumer checks exercise
 the paired sliders, shared clock, pause, rewind, settings, reset and visibility
 transitions. These verify the stated software rules, without validating a real
 component or building.
+
+For zero background only, an independent finite-annulus reference derives the
+continuous comparison duration from the probe's straight path through the
+threshold region, clipped to the finite window. It does not integrate production
+samples. Its controls cover zero wind/comparison, missing intersections,
+tangency and clipped intervals. An off-grid near-peak case preserves the coarse
+sampler's missed interval alongside the independent duration. This checks those
+stated mathematical cases, not a general error bound or historical wind.
 
 The default-table generator reads the actual HTML defaults and uses the same
 wind and component functions. `node tools/build_wind_sample_table.mjs --check`

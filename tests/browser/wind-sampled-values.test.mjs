@@ -14,6 +14,7 @@ const defaults=defaultExperiment(html);
 async function ready(page) {
   await page.waitForFunction(()=>document.body.dataset.windSamples==='ready');
   assert.equal(await page.locator('#sampled-values-body tr').count(),481);
+  assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Nominal spacing is approximately 0\.284 model seconds between samples/);
 }
 async function expectedRows(page,field=defaults.field,capacity=defaults.capacity,realm='browser') {
   let expected;
@@ -91,6 +92,7 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]) {
     await page.locator('#travel').focus();await page.keyboard.press('End');
     assert.equal(await page.locator('#travel').inputValue(),'80');
     await expectedRows(page,{...defaults.field,travel:80*MPH});
+    assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Nominal spacing is approximately 0\.107 model seconds between samples/);
     assert.equal(await page.evaluate(()=>window.originalSampleRows.every((row,index)=>row===document.querySelectorAll('#sampled-values-body tr')[index])),true);
     await page.locator('#passage-time').focus();await page.keyboard.press('End');
     assert.equal(await page.locator('#sampled-values-selection').textContent(),'Sample 481 of 481 selected.');
@@ -110,6 +112,7 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]) {
     }
     await page.locator('#reading-appearance').selectOption(appearance==='dark'?'light':'dark');
     await expectedRows(page,{...defaults.field,travel:80*MPH});
+    assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Nominal spacing is approximately 0\.107 model seconds between samples/);
     // Apply one absolute 2x text override, without compounding nested nodes.
     await page.evaluate(()=>{
       const nodes=[...document.querySelectorAll('#sampled-values h3,#sampled-values p,#sampled-values summary,#sampled-values span,#sampled-values button,#sampled-values th,#sampled-values td,#sampled-values caption')];
@@ -122,6 +125,7 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]) {
     await page.locator('#wind-reset').click();
     assert.equal(await page.locator('#travel').inputValue(),'30');
     await expectedRows(page);
+    assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Nominal spacing is approximately 0\.284 model seconds between samples/);
     assert.equal(await page.locator('#sampled-values-body tr[aria-current=true]').getAttribute('id'),'passage-sample-0');
   });
 }
@@ -185,6 +189,7 @@ test('Complete default wind samples remain keyboard-readable without scripts', {
   await page.locator('#travel').focus();await page.keyboard.press('End');
   await expectedRows(page,defaults.field,defaults.capacity,'node-static'); // The fallback retains declared defaults.
   assert.match(await page.locator('#sampled-values-assumptions').textContent(),/travel 30.0 mph/);
+  assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Nominal spacing is approximately 0\.284 model seconds between samples/);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
 });
 
@@ -199,4 +204,5 @@ test('Unavailable passage module retains the complete declared default calculati
   await page.locator('#sampled-values-details summary').click();
   await expectedRows(page,defaults.field,defaults.capacity,'node-static');
   assert.match(await page.locator('#sampled-values-static').textContent(),/controls cannot recalculate it/);
+  assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Nominal spacing is approximately 0\.284 model seconds between samples/);
 });
