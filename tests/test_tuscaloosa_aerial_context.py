@@ -170,7 +170,7 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
                      'APRIL 27, 2011 · CENTRAL ALABAMA'):
             self.assertIn(text, self.html)
         self.assertEqual(self.html.count('◎'), 1)
-        self.assertEqual(self.html.count('·'), 18)  # Retained separators plus the satellite source routes.
+        self.assertEqual(self.html.count('·'), 20)  # Retained separators plus the new Landsat source routes.
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)
 

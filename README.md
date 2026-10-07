@@ -114,6 +114,15 @@ shows what has actually been checked.
 
 The [Tuscaloosa and Birmingham account](https://t92t1914.github.io/tornado-atlas/tuscaloosa.html) follows the NWS survey through rural Greene County, Tuscaloosa and the western Birmingham suburbs. Three retained county records remain separately inspectable. The account explains warning management, damage estimates and unresolved fatality and clock differences. Two original NWS radar images and five contextual aftermath photographs can be enlarged with their captions, credits and source links. The photographs show a damaged neighborhood, an apartment complex, a railway bridge, scattered rail cars and a wider view of the aftermath, without assigning camera locations or verified capture times. Photograph coverage is still incomplete, and the account does not claim a registered camera, inspected footage or historical appearance reconstruction.
 
+The Joplin chapter now includes a dated NASA Terra/ASTER aftermath display,
+with its false-color interpretation and cloud obstruction explained beside
+the NWS survey figure. Tuscaloosa adds a separate USGS Landsat scar rendering.
+Its missing acquisition date, legend, scale and registration remain visible.
+Both images use the existing enlargement and source routes, with local image
+links and readable explanations available without JavaScript. The
+[source and display decision](research/satellite-aftermath-depth-2026-10-07.md)
+records the exact retained renditions and their reuse limits.
+
 The El Reno survey can also browse observations by approximate distance along the published center line. This spatial order and each point's offset are aids to reading the survey, not impact times or wind measurements. The [method and limits](docs/spatial-survey-order.md) preserve the original record order and source geometry.
 
 ## Run locally

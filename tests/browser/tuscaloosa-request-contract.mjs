@@ -3,6 +3,7 @@
 export const TUSCALOOSA_REVIEWED_IMAGES=Object.freeze([
   '/assets/tuscaloosa-birmingham-2011/goes-storm-april27.png',
   '/assets/tuscaloosa-birmingham-2011/eo1-track-may2.jpg',
+  '/assets/tuscaloosa-birmingham-2011/landsat-scar.png',
   '/assets/tuscaloosa-birmingham-2011/birmingham-aftermath-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/apartment-complex-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg',

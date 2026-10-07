@@ -7,6 +7,7 @@ const base='http://127.0.0.1:43123';
 const reviewed=[
   '/assets/tuscaloosa-birmingham-2011/goes-storm-april27.png',
   '/assets/tuscaloosa-birmingham-2011/eo1-track-may2.jpg',
+  '/assets/tuscaloosa-birmingham-2011/landsat-scar.png',
   '/assets/tuscaloosa-birmingham-2011/birmingham-aftermath-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/apartment-complex-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg',
@@ -14,18 +15,18 @@ const reviewed=[
   '/assets/tuscaloosa-birmingham-2011/aerial-context-april29.jpg',
 ];
 
-test('all seven reviewed Tuscaloosa PNG/JPEG paths are permitted exactly',()=>{
+test('all eight reviewed Tuscaloosa PNG/JPEG paths are permitted exactly',()=>{
   assert.deepEqual(TUSCALOOSA_REVIEWED_IMAGES,reviewed);
-  assert.equal(new Set(TUSCALOOSA_REVIEWED_IMAGES).size,7);
+  assert.equal(new Set(TUSCALOOSA_REVIEWED_IMAGES).size,8);
   for(const path of reviewed)assert.equal(tuscaloosaRequestForbidden(base+path,base),false,path);
 });
 
 test('the explicit contract matches the article seven raster images and preserves its two GIFs',async()=>{
   const html=await readFile(new URL('../web/tuscaloosa.html',import.meta.url),'utf8');
   const sources=[...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map(match=>'/'+match[1]);
-  assert.equal(sources.length,9,'Nine article images have source attributes');
+  assert.equal(sources.length,10,'Ten reviewed article images have source attributes');
   const raster=sources.filter(path=>/\.(?:png|jpe?g)$/i.test(path));
-  assert.equal(raster.length,7);
+  assert.equal(raster.length,8);
   assert.deepEqual(raster.sort(),[...reviewed].sort());
   assert.deepEqual(sources.filter(path=>/\.gif$/i.test(path)),[
     '/assets/tuscaloosa-birmingham-2011/kbmx-reflectivity-2238.gif',
