@@ -85,10 +85,10 @@ class JoplinContextPhotoTests(unittest.TestCase):
         parser = PhotoLinks()
         parser.feed((ROOT / 'web/joplin.html').read_text(encoding='utf-8'))
         self.assertEqual(set(parser.links), {'friskey-joplin-storm', 'nws-joplin-aftermath',
-                                           'usace-joplin-temporary-housing'})
+                                           'usace-joplin-temporary-housing', 'usace-joplin-debris-coordination'})
         for identifier, link in parser.links.items():
-            if identifier == 'usace-joplin-temporary-housing':
-                # The recovery test binds this later derivative and its label.
+            if identifier in ('usace-joplin-temporary-housing', 'usace-joplin-debris-coordination'):
+                # Their own tests bind the later derivative/preview and labels.
                 continue
             row = self.media[identifier]
             self.assertEqual(link['href'], row['transformation']['asset'])

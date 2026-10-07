@@ -46,7 +46,8 @@ function showFromLocation() {
       license: link.dataset.photoLicense,
       licenseUrl: link.dataset.photoRights,
     });
-    document.getElementById('photo-source').textContent = 'Inspect the original file, credit and reuse record';
+    document.getElementById('photo-source').textContent =
+      link.dataset.photoSourceLabel || 'Inspect the original file, credit and reuse record';
     document.getElementById('photo-original').textContent =
       link.dataset.photoOriginalLabel || 'Open the unchanged original photograph';
     return;

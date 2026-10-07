@@ -37,6 +37,13 @@ async function keyboardFollow(page,link){
   await page.waitForLoadState('domcontentloaded',{timeout:10000});
 }
 async function dossierReady(page){await page.waitForFunction(()=>document.body?.dataset.ready==='true');}
+async function surveyHeadingReady(page){
+  // Await the destination content itself, then retain its exact identity checks.
+  const heading=page.locator('#path').getByRole('heading',{name:'The same track had different outcomes along it.',exact:true});
+  await heading.waitFor({state:'visible',timeout:10000});
+  assert.equal(await heading.count(),1);
+  assert.equal(await page.locator('#source-survey').count(),1);
+}
 async function appearanceState(page,{choice,enabled,background}){
   const control=page.locator('#reading-appearance'),help=page.locator('#reading-appearance-help');
   assert.equal(await control.inputValue(),choice);
@@ -86,8 +93,7 @@ for(const appearance of ['dark','light'])test(`documentary fallback works withou
   assert.equal(requests.some(url=>url.includes('/archive/')||url.includes('/catalogue/')),false);
   await keyboardFollow(page,direct.getByRole('link',{name:'Tuscaloosa and Birmingham, 2011',exact:true}));
   assert.equal(new URL(page.url()).pathname,'/tuscaloosa.html');
-  assert.equal(await page.locator('#path').getByRole('heading',{name:'The same track had different outcomes along it.',exact:true}).count(),1);
-  assert.equal(await page.locator('#source-survey').count(),1);
+  await surveyHeadingReady(page);
 });
 
 for(const appearance of ['dark','light'])test(`a blocked appearance script leaves Auto disabled and follows ${appearance}`,{timeout:30000},async t=>{

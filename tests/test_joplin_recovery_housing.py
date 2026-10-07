@@ -111,7 +111,9 @@ class HousingHTML(HTMLParser):
 class JoplinRecoveryHousingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.doc = next(d for d in dossiers() if d['id'] == EVENT)
+        cls.current = next(d for d in dossiers() if d['id'] == EVENT)
+        # Bind the complete reviewed housing increment, rather than later additions.
+        cls.doc = json.loads((ROOT / 'web/archive/joplin-2011-91411174f67bc15ab146.json').read_text(encoding='utf-8'))
         cls.prior = json.loads((ROOT / f'web/archive/{EVENT}-{PRIOR[:20]}.json').read_text(encoding='utf-8'))
         cls.item = next(m for m in cls.doc['media'] if m['id'] == MEDIA)
         cls.observation = next(o for o in cls.doc['observations'] if o['id'] == OBSERVATION)
@@ -211,7 +213,7 @@ class JoplinRecoveryHousingTests(unittest.TestCase):
         artifacts = publication()
         index = artifacts['archive/index.json']
         entry = next(e for e in index['events'] if e['id'] == EVENT)
-        self.assertEqual(artifacts[entry['file']], self.doc)
+        self.assertEqual(artifacts[entry['file']], self.current)
         self.assertEqual(entry['registered_media'], 0)
         rows = artifacts[index['source_directory']['file']]['entries']
         row = next(r for r in rows if r['event_id'] == EVENT and r['source']['id'] == SOURCE)
