@@ -25,6 +25,11 @@ function sync({push=false}={}){
   if(href!==location.pathname+location.search+location.hash)history[push?'pushState':'replaceState'](null,'',href);
 }
 function currentList(){return group?matches.filter(r=>group.has(r.id)):matches;}
+function renderSelectedResult(){
+  const index=currentList().findIndex(r=>r.id===selected?.id);
+  if(index>=0)page=Math.floor(index/pageSize);
+  renderResults();
+}
 function renderResults(){
   const list=currentList(),fragment=document.createDocumentFragment();
   page=Math.min(page,Math.max(0,Math.ceil(list.length/pageSize)-1));
@@ -81,7 +86,7 @@ async function selectRecord(record,{center=false,push=true,focus=true}={}){
   mapUI?.select(record);
   movingSelection=true;
   try{if(center&&positionStatus(record)==='reported')mapUI?.center(record);}finally{movingSelection=false;}
-  renderResults();viewMode('detail');sync({push});
+  renderSelectedResult();viewMode('detail');sync({push});
   const panel=el('detail');panel.replaceChildren(make('span',record.id,'eyebrow'),make('h2',record.title),make('p','Loading source account...'));
   if(focus)panel.focus({preventScroll:true});
   try{
@@ -162,7 +167,7 @@ async function main(){
   el('clear-group').onclick=()=>{group=null;page=0;renderResults();};
   el('prev-page').onclick=()=>{page--;renderResults();el('results').firstElementChild?.focus();};el('next-page').onclick=()=>{page++;renderResults();el('results').firstElementChild?.focus();};
   for(const [id,delta] of [['prev-record',-1],['next-record',1]])el(id).onclick=()=>{const list=currentList(),index=list.findIndex(r=>r.id===selected?.id);selectRecord(list[index+delta]);};
-  el('back-list').onclick=()=>{viewMode('list');sync({push:true});el('results').querySelector(`[data-record="${selected?.id}"]`)?.focus();};
+  el('back-list').onclick=()=>{renderSelectedResult();viewMode('list');sync({push:true});el('results').querySelector(`[data-record="${selected?.id}"]`)?.focus();};
   for(const mode of ['map','list','detail'])el('show-'+mode).onclick=()=>{viewMode(mode);sync({push:true});};
   el('fit').onclick=()=>mapUI?.fit(matches);el('zoom-in').onclick=()=>mapUI?.zoom(1);el('zoom-out').onclick=()=>mapUI?.zoom(-1);
   el('search-area').onclick=()=>{area=mapUI?.area()||null;applyFilters({push:true});};el('clear-area').onclick=()=>{area=null;applyFilters({push:true});};
