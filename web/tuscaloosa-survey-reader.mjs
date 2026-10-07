@@ -11,9 +11,59 @@ let pendingHistorySelection;
 let pendingHistoryFrame;
 let pendingHistoryDestination;
 let initialSelectionEligible = false;
+let initialPlacementDestination, initialPlacementDeadline, initialPlacementExpiry;
+const initialInputs = ['wheel', 'touchstart', 'pointerdown', 'keydown'];
+
+function retireInitialPlacement() {
+  clearTimeout(initialPlacementExpiry);
+  initialPlacementExpiry = undefined;
+  initialPlacementDestination = initialPlacementDeadline = undefined;
+  window.removeEventListener('scroll', recoverInitialPlacement);
+  window.removeEventListener('click', initialNavigationIntent, true);
+  document.removeEventListener('visibilitychange', initialVisibilityChange);
+  for (const type of initialInputs) window.removeEventListener(type, cancelHistorySelection, true);
+}
+
+function initialVisibilityChange() {
+  if (document.visibilityState === 'hidden') cancelHistorySelection();
+}
+
+function initialNavigationIntent(event) {
+  if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey ||
+    event.shiftKey || event.altKey || !event.target?.closest?.('a[href]')) return;
+  cancelHistorySelection();
+}
+
+function recoverInitialPlacement() {
+  if (initialPlacementDeadline === undefined) return; // The first placement is still pending.
+  const url = new URL(location.href);
+  if (performance.now() >= initialPlacementDeadline || location.href !== initialPlacementDestination ||
+    document.visibilityState === 'hidden' || url.searchParams.has('photo') ||
+    document.getElementById('photo-dialog')?.open) {
+    retireInitialPlacement();
+    return;
+  }
+  const target = stops.find(stop => stop.id === url.searchParams.get('stop'));
+  if (!target) {retireInitialPlacement(); return;}
+  const rect = target.getBoundingClientRect();
+  if (rect.top >= -1 && rect.top < innerHeight) return;
+  // A late initial-load scroll can replace the first correct placement.
+  // Consume this short-lived ownership before one recovery, without taking focus.
+  retireInitialPlacement();
+  showSelection({behavior: 'instant'});
+}
+
+function claimInitialPlacement() {
+  initialPlacementDestination = location.href;
+  window.addEventListener('scroll', recoverInitialPlacement, {passive: true});
+  window.addEventListener('click', initialNavigationIntent, {capture: true});
+  document.addEventListener('visibilitychange', initialVisibilityChange);
+  for (const type of initialInputs) window.addEventListener(type, cancelHistorySelection, {capture: true, passive: true});
+}
 
 function cancelHistorySelection() {
   initialSelectionEligible = false;
+  retireInitialPlacement();
   clearTimeout(pendingHistorySelection);
   cancelAnimationFrame(pendingHistoryFrame);
   pendingHistoryDestination = undefined;
@@ -60,6 +110,7 @@ function queuePlacement(focus) {
   pendingHistoryDestination = destination;
   pendingHistorySelection = setTimeout(() => {
     if (location.href !== destination) {
+      if (initialPlacementDestination === destination) retireInitialPlacement();
       if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
       return;
     }
@@ -67,7 +118,12 @@ function queuePlacement(focus) {
       if (location.href === destination && (focus ||
         (!new URL(location.href).searchParams.has('photo') && !document.getElementById('photo-dialog')?.open))) {
         showSelection({focus, behavior: 'instant'});
-      }
+        if (!focus && initialPlacementDestination === destination) {
+          initialPlacementDeadline = performance.now() + 500;
+          // Expiry only retires the passive guard. It never schedules a scroll.
+          initialPlacementExpiry = setTimeout(retireInitialPlacement, 500);
+        }
+      } else if (initialPlacementDestination === destination) retireInitialPlacement();
       if (pendingHistoryDestination === destination) pendingHistoryDestination = undefined;
     });
   }, 0);
@@ -116,11 +172,12 @@ window.addEventListener('popstate', () => {
   }
 });
 window.addEventListener('pageshow', event => {
-  if (event.persisted || !initialSelectionEligible) return;
+  if (event.persisted) {cancelHistorySelection(); return;}
+  if (!initialSelectionEligible) return;
   initialSelectionEligible = false;
   const url = new URL(location.href);
   if (url.searchParams.get('stop') !== currentStopParameter || url.searchParams.has('photo') ||
-    document.getElementById('photo-dialog')?.open) return;
+    document.getElementById('photo-dialog')?.open) {retireInitialPlacement(); return;}
   // Place one valid explicit initial stop after native load/fragment placement.
   // A newer reader/gallery action owns the viewport; initial placement never
   // takes focus or disables native restoration for other navigation.
@@ -130,4 +187,6 @@ window.addEventListener('pagehide', cancelHistorySelection);
 reader.hidden = false;
 showSelection({scroll: false});
 initialSelectionEligible = stops.some(stop => stop.id === currentStopParameter);
+if (initialSelectionEligible && !new URL(location.href).searchParams.has('photo') &&
+  !document.getElementById('photo-dialog')?.open) claimInitialPlacement();
 document.body.dataset.surveyReader = 'ready';

@@ -16,8 +16,8 @@ const stopIds = ['path-greene', 'path-tuscaloosa', 'path-holt',
 function readerFixture(initial = 'path-birmingham',
   {animateAuto = false, settleInitial = true, initialPhoto = null, viewerOpen = Boolean(initialPhoto)} = {}) {
   const effects = [], tasks = new Map(), frames = new Map(), microtasks = [], animations = [];
-  let nextTask = 0, nextFrame = 0, scrollY = 0;
-  const document = {activeElement: null, body: {dataset: {}}};
+  let nextTask = 0, nextFrame = 0, scrollY = 0, clock = 0;
+  const document = {activeElement: null, visibilityState: 'visible', body: {dataset: {}}};
   class Element {
     constructor(id = '', top = 0) {
       this.id = id; this.top = top; this.children = []; this.listeners = new Map();
@@ -27,6 +27,10 @@ function readerFixture(initial = 'path-birmingham',
     addEventListener(name, callback, {capture = false} = {}) {
       if (!this.listeners.has(name)) this.listeners.set(name, []);
       this.listeners.get(name).push({callback,capture});
+    }
+    removeEventListener(name, callback, capture = false) {
+      this.listeners.set(name,(this.listeners.get(name) || []).filter(listener =>
+        listener.callback !== callback || listener.capture !== capture));
     }
     dispatch(name, options = {}) {
       const event = {button:0,ctrlKey:false,metaKey:false,shiftKey:false,altKey:false,
@@ -39,6 +43,7 @@ function readerFixture(initial = 'path-birmingham',
     }
     append(child) {this.children.push(child);}
     add(option) {this.children.push(option);}
+    getBoundingClientRect() {return {top:this.top-scrollY,bottom:this.top-scrollY+203};}
     scrollIntoView({behavior = 'auto'} = {}) {
       effects.push(['scroll', this.id, behavior]);
       // CSSOM View starts a new scroll by aborting the previous motion.
@@ -48,6 +53,9 @@ function readerFixture(initial = 'path-birmingham',
     }
     focus() {document.activeElement = this; effects.push(['focus', this.id]);}
   }
+  const documentEvents = new Element();
+  document.addEventListener = (...args) => documentEvents.addEventListener(...args);
+  document.removeEventListener = (...args) => documentEvents.removeEventListener(...args);
   const nodes = new Map();
   const add = (id, top) => {const node = new Element(id, top); nodes.set(id, node); return node;};
   const reader = add('survey-reader', 100);
@@ -81,11 +89,14 @@ function readerFixture(initial = 'path-birmingham',
   if (initialPhoto) initialURL.searchParams.set('photo',initialPhoto);
   const window = new Element(), location = {href:initialURL.href};
   const history = {scrollRestoration: 'auto', pushState(_state, _unused, url) {location.href = String(url);}};
-  const scheduleTask = callback => {const id = ++nextTask; tasks.set(id, callback); return id;};
+  const scheduleTask = (callback, delay = 0) => {
+    const id = ++nextTask; tasks.set(id,{callback,due:clock+delay}); return id;
+  };
   window.setTimeout = scheduleTask; window.clearTimeout = id => tasks.delete(id);
   const scheduleFrame = callback => {const id = ++nextFrame; frames.set(id, callback); return id;};
   window.requestAnimationFrame = scheduleFrame; window.cancelAnimationFrame = id => frames.delete(id);
-  const context = vm.createContext({document, window, location, history, URL,
+  const context = vm.createContext({document, window, location, history, URL, innerHeight:844,
+    performance:{now:() => clock},
     Option: class {constructor(label, value) {this.textContent = label; this.value = value;}},
     setTimeout: scheduleTask, clearTimeout: window.clearTimeout,
     requestAnimationFrame: scheduleFrame, cancelAnimationFrame: window.cancelAnimationFrame,
@@ -115,9 +126,9 @@ function readerFixture(initial = 'path-birmingham',
   };
   const flushTasks = ({render = true} = {}) => {
     let count = 0;
-    while (tasks.size) {
+    while ([...tasks.values()].some(task => task.due <= clock)) {
       assert.ok(++count <= 12, 'Reader tasks must be bounded');
-      const [id, callback] = tasks.entries().next().value;
+      const [id, {callback}] = [...tasks.entries()].find(([,task]) => task.due <= clock);
       tasks.delete(id); callback();
     }
     if (render) flushFrames();
@@ -127,6 +138,7 @@ function readerFixture(initial = 'path-birmingham',
   if (settleInitial) {
     window.dispatch('pageshow',{persisted:false}); flushTasks();
     while (animations.length) scrollY = animations.shift().top;
+    clock += 500; flushTasks(); // Retire the modeled initial guard before history-only cases.
   }
   effects.length = 0;
   function nativeBack(id, restoredY = reader.top, photo = null) {
@@ -160,7 +172,20 @@ function readerFixture(initial = 'path-birmingham',
       // Model the adapter restoring its opener, then let pending reader work run.
       document.activeElement = photoLink;
     },
-    restorePersistedViewport, pagehide: () => window.dispatch('pagehide'),
+    restorePersistedViewport, scrollEvent: () => window.dispatch('scroll'),
+    input: (type, options) => window.dispatch(type,options),
+    visibility: state => {document.visibilityState=state; documentEvents.dispatch('visibilitychange');},
+    visibilityListeners: () => (documentEvents.listeners.get('visibilitychange') || []).length,
+    changeURL: changes => {
+      const url = new URL(location.href);
+      for (const [key,value] of Object.entries(changes)) {
+        if (value === null) url.searchParams.delete(key); else url.searchParams.set(key,value);
+      }
+      location.href = url.href;
+    },
+    advanceClock: milliseconds => {clock += milliseconds;},
+    initialListeners: () => [...window.listeners.values()].flat().length,
+    pagehide: () => window.dispatch('pagehide'),
     viewport: () => scrollY, queued: () => tasks.size, queuedFrames: () => frames.size,
     pendingAnimations: () => animations.length,
     flushAnimations: () => {while (animations.length) scrollY = animations.shift().top;}};
@@ -340,6 +365,127 @@ test('one initial valid-stop placement wins over modeled reload scroll without t
   assert.deepEqual(page.effects,[]);
 });
 
+test('initial placement recovers one later viewport overwrite without taking focus', () => {
+  // Model the observed ordering, not Firefox's internal scroll implementation:
+  // the explicit stop is placed, then a later scroll moves it above the viewport.
+  const page = readerFixture('path-birmingham',{settleInitial:false});
+  const focus = {id:'preserved-focus'}; page.document.activeElement = focus;
+  page.pageshow(false); page.flushTasks();
+  const target = page.nodes.get('path-birmingham');
+  assert.equal(page.viewport(),target.top);
+  page.advanceClock(50);
+  page.restorePersistedViewport(target.top + 330); page.document.activeElement = focus;
+  page.scrollEvent();
+  assert.equal(page.viewport(),target.top,'Later initial-load scroll must not leave the selected account above the viewport');
+  assert.equal(page.document.activeElement,focus,'Initial recovery must not claim focus');
+});
+
+test('initial recovery consumes ownership before exactly one corrective scroll', () => {
+  const page = readerFixture('path-birmingham',{settleInitial:false});
+  page.pageshow(false); page.flushTasks();
+  const target = page.nodes.get('path-birmingham');
+  const listeners = page.initialListeners();
+  page.restorePersistedViewport(target.top+330); page.effects.length = 0; page.scrollEvent();
+  assert.deepEqual(page.effects,[['scroll','path-birmingham','instant']]);
+  assert.ok(page.initialListeners()<listeners,'Consumed guard must remove its passive/input listeners');
+  assert.equal(page.queued(),0,'Consumed guard must cancel its expiry');
+  page.restorePersistedViewport(target.top+330); page.effects.length = 0; page.scrollEvent();
+  assert.equal(page.viewport(),target.top+330); assert.deepEqual(page.effects,[]);
+});
+
+test('the 500 ms expiry only retires initial ownership and cannot schedule a scroll', () => {
+  const page = readerFixture('path-birmingham',{settleInitial:false});
+  page.pageshow(false); page.flushTasks();
+  const target = page.nodes.get('path-birmingham'), listeners = page.initialListeners();
+  page.advanceClock(500); page.effects.length = 0; page.flushTasks();
+  assert.deepEqual(page.effects,[]); assert.equal(page.queued(),0);
+  assert.ok(page.initialListeners()<listeners);
+  page.restorePersistedViewport(target.top+330); page.effects.length = 0; page.scrollEvent();
+  assert.equal(page.viewport(),target.top+330); assert.deepEqual(page.effects,[]);
+});
+
+test('elapsed initial deadline rejects recovery even when the expiry task has not run', () => {
+  const page = readerFixture('path-birmingham',{settleInitial:false});
+  page.pageshow(false); page.flushTasks();
+  const target = page.nodes.get('path-birmingham');
+  page.advanceClock(500); // Deliberately leave the now-due expiry task unflushed.
+  page.restorePersistedViewport(target.top+330); page.effects.length = 0; page.scrollEvent();
+  assert.equal(page.viewport(),target.top+330); assert.deepEqual(page.effects,[]);
+  assert.equal(page.queued(),0);
+});
+
+test('visitor wheel, touch, pointer and key intent invalidate initial ownership at every stage', () => {
+  for (const type of ['wheel','touchstart','pointerdown','keydown']) {
+    for (const stage of ['before-pageshow','pending-task','pending-frame','placed']) {
+      const page = pendingInitial(stage), target = page.nodes.get('path-birmingham');
+      page.input(type); page.restorePersistedViewport(target.top+330);
+      const focus = {id:'visitor-focus'}; page.document.activeElement = focus;
+      page.effects.length = 0; page.pageshow(false); page.flushTasks(); page.scrollEvent();
+      assert.equal(page.viewport(),target.top+330,`${type}/${stage} owns its viewport`);
+      assert.equal(page.document.activeElement,focus); assert.deepEqual(page.effects,[]);
+      assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+    }
+  }
+});
+
+test('eligible anchor intent retires the initial guard while modified or prevented clicks do not', () => {
+  for (const [options, eligible] of [
+    [{},true],[{detail:0},true],[{button:1},false],[{ctrlKey:true},false],
+    [{metaKey:true},false],[{shiftKey:true},false],[{altKey:true},false],[{defaultPrevented:true},false]
+  ]) {
+    const page = pendingInitial('placed'), target = page.nodes.get('path-birmingham');
+    const anchor = {closest:selector => {assert.equal(selector,'a[href]'); return anchor;}};
+    page.input('click',{target:anchor,...options});
+    page.restorePersistedViewport(target.top+330); page.effects.length = 0; page.scrollEvent();
+    assert.equal(page.viewport(),target.top+(eligible?330:0));
+    assert.deepEqual(page.effects,eligible?[]:[['scroll','path-birmingham','instant']]);
+  }
+});
+
+test('hidden page, changed route, unknown stop and photo intent reject and retire recovery', () => {
+  for (const change of ['hidden','route','unknown','photo','viewer']) {
+    const page = pendingInitial('placed'), target = page.nodes.get('path-birmingham');
+    if (change === 'hidden') page.document.visibilityState = 'hidden';
+    if (change === 'route') page.changeURL({context:'new-owner'});
+    if (change === 'unknown') page.changeURL({stop:'unknown'});
+    if (change === 'photo') page.changeURL({photo:'eo1-tuscaloosa-track'});
+    if (change === 'viewer') page.nodes.get('photo-dialog').open = true;
+    page.restorePersistedViewport(target.top+330); page.effects.length = 0; page.scrollEvent();
+    assert.equal(page.viewport(),target.top+330,change); assert.deepEqual(page.effects,[]);
+    assert.equal(page.queued(),0,'Rejected guard must retire its expiry');
+    page.document.visibilityState = 'visible'; page.nodes.get('photo-dialog').open = false;
+    page.changeURL({context:null,stop:'path-birmingham',photo:null}); page.scrollEvent();
+    assert.equal(page.viewport(),target.top+330,'Returning to the old URL cannot revive consumed ownership');
+  }
+});
+
+test('new history and page departure cancel already armed initial recovery', () => {
+  for (const newer of ['history','pagehide']) {
+    const page = pendingInitial('placed');
+    if (newer === 'history') {page.nativeBack('path-concord'); page.flushTasks(); page.expectViewport('path-concord');}
+    else page.pagehide();
+    const target = page.nodes.get(newer === 'history'?'path-concord':'path-birmingham');
+    page.restorePersistedViewport(target.top+330); page.effects.length = 0; page.scrollEvent();
+    assert.equal(page.viewport(),target.top+330); assert.deepEqual(page.effects,[]);
+    assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
+test('hidden then visible without an intermediate scroll permanently retires initial ownership', () => {
+  for (const stage of ['before-pageshow','pending-task','pending-frame','placed']) {
+    const page = pendingInitial(stage), target = page.nodes.get('path-birmingham');
+    assert.equal(page.visibilityListeners(),1,'Owned initial placement observes visibility directly');
+    page.visibility('hidden'); page.visibility('visible');
+    assert.equal(page.visibilityListeners(),0,'Hidden transition removes its own visibility listener');
+    page.restorePersistedViewport(target.top+330);
+    const focus = {id:'new-visitor-focus'}; page.document.activeElement = focus;
+    page.effects.length=0; page.pageshow(false); page.flushTasks(); page.scrollEvent();
+    assert.equal(page.viewport(),target.top+330,stage);
+    assert.equal(page.document.activeElement,focus); assert.deepEqual(page.effects,[]);
+    assert.equal(page.queued(),0); assert.equal(page.queuedFrames(),0);
+  }
+});
+
 test('absent or unknown initial stop retains native fragment and viewport restoration', () => {
   for (const initial of [null,'unknown']) {
     const page = readerFixture(initial,{settleInitial:false});
@@ -368,6 +514,7 @@ function pendingInitial(stage) {
   page.restorePersistedViewport(100);
   if (stage !== 'before-pageshow') page.pageshow(false);
   if (stage === 'pending-frame') page.flushTasks({render:false});
+  if (stage === 'placed') page.flushTasks();
   return page;
 }
 
