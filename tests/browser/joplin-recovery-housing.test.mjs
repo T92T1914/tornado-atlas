@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {settledFragment} from './fragment-ready.mjs';
 import {noScriptImage} from './no-script-image.mjs';
 import path from 'node:path';
+import {setTimeout as delay} from 'node:timers/promises';
 import {fixture, base} from './harness.mjs';
 
 const id='usace-joplin-temporary-housing', file='usace-temporary-housing.jpg';
@@ -10,21 +11,47 @@ const source='https://commons.wikimedia.org/wiki/File:First_FEMA_modular_homes_a
 const license='https://creativecommons.org/licenses/by/2.0/';
 const ready=page=>page.waitForFunction(()=>location.pathname.endsWith('/joplin.html') &&
   document.body.dataset.photoViewer==='ready' && !!document.getElementById('photo-dialog'));
-async function decode(locator) {
-  let timer;
-  try {
-    await Promise.race([locator.evaluate(image=>image.decode()),
-      new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Image decode exceeded the 10-second local bound')),10000);})]);
-  } finally {clearTimeout(timer);}
+async function decode(locator,name=file,width=1280,height=569,dialog=false) {
+  // Scrolling can start a lazy request. Load readiness and one decode share
+  // the original 10-second budget, including the enlarged dialog's readiness.
+  const expected={source:base+'/assets/joplin-2011/'+name,width,height,dialog};
+  const deadline=performance.now()+10000;
+  let timer,stopped=false,last;
+  const operation=(async()=>{
+    while(!stopped&&performance.now()<deadline){
+      last=await locator.evaluate((image,{dialog})=>({connected:image.isConnected,
+        complete:image.complete,width:image.naturalWidth,height:image.naturalHeight,
+        source:image.currentSrc||image.src,
+        shown:!dialog||(document.getElementById('photo-dialog')?.open&&!image.hidden)}),expected);
+      if(stopped||performance.now()>=deadline)
+        throw Error('Expected image did not load and decode within 10000ms: '+JSON.stringify(last));
+      if(last.connected&&last.complete&&last.width===width&&last.height===height&&
+          last.source===expected.source&&last.shown){
+        await locator.evaluate(async(image,{source,width,height,dialog})=>{
+          const matches=()=>image.isConnected&&image.complete&&image.naturalWidth===width&&
+            image.naturalHeight===height&&(image.currentSrc||image.src)===source&&
+            (!dialog||(document.getElementById('photo-dialog')?.open&&!image.hidden));
+          if(!matches())throw Error('Expected image changed before decode');
+          await image.decode();
+          if(!matches())throw Error('Expected image changed during decode');
+        },expected);
+        if(stopped||performance.now()>=deadline)throw Error('Expected image decode exceeded its 10000ms bound');
+        return;
+      }
+      const remaining=deadline-performance.now();
+      if(remaining>0)await delay(Math.min(25,remaining));
+    }
+    throw Error('Expected image did not load and decode within 10000ms: '+JSON.stringify(last));
+  })();
+  try{
+    await Promise.race([operation,new Promise((_,reject)=>{
+      timer=setTimeout(()=>reject(Error('Expected image did not load and decode within 10000ms: '+
+        JSON.stringify(last))),Math.max(1,deadline-performance.now()));
+    })]);
+  }finally{stopped=true;clearTimeout(timer);}
 }
 async function shown(page,name=file,width=1280,height=569) {
-  await page.waitForFunction(({name,width,height})=>{
-    const dialog=document.getElementById('photo-dialog'),image=document.getElementById('photo-full');
-    return dialog?.open && image && !image.hidden && image.complete &&
-      image.naturalWidth===width && image.naturalHeight===height &&
-      new URL(image.currentSrc||image.src).pathname.endsWith('/'+name);
-  },{name,width,height});
-  await decode(page.locator('#photo-full'));
+  await decode(page.locator('#photo-full'),name,width,height,true);
 }
 async function labels(page) {
   assert.equal(await page.locator('#photo-title').textContent(),'Temporary housing arrived after the storm');
@@ -86,6 +113,54 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]) {
     assert.equal(requests.some(url=>!url.startsWith(base+'/')),false);
   });
 }
+
+test('Joplin housing waits for held thumbnail pixels before its first decode',{timeout:45000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:844},hasTouch:true,isMobile:true,reducedMotion:'reduce'});
+  let release,requested,timer;
+  const held=new Promise(resolve=>{release=resolve;});
+  const seen=new Promise(resolve=>{requested=resolve;});
+  t.after(()=>release());
+  await page.route('**/'+file,async route=>{requested();await held;await route.continue();});
+  try{
+    await page.goto(base+'/joplin.html#recovery');await ready(page);
+    const opener=page.locator(`[data-photo-id="${id}"]`),image=opener.locator('img');
+    // Observe this owned thumbnail only. Native load state, decode return and
+    // original errors are unchanged. The observation dies with its context.
+    await image.evaluate(image=>{
+      const complete=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'complete').get;
+      const nativeDecode=image.decode;
+      const observation={snapshots:0,decodeCalls:[]};
+      image.__housingReadiness=observation;
+      Object.defineProperty(image,'complete',{configurable:true,get(){observation.snapshots++;return complete.call(this);}});
+      image.decode=function(...args){
+        observation.decodeCalls.push({complete:complete.call(this),width:this.naturalWidth,
+          height:this.naturalHeight,source:this.currentSrc||this.src});
+        return nativeDecode.apply(this,args);
+      };
+    });
+    await opener.scrollIntoViewIfNeeded();
+    const accepting=decode(image).then(()=>({error:null}),error=>({error}));
+    await Promise.race([seen,new Promise((_,reject)=>{
+      timer=setTimeout(()=>reject(Error('The held housing thumbnail was not requested')),10000);
+    })]);
+    await page.waitForFunction(id=>{
+      const observation=document.querySelector(`[data-photo-id="${id}"] img`).__housingReadiness;
+      return observation.snapshots>0||observation.decodeCalls.length>0;
+    },id);
+    const heldState=await image.evaluate(image=>({complete:image.complete,width:image.naturalWidth,
+      height:image.naturalHeight,decodeCalls:image.__housingReadiness.decodeCalls.length}));
+    assert.equal(heldState.complete&&heldState.width>0,false,'Held response has not supplied image pixels');
+    assert.equal(heldState.decodeCalls,0,'Decode must not start before the held thumbnail has exact ready pixels');
+    release();
+    const result=await accepting;if(result.error)throw result.error;
+    const decodedState=await image.evaluate(image=>({dimensions:[image.naturalWidth,image.naturalHeight],
+      calls:image.__housingReadiness.decodeCalls}));
+    assert.deepEqual(decodedState.dimensions,[1280,569]);
+    assert.deepEqual(decodedState.calls,[{complete:true,width:1280,height:569,source:base+'/assets/joplin-2011/'+file}]);
+    await opener.tap();await shown(page);await labels(page);
+    await page.keyboard.press('Escape');await closed(page);
+  }finally{clearTimeout(timer);release();}
+});
 
 test('Joplin direct housing view reloads and closes only its own selection',{timeout:45000},async t=>{
   const page=await fixture(t);
