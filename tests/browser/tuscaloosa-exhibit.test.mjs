@@ -1,11 +1,23 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
+import {tuscaloosaRequestForbidden} from './tuscaloosa-request-contract.mjs';
 
 for(const [width,appearance,fallback] of [[320,'dark'],[390,'dark'],[1280,'light'],[320,'light',true],[390,'light',true]]) {
   test(`Tuscaloosa account and source dossier ${width} ${appearance}${fallback?' fallback fonts':''}`,async t=>{
     const page=await fixture(t,{viewport:{width,height:844},isMobile:width<600,hasTouch:width<600});
-    const requests=[];page.on('request',r=>requests.push(r.url()));
+    let forbiddenRequestCount=0;
+    const forbiddenRequests=[],origin=new URL(base).origin;
+    page.on('request',request=>{
+      const url=request.url();
+      if(!tuscaloosaRequestForbidden(url,base))return;
+      forbiddenRequestCount++;
+      if(forbiddenRequests.length<12){
+        const target=new URL(url);
+        forbiddenRequests.push({origin:target.origin.slice(0,128),
+          path:target.origin===origin?target.pathname.slice(0,256):'<external path omitted>'});
+      }
+    });
     await page.goto(base+'/tuscaloosa.html');
     await page.locator('#reading-appearance').selectOption(appearance);
     if(fallback)await page.addStyleTag({content:':root {--interface-font:"Atlas unavailable font",Arial,sans-serif}' +
@@ -43,14 +55,8 @@ for(const [width,appearance,fallback] of [[320,'dark'],[390,'dark'],[1280,'light
     assert.equal(new URL(page.url()).hash,'#path');
     assert.equal(await page.locator('#path .documentary-timeline li').count(),6);
     assert.match(await page.locator('#warnings').textContent(),/best practice/i);
-    assert.equal(requests.some(u=>/youtube|catalogue\/index|\.png/.test(u) ||
-      (/\.jpg/i.test(u)&&![
-        base+'/assets/tuscaloosa-birmingham-2011/birmingham-aftermath-april29.jpg',
-        base+'/assets/tuscaloosa-birmingham-2011/apartment-complex-april29.jpg',
-        base+'/assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg',
-        base+'/assets/tuscaloosa-birmingham-2011/train-cars-april29.jpg',
-        base+'/assets/tuscaloosa-birmingham-2011/aerial-context-april29.jpg'
-      ].includes(u))),false);
+    assert.equal(forbiddenRequestCount>0,false,`Unexpected Tuscaloosa requests: ${JSON.stringify({
+      count:forbiddenRequestCount,samples:forbiddenRequests,omitted:forbiddenRequestCount-forbiddenRequests.length})}`);
     await page.goto(base+'/dossier.html?event=tuscaloosa-birmingham-2011');
     await page.waitForFunction(()=>document.body?.dataset.ready==='true');
     assert.match(await page.locator('#content').textContent(),/No inspected media|No media|unregistered/i);
