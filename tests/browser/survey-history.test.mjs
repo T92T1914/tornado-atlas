@@ -168,7 +168,7 @@ test('filtering during replay playback refreshes the current observation share t
   assert.equal(share.searchParams.get('surveyRating'),'EF2');
 });
 
-const tinyPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/qU0AAAAASUVORK5CYII=','base64');
+const tinyPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNwaDjwHwAFBAKAPJ4DgAAAAABJRU5ErkJggg==','base64');
 async function syntheticSurveyImage(page) {
   // The source image is replaced only inside this isolated browser fixture.
   await page.route('https://services.dat.noaa.gov/**',route=>route.fulfill({status:200,contentType:'image/png',body:tinyPng}));
