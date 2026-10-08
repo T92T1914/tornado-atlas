@@ -177,14 +177,16 @@ async function main() {
   const { mountReader, mountReaderLayout } = await import('./reader-view.mjs');
   // Resolve the upstream responsive layout before playback becomes interactive.
   mountReaderLayout();
-  const selectMinute = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage, {points:data.survey.points,media:data.survey_media,openPhoto,lazy:true});
+  const replay = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage, {points:data.survey.points,media:data.survey_media,openPhoto,lazy:true});
+  const selectMinute = replay.selectMinute;
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
   mountReader(data.reading, history.chapters.map(chapter => ({...chapter, map_time:mapTimes.get(chapter.minute)})), selectMinute);
   const { mountDamage } = await import('./damage-view.mjs');
   mountDamage(data.damage, openPhoto);
   const { mountSurvey } = await import('./survey-view.mjs');
-  mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places);
+  mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places,
+    {beforeHistoryChange:replay.prepareSurveyHistory});
   mountResearchLog(data.documentary);
   const {mountReadingTools}=await import('./footage-view.mjs');
   mountReadingTools(data.footage);
@@ -274,7 +276,10 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     const original=new URL(location.href),url=replayURL(original.href,footage.event,clock.seconds,footage.anchors,start);
     if(!original.searchParams.has('event'))url.searchParams.delete('event');
     if(fragment)url.hash=fragment;
-    if(url.href!==location.href)history[mode==='push'?'pushState':'replaceState'](null,'',url);
+    if(url.href!==location.href) {
+      history[mode==='push'?'pushState':'replaceState'](null,'',url);
+      window.dispatchEvent(new Event('atlas:replay-url-change'));
+    }
   }
   function stop(save=true) {
     clock.pause(performance.now());
@@ -360,6 +365,9 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     if (selected < 0) return;
     seek((timed[selected].stamp-start)/1000);
   }
-  return selectMinute;
+  function prepareSurveyHistory() {
+    stop(false);update();syncLocation();
+  }
+  return {selectMinute,prepareSurveyHistory};
 }
 main().catch(error => {document.body.dataset.exhibitReady='error';byId('error').hidden=false;byId('error').textContent=error.message;});

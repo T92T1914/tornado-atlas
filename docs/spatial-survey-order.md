@@ -6,6 +6,15 @@ links and assessment text. Previous and Next follow the chosen order, including
 when the map cannot be used. Shared observation links carry the order into the
 full report and focused survey page.
 
+Observation selection, Previous, Next, rating, photograph availability and
+order changes now update the address. Back, Forward and reload restore the
+selected record and controls on both pages. Search typing adds one history
+entry for an edit session and updates that entry as the query changes. A
+filtered result with no matching observations clears the selected point and
+its nearest-line annotation. On the full report, a survey change pauses the
+running historical clock and saves that moment before adding a survey entry.
+Fatality records remain separate from survey ratings and photograph filters.
+
 Spatial order assigns each feature to its nearest segment on the retained line.
 The inspector reports approximate distance along the stored vertices and offset
 from the line. It uses a local planar conversion at the line's mean latitude.
