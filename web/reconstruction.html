@@ -65,6 +65,28 @@
         <div class="replay-radar"><h3>Available radar</h3><img id="replay-radar-image" alt="" hidden><p id="replay-radar-note"></p><a id="replay-radar-source" href="index.html#path" data-event-documentary="#path">Radar and timing methods</a></div>
       </aside>
     </div>
+    <section id="replay-context" class="replay-context" aria-labelledby="replay-context-heading" hidden>
+      <h2 id="replay-context-heading">What the records say at this time</h2>
+      <p class="replay-help">Chapter times are the source's wording. Chapter buttons seek to a published map minute, which may differ from the event time described. Bulletin issue time is separate from an earlier observation reported inside it.</p>
+      <div class="replay-context-cards">
+        <article aria-labelledby="replay-chapter-heading">
+          <h3 id="replay-chapter-heading">Documented chapter</h3>
+          <p id="replay-chapter-title" class="replay-context-title"></p>
+          <p id="replay-chapter-account"></p>
+          <a id="replay-chapter-source" target="_blank" rel="noopener">Read the original event account</a>
+        </article>
+        <article aria-labelledby="replay-warning-heading">
+          <h3 id="replay-warning-heading">Latest reviewed bulletin issued by this time</h3>
+          <p id="replay-warning-issued" class="replay-help"></p>
+          <p id="replay-warning-title" class="replay-context-title"></p>
+          <p id="replay-warning-summary"></p>
+          <a id="replay-warning-source" target="_blank" rel="noopener" hidden>Read the original bulletin</a>
+        </article>
+      </div>
+      <h3>Jump to a documented chapter</h3>
+      <div id="replay-chapter-list" class="replay-chapter-list"></div>
+      <div class="replay-chapter-controls"><button id="replay-chapter-previous" disabled>Previous chapter</button><button id="replay-chapter-next" disabled>Next chapter</button></div>
+    </section>
     <section id="registered-footage" aria-label="Original camera evidence"></section>
     <section class="replay-reading"><article><div class="eyebrow">WHAT IS RECORDED</div><h2>The historical track.</h2><p id="replay-source-note">The NWS source supplies 39 minute positions and the center path. The moving marker passes through those positions, with linear interpolation between them. The clock labels which you are seeing. Published times have minute precision and no supplied error bounds.</p><p><a id="replay-geography-source" href="atlas.html">Inspect the geographic source</a> · <a href="index.html#path" data-event-documentary="#path">Inspect the source map and camera observations</a></p></article><article><div class="eyebrow">WHAT STILL NEEDS EVIDENCE</div><h2>The appearance of the storm.</h2><p>A center path does not give the funnel's changing dimensions, rain curtains or subvortex motion. Those need registered photographs or footage. This scene therefore does not claim to reproduce what a particular witness saw, or show when a building failed.</p><p><a href="index.html#registered-footage" data-event-documentary="#registered-footage">Compare the checked original footage</a> · <a href="index.html#damage" data-event-documentary="#damage">Explore documented damage</a></p></article></section>
     </div>

@@ -207,3 +207,15 @@ requires source inspection, edit identity, timing anchors, a qualified fixed
 view, rights and uncertainty before any historical form can be published.
 The Robinson decision above remains a negative result for continuous
 registration.
+
+## October 7 replay context
+
+The El Reno spatial replay now places the reviewed event chapters and the
+latest issued warning bulletin beside its existing clock. A chapter's source
+time stays as written, while its button seeks to the matching published map
+minute. The two can differ, including the formation account before the first
+mapped point and the conflicting ending times. Previous, Next, browser history
+and reload use the same replay position. Warning selection follows bulletin
+issue time; an earlier observation mentioned inside a bulletin does not make
+that bulletin available sooner. This adds source context to the geographic
+replay without creating new path points or an appearance interval.
