@@ -104,6 +104,28 @@ at that moment and leaves other times unknown. The card works without
 WebGL. The form panel appears only for an admitted version 2 timeline,
 and the documentary/source routes remain available without JavaScript.
 
+## Survey context in the player
+
+The El Reno replay reuses the existing survey inspector from its checked bundle.
+Opening the damage panel mounts it once. A URL with a survey or fatality target,
+or survey filters, opens the panel directly. Other events do not borrow this
+survey. Its source links, assessment explanations, geographic comparison and
+photograph attribution use the same components as the documentary and focused
+survey page.
+
+A selected NWS feature projects its preserved coordinates into the geographic
+scene as an outlined diamond. This is an untimed surveyed outcome. The moving
+center marker retains its separate minute-position and interpolation basis.
+Selecting a fatality record clears the survey diamond, preserving the separately
+sourced record rather than assigning it a damage survey identity.
+
+Before a survey action writes browser history, the player captures its running
+clock and pauses. The observation, filters, source choice and moment then share
+one URL. Back, Forward and reload restore them together. Replay seeks refresh
+the observation's share links without replacing its photograph controls. A
+missing photograph leaves its original NWS record and attribution accessible;
+the documentary route remains available if the inspector cannot start.
+
 ## Spatial replay navigation
 
 The replay owns its historical time and address together. Choosing a checked

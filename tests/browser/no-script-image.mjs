@@ -48,9 +48,14 @@ export async function noScriptImage(image, expected, screenshotPath) {
     }, undefined, {timeout:Math.max(1, deadline - performance.now())});
     if (stopped || performance.now() >= deadline)
       throw new Error('Expected no-script photograph exceeded its 10000ms bound: ' + JSON.stringify(last));
-    // A lazy image can initially be complete with no loaded bitmap. Keep its
-    // original bound. Once pixels exist, reject a wrong/blank image immediately.
-    if ((last.complete && last.width > 0) || !last.connected || last.source !== expected.source) {
+    // Loaded dimensions can precede usable bitmap pixels in WebKit. Keep the
+    // original bound and all acceptance assertions. Wrong identity/dimensions
+    // fail immediately. Opaque blank pixels fail the nonblank assertion;
+    // pixels that stay transparent fail at the bound.
+    const loaded = last.complete && last.width > 0;
+    const bitmapReady = loaded && last.opaque;
+    const wrongSize = loaded && (last.width !== expected.width || last.height !== expected.height);
+    if (bitmapReady || wrongSize || !last.connected || last.source !== expected.source) {
       assertNoScriptImage(last, expected);
       if (screenshotPath) await image.screenshot({path:screenshotPath,
         timeout:Math.max(1, deadline - performance.now())});

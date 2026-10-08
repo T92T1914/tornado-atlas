@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Spatial replay | Tornado Atlas</title>
   <meta name="description" content="Explore reviewed historical tornado paths with a shared clock and explicit evidence coverage.">
-  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="reconstruction.css"><link rel="stylesheet" href="footage.css"><link rel="stylesheet" href="appearance.css">
+  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="exhibit.css"><link rel="stylesheet" href="reconstruction.css"><link rel="stylesheet" href="footage.css"><link rel="stylesheet" href="appearance.css">
   <script src="appearance.js"></script><script type="module" src="reconstruction.js"></script>
 </head>
 <body>
@@ -23,10 +23,12 @@
     <div class="replay-layout">
       <section class="replay-stage" aria-label="Historical path scene">
         <div class="replay-bar"><strong id="replay-clock">Loading historical positions</strong><span>DOCUMENTED PATH / ILLUSTRATIVE FUNNEL</span></div>
-        <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
+        <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status replay-damage-status" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
         <p id="replay-basis" class="replay-caption"></p>
         <p id="replay-camera-key" class="replay-caption" hidden>Square and arrow: recorded observer.</p>
         <p id="replay-camera-offscreen" class="replay-caption" hidden>The recorded observer is outside this view. Whole path restores the overview. The sample's time and bearing remain available in the observer controls.</p>
+        <p id="replay-damage-status" class="replay-caption" hidden></p>
+        <p id="replay-damage-offscreen" class="replay-caption" hidden>The selected surveyed feature is outside this view. Whole path restores the overview; its record remains below.</p>
         <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a></div>
         <label class="replay-time-label" for="replay-time">Historical time</label><input id="replay-time" type="range" min="0" max="2280" value="0" step="1" disabled>
         <p class="replay-help">Drag to orbit. Scroll to zoom. Keyboard: arrows turn the view, + and - zoom, Home restores the whole path. Playback pauses when the page is hidden.</p>
@@ -87,11 +89,18 @@
       <div id="replay-chapter-list" class="replay-chapter-list"></div>
       <div class="replay-chapter-controls"><button id="replay-chapter-previous" disabled>Previous chapter</button><button id="replay-chapter-next" disabled>Next chapter</button></div>
     </section>
+    <details id="replay-damage" class="replay-damage" hidden>
+      <summary>Inspect surveyed damage alongside the replay</summary>
+      <p>Choose a recorded survey location, inspect its assessment and original photographs, and keep the current replay moment. The outlined diamond in the scene marks the selected surveyed feature. These are recorded outcomes with no assigned impact time; the moving center marker and selected feature have separate meanings.</p>
+      <p class="fineprint">Separately sourced fatality records remain available in the inspector. Nearby photographs do not establish identities. Recovered vehicle photographs may be distressing.</p>
+      <section id="survey-explorer" class="survey-explorer" aria-label="Damage observations and photographs"></section>
+    </details>
     <section id="registered-footage" aria-label="Original camera evidence"></section>
     <section class="replay-reading"><article><div class="eyebrow">WHAT IS RECORDED</div><h2>The historical track.</h2><p id="replay-source-note">The NWS source supplies 39 minute positions and the center path. The moving marker passes through those positions, with linear interpolation between them. The clock labels which you are seeing. Published times have minute precision and no supplied error bounds.</p><p><a id="replay-geography-source" href="atlas.html">Inspect the geographic source</a> · <a href="index.html#path" data-event-documentary="#path">Inspect the source map and camera observations</a></p></article><article><div class="eyebrow">WHAT STILL NEEDS EVIDENCE</div><h2>The appearance of the storm.</h2><p>A center path does not give the funnel's changing dimensions, rain curtains or subvortex motion. Those need registered photographs or footage. This scene therefore does not claim to reproduce what a particular witness saw, or show when a building failed.</p><p><a href="index.html#registered-footage" data-event-documentary="#registered-footage">Compare the checked original footage</a> · <a href="index.html#damage" data-event-documentary="#damage">Explore documented damage</a></p></article></section>
     </div>
     <noscript><p>The spatial replay requires JavaScript. Historical accounts and source links remain available through the atlas.</p></noscript>
   </main>
+  <dialog id="photo-dialog" aria-labelledby="photo-title"><div class="photo-dialog-bar"><h2 id="photo-title"></h2><button id="photo-close" autofocus>Close viewer</button></div><img id="photo-full" alt=""><p id="photo-failure" role="status" hidden>The image could not be loaded. You can still open its source below.</p><p id="photo-caption"></p><p id="photo-location"></p><p id="photo-credit" class="fineprint"></p><div class="photo-dialog-links"><a id="photo-source" target="_blank" rel="noopener">Source and attribution ↗</a><a id="photo-original" target="_blank" rel="noopener">Open full resolution ↗</a><a id="photo-license" target="_blank" rel="noopener" hidden></a></div></dialog>
   <footer><span>TORNADO ATLAS</span><p>Geographic evidence and reconstruction readiness. No wind or damage prediction.</p><a href="atlas.html">Explore the collection ↗</a></footer>
 </body>
 </html>

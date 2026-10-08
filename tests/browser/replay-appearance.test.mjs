@@ -156,8 +156,9 @@ test('one replay clock drives synthetic source comparison, gaps, rate, pause and
 test('changing form mode during playback records the displayed clock in history',async t=>{
   const page=await fixture(t,{viewport:{width:390,height:900}});
   await synthetic(page);
-  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=60');
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=60&survey=270271&surveyPhotos=0');
   await page.locator('#replay-time:not([disabled])').waitFor();
+  await page.locator('#survey-observation').waitFor();
   await page.locator('#replay-play').click();
   await page.waitForFunction(()=>Number(document.querySelector('#replay-time').value)>60.2);
   await page.locator('#replay-appearance-mode').selectOption('illustrative');
@@ -165,8 +166,13 @@ test('changing form mode during playback records the displayed clock in history'
   assert.equal(selected.searchParams.get('appearance_view'),'illustrative');
   assert.equal(selected.searchParams.has('footage'),false);
   assert.ok(Number(selected.searchParams.get('t'))>60.2,'Mode history preserves the running moment');
+  const share=new URL(await page.locator('#survey-share').getAttribute('href'));
+  assert.equal(share.searchParams.get('t'),selected.searchParams.get('t'));
+  assert.equal(share.searchParams.get('appearance_view'),'illustrative');
+  assert.equal(share.searchParams.get('survey'),'270271');
   await page.goBack();
   assert.equal(await page.locator('#replay-appearance-mode').inputValue(),'source');
   assert.equal(await page.locator('#replay-time').inputValue(),'60');
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Source-linked appearance anchor/);
+  assert.equal(new URL(await page.locator('#survey-share').getAttribute('href')).searchParams.has('appearance_view'),false);
 });

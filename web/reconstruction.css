@@ -76,3 +76,11 @@
 .chronology-record h3 {font-size:25px}
 .chronology-record p:first-child {font-size:13px;color:var(--muted)}
 @media(max-width:600px){#replay-chronology{padding:16px}.chronology-controls{align-items:stretch}.chronology-record{padding-left:12px}}
+.replay-damage{margin:28px 0;border:1px solid var(--line);padding:20px;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.replay-damage>summary{cursor:pointer;font-size:18px;line-height:1.5;min-height:44px;overflow-wrap:anywhere}
+.replay-damage .survey-explorer{margin-top:16px;padding-top:16px}
+.replay-damage input[type=search]{max-width:100%;font-size:16px}
+.replay-damage .fineprint{font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.replay-damage button,.replay-damage select{min-height:44px;min-width:0;max-width:100%}
+.replay-damage .survey-controls label{display:grid;grid-template-columns:minmax(0,1fr);max-width:100%;overflow:hidden;overflow-wrap:anywhere;padding:6px}
+.replay-damage .survey-controls select{overflow:hidden;text-overflow:ellipsis}

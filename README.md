@@ -85,6 +85,15 @@ earlier observation described in its text. The original account and bulletin
 remain one click away; the new panel does not turn their prose into additional
 tracked positions or appearance observations.
 
+The replay also opens the existing damage survey beside the historical player.
+Selecting an observation keeps the current clock, exposes its NWS record and
+linked photographs, and marks its recorded location with an outlined diamond
+in the scene. The survey location stays fixed while the tornado center moves.
+The recorded assessment has no assigned impact time. Direct links, reload and
+browser history retain both the observation and replay moment. The inspector
+opens on request, or when a shared link already names a survey selection;
+unavailable photographs keep the original record and source routes.
+
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
 also shows Joplin's research-readiness page, with a link to its documentary;

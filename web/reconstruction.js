@@ -10,6 +10,8 @@ import {appearanceAt} from './appearance-timeline-model.mjs';
 import {createFormRenderer} from './form-renderer.mjs';
 import {issuedAt} from './documentary-model.mjs';
 import {replayChapters,chapterAt,adjacentChapter} from './replay-context-model.mjs';
+import {mountSurvey} from './survey-view.mjs';
+import {mountPhotoViewer} from './photo-view.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
@@ -62,14 +64,17 @@ async function start(){
   syncLocation=(mode='replace',fragment=null)=>{
     const url=replayURL(location.href,event.id,clock.seconds,anchors,start);
     if(fragment)url.hash=fragment;
-    if(url.href!==location.href)history[mode==='push'?'pushState':'replaceState'](null,'',url);
+    if(url.href!==location.href){
+      history[mode==='push'?'pushState':'replaceState'](null,'',url);
+      window.dispatchEvent(new Event('atlas:replay-url-change'));
+    }
   };
   function seek(seconds,{mode='push',fragment=null}={}){
     pause();clock.seek(seconds);refresh();if(mode)syncLocation(mode,fragment);
   }
   function restore(){lastText=null;restoreAppearanceMode();seek(replaySeconds(location.search,clock.duration,anchors,start),{mode:null});syncLocation();}
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
-  let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null;
+  let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null, selectedSurvey=null;
   const footageCreators=[...new Set(data.footage.sources.map(source=>source.creator))].join(' and ');
   const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seek,localStamp,footageCreators);
   el('replay-camera-enabled').addEventListener('change',()=>{observer=updateObserver(current.utc);requestDraw();});
@@ -145,6 +150,7 @@ async function start(){
       if(mode.value==='illustrative')url.searchParams.set('appearance_view','illustrative');
       else url.searchParams.delete('appearance_view');
       history.pushState(null,'',url);
+      window.dispatchEvent(new Event('atlas:replay-url-change'));
       lastText=null;refresh();
     });
   }
@@ -209,6 +215,17 @@ async function start(){
     for(let x=-16;x<=16;x+=2)line([[x,-12,0],[x,12,0]],muted,1,false,.17);
     for(let y=-12;y<=12;y+=2)line([[-16,y,0],[16,y,0]],muted,1,false,.17);
     line(stageBoundary,muted,1.4,true,.8);line(stagePath,text,2.1);
+    const projectedSurvey=selectedSurvey?project(localPoint(selectedSurvey.coordinates,origin)):null;
+    const surveyed=projectedSurvey&&projectedSurvey.x>=0&&projectedSurvey.x<=rect.width&&projectedSurvey.y>=0&&projectedSurvey.y<=rect.height?projectedSurvey:null;
+    canvas.dataset.surveyRecord=selectedSurvey?String(selectedSurvey.id):'';
+    canvas.dataset.surveyVisible=String(Boolean(surveyed));
+    if(surveyed){
+      context.fillStyle=style.getPropertyValue('--bg');context.strokeStyle=text;context.lineWidth=2;
+      context.beginPath();context.moveTo(surveyed.x,surveyed.y-8);context.lineTo(surveyed.x+8,surveyed.y);
+      context.lineTo(surveyed.x,surveyed.y+8);context.lineTo(surveyed.x-8,surveyed.y);context.closePath();context.fill();context.stroke();
+      if(rect.width>=600){context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText(`Survey ${selectedSurvey.id}`,surveyed.x+12,surveyed.y+4);}
+    }
+    el('replay-damage-offscreen').hidden=!selectedSurvey||Boolean(surveyed);
     for(const point of positions){const p=project(localPoint(point.geometry.coordinates,origin));if(!p)continue;context.beginPath();context.arc(p.x,p.y,2.5,0,Math.PI*2);context.fillStyle=text;context.fill();}
     const marker=project(center);
     if(el('replay-funnel').checked){
@@ -243,12 +260,13 @@ async function start(){
     const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;
     if(key!==lastText)updateFootage(current.utc);
     updateAppearance();
+    el('replay-link').href=replayURL(location.href,event.id,Math.floor(clock.seconds),anchors,start).href;
+    el('replay-time').value=Math.round(clock.seconds);
     if(key===lastText)return;lastText=key;
     updateContext();
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
-    el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);
+    el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?'Published source minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
-    el('replay-link').href=replayURL(location.href,event.id,Math.floor(clock.seconds),anchors,start).href;
     const media=data.timeline_media;
     const match=frameAt(media.frames,current.utc,media.max_age_seconds);
     const image=el('replay-radar-image');image.hidden=!match||failedRadar.has(match?.frame.file);
@@ -262,6 +280,30 @@ async function start(){
   el('replay-rate').addEventListener('change',()=>{clock.setRate(Number(el('replay-rate').value),performance.now());refresh();});
   window.addEventListener('popstate',restore);
   refresh();syncLocation();
+  if(event.id==='el-reno-2013'&&data.survey&&data.survey_media){
+    const panel=el('replay-damage');panel.hidden=false;
+    let mounted=false;
+    function mountDamage(){
+      if(mounted)return;mounted=true;
+      try{
+        mountSurvey(data.survey,data.geometry,data.survey_media,mountPhotoViewer(),data.history?.remembrance?.places??[],{
+          reportPage:event.documentary,alternatePage:'survey.html',alternateLabel:'Open this selection in the focused survey map',
+          beforeHistoryChange:()=>{if(clock.playing)clock.tick(performance.now());pause();refresh();syncLocation();},
+          afterHistoryChange:refresh,
+          onObservationSelect:point=>{
+            selectedSurvey=point;
+            el('replay-damage-status').hidden=!point;
+            el('replay-damage-status').textContent=point?`Outlined diamond: NWS survey record ${point.id}, ${point.rating}. A surveyed feature location with no assigned impact time. Inspect its assessment below.`:'';
+            requestDraw();
+          },
+        });
+      }catch(error){el('survey-explorer').textContent=`The survey inspector could not start. Read the documented damage in the ${event.title} report using the documentary link above.`;}
+    }
+    panel.addEventListener('toggle',()=>{if(panel.open)mountDamage();});
+    const hasSurveyTarget=()=>['survey','surveyRating','surveySearch','surveyPhotos','surveyOrder','fatality'].some(key=>new URL(location.href).searchParams.has(key));
+    if(hasSurveyTarget()){panel.open=true;mountDamage();}
+    window.addEventListener('popstate',()=>{if(hasSurveyTarget()){panel.open=true;mountDamage();}});
+  }
 }
 for(const key of ['azimuth','elevation','distance','follow','funnel'])el(`replay-${key}`).addEventListener('input',requestDraw);
 el('replay-reset').addEventListener('click',resetView);

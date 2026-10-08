@@ -43,7 +43,7 @@ async function fixture(t,href) {
     querySelectorAll:()=>[],addEventListener:()=>{}};
   document.getElementById('replay-error').hidden=true;
   document.getElementById('replay-time').disabled=true;
-  const globals={document,location,crypto:webcrypto,window:{addEventListener:()=>{}},
+  const globals={document,location,crypto:webcrypto,window:new EventTarget(),
     history:Object.fromEntries(['pushState','replaceState'].map(method=>[method,(_state,_title,url)=>{location.href=String(url);historyWrites.push({method,href:location.href});}])),
     fetch:async path=>{
       requests.push(String(path));
@@ -106,13 +106,17 @@ test('visible replay link retains the source through an unassigned gap without a
 test('visible replay link floors time while the current address preserves its fractional second and source',async t=>{
   const href=`https://example.test/reconstruction.html?event=el-reno-2013&t=783.5&footage_source=${sourceB.id}`;
   const f=await fixture(t,href);f.sourceB();f.checkedB();
-  assert.equal(f.location.href,href);assert.equal(f.ids.get('replay-time').value,'783.5');
+  assert.equal(f.location.href,href);assert.equal(f.ids.get('replay-time').value,'784','The whole-second slider rounds without changing the fractional historical clock');
   assert.deepEqual(f.historyWrites,[],'Computing a share link does not rewrite the current address');
   const shared=f.share();
   assert.equal(shared.searchParams.get('t'),'783');
   assert.equal(shared.searchParams.get('footage_source'),sourceB.id);
   assert.equal(shared.searchParams.get('footage'),anchorB.id);
   assert.equal(f.location.searchParams.has('footage'),false,'A fractional current time does not acquire an exact anchor');
+  f.seek(783.1);assert.equal(f.ids.get('replay-time').value,'783');
+  f.seek(783.9);assert.equal(f.ids.get('replay-time').value,'784','Seeking within one cached historical second still refreshes the slider');
+  assert.equal(f.location.searchParams.get('t'),'783.9','The slider display does not round clock state or its current URL');
+  f.sourceB();f.checkedB();
   f.unloaded();f.dispose();
   const reopened=await fixture(t,shared.href);reopened.sourceB();reopened.checkedB();reopened.unloaded();
   assert.equal(reopened.ids.get('replay-time').value,'783');
