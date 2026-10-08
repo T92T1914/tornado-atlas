@@ -238,8 +238,8 @@ test('an unavailable survey target retains the clock and explains the replacemen
     client:node.clientWidth,scroll:node.scrollWidth,labelClient:node.parentElement.clientWidth,
     labelScroll:node.parentElement.scrollWidth,labelOverflow:getComputedStyle(node.parentElement).overflowX,
     caption:(()=>{const range=document.createRange();range.selectNodeContents(node.parentElement.firstChild);
-      return [...range.getClientRects()].map(rect=>({left:rect.left,right:rect.right}));})(),
-    labelBounds:(()=>{const rect=node.parentElement.getBoundingClientRect();return {left:rect.left,right:rect.right};})()}));
+      return [...range.getClientRects()].map(rect=>({left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom}));})(),
+    labelBounds:(()=>{const rect=node.parentElement.getBoundingClientRect();return {left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom};})()}));
   assert.ok(parseFloat(controlLayout.font)>=originalControlFont,'The bounded select does not shrink its resolved text size');
   const byValue=(left,right)=>left[0].localeCompare(right[0]);
   assert.deepEqual(controlLayout.options.sort(byValue),originalOptions.sort(byValue));
@@ -248,14 +248,15 @@ test('an unavailable survey target retains the clock and explains the replacemen
   // WebKit includes native-menu text in scrollWidth. Keep that extent inside this label.
   assert.equal(controlLayout.labelOverflow,'hidden');
   assert.ok(controlLayout.caption.length>0);
-  assert.ok(controlLayout.caption.every(rect=>rect.left>=controlLayout.labelBounds.left && rect.right<=controlLayout.labelBounds.right),JSON.stringify(controlLayout));
+  assert.ok(controlLayout.caption.every(rect=>rect.left>=controlLayout.labelBounds.left && rect.right<=controlLayout.labelBounds.right &&
+    rect.top>=controlLayout.labelBounds.top && rect.bottom<=controlLayout.labelBounds.bottom),JSON.stringify(controlLayout));
   await control.focus();
   const focusLayout=await control.evaluate(node=>{
     const style=getComputedStyle(node),rect=node.getBoundingClientRect(),label=node.parentElement.getBoundingClientRect();
     const extent=parseFloat(style.outlineWidth)+parseFloat(style.outlineOffset);
     return {focused:document.activeElement===node,visible:node.matches(':focus-visible'),outline:style.outlineStyle,
-      width:parseFloat(style.outlineWidth),extent,contained:rect.left-extent>=label.left-1 && rect.right+extent<=label.right+1 &&
-        rect.top-extent>=label.top-1 && rect.bottom+extent<=label.bottom+1};
+      width:parseFloat(style.outlineWidth),extent,contained:rect.left-extent>=label.left-.01 && rect.right+extent<=label.right+.01 &&
+        rect.top-extent>=label.top-.01 && rect.bottom+extent<=label.bottom+.01};
   });
   assert.ok(focusLayout.focused&&focusLayout.visible&&focusLayout.outline!=='none'&&focusLayout.width>=2&&focusLayout.contained,JSON.stringify(focusLayout));
   const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
