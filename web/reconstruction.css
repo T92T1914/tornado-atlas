@@ -23,6 +23,15 @@
 .replay-controls>input[type=range] {width:100%;height:28px;accent-color:var(--text)}
 .replay-check {display:flex;align-items:flex-start;gap:8px;font-size:13px;margin-top:18px}
 .replay-check input {accent-color:var(--text);margin-top:5px}
+.replay-appearance {border-top:1px solid var(--line);margin-top:22px;padding-top:10px;overflow-wrap:anywhere}
+.replay-appearance h3 {font-size:15px}
+#replay-appearance-state {font-size:13px;font-weight:650}
+#replay-appearance-source {font-size:12px}
+#replay-appearance-drawing {margin-top:18px}
+#replay-appearance-drawing[hidden] {display:none}
+#replay-appearance-mode {display:block;max-width:100%;width:100%;min-height:44px;margin:8px 0 12px;font:inherit}
+#replay-appearance-canvas {display:block;width:100%;height:210px;background:var(--bg);border:1px solid var(--line);border-radius:6px}
+#replay-appearance-canvas[hidden] {display:none}
 .replay-radar {border-top:1px solid var(--line);margin-top:22px;padding-top:10px}
 .replay-radar h3 {font-size:15px}
 .replay-radar img {width:100%;height:auto;display:block}

@@ -29,6 +29,8 @@ async function fixture(t,href) {
     get href() {return this.attributes.get('href');}
     setAttribute(name,value) {this.attributes.set(name,String(value));}
     getAttribute(name) {return this.attributes.get(name)??null;}
+    hasAttribute(name) {return this.attributes.has(name);}
+    removeAttribute(name) {this.attributes.delete(name);}
     append(...children) {this.children.push(...children);}
     replaceChildren(...children) {this._text='';this.children=[...children];}
     addEventListener(name,callback) {if(!this.handlers.has(name))this.handlers.set(name,[]);this.handlers.get(name).push(callback);}

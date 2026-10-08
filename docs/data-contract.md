@@ -48,6 +48,13 @@ Detail files use content hashes in their filenames. A rebuild writes the details
 
 The first exhibit has a stable museum ID, a linked source record with a match rationale, preserved geometry and a footage observation register. The register distinguishes an inspected still from an attributed creator annotation. Video locators are checked against source duration and recorded inspection coverage. Historical times and camera positions remain null. The current schema rejects non-null registration until a future schema can require supporting evidence and uncertainty.
 
+The separate replay package has an optional version 2 appearance timeline with
+its own bounded source, continuous inspection, clock, fixed-view camera,
+rights and uncertainty requirements. It does not change the notebook's
+unregistered observations or the published El Reno version 1 bundle. Its
+normalized form keys are artistic parameters, not measured dimensions.
+See the [replay package contract](event-replay-packages.md#optional-appearance-timeline).
+
 Future registration needs a historical time basis, camera coordinates and direction, uncertainty, source locator and a confidence rationale. Media need creator, source URL and a reuse basis. Reconstruction parameters need an evidence reference or an explicit assumption label.
 
 No present catalogue record claims to supply a finished reconstruction or a damage simulation.

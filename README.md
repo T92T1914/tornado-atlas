@@ -66,6 +66,16 @@ register remains one source and seven paused samples. See the
 [shared playback acceptance record](docs/shared-playback-acceptance.md) for
 the software checks and the evidence still needed for historical appearance.
 
+The spatial replay now shows what appearance evidence is available at its
+selected time. At one of the seven checked El Reno frames, it shows the
+source observation and a link to the original upload. In the gaps, it says
+that appearance is unknown instead of carrying the last frame forward. A
+versioned optional appearance timeline can drive the same clock and form
+renderer for qualified bounded intervals. Its observed, interpolated and
+illustrative states have separate labels; the published El Reno package has
+no such interval. The [appearance package contract](docs/event-replay-packages.md#optional-appearance-timeline)
+sets out the admission requirements and rendering limits.
+
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
 also shows Joplin's research-readiness page, with a link to its documentary;

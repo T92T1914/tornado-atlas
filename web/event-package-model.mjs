@@ -1,5 +1,6 @@
 import {validateChronology} from './chronology-model.mjs';
 import {validateCamera} from './camera-model.mjs';
+import {validateAppearanceTimeline} from './appearance-timeline-model.mjs';
 // The build validates the historical contract. The loader rejects mixed or
 // incomplete publications before any bundle reaches the shared renderer.
 const idPattern=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -30,7 +31,7 @@ export function displayClock(timeZone){
 }
 export function validatePackage(config,event){
   keys(config,['schema_version','event_id','bundle','bundle_sha256','clock','geography_source','coverage'],'replay');
-  requireValue(config.schema_version===1&&config.event_id===event.id,'Replay identity or schema differs from the selected event.');
+  requireValue([1,2].includes(config.schema_version)&&config.event_id===event.id,'Replay identity or schema differs from the selected event.');
   requireValue(typeof config.bundle==='string'&&assetPattern.test(config.bundle)&&config.bundle.endsWith('.json'),'Invalid bundle path.');
   requireValue(typeof config.bundle_sha256==='string'&&/^[a-f0-9]{64}$/.test(config.bundle_sha256),'Missing bundle integrity record.');
   keys(config.clock,['start_utc','end_utc','time_zone','precision','basis'],'clock');
@@ -41,7 +42,8 @@ export function validatePackage(config,event){
   displayClock(zone); // Unknown IANA names fail here, including in CI's Node tests.
   keys(config.coverage,['positions','between_positions','camera','appearance'],'coverage');
   const coverage=config.coverage;
-  requireValue(coverage.positions==='published_minute_samples'&&coverage.between_positions==='linear_longitude_latitude'&&coverage.camera==='free_orbit'&&coverage.appearance==='illustrative_symbol','Unsupported reconstruction coverage.');
+  requireValue(coverage.positions==='published_minute_samples'&&coverage.between_positions==='linear_longitude_latitude'&&coverage.camera==='free_orbit'&&
+    coverage.appearance===(config.schema_version===1?'illustrative_symbol':'bounded_timeline'),'Unsupported reconstruction coverage.');
   keys(config.geography_source,['url','sha256'],'geography source');
   requireValue(/^https:\/\//.test(config.geography_source.url)&&/^[a-f0-9]{64}$/.test(config.geography_source.sha256),'Missing geography provenance.');
   return config;
@@ -63,6 +65,8 @@ export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,
   requireValue(hash===config.bundle_sha256,'The replay and its evidence bundle are from different revisions. Reload after publication finishes.');
   const data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
   requireValue(data.exhibit?.id===event.id&&data.timeline_media?.event===event.id&&data.footage?.event===event.id,'Evidence identity differs from the selected event.');
+  if(config.schema_version===1)requireValue(!Object.hasOwn(data,'appearance_timeline'),'Version 1 replay cannot publish an appearance timeline.');
+  else validateAppearanceTimeline(data.appearance_timeline,event.id,config.clock,data.footage);
   if(data.cameras!=null)validateCamera(data.cameras,event.id);
   requireValue(Object.entries(config.geography_source).every(([key,value])=>data.geometry?.source?.[key]===value),'Geography provenance differs from the reviewed package.');
   const points=data.geometry.features.filter(f=>f.geometry.type==='Point');

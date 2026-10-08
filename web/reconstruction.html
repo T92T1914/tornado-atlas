@@ -39,6 +39,20 @@
         <label class="replay-check"><input id="replay-follow" type="checkbox" checked> Follow the center position</label>
         <label class="replay-check"><input id="replay-funnel" type="checkbox" checked> Show the illustrative funnel symbol</label>
         <p class="replay-help">Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.</p>
+        <section id="replay-appearance" class="replay-appearance" aria-labelledby="replay-appearance-heading">
+          <h3 id="replay-appearance-heading">Appearance evidence at this moment</h3>
+          <p id="replay-appearance-state" role="status">Checking the selected source and time.</p>
+          <p id="replay-appearance-detail" class="replay-help"></p>
+          <a id="replay-appearance-source" target="_blank" rel="noopener" hidden>Open the original source at this moment</a>
+          <p><a href="#registered-footage">Compare the checked source moments</a></p>
+          <div id="replay-appearance-drawing" hidden>
+            <label for="replay-appearance-mode">Form view</label>
+            <select id="replay-appearance-mode"><option value="source">Selected original source</option><option value="illustrative">Illustrative study</option></select>
+            <canvas id="replay-appearance-canvas" role="img" aria-describedby="replay-appearance-state replay-appearance-detail" aria-label="Normalized appearance form for the selected evidence state"></canvas>
+            <p id="replay-appearance-renderer-status" class="replay-help"></p>
+            <p class="replay-help">The form uses normalized artistic units. It does not show measured funnel width, wind or a calibrated geographic camera.</p>
+          </div>
+        </section>
         <section id="replay-camera" class="replay-observer" aria-labelledby="replay-camera-name" hidden>
           <h3 id="replay-camera-name">Recorded observer</h3>
           <label class="replay-check"><input id="replay-camera-enabled" type="checkbox"> Show recorded observer position and bearing</label>

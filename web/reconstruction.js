@@ -5,8 +5,12 @@ import {loadEventPackage,displayClock} from './event-package-model.mjs';
 import {localPoint, sceneProject, replaySeconds, replayURL, funnelGlyph, observerGlyph} from './reconstruction-model.mjs';
 import {mountFootage} from './footage-view.mjs';
 import {mountReplayCamera} from './replay-camera-view.mjs';
+import {anchorAt,sourceLink} from './footage-model.mjs';
+import {appearanceAt} from './appearance-timeline-model.mjs';
+import {createFormRenderer} from './form-renderer.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
+const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
 let drawPending=null, frame=null, clock=null, redraw=()=>{}, refresh=()=>{}, syncLocation=()=>{};
 const failedRadar=new Set();
@@ -61,7 +65,7 @@ async function start(){
   function seek(seconds,{mode='push',fragment=null}={}){
     pause();clock.seek(seconds);refresh();if(mode)syncLocation(mode,fragment);
   }
-  function restore(){lastText=null;seek(replaySeconds(location.search,clock.duration,anchors,start),{mode:null});syncLocation();}
+  function restore(){lastText=null;restoreAppearanceMode();seek(replaySeconds(location.search,clock.duration,anchors,start),{mode:null});syncLocation();}
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
   let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null;
   const footageCreators=[...new Set(data.footage.sources.map(source=>source.creator))].join(' and ');
@@ -71,6 +75,67 @@ async function start(){
   el('replay-geography-source').href=config.geography_source.url;
   const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},start,seconds=>seek(seconds,{mode:'replace'}),pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`,restoreInitialMoment:false,onMomentSelect:anchor=>seek((Date.parse(anchor.utc)-start)/1000,{fragment:'registered-footage'})});
   el('footage-source').addEventListener('change',()=>{lastText=null;refresh();syncLocation();});
+  const appearanceTimeline=data.appearance_timeline??null;
+  const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
+  let appearanceRenderer=null,appearanceState={state:'unknown'};
+  if(appearanceTimeline?.windows.length){
+    drawing.hidden=false;
+    if(!appearanceTimeline.windows.some(window=>window.kind==='illustrative'))mode.querySelector('[value="illustrative"]').remove();
+    restoreAppearanceMode();
+    try{appearanceRenderer=createFormRenderer(formCanvas,3200);}
+    catch(error){formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer could not start here. Source and coverage text remain available.';console.error('Appearance renderer failed:',error);}
+    formCanvas.addEventListener('webglcontextlost',event=>{event.preventDefault();appearanceRenderer=null;el('replay-appearance-renderer-status').textContent='The form renderer lost its graphics context. Source and coverage text remain available.';});
+    formCanvas.addEventListener('webglcontextrestored',()=>{
+      try{appearanceRenderer=createFormRenderer(formCanvas,3200);formCanvas.hidden=false;el('replay-appearance-renderer-status').textContent='';requestDraw();}
+      catch(error){console.error('Appearance renderer recovery failed:',error);}
+    });
+    new ResizeObserver(requestDraw).observe(formCanvas);
+    mode.addEventListener('change',()=>{
+      const url=replayURL(location.href,event.id,clock.seconds,anchors,start);
+      if(mode.value==='illustrative')url.searchParams.set('appearance_view','illustrative');
+      else url.searchParams.delete('appearance_view');
+      history.pushState(null,'',url);
+      lastText=null;refresh();
+    });
+  }
+  function restoreAppearanceMode(){
+    mode.value=new URL(location.href).searchParams.get('appearance_view')==='illustrative'&&
+      appearanceTimeline?.windows.some(window=>window.kind==='illustrative')?'illustrative':'source';
+  }
+  function updateAppearance(){
+    const sourceId=el('footage-source').value;
+    const selected=mode.value==='illustrative'?null:sourceId;
+    appearanceState=appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,selected);
+    const anchor=anchorAt(anchors,current.utc,sourceId);
+    const source=data.footage.sources.find(item=>item.id===sourceId);
+    const status=el('replay-appearance-state'),detail=el('replay-appearance-detail'),link=el('replay-appearance-source');
+    let statusText,detailText,linkTarget='',linkText='';
+    if(appearanceState.state==='unknown'){
+      if(mode.value==='illustrative'){
+        statusText='No illustrative form assigned at this time.';
+        detailText='The authored study leaves this interval blank. It does not fill an evidence gap.';
+      }else{
+        statusText=anchor?'Checked original frame at this source clock. Appearance between frames remains unknown.':'Appearance unknown at this source and time.';
+        detailText=anchor?anchor.note:'No continuous source view or form has been registered for this interval.';
+        if(anchor&&source){linkTarget=sourceLink(source,anchor);linkText='Open the checked original frame';}
+      }
+    }else{
+      statusText={observed:'Source-linked appearance anchor',interpolated:'Interpolated appearance between source anchors',illustrative:'Illustrative authored form'}[appearanceState.state];
+      const registration=appearanceState.registration;
+      detailText=`${appearanceState.label}. ${appearanceState.basis} ${registration?`Timing uncertainty: ±${registration.timing.uncertainty_seconds} seconds. ${registration.uncertainty} `:''}The normalized form is not a measured funnel dimension or wind field.`;
+      if(registration&&source){
+        linkTarget=sourceLink(source,{video_seconds:appearanceState.videoSeconds});
+        linkText='Open the original source near this registered moment';
+      }
+    }
+    setText(status,statusText);setText(detail,detailText);
+    if(link.hidden===Boolean(linkTarget))link.hidden=!linkTarget;
+    if(linkTarget&&link.href!==linkTarget)link.href=linkTarget;
+    if(!linkTarget&&link.hasAttribute('href'))link.removeAttribute('href');
+    if(linkText)setText(link,linkText);
+    if(drawing.dataset.evidenceState!==appearanceState.state)drawing.dataset.evidenceState=appearanceState.state;
+    if(formCanvas.dataset.evidenceState!==appearanceState.state)formCanvas.dataset.evidenceState=appearanceState.state;
+  }
   function readCamera(center){
     const camera={focus:el('replay-follow').checked?center:[0,0,0]};
     for(const key of ['azimuth','elevation','distance']){
@@ -121,12 +186,15 @@ async function start(){
     el('replay-camera-offscreen').hidden=!observer?.visible||Boolean(glyph);
     const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('N',north.x,north.y);}
     context.fillStyle=muted;context.font='11px '+getComputedStyle(canvas).fontFamily;context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
+    if(appearanceRenderer)appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,time:clock.seconds,dust:false});
   };
   refresh=()=>{
     current=positionAt(positions,clock.seconds);observer=updateObserver(current.utc);requestDraw();
-    const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;if(key===lastText)return;lastText=key;
+    const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;
+    if(key!==lastText)updateFootage(current.utc);
+    updateAppearance();
+    if(key===lastText)return;lastText=key;
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
-    updateFootage(current.utc);
     el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?'Published source minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
     el('replay-link').href=replayURL(location.href,event.id,Math.floor(clock.seconds),anchors,start).href;

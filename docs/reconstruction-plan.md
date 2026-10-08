@@ -30,10 +30,11 @@ Each package should keep these parts separate:
 | Interpretation | Every interpolation or illustrative choice needed to connect observations |
 | Coverage | Exactly which intervals, locations and views have been reviewed or reconstructed |
 
-These are planned requirements, not new fields accepted by the current schema.
-The existing observation validator deliberately rejects unsupported historical
-registration. A schema revision must add evidence and uncertainty requirements
-before enabling those fields.
+These are the full planned event-package parts. Replay manifest version 2
+accepts a bounded appearance subset only when its separate source, clock,
+fixed-view camera, inspection, rights and uncertainty contract passes.
+The existing observation notebook still rejects unsupported historical
+registration. The published El Reno package remains version 1.
 
 ## Match the animation to the available evidence
 
@@ -188,3 +189,21 @@ sequence time across drawing-quality changes and reverse seeks. These are
 laboratory fixtures, not newly registered historical appearance. The
 [implementation and acceptance record](shared-playback-acceptance.md) explains
 the behavior, executed checks and missing historical prerequisites.
+
+## October 7 appearance integration
+
+The spatial replay now resolves a versioned optional appearance timeline from
+its existing historical clock. The form study and replay use the same form
+renderer. Assigned source anchors, interpolation, illustrative forms and
+unknown gaps are distinct interface states. Source comparison keeps the
+selected upload identity and history; the renderer has no second clock or
+media player. Synthetic fixtures exercise that software path.
+
+The published El Reno package still has no registered appearance window.
+Visitors can see the checked original frame linked to the selected clock
+moment, while unreviewed intervals state that appearance is unknown. The
+[package contract](event-replay-packages.md#optional-appearance-timeline)
+requires source inspection, edit identity, timing anchors, a qualified fixed
+view, rights and uncertainty before any historical form can be published.
+The Robinson decision above remains a negative result for continuous
+registration.
