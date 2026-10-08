@@ -57,6 +57,53 @@ for the browser's SHA-256 API. See the
 [Web Crypto digest API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest)
 and [display-clock API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
 
+## Optional appearance timeline
+
+Replay manifest version 2 admits an `appearance_timeline` in the exact
+integrity-checked bundle. Version 1 still rejects that field, including
+`null`, and keeps its illustrative map symbol. The current published
+El Reno package remains version 1. No historical appearance interval has
+been added to it.
+
+Version 2 uses the same geographic clock, player, URL history and source
+selector. Its windows are bounded by whole-second UTC times inside the
+replay, with explicit gaps. Windows cannot overlap within one source.
+Separate source versions can cover the same time for comparison. An
+illustrative window has its own source-free lane, an authored basis and no
+historical registration. A visitor selects that lane explicitly. A missing
+window or unmatched source draws no funnel form and displays an unknown
+state.
+
+A registered window requires an exact original source and edit identity,
+the continuously inspected presentation interval, a stated absence of
+discontinuities, at least one interior timing anchor, a fixed camera
+position and view with calibration and uncertainties, a rights record and
+an explicit limit statement. Its form keys use the existing normalized
+cone, wedge and rope parameters. Each key must coincide with an inspected
+timing anchor, which supplies a source video position. The key is labeled
+as a source-linked appearance observation. Between keys the view labels
+the form as interpolated. Those labels describe the evidence basis of
+the assigned form, not a measurement of physical funnel width, wind or
+damage. Moving-camera intervals need a later reviewed contract rather
+than pretending a sparse camera track is fixed.
+
+The Python publication validator and browser loader enforce the same
+admission fields before the form renderer receives a timeline. The shared
+WebGL renderer accepts a resolved form state from the geographic replay's
+`PlaybackClock`; it does not advance historical time itself. It draws a
+grid without funnel particles in unknown gaps. The existing form study
+continues to use that renderer for authored examples. Synthetic fixtures
+exercise continuous playback, gaps, reverse seeking, source switching,
+history and rejected registration. They establish software behavior only.
+The retained [Robinson source decision](../research/robinson-registration-decision-2026-10-04.md)
+does not qualify a real registered window.
+
+The public spatial replay also shows a source-linked appearance evidence
+card for its existing checked paused frames. It links the original source
+at that moment and leaves other times unknown. The card works without
+WebGL. The form panel appears only for an admitted version 2 timeline,
+and the documentary/source routes remain available without JavaScript.
+
 ## Spatial replay navigation
 
 The replay owns its historical time and address together. Choosing a checked

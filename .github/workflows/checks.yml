@@ -37,11 +37,14 @@ jobs:
           node --check web/explorer-map.mjs
           node --test tests/explorer-model.test.mjs tests/explorer-map.test.mjs
           node --check web/study.js
+          node --check web/form-renderer.mjs
           node --check web/reconstruction.js
+          node --check web/appearance-timeline-model.mjs
           node --check web/chronology-view.mjs
           node --test tests/chronology-model.test.mjs
           node --test tests/chronology-clock-controls.test.mjs
           node --test tests/event-package-model.test.mjs
+          node --test tests/appearance-timeline.test.mjs
           node --test tests/reconstruction-model.test.mjs tests/reconstruction-share-consumer.test.mjs
           node --check web/wind.js
           node --check web/passage.js
