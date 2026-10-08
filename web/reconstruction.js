@@ -150,6 +150,7 @@ async function start(){
       if(mode.value==='illustrative')url.searchParams.set('appearance_view','illustrative');
       else url.searchParams.delete('appearance_view');
       history.pushState(null,'',url);
+      window.dispatchEvent(new Event('atlas:replay-url-change'));
       lastText=null;refresh();
     });
   }

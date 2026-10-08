@@ -3,6 +3,95 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fixture,base} from './harness.mjs';
 
+async function paintedSurveyDifference(page) {
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  await page.locator('#replay-scene').evaluate(canvas=>{
+    window.markedSurveyPixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+  });
+  await page.locator('#survey-search').fill('no-matching-observation');
+  await page.waitForFunction(()=>document.querySelector('#replay-scene').dataset.surveyRecord==='');
+  return page.locator('#replay-scene').evaluate(canvas=>{
+    const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+    let count=0,left=canvas.width,right=-1,top=canvas.height,bottom=-1;
+    for(let i=0;i<pixels.length;i+=4){
+      if(pixels[i]===window.markedSurveyPixels[i]&&pixels[i+1]===window.markedSurveyPixels[i+1]&&pixels[i+2]===window.markedSurveyPixels[i+2])continue;
+      const x=(i/4)%canvas.width,y=Math.floor(i/4/canvas.width);
+      count++;left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);
+    }
+    delete window.markedSurveyPixels;
+    return {count,left,right,top,bottom};
+  });
+}
+
+for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
+  test(`the selected survey marker is painted and geographically fixed at ${width}px ${appearance}`,async t=>{
+    const page=await fixture(t,{viewport:{width,height:900}});
+    await page.goto(base+'/reconstruction.html?t=783&survey=270271&surveyPhotos=0');
+    await page.locator('#survey-observation').waitFor();
+    await page.locator('#reading-appearance').selectOption(appearance);
+    await page.locator('#replay-reset').click();
+    await page.waitForFunction(()=>document.querySelector('#replay-scene').dataset.surveyVisible==='true');
+    const first=await paintedSurveyDifference(page);
+    assert.ok(first.count>20,'Removing the selection must remove visible painted pixels');
+    assert.ok(first.right-first.left<250&&first.bottom-first.top<30,'The change must be the bounded marker/label region');
+    await page.locator('#survey-search').fill('');
+    await page.locator('#survey-observation').selectOption('270271');
+    await page.locator('#replay-time').fill('900');
+    await page.waitForFunction(()=>document.querySelector('#replay-scene').dataset.surveyRecord==='270271'&&document.querySelector('#replay-scene').dataset.surveyVisible==='true');
+    const later=await paintedSurveyDifference(page);
+    assert.ok(later.count>20);
+    for(const edge of ['left','right','top','bottom'])assert.ok(Math.abs(first[edge]-later[edge])<=1,'The surveyed marker stays fixed while the historical center changes');
+    assert.equal(await page.locator('#replay-time').inputValue(),'900');
+  });
+}
+
+const tinyPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/qU0AAAAASUVORK5CYII=','base64');
+async function syntheticSurveyImage(page){
+  // This image replaces the provider response only in the isolated fixture.
+  await page.route('https://services.dat.noaa.gov/**',route=>route.fulfill({status:200,contentType:'image/png',body:tinyPng}));
+}
+
+test('player survey history closes an obsolete synthetic photo and restores connected focus',async t=>{
+  const page=await fixture(t,{viewport:{width:390,height:844}});
+  await syntheticSurveyImage(page);
+  await page.goto(base+'/reconstruction.html?t=780&survey=270271&surveyPhotos=1');
+  await page.locator('#survey-observation').waitFor();
+  await page.locator('#survey-next').click();
+  const opener=page.locator('#survey-detail .survey-photo-open').first(),old=await opener.elementHandle();
+  await opener.click();
+  assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  await page.goBack();
+  await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
+  assert.equal(await page.locator('#survey-observation').inputValue(),'270271');
+  assert.equal(await old.evaluate(node=>node.isConnected),false);
+  await page.waitForFunction(()=>document.activeElement===document.getElementById('survey-observation'));
+  assert.equal(await page.locator('#replay-time').inputValue(),'780');
+});
+
+test('player clock history preserves an unchanged synthetic photo opener',async t=>{
+  const page=await fixture(t,{viewport:{width:390,height:844}});
+  await syntheticSurveyImage(page);
+  await page.goto(base+'/reconstruction.html?t=780&survey=270271&surveyPhotos=1');
+  await page.locator('#survey-observation').waitFor();
+  await page.locator('#replay-chapter-next').click();
+  const nextTime=new URL(page.url()).searchParams.get('t');
+  const opener=page.locator('#survey-detail .survey-photo-open').first(),old=await opener.elementHandle();
+  await opener.click();
+  assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  await page.goBack();
+  assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  assert.equal(await old.evaluate(node=>node.isConnected),true);
+  assert.equal(await page.locator('#replay-time').inputValue(),'780');
+  await page.goForward();
+  assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  assert.equal(await old.evaluate(node=>node.isConnected),true);
+  assert.equal(await page.locator('#replay-time').inputValue(),nextTime);
+  await page.locator('#photo-close').click();
+  await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
+  assert.equal(await page.evaluate(()=>document.activeElement?.isConnected),true);
+});
+
+
 const data=JSON.parse(readFileSync(new URL('../../web/data.json',import.meta.url)));
 const params=page=>new URL(page.url()).searchParams;
 
