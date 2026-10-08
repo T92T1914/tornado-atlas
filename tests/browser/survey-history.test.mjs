@@ -185,7 +185,7 @@ test('survey Back closes a photo before replacing its opener and focuses a conne
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
   const oldOpener=await opener.elementHandle();
   await page.goBack();
-  await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
+  await page.waitForFunction(()=>{const dialog=document.getElementById('photo-dialog');return dialog&&!dialog.open;});
   assert.equal(await page.locator('#survey-observation').inputValue(),'270271');
   assert.equal(await oldOpener.evaluate(node=>node.isConnected),false);
   await page.waitForFunction(()=>document.activeElement===document.getElementById('survey-observation'));

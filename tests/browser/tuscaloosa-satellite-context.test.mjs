@@ -74,8 +74,22 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
       path:path.join(process.env.ATLAS_SCREENSHOT_DIR,`tuscaloosa-satellite-section-${width}-${appearance}.png`)});
     // Shared controls must reset source and credit when returning to old radar.
     await page.locator('[data-photo-id="kbmx-reflectivity-county-crossing"]').click();
-    await page.waitForFunction(()=>!document.getElementById('photo-full').hidden&&
-      document.getElementById('photo-full').naturalWidth===755);
+    try{
+      await page.waitForFunction(()=>!document.getElementById('photo-full').hidden&&
+        document.getElementById('photo-full').naturalWidth===755);
+    }catch(error){
+      console.log('SATELLITE_RADAR_OPEN_FAILURE',JSON.stringify(await page.evaluate(()=>{
+        const image=document.getElementById('photo-full'),dialog=document.getElementById('photo-dialog');
+        return {url:location.href,ready:document.body?.dataset.photoViewer,dialog:dialog?.open,
+          title:document.getElementById('photo-title')?.textContent,
+          image:image&&{src:image.getAttribute('src'),hidden:image.hidden,complete:image.complete,
+            width:image.naturalWidth,height:image.naturalHeight},
+          failure:document.getElementById('photo-failure')?.textContent,
+          failureHidden:document.getElementById('photo-failure')?.hidden,
+          active:document.activeElement?.outerHTML.slice(0,500)};
+      })));
+      throw error;
+    }
     assert.match(await page.locator('#photo-location').textContent(),/KBMX/);
     assert.equal(await page.locator('#photo-source').getAttribute('href'),'https://www.weather.gov/bmx/event_04272011tuscbirm');
     assert.equal(await page.locator('#photo-source').textContent(),'Original survey and image captions');

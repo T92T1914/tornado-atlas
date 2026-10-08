@@ -203,6 +203,9 @@ test('an unavailable survey target retains the clock and explains the replacemen
   const page=await fixture(t,{viewport:{width:390,height:844}});
   await page.goto(base+'/reconstruction.html?t=783&survey=999999&surveyPhotos=0');
   await page.locator('#survey-observation').waitFor();
+  const control=page.locator('#survey-observation');
+  const originalControlFont=await control.evaluate(node=>parseFloat(getComputedStyle(node).fontSize));
+  const originalOptions=await control.evaluate(node=>[...node.options].map(option=>[option.value,option.textContent]));
   await page.addStyleTag({content:'html {font-size:200%}'});
   assert.match(await page.locator('#survey-link-status').textContent(),/999999 is unavailable/);
   assert.equal(await page.locator('#replay-time').inputValue(),'783');
@@ -212,6 +215,17 @@ test('an unavailable survey target retains the clock and explains the replacemen
   await page.locator('#survey-order').selectOption('path');
   assert.match(await page.locator('#survey-line-context').textContent(),/does not establish when damage occurred/);
   assert.equal(params(page).get('t'),'783');
+  const controlLayout=await control.evaluate(node=>({font:getComputedStyle(node).fontSize,
+    labelFont:getComputedStyle(node.parentElement).fontSize,options:[...node.options].map(option=>[option.value,option.textContent]),
+    value:node.value,selectedText:node.selectedOptions[0].textContent,
+    client:node.clientWidth,scroll:node.scrollWidth,labelClient:node.parentElement.clientWidth,
+    labelScroll:node.parentElement.scrollWidth}));
+  assert.ok(parseFloat(controlLayout.font)>=originalControlFont,'The bounded select does not shrink its resolved text size');
+  const byValue=(left,right)=>left[0].localeCompare(right[0]);
+  assert.deepEqual(controlLayout.options.sort(byValue),originalOptions.sort(byValue));
+  assert.equal(controlLayout.value,String(selected));
+  assert.ok(controlLayout.selectedText.includes(String(selected)));
+  assert.ok(controlLayout.labelScroll<=controlLayout.labelClient+1,JSON.stringify(controlLayout));
   const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
     overflow:[...document.querySelectorAll('body *')].filter(e=>{
       const r=e.getBoundingClientRect();return r.right>innerWidth+1 &&
