@@ -43,7 +43,7 @@ async function fixture(t,href) {
     querySelectorAll:()=>[],addEventListener:()=>{}};
   document.getElementById('replay-error').hidden=true;
   document.getElementById('replay-time').disabled=true;
-  const globals={document,location,crypto:webcrypto,window:{addEventListener:()=>{}},
+  const globals={document,location,crypto:webcrypto,window:new EventTarget(),
     history:Object.fromEntries(['pushState','replaceState'].map(method=>[method,(_state,_title,url)=>{location.href=String(url);historyWrites.push({method,href:location.href});}])),
     fetch:async path=>{
       requests.push(String(path));
