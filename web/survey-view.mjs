@@ -167,6 +167,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     if(url.href!==location.href) {
       history[mode==='replace'?'replaceState':'pushState'](null,'',url);
       lastRouteKey=routeKey();
+      pageOptions.afterHistoryChange?.();
     }
   }
   function refreshLinks() {
@@ -182,6 +183,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   }
   function showFatality(place) {
     targetMissing.textContent='';
+    pageOptions.onObservationSelect?.(null);
     selectedId='fatality:'+place.id;select.value=selectedId;previous.disabled=next.disabled=true;
     halo.setAttribute('visibility','hidden');compareLine(null);
     for(const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed','false');
@@ -195,6 +197,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     targetMissing.textContent='';
     const index=visible.findIndex(p=>p.id===id), point=visible[index];
     selectedId=point?.id ?? null;select.value=point?String(point.id):'';
+    pageOptions.onObservationSelect?.(point??null);
     previous.disabled=index<=0;next.disabled=index<0 || index===visible.length-1;
     detail.replaceChildren();detail.classList.remove('fatality-record');halo.setAttribute('visibility',point?'visible':'hidden');
     compareLine(point);
