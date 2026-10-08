@@ -123,6 +123,37 @@ jobs:
           path: ci-diagnostics/
           retention-days: 7
           if-no-files-found: warn
+  verify-player-webkit:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    concurrency:
+      group: atlas-player-webkit-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install focused WebKit dependencies
+        run: |
+          npm ci --ignore-scripts --no-fund
+          npx playwright install --with-deps webkit
+      - name: Verify player layout and survey history in WebKit
+        env:
+          ATLAS_BROWSER_ENGINE: webkit
+        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 tests/browser/replay-damage.test.mjs tests/browser/survey-history.test.mjs tests/browser/tuscaloosa-satellite-context.test.mjs
+      - name: Retain focused browser failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-webkit-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ci-diagnostics/
+          retention-days: 7
+          if-no-files-found: warn
   deploy:
     needs: verify
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

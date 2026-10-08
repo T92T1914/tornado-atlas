@@ -82,5 +82,5 @@
 .replay-damage input[type=search]{max-width:100%;font-size:16px}
 .replay-damage .fineprint{font-size:13px;line-height:1.65;overflow-wrap:anywhere}
 .replay-damage button,.replay-damage select{min-height:44px;min-width:0;max-width:100%}
-.replay-damage .survey-controls label{display:grid;grid-template-columns:minmax(0,1fr);max-width:100%}
+.replay-damage .survey-controls label{display:grid;grid-template-columns:minmax(0,1fr);max-width:100%;overflow:hidden;overflow-wrap:anywhere;padding:6px}
 .replay-damage .survey-controls select{overflow:hidden;text-overflow:ellipsis}

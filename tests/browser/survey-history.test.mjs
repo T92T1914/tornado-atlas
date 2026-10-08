@@ -179,13 +179,34 @@ test('survey Back closes a photo before replacing its opener and focuses a conne
   await syntheticSurveyImage(page);
   await page.goto(base+'/survey.html?survey=270271&surveyPhotos=1');
   await page.locator('#survey-observation').waitFor();
+  await page.waitForFunction(()=>{
+    const image=document.querySelector('#survey-detail .survey-photo-open img');
+    return image?.complete&&image.naturalWidth===1&&image.getBoundingClientRect().height>0;
+  });
+  const initialHistory=await page.evaluate(()=>history.length);
   await page.locator('#survey-next').click();
+  await page.waitForFunction(()=>document.getElementById('survey-observation')?.value==='270275');
+  assert.equal(new URL(page.url()).searchParams.get('survey'),'270275');
+  assert.equal(await page.evaluate(()=>history.length),initialHistory+1);
   const opener=page.locator('#survey-detail .survey-photo-open').first();
   await opener.click();
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  await page.waitForFunction(()=>{
+    const image=document.getElementById('photo-full');
+    return image?.complete&&image.naturalWidth===1&&!image.hidden&&image.getBoundingClientRect().height>0;
+  });
   const oldOpener=await opener.elementHandle();
   await page.goBack();
-  await page.waitForFunction(()=>{const dialog=document.getElementById('photo-dialog');return dialog&&!dialog.open;});
+  try{
+    await page.waitForFunction(()=>{const dialog=document.getElementById('photo-dialog');return dialog&&!dialog.open;});
+  }catch(error){
+    try{
+      console.error('SURVEY_BACK_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>({url:location.href,
+        ready:document.readyState,history:history.length,selection:document.getElementById('survey-observation')?.value,
+        dialogPresent:!!document.getElementById('photo-dialog'),dialogOpen:document.getElementById('photo-dialog')?.open,
+        focus:document.activeElement?.outerHTML.slice(0,500)}))));
+    }finally{throw error;}
+  }
   assert.equal(await page.locator('#survey-observation').inputValue(),'270271');
   assert.equal(await oldOpener.evaluate(node=>node.isConnected),false);
   await page.waitForFunction(()=>document.activeElement===document.getElementById('survey-observation'));
