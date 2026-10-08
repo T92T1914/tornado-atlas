@@ -102,8 +102,11 @@ for(const width of [1280,390])test(`one source-owned player at ${width}px with h
   const visiblePauses=await page.evaluate(()=>window.providerFixture.players[1].pauses);
   await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});window.providerFixture.players[1].state(1);delete document.hidden;});
   assert.ok(await page.evaluate(()=>window.providerFixture.players[1].pauses)>visiblePauses);
+  // Deliver immediate buffering from the real click task, before a clock frame can enter a gap.
+  await page.evaluate(()=>document.getElementById('replay-play').addEventListener('click',()=>{
+    queueMicrotask(()=>window.providerFixture.players[1].state(3));
+  },{once:true}));
   await page.locator('#replay-play').click();
-  await page.evaluate(()=>window.providerFixture.players[1].state(3));
   assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
   assert.equal(await page.locator('#replay-time').inputValue(),'783');
   assert.match(await page.locator('.footage-controls + .footage-player + p').textContent(),/buffering.*map stays paused/);
@@ -122,6 +125,27 @@ for(const width of [1280,390])test(`one source-owned player at ${width}px with h
   assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-source-b');
   assert.equal(await page.locator('#registered-footage iframe').count(),0);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+});
+
+test('a late buffering event in an unknown second does not rewind to an old checked frame',async t=>{
+  const page=await fixture(t,{viewport:{width:390,height:1000}});await sources(page);
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=783');
+  await page.locator('#footage-source:visible').waitFor();
+  await page.getByRole('button',{name:'Load original YouTube player',exact:true}).click();
+  await page.waitForFunction(()=>window.providerFixture.players[0]?.muted);
+  await page.locator('#replay-play').click();
+  await page.waitForFunction(()=>document.getElementById('footage-status').textContent.includes('No checked video frame'));
+  await page.locator('#replay-play').click();
+  assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+  const time=await page.locator('#replay-time').inputValue();
+  assert.ok(Number(time)>783);
+  const pauses=await page.evaluate(()=>window.providerFixture.players[0].pauses);
+  await page.evaluate(()=>window.providerFixture.players[0].state(3));
+  assert.ok(await page.evaluate(()=>window.providerFixture.players[0].pauses)>pauses);
+  assert.equal(await page.locator('#replay-time').inputValue(),time);
+  assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+  assert.match(await page.locator('#footage-status').textContent(),/No checked video frame/);
+  assert.equal(await page.locator('.footage-player').isVisible(),false);
 });
 
 test('source history restores the default in an unassigned second',async t=>{
