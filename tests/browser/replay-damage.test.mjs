@@ -29,8 +29,12 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
     await page.goto(base+'/reconstruction.html?t=783&survey=270271&surveyPhotos=0');
     await page.locator('#survey-observation').waitFor();
     await page.locator('#reading-appearance').selectOption(appearance);
+    await page.waitForFunction(()=>document.querySelector('#replay-scene').dataset.surveyRecord==='270271');
+    assert.equal(await page.locator('#replay-scene').getAttribute('data-survey-visible'),'false');
+    assert.equal(await page.locator('#replay-damage-offscreen').isVisible(),true);
     await page.locator('#replay-reset').click();
     await page.waitForFunction(()=>document.querySelector('#replay-scene').dataset.surveyVisible==='true');
+    assert.equal(await page.locator('#replay-damage-offscreen').isVisible(),false);
     const first=await paintedSurveyDifference(page);
     assert.ok(first.count>20,'Removing the selection must remove visible painted pixels');
     assert.ok(first.right-first.left<250&&first.bottom-first.top<30,'The change must be the bounded marker/label region');
