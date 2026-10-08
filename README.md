@@ -76,6 +76,15 @@ illustrative states have separate labels; the published El Reno package has
 no such interval. The [appearance package contract](docs/event-replay-packages.md#optional-appearance-timeline)
 sets out the admission requirements and rendering limits.
 
+The same replay clock now opens the El Reno event account at its documented
+chapters and shows the latest reviewed warning bulletin issued by the selected
+time. Chapter buttons, Previous and Next use published map minutes and stay in
+browser history. The source's event-time wording remains beside the map seek
+time where they differ. Bulletin issue time is identified separately from any
+earlier observation described in its text. The original account and bulletin
+remain one click away; the new panel does not turn their prose into additional
+tracked positions or appearance observations.
+
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
 also shows Joplin's research-readiness page, with a link to its documentary;

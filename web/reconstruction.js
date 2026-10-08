@@ -8,6 +8,8 @@ import {mountReplayCamera} from './replay-camera-view.mjs';
 import {anchorAt,sourceLink} from './footage-model.mjs';
 import {appearanceAt} from './appearance-timeline-model.mjs';
 import {createFormRenderer} from './form-renderer.mjs';
+import {issuedAt} from './documentary-model.mjs';
+import {replayChapters,chapterAt,adjacentChapter} from './replay-context-model.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
@@ -75,6 +77,54 @@ async function start(){
   el('replay-geography-source').href=config.geography_source.url;
   const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},start,seconds=>seek(seconds,{mode:'replace'}),pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`,restoreInitialMoment:false,onMomentSelect:anchor=>seek((Date.parse(anchor.utc)-start)/1000,{fragment:'registered-footage'})});
   el('footage-source').addEventListener('change',()=>{lastText=null;refresh();syncLocation();});
+  const chapters=replayChapters(data.history?.event===event.id?data.history:null,positions,start);
+  const warnings=data.documentary?.event===event.id&&Array.isArray(data.documentary.warnings)?data.documentary.warnings:[];
+  const mappedChapters=chapters.filter(chapter=>chapter.mapSeconds!==null);
+  const contextReady=Boolean(mappedChapters.length);
+  let shownChapter=undefined,shownWarning=undefined;
+  if(contextReady){
+    el('replay-context').hidden=false;
+    const list=el('replay-chapter-list');
+    for(const chapter of chapters){
+      const button=document.createElement('button'),time=document.createElement('span'),title=document.createElement('strong');
+      button.type='button';time.textContent=`Source: ${chapter.time} · Map: ${chapter.mapTime??'unavailable'}`;
+      title.textContent=chapter.title;button.append(time,title);
+      button.disabled=chapter.mapSeconds===null;
+      if(!button.disabled)button.addEventListener('click',()=>seek(chapter.mapSeconds));
+      list.append(button);chapter.button=button;
+    }
+    el('replay-chapter-previous').addEventListener('click',()=>{
+      const previous=adjacentChapter(mappedChapters,clock.seconds,-1);
+      if(previous)seek(previous.mapSeconds);
+    });
+    el('replay-chapter-next').addEventListener('click',()=>{
+      const next=adjacentChapter(mappedChapters,clock.seconds,1);
+      if(next)seek(next.mapSeconds);
+    });
+  }
+  function updateContext(){
+    if(!contextReady)return;
+    const chapter=chapterAt(mappedChapters,clock.seconds);
+    if(chapter!==shownChapter){
+      shownChapter=chapter;
+      setText(el('replay-chapter-title'),chapter?`${chapter.time} · ${chapter.title}`:'No chapter assigned at this map time.');
+      setText(el('replay-chapter-account'),chapter?.text??'');
+      el('replay-chapter-source').hidden=!chapter;
+      if(chapter)el('replay-chapter-source').href=chapter.source;
+      for(const item of chapters)item.button.setAttribute('aria-current',item===chapter?'step':'false');
+    }
+    const warning=issuedAt(warnings,current.utc).at(-1)??null;
+    if(warning!==shownWarning){
+      shownWarning=warning;
+      setText(el('replay-warning-issued'),warning?`Issued ${localStamp(warning.issued)}. This is the bulletin issue time.`:'');
+      setText(el('replay-warning-title'),warning?.title??'No reviewed bulletin issued by this time.');
+      setText(el('replay-warning-summary'),warning?.summary??'');
+      el('replay-warning-source').hidden=!warning;
+      if(warning)el('replay-warning-source').href=warning.source;
+    }
+    el('replay-chapter-previous').disabled=!adjacentChapter(mappedChapters,clock.seconds,-1);
+    el('replay-chapter-next').disabled=!adjacentChapter(mappedChapters,clock.seconds,1);
+  }
   const appearanceTimeline=data.appearance_timeline??null;
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
   let appearanceRenderer=null,appearanceState={state:'unknown'};
@@ -194,6 +244,7 @@ async function start(){
     if(key!==lastText)updateFootage(current.utc);
     updateAppearance();
     if(key===lastText)return;lastText=key;
+    updateContext();
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
     el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?'Published source minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
