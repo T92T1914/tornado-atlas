@@ -31,6 +31,7 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
     const beforeSearch=await state();
     const search=page.locator('#survey-search');
     await search.fill('R');await search.fill('Re');await search.fill('Residences');
+    await page.waitForFunction(()=>new URL(location.href).searchParams.get('surveySearch')==='Residences'&&document.querySelector('#survey-search').value==='Residences');
     const searched=new URL(page.url());
     assert.equal(searched.searchParams.get('surveyOrder'),'path');
     assert.equal(searched.searchParams.get('surveyRating'),'EF2');
