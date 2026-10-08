@@ -395,8 +395,12 @@ The [focused survey workspace](https://t92t1914.github.io/tornado-atlas/survey.h
 keeps the map and photograph inspector together. It uses the same preserved
 records as the report. Switching between the report and workspace carries the
 selected observation and filters, including a separately documented fatality
-record. The source register in the report can also be searched by publisher,
-title and evidence note, or narrowed to a collection.
+record. Selecting an observation or changing a filter updates the address.
+Back, Forward and reload restore the visible record, order and filters on both
+pages. In the full report, a survey change pauses the running timeline at its
+current time before saving the new address. Search typing adds one history
+entry per edit session. The source register in the report can also be searched
+by publisher, title and evidence note, or narrowed to a collection.
 
 ## Engineering behind the museum
 

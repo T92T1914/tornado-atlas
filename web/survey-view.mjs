@@ -116,7 +116,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   controls.append(label,previous,next);inspector.append(controls);
   const detail=el('article',null,'survey-detail');detail.id='survey-detail';detail.setAttribute('aria-live','polite');inspector.append(detail);
   const strip=el('div',null,'survey-photo-strip');strip.id='survey-photo-strip';strip.setAttribute('aria-label','Photographs at matching survey locations');host.append(strip);
-  let visible=[], selectedId=initial.id;
+  let visible=[], selectedId=initial.id, restoring=true, filtering=false, searchBurst=false, lastRouteKey=null;
   const navigation=mountMapNavigation(svg,{extent:[0,0,960,430]});
   let nearestLinePoint=null;
   function sizeLinePoint() {
@@ -147,24 +147,61 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   zoomIn.addEventListener('click',()=>navigation.zoom(1/1.6));
   fit.addEventListener('click',navigation.reset);zoomState();
   const impactUI=mountSurveyImpacts(places,svg,project,mapPanel,navigation,showFatality);
+  const surveyKeys=['survey','surveyRating','surveySearch','surveyPhotos','surveyOrder','fatality'];
+  function routeKey() {
+    const params=new URL(location.href).searchParams;
+    return JSON.stringify(surveyKeys.map(key=>params.get(key)));
+  }
+  function selectionURL() {
+    const url=new URL(surveyLink(location.href,{id:typeof selectedId==='number'?selectedId:null,
+      rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value}));
+    if(typeof selectedId==='string'&&selectedId.startsWith('fatality:'))
+      url.searchParams.set('fatality',selectedId.slice('fatality:'.length));
+    return url;
+  }
+  function syncHistory(mode='push') {
+    if(restoring||filtering)return;
+    if(selectionURL().href===location.href)return;
+    pageOptions.beforeHistoryChange?.();
+    const url=selectionURL();
+    if(url.href!==location.href) {
+      history[mode==='replace'?'replaceState':'pushState'](null,'',url);
+      lastRouteKey=routeKey();
+    }
+  }
+  function refreshLinks() {
+    const url=selectionURL();
+    if(typeof selectedId==='string'&&selectedId.startsWith('fatality:')) {
+      const share=detail.querySelector('#fatality-share');
+      if(share)share.href=fatalityLink(url.href,selectedId.slice('fatality:'.length));
+    } else {
+      const share=detail.querySelector('#survey-share');
+      if(share)share.href=url.href;
+    }
+    updateAlternate(url.href);
+  }
   function showFatality(place) {
+    targetMissing.textContent='';
     selectedId='fatality:'+place.id;select.value=selectedId;previous.disabled=next.disabled=true;
     halo.setAttribute('visibility','hidden');compareLine(null);
     for(const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed','false');
     fillFatalityRecord(detail,place,{points:survey.points,media,openPhoto,remembranceUrl:reportLink('#remembrance')});
     const share=el('a','Link to this fatality record');share.id='fatality-share';
-    share.href=fatalityLink(surveyLink(location.href,{id:null,rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value}),place.id);detail.append(share);
-    updateAlternate(share.href);
+    detail.append(share);
+    syncHistory();refreshLinks();
   }
   const targetMissing=el('p',null,'fineprint');targetMissing.id='survey-link-status';host.append(targetMissing);
   function show(id) {
+    targetMissing.textContent='';
     const index=visible.findIndex(p=>p.id===id), point=visible[index];
     selectedId=point?.id ?? null;select.value=point?String(point.id):'';
-    updateAlternate(surveyLink(location.href,{id:selectedId,rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value}));
     previous.disabled=index<=0;next.disabled=index<0 || index===visible.length-1;
     detail.replaceChildren();detail.classList.remove('fatality-record');halo.setAttribute('visibility',point?'visible':'hidden');
     compareLine(point);
-    if (!point) {detail.append(el('p','No survey observations match these filters.'));return;}
+    if (!point) {
+      detail.append(el('p','No survey observations match these filters.'));
+      syncHistory();refreshLinks();return;
+    }
     const [x,y]=project(point.coordinates);halo.setAttribute('cx',x);halo.setAttribute('cy',y);
     navigation.centerOn([x,y]);
     for (const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed',String(Number(button.dataset.id)===id));
@@ -190,39 +227,48 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     if(photos.length) detail.append(el('p','Source: NOAA/NWS Damage Assessment Toolkit. Photographer: not identified in the attachment metadata. Capture time: not provided.','fineprint'));
     detail.append(damageExplanation(point.indicator,point.degree,point.rating));
     const share=el('a','Link to this observation');share.id='survey-share';
-    share.href=surveyLink(location.href,{id:point.id,rating:rating.value,query:search.value,photosOnly:photosOnly.checked,order:order.value});
     const links=el('div',null,'survey-record-links');links.append(source,share);detail.append(links);
+    syncHistory();refreshLinks();
   }
-  function filter() {
-    visible=orderSurvey(filterSurvey(survey.points,rating.value,search.value,photosOnly.checked?media.photos:null),route,order.value);
-    count.textContent=`${visible.length} of ${survey.included_count} survey locations`;
-    select.replaceChildren();dots.replaceChildren();strip.replaceChildren();select.disabled=!visible.length&&!places.length;
-    if(places.length) {
-      const group=el('optgroup');group.label='Fatality records';
-      for(const place of places) {const option=el('option',`${place.title} · ${fatalityLabel(place)}`);option.value='fatality:'+place.id;group.append(option);}
-      select.append(group);
-    }
-    const observations=el('optgroup');observations.label='Original damage survey records';select.append(observations);
-    for (const point of visible) {
-      const option=el('option',`${point.id} · ${point.rating} · ${point.indicator}`);option.value=point.id;observations.append(option);
-      const [x,y]=project(point.coordinates);
-      const dot=svgNode('circle',{cx:x,cy:y,r:4.2*navigation.read()[2]/960,'data-map-radius':4.2,fill:ratingColors[point.rating]||'#87949d',class:'survey-dot'});
-      dot.append(svgNode('title',{},`${point.id} · ${point.rating} · ${point.indicator}`));
-      dot.addEventListener('click',()=>show(point.id));dots.append(dot);
-      const photo=media.photos[String(point.id)]?.[0];
-      if (photo) {
-        const button=el('button');button.type='button';button.dataset.id=point.id;
-        button.setAttribute('aria-label',`View ${point.rating} photograph at survey record ${point.id}`);
-        const img=el('img');img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';img.src=photo.thumbnail_url;img.alt='';
-        img.addEventListener('error',()=>img.remove(),{once:true});
-        button.append(img,el('span',`${point.rating} · ${point.id}`));button.addEventListener('click',()=>show(point.id));strip.append(button);
+  function filter(mode=null) {
+    filtering=true;
+    try {
+      visible=orderSurvey(filterSurvey(survey.points,rating.value,search.value,photosOnly.checked?media.photos:null),route,order.value);
+      count.textContent=`${visible.length} of ${survey.included_count} survey locations`;
+      select.replaceChildren();dots.replaceChildren();strip.replaceChildren();select.disabled=!visible.length&&!places.length;
+      if(places.length) {
+        const group=el('optgroup');group.label='Fatality records';
+        for(const place of places) {const option=el('option',`${place.title} · ${fatalityLabel(place)}`);option.value='fatality:'+place.id;group.append(option);}
+        select.append(group);
       }
-    }
-    const selectedPlace=places.find(place=>'fatality:'+place.id===selectedId);
-    if(selectedPlace) impactUI.show(selectedPlace);else show(visible.some(p=>p.id===selectedId)?selectedId:visible[0]?.id);
+      const observations=el('optgroup');observations.label='Original damage survey records';select.append(observations);
+      for (const point of visible) {
+        const option=el('option',`${point.id} · ${point.rating} · ${point.indicator}`);option.value=point.id;observations.append(option);
+        const [x,y]=project(point.coordinates);
+        const dot=svgNode('circle',{cx:x,cy:y,r:4.2*navigation.read()[2]/960,'data-map-radius':4.2,fill:ratingColors[point.rating]||'#87949d',class:'survey-dot'});
+        dot.append(svgNode('title',{},`${point.id} · ${point.rating} · ${point.indicator}`));
+        dot.addEventListener('click',()=>show(point.id));dots.append(dot);
+        const photo=media.photos[String(point.id)]?.[0];
+        if (photo) {
+          const button=el('button');button.type='button';button.dataset.id=point.id;
+          button.setAttribute('aria-label',`View ${point.rating} photograph at survey record ${point.id}`);
+          const img=el('img');img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';img.src=photo.thumbnail_url;img.alt='';
+          img.addEventListener('error',()=>img.remove(),{once:true});
+          button.append(img,el('span',`${point.rating} · ${point.id}`));button.addEventListener('click',()=>show(point.id));strip.append(button);
+        }
+      }
+      const selectedPlace=places.find(place=>'fatality:'+place.id===selectedId);
+      if(selectedPlace) impactUI.show(selectedPlace);else show(visible.some(p=>p.id===selectedId)?selectedId:visible[0]?.id);
+    } finally {filtering=false;}
+    if(mode)syncHistory(mode);
+    refreshLinks();
   }
-  rating.addEventListener('change',filter);search.addEventListener('input',filter);photosOnly.addEventListener('change',filter);order.addEventListener('change',filter);
-  reset.addEventListener('click',()=>{rating.value='';search.value='';photosOnly.checked=true;order.value='records';targetMissing.textContent='';filter();});
+  const committedFilter=()=>{searchBurst=false;filter('push');};
+  rating.addEventListener('change',committedFilter);
+  search.addEventListener('input',()=>{filter(searchBurst?'replace':'push');searchBurst=true;});
+  search.addEventListener('blur',()=>{searchBurst=false;});
+  photosOnly.addEventListener('change',committedFilter);order.addEventListener('change',committedFilter);
+  reset.addEventListener('click',()=>{rating.value='';search.value='';photosOnly.checked=true;order.value='records';targetMissing.textContent='';committedFilter();});
   select.addEventListener('change',()=>{const place=places.find(p=>'fatality:'+p.id===select.value);if(place)impactUI.show(place);else show(Number(select.value));});
   previous.addEventListener('click',()=>show(visible[visible.findIndex(p=>p.id===selectedId)-1]?.id));
   next.addEventListener('click',()=>show(visible[visible.findIndex(p=>p.id===selectedId)+1]?.id));
@@ -242,8 +288,38 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   for (const [text,href] of [['Read the storm history','#history'],['Explore the EF3 / EF5 discussion','#el-reno-ef5-debate'],['Remember those who died','#remembrance']]) {
     const anchor=el('a',text);anchor.href=reportLink(href);context.append(anchor);
   }
-  host.append(context);filter();
-  const requestedPlace=new URL(location.href).searchParams.get('fatality');
-  if(requestedPlace) {const place=places.find(p=>p.id===requestedPlace);if(place)impactUI.show(place);else targetMissing.textContent='This fatality record is not available in the exhibit.';}
-  if (initial.id !== null && selectedId !== initial.id) targetMissing.textContent=`The shared record ${initial.id} is unavailable under these filters. The first matching observation is shown instead.`;
+  host.append(context);
+  function restore() {
+    restoring=true;searchBurst=false;
+    const state=surveyState(location.href);
+    if(state.rating&&![...rating.options].some(option=>option.value===state.rating)) {
+      const option=el('option',state.rating);option.value=state.rating;rating.append(option);
+    }
+    rating.value=state.rating;search.value=state.query;photosOnly.checked=state.photosOnly;
+    order.value=route?state.order:'records';selectedId=state.id;
+    targetMissing.textContent='';filter();
+    const requestedPlace=new URL(location.href).searchParams.get('fatality');
+    if(requestedPlace) {
+      const place=places.find(item=>item.id===requestedPlace);
+      if(place)impactUI.show(place);else targetMissing.textContent='This fatality record is not available in the exhibit.';
+    } else if(state.id!==null&&selectedId!==state.id)
+      targetMissing.textContent=`The shared record ${state.id} is unavailable under these filters. The first matching observation is shown instead.`;
+    lastRouteKey=routeKey();
+    restoring=false;
+  }
+  window.addEventListener('popstate',()=>{
+    if(routeKey()===lastRouteKey){refreshLinks();return;}
+    const dialog=byId('photo-dialog');
+    if(dialog?.open) {
+      dialog.addEventListener('close',()=>{
+        if(!dialog.open)(select.disabled?reset:select).focus({preventScroll:true});
+      },{once:true});
+      dialog.close();
+    }
+    restore();
+  });
+  window.addEventListener('atlas:replay-url-change',()=>{
+    if(!restoring&&!filtering)refreshLinks();
+  });
+  restore();
 }
