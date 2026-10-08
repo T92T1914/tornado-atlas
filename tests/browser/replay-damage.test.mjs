@@ -51,7 +51,7 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
   });
 }
 
-const tinyPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/qU0AAAAASUVORK5CYII=','base64');
+const tinyPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNwaDjwHwAFBAKAPJ4DgAAAAABJRU5ErkJggg==','base64');
 async function syntheticSurveyImage(page){
   // This image replaces the provider response only in the isolated fixture.
   await page.route('https://services.dat.noaa.gov/**',route=>route.fulfill({status:200,contentType:'image/png',body:tinyPng}));
@@ -218,6 +218,25 @@ test('an unavailable survey target retains the clock and explains the replacemen
         !e.closest('.survey-photo-strip,.timeline-table-wrap');
     }).map(e=>({tag:e.tagName,id:e.id,class:String(e.className),right:e.getBoundingClientRect().right}))}));
   assert.ok(layout.scroll<=layout.width+1,JSON.stringify(layout));
+  const registration=page.locator('#registered-footage details'),table=registration.locator('.footage-table');
+  assert.equal(await registration.evaluate(node=>node.open),false);
+  assert.equal(await table.isVisible(),false);
+  await registration.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await registration.evaluate(node=>node.open),true);
+  assert.equal(await table.isVisible(),true);
+  assert.equal(await table.locator('tbody tr').count(),7);
+  const openLayout=await table.evaluate(node=>({width:innerWidth,document:document.documentElement.scrollWidth,
+    right:node.getBoundingClientRect().right,client:node.clientWidth,scroll:node.scrollWidth}));
+  assert.ok(openLayout.document<=openLayout.width+1,JSON.stringify(openLayout));
+  assert.ok(openLayout.right<=openLayout.width+1,JSON.stringify(openLayout));
+  if(openLayout.scroll>openLayout.client){
+    await table.focus();await page.keyboard.press('ArrowRight');
+    await page.waitForFunction(()=>document.querySelector('#registered-footage .footage-table').scrollLeft>0);
+  }
+  await registration.locator('summary').focus();await page.keyboard.press('Enter');
+  assert.equal(await table.isVisible(),false);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
 });
 
 test('a browser without the geographic canvas keeps the documentary and survey source route',async t=>{

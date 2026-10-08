@@ -36,7 +36,7 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=loc
   const details=el('details');details.append(el('summary','Clock registration, coverage and source availability'),el('p',data.method),el('p',data.coverage));
   const table=el('table'),thead=el('thead'),tr=el('tr');[clockLabel,'Source version','Video position','Evidence'].forEach(t=>tr.append(el('th',t)));thead.append(tr);table.append(thead);
   const tbody=el('tbody');
-  for(const anchor of data.anchors){const row=el('tr');row.append(el('td',formatTime(anchor.utc)),el('td',data.sources.find(source=>source.id===anchor.source_id).creator),el('td',sourceTime(anchor.video_seconds)),el('td','Visible clock; sampled frame'));tbody.append(row);}table.append(tbody);const wrapper=el('div',null,'footage-table');wrapper.append(table);details.append(wrapper);
+  for(const anchor of data.anchors){const row=el('tr');row.append(el('td',formatTime(anchor.utc)),el('td',data.sources.find(source=>source.id===anchor.source_id).creator),el('td',sourceTime(anchor.video_seconds)),el('td','Visible clock; sampled frame'));tbody.append(row);}table.append(tbody);const wrapper=el('div',null,'footage-table');wrapper.tabIndex=0;wrapper.setAttribute('role','region');wrapper.setAttribute('aria-label','Clock registration table');wrapper.append(table);details.append(wrapper);
   for(const check of data.access_checks)details.append(el('p',check.note+' Checked '+data.reviewed+'. '),external(check.label,check.url));
   host.append(details);
   const linkedAnchor=data.anchors.find(a=>a.id===new URL(location.href).searchParams.get('footage'));

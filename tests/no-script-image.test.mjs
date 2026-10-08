@@ -48,6 +48,16 @@ test('loaded photograph dimensions wait for usable pixels before acceptance',asy
   assert.equal(evaluations,2);
 });
 
+test('an opaque blank bitmap rejects immediately with the original assertion and cannot start a capture',async()=>{
+  let evaluations=0,captures=0;
+  const image={evaluate:()=>{evaluations++;return Promise.resolve({...loaded,colors:1});},
+    screenshot:()=>{captures++;return Promise.resolve();}};
+  await assert.rejects(()=>noScriptImage(image,expected,'disposable.png'),
+    {name:'AssertionError',message:/nonblank photograph bitmap required/});
+  assert.equal(evaluations,1);
+  assert.equal(captures,0);
+});
+
 test('a bitmap that stays blank cannot pass or start a capture',{timeout:1000},async t=>{
   t.mock.timers.enable({apis:['setTimeout']});
   let captures=0;
