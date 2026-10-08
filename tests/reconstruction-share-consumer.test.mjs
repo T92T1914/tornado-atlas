@@ -113,6 +113,10 @@ test('visible replay link floors time while the current address preserves its fr
   assert.equal(shared.searchParams.get('footage_source'),sourceB.id);
   assert.equal(shared.searchParams.get('footage'),anchorB.id);
   assert.equal(f.location.searchParams.has('footage'),false,'A fractional current time does not acquire an exact anchor');
+  f.seek(783.1);assert.equal(f.ids.get('replay-time').value,'783');
+  f.seek(783.9);assert.equal(f.ids.get('replay-time').value,'784','Seeking within one cached historical second still refreshes the slider');
+  assert.equal(f.location.searchParams.get('t'),'783.9','The slider display does not round clock state or its current URL');
+  f.sourceB();f.checkedB();
   f.unloaded();f.dispose();
   const reopened=await fixture(t,shared.href);reopened.sourceB();reopened.checkedB();reopened.unloaded();
   assert.equal(reopened.ids.get('replay-time').value,'783');
