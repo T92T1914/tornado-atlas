@@ -39,3 +39,23 @@ test('a stalled optional capture consumes the same finite allowance',{timeout:10
   assert.ok(captureOptions.timeout>0 && captureOptions.timeout<=10000);
   t.mock.timers.tick(10001);await rejected;
 });
+
+test('loaded photograph dimensions wait for usable pixels before acceptance',async()=>{
+  let evaluations=0;
+  const image={evaluate:()=>Promise.resolve(++evaluations===1?
+    {...loaded,opaque:false,colors:1}:loaded)};
+  assert.deepEqual(await noScriptImage(image,expected),loaded);
+  assert.equal(evaluations,2);
+});
+
+test('a bitmap that stays blank cannot pass or start a capture',{timeout:1000},async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});
+  let captures=0;
+  const image={evaluate:()=>Promise.resolve({...loaded,opaque:false,colors:1}),
+    screenshot:()=>{captures++;return Promise.resolve();}};
+  const pending=noScriptImage(image,expected,'disposable.png');
+  const rejected=assert.rejects(pending,/exceeded its 10000ms bound/);
+  await Promise.resolve();
+  t.mock.timers.tick(10001);await rejected;
+  assert.equal(captures,0);
+});

@@ -109,7 +109,12 @@ test('an unavailable survey target retains the clock and explains the replacemen
   await page.locator('#survey-order').selectOption('path');
   assert.match(await page.locator('#survey-line-context').textContent(),/does not establish when damage occurred/);
   assert.equal(params(page).get('t'),'783');
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
+    overflow:[...document.querySelectorAll('body *')].filter(e=>{
+      const r=e.getBoundingClientRect();return r.right>innerWidth+1 &&
+        !e.closest('.survey-photo-strip,.timeline-table-wrap');
+    }).map(e=>({tag:e.tagName,id:e.id,class:String(e.className),right:e.getBoundingClientRect().right}))}));
+  assert.ok(layout.scroll<=layout.width+1,JSON.stringify(layout));
 });
 
 test('a browser without the geographic canvas keeps the documentary and survey source route',async t=>{
