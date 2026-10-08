@@ -78,17 +78,18 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
       await page.waitForFunction(()=>!document.getElementById('photo-full').hidden&&
         document.getElementById('photo-full').naturalWidth===755);
     }catch(error){
-      console.log('SATELLITE_RADAR_OPEN_FAILURE',JSON.stringify(await page.evaluate(()=>{
-        const image=document.getElementById('photo-full'),dialog=document.getElementById('photo-dialog');
-        return {url:location.href,ready:document.body?.dataset.photoViewer,dialog:dialog?.open,
-          title:document.getElementById('photo-title')?.textContent,
-          image:image&&{src:image.getAttribute('src'),hidden:image.hidden,complete:image.complete,
-            width:image.naturalWidth,height:image.naturalHeight},
-          failure:document.getElementById('photo-failure')?.textContent,
-          failureHidden:document.getElementById('photo-failure')?.hidden,
-          active:document.activeElement?.outerHTML.slice(0,500)};
-      })));
-      throw error;
+      try{
+        console.log('SATELLITE_RADAR_OPEN_FAILURE',JSON.stringify(await page.evaluate(()=>{
+          const image=document.getElementById('photo-full'),dialog=document.getElementById('photo-dialog');
+          return {url:location.href,ready:document.body?.dataset.photoViewer,dialog:dialog?.open,
+            title:document.getElementById('photo-title')?.textContent,
+            image:image&&{src:image.getAttribute('src'),hidden:image.hidden,complete:image.complete,
+              width:image.naturalWidth,height:image.naturalHeight},
+            failure:document.getElementById('photo-failure')?.textContent,
+            failureHidden:document.getElementById('photo-failure')?.hidden,
+            active:document.activeElement?.outerHTML.slice(0,500)};
+        })));
+      }finally{throw error;}
     }
     assert.match(await page.locator('#photo-location').textContent(),/KBMX/);
     assert.equal(await page.locator('#photo-source').getAttribute('href'),'https://www.weather.gov/bmx/event_04272011tuscbirm');
