@@ -35,6 +35,8 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
     await page.locator('#replay-reset').click();
     await page.waitForFunction(()=>document.querySelector('#replay-scene').dataset.surveyVisible==='true');
     assert.equal(await page.locator('#replay-damage-offscreen').isVisible(),false);
+    assert.equal(await page.locator('#replay-time').inputValue(),'783');
+    assert.equal(await page.locator('#survey-observation').inputValue(),'270271');
     const first=await paintedSurveyDifference(page);
     assert.ok(first.count>20,'Removing the selection must remove visible painted pixels');
     assert.ok(first.right-first.left<250&&first.bottom-first.top<30,'The change must be the bounded marker/label region');
@@ -54,6 +56,12 @@ async function syntheticSurveyImage(page){
   // This image replaces the provider response only in the isolated fixture.
   await page.route('https://services.dat.noaa.gov/**',route=>route.fulfill({status:200,contentType:'image/png',body:tinyPng}));
 }
+async function loadedSyntheticPhoto(page){
+  await page.waitForFunction(()=>{
+    const image=document.getElementById('photo-full'),rect=image.getBoundingClientRect();
+    return !image.hidden&&image.complete&&image.naturalWidth===1&&image.naturalHeight===1&&rect.width>0&&rect.height>0;
+  });
+}
 
 test('player survey history closes an obsolete synthetic photo and restores connected focus',async t=>{
   const page=await fixture(t,{viewport:{width:390,height:844}});
@@ -64,6 +72,7 @@ test('player survey history closes an obsolete synthetic photo and restores conn
   const opener=page.locator('#survey-detail .survey-photo-open').first(),old=await opener.elementHandle();
   await opener.click();
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  await loadedSyntheticPhoto(page);
   await page.goBack();
   await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
   assert.equal(await page.locator('#survey-observation').inputValue(),'270271');
@@ -82,6 +91,7 @@ test('player clock history preserves an unchanged synthetic photo opener',async 
   const opener=page.locator('#survey-detail .survey-photo-open').first(),old=await opener.elementHandle();
   await opener.click();
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  await loadedSyntheticPhoto(page);
   await page.goBack();
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
   assert.equal(await old.evaluate(node=>node.isConnected),true);
@@ -92,7 +102,7 @@ test('player clock history preserves an unchanged synthetic photo opener',async 
   assert.equal(await page.locator('#replay-time').inputValue(),nextTime);
   await page.locator('#photo-close').click();
   await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
-  assert.equal(await page.evaluate(()=>document.activeElement?.isConnected),true);
+  assert.equal(await old.evaluate(node=>document.activeElement===node),true);
 });
 
 
