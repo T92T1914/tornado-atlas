@@ -169,7 +169,7 @@ test('opening damage is lazy and a survey choice captures the running replay',as
   await page.keyboard.press('Space');
   assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
   assert.ok(Number(params(page).get('t'))>785);
-  assert.ok(Math.abs(Number(params(page).get('t'))-Number(await page.locator('#replay-time').inputValue()))<=0.5,'The one-second slider displays the retained fractional clock');
+  assert.equal(Number(await page.locator('#replay-time').inputValue()),Math.round(Number(params(page).get('t'))),'The one-second slider rounds the retained fractional clock consistently');
   assert.equal(params(page).get('survey'),'270275');
   assert.equal(params(page).get('footage_source'),'robinson-dashcam');
   const pausedSecond=await page.locator('#replay-time').inputValue();
@@ -217,6 +217,20 @@ test('an unavailable survey target retains the clock and explains the replacemen
       const r=e.getBoundingClientRect();return r.right>innerWidth+1 &&
         !e.closest('.survey-photo-strip,.timeline-table-wrap');
     }).map(e=>({tag:e.tagName,id:e.id,class:String(e.className),right:e.getBoundingClientRect().right}))}));
+  if(layout.scroll>layout.width+1)layout.diagnostics=await page.evaluate(()=>{
+    const describe=node=>({tag:node.tagName,id:node.id,class:String(node.className),
+      right:node.getBoundingClientRect().right,client:node.clientWidth,scroll:node.scrollWidth,
+      overflow:getComputedStyle(node).overflowX,display:getComputedStyle(node).display});
+    const candidates=[...document.querySelectorAll('body>*,main>*,#replay-content>*,#survey-explorer>*,#registered-footage>*')];
+    const isolation=candidates.map(node=>{
+      const before=node.getAttribute('style');node.style.setProperty('display','none','important');
+      const width=document.documentElement.scrollWidth;
+      if(before===null)node.removeAttribute('style');else node.setAttribute('style',before);
+      return {...describe(node),documentWhenRemoved:width};
+    });
+    return {document:describe(document.documentElement),body:describe(document.body),
+      scrollers:[...document.querySelectorAll('body *')].filter(node=>node.scrollWidth>node.clientWidth+1).map(describe).slice(0,40),isolation};
+  });
   assert.ok(layout.scroll<=layout.width+1,JSON.stringify(layout));
   const registration=page.locator('#registered-footage details'),table=registration.locator('.footage-table');
   assert.equal(await registration.evaluate(node=>node.open),false);

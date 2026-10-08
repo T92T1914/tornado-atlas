@@ -106,7 +106,7 @@ test('visible replay link retains the source through an unassigned gap without a
 test('visible replay link floors time while the current address preserves its fractional second and source',async t=>{
   const href=`https://example.test/reconstruction.html?event=el-reno-2013&t=783.5&footage_source=${sourceB.id}`;
   const f=await fixture(t,href);f.sourceB();f.checkedB();
-  assert.equal(f.location.href,href);assert.equal(f.ids.get('replay-time').value,'783.5');
+  assert.equal(f.location.href,href);assert.equal(f.ids.get('replay-time').value,'784','The whole-second slider rounds without changing the fractional historical clock');
   assert.deepEqual(f.historyWrites,[],'Computing a share link does not rewrite the current address');
   const shared=f.share();
   assert.equal(shared.searchParams.get('t'),'783');

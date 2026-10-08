@@ -16,7 +16,7 @@
 .footage-table table {border-collapse:collapse;width:100%;font-size:13px}
 .footage-table th,.footage-table td {text-align:left;padding:12px;border-bottom:1px solid var(--line)}
 #registered-footage details {border:1px solid var(--line);padding:18px;min-width:0;overflow-wrap:anywhere}
-#registered-footage details:not([open]) .footage-table {display:none}
+#registered-footage details:not([open])>:not(summary) {display:none}
 #reading-footage article {padding:22px 0;border-bottom:1px solid var(--line);scroll-margin-top:100px}
 #reading-footage article a {display:inline-block;margin:8px 18px 0 0}
 .passage-finder {margin-top:24px;padding:18px;border:1px solid var(--line);background:var(--panel)}

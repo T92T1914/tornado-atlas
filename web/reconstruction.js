@@ -264,7 +264,7 @@ async function start(){
     if(key===lastText)return;lastText=key;
     updateContext();
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
-    el('replay-time').value=clock.seconds;el('replay-time').setAttribute('aria-valuetext',time);
+    el('replay-time').value=Math.round(clock.seconds);el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?'Published source minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
     const media=data.timeline_media;
     const match=frameAt(media.frames,current.utc,media.max_age_seconds);
