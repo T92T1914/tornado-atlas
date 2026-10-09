@@ -115,6 +115,25 @@ for(const transition of ['visibility','reduce']){
   });
 }
 
+test('a rate sample that finishes chronology cancels its frame before immediate restart',t=>{
+  const f=fixture(t,{withRadar:true});
+  f.get('chronology-time').value='15360';f.get('chronology-time').fire('input');
+  f.rate.value='120';f.rate.fire('change');f.button('Play chronology').fire('click');
+  const oldFrame=f.frames.keys().next().value;f.playing(true);
+  // Sample the endpoint through the actual rate handler before the queued RAF.
+  f.setWall(1100);f.rate.value='15';f.rate.fire('change');
+  assert.equal(f.frames.size,0,'Rate completion cancels the queued animation callback');
+  assert.equal(f.frames.has(oldFrame),false);f.playing(false);
+  assert.equal(f.location.searchParams.get('t'),'15480');assert.equal(f.entries.length,1);
+  assert.equal(f.get('chronology-radar-snapshot').value,'radar-2248');
+  f.button('Play chronology').fire('click');f.playing(true);
+  f.draw(1200);f.playing(true);
+  assert.equal(f.get('chronology-time').value,'1.5','The first frame samples15x from the restarted origin');
+  assert.match(f.get('chronology-radar-selected').textContent,/No earlier radar snapshot/);
+  f.draw(1300);f.playing(true);
+  f.visibility(true);f.playing(false);f.unmount();
+});
+
 test('actual chronology starts despite an earlier scheduled frame timestamp',t=>{
   const f=fixture(t);
   f.setWall(101);f.button('Play chronology').fire('click');f.playing(true);

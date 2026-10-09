@@ -51,7 +51,7 @@ export function mountChronology(container,data,event,{radarContext=null,openPhot
   previous.addEventListener('click',()=>{const earlier=data.entries.filter(entry=>Date.parse(entry.utc)<start+clock.seconds*1000);seek((Date.parse((earlier.at(-1)||data.entries[0]).utc)-start)/1000);});
   next.addEventListener('click',()=>{const match=chronologyAt(data,clock.seconds);seek((Date.parse(data.entries[Math.min(match.index+1,data.entries.length-1)].utc)-start)/1000);});
   range.addEventListener('input',()=>seek(Number(range.value),{historyMode:'replace'}));
-  rate.addEventListener('change',()=>{clock.setRate(Number(rate.value),performance.now());refresh();});
+  rate.addEventListener('change',()=>{const wasPlaying=clock.playing;clock.setRate(Number(rate.value),performance.now());if(wasPlaying&&!clock.playing)savePaused();else refresh();});
   const hidden=()=>{if(document.hidden)savePaused();},reduce=event=>{if(event.matches)savePaused();};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   document.addEventListener('visibilitychange',hidden);reduced.addEventListener('change',reduce);window.addEventListener('popstate',restore);
