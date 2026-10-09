@@ -10,7 +10,7 @@ function keys(value,names,label){requireValue(value&&typeof value==='object'&&!A
 export function selectEvent(index,requested=null){
   keys(index,['schema_version','default_event','events'],'event index');
   requireValue([1,2].includes(index.schema_version)&&Array.isArray(index.events)&&index.events.length,'Unsupported event index.');
-  const seen=new Set();
+  const seen=new Set(),published=new Set();
   for(const row of index.events){
     keys(row,['id','title','documentary','replay',...(index.schema_version===2?['chronology']:[])],'event');
     requireValue(typeof row.id==='string'&&idPattern.test(row.id)&&!seen.has(row.id),'Invalid or duplicate event identity.');
@@ -18,6 +18,10 @@ export function selectEvent(index,requested=null){
     requireValue(row.replay===null||row.replay===`events/${row.id}.json`,'Replay path does not match the event.');
     requireValue(row.chronology==null||row.chronology===`events/${row.id}-chronology.json`,'Chronology path does not match the event.');
     requireValue(row.chronology==null||row.replay===null,'Combined chronology and replay synchronization is not supported yet.');
+    for(const path of [row.replay,row.chronology])if(path!=null){
+      requireValue(!published.has(path),'Event metadata publication paths must be distinct.');
+      published.add(path);
+    }
     seen.add(row.id);
   }
   requireValue(seen.has(index.default_event),'Default event is absent.');

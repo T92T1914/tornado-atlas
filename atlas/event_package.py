@@ -226,7 +226,7 @@ def validate_index(index):
         raise ValueError("Unsupported event index version")
     if not isinstance(index["events"], list) or not index["events"]:
         raise ValueError("An event index needs entries")
-    seen = set()
+    seen, published = set(), set()
     for event in index["events"]:
         fields(event, ("id", "title", "documentary", "replay") + (("chronology",) if index["schema_version"] == 2 else ()), "event")
         if not isinstance(event["id"], str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", event["id"]) or event["id"] in seen:
@@ -241,6 +241,11 @@ def validate_index(index):
             raise ValueError("Chronology path must identify its event")
         if event.get("chronology") is not None and event["replay"] is not None:
             raise ValueError("Combined chronology and replay synchronization is not supported yet")
+        for path in (event['replay'], event.get('chronology')):
+            if path is not None:
+                if path in published:
+                    raise ValueError('Event metadata publication paths must be distinct')
+                published.add(path)
         seen.add(event["id"])
     if index["default_event"] not in seen:
         raise ValueError("Default event is absent")
@@ -325,31 +330,145 @@ def validate_replay(config, bundle):
                                      bundle["footage"]["sources"])
 
 
-def publication_artifacts(root: Path, bundle_bytes: bytes, bundle_name="data.json"):
+def reviewed_index(root: Path):
     index = json.loads((root / "exhibits/events.json").read_text(encoding="utf-8"))
     validate_index(index)
-    if any(not (root / "web" / entry["documentary"]).is_file() for entry in index["events"]):
-        raise ValueError("Registered documentary page is missing")
-    bundle = json.loads(bundle_bytes)
-    event = next((row for row in index["events"] if row["id"] == bundle["exhibit"]["id"]), None)
-    if event is None or event["replay"] is None:
-        raise ValueError("Exhibit is not registered for geographic replay")
-    config = json.loads((root / "exhibits" / event["id"] / "replay.json").read_text(encoding="utf-8"))
-    validate_replay(config, bundle)
-    if config["bundle"] != bundle_name:
-        raise ValueError("Replay bundle path differs from generated destination")
-    package = {**config, "bundle_sha256": hashlib.sha256(bundle_bytes).hexdigest()}
-    artifacts = {"events.json": index, event["replay"]: package}
+    return index
+
+
+def selected_events(index, event_ids):
+    if event_ids is None:
+        return index['events']
+    if not event_ids or len(set(event_ids)) != len(event_ids):
+        raise ValueError('Select distinct reviewed event identities')
+    if set(event_ids) - {row['id'] for row in index['events']}:
+        raise ValueError('Event is absent from the reviewed index')
+    return [row for row in index['events'] if row['id'] in event_ids]
+
+
+def replay_inputs(root: Path, event_ids=None, *, overrides=None):
+    """Read reviewed replay inputs without requiring documentary events to invent one."""
+    events = selected_events(reviewed_index(root), event_ids)
+    overrides = overrides or {}
+    if set(overrides) - {event['id'] for event in events if event['replay'] is not None}:
+        raise ValueError('Replay override is not a selected reviewed replay')
+    result = {}
+    for event in events:
+        if event['replay'] is not None:
+            if event['id'] in overrides:
+                result[event['id']] = overrides[event['id']]
+                continue
+            config = json.loads((root / 'exhibits' / event['id'] / 'replay.json').read_text(encoding='utf-8'))
+            asset_path(config['bundle'], 'json')
+            result[event['id']] = (config['bundle'], (root / 'web' / config['bundle']).read_bytes())
+    return result
+
+
+def build_event_packages(root: Path, bundles, *, event_ids=None):
+    """Validate all selected inputs before returning a publication packet.
+
+    Bundles map reviewed event identities to (public path, exact UTF-8 bytes).
+    A selected documentary chronology has no replay input. Partial publication
+    omits the index so it cannot advertise packages absent from that packet.
+    """
+    index = reviewed_index(root)
+    events = selected_events(index, event_ids)
+    if any(not (root / 'web' / entry['documentary']).is_file() for entry in events):
+        raise ValueError('Selected documentary page is missing')
+    required = {event['id'] for event in events if event['replay'] is not None}
+    if not isinstance(bundles, dict) or set(bundles) != required:
+        raise ValueError('Replay inputs must exactly match the selected reviewed events')
+    reserved = {'events.json'} | {row['replay'] for row in index['events'] if row['replay']}
+    reserved |= {row['chronology'] for row in index['events'] if row.get('chronology')}
+    configs = {}
+    declared_paths = set()
+    for row in index['events']:
+        if row['replay'] is not None and required:
+            config = json.loads((root / 'exhibits' / row['id'] / 'replay.json').read_text(encoding='utf-8'))
+            if config.get('event_id') != row['id']:
+                raise ValueError('Replay configuration differs from its reviewed event identity')
+            asset_path(config['bundle'], 'json')
+            if config['bundle'] in reserved or config['bundle'] in declared_paths:
+                raise ValueError('Replay bundle path collides with another publication asset')
+            declared_paths.add(config['bundle'])
+            configs[row['id']] = config
+    artifacts = {'events.json': index} if event_ids is None else {}
+    bundle_paths = set()
     from .chronology import validate_chronology
-    for entry in index["events"]:
-        if entry.get("chronology"):
-            data = json.loads((root / "exhibits" / entry["id"] / "chronology.json").read_text(encoding="utf-8"))
-            artifacts[entry["chronology"]] = validate_chronology(data, entry["id"], root)
+    for event in events:
+        if event['replay'] is not None:
+            name, raw = bundles[event['id']]
+            asset_path(name, 'json')
+            if name in reserved or name in bundle_paths:
+                raise ValueError('Replay bundle path collides with another publication asset')
+            if not isinstance(raw, bytes):
+                raise ValueError('Replay publication requires exact bundle bytes')
+            config = configs[event['id']]
+            validate_replay(config, json.loads(raw.decode('utf-8')))
+            if config['bundle'] != name:
+                raise ValueError('Replay bundle path differs from generated destination')
+            bundle_paths.add(name)
+            artifacts[name] = raw
+            artifacts[event['replay']] = {**config, 'bundle_sha256': hashlib.sha256(raw).hexdigest()}
+        if event.get('chronology'):
+            data = json.loads((root / 'exhibits' / event['id'] / 'chronology.json').read_text(encoding='utf-8'))
+            artifacts[event['chronology']] = validate_chronology(data, event['id'], root)
     return artifacts
+
+
+def publication_artifacts(root: Path, bundle_bytes: bytes, bundle_name="data.json"):
+    """Compatibility entry point for the existing source converter."""
+    event_id = json.loads(bundle_bytes)['exhibit']['id']
+    if not any(row['id'] == event_id and row['replay'] is not None for row in reviewed_index(root)['events']):
+        raise ValueError('Exhibit is not registered for geographic replay')
+    inputs = replay_inputs(root, overrides={event_id: (bundle_name, bundle_bytes)})
+    return {path: data for path, data in build_event_packages(root, inputs).items()
+            if not isinstance(data, bytes)}
+
+
+def same_json(left, right):
+    """Compare JSON values without Python's boolean/number equality coercion."""
+    def canonical(value):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
+    try:
+        return canonical(left) == canonical(right)
+    except (ValueError, TypeError):
+        return False
+
+
+def check_event_packages(root: Path):
+    for relative, expected in build_event_packages(root, replay_inputs(root)).items():
+        actual = (root / 'web' / relative).read_bytes()
+        matches = actual == expected if isinstance(expected, bytes) else same_json(json.loads(actual), expected)
+        if not matches:
+            raise ValueError(f'Stale event package: {relative}')
 
 
 def write_packages(web: Path, artifacts):
     for relative, data in artifacts.items():
         path = web / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes((json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+        raw = data if isinstance(data, bytes) else (json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        if not isinstance(data, bytes) and path.is_file():
+            try:
+                if same_json(json.loads(path.read_bytes()), data):
+                    continue
+            except (ValueError, UnicodeError):
+                pass
+        path.write_bytes(raw)
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description='Publish packages from the reviewed event index')
+    parser.add_argument('--event', action='append', help='Publish only this reviewed event, without replacing the index')
+    parser.add_argument('--output', type=Path, help='Output directory, defaulting to the museum web directory')
+    args = parser.parse_args()
+    root = Path(__file__).resolve().parents[1]
+    artifacts = build_event_packages(root, replay_inputs(root, args.event), event_ids=args.event)
+    write_packages(args.output or root / 'web', artifacts)
+    print(json.dumps({'published': sorted(artifacts)}, indent=2))
+
+
+if __name__ == '__main__':
+    main()

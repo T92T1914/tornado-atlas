@@ -36,12 +36,56 @@ including values between geographic samples. Fractional anchor times are rejecte
 because this viewer selects printed clock readings at one-second resolution.
 Neither timestamp validation nor that display resolution establishes clock accuracy.
 
-Run `python -m atlas.exhibit` to regenerate the bundle, index and replay manifest.
-The source builder remains specific to the reviewed El Reno inputs. It writes
+Run `python -m atlas.exhibit` to regenerate the El Reno source bundle and the
+registered package metadata. The source converter remains specific to the
+reviewed El Reno inputs. It writes
 `web/events.json` and `web/events/el-reno-2013.json`, adding the SHA-256 of the
 exact UTF-8 bundle bytes. JSON uses LF endings, including on Windows. The build's
 optional destination may select another directory, but its basename must match
 the curated bundle path (`data.json` for El Reno).
+
+Run `python -m atlas.event_package` to validate and publish every package in
+the existing event index from its reviewed configuration and current bundle.
+This command does not fetch or reinterpret historical sources. Each replay
+supplies its own event identity, public bundle path and exact UTF-8 bytes.
+Publication rejects missing or foreign replay inputs, cross-event evidence,
+changed provenance and bundle paths that collide with another registered
+bundle, manifest, chronology or the index. The packet is assembled and
+validated before any output is written. Filesystem writes are individual
+writes, not a transactional deployment. The browser's existing integrity
+checks still reject a mixed publication.
+
+`python -m atlas.event_package --event joplin-2011 --output preview` publishes
+the reviewed Joplin chronology without an El Reno replay input.
+Publication of documentary chronology reads only the selected chronology,
+its archived sources and documentary page. It does not need another event's
+replay configuration, bundle or documentary page. The shared index must
+remain valid, including distinct manifest and chronology publication paths.
+
+Repeat
+`--event` to select more than one event. A selected publication omits the
+event index so it cannot advertise missing assets in a new output directory.
+A documentary-only event with no registered chronology or replay produces
+no package assets. Its documentary remains the visitor entry point.
+
+`build_event_packages(root, bundles, event_ids=None)` is the admission boundary.
+Its bundle mapping must contain exactly the selected replay identities, with
+each value `(public_path, exact_bytes)`. `replay_inputs` reads those bytes from
+the checked-in museum or accepts an explicit converter override. The existing
+`publication_artifacts` call remains compatible with the El Reno converter.
+That convenience call supplies the converter's new bytes and reads existing
+bundles for other registered replays. A fresh multi-event build supplies all
+new bundle bytes explicitly to `build_event_packages`.
+Unchanged JSON metadata in the destination keeps its existing bytes. New or
+changed metadata uses indented JSON with LF endings. Replay bundle bytes are
+never reformatted. Metadata comparison preserves JSON value types, so a boolean
+version cannot be retained as an equivalent number. The shared publication
+checker uses the same comparison before the El Reno source-specific checks.
+
+The publication tests include an independently authored two-position software
+fixture with a different clock, source identity and bundle path alongside
+El Reno. It is confined to tests. Its source roles exercise the contract and
+do not represent observations of a historical tornado.
 
 `python tools/check_exhibit.py` checks that generated manifests match source
 configuration and current bundle bytes. Python validates the time-zone identifier
