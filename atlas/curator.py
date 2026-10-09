@@ -18,7 +18,7 @@ import secrets
 import threading
 from urllib.parse import parse_qs, urlsplit
 
-from .archive import ROOT, clocks, digest, dossiers, public_url, validate_dossier
+from .archive import ROOT, archive_bytes, clocks, digest, dossier_changes, dossiers, public_url, validate_dossier
 from .publication import write_bytes
 
 MAX_BODY = 2_000_000
@@ -56,6 +56,13 @@ def decode(raw):
             result[key] = value
         return result
     value = json.loads(raw, object_pairs_hook=pairs)
+    # A literal draft envelope avoids JavaScript Number normalization. Parse it
+    # once with the same duplicate-key and finite/editor checks as normal JSON.
+    if isinstance(value, dict) and 'draft_text' in value:
+        text = value.pop('draft_text')
+        if 'draft' in value or not isinstance(text, str) or len(text.encode('utf-8')) > MAX_DRAFT:
+            raise ValueError('One bounded literal draft is required')
+        value['draft'] = json.loads(text, object_pairs_hook=pairs)
     bounded(value)
     return value
 
@@ -302,6 +309,120 @@ def empty_record(record):
             'provenance': {'curator_target_record': record['id']}}
 
 
+def recovery_plan(original, draft, current, choices=None):
+    """Carry private field edits onto a fresh account using the archive classifier.
+
+    Values are atomic at the existing field boundary. Order and authored
+    provenance need separate deliberate choices because dossier_changes keeps
+    them outside its historical field account. No publication review is created.
+    """
+    check_draft(draft)
+    private = draft['dossier']
+    if not all(doc['id'] == draft['base']['event_id'] for doc in (original, private, current)):
+        raise ValueError('Recovery requires the same reviewed event identity')
+    if digest(original) != draft['base']['dossier_sha256']:
+        raise ValueError('Retained original does not match the complete draft base identity')
+    def value(mapping, key):
+        return {'present': key in mapping, 'value': mapping.get(key)}
+    if digest(value(private['provenance'], 'publication_review')) != digest(value(original['provenance'], 'publication_review')):
+        raise ValueError('Private publication review changed. Keep this draft and inspect its provenance manually; recovery cannot treat it as new approval.')
+    choices = {} if choices is None else choices
+    if not isinstance(choices, dict) or any(not isinstance(k, str) or v not in ('private', 'current') for k, v in choices.items()):
+        raise ValueError('Each recovery choice must select private or current')
+    result = copy.deepcopy(current)
+    conflicts, carried = [], []
+    def collision(kind, identifier, field, before, edited, latest):
+        key = str(len(conflicts))
+        conflicts.append({'key': key, 'kind': kind, 'id': identifier, 'field': field,
+                          'original': copy.deepcopy(before), 'private': copy.deepcopy(edited), 'current': copy.deepcopy(latest)})
+        return choices.get(key) == 'private'
+    def put(mapping, field, selected):
+        if selected['present']:
+            mapping[field] = copy.deepcopy(selected['value'])
+        else:
+            mapping.pop(field, None)
+    private_changes = dossier_changes(original, private)
+    current_changes = dossier_changes(original, current)
+    for change in private_changes:
+        kind, identifier = change['kind'], change['id']
+        if kind == 'dossier':
+            before, edited, latest, output = original, private, current, result
+        else:
+            old = {r['id']: r for r in original[kind]}
+            own = {r['id']: r for r in private[kind]}
+            new = {r['id']: r for r in current[kind]}
+            before, edited, latest = old.get(identifier), own.get(identifier), new.get(identifier)
+            if change['change'] != 'updated' or latest is None:
+                if digest(edited) == digest(latest):
+                    continue
+                use_private = digest(latest) == digest(before)
+                if not use_private:
+                    use_private = collision(kind, identifier, 'complete row', before, edited, latest)
+                if use_private:
+                    result[kind] = [r for r in result[kind] if r['id'] != identifier]
+                    if edited is not None:
+                        result[kind].append(copy.deepcopy(edited))
+                    carried.append(change)
+                continue
+            output = next(r for r in result[kind] if r['id'] == identifier)
+        for field in change['fields']:
+            b, d, u = value(before, field), value(edited, field), value(latest, field)
+            if digest(d) == digest(u):
+                continue
+            use_private = digest(u) == digest(b)
+            if not use_private:
+                use_private = collision(kind, identifier, field, b, d, u)
+            if use_private:
+                put(output, field, d)
+                carried.append({'kind': kind, 'id': identifier, 'change': 'updated', 'fields': [field]})
+    for kind in ('sources', 'observations', 'media', 'creators', 'records'):
+        b = [r['id'] for r in original[kind]]
+        d = [r['id'] for r in private[kind]]
+        u = [r['id'] for r in current[kind]]
+        rows = {r['id']: r for r in result[kind]}
+        # Current order stays intact. Compatible private additions follow their
+        # private order after current content, independent of sorted changes.
+        order = [i for i in u if i in rows] + [i for i in d if i in rows and i not in u]
+        expected = [i for i in b if i in d] + [i for i in d if i not in b]
+        if d != expected:
+            if collision(kind, private['id'], 'row order', b, d, u):
+                order = [i for i in d if i in rows] + [i for i in u if i in rows and i not in d]
+        result[kind] = [rows[i] for i in order]
+    for field in sorted((original['provenance'].keys() | private['provenance'].keys()) - {'publication_review'}):
+        b = value(original['provenance'], field)
+        d = value(private['provenance'], field)
+        u = value(current['provenance'], field)
+        if digest(b) != digest(d) and digest(d) != digest(u):
+            if collision('provenance', private['id'], field, b, d, u):
+                put(result['provenance'], field, d)
+    keys = {c['key'] for c in conflicts}
+    if choices.keys() - keys:
+        raise ValueError('Recovery choices do not match this preview')
+    recovered = copy.deepcopy(draft)
+    recovered['base'] = {'event_id': current['id'], 'dossier_sha256': digest(current)}
+    recovered['dossier'] = result
+    unresolved = [c['key'] for c in conflicts if c['key'] not in choices]
+    # An unresolved deletion can temporarily break references. Do not present
+    # an invalid intermediate result as a validated or savable draft.
+    valid = False
+    problem = None
+    try:
+        check_draft(recovered)
+        valid = True
+    except ValueError as error:
+        problem = str(error)
+    plan = {'event_id': current['id'], 'original_sha256': digest(original),
+            'current_sha256': digest(current), 'edited_sha256': digest(draft),
+            'private_changes': private_changes, 'current_changes': current_changes,
+            'carried': carried, 'conflicts': conflicts, 'unresolved': unresolved, 'choices': copy.deepcopy(choices),
+            'valid': valid, 'validation_error': problem, 'draft': recovered,
+            'context': {'original': original, 'private': private, 'current': current}}
+    bounded(plan)
+    if len(encoded(plan)) > MAX_BODY:
+        raise ValueError('Recovery context exceeds the editor limit. Keep the private backup and inspect the complete records manually.')
+    return plan
+
+
 class App:
     def __init__(self, store, root=ROOT):
         self.store, self.root = store, root
@@ -328,6 +449,51 @@ class App:
                  'dossier': dossier, 'private_notes': '', 'intake': {}}
         return self.store.save(draft, None)
 
+    def recover(self, payload, apply=False):
+        selected = apply or isinstance(payload, dict) and bool({'current_sha256', 'edited_sha256', 'choices'} & payload.keys())
+        required = {'draft', 'revision'} | ({'current_sha256', 'edited_sha256', 'choices'} if selected else set())
+        if not isinstance(payload, dict) or set(payload) != required:
+            raise ValueError('Recovery needs the exact edited draft and saved revision; saving also needs the preview identities and choices')
+        draft = check_draft(payload['draft'])
+        if draft['target']['kind'] != 'event':
+            raise ValueError('Source-record drafts have no reviewed event base to recover')
+        with self.store.lock:
+            saved = self.store.load(draft['id'])
+            if saved['revision'] != payload['revision']:
+                raise Conflict('Saved draft changed. Reopen it before recovery. No file was overwritten.')
+            for field in ('target', 'base'):
+                if digest(saved['draft'][field]) != digest(draft[field]):
+                    raise ValueError('Recovery cannot replace the saved target or original base')
+            current = next((d for d in dossiers(self.root) if d['id'] == draft['base']['event_id']), None)
+            if current is None:
+                raise ValueError('Current reviewed event is unavailable. Keep the saved draft and its private backup.')
+            identity = draft['base']['dossier_sha256']
+            if digest(current) == identity:
+                original = current
+            else:
+                path = self.root / 'web/archive' / f"{current['id']}-{identity[:20]}.json"
+                try:
+                    original = validate_dossier(decode(archive_bytes(path, 200_000)))
+                except (ValueError, OSError):
+                    raise ValueError('Verified retained original is unavailable. Keep the saved draft and its private backup.') from None
+            if digest(original) != identity or original['id'] != current['id']:
+                raise ValueError('Retained original identity does not match the draft base. No file was overwritten.')
+            if selected and (payload['current_sha256'] != digest(current) or payload['edited_sha256'] != digest(draft)):
+                raise Conflict('Recovery preview changed. Preview the current edited draft and reviewed record again. No file was overwritten.')
+            plan = recovery_plan(original, draft, current, payload['choices'] if selected else None)
+            if not apply:
+                return plan
+            if plan['unresolved']:
+                raise ValueError('Choose private or current for every recovery conflict before saving')
+            if not plan['valid']:
+                raise ValueError('Chosen recovery result does not validate: ' + plan['validation_error'])
+            # Reread just before the private save. Later public advancement still
+            # meets the unchanged promotion-time base check.
+            fresh = next((d for d in dossiers(self.root) if d['id'] == current['id']), None)
+            if fresh is None or digest(fresh) != plan['current_sha256']:
+                raise Conflict('Reviewed record changed during recovery. Preview again. No file was overwritten.')
+            return self.store.save(plan['draft'], payload['revision'])
+
 
 def server(app, port=0):
     class Handler(BaseHTTPRequestHandler):
@@ -335,7 +501,20 @@ def server(app, port=0):
             pass  # Do not log private drafts or session credentials.
 
         def send(self, status, value, content_type='application/json; charset=utf-8'):
-            raw = value if isinstance(value, bytes) else json.dumps(value, ensure_ascii=False, allow_nan=False).encode()
+            if isinstance(value, dict) and self.headers.get('X-Curator-Text') == '1':
+                value = copy.deepcopy(value)
+                literal = lambda item: json.dumps(item, ensure_ascii=False, indent=2, allow_nan=False)
+                if 'draft' in value and 'revision' in value:
+                    value['dossier_text'] = literal(value['draft']['dossier'])
+                    value['draft_context_text'] = literal({k: v for k, v in value['draft'].items() if k not in {'dossier', 'private_notes'}})
+                if 'candidate' in value:
+                    value['candidate_text'] = literal(value['candidate'])
+                if 'conflicts' in value and 'context' in value:
+                    for conflict in value['conflicts']:
+                        conflict['literal'] = {k: literal(conflict[k]) for k in ('original', 'private', 'current')}
+            raw = value if isinstance(value, bytes) else encoded(value)
+            if not isinstance(value, bytes) and len(raw) > MAX_BODY:
+                raise ValueError('Response exceeds the editor limit. Keep the saved private backup and inspect the records manually.')
             self.send_response(status)
             self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(raw)))
@@ -392,6 +571,8 @@ def server(app, port=0):
                     if set(payload) != {'draft', 'revision'}:
                         raise ValueError('Draft and expected revision are required')
                     return self.send(200, app.store.save(payload['draft'], payload['revision']))
+                if write and route in {'/api/recovery-preview', '/api/recovery-save'}:
+                    return self.send(200, app.recover(payload, apply=route == '/api/recovery-save'))
                 if write and route == '/api/intake':
                     if set(payload) != {'draft', 'revision', 'item'}:
                         raise ValueError('Draft, expected revision and intake item are required')

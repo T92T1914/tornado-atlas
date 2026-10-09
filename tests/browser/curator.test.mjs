@@ -11,7 +11,7 @@ import {chromium,webkit,firefox} from 'playwright';
 let child,browser,directory,url,origin;
 async function localSession(store){
   const root=fileURLToPath(new URL('../../',import.meta.url));
-  const owned=spawn(process.platform==='win32'?'py':'python3',[...(process.platform==='win32'?['-3.11']:[]),'-B','-m','atlas.curator','--store',store],{cwd:root,stdio:['ignore','pipe','pipe'],windowsHide:true});
+  const owned=spawn(process.env.ATLAS_CURATOR_TEST_PYTHON||(process.platform==='win32'?'py':'python3'),[...(process.platform==='win32'&&!process.env.ATLAS_CURATOR_TEST_PYTHON?['-3.11']:[]),'-B','-m','atlas.curator','--store',store],{cwd:root,stdio:['ignore','pipe','pipe'],windowsHide:true});
   try{return {child:owned,url:await new Promise((resolve,reject)=>{
     let text='';const timer=setTimeout(()=>reject(Error('Curator service did not start')),15000);
     owned.once('error',error=>{clearTimeout(timer);reject(error);});
