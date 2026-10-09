@@ -29,6 +29,8 @@ jobs:
           node --check web/jma.js
           node --test tests/jma-model.test.mjs
           node --check web/dossier.mjs
+          node --check web/evidence-comparison.mjs
+          node --test tests/evidence-comparison.test.mjs
           node --test tests/archive-discovery-model.test.mjs
           node --check web/curator.mjs
           node --check web/app.js
