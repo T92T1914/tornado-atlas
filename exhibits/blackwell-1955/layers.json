@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "event_id": "blackwell-1955",
+  "dossier_sha256": "7ece223222ef94b0e0f65fafa42040a2cd028e10d14eb9ad4a7c9a0f92b45634",
+  "survey": null,
+  "layers": {
+    "geography": {
+      "basis": "The source damage map is an interpreted display. It is unregistered in Atlas and does not supply an interactive geographic replay.",
+      "observations": [],
+      "media": [
+        "nws-blackwell-smoothed-map"
+      ]
+    },
+    "appearance": {
+      "basis": "No reviewed storm-time visual sequence is linked in this dossier. Its damage map, warning bulletins and later memorial retain their documentary roles.",
+      "observations": [],
+      "media": []
+    },
+    "damage": {
+      "basis": "Keep the interpreted damage map, debris-direction account and archive captions distinct. A caption record does not establish that its original photograph was inspected.",
+      "observations": [
+        "blackwell-debris-directions",
+        "ou-flora62-railroad-yard-caption",
+        "ou-flora67-fire-response-caption"
+      ],
+      "media": [
+        "nws-blackwell-smoothed-map"
+      ]
+    },
+    "gaps": {
+      "basis": "Reported clock and injury disagreements remain unresolved. The linked archive captions describe records whose original photograph pixels were not inspected. A source date label is not a calibrated capture clock.",
+      "observations": [
+        "ou-flora62-railroad-yard-caption",
+        "ou-flora67-fire-response-caption"
+      ],
+      "media": []
+    }
+  }
+}

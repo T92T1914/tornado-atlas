@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "event_id": "joplin-2011",
+  "dossier_sha256": "7c592efa31cda80b84ceef2928fa1582b91428f1d0c05e024fa70f6c24e35d68",
+  "survey": null,
+  "layers": {
+    "geography": {
+      "basis": "Reported localities and a later satellite scar give documentary context. Neither supplies registered minute positions or an Atlas geographic replay.",
+      "observations": [
+        "touchdown",
+        "second-siren"
+      ],
+      "media": [
+        "nasa-joplin-aster-may30"
+      ]
+    },
+    "appearance": {
+      "basis": "The linked tornado photograph supplies documentary visual context. Its inspection record does not establish a registered camera, clock or appearance interval.",
+      "observations": [],
+      "media": [
+        "friskey-joplin-storm"
+      ]
+    },
+    "damage": {
+      "basis": "Building cases and aftermath images describe surveyed or reported outcomes. Surviving areas do not establish who sheltered there, and a failure interpretation is not a timed observation of collapse.",
+      "observations": [
+        "intake-nist-east-middle-refuge-2014",
+        "intake-nist-high-school-refuge-2014"
+      ],
+      "media": [
+        "nist-west-tower",
+        "nist-west-tower-south-windows",
+        "nist-home-depot-roof",
+        "nws-joplin-aftermath"
+      ]
+    },
+    "gaps": {
+      "basis": "The storm photograph inception-field conflict, unverified aftermath and housing clocks, and the radar report conversion inconsistency remain separate attributed records. None changes the admitted NWS documentary chronology.",
+      "observations": [],
+      "media": [
+        "friskey-joplin-storm",
+        "nws-joplin-aftermath",
+        "usace-joplin-temporary-housing",
+        "nist-joplin-radar-sequence"
+      ]
+    }
+  }
+}
