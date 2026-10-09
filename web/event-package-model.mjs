@@ -1,6 +1,8 @@
 import {validateChronology} from './chronology-model.mjs';
 import {validateCamera} from './camera-model.mjs';
 import {validateAppearanceTimeline} from './appearance-timeline-model.mjs';
+import {loadVerifiedDossier} from './dossier-file-model.mjs';
+import {resolveRadarContext} from './chronology-radar-model.mjs';
 // The build validates the historical contract. The loader rejects mixed or
 // incomplete publications before any bundle reaches the shared renderer.
 const idPattern=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -52,7 +54,7 @@ export function validatePackage(config,event){
   requireValue(/^https:\/\//.test(config.geography_source.url)&&/^[a-f0-9]{64}$/.test(config.geography_source.sha256),'Missing geography provenance.');
   return config;
 }
-export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,subtle=globalThis.crypto?.subtle}={}){
+export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,subtle=globalThis.crypto?.subtle,radarTimeoutMs=10000}={}){
   async function retrieve(path){
     let response;
     try{response=await fetcher(path,{cache:'no-cache'});}catch{throw new Error(`Could not load ${path}. Check the connection or open the documentary from the atlas.`);}
@@ -61,7 +63,15 @@ export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,
   }
   const index=await (await retrieve('events.json')).json(),event=selectEvent(index,requested);
   const chronology=event.chronology?validateChronology(await (await retrieve(event.chronology)).json(),event.id):null;
-  if(event.replay===null)return {index,event,config:null,data:null,chronology};
+  let radarContext=null;
+  if(chronology?.schema_version===2){
+    requireValue(Number.isInteger(radarTimeoutMs)&&radarTimeoutMs>0&&radarTimeoutMs<=10000,'Unsupported radar request deadline.');
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),radarTimeoutMs);
+    try{radarContext=resolveRadarContext(chronology,await loadVerifiedDossier(chronology.radar_context.reference,event.id,{fetcher:(path,init)=>fetcher(path,{...init,signal:controller.signal}),subtle}));}
+    catch{radarContext=Object.freeze({state:'unavailable',message:'The retained radar context could not be verified. The documentary clock remains usable. Reload to retry or open the documentary figure and source records.'});}
+    finally{clearTimeout(timer);}
+  }
+  if(event.replay===null)return {index,event,config:null,data:null,chronology,radarContext};
   const config=validatePackage(await (await retrieve(event.replay)).json(),event);
   requireValue(subtle,'Bundle verification requires HTTPS or a localhost preview. The documentary remains available.');
   const bytes=await (await retrieve(config.bundle)).arrayBuffer();

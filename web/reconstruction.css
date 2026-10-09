@@ -72,6 +72,15 @@
 .chronology-time {font-size:24px;font-variant-numeric:tabular-nums}
 #chronology-time,#chronology-entry {display:block;width:100%;margin:10px 0 20px;min-height:44px}
 #chronology-entry {white-space:normal;font:inherit}
+.chronology-radar {border-top:1px solid var(--line);margin-top:24px;padding-top:20px;min-width:0;overflow-wrap:anywhere}
+.chronology-radar h3 {font-size:25px}
+.chronology-radar>label,.chronology-radar>select,.chronology-radar>a {display:block;margin:12px 0}
+.chronology-radar>select {width:100%;min-width:0;min-height:44px;max-width:100%;font:inherit}
+.chronology-radar figure {margin:20px 0;max-width:100%}
+.chronology-radar figure button {display:block;min-height:44px;width:100%;max-width:480px;white-space:normal;overflow-wrap:anywhere;font:inherit;padding:12px}
+.chronology-radar img {display:block;width:100%;height:auto;margin-top:12px}
+.chronology-radar img[hidden] {display:none}
+.chronology-radar figcaption {font-size:14px;margin:10px 0}
 .chronology-record {border-left:3px solid var(--text);padding:4px 20px;margin:22px 0;overflow-wrap:anywhere}
 .chronology-record h3 {font-size:25px}
 .chronology-record p:first-child {font-size:13px;color:var(--muted)}

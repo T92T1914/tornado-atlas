@@ -89,6 +89,12 @@ class EventPublicationTests(unittest.TestCase):
                 target = root / source['archive']
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(ROOT / source['archive'], target)
+            # Schema two also consumes its own retained radar dossier and
+            # complete figure. It still needs no unrelated replay or pages.
+            shutil.copytree(ROOT / 'web/archive', root / 'web/archive')
+            figure=root/'web/assets/joplin-2011/nist-radar-sequence.png'
+            figure.parent.mkdir(parents=True)
+            shutil.copyfile(ROOT / figure.relative_to(root), figure)
             self.assertFalse((root / 'exhibits/el-reno-2013/replay.json').exists())
             self.assertEqual(replay_inputs(root, ['joplin-2011']), {})
             result = build_event_packages(root, {}, event_ids=['joplin-2011'])

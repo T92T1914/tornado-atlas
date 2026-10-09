@@ -1,7 +1,8 @@
 import {PlaybackClock} from './playback-model.mjs';
 import {chronologyAt} from './chronology-model.mjs';
+import {mountChronologyRadar} from './chronology-radar-view.mjs';
 
-export function mountChronology(container,data,event){
+export function mountChronology(container,data,event,{radarContext=null,openPhoto=null}={}){
   const make=(tag,text,parent=container)=>{const node=document.createElement(tag);if(text)node.textContent=text;parent.append(node);return node;};
   container.hidden=false;
   make('h2',data.title);
@@ -23,6 +24,7 @@ export function mountChronology(container,data,event){
   const status=make('p','',card),title=make('h3','',card),account=make('p','',card),limits=make('p','',card),source=make('a','',card),original=make('p','',card);
   const share=make('a','Link to this moment');share.id='chronology-link';
   make('p','The moving clock selects documentary entries. No registered images, tornado positions or wind estimates are supplied by this chronology.');
+  const updateRadar=mountChronologyRadar(container,data,event,radarContext,openPhoto);
   let frame=null,lastEntry=null;
   const url=seconds=>{const value=new URL(location.href);value.searchParams.set('event',event.id);value.searchParams.set('t',Math.floor(seconds/60)*60);return value;};
   function refresh(){
@@ -31,6 +33,7 @@ export function mountChronology(container,data,event){
     status.textContent=match.elapsedSeconds<60?'Selected source minute.':'Latest earlier entry. No new observation is supplied at the selected minute.';
     picker.value=match.index;previous.disabled=clock.seconds<=0;next.disabled=match.index===data.entries.length-1;
     share.href=url(clock.seconds);
+    updateRadar(clock.seconds,seek);
     if(lastEntry!==entry.id){
       lastEntry=entry.id;title.textContent=entry.title;account.textContent=entry.account;limits.textContent=entry.limits;
       const record=data.sources.find(row=>row.id===entry.source_id);
@@ -39,16 +42,17 @@ export function mountChronology(container,data,event){
     }
   }
   function pause(){clock.pause(performance.now());if(frame!==null)cancelAnimationFrame(frame);frame=null;play.textContent='Play chronology';}
+  function savePaused(){pause();refresh();history.replaceState(null,'',url(clock.seconds));}
   function seek(seconds,{historyMode='push'}={}){pause();clock.seek(seconds);refresh();if(historyMode)history[historyMode==='push'?'pushState':'replaceState'](null,'',url(clock.seconds));}
   function restore(){const value=new URLSearchParams(location.search).get('t');const seconds=value===null?0:Number(value);seek(Number.isFinite(seconds)?seconds:0,{historyMode:null});}
   function animate(){frame=null;clock.tick(performance.now());refresh();if(clock.playing)frame=requestAnimationFrame(animate);else {play.textContent='Play chronology';history.replaceState(null,'',url(clock.seconds));}}
-  play.addEventListener('click',()=>{if(clock.playing){pause();refresh();history.replaceState(null,'',url(clock.seconds));}else{clock.play(performance.now());play.textContent='Pause chronology';frame=requestAnimationFrame(animate);}});
+  play.addEventListener('click',()=>{if(clock.playing){savePaused();}else{clock.play(performance.now());play.textContent='Pause chronology';frame=requestAnimationFrame(animate);}});
   picker.addEventListener('change',()=>seek((Date.parse(data.entries[Number(picker.value)].utc)-start)/1000));
   previous.addEventListener('click',()=>{const earlier=data.entries.filter(entry=>Date.parse(entry.utc)<start+clock.seconds*1000);seek((Date.parse((earlier.at(-1)||data.entries[0]).utc)-start)/1000);});
   next.addEventListener('click',()=>{const match=chronologyAt(data,clock.seconds);seek((Date.parse(data.entries[Math.min(match.index+1,data.entries.length-1)].utc)-start)/1000);});
   range.addEventListener('input',()=>seek(Number(range.value),{historyMode:'replace'}));
   rate.addEventListener('change',()=>{clock.setRate(Number(rate.value),performance.now());refresh();});
-  const hidden=()=>{if(document.hidden){pause();refresh();}},reduce=event=>{if(event.matches){pause();refresh();}};
+  const hidden=()=>{if(document.hidden)savePaused();},reduce=event=>{if(event.matches)savePaused();};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   document.addEventListener('visibilitychange',hidden);reduced.addEventListener('change',reduce);window.addEventListener('popstate',restore);
   restore();

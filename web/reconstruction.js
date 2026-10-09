@@ -23,7 +23,7 @@ function pause(){clock?.pause(performance.now());if(frame!==null) cancelAnimatio
 function resetView(){const distance=Math.min(60,Math.max(24,43.2*canvas.clientHeight/canvas.clientWidth));for(const [key,value] of Object.entries({azimuth:0,elevation:48,distance}))el(`replay-${key}`).value=value;el('replay-follow').checked=false;requestDraw();}
 
 async function start(){
-  const {index,event,config,data,chronology}=await loadEventPackage(new URLSearchParams(location.search).get('event'));
+  const {index,event,config,data,chronology,radarContext}=await loadEventPackage(new URLSearchParams(location.search).get('event'));
   const picker=el('replay-event');picker.replaceChildren();
   for(const row of index.events){const option=document.createElement('option');option.value=row.id;option.textContent=`${row.title}${row.replay?' · Geographic replay':row.chronology?' · Source chronology':' · Research readiness'}`;picker.append(option);}
   picker.value=event.id;picker.disabled=false;
@@ -38,7 +38,7 @@ async function start(){
     el('replay-title').textContent=`${event.title}: the documented sequence`;
     el('replay-eyebrow').textContent='SOURCE CHRONOLOGY / NO GEOGRAPHIC REPLAY';
     el('replay-introduction').textContent='Move through reviewed warning and event records. Read what each clock label establishes and open its original source page.';
-    mountChronology(el('replay-chronology'),chronology,event);
+    mountChronology(el('replay-chronology'),chronology,event,{radarContext,openPhoto:mountPhotoViewer()});
     if(!config)return;
   }
   if(!config){

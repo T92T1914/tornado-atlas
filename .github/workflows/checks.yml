@@ -47,6 +47,9 @@ jobs:
           node --check web/replay-context-model.mjs
           node --check web/chronology-view.mjs
           node --test tests/chronology-model.test.mjs
+          node --check web/chronology-radar-model.mjs
+          node --check web/chronology-radar-view.mjs
+          node --test tests/chronology-radar-model.test.mjs
           node --test tests/chronology-clock-controls.test.mjs
           node --test tests/event-package-model.test.mjs
           node --test tests/appearance-timeline.test.mjs
@@ -150,13 +153,13 @@ jobs:
       - name: Verify player layout, survey history and evidence comparison in WebKit
         env:
           ATLAS_BROWSER_ENGINE: webkit
-        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 tests/browser/replay-damage.test.mjs tests/browser/survey-history.test.mjs tests/browser/tuscaloosa-satellite-context.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs
+        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 tests/browser/replay-damage.test.mjs tests/browser/survey-history.test.mjs tests/browser/tuscaloosa-satellite-context.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs tests/browser/chronology-radar.test.mjs
       - name: Verify survey photo and history readiness in Firefox
         env:
           ATLAS_BROWSER_ENGINE: firefox
         run: |
           npx playwright install --with-deps firefox
-          python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 tests/browser/survey-history.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs
+          python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 tests/browser/survey-history.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs tests/browser/chronology-radar.test.mjs
       - name: Retain focused browser failure diagnostics
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4

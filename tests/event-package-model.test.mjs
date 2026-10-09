@@ -11,6 +11,8 @@ const root=new URL('../web/',import.meta.url);
 const index=JSON.parse(await readFile(new URL('events.json',root),'utf8'));
 const config=JSON.parse(await readFile(new URL('events/el-reno-2013.json',root),'utf8'));
 const chronology=await readFile(new URL('events/joplin-2011-chronology.json',root));
+const radarReference=JSON.parse(chronology).radar_context.reference;
+const radarDossier=await readFile(new URL(radarReference.file,root));
 const bundle=await readFile(new URL('data.json',root));
 
 test('Python publication packet loads two independent replay inputs through the existing browser boundary',async()=>{
@@ -44,7 +46,7 @@ with tempfile.TemporaryDirectory() as folder:
   }),/different revisions/);
 });
 function fixture(overrides={}){
-  const calls=[],assets={'events.json':JSON.stringify(index),'events/el-reno-2013.json':JSON.stringify(config),'data.json':bundle,'events/joplin-2011-chronology.json':chronology,...overrides};
+  const calls=[],assets={'events.json':JSON.stringify(index),'events/el-reno-2013.json':JSON.stringify(config),'data.json':bundle,'events/joplin-2011-chronology.json':chronology,[radarReference.file]:radarDossier,...overrides};
   return {calls,fetcher:async(path)=>{calls.push(path);return assets[path]===null?new Response('',{status:404}):new Response(assets[path]);},subtle:webcrypto.subtle};
 }
 test('published package loads its exact event, source and clock',async()=>{
@@ -54,10 +56,11 @@ test('published package loads its exact event, source and clock',async()=>{
   assert.equal(result.config.clock.start_utc,'2013-05-31T23:04:00+00:00');
   assert.match(displayClock(result.config.clock.time_zone)(result.config.clock.start_utc),/6:04:00 PM CDT/);
 });
-test('documentary-only event does not fetch or borrow another event evidence',async()=>{
+test('documentary-only event loads its own retained radar record without borrowing geographic replay',async()=>{
   const env=fixture(),result=await loadEventPackage('joplin-2011',env);
   assert.equal(result.data,null);assert.equal(result.config,null);
-  assert.equal(result.event.documentary,'joplin.html');assert.deepEqual(env.calls,['events.json','events/joplin-2011-chronology.json']);assert.equal(result.chronology.event_id,'joplin-2011');
+  assert.equal(result.event.documentary,'joplin.html');assert.deepEqual(env.calls,['events.json','events/joplin-2011-chronology.json',radarReference.file]);assert.equal(result.chronology.event_id,'joplin-2011');
+  assert.equal(result.radarContext.state,'available');assert.equal(result.radarContext.reference.dossier_sha256,radarReference.dossier_sha256);
 });
 test('explicit unknown and empty event do not silently default',()=>{
   for(const id of ['unknown','', '../el-reno-2013'])assert.throws(()=>selectEvent(index,id),/not in/);
