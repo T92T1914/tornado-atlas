@@ -37,14 +37,22 @@ class RadarChronologyTests(unittest.TestCase):
         old=json.loads((ROOT/'web'/reference['file']).read_text(encoding='utf-8'))
         self.assertEqual(digest(old),reference['dossier_sha256'])
         current=next(doc for doc in dossiers() if doc['id']=='joplin-2011')
-        self.assertEqual(current['provenance']['publication_review']['previous_dossier_sha256'],digest(old))
-        first,second=copy.deepcopy(old),copy.deepcopy(current)
+        # The exact accepted metadata rebase remains retained after later additions.
+        metadata_sha='c3e7158df532378f4a7f14f59b901f54797160dff84e73e4bc47425cb395272a'
+        rebased=json.loads((ROOT/'web/archive'/f'joplin-2011-{metadata_sha[:20]}.json').read_text(encoding='utf-8'))
+        self.assertEqual(digest(rebased),metadata_sha)
+        self.assertEqual(rebased['provenance']['publication_review']['previous_dossier_sha256'],digest(old))
+        first,second=copy.deepcopy(old),copy.deepcopy(rebased)
         for doc in (first,second):
             doc['provenance'].pop('publication_review');doc['provenance'].pop('curator',None)
         second['provenance']['inputs']['exhibits/joplin-2011/chronology.json']=first['provenance']['inputs']['exhibits/joplin-2011/chronology.json']
         self.assertEqual(digest(first),digest(second))
         history=dossier_history(current)
-        self.assertIn(reference['dossier_sha256'],{version['dossier_sha256'] for version in history['versions']})
+        retained={version['dossier_sha256'] for version in history['versions']}
+        self.assertIn(reference['dossier_sha256'],retained)
+        self.assertIn(metadata_sha,retained)
+        self.assertEqual(current['media'],rebased['media'])
+        self.assertEqual(current['reconstruction'],rebased['reconstruction'])
 
     def test_mixed_malformed_and_overprecise_navigation_fails(self):
         mutations = [lambda c: c.update(event_id='el-reno-2013'),
