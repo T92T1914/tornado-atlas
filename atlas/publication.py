@@ -14,8 +14,13 @@ from .sources import ROOT, cached_retrieval, read_object, retrieve
 LAND_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson'
 
 
+def json_bytes(data) -> bytes:
+    """Plan the same UTF8 and terminating LF bytes used by publication writes."""
+    return (json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False) + '\n').encode('utf-8')
+
+
 def write_json(path: Path, data) -> bytes:
-    content = (json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False) + '\n').encode()
+    content = json_bytes(data)
     write_bytes(path,content)
     return content
 

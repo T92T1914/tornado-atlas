@@ -4,6 +4,7 @@ import {readFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 const index=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
 const reference=index.source_directory;
@@ -35,7 +36,7 @@ async function follow(page,locator){
 }
 
 for(const width of [308,1280])for(const appearance of ['dark','light'])test(`source discovery and pinned evidence ${width} ${appearance}`,async t=>{
-  const page=await fixture(t,{viewport:{width,height:900}}),requests=[];
+  const page=await fixture(t,{viewport:{width,height:900},acceptDownloads:true}),requests=[];
   page.on('request',request=>requests.push(request.url()));
   await open(page,'');
   assert.equal(requests.some(url=>url.includes('/archive/sources-')),false,'The event entrance does not preload source discovery');
@@ -83,8 +84,7 @@ for(const width of [308,1280])for(const appearance of ['dark','light'])test(`sou
   assert.equal(new URL(page.url()).searchParams.get('revision'),expected.dossier_sha256);
   assert.equal(new URL(page.url()).searchParams.get('source'),expected.source.id);
   assert.match(await page.locator('#source-nws-assessment').textContent(),/First-siren distinction/);
-  const download=await page.request.get(await page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}).getAttribute('href'));
-  const doc=await download.json();assert.deepEqual(doc.sources.find(source=>source.id===expected.source.id),expected.source);
+  const {dossier:doc}=await readDossierDownload(page);assert.deepEqual(doc.sources.find(source=>source.id===expected.source.id),expected.source);
   await page.goBack();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.equal(await page.getByRole('searchbox',{name:'Search source cards'}).inputValue(),'  Printed page 13  ');
   await page.reload();await page.waitForFunction(()=>document.body?.dataset.ready==='true');

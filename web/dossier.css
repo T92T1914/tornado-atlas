@@ -19,6 +19,11 @@
 .archive-main details {padding:10px 0}.archive-main summary {cursor:pointer;font-weight:600}
 .archive-main pre {white-space:pre-wrap;overflow-wrap:anywhere;font-size:.85rem}
 .archive-main :focus-visible {outline:2px solid var(--text);outline-offset:4px}
+.dossier-download{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:16px 0}
+.dossier-download button,.dossier-download>a{min-height:44px;max-width:100%;font:inherit;overflow-wrap:anywhere}
+.dossier-download>a{display:inline-flex;align-items:center}
+.dossier-download>p{flex-basis:100%;margin:0}
+.archive-raw-index>a{display:inline-flex;align-items:center;min-height:44px;max-width:100%}
 .archive-comparison{margin:30px 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .comparison-tools{margin:20px 0}
 .comparison-choice{min-width:0;margin:16px 0}

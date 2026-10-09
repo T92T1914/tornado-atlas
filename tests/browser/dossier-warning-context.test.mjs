@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {fixture, base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 const id = 'intake-nws-local-siren-warning-distinction-2011';
 const oldFile = 'archive/joplin-2011-8d3c839b9f9dafb8ff79.json';
@@ -17,7 +18,7 @@ async function ready(page) {
 
 for (const width of [308, 390, 768, 1280]) {
   test(`first-siren warning context source journey ${width}`, async t => {
-    const page = await fixture(t, {viewport: {width, height: 900}});
+    const page = await fixture(t, {viewport: {width, height: 900}, acceptDownloads: true});
     const requests = [];
     page.on('request', request => requests.push({url: request.url(),
       type: request.resourceType(), referrer: request.headers()['referer'] || ''}));
@@ -58,10 +59,7 @@ for (const width of [308, 390, 768, 1280]) {
     assert.deepEqual(unexpected, [], 'Unexpected dossier media or catalogue requests');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 
-    const metadata = page.getByRole('link', {name: 'Download dossier metadata (JSON)', exact: true});
-    const response = await page.request.get(await metadata.evaluate(el => el.href));
-    assert.equal(response.ok(), true);
-    const current = await response.json();
+    const {dossier:current} = await readDossierDownload(page);
     const item = current.observations.find(row => row.id === id);
     assert.equal(reviewed.observations.length, 11);
     assert.equal(current.sources.filter(source => source.id === 'nws-assessment').length, 1);

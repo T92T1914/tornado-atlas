@@ -8,7 +8,7 @@ export function validateSourceDirectory(directory,index){
   for(const row of directory.entries){
     if(!row||typeof row!=='object')fail();
     const event=index.events.find(event=>event.id===row.event_id),source=row.source;
-    if(!event||row.event_title!==event.title||!/^[0-9a-f]{64}$/.test(row.dossier_sha256)||
+    if(!event||row.event_title!==event.title||row.dossier_sha256!==event.dossier_sha256||!/^[0-9a-f]{64}$/.test(row.dossier_sha256)||
       event.file!==`archive/${event.id}-${row.dossier_sha256.slice(0,20)}.json`||
       !source||!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(source.id)||
       !['title','url','locator','access','revision','rights','agent_processing'].every(key=>typeof source[key]==='string'&&source[key].length>0)||

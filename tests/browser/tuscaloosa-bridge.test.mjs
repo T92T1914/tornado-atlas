@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 
 const survey='https://www.weather.gov/bmx/event_04272011tuscbirm';
@@ -97,7 +98,7 @@ async function closed(page,photo){
 
 for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
   test(`Tuscaloosa bridge, neighborhood and rail cars keep distinct history and source ${width} ${appearance}`,async t=>{
-    const page=await fixture(t,{viewport:{width,height:844},hasTouch:width<600,isMobile:width<600});
+    const page=await fixture(t,{viewport:{width,height:844},hasTouch:width<600,isMobile:width<600,acceptDownloads:true});
     const requests=[];page.on('request',request=>requests.push(request.url()));
     await page.goto(base+'/tuscaloosa.html?context=bridge#path');
     await page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready');
@@ -160,8 +161,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
         assert.equal(await card.locator('dt:has-text("Temporal") + dd').textContent(),'source label');
       }
       assert.equal(await card.locator('dt:has-text("Spatial") + dd').textContent(),'unregistered');
-      const metadataUrl=await page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}).getAttribute('href');
-      const metadata=await (await page.request.get(new URL(metadataUrl,page.url()).href)).json();
+      const {dossier:metadata}=await readDossierDownload(page);
       const item=metadata.media.find(row=>row.id===photo.id);
       assert.equal(item.source_id,photo.source);
       assert.equal(item.transformation.asset,asset(photo));

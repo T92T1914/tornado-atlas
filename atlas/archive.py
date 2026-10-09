@@ -15,7 +15,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .footage import validate_footage
-from .publication import write_json
+from .publication import json_bytes, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 STATUS = {
@@ -411,16 +411,25 @@ def dossier_history(doc, root=ROOT):
     """Index available immutable snapshots using declared predecessor identities."""
     current = digest(doc)
     retained = {current: doc}
+    encoded = {current: json_bytes(doc)}
+    if len(encoded[current]) > 200_000:
+        raise ValueError('Dossier exceeds selective loading budget')
+    paths = {f"archive/{doc['id']}-{current[:20]}.json": current}
     pattern = re.compile(re.escape(doc['id']) + r'-[0-9a-f]{20}\.json')
     for path in sorted((root / 'web/archive').glob(doc['id'] + '-*.json')):
         if not pattern.fullmatch(path.name):
             continue
-        if path.is_symlink() or path.stat().st_size > 200_000:
-            raise ValueError('Unsafe retained dossier file')
-        old = validate_dossier(read(path))
-        if old['id'] != doc['id'] or path.name != f"{doc['id']}-{digest(old)[:20]}.json":
+        raw = archive_bytes(path, 200_000)
+        old = validate_dossier(json.loads(raw.decode('utf-8')))
+        identity = digest(old)
+        if old['id'] != doc['id'] or path.name != f"{doc['id']}-{identity[:20]}.json":
             raise ValueError('Retained dossier identity does not match its filename')
-        retained[digest(old)] = old
+        relative = 'archive/' + path.name
+        if relative in paths and paths[relative] != identity:
+            raise ValueError('Conflicting full dossier identities share a truncated path')
+        paths[relative] = identity
+        retained[identity] = old
+        encoded[identity] = raw
     if len(retained) > 64:
         raise ValueError('Dossier revision list exceeds selective loading budget')
     versions = []
@@ -442,6 +451,7 @@ def dossier_history(doc, root=ROOT):
         if previous == identity:
             raise ValueError('A dossier cannot be its own predecessor')
         versions.append(dict(dossier_sha256=identity,
+                             file_sha256=hashlib.sha256(encoded[identity]).hexdigest(),
                              file=f"archive/{doc['id']}-{identity[:20]}.json",
                              review=review, predecessor_available=previous in retained,
                              changes=dossier_changes(retained[previous], snapshot) if previous in retained else None))
@@ -456,9 +466,48 @@ def dossier_history(doc, root=ROOT):
     history = dict(schema_version=1, event_id=doc['id'], current_dossier_sha256=current,
                    scope='Retained snapshots and recorded publication reviews only. Missing predecessors and unrecorded decisions remain gaps. Identifier order is not chronological order.',
                    versions=versions)
-    if len(json.dumps(history, ensure_ascii=False).encode()) > 100_000:
+    if len(json_bytes(history)) > 100_000:
         raise ValueError('Dossier history exceeds selective loading budget')
     return history
+
+
+def archive_bytes(path, limit):
+    """Read one bounded ordinary archive file without normalizing its bytes."""
+    if path.is_symlink() or not path.is_file() or path.stat().st_size > limit:
+        raise ValueError('Unsafe retained archive file')
+    with path.open('rb') as stream:
+        raw = stream.read(limit + 1)
+    if len(raw) > limit:
+        raise ValueError('Retained archive file exceeds selective loading budget')
+    return raw
+
+
+def verify_dossier_files(index, root=ROOT):
+    """Check persisted file bytes and their logical association before index publication."""
+    references = {}
+    full_hash = re.compile(r'[0-9a-f]{64}')
+    for event in index['events']:
+        history = json.loads(archive_bytes(root / 'web' / event['history_file'], 100_000).decode('utf-8'))
+        if history['event_id'] != event['id'] or history['current_dossier_sha256'] != event['dossier_sha256']:
+            raise ValueError('Current dossier and history identities do not agree')
+        current = next((row for row in history['versions'] if row['dossier_sha256'] == event['dossier_sha256']), None)
+        if current is None or any(current[key] != event[key] for key in ('file', 'dossier_sha256', 'file_sha256')):
+            raise ValueError('Current dossier and history file references do not agree')
+        for row in history['versions']:
+            logical, wire = row['dossier_sha256'], row['file_sha256']
+            if not all(isinstance(value, str) and full_hash.fullmatch(value) for value in (logical, wire)):
+                raise ValueError('Dossier file reference requires two full identities')
+            if row['file'] != f"archive/{event['id']}-{logical[:20]}.json":
+                raise ValueError('Dossier file reference does not match its identity')
+            reference = (event['id'], logical, wire)
+            if row['file'] in references and references[row['file']] != reference:
+                raise ValueError('Conflicting full dossier identities share a truncated path')
+            references[row['file']] = reference
+    for relative, (event_id, logical, wire) in references.items():
+        raw = archive_bytes(root / 'web' / relative, 200_000)
+        doc = validate_dossier(json.loads(raw.decode('utf-8')))
+        if doc['id'] != event_id or digest(doc) != logical or hashlib.sha256(raw).hexdigest() != wire:
+            raise ValueError('Persisted dossier bytes do not match their publication reference')
 
 
 def source_directory(docs):
@@ -491,10 +540,12 @@ def publication(root=ROOT):
         filename = f"archive/{doc['id']}-{digest(doc)[:20]}.json"
         result[filename] = doc
         history = dossier_history(doc, root)
+        current = next(row for row in history['versions'] if row['dossier_sha256'] == digest(doc))
         history_file = f"archive/{doc['id']}-history-{digest(history)[:20]}.json"
         result[history_file] = history
         entries.append({k: doc[k] for k in ('id', 'title', 'coverage', 'summary')} | {
-            'file': filename, 'history_file': history_file, 'records': [r['id'] for r in doc['records']],
+            'file': filename, 'dossier_sha256': current['dossier_sha256'], 'file_sha256': current['file_sha256'],
+            'history_file': history_file, 'records': [r['id'] for r in doc['records']],
             'evidence': sorted({m['kind'] for m in doc['media'] if m['status']['availability'] == 'reviewed_available'
                                 and m['status']['assertion'] != 'not_researched'} |
                                ({'chronology'} if doc['id'] == 'joplin-2011' else set()) |
@@ -519,14 +570,23 @@ def publication(root=ROOT):
 
 def build(root=ROOT):
     artifacts = publication(root)
+    index = artifacts['archive/index.json']
+    histories = {event['history_file'] for event in index.get('events', [])}
+    source_file = index.get('source_directory', {}).get('file')
     for relative, payload in artifacts.items():
+        if relative == 'archive/index.json':
+            continue
         path = root / 'web' / relative
-        if relative != 'archive/index.json' and path.exists():
-            if read(path) != payload:
+        if path.is_symlink():
+            raise ValueError('An immutable archive document cannot be a link')
+        if path.exists():
+            limit = 256_000 if relative == source_file else 100_000 if relative in histories else 200_000
+            if digest(json.loads(archive_bytes(path, limit).decode('utf-8'))) != digest(payload):
                 raise ValueError('An immutable archive document cannot be overwritten')
             continue
         write_json(path, payload)
-    index = artifacts['archive/index.json']
+    verify_dossier_files(index, root)
+    write_json(root / 'web/archive/index.json', index)
     return {'dossiers': len(index['events']), 'records': index['coverage']['current_source_records']}
 
 

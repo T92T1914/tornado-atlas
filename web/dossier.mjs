@@ -1,6 +1,7 @@
 // Select one immutable dossier or one existing catalogue shard. Never preload media bytes.
 import {validateSourceDirectory,discoverSources} from './archive-discovery-model.mjs';
 import {comparisonSection,comparisonRoute} from './evidence-comparison.mjs';
+import {validateArchiveReferences,validateDossierHistory,loadVerifiedDossier,boundedJSON,HISTORY_FILE_LIMIT} from './dossier-file-model.mjs';
 const host=document.getElementById('content'), query=new URLSearchParams(location.search);
 const element=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 function link(text,url){const n=element('a',text),u=new URL(url,location.href);if(!['https:','http:'].includes(u.protocol))throw Error('Unsupported link');n.href=u.href;if(u.origin!==location.origin){n.rel='noopener noreferrer';n.target='_blank';}return n;}
@@ -10,6 +11,29 @@ async function json(file){const r=await fetch(file);if(!r.ok)throw Error('This e
 const human=value=>value.replaceAll('_',' ');
 function detail(title,value){const n=element('details');n.append(element('summary',title),element('pre',typeof value==='string'?value:JSON.stringify(value,null,2)));return n;}
 function links(rows){const n=element('nav',undefined,'archive-links');for(const row of rows)n.append(link(row.label,row.href));return n;}
+let checkingDownload=false;
+function dossierDownload(reference,eventId,label,filename){
+  const group=element('div',undefined,'dossier-download'),button=element('button',label),status=element('p');
+  button.type='button';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+  group.append(button,link('Open raw metadata file (unverified)',reference.file),status);
+  button.addEventListener('click',async()=>{
+    if(checkingDownload){status.textContent='Another dossier download is being checked. Try again after it finishes.';return;}
+    checkingDownload=true;button.disabled=true;status.textContent='Checking the metadata file before download...';
+    let objectURL=null;
+    try{
+      const result=await loadVerifiedDossier(reference,eventId);
+      objectURL=URL.createObjectURL(new Blob([result.bytes],{type:'application/json'}));
+      const anchor=document.createElement('a');anchor.href=objectURL;anchor.download=filename;anchor.hidden=true;
+      document.body.append(anchor);try{anchor.click();}finally{anchor.remove();}
+      status.textContent='The checked metadata download started.';
+    }catch(error){status.textContent='Metadata download unavailable. '+error.message+' You can retry this button.';}
+    finally{
+      if(objectURL){const completedURL=objectURL;setTimeout(()=>URL.revokeObjectURL(completedURL),1000);}
+      checkingDownload=false;button.disabled=false;
+    }
+  });
+  return group;
+}
 function listIndex(index){
   host.replaceChildren(element('h1','Follow an event into its evidence.'),element('p',`${index.coverage.current_source_records.toLocaleString()} US source records remain in the catalogue. These dossiers organize selected reviewed accounts. An empty evidence category means no reviewed item is linked here, not that no source exists.`));
   host.append(link('Compare evidence coverage across events','coverage.html'),element('p','Find the available chronology, geography, footage, radar and damage layers, with their registration limits.'));
@@ -77,7 +101,7 @@ function showHistory(doc,history,selected){
     const current=version.dossier_sha256===history.current_dossier_sha256;
     card.append(element('h3',current?'Current published dossier':'Retained dossier revision'),element('p','Dossier SHA256: '+version.dossier_sha256));
     card.append(link(version.dossier_sha256===selected.dossier_sha256?'Link to this revision':'Open this dossier revision',revisionRoute(doc,{},version)+'#correction-history'));
-    const download=link('Download this revision (JSON)',version.file);download.download=doc.id+'-'+version.dossier_sha256.slice(0,12)+'.json';card.append(document.createTextNode(' '),download);
+    card.append(dossierDownload(version,doc.id,'Verify and download this revision (JSON)',doc.id+'-'+version.dossier_sha256.slice(0,12)+'.json'));
     const review=version.review;
     if(review){
       card.append(element('p','Publication review: '+review.reviewed_at+' · '+human(review.reviewer_kind)),element('p',review.basis));
@@ -103,7 +127,7 @@ function showHistory(doc,history,selected){
 function showDossier(doc,entry,index,history,selected){
   document.title=doc.title+' | Tornado Atlas';
   host.replaceChildren(link('All evidence dossiers','dossier.html'),element('p',doc.coverage,'eyebrow'),element('h1',doc.title),element('p',doc.summary),links(doc.routes));
-  const download=link('Download dossier metadata (JSON)',selected?.file||entry.file);download.download=doc.id+'.json';host.append(download,element('p','This download contains metadata and source locators. It does not include third party media or establish hosting rights.'));
+  host.append(dossierDownload(selected||entry,doc.id,'Verify and download dossier metadata (JSON)',doc.id+'.json'),element('p','This download contains metadata and source locators. It does not include third party media or establish hosting rights.'));
   if(history){
     const retained=selected.dossier_sha256!==history.current_dossier_sha256;
     host.append(element('p',retained?'You are reading a retained dossier revision. Its accounts and inspection coverage have not been replaced by current text.':'You are reading the current published dossier.'),element('p','Dossier SHA256: '+selected.dossier_sha256),link('Inspect revisions and correction history','#correction-history'));
@@ -142,25 +166,25 @@ async function showRecord(index,id){
 }
 async function main(){
   host.replaceChildren(element('h1','Loading archive...'),element('p','The current documentary chapter links below remain available while this evidence loads.'));
-  const index=await json('archive/index.json');
+  const index=validateArchiveReferences(await json('archive/index.json'));
   if(query.get('view')==='sources')await showSources(index);
   else if(query.has('record'))await showRecord(index,query.get('record'));
   else if(query.has('event')){
     const entry=index.events.find(e=>e.id===query.get('event'));if(!entry)throw Error('This event is not in the reviewed dossier index.');
-    const history=entry.history_file?await json(entry.history_file):null;
-    if(history&&(history.event_id!==entry.id||history.schema_version!==1))throw Error('The dossier revision list does not match this event.');
-    if(history&&!history.versions.some(v=>v.dossier_sha256===history.current_dossier_sha256&&v.file===entry.file))throw Error('The current dossier and its revision list do not agree. No earlier account has been substituted.');
+    const history=validateDossierHistory(await boundedJSON(entry.history_file,HISTORY_FILE_LIMIT),entry);
     const identity=query.has('revision')?query.get('revision'):history?.current_dossier_sha256;
     const selected=history?.versions.find(v=>v.dossier_sha256===identity);
     if(query.has('revision')&&(!/^[0-9a-f]{64}$/.test(identity)||!selected))throw Error('That revision is not retained for this event. No current account has been substituted.');
     if(history&&(!selected||selected.file!==`archive/${entry.id}-${selected.dossier_sha256.slice(0,20)}.json`))throw Error('The dossier revision identity is invalid.');
-    const doc=await json(selected?.file||entry.file);if(doc.id!==entry.id)throw Error('The dossier does not match this event.');
-    showDossier(doc,entry,index,history,selected);
+    const result=await loadVerifiedDossier(selected,entry.id);
+    showDossier(result.dossier,entry,index,history,selected);
   }
   else if(query.has('creator')){
     const id=query.get('creator'),events=index.events.filter(e=>e.creators.some(c=>c.id===id)),creator=events[0]?.creators.find(c=>c.id===id);if(!creator)throw Error('No supported attribution matches this creator link.');
-    host.replaceChildren(link('Evidence dossiers','dossier.html'),element('h1',creator.name),element('p',creator.basis),element('p','This page contains credited contributions, not a biography.'));
-    for(const e of events){const doc=await json(e.file);host.append(link(e.title,route({event:e.id})));for(const m of doc.media.filter(m=>Object.values(m.roles).includes(id)))host.append(evidenceCard(m,doc,'media'));}
+    const contributions=document.createDocumentFragment();
+    contributions.append(link('Evidence dossiers','dossier.html'),element('h1',creator.name),element('p',creator.basis),element('p','This page contains credited contributions, not a biography.'));
+    for(const e of events){const {dossier:doc}=await loadVerifiedDossier(e,e.id);contributions.append(link(e.title,route({event:e.id})));for(const m of doc.media.filter(m=>Object.values(m.roles).includes(id)))contributions.append(evidenceCard(m,doc,'media'));}
+    host.replaceChildren(contributions);
   }else listIndex(index);
   document.body.dataset.ready='true';
   if(location.hash){const target=document.getElementById(decodeURIComponent(location.hash.slice(1)));target?.scrollIntoView();}
