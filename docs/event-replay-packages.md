@@ -78,7 +78,9 @@ bundles for other registered replays. A fresh multi-event build supplies all
 new bundle bytes explicitly to `build_event_packages`.
 Unchanged JSON metadata in the destination keeps its existing bytes. New or
 changed metadata uses indented JSON with LF endings. Replay bundle bytes are
-never reformatted.
+never reformatted. Metadata comparison preserves JSON value types, so a boolean
+version cannot be retained as an equivalent number. The shared publication
+checker uses the same comparison before the El Reno source-specific checks.
 
 The publication tests include an independently authored two-position software
 fixture with a different clock, source identity and bundle path alongside

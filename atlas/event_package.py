@@ -426,6 +426,24 @@ def publication_artifacts(root: Path, bundle_bytes: bytes, bundle_name="data.jso
             if not isinstance(data, bytes)}
 
 
+def same_json(left, right):
+    """Compare JSON values without Python's boolean/number equality coercion."""
+    def canonical(value):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
+    try:
+        return canonical(left) == canonical(right)
+    except (ValueError, TypeError):
+        return False
+
+
+def check_event_packages(root: Path):
+    for relative, expected in build_event_packages(root, replay_inputs(root)).items():
+        actual = (root / 'web' / relative).read_bytes()
+        matches = actual == expected if isinstance(expected, bytes) else same_json(json.loads(actual), expected)
+        if not matches:
+            raise ValueError(f'Stale event package: {relative}')
+
+
 def write_packages(web: Path, artifacts):
     for relative, data in artifacts.items():
         path = web / relative
@@ -433,7 +451,7 @@ def write_packages(web: Path, artifacts):
         raw = data if isinstance(data, bytes) else (json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         if not isinstance(data, bytes) and path.is_file():
             try:
-                if json.loads(path.read_bytes()) == data:
+                if same_json(json.loads(path.read_bytes()), data):
                     continue
             except (ValueError, UnicodeError):
                 pass

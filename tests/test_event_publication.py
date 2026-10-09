@@ -9,7 +9,7 @@ import sys
 import tempfile
 import unittest
 
-from atlas.event_package import build_event_packages, publication_artifacts, replay_inputs, validate_index, write_packages
+from atlas.event_package import build_event_packages, check_event_packages, publication_artifacts, replay_inputs, same_json, validate_index, write_packages
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = json.loads((ROOT / 'tests/fixtures/package-synthetic.json').read_text(encoding='utf-8'))
@@ -162,3 +162,27 @@ class EventPublicationTests(unittest.TestCase):
             inputs['synthetic-package'] = (config['bundle'], json.dumps(data).encode('utf-8'))
             with self.assertRaisesRegex(ValueError, 'reviewed event identity'):
                 build_event_packages(root, inputs)
+
+    def test_boolean_manifest_version_is_detected_and_repaired(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            artifacts = build_event_packages(root, two_replay_root(root))
+            write_packages(root / 'web', artifacts)
+            check_event_packages(root)
+            path = root / 'web/events/synthetic-package.json'
+            corrupt = copy.deepcopy(artifacts['events/synthetic-package.json'])
+            corrupt['schema_version'] = True
+            path.write_text(json.dumps(corrupt))
+            with self.assertRaisesRegex(ValueError, 'Stale event package: events/synthetic-package.json'):
+                check_event_packages(root)
+            write_packages(root / 'web', artifacts)
+            repaired = json.loads(path.read_bytes())
+            self.assertIs(type(repaired['schema_version']), int)
+            self.assertEqual(repaired['schema_version'], 1)
+            check_event_packages(root)
+
+    def test_metadata_comparison_keeps_nested_json_types_distinct(self):
+        self.assertFalse(same_json({'rows':[{'value':True}]}, {'rows':[{'value':1}]}))
+        self.assertFalse(same_json({'value':1.0}, {'value':1}))
+        self.assertFalse(same_json({'value':float('nan')}, {'value':float('nan')}))
+        self.assertTrue(same_json({'a':1, 'b':True}, {'b':True, 'a':1}))
