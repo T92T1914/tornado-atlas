@@ -68,7 +68,9 @@ test('a changed pinned radar response leaves the actual documentary clock and re
   assert.equal(await page.locator('#chronology-radar img').count(),0);
   assert.match(await page.locator('#chronology-radar').textContent(),/could not be verified/);
   await page.getByRole('button',{name:'Next entry',exact:true}).focus();await page.keyboard.press('Enter');
+  await page.waitForFunction(()=>new URL(location.href).searchParams.get('t')==='15480'&&document.querySelector('#chronology-time')?.value==='15480');
   assert.equal(new URL(page.url()).searchParams.get('t'),'15480');
+  assert.equal(await page.locator('#chronology-time').inputValue(),'15480');
   const documentary=page.getByRole('link',{name:'Read the complete documentary figure and caption',exact:true});
   await documentary.focus();await page.keyboard.press('Enter');
   await page.locator('#radar').waitFor();assert.equal(new URL(page.url()).pathname,'/joplin.html');

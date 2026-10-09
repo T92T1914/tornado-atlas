@@ -1,10 +1,21 @@
 // Select one immutable dossier or one existing catalogue shard. Never preload media bytes.
 import {validateSourceDirectory,discoverSources} from './archive-discovery-model.mjs';
 import {comparisonSection,comparisonRoute} from './evidence-comparison.mjs';
+import {selectRevisionEdge,loadRevisionComparison,revisionComparisonSection,revisionComparisonRoute} from './revision-comparison.mjs';
 import {validateArchiveReferences,validateDossierHistory,loadVerifiedDossier,boundedJSON,HISTORY_FILE_LIMIT} from './dossier-file-model.mjs';
 const host=document.getElementById('content'), query=new URLSearchParams(location.search);
 const element=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 function link(text,url){const n=element('a',text),u=new URL(url,location.href);if(!['https:','http:'].includes(u.protocol))throw Error('Unsupported link');n.href=u.href;if(u.origin!==location.origin){n.rel='noopener noreferrer';n.target='_blank';}return n;}
+function retryView(){
+  const retry=link('Retry this view',location.href);
+  // A same-document fragment link would leave the unavailable view in place.
+  // Ordinary activation retries the full URL; modified clicks keep native links.
+  retry.addEventListener('click',event=>{
+    if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+    event.preventDefault();location.reload();
+  });
+  return retry;
+}
 function route(values){return 'dossier.html?'+new URLSearchParams(values);}
 function revisionRoute(doc,values={},version){return route({event:doc.id,...values,...(version?{revision:version.dossier_sha256}:{})});}
 async function json(file){const r=await fetch(file);if(!r.ok)throw Error('This evidence could not load. Its source may still be available through the catalogue.');return r.json();}
@@ -106,7 +117,10 @@ function showHistory(doc,history,selected){
     if(review){
       card.append(element('p','Publication review: '+review.reviewed_at+' · '+human(review.reviewer_kind)),element('p',review.basis));
       const previous=history.versions.find(v=>v.dossier_sha256===review.previous_dossier_sha256);
-      if(previous)card.append(link('Open the recorded predecessor',revisionRoute(doc,{},previous)+'#correction-history'));
+      if(previous){
+        card.append(link('Open the recorded predecessor',revisionRoute(doc,{},previous)+'#correction-history'));
+        if(version.predecessor_available)card.append(link('Read earlier and later recorded values',revisionComparisonRoute(doc.id,version.dossier_sha256,previous.dossier_sha256)));
+      }
       else card.append(element('p','The recorded predecessor is not retained in this public archive. Its identity is '+review.previous_dossier_sha256+'. No comparison or missing account has been reconstructed.'));
     }else card.append(element('p','No publication-review record is retained for this snapshot. Its position in a chronology has not been inferred.'));
     if(version.dossier_sha256===selected.dossier_sha256&&version.changes!==null){
@@ -124,7 +138,7 @@ function showHistory(doc,history,selected){
   }
   return section;
 }
-function showDossier(doc,entry,index,history,selected){
+function showDossier(doc,entry,index,history,selected,publicationComparison){
   document.title=doc.title+' | Tornado Atlas';
   host.replaceChildren(link('All evidence dossiers','dossier.html'),element('p',doc.coverage,'eyebrow'),element('h1',doc.title),element('p',doc.summary),links(doc.routes));
   host.append(dossierDownload(selected||entry,doc.id,'Verify and download dossier metadata (JSON)',doc.id+'.json'),element('p','This download contains metadata and source locators. It does not include third party media or establish hosting rights.'));
@@ -133,6 +147,7 @@ function showDossier(doc,entry,index,history,selected){
     host.append(element('p',retained?'You are reading a retained dossier revision. Its accounts and inspection coverage have not been replaced by current text.':'You are reading the current published dossier.'),element('p','Dossier SHA256: '+selected.dossier_sha256),link('Inspect revisions and correction history','#correction-history'));
     if(retained)host.append(document.createTextNode(' '),link('Return to the current dossier',route({event:doc.id})),element('p','Related source-record links and creator pages open current catalogue and attribution views. The evidence and source cards below belong to this retained dossier.'));
   }
+  if(publicationComparison)host.append(publicationComparison);
   if(selected)host.append(comparisonSection(doc,selected.dossier_sha256,query.getAll('compare'),link,query.has('revision')));
   host.append(element('h2','Related source records'));
   for(const row of doc.records){const card=element('article',undefined,'archive-card');card.append(link(row.id,route({record:row.id})),element('p',row.basis),element('p','Reviewed association, not a merged identity. Alternative joins: '+(row.alternatives.length?row.alternatives.join(', '):'none recorded.')));host.append(card);}
@@ -165,6 +180,7 @@ async function showRecord(index,id){
   button.onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(r,null,2)+'\n'],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=id.replace(':','-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};host.append(button);
 }
 async function main(){
+  if(query.has('predecessor')&&(['view','record','creator'].some(key=>query.has(key))||!query.has('event')))throw Error('The publication comparison route is invalid. No publication comparison has been substituted.');
   host.replaceChildren(element('h1','Loading archive...'),element('p','The current documentary chapter links below remain available while this evidence loads.'));
   const index=validateArchiveReferences(await json('archive/index.json'));
   if(query.get('view')==='sources')await showSources(index);
@@ -172,12 +188,14 @@ async function main(){
   else if(query.has('event')){
     const entry=index.events.find(e=>e.id===query.get('event'));if(!entry)throw Error('This event is not in the reviewed dossier index.');
     const history=validateDossierHistory(await boundedJSON(entry.history_file,HISTORY_FILE_LIMIT),entry);
+    const edge=query.has('predecessor')?selectRevisionEdge(query,history,entry.id):null;
     const identity=query.has('revision')?query.get('revision'):history?.current_dossier_sha256;
     const selected=history?.versions.find(v=>v.dossier_sha256===identity);
     if(query.has('revision')&&(!/^[0-9a-f]{64}$/.test(identity)||!selected))throw Error('That revision is not retained for this event. No current account has been substituted.');
     if(history&&(!selected||selected.file!==`archive/${entry.id}-${selected.dossier_sha256.slice(0,20)}.json`))throw Error('The dossier revision identity is invalid.');
     const result=await loadVerifiedDossier(selected,entry.id);
-    showDossier(result.dossier,entry,index,history,selected);
+    const publicationComparison=edge?revisionComparisonSection(await loadRevisionComparison(result,edge,entry.id),link):null;
+    showDossier(result.dossier,entry,index,history,selected,publicationComparison);
   }
   else if(query.has('creator')){
     const id=query.get('creator'),events=index.events.filter(e=>e.creators.some(c=>c.id===id)),creator=events[0]?.creators.find(c=>c.id===id);if(!creator)throw Error('No supported attribution matches this creator link.');
@@ -189,4 +207,4 @@ async function main(){
   document.body.dataset.ready='true';
   if(location.hash){const target=document.getElementById(decodeURIComponent(location.hash.slice(1)));target?.scrollIntoView();}
 }
-main().catch(error=>{host.replaceChildren(element('h1','Evidence unavailable'),element('p',error.message),link('Retry this view',location.href),link('Browse the archive','dossier.html'),link('Open the catalogue','atlas.html'));document.body.dataset.ready='error';});
+main().catch(error=>{host.replaceChildren(element('h1','Evidence unavailable'),element('p',error.message),retryView(),link('Browse the archive','dossier.html'),link('Open the catalogue','atlas.html'));document.body.dataset.ready='error';});

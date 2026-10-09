@@ -42,6 +42,13 @@
 .comparison-routes{display:flex;flex-direction:column;align-items:flex-start;font:inherit;gap:8px}
 .comparison-routes a{display:block;min-height:44px;max-width:100%;padding:10px 0;overflow-wrap:anywhere;word-break:break-word}
 .comparison-error{border:1px solid currentColor;padding:16px}
+.revision-comparison .revision-endpoint{min-width:0;max-width:100%}
+.revision-comparison h4{margin:8px 0 16px}
+.revision-comparison h5{font:inherit;font-weight:600;margin:20px 0 8px}
+.revision-comparison .revision-field{padding:8px 0;border-bottom:1px solid var(--line)}
+.revision-comparison summary{min-height:44px;padding:8px 0}
+.revision-comparison .literal-raw{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+.revision-comparison .literal-absence{font-style:italic}
 .archive-comparison>a{display:inline-flex;align-items:center;min-height:44px;max-width:100%}
 @media(max-width:700px){.comparison-grid{grid-template-columns:minmax(0,1fr)}}
 .documentary-fallback {padding:24px 0 0;margin-top:24px;border-top:1px solid var(--line);border-bottom:0}
