@@ -123,3 +123,21 @@ test('Blackwell disputed clocks remain separate from a caption-only archive date
   assert.equal(requests.some(url=>/youtube|harkphoto|\.jpg|\.png/.test(url)),false);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
 });
+
+test('direct unversioned empty and seeded comparisons explain and retain their current revision',async t=>{
+  const page=await fixture(t,{viewport:{width:390,height:900}});
+  for(const values of [[],[keys[0]]]){
+    const query=new URLSearchParams({event:'joplin-2011'});for(const value of values)query.append('compare',value);
+    await open(page,query);
+    assert.match(await page.locator('#evidence-comparison').textContent(),/current dossier, whose published version may change/);
+    const link=page.getByRole('link',{name:'Link to this comparison',exact:true});
+    const pinned=new URL(await link.getAttribute('href'));
+    assert.equal(pinned.searchParams.get('revision'),history.current_dossier_sha256);
+    assert.deepEqual(pinned.searchParams.getAll('compare'),values);
+    await follow(page,()=>link.click());
+    assert.equal(new URL(page.url()).searchParams.get('revision'),history.current_dossier_sha256);
+    assert.equal(await page.locator('.comparison-card').count(),0);
+    assert.equal(await page.getByLabel('Evidence 1',{exact:true}).inputValue(),values[0]||'');
+    assert.doesNotMatch(await page.locator('#evidence-comparison').textContent(),/current dossier, whose published version may change/);
+  }
+});

@@ -10,7 +10,9 @@ contains the event, full dossier revision and repeated `compare` parameters.
 For example, `compare=media:friskey-joplin-storm` identifies the media category
 and the existing item identifier. Native submission and **Link to this comparison**
 pin that dossier version. Native Back, Forward and reload
-retain that selection. There is no browser storage or additional evidence fetch.
+retain that selection. The comparison uses no browser storage and fetches no
+additional evidence. Normal dossier navigation loads the index, revision list
+and one dossier through the existing route.
 
 An event URL without a revision follows the current publication. If it contains
 comparison selections, the view explains that the version may change and offers

@@ -99,11 +99,11 @@ export function comparisonSection(doc,revision,values,makeLink,pinned=true){
   let entries;
   try{entries=comparisonEntries(doc,values);}
   catch(error){const alert=node('p',error.message,'comparison-error');alert.setAttribute('role','alert');section.append(alert);return section;}
+  if(!pinned)section.append(node('p','This opened the current dossier, whose published version may change. Use the versioned comparison link to retain the records shown here.'));
+  section.append(makeLink('Link to this comparison',comparisonRoute(doc,revision,entries.map(row=>row.key))));
   if(entries.length<2){
     section.append(node('p',entries.length?'The first record is selected. Choose another record to compare.':'Choose records above, or use Compare this evidence on an evidence card.'));return section;
   }
-  if(!pinned)section.append(node('p','This opened the current dossier, whose published version may change. Use the versioned comparison link to retain the records shown here.'));
-  section.append(makeLink('Link to this comparison',comparisonRoute(doc,revision,entries.map(row=>row.key))));
   section.append(node('p',`${entries.length} records from the same retained dossier are shown below. Separate cards from one report are not independent reporting streams. Inspection statements are retained records, not a new source review.`));
   const grid=node('div',undefined,'comparison-grid');
   for(const row of entries){
