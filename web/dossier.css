@@ -21,7 +21,7 @@
 .archive-main :focus-visible {outline:2px solid var(--text);outline-offset:4px}
 .archive-comparison{margin:30px 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .comparison-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
-.comparison-choice{display:grid;gap:6px;min-width:0}
+.comparison-choice{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;min-width:0}
 .comparison-tools select{width:100%;min-width:0;max-width:100%;min-height:44px;font:inherit;padding:10px;background:var(--bg);color:var(--text);border:1px solid var(--line)}
 .comparison-tools button,.comparison-tools>a{min-height:44px;max-width:100%;font:inherit}
 .comparison-tools>a{display:inline-flex;align-items:center}
@@ -29,10 +29,12 @@
 .comparison-card{margin:0}
 .comparison-card h4{margin:20px 0 8px}
 .comparison-card summary{min-height:44px;padding:8px 0}
+.comparison-card dl{grid-template-columns:minmax(0,1fr) minmax(0,3fr)}
+.comparison-card dt,.comparison-card dd{min-width:0;overflow-wrap:anywhere;word-break:break-word}
 .comparison-card dl dl{display:block;margin:0}
 .comparison-card dd>ul{padding-left:1.25rem}
 .comparison-routes{display:flex;flex-direction:column;align-items:flex-start;font:inherit;gap:8px}
-.comparison-routes a{display:inline-flex;align-items:center;min-height:44px;max-width:100%}
+.comparison-routes a{display:block;min-height:44px;max-width:100%;padding:10px 0;overflow-wrap:anywhere;word-break:break-word}
 .comparison-error{border:1px solid currentColor;padding:16px}
 .archive-comparison>a{display:inline-flex;align-items:center;min-height:44px;max-width:100%}
 @media(max-width:700px){.comparison-tools,.comparison-grid{grid-template-columns:minmax(0,1fr)}}

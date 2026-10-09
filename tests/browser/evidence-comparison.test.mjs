@@ -16,6 +16,19 @@ async function follow(page,action){
   await Promise.all([page.waitForEvent('framenavigated',frame=>frame===page.mainFrame()),action()]);
   await page.waitForFunction(()=>document.body?.dataset.ready==='true');
 }
+async function noHorizontalOverflow(page){
+  const reading=await page.evaluate(()=>({
+    viewport:innerWidth,scroll:document.documentElement.scrollWidth,
+    outside:[...document.querySelectorAll('body *')].filter(node=>{
+      const box=node.getBoundingClientRect();return box.width>0&&box.right>innerWidth+1;
+    }).slice(0,12).map(node=>{
+      const box=node.getBoundingClientRect(),style=getComputedStyle(node);
+      return {tag:node.tagName,id:node.id,class:node.className,left:box.left,right:box.right,
+        width:box.width,display:style.display,minWidth:style.minWidth,columns:style.gridTemplateColumns};
+    })
+  }));
+  assert.equal(reading.scroll<=reading.viewport+1,true,JSON.stringify(reading));
+}
 
 for(const [width,appearance] of [[320,'dark'],[390,'light'],[1280,'light']])test(`evidence comparison preserves source clocks, routes and history ${width} ${appearance}`,async t=>{
   const page=await fixture(t,{viewport:{width,height:900}}),requests=[];
@@ -50,9 +63,9 @@ for(const [width,appearance] of [[320,'dark'],[390,'light'],[1280,'light']])test
   assert.equal(sourceRoute.searchParams.get('revision'),history.current_dossier_sha256);
   assert.equal(await page.locator('iframe,video,img').count(),0);
   assert.equal(requests.some(url=>/youtube|harkphoto|\.jpg|\.png/.test(url)),false);
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  await noHorizontalOverflow(page);
   await page.addStyleTag({content:'body{font-size:200%}'});
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  await noHorizontalOverflow(page);
   await page.goBack();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.equal(await page.locator('.comparison-card').count(),0);
   assert.equal(await page.getByLabel('Evidence 1',{exact:true}).inputValue(),keys[0]);
