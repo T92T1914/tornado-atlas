@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "event_id": "tuscaloosa-birmingham-2011",
+  "dossier_sha256": "00443cb7e5034a74e86d0f57c423e1b2bb7d13183bc8ed288c9c98b33b7d0405",
+  "survey": null,
+  "layers": {
+    "geography": {
+      "basis": "Approximate reported endpoints, county associations and later satellite context retain their source scope. They do not supply a surveyed continuous route or minute-by-minute positions.",
+      "observations": [
+        "one-track-many-records",
+        "survey-start",
+        "survey-end"
+      ],
+      "media": [
+        "eo1-tuscaloosa-track",
+        "usgs-tuscaloosa-landsat-scar"
+      ]
+    },
+    "appearance": {
+      "basis": "Aftermath images and storm-cloud satellite displays remain distinct from optical tornado appearance. No reviewed original storm recording or registered appearance interval is linked here.",
+      "observations": [],
+      "media": []
+    },
+    "damage": {
+      "basis": "Written survey progression, field-study methods and aftermath images retain distinct capture and event clocks. The field-survey collection clock is not tornado arrival time.",
+      "observations": [
+        "tuscaloosa-damage-progression",
+        "holt-brookwood-progression",
+        "jefferson-damage-progression",
+        "damage-reading-limits",
+        "field-study-boundary-and-clocks"
+      ],
+      "media": [
+        "birmingham-aftermath-april29",
+        "apartment-complex-aftermath",
+        "railway-bridge-aftermath",
+        "aerial-context-aftermath",
+        "train-cars-aftermath"
+      ]
+    },
+    "gaps": {
+      "basis": "Reported fatality definitions and summary clock scope retain their attributed differences. Field collection dates and described methods do not establish storm arrival times or inspected figure pixels.",
+      "observations": [
+        "field-study-boundary-and-clocks"
+      ],
+      "media": []
+    }
+  }
+}

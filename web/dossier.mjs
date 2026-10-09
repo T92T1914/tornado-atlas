@@ -11,6 +11,7 @@ function detail(title,value){const n=element('details');n.append(element('summar
 function links(rows){const n=element('nav',undefined,'archive-links');for(const row of rows)n.append(link(row.label,row.href));return n;}
 function listIndex(index){
   host.replaceChildren(element('h1','Follow an event into its evidence.'),element('p',`${index.coverage.current_source_records.toLocaleString()} US source records remain in the catalogue. These dossiers organize selected reviewed accounts. An empty evidence category means no reviewed item is linked here, not that no source exists.`));
+  host.append(link('Compare evidence coverage across events','coverage.html'),element('p','Find the available chronology, geography, footage, radar and damage layers, with their registration limits.'));
   if(index.source_directory)host.append(link('Browse inspected source cards',route({view:'sources'})),element('p','Search original source titles, locators and inspection records across the published dossiers.'));
   const form=element('form',undefined,'archive-tools');form.setAttribute('aria-label','Evidence discovery');
   const label=element('label','Search dossiers'),search=element('input');search.type='search';search.name='q';search.value=query.get('q')||'';label.append(search);

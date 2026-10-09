@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "event_id": "el-reno-2013",
+  "dossier_sha256": "378998be743afb381966f64599f8d3954f0498f4b87da3cf0fe77047cbdaf14c",
+  "survey": {
+    "sha256": "8148ac4b2e4b837ce3d8b75997e0fd59921db04d4a19a9264a76eaaadb6550d1",
+    "basis": "The existing source-checked NWS survey selection retains 336 outcomes inside or on the published outline. Its storm and survey dates do not establish individual impact times."
+  },
+  "layers": {
+    "geography": {
+      "basis": "The replay supplies reviewed minute positions. The linked aerial-survey account describes a damage envelope, not visible funnel geometry.",
+      "observations": [
+        "intake-wakimoto-aerial-envelope-2016"
+      ],
+      "media": []
+    },
+    "appearance": {
+      "basis": "Source-linked photographs and reported published samples remain discrete documentary records. No intermediate visual observation or registered appearance interval is supplied.",
+      "observations": [
+        "photogrammetry-figure-samples"
+      ],
+      "media": [
+        "ER13-HARK-PHOTO-604",
+        "ER13-HARK-PHOTO-609"
+      ]
+    },
+    "damage": {
+      "basis": "Keep the mapped survey outcomes, aerial damage-envelope interpretation and individual roof-loss photograph separate from storm-time optical appearance.",
+      "observations": [
+        "intake-wakimoto-aerial-envelope-2016"
+      ],
+      "media": [
+        "nws-el-reno-roof-loss-04"
+      ]
+    },
+    "gaps": {
+      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits.",
+      "observations": [
+        "photogrammetry-figure-samples",
+        "intake-wakimoto-aerial-envelope-2016"
+      ],
+      "media": [
+        "ER13-HARK-PHOTO-604",
+        "ER13-HARK-PHOTO-609"
+      ]
+    }
+  }
+}
