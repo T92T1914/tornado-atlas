@@ -92,7 +92,7 @@ for(const scenario of cases)test(`touch source and retained evidence journey ${s
   for(const field of ['locator','access','revision','rights'])assert.ok((await sourceCard.textContent()).includes(row.source[field]),field);
   assert.equal(await sourceCard.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),row.source.url);
   await touchAction(page,sourceCard.getByRole('link',{name:'Read original source',exact:true}));
-  await downloadExact(page,page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}),entry.file,entry.id+'.json');
+  await downloadExact(page,page.getByRole('button',{name:'Verify and download dossier metadata (JSON)',exact:true}),entry.file,entry.id+'.json');
   await page.reload();await ready(page,scenario);
   assert.equal(page.url(),pinned);
   assert.equal(await page.locator('#reading-appearance').inputValue(),scenario.appearance);
@@ -107,7 +107,7 @@ for(const scenario of cases)test(`touch source and retained evidence journey ${s
   await follow(page,revision.getByRole('link',{name:'Open this dossier revision',exact:true}),scenario);
   assert.equal(new URL(page.url()).searchParams.get('revision'),retained.dossier_sha256);
   assert.match(await page.locator('#content').textContent(),/reading a retained dossier revision/);
-  await downloadExact(page,page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}),retained.file,entry.id+'.json');
+  await downloadExact(page,page.getByRole('button',{name:'Verify and download dossier metadata (JSON)',exact:true}),retained.file,entry.id+'.json');
   const observation=oldDoc.observations[0],observed=page.locator('#observation-'+observation.id);
   assert.ok((await observed.textContent()).includes(observation.limits));
   await observed.getByText('Inspection coverage',{exact:true}).tap();
@@ -178,7 +178,7 @@ test('standalone dossier actions preserve desktop focus and prose-inline creator
   await touchAction(page,find);await find.focus();
   assert.equal(await find.evaluate(node=>node===document.activeElement),true);
   await page.goto(base+'/dossier.html?event=el-reno-2013');await ready(page,{});
-  const download=page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true});
+  const download=page.getByRole('button',{name:'Verify and download dossier metadata (JSON)',exact:true});
   await touchAction(page,download);await download.focus();
   assert.equal(await download.evaluate(node=>node===document.activeElement),true);
   const creator=page.locator('.archive-card p a').first();

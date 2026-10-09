@@ -4,6 +4,7 @@ import {mkdir, readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fixture, base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 const oldFile = 'archive/joplin-2011-c080b55cf2dfa5efc278.json';
 const eastId = 'intake-nist-east-middle-refuge-2014';
@@ -30,7 +31,7 @@ async function navigate(page, action) {
 
 for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']) {
   test(`school refuge discovery and source journey ${width} ${appearance}`, async t => {
-    const page = await fixture(t, {viewport: {width, height: 900}});
+    const page = await fixture(t, {viewport: {width, height: 900}, acceptDownloads: true});
     const requests = [];
     page.on('request', request => requests.push(request.url()));
     await open(page);
@@ -47,10 +48,7 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
     assert.equal(await page.locator('h1').textContent(), 'Joplin, Missouri · May 22, 2011');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     assert.equal(requests.some(url => /ncei-|catalogue\/|data\.json|govinfo|\.png|\.jpg/.test(url)), false);
-    const metadata = page.getByRole('link', {name: 'Download dossier metadata (JSON)', exact: true});
-    const response = await page.request.get(await metadata.evaluate(el => el.href));
-    assert.equal(response.ok(), true);
-    const exported = await response.json();
+    const {dossier:exported} = await readDossierDownload(page);
     assert.equal(exported.provenance.publication_review.reviewer_kind, 'agent');
     const observed = exported.observations.find(row => row.id === eastId);
     assert.equal(observed.status.rights, 'links_only');

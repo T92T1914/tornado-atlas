@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 const index=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
 async function open(page,suffix){
@@ -16,7 +17,7 @@ async function follow(page,locator){
 for(const entry of index.events)for(const width of [308,1280])test(`retained evidence journey ${entry.id} ${width}`,async t=>{
   const history=JSON.parse(await readFile(new URL('../../web/'+entry.history_file,import.meta.url),'utf8'));
   const old=history.versions.find(v=>v.dossier_sha256!==history.current_dossier_sha256);
-  const page=await fixture(t,{viewport:{width,height:900}}),requests=[];
+  const page=await fixture(t,{viewport:{width,height:900},acceptDownloads:true}),requests=[];
   page.on('request',request=>requests.push(request.url()));
   if(!old){
     assert.equal(history.versions.length,1,'A first publication must not invent a predecessor');
@@ -24,8 +25,7 @@ for(const entry of index.events)for(const width of [308,1280])test(`retained evi
     assert.match(await page.locator('#content').textContent(),/current published dossier/);
     assert.equal(await page.locator('#correction-history .archive-card').count(),1);
     assert.equal(await page.getByRole('link',{name:'Return to the current dossier',exact:true}).count(),0);
-    const saved=await page.request.get(await page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}).getAttribute('href'));
-    assert.equal((await saved.json()).id,entry.id);
+    const saved=await readDossierDownload(page);assert.equal(saved.dossier.id,entry.id);
     await page.addStyleTag({content:'body {font-size:200%}'});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
     return;
@@ -47,8 +47,8 @@ for(const entry of index.events)for(const width of [308,1280])test(`retained evi
   const sourceCard=page.locator('#source-'+source.id);
   assert.match(await sourceCard.textContent(),/Source revision:/);
   assert.equal(await sourceCard.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),source.url);
-  const saved=await page.request.get(await page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}).getAttribute('href'));
-  assert.deepEqual(await saved.json(),expected);
+  const saved=await readDossierDownload(page);assert.deepEqual(saved.dossier,expected);
+  assert.deepEqual(saved.bytes,await readFile(new URL('../../web/'+old.file,import.meta.url)));
   await sourceCard.getByRole('link',{name:'Link to source card',exact:true}).focus();
   assert.equal(await sourceCard.getByRole('link',{name:'Link to source card',exact:true}).evaluate(e=>e===document.activeElement),true);
   await page.reload();await page.waitForFunction(()=>document.body?.dataset.ready==='true');

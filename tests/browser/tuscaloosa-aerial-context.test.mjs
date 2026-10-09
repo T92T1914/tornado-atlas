@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 const survey='https://www.weather.gov/bmx/event_04272011tuscbirm';
 const photos=[
@@ -67,7 +68,7 @@ async function closed(page,photo){
 
 for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
   test(`four Tuscaloosa photographs retain distinct image, history and source ${width} ${appearance}`,async t=>{
-    const page=await fixture(t,{viewport:{width,height:844},hasTouch:width<600,isMobile:width<600});
+    const page=await fixture(t,{viewport:{width,height:844},hasTouch:width<600,isMobile:width<600,acceptDownloads:true});
     const requests=[];page.on('request',request=>requests.push(request.url()));
     await page.goto(base+'/tuscaloosa.html?context=aerial#path');
     await page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready');
@@ -106,8 +107,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     assert.match(await card.textContent(),/No full-track extent, measured width, wind speed, rating/);
     assert.equal(await card.locator('dt:has-text("Spatial") + dd').textContent(),'unregistered');
     assert.equal(await card.locator('dt:has-text("Temporal") + dd').textContent(),'source label');
-    const metadataUrl=await page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}).getAttribute('href');
-    const doc=await (await page.request.get(new URL(metadataUrl,page.url()).href)).json();
+    const {dossier:doc}=await readDossierDownload(page);
     const item=doc.media.find(row=>row.id===aerial.id);
     assert.equal(item.source_id,sourceId);
     assert.equal(item.transformation.asset,asset(aerial));

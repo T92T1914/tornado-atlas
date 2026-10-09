@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture, base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 const observationId = 'intake-wakimoto-aerial-envelope-2016';
 const sourceId = 'wakimoto-aerial-2016';
@@ -17,7 +18,7 @@ async function navigate(page, action) {
 
 for (const width of [390, 1280]) for (const appearance of ['dark', 'light']) {
   test(`aerial survey source and immutable history journey ${width} ${appearance}`, async t => {
-    const page = await fixture(t, {viewport: {width, height: 900}});
+    const page = await fixture(t, {viewport: {width, height: 900}, acceptDownloads: true});
     const requests = [];
     page.on('request', request => requests.push(request.url()));
     // Inspect the static entry link without loading the exhibit's media workspace.
@@ -35,10 +36,7 @@ for (const width of [390, 1280]) for (const appearance of ['dark', 'light']) {
     assert.equal(await page.locator('[id^="observation-"]').count(), 1);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 
-    const metadata = page.getByRole('link', {name: 'Download dossier metadata (JSON)', exact: true});
-    const response = await page.request.get(await metadata.evaluate(el => el.href));
-    assert.equal(response.ok(), true);
-    const exported = await response.json();
+    const {dossier:exported} = await readDossierDownload(page);
     const item = exported.observations.find(row => row.id === observationId);
     assert.equal(item.status.assertion, 'source_reported');
     assert.equal(item.status.rights, 'links_only');

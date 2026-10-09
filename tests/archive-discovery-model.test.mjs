@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {validateSourceDirectory,discoverSources} from '../web/archive-discovery-model.mjs';
 
 const identity='a'.repeat(64);
-const index={events:[{id:'first',title:'First event',file:`archive/first-${identity.slice(0,20)}.json`},
-  {id:'second',title:'Second event',file:`archive/second-${identity.slice(0,20)}.json`}],source_directory:{count:2}};
+const index={events:[{id:'first',title:'First event',dossier_sha256:identity,file:`archive/first-${identity.slice(0,20)}.json`},
+  {id:'second',title:'Second event',dossier_sha256:identity,file:`archive/second-${identity.slice(0,20)}.json`}],source_directory:{count:2}};
 const source={id:'shared',title:'Original Évidence report',url:'https://example.org/report',locator:'Printed page 19',
   access:'Selected page inspected',revision:'Revision 2',rights:'Links only',agent_processing:'Synthetic fixture'};
 const directory={schema_version:1,kind:'atlas-source-directory',scope:'Synthetic scope',entries:[
@@ -26,6 +26,7 @@ test('stale, duplicated or malformed directory records fail before display',()=>
     value=>{value.schema_version=2;},
     value=>{value.entries.pop();},
     value=>{value.entries[0].dossier_sha256='b'.repeat(64);},
+    value=>{value.entries[0].dossier_sha256=identity.slice(0,20)+'b'.repeat(44);},
     value=>{value.entries[0].event_title='Unmatched title';},
     value=>{value.entries[0].source.revision='';},
     value=>{value.entries[0].media=-1;},

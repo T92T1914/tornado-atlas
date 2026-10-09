@@ -5,10 +5,12 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from atlas.archive import publication
+from atlas.archive import digest, publication, verify_dossier_files
 
-for relative, payload in publication(ROOT).items():
-    assert json.loads((ROOT / 'web' / relative).read_text(encoding='utf-8')) == payload, relative
+artifacts = publication(ROOT)
+for relative, payload in artifacts.items():
+    assert digest(json.loads((ROOT / 'web' / relative).read_text(encoding='utf-8'))) == digest(payload), relative
+verify_dossier_files(artifacts['archive/index.json'], ROOT)
 print('Archive projection and catalogue routing verified.')
 from atlas.evidence_coverage import publication as coverage_publication
 for relative, raw in coverage_publication(ROOT).items():

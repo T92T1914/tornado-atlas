@@ -199,7 +199,8 @@ test('current dossier evidence and retained history stay usable beside documenta
   assert.equal(new URL(page.url()).searchParams.get('revision'),retained.dossier_sha256);
   assert.equal(await page.locator('#correction-history .archive-card').count(),history.versions.length);
   const selected=page.locator('#revision-'+retained.dossier_sha256);
-  assert.equal(await selected.getByRole('link',{name:'Download this revision (JSON)',exact:true}).getAttribute('href'),new URL(retained.file,base+'/').href);
+  assert.equal(await selected.getByRole('link',{name:'Open raw metadata file (unverified)',exact:true}).getAttribute('href'),new URL(retained.file,base+'/').href);
+  assert.equal(await selected.getByRole('button',{name:'Verify and download this revision (JSON)',exact:true}).count(),1);
 });
 
 test('documentary fallback does not substitute a current dossier for an unknown revision',{timeout:30000},async t=>{

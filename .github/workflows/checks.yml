@@ -29,6 +29,8 @@ jobs:
           node --check web/jma.js
           node --test tests/jma-model.test.mjs
           node --check web/dossier.mjs
+          node --check web/dossier-file-model.mjs
+          node --test tests/dossier-file-model.test.mjs
           node --check web/evidence-comparison.mjs
           node --test tests/evidence-comparison.test.mjs
           node --test tests/archive-discovery-model.test.mjs
@@ -148,13 +150,13 @@ jobs:
       - name: Verify player layout, survey history and evidence comparison in WebKit
         env:
           ATLAS_BROWSER_ENGINE: webkit
-        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 tests/browser/replay-damage.test.mjs tests/browser/survey-history.test.mjs tests/browser/tuscaloosa-satellite-context.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs
+        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 tests/browser/replay-damage.test.mjs tests/browser/survey-history.test.mjs tests/browser/tuscaloosa-satellite-context.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs
       - name: Verify survey photo and history readiness in Firefox
         env:
           ATLAS_BROWSER_ENGINE: firefox
         run: |
           npx playwright install --with-deps firefox
-          python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 tests/browser/survey-history.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs
+          python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 tests/browser/survey-history.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs
       - name: Retain focused browser failure diagnostics
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4

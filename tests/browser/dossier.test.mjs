@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 async function openDossier(page,suffix=''){
   await page.goto(base+'/dossier.html'+suffix);
@@ -104,9 +105,7 @@ test('slow dossier keeps a readable loading state and navigation usable',async t
 
 test('event and source metadata downloads preserve original values and provenance',async t=>{
   const page=await fixture(t,{acceptDownloads:true});await openDossier(page,'?event=el-reno-2013');
-  const download=page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true});
-  const response=await page.request.get(await download.evaluate(e=>e.href));
-  assert.equal(response.ok(),true);const dossier=await response.json();
+  const {dossier,filename}=await readDossierDownload(page);assert.equal(filename,'el-reno-2013.json');
   assert.equal(dossier.id,'el-reno-2013');assert.ok(dossier.sources.every(s=>s.locator&&s.revision&&s.rights));
   assert.equal(dossier.media[0].time.alignment,null);
   await openDossier(page,'?record=ncei:432342');

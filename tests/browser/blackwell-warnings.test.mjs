@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {readFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {readDossierDownload} from './dossier-download-helper.mjs';
 
 const originals = [
   {id:'nws-blackwell-warning1',file:'assets/blackwell-1955/nws-warning1.jpg',size:[609,409]},
@@ -23,7 +24,7 @@ async function ready(page) { await page.waitForFunction(() => document.body?.dat
 
 for (const viewport of [{width:1280,height:900},{width:390,height:844},{width:320,height:900},{width:844,height:320}]) {
   for (const appearance of ['dark','light']) test(`Blackwell warning documents and source return ${viewport.width}x${viewport.height} ${appearance}`,async t => {
-    const page = await fixture(t,{viewport});
+    const page = await fixture(t,{viewport,acceptDownloads:true});
     await page.goto(base+'/blackwell.html#warning-context');
     await page.locator('#reading-appearance').selectOption(appearance);
     const section = page.locator('#warning-context');
@@ -56,8 +57,7 @@ for (const viewport of [{width:1280,height:900},{width:390,height:844},{width:32
       assert.equal(await card.locator('dt:has-text("Temporal") + dd').textContent(),'unregistered');
       assert.equal(await card.locator('dt:has-text("Spatial") + dd').textContent(),'unregistered');
       assert.match(await card.innerText(),/Wichita/);
-      const metadataUrl = await page.getByRole('link',{name:'Download dossier metadata (JSON)',exact:true}).getAttribute('href');
-      const metadata = await (await page.request.get(new URL(metadataUrl,page.url()).href)).json();
+      const {dossier:metadata} = await readDossierDownload(page);
       const media = metadata.media.find(row => row.id===item.id);
       assert.ok(media);
       assert.equal(media.status.rights,'permitted_hosting');
