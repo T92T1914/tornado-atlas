@@ -59,7 +59,7 @@ test('invalid coverage filters have an explicit error and a clear recovery',asyn
   assert.match(await page.getByRole('alert').textContent(),/not in this publication/);
   assert.equal(await page.locator('.coverage-event:visible').count(),0);
   await page.getByRole('link',{name:'Clear filters',exact:true}).click();
-  await page.waitForFunction(()=>document.querySelector('#coverage-status').textContent.includes('4 events'));
+  await page.waitForFunction(()=>document.querySelector('#coverage-status')?.textContent.includes('4 events'));
   assert.equal(await page.locator('.coverage-event:visible').count(),4);
 });
 
