@@ -31,3 +31,14 @@
 .documentary-source-reading .documentary-source-text {font:inherit;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:1em 0;padding:1em;border-left:3px solid var(--line);background:var(--panel)}
 .documentary-sources {padding-left:24px}.documentary-sources li {padding:15px 0;scroll-margin-top:20px}.documentary-sources p {font-size:14px;color:var(--muted);margin:5px 0}
 @media(max-width:650px){.documentary-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.documentary-timeline li{grid-template-columns:1fr;gap:6px}.documentary-intro{padding-top:25px}.documentary-reading section{padding:35px 0}.documentary-reading p{font-size:15px}.documentary-note{padding:16px}}
+
+#hospital-services .hospital-service-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+#hospital-services .hospital-service-comparison article{min-width:0;overflow-wrap:anywhere}
+#hospital-services .hospital-service-comparison dt{font-weight:600;margin-top:18px}
+#hospital-services .hospital-service-comparison dd{margin:8px 0;line-height:1.8}
+#hospital-services .utility-reporting-entries{padding-left:24px}
+#hospital-services .utility-reporting-entries li{padding:12px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+#hospital-services .utility-reporting-entries h4{margin:0;font-size:16px}
+#hospital-services .utility-reporting-entries p{margin:6px 0}
+#hospital-services .report-label{font-weight:600}
+@media(max-width:700px){#hospital-services .hospital-service-comparison{grid-template-columns:1fr}}

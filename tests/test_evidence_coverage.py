@@ -115,7 +115,8 @@ class EvidenceCoverageTests(unittest.TestCase):
         gaps = rows['joplin-2011']['layers']['gaps']
         items = {item['id']:item for _,item in gaps['items']}
         self.assertEqual(set(items),{'friskey-joplin-storm','nws-joplin-aftermath',
-                                    'usace-joplin-temporary-housing','nist-joplin-radar-sequence'})
+                                    'usace-joplin-temporary-housing','nist-joplin-radar-sequence',
+                                    'barbe-joplin-temporary-care-phases','mercy-joplin-temporary-care-phases'})
         self.assertTrue(all(item['status']['assertion']=='source_reported' for item in items.values()))
         self.assertEqual(gaps['state'],'unknown')
         self.assertIn('revision='+rows['joplin-2011']['dossier_sha256'],gaps['routes'][0][1])

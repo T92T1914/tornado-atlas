@@ -12,7 +12,7 @@ const current=await readFile(new URL('../web/'+entry.file,import.meta.url));
 const validDoc=JSON.parse(current);
 const options=bytes=>({fetcher:async()=>new Response(bytes),subtle:webcrypto.subtle});
 
-test('all34 published current and retained references verify exact bytes without another fetch',async()=>{
+test('all published current and retained references verify exact bytes without another fetch',async()=>{
   assert.equal(validateArchiveReferences(index),index);
   const files=new Set();
   for(const event of index.events){
@@ -28,7 +28,7 @@ test('all34 published current and retained references verify exact bytes without
       files.add(version.file);
     }
   }
-  assert.equal(files.size,34);
+  assert.equal(files.size,37);
 });
 
 test('missing or malformed reference hashes and paths fail before any dossier fetch',async()=>{
