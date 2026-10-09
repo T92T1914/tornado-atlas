@@ -27,7 +27,7 @@ class ArchiveFileIdentityTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), version['file_sha256'])
                 self.assertEqual(digest(json.loads(raw)), version['dossier_sha256'])
                 references[version['file']] = version['file_sha256']
-        self.assertEqual(len(references), 33)
+        self.assertEqual(len(references), 34)
 
     def test_encoder_and_writer_use_identical_utf8_and_lf(self):
         payload = {'text': '雪', 'float': 1.0, 'zero': -0.0}

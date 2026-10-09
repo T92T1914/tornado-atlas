@@ -218,7 +218,8 @@ unresolved clock labels, without a chronology assigned to it.
 Version 2 rejects assigning both modes to one event. A future combined view must
 explicitly synchronize their evidence before enabling that combination.
 
-`exhibits/joplin-2011/chronology.json` supplies chronology schema version 1.
+`exhibits/joplin-2011/chronology.json` supplies chronology schema version 2.
+Version 1 remains readable without radar context.
 Sources have preserved PDF paths and SHA-256 values checked during publication.
 Entries carry their original clock labels, normalized UTC minute, reported or
 approximate precision, account, limits and source page. Unknown times cannot be
@@ -230,6 +231,8 @@ gap. It never interpolates documentary text or positions. Play, pause, rate,
 entry selection, minute seeking and a shareable `t` URL use the existing clock.
 Entry changes create history entries, while scrubbing replaces the current URL.
 Back and forward restore the selected time paused. Hidden pages pause playback.
+Visibility and reduced-motion pauses save the current minute in the existing
+URL, so reload restores the selected documentary and radar label.
 No media player or external source needs to load for the evidence text to work.
 The documentary page remains a noninteractive alternative.
 
@@ -245,3 +248,44 @@ source hash. Browser validation checks schema, event joins, ordering and source
 locators. Those checks preserve the curated contract, not independent historical
 verification. The source is a retrospective assessment, not a synchronized feed
 of what every observer knew at each moment.
+
+## Printed radar context
+
+Chronology version 2 adds one `radar_context` with an exact retained dossier
+reference, a media identity, seven ordered printed UTC minute labels and a
+navigation basis. The reference includes the full logical dossier digest,
+exact file-byte digest and event-specific immutable path. Publication checks
+its association in the existing archive history, its actual bytes, the radar
+record's independent statuses and labels, and the complete PNG's byte digest
+and dimensions. The figure, source, creator credit, inspection, account and
+reuse limits come from that dossier. They are not copied into another registry.
+
+The browser loads this pin once through the shared bounded hash-before-parse
+dossier loader. Malformed chronology metadata rejects the package. A separate
+radar request, verification or record-resolution failure shows unavailable
+radar context with documentary and pinned-revision recovery, while retaining
+the valid documentary clock. The radar request and body have a ten-second
+abort deadline. Reload retries the request.
+
+Joplin's 2224, 2229, 2234, 2239, 2243 and 2248 UTC labels select the existing
+clock. Before 2224 it supplies no preceding radar observation. Between labels
+it holds the latest earlier snapshot and shows elapsed navigation age from
+the clock's seconds. That age is not radar latency or clock accuracy. Radar
+context refreshes on every clock update, including 2239 and 2243 while the
+documentary record remains at 2238. The 2253 panel stays in the whole figure,
+outside the chronology's unchanged 2248 endpoint and outside seek choices.
+
+The native picker, documentary controls, playback rate, pause, history and
+shared `t` URL all use the same PlaybackClock. The existing photo viewer opens
+the complete figure with source, credit, caption, failure and retry. Selection
+identifies a printed pair in text. No panel crop, overlay, interpolated radar,
+optical appearance, building-level wind or camera alignment is introduced.
+The existing documentary figure and caption remain readable without scripting.
+
+The chronology pins the existing immutable radar dossier rather than its own
+new current projection. The archive records the chronology input digest, so
+a reference to that newly generated current dossier would create a circular
+identity. Updating the chronology therefore requires a reviewed curated input
+rebase with an explicit publication predecessor. Layer classifications remain
+unchanged when their current dossier identity is refreshed. Build the archive
+first, chronology/event packages next and coverage last, then check all three.

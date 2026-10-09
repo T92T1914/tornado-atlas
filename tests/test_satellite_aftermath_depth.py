@@ -64,8 +64,14 @@ class SatelliteDepthTests(unittest.TestCase):
             for key in ('sources','media','observations','creators','routes'):
                 self.assertEqual(doc[key][:len(old[key])],old[key],key)
             for key in ('records','reconstruction','summary','title','coverage'):self.assertEqual(doc[key],old[key],key)
-            history=dossier_history(doc);current=next(v for v in history['versions'] if v['dossier_sha256']==digest(doc))
-            self.assertEqual(current['review']['previous_dossier_sha256'],prior);self.assertTrue(current['predecessor_available'])
+            history=dossier_history(doc)
+            # Preserve the original satellite publication edge after later
+            # metadata integrations have added a new current revision.
+            additions=[v for v in history['versions'] if v['review'] and v['review']['previous_dossier_sha256']==prior]
+            self.assertEqual(len(additions),1);self.assertTrue(additions[0]['predecessor_available'])
+            added=json.loads((ROOT/'web'/additions[0]['file']).read_text(encoding='utf-8'))
+            self.assertEqual(digest(added),additions[0]['dossier_sha256'])
+            self.assertIn(item,{row['id'] for row in added['media']})
     def test_rendering_and_rights_keep_provider_roles_separate(self):
         j=next(m for m in self.docs['joplin-2011']['media'] if m['id']==CASES[0][1])
         t=next(m for m in self.docs['tuscaloosa-birmingham-2011']['media'] if m['id']==CASES[1][1])

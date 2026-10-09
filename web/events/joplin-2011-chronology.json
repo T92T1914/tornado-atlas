@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "event_id": "joplin-2011",
   "title": "Warnings and reported events",
   "clock": {
@@ -101,5 +101,52 @@
       "page": 8,
       "locator": "Printed page 2, Table 1 chronology. Warning map on PDF page 9, printed page 3."
     }
-  ]
+  ],
+  "radar_context": {
+    "event_id": "joplin-2011",
+    "reference": {
+      "file": "archive/joplin-2011-7c592efa31cda80b84ce.json",
+      "dossier_sha256": "7c592efa31cda80b84ceef2928fa1582b91428f1d0c05e024fa70f6c24e35d68",
+      "file_sha256": "3852134271d99837893f69987a70712901c71fa29e3c874df424c78c9d5a08cd"
+    },
+    "media_id": "nist-joplin-radar-sequence",
+    "snapshots": [
+      {
+        "id": "radar-2224",
+        "utc": "2011-05-22T22:24:00Z",
+        "source_label": "May 22, 2011: 2224 UTC"
+      },
+      {
+        "id": "radar-2229",
+        "utc": "2011-05-22T22:29:00Z",
+        "source_label": "2229 UTC"
+      },
+      {
+        "id": "radar-2234",
+        "utc": "2011-05-22T22:34:00Z",
+        "source_label": "2234 UTC"
+      },
+      {
+        "id": "radar-2239",
+        "utc": "2011-05-22T22:39:00Z",
+        "source_label": "2239 UTC"
+      },
+      {
+        "id": "radar-2243",
+        "utc": "2011-05-22T22:43:00Z",
+        "source_label": "2243 UTC"
+      },
+      {
+        "id": "radar-2248",
+        "utc": "2011-05-22T22:48:00Z",
+        "source_label": "2248 UTC"
+      },
+      {
+        "id": "radar-2253",
+        "utc": "2011-05-22T22:53:00Z",
+        "source_label": "2253 UTC"
+      }
+    ],
+    "navigation_basis": "The documentary clock selects the latest earlier printed radar minute from the complete report figure. This navigation comparison uses the existing NWS-based chronology. It does not calibrate the radar clock, assign an optical camera viewpoint, locate a building or create an alignment in the radar evidence record."
+  }
 }
