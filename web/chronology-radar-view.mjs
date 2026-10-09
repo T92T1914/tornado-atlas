@@ -30,7 +30,8 @@ export function mountChronologyRadar(container,data,event,resolved,openPhoto){
   const imageStatus=make('p','',figure);imageStatus.setAttribute('role','status');
   image.addEventListener('error',()=>{image.hidden=true;imageStatus.textContent='The preview could not load. Open the viewer to retry the image, or follow the source and documentary links.';});
   make('figcaption','Complete report figure. Original credit and report caption remain in the figure.',figure);
-  open.addEventListener('click',()=>openPhoto({asset:transform.asset,alt:transform.alt,title:media.title,caption:media.account+' '+media.limits,location:media.locator,credit:creator.name+'. '+creator.basis,source:source.url,license:source.rights}));
+  open.addEventListener('click',()=>openPhoto({asset:transform.asset,expectedSha256:transform.sha256,alt:transform.alt,title:media.title,caption:media.account+' '+media.limits,location:media.locator,credit:creator.name+'. '+creator.basis,source:source.url,license:source.rights}));
+  make('p','The viewer checks the complete file against this retained record before showing it. The preview and direct image link remain outside that check. Matching files do not establish capture time, camera geometry or historical accuracy.',section);
   make('p',media.account,section);make('p',media.limits,section);
   const outside=data.radar_context.snapshots.filter(row=>Date.parse(row.utc)<start||Date.parse(row.utc)>end);
   if(outside.length)make('p',`Outside this chronology: ${outside.map(row=>row.source_label).join(', ')}. These panels remain in the complete figure and are not clock seek choices.`,section);
