@@ -39,6 +39,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])test('recorded Jop
   const body=await section.textContent();
   for(const identity of [previous.dossier_sha256,previous.file_sha256,next.dossier_sha256,next.file_sha256,next.review.candidate_sha256])assert.ok(body.includes(identity));
   assert.ok(body.includes(next.review.basis));
+  assert.equal(await section.locator('.revision-identities').getAttribute('open'),null);
   for(const [number,key] of [[0,'before'],[1,'after']]){
     const endpoint=section.locator('[data-endpoint="'+key+'"]'),account=endpoint.locator('[data-field="account"]');
     assert.equal(await account.locator('.literal-decoded').textContent(),accounts[number].account);
@@ -47,6 +48,11 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])test('recorded Jop
     assert.equal(await account.locator('.literal-raw').textContent(),JSON.stringify(accounts[number].account));
     assert.ok((await endpoint.textContent()).includes(accounts[number].limits));
     assert.ok((await endpoint.textContent()).includes(accounts[number].review));
+    const context=endpoint.locator('.revision-context');
+    assert.equal(await context.getAttribute('open'),null);
+    assert.ok(await endpoint.locator('h5').filter({hasText:'Limits'}).isVisible());
+    await context.locator(':scope > summary').focus();await page.keyboard.press('Enter');
+    assert.equal(await context.getAttribute('open'),'');
     const reference=number?next:previous,source=documents[number].sources.find(row=>row.id===accounts[number].source_id);
     assert.equal(await endpoint.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),source.url);
     const sourceLink=new URL(await endpoint.getByRole('link',{name:'Inspect the source in this revision',exact:true}).getAttribute('href'));
@@ -64,7 +70,11 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])test('recorded Jop
   await section.evaluate(node=>{const nodes=[node,...node.querySelectorAll('*')],sizes=nodes.map(item=>parseFloat(getComputedStyle(item).fontSize));nodes.forEach((item,i)=>item.style.fontSize=sizes[i]*2+'px');});
   assert.equal(await section.textContent(),text);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-  for(const control of await section.locator('summary,nav a').all())assert.ok((await control.boundingBox()).height>=44);
+  for(const control of await section.locator('summary,nav a').all())if(await control.isVisible())assert.ok((await control.boundingBox()).height>=44);
+  const identities=section.locator('.revision-identities');
+  await identities.locator(':scope > summary').focus();await page.keyboard.press('Enter');
+  assert.equal(await identities.getAttribute('open'),'');
+  for(const control of await identities.locator('summary,nav a').all())assert.ok((await control.boundingBox()).height>=44);
   await follow(page,section.locator('[data-endpoint="before"]').getByRole('link',{name:'Inspect the source in this revision',exact:true}));
   assert.equal(new URL(page.url()).searchParams.get('revision'),previous.dossier_sha256);
   assert.equal(await page.locator('#revision-comparison').count(),0);
