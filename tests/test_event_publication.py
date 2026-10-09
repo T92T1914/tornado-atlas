@@ -2,13 +2,14 @@
 import copy
 import hashlib
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
 
-from atlas.event_package import build_event_packages, publication_artifacts, replay_inputs, write_packages
+from atlas.event_package import build_event_packages, publication_artifacts, replay_inputs, validate_index, write_packages
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = json.loads((ROOT / 'tests/fixtures/package-synthetic.json').read_text(encoding='utf-8'))
@@ -74,6 +75,31 @@ class EventPublicationTests(unittest.TestCase):
             self.assertEqual(json.loads(completed.stdout)['published'], ['events/joplin-2011-chronology.json'])
             self.assertEqual((Path(folder) / 'events/joplin-2011-chronology.json').read_bytes(), (ROOT / 'web/events/joplin-2011-chronology.json').read_bytes())
             self.assertFalse((Path(folder) / 'events.json').exists())
+
+    def test_documentary_publication_does_not_read_unrelated_replay_configuration_or_pages(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'exhibits/joplin-2011').mkdir(parents=True)
+            (root / 'web').mkdir()
+            (root / 'web/joplin.html').write_text('Documentary fixture')
+            shutil.copyfile(ROOT / 'exhibits/events.json', root / 'exhibits/events.json')
+            data = json.loads((ROOT / 'exhibits/joplin-2011/chronology.json').read_text())
+            (root / 'exhibits/joplin-2011/chronology.json').write_text(json.dumps(data))
+            for source in data['sources']:
+                target = root / source['archive']
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / source['archive'], target)
+            self.assertFalse((root / 'exhibits/el-reno-2013/replay.json').exists())
+            self.assertEqual(replay_inputs(root, ['joplin-2011']), {})
+            result = build_event_packages(root, {}, event_ids=['joplin-2011'])
+            self.assertEqual(set(result), {'events/joplin-2011-chronology.json'})
+
+    def test_replay_metadata_cannot_overwrite_another_event_chronology(self):
+        index = json.loads((ROOT / 'exhibits/events.json').read_text(encoding='utf-8'))
+        index['events'].append({'id':'joplin-2011-chronology', 'title':'Synthetic conflicting identity',
+                                'documentary':'fixture.html', 'replay':'events/joplin-2011-chronology.json', 'chronology':None})
+        with self.assertRaisesRegex(ValueError, 'metadata publication paths'):
+            validate_index(index)
 
     def test_missing_foreign_and_mixed_event_inputs_fail(self):
         with tempfile.TemporaryDirectory() as folder:

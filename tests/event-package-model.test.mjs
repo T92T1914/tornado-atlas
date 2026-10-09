@@ -103,6 +103,12 @@ test('index rejects duplicate IDs and unsafe documentary links',()=>{
     const unsafe=structuredClone(index);unsafe.events[0].documentary=path;assert.throws(()=>selectEvent(unsafe),/description/);
   }
 });
+test('a replay identity cannot claim another event chronology publication path',()=>{
+  const collision=structuredClone(index);
+  collision.events.push({id:'joplin-2011-chronology',title:'Synthetic conflict',documentary:'fixture.html',
+    replay:'events/joplin-2011-chronology.json',chronology:null});
+  assert.throws(()=>selectEvent(collision),/metadata publication paths/);
+});
 test('synthetic second event uses the shared loader without historical claims',async()=>{
   const next=structuredClone(index),manifest=structuredClone(config),data=JSON.parse(bundle);
   next.schema_version=1;next.default_event='synthetic-test';next.events=[{id:'synthetic-test',title:'Synthetic fixture',documentary:'fixture.html',replay:'events/synthetic-test.json'}];

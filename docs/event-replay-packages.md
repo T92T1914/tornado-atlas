@@ -56,7 +56,13 @@ writes, not a transactional deployment. The browser's existing integrity
 checks still reject a mixed publication.
 
 `python -m atlas.event_package --event joplin-2011 --output preview` publishes
-the reviewed Joplin chronology without an El Reno replay input. Repeat
+the reviewed Joplin chronology without an El Reno replay input.
+Publication of documentary chronology reads only the selected chronology,
+its archived sources and documentary page. It does not need another event's
+replay configuration, bundle or documentary page. The shared index must
+remain valid, including distinct manifest and chronology publication paths.
+
+Repeat
 `--event` to select more than one event. A selected publication omits the
 event index so it cannot advertise missing assets in a new output directory.
 A documentary-only event with no registered chronology or replay produces
@@ -67,6 +73,9 @@ Its bundle mapping must contain exactly the selected replay identities, with
 each value `(public_path, exact_bytes)`. `replay_inputs` reads those bytes from
 the checked-in museum or accepts an explicit converter override. The existing
 `publication_artifacts` call remains compatible with the El Reno converter.
+That convenience call supplies the converter's new bytes and reads existing
+bundles for other registered replays. A fresh multi-event build supplies all
+new bundle bytes explicitly to `build_event_packages`.
 Unchanged JSON metadata in the destination keeps its existing bytes. New or
 changed metadata uses indented JSON with LF endings. Replay bundle bytes are
 never reformatted.

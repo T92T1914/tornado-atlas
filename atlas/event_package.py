@@ -226,7 +226,7 @@ def validate_index(index):
         raise ValueError("Unsupported event index version")
     if not isinstance(index["events"], list) or not index["events"]:
         raise ValueError("An event index needs entries")
-    seen = set()
+    seen, published = set(), set()
     for event in index["events"]:
         fields(event, ("id", "title", "documentary", "replay") + (("chronology",) if index["schema_version"] == 2 else ()), "event")
         if not isinstance(event["id"], str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", event["id"]) or event["id"] in seen:
@@ -241,6 +241,11 @@ def validate_index(index):
             raise ValueError("Chronology path must identify its event")
         if event.get("chronology") is not None and event["replay"] is not None:
             raise ValueError("Combined chronology and replay synchronization is not supported yet")
+        for path in (event['replay'], event.get('chronology')):
+            if path is not None:
+                if path in published:
+                    raise ValueError('Event metadata publication paths must be distinct')
+                published.add(path)
         seen.add(event["id"])
     if index["default_event"] not in seen:
         raise ValueError("Default event is absent")
@@ -328,8 +333,6 @@ def validate_replay(config, bundle):
 def reviewed_index(root: Path):
     index = json.loads((root / "exhibits/events.json").read_text(encoding="utf-8"))
     validate_index(index)
-    if any(not (root / "web" / entry["documentary"]).is_file() for entry in index["events"]):
-        raise ValueError("Registered documentary page is missing")
     return index
 
 
@@ -370,6 +373,8 @@ def build_event_packages(root: Path, bundles, *, event_ids=None):
     """
     index = reviewed_index(root)
     events = selected_events(index, event_ids)
+    if any(not (root / 'web' / entry['documentary']).is_file() for entry in events):
+        raise ValueError('Selected documentary page is missing')
     required = {event['id'] for event in events if event['replay'] is not None}
     if not isinstance(bundles, dict) or set(bundles) != required:
         raise ValueError('Replay inputs must exactly match the selected reviewed events')
@@ -378,7 +383,7 @@ def build_event_packages(root: Path, bundles, *, event_ids=None):
     configs = {}
     declared_paths = set()
     for row in index['events']:
-        if row['replay'] is not None:
+        if row['replay'] is not None and required:
             config = json.loads((root / 'exhibits' / row['id'] / 'replay.json').read_text(encoding='utf-8'))
             if config.get('event_id') != row['id']:
                 raise ValueError('Replay configuration differs from its reviewed event identity')
