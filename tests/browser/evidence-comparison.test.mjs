@@ -28,6 +28,9 @@ async function noHorizontalOverflow(page){
     }
     return {viewport:innerWidth,scroll:document.documentElement.scrollWidth,offset,
     bodyScroll:document.body.scrollWidth,bodyWidth:document.body.getBoundingClientRect().width,text,
+    internal:[...document.querySelectorAll('body *')].filter(node=>node.scrollWidth>node.clientWidth+1).slice(0,12)
+      .map(node=>({tag:node.tagName,id:node.id,class:node.className,client:node.clientWidth,scroll:node.scrollWidth,
+        open:node.open,display:getComputedStyle(node).display})),
     outside:[...document.querySelectorAll('body *')].filter(node=>{
       const box=node.getBoundingClientRect();return box.width>0&&box.right+offset>innerWidth+1;
     }).slice(0,12).map(node=>{
@@ -36,6 +39,22 @@ async function noHorizontalOverflow(page){
         width:box.width,scroll:node.scrollWidth,display:style.display,minWidth:style.minWidth,columns:style.gridTemplateColumns};
     })
   };});
+  if(reading.scroll>reading.viewport+1){
+    // These temporary diagnostic probes cannot admit a failing original layout.
+    reading.probes={};
+    for(const [name,content] of [
+      ['without-comparison','#evidence-comparison{display:none!important}'],
+      ['closed-disclosures','details:not([open])>:not(summary){display:none!important}'],
+      ['native-controls','#evidence-comparison select{appearance:none!important;width:100%!important;max-width:100%!important}'],
+      ['wrapping-links','.archive-main a{display:block!important;white-space:normal!important;word-break:break-all!important}'],
+      ['wrapping-values','.archive-main *{word-break:break-all!important;min-width:0!important}']
+    ]){
+      let style;
+      try{style=await page.addStyleTag({content});reading.probes[name]=await page.evaluate(()=>document.documentElement.scrollWidth);}
+      catch(error){reading.probes[name]={error:error.message};}
+      finally{if(style)await style.evaluate(node=>node.remove());}
+    }
+  }
   assert.equal(reading.scroll<=reading.viewport+1,true,JSON.stringify(reading));
 }
 
