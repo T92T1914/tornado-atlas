@@ -82,6 +82,28 @@ class ArchiveFileIdentityTests(unittest.TestCase):
                 self.assertEqual(index.read_bytes(), previous)
                 self.assertEqual(target.read_bytes(), original)
 
+    def test_repeated_build_preserves_source_directory_above_dossier_budget(self):
+        docs = copy.deepcopy(dossiers()[:2])
+        for doc in docs:
+            doc['sources'][0]['access'] += ' Repeated-build source-directory fixture.' * 2500
+            self.assertLessEqual(len(json_bytes(doc)), 200_000)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            write_json(root / 'web/catalogue/index.json', {'records': [], 'coverage': {'current_source_records': 0}})
+            with patch('atlas.archive.dossiers', return_value=docs):
+                self.assertEqual(build(root), {'dossiers': 2, 'records': 0})
+                index_path = root / 'web/archive/index.json'
+                initial_index = index_path.read_bytes()
+                index = json.loads(initial_index)
+                directory_path = root / 'web' / index['source_directory']['file']
+                original = directory_path.read_bytes()
+                self.assertGreater(len(original), 200_000)
+                self.assertLessEqual(len(original), 256_000)
+                self.assertEqual(build(root), {'dossiers': 2, 'records': 0})
+                self.assertEqual(directory_path.read_bytes(), original)
+                self.assertEqual(index_path.read_bytes(), initial_index)
+                self.assertEqual(json.loads(original)['schema_version'], 1)
+
     def test_conflicting_full_identities_with_a_controlled_prefix_are_rejected(self):
         doc = copy.deepcopy(dossiers()[0])
         old = copy.deepcopy(doc)

@@ -17,12 +17,12 @@
     ],
     "context": "Reviewed dossiers | Sources, creators and uncertainty",
     "footer": "Source records remain distinct from unique tornadoes.",
-    "source_sha256": "8686eb3437f2e21692ec3fad3b5fe1a014d0e0fef09be73826ee7b627f13f55b"
+    "source_sha256": "d90366debcb7a900f2461595977f695e497d50f0b0a48fad8ac7c4b68763df49"
   },
   "inputs_sha256_lf": {
     "tools/render_share_preview.py": "659aed220e79634e83c6b465b77bb4aea894f4a20d3a53deb888bfca917254e2",
     "docs/sharing-card.json": "7f2701f455e59ce96b4195a84131883a315484cdb1aa75ea073aa8a0969071f7",
-    "docs/archive-dossiers.md": "8686eb3437f2e21692ec3fad3b5fe1a014d0e0fef09be73826ee7b627f13f55b",
+    "docs/archive-dossiers.md": "d90366debcb7a900f2461595977f695e497d50f0b0a48fad8ac7c4b68763df49",
     "web/appearance.css": "987883e17708197fd665b011a8a7158f3449e452783aac9c184c7fca7f297c9c"
   },
   "png_sha256": "7c61b1f678abcd487025418e569350b56f0ec4f91e7fced71de7dafe1f6c59a4",
@@ -174,5 +174,13 @@
     }
   ],
   "experimental_work_rerun": false,
-  "kind": "authored summary, not an application screenshot"
+  "kind": "authored summary, not an application screenshot",
+  "source_revalidation": {
+    "source": "docs/archive-dossiers.md",
+    "prior_source_sha256": "8686eb3437f2e21692ec3fad3b5fe1a014d0e0fef09be73826ee7b627f13f55b",
+    "source_sha256": "d90366debcb7a900f2461595977f695e497d50f0b0a48fad8ac7c4b68763df49",
+    "painted_content_unchanged": true,
+    "renderer_rerun": false,
+    "basis": "The maintained archive documentation now explains full logical and exact file hashes. All painted sharing content, renderer, palette, font evidence and PNG bytes remain unchanged. This refresh records the source association without claiming a new image render."
+  }
 }

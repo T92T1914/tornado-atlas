@@ -570,6 +570,9 @@ def publication(root=ROOT):
 
 def build(root=ROOT):
     artifacts = publication(root)
+    index = artifacts['archive/index.json']
+    histories = {event['history_file'] for event in index.get('events', [])}
+    source_file = index.get('source_directory', {}).get('file')
     for relative, payload in artifacts.items():
         if relative == 'archive/index.json':
             continue
@@ -577,11 +580,11 @@ def build(root=ROOT):
         if path.is_symlink():
             raise ValueError('An immutable archive document cannot be a link')
         if path.exists():
-            if digest(json.loads(archive_bytes(path, 200_000).decode('utf-8'))) != digest(payload):
+            limit = 256_000 if relative == source_file else 100_000 if relative in histories else 200_000
+            if digest(json.loads(archive_bytes(path, limit).decode('utf-8'))) != digest(payload):
                 raise ValueError('An immutable archive document cannot be overwritten')
             continue
         write_json(path, payload)
-    index = artifacts['archive/index.json']
     verify_dossier_files(index, root)
     write_json(root / 'web/archive/index.json', index)
     return {'dossiers': len(index['events']), 'records': index['coverage']['current_source_records']}
