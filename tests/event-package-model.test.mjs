@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {webcrypto} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {loadEventPackage,selectEvent,validatePackage,displayClock} from '../web/event-package-model.mjs';
 import {preparePositions} from '../web/playback-model.mjs';
 import {anchorAt} from '../web/footage-model.mjs';
@@ -10,6 +12,37 @@ const index=JSON.parse(await readFile(new URL('events.json',root),'utf8'));
 const config=JSON.parse(await readFile(new URL('events/el-reno-2013.json',root),'utf8'));
 const chronology=await readFile(new URL('events/joplin-2011-chronology.json',root));
 const bundle=await readFile(new URL('data.json',root));
+
+test('Python publication packet loads two independent replay inputs through the existing browser boundary',async()=>{
+  const script=`import json, tempfile
+from pathlib import Path
+from tests.test_event_publication import two_replay_root
+from atlas.event_package import build_event_packages
+with tempfile.TemporaryDirectory() as folder:
+    root = Path(folder)
+    packet = build_event_packages(root, two_replay_root(root))
+    print(json.dumps({name: value.decode('utf-8') if isinstance(value, bytes) else json.dumps(value) for name, value in packet.items()}))
+`;
+  const completed=spawnSync(process.env.PYTHON||'python',['-c',script],{
+    cwd:fileURLToPath(new URL('../',import.meta.url)),encoding:'utf8',timeout:20000,maxBuffer:4*1024*1024,
+  });
+  assert.equal(completed.status,0,completed.stderr||String(completed.error));
+  const assets=JSON.parse(completed.stdout),calls=[];
+  const fetcher=async path=>{calls.push(path);return Object.hasOwn(assets,path)?new Response(assets[path]):new Response('',{status:404});};
+  const first=await loadEventPackage('el-reno-2013',{fetcher,subtle:webcrypto.subtle});
+  const second=await loadEventPackage('synthetic-package',{fetcher,subtle:webcrypto.subtle});
+  assert.equal(first.data.exhibit.id,'el-reno-2013');
+  assert.equal(second.data.exhibit.id,'synthetic-package');
+  assert.equal(second.config.bundle,'fixture/observations.json');
+  assert.equal(second.config.clock.start_utc,'2000-01-01T00:00:00Z');
+  assert.equal(second.data.geometry.features.filter(row=>row.geometry.type==='Point').length,2);
+  assert.deepEqual(calls,['events.json','events/el-reno-2013.json','data.json','events.json','events/synthetic-package.json','fixture/observations.json']);
+  assert.notDeepEqual(first.config.geography_source,second.config.geography_source);
+  const mixed={...assets,'fixture/observations.json':assets['data.json']};
+  await assert.rejects(loadEventPackage('synthetic-package',{
+    fetcher:async path=>new Response(mixed[path]),subtle:webcrypto.subtle,
+  }),/different revisions/);
+});
 function fixture(overrides={}){
   const calls=[],assets={'events.json':JSON.stringify(index),'events/el-reno-2013.json':JSON.stringify(config),'data.json':bundle,'events/joplin-2011-chronology.json':chronology,...overrides};
   return {calls,fetcher:async(path)=>{calls.push(path);return assets[path]===null?new Response('',{status:404}):new Response(assets[path]);},subtle:webcrypto.subtle};
