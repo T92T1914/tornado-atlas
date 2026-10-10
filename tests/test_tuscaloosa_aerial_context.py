@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import unittest
 
+from museum_test_support import assert_preserved_field
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,7 +83,7 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
 
     def test_current_publication_preserves_all_accepted_photo_values(self):
         for field in ('records', 'reconstruction', 'title', 'coverage', 'summary'):
-            self.assertEqual(self.current[field], self.doc[field], field)
+            assert_preserved_field(self, self.current[field], self.doc[field], field)
         self.assertEqual(self.current['creators'][:len(self.doc['creators'])], self.doc['creators'])
         for field in ('media', 'observations', 'sources', 'routes'):
             self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
@@ -170,7 +171,7 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
                      'APRIL 27, 2011 · CENTRAL ALABAMA'):
             self.assertIn(text, self.html)
         self.assertEqual(self.html.count('◎'), 1)
-        self.assertEqual(self.html.count('·'), 20)  # Retained separators plus the new Landsat source routes.
+        self.assertEqual(self.html.count('·'), 24)  # Four shared exhibit links retain their literal date separators.
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)
 

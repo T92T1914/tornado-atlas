@@ -92,7 +92,7 @@ class EvidenceCoverageTests(unittest.TestCase):
         for doc in self.docs.values():
             self.assertIn(doc['id'],text)
         self.assertIn('Source links only',text)
-        self.assertIn('Hosting permission recorded',text)
+        self.assertIn('Hosting basis recorded',text)
         self.assertIn('Inspection scope, retained from source card:',text)
         self.assertNotIn('<iframe',text)
         self.assertNotIn('<canvas',text)

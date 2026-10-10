@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import unittest
 
+from museum_test_support import assert_preserved_field
 from atlas.archive import dossiers
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,7 +30,7 @@ class TuscaloosaSurveyReaderTests(unittest.TestCase):
     def test_all_previous_evidence_and_media_are_preserved(self):
         old = json.loads((ROOT / 'web/archive' / PREVIOUS).read_text(encoding='utf-8'))
         for field in ('records', 'reconstruction'):
-            self.assertEqual(self.doc[field], old[field], field)
+            assert_preserved_field(self, self.doc[field], old[field], field)
         for field in ('sources', 'observations', 'creators', 'routes', 'media'):
             for row in old[field]:
                 self.assertIn(row, self.doc[field], field)

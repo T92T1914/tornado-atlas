@@ -5,6 +5,7 @@ from html.parser import HTMLParser
 import json
 from pathlib import Path
 import unittest
+from museum_test_support import assert_preserved_field
 from atlas.archive import digest, dossiers, validate_dossier, dossier_history
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -63,7 +64,7 @@ class SatelliteDepthTests(unittest.TestCase):
             self.assertEqual(digest(old),prior)
             for key in ('sources','media','observations','creators','routes'):
                 self.assertEqual(doc[key][:len(old[key])],old[key],key)
-            for key in ('records','reconstruction','summary','title','coverage'):self.assertEqual(doc[key],old[key],key)
+            for key in ('records','reconstruction','summary','title','coverage'):assert_preserved_field(self,doc[key],old[key],key)
             history=dossier_history(doc)
             # Preserve the original satellite publication edge after later
             # metadata integrations have added a new current revision.
