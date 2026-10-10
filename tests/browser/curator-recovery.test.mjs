@@ -46,7 +46,10 @@ promote_candidate(candidate,'Synthetic fixture advancement only.',root)
 `;
 before(async()=>{
   const engine=process.env.ATLAS_BROWSER_ENGINE||'chromium';assert.ok(['chromium','webkit','firefox'].includes(engine));
-  browser=await ({chromium,webkit,firefox}[engine]).launch({headless:true,...(engine==='chromium'?{chromiumSandbox:true,args:['--mute-audio','--disable-gpu']}: {})});
+  browser=await ({chromium,webkit,firefox}[engine]).launch({headless:true,...(engine==='chromium'?{chromiumSandbox:true,
+    ...(process.env.ATLAS_BROWSER_EXECUTABLE?{executablePath:process.env.ATLAS_BROWSER_EXECUTABLE}:
+      process.env.ATLAS_BROWSER_CHANNEL?{channel:process.env.ATLAS_BROWSER_CHANNEL}:{}),
+    args:['--mute-audio','--disable-gpu']}: {})});
   console.log(JSON.stringify({engine,version:browser.version(),headless:true,scope:'isolated synthetic private recovery'}));
 });
 after(async()=>browser?.close());
