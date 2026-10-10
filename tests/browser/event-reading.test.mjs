@@ -7,7 +7,7 @@ import {fixture,base} from './harness.mjs';
 const tasks=[
   {file:'joplin.html',first:'#warning-context',source:'#source-nws-assessment',media:'#visibility',wording:/first siren/i},
   {file:'blackwell.html',first:'#clocks',source:'#source-report',media:'#archive-prints',wording:/labels.*reconciliation/i},
-  {file:'tuscaloosa.html',first:'#path',source:'#source-survey',media:'#railway-bridge',wording:/different outcomes/i}
+  {file:'tuscaloosa.html',first:'#path-greene',source:'#source-survey',media:'#railway-bridge',wording:/rural beginning/i}
 ];
 test('unenhanced entry pages name the actual system appearance and keep the switch unavailable',async t=>{
   const pages=['atlas.html','index.html','joplin.html','blackwell.html','tuscaloosa.html','dossier.html','coverage.html','reconstruction.html','survey.html','radar-source.html','study.html','wind.html','japan.html','curator.html'];
@@ -25,6 +25,11 @@ for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: pu
   await page.goto(base+'/'+task.file);
   const guide=page.locator('.museum-reading-start');
   assert.equal(await guide.count(),1);
+  for(const href of await guide.locator('a[href^="#"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))){
+    const destination=page.locator(href);
+    assert.equal(await destination.count(),1,task.file+' '+href);
+    assert.equal(await destination.isVisible(),true,task.file+' '+href+' must be a visible reading destination');
+  }
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
   const originalIDs=await page.locator('[id]').evaluateAll(nodes=>nodes.map(node=>node.id));
   assert.equal(originalIDs.length,new Set(originalIDs).size);
