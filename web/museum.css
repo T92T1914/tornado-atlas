@@ -25,7 +25,8 @@ header .museum-nav {align-items:flex-start;gap:12px 22px;font-size:14px}
 .storm-photo-button {display:block;text-decoration:none}
 .storm-photo-button img {display:block;width:100%;height:auto}
 header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
-.documentary-exhibit a,.documentary-exhibit h2,.documentary-exhibit h3,.documentary-exhibit h4 {overflow-wrap:anywhere;max-width:100%}
+.documentary-exhibit a,.documentary-exhibit h1,.documentary-exhibit h2,.documentary-exhibit h3,.documentary-exhibit h4 {overflow-wrap:anywhere;max-width:100%}
+.documentary-exhibit .hero-grid>div {min-width:0;max-width:100%}
 .documentary-exhibit .section-title>div,.documentary-exhibit .note {min-width:0;max-width:100%}
 .documentary-exhibit .playback-options label,.documentary-exhibit .playback-options select {min-width:0;max-width:100%}
 .documentary-exhibit .damage-filters label,.documentary-exhibit .survey-options label {min-width:0;max-width:100%}
@@ -41,6 +42,7 @@ header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
  .museum-entrance .museum-feature-copy {padding:18px}
  .museum-entrance .museum-routes article {padding:18px}
  .documentary-exhibit .notes,.documentary-exhibit .research-bottom {grid-template-columns:minmax(0,1fr)}
+ .documentary-exhibit .hero-grid {grid-template-columns:minmax(0,1fr)}
 }
 
 .contents-rail .contents-group {margin:18px 0 4px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}

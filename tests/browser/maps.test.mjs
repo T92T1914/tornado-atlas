@@ -205,7 +205,7 @@ test('responsive and expanded maps retain selection and center without reflow ov
     for(const theme of ['dark','light']){
       await page.locator('#reading-appearance').selectOption(theme);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${width} ${theme} reflow`);
-      const box=await page.locator('#world-map').boundingBox();assert.ok(box.width>250&&box.height>=330);
+      const box=await page.locator('#world-map').boundingBox();assert.ok(box.width>250&&box.height>=330,JSON.stringify({width,height,theme,box}));
       assert.equal(await page.locator('#detail .eyebrow').textContent(),'ncei:453682');
     }
   }

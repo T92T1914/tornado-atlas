@@ -153,6 +153,10 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-fund
           npx playwright install --with-deps webkit
+      - name: Verify museum reading and map sizes in WebKit
+        env:
+          ATLAS_BROWSER_ENGINE: webkit
+        run: python tools/run_browser_checks.py webkit --output ci-diagnostics/museum-reading -- node --test --test-concurrency=1 --test-name-pattern='slow dossier|Blackwell shares heading|essential El Reno reading and museum navigation reflow|responsive and expanded maps|purposeful reading route|unenhanced entry pages' tests/browser/dossier.test.mjs tests/browser/tuscaloosa-exhibit.test.mjs tests/browser/museum-reading.test.mjs tests/browser/maps.test.mjs tests/browser/event-reading.test.mjs
       - name: Verify player layout, survey history and evidence comparison in WebKit
         env:
           ATLAS_BROWSER_ENGINE: webkit
@@ -162,6 +166,7 @@ jobs:
           ATLAS_BROWSER_ENGINE: firefox
         run: |
           npx playwright install --with-deps firefox
+          python tools/run_browser_checks.py firefox --output ci-diagnostics/museum-reading -- node --test --test-concurrency=1 --test-name-pattern='slow dossier|Blackwell shares heading|essential El Reno reading and museum navigation reflow|responsive and expanded maps|purposeful reading route|unenhanced entry pages' tests/browser/dossier.test.mjs tests/browser/tuscaloosa-exhibit.test.mjs tests/browser/museum-reading.test.mjs tests/browser/maps.test.mjs tests/browser/event-reading.test.mjs
           python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 tests/browser/survey-history.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs tests/browser/chronology-radar.test.mjs tests/browser/revision-comparison.test.mjs
       - name: Retain focused browser failure diagnostics
         if: ${{ failure() }}
