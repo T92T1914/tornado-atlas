@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fixture,base} from './harness.mjs';
 import {beginSurveyActivation,finishSurveyActivation} from './survey-activation-diagnostics.mjs';
+import {waitForSettledTouchTarget} from './touch-target-readiness.mjs';
 
 async function paintedSurveyDifference(page) {
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
@@ -74,8 +75,11 @@ test('player survey history closes an obsolete synthetic photo and restores conn
     return image?.complete&&image.naturalWidth===1&&image.getBoundingClientRect().height>0;
   });
   const initialHistory=await page.evaluate(()=>history.length);
+  const next=page.locator('#survey-next');
+  await next.scrollIntoViewIfNeeded();
+  await waitForSettledTouchTarget(page,next);
   await beginSurveyActivation(page);
-  await page.locator('#survey-next').click();
+  await next.click();
   await finishSurveyActivation(t,page,'player photo history initial Next');
   await page.waitForFunction(()=>document.getElementById('survey-observation')?.value==='270275');
   assert.equal(new URL(page.url()).searchParams.get('survey'),'270275');

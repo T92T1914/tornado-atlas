@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fixture,base} from './harness.mjs';
 import {beginSurveyActivation,finishSurveyActivation} from './survey-activation-diagnostics.mjs';
+import {waitForSettledTouchTarget} from './touch-target-readiness.mjs';
 
 const data=JSON.parse(readFileSync(new URL('../../web/data.json',import.meta.url)));
 const fatality=data.history.remembrance.places[0];
@@ -136,8 +137,11 @@ test('survey choice during playback stores the current replay time before pausin
   await page.locator('#play').click();
   await page.waitForFunction(()=>Number(document.getElementById('timeline').value)>780);
   const beforeSelection=await readReplaySurvey();
+  const next=page.locator('#survey-next');
+  await next.scrollIntoViewIfNeeded();
+  await waitForSettledTouchTarget(page,next);
   await beginSurveyActivation(page);
-  await page.locator('#survey-next').click();
+  await next.click();
   const protocolUrlAfterClick=page.url(),completed=await readReplaySurvey();
   await finishSurveyActivation(t,page,'article survey selection during playback');
   t.diagnostic('SURVEY_REPLAY_SELECTION '+JSON.stringify({initial,beforeSelection,
