@@ -138,6 +138,14 @@ async function photoState(page,state){
     document.querySelector('#replay-appearance-canvas')?.dataset.evidenceState===state,state);
 }
 
+function nativePhotoClockReading({seconds,duration}){
+  const actual=document.querySelector('#replay-time'),expected=document.createElement('input');
+  expected.type='range';expected.min='0';expected.max=String(duration);expected.step='any';expected.value=seconds;
+  return {type:actual.type,min:actual.min,max:actual.max,step:actual.step,
+    value:actual.value,numeric:actual.valueAsNumber,
+    expectedValue:expected.value,expectedNumeric:expected.valueAsNumber};
+}
+
 test('typed photo selection shows its own publication, exact panel and declared limits',async t=>{
   const page=await fixture(t,{viewport:{width:390,height:900}});
   const value=await synthetic(page);
@@ -323,9 +331,15 @@ test('mode changes during playback record the displayed clock and history restor
   await photoState(page,'unknown');
   assert.equal(new URL(page.url()).searchParams.get('t'),seconds,'History retains the complete clock value');
   assert.equal(new URL(await page.locator('#replay-link').getAttribute('href')).searchParams.get('t'),seconds,'Sharing retains the complete clock value');
-  const displayed=Number(await page.locator('#replay-time').inputValue());
-  assert.ok(Math.abs(displayed-Number(seconds))<=4*Number.EPSILON*Math.max(1,Math.abs(Number(seconds))),
-    'The native range control restores the clock within its floating point serialization precision');
+  const nativeReading=await page.evaluate(nativePhotoClockReading,{seconds,duration:120});
+  t.diagnostic('PHOTO_HISTORY_NATIVE_CLOCK '+JSON.stringify({seconds,...nativeReading}));
+  assert.equal(nativeReading.type,'range');
+  assert.equal(nativeReading.min,'0');
+  assert.equal(nativeReading.max,'120');
+  assert.equal(nativeReading.step,'any');
+  assert.equal(nativeReading.value,nativeReading.expectedValue,
+    'The range restores the exact native serialization of the complete history clock');
+  assert.equal(nativeReading.numeric,nativeReading.expectedNumeric);
   assert.equal(await page.locator('#replay-appearance-mode').inputValue(),'photo:'+pairId);
   assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
   await photoState(page,'unknown');
