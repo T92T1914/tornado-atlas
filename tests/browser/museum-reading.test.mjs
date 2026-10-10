@@ -169,7 +169,23 @@ for(const enabled of [false,true])test(`essential El Reno reading and museum nav
       if(box.width>0&&(box.right>innerWidth+1||box.left< -1))text.push({tag:node.parentElement.tagName,id:node.parentElement.id,preview:node.textContent.trim().slice(0,100),left:box.left,right:box.right,width:box.width});
       range.detach();
     }
-    return {innerWidth,scrollX,scrollY,root:boxes.slice(0,2),outside:boxes.filter(row=>row.width>0&&(row.right>innerWidth+1||row.left< -1)).slice(0,30),scrolling:boxes.filter(row=>row.scrollWidth>row.clientWidth+1).slice(0,30),text:text.slice(0,30)};
+    const controlProbes=[];
+    for(const [name,selector,declarations] of [
+      ['hide-selects','select',{display:'none'}],
+      ['hide-ranges','input[type=range]',{display:'none'}],
+      ['hide-checkboxes','input[type=checkbox]',{display:'none'}],
+      ['block-control-labels','.camera-controls label,.geography-controls label,.damage-filters label,.impact-controls label',{display:'block'}],
+      ['hide-svg','svg',{display:'none'}]
+    ]){
+      const nodes=[...body.querySelectorAll(selector)],saved=nodes.map(node=>node.getAttribute('style'));
+      try {
+        nodes.forEach(node=>Object.assign(node.style,declarations));
+        controlProbes.push({name,count:nodes.length,rootScrollWidth:root.scrollWidth});
+      } finally {
+        nodes.forEach((node,index)=>saved[index]===null?node.removeAttribute('style'):node.setAttribute('style',saved[index]));
+      }
+    }
+    return {innerWidth,scrollX,scrollY,root:boxes.slice(0,2),outside:boxes.filter(row=>row.width>0&&(row.right>innerWidth+1||row.left< -1)).slice(0,30),scrolling:boxes.filter(row=>row.scrollWidth>row.clientWidth+1).slice(0,30),text:text.slice(0,30),controlProbes,restoredRootScrollWidth:root.scrollWidth};
   })));
   try {await reading(page);await museum(page);}
   finally {await capture(page,'el-reno-320-enlarged-'+(enabled?'enhanced':'nojs'));}
