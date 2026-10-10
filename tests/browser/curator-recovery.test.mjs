@@ -54,13 +54,18 @@ async function stop(child){if(child?.pid&&child.exitCode===null&&child.signalCod
 async function fixture(t,width=320,appearance='dark'){
   const directory=await mkdtemp(path.join(tmpdir(),'atlas-private-recovery-'));let child,context;t.after(async()=>{await context?.close();await stop(child);await rm(directory,{recursive:true,force:true});});
   const root=path.join(directory,'synthetic-checkout'),store=path.join(directory,'private');await mkdir(path.join(root,'web'),{recursive:true});
-  for(const file of ['curator.html','curator.mjs','curator.css','style.css','appearance.css','appearance.js'])await copyFile(path.join(repo,'web',file),path.join(root,'web',file));
+  for(const file of ['curator.html','curator.mjs','curator.css','style.css','appearance.css','appearance.js','museum.css'])await copyFile(path.join(repo,'web',file),path.join(root,'web',file));
   child=spawn(python,[...prefix,'-c',startCode,root,store],{cwd:repo,stdio:['ignore','pipe','pipe'],windowsHide:true});
   const url=await new Promise((resolve,reject)=>{let output='',errors='';const timer=setTimeout(()=>reject(Error('Synthetic local session timed out')),15000);child.once('error',e=>{clearTimeout(timer);reject(e);});child.once('exit',()=>{clearTimeout(timer);reject(Error('Synthetic local session exited: '+errors));});child.stderr.on('data',d=>errors+=d);child.stdout.on('data',d=>{output+=d;if(output.includes('\n')){clearTimeout(timer);try{resolve(JSON.parse(output.split('\n')[0]).url);}catch(e){reject(e);}}});});
   const address=new URL(url),token=new URLSearchParams(address.hash.slice(1)).get('token');
   context=await browser.newContext({viewport:{width,height:900},acceptDownloads:true,permissions:[],reducedMotion:'reduce'});
   await context.route('**/*',route=>new URL(route.request().url()).origin===address.origin?route.continue():route.abort());
-  const page=await context.newPage();await page.goto(url);await page.waitForFunction(()=>document.body.dataset.ready==='true');await page.locator('#reading-appearance').selectOption(appearance);
+  const page=await context.newPage();
+  const museumStyle=page.waitForResponse(response=>response.url()===new URL('/museum.css',url).href);
+  await page.goto(url);
+  const stylesheet=await museumStyle;assert.equal(stylesheet.status(),200,'Recovery fixture loads the integrated museum stylesheet');
+  assert.deepEqual(await stylesheet.body(),await readFile(path.join(repo,'web','museum.css')),'Browser consumed the current museum stylesheet');
+  await page.waitForFunction(()=>document.body.dataset.ready==='true');await page.locator('#reading-appearance').selectOption(appearance);
   async function api(route,payload){const headers={'X-Curator-Token':token,Origin:address.origin,...(payload===undefined?{}:{'Content-Type':'application/json'})};return payload===undefined?page.request.get(address.origin+route,{headers}):page.request.post(address.origin+route,{headers,data:payload});}
   async function advance(changes){const owned=spawn(python,[...prefix,'-c',advanceCode,root],{cwd:repo,stdio:['pipe','ignore','pipe'],windowsHide:true});let errors='';owned.stderr.on('data',d=>errors+=d);const done=once(owned,'exit');owned.stdin.end(JSON.stringify(changes));const [code]=await done;assert.equal(code,0,errors);}
   return {page,api,advance,root,store,directory};
