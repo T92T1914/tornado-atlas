@@ -33,7 +33,11 @@ for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: pu
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
   const originalIDs=await page.locator('[id]').evaluateAll(nodes=>nodes.map(node=>node.id));
   assert.equal(originalIDs.length,new Set(originalIDs).size);
-  const first=guide.locator(`a[href="${task.first}"]`);await first.focus();await page.keyboard.press('Enter');
+  const first=guide.locator(`a[href="${task.first}"]`);await first.focus();
+  await Promise.all([
+    page.waitForURL(url=>url.hash===task.first),
+    page.keyboard.press('Enter')
+  ]);
   assert.equal(new URL(page.url()).hash,task.first);
   assert.match(await page.locator(task.first).textContent(),task.wording);
   const citation=guide.locator('a[href="#sources"]');await citation.focus();
@@ -46,7 +50,11 @@ for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: pu
   assert.match(await page.locator(task.source).locator('a[href^="https://"]').first().getAttribute('href'),/^https:\/\//);
   await page.goBack();assert.equal(new URL(page.url()).hash,task.first);
   await page.goBack();assert.equal(new URL(page.url()).hash,'');
-  await guide.locator(`a[href="${task.media}"]`).focus();await page.keyboard.press('Enter');
+  await guide.locator(`a[href="${task.media}"]`).focus();
+  await Promise.all([
+    page.waitForURL(url=>url.hash===task.media),
+    page.keyboard.press('Enter')
+  ]);
   assert.equal(new URL(page.url()).hash,task.media);
   if(task.file==='blackwell.html')assert.match(await page.locator(task.media).textContent(),/not.*(?:host|inspected)|unreviewed|permission/i);
   if(task.file==='tuscaloosa.html'){
