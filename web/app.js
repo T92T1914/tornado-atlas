@@ -36,6 +36,7 @@ async function main() {
     const index = Number(anchor.dataset.stormPhoto);
     const photo = data.storm_photos[index];
     anchor.addEventListener('click', event => {
+      if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
       event.preventDefault();
       openPhoto({title:`El Reno / storm photograph ${index + 1}`, asset:photo.file,
         alt:photo.alt, caption:photo.caption, location:photo.timing_note,

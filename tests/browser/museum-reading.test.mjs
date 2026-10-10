@@ -6,6 +6,17 @@ import {fixture,base} from './harness.mjs';
 
 const bundle=JSON.parse(await readFile(new URL('../../web/data.json',import.meta.url),'utf8'));
 const registry=JSON.parse(await readFile(new URL('../../exhibits/events.json',import.meta.url),'utf8'));
+test('modified photograph activation keeps the native original-file route',async t=>{
+  const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});
+  await page.goto(base+'/index.html');
+  await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
+  const photograph=page.locator('#hero-photograph [data-storm-photo]');
+  const [popup]=await Promise.all([page.context().waitForEvent('page'),photograph.click({modifiers:['Control']})]);
+  await popup.waitForLoadState('load');
+  assert.equal(popup.url(),base+'/'+bundle.storm_photos[0].file);
+  assert.equal(await page.locator('#photo-dialog').evaluate(node=>node.open),false);
+  await popup.close();
+});
 for(const width of [320,1280]){
   for(const activation of ['pointer','keyboard']){
     test(`a chronology chapter has one Back and Forward step: ${width}px ${activation}`,async t=>{
