@@ -59,7 +59,8 @@ async function reading(page){
   assert.match(await page.locator('#chronology-42').textContent(),/6:44/);
   const ids=await page.locator('[id]').evaluateAll(nodes=>nodes.map(node=>node.id));
   assert.equal(ids.length,new Set(ids).size,'Published and enhanced reading have no duplicate anchors');
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  const layout=await page.evaluate(()=>({innerWidth,rootScrollWidth:document.documentElement.scrollWidth,rootClientWidth:document.documentElement.clientWidth,bodyScrollWidth:document.body.scrollWidth,bodyClientWidth:document.body.clientWidth,scrollX,scrollY}));
+  assert.ok(layout.rootScrollWidth<=layout.innerWidth+1,'Reading document fits: '+JSON.stringify(layout));
 }
 test('principal routes expose the same four-exhibit navigation at narrow width',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});
@@ -81,7 +82,7 @@ async function museum(page){
 async function capture(page,name){
   if(!process.env.ATLAS_MUSEUM_CAPTURE_DIR)return;
   await mkdir(process.env.ATLAS_MUSEUM_CAPTURE_DIR,{recursive:true});
-  await page.screenshot({path:path.join(process.env.ATLAS_MUSEUM_CAPTURE_DIR,name+'.png'),fullPage:false});
+  await page.screenshot({path:path.join(process.env.ATLAS_MUSEUM_CAPTURE_DIR,name+'-'+(process.env.ATLAS_BROWSER_ENGINE||'chromium')+'.png'),fullPage:false});
 }
 
 for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
@@ -157,8 +158,19 @@ for(const enabled of [false,true])test(`essential El Reno reading and museum nav
   await page.goto(base+'/index.html');
   if(enabled)await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
   await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')];const sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));nodes.forEach((node,index)=>node.style.fontSize=sizes[index]*2+'px');});
-  await capture(page,'el-reno-320-nojs-enlarged');
-  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)) console.log('READING_REFLOW_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('body *')].map(node=>({tag:node.tagName,id:node.id,cls:node.className,width:node.getBoundingClientRect().width,right:node.getBoundingClientRect().right})).filter(row=>row.right>innerWidth+1&&row.width>0).slice(0,20))));
-  await reading(page);await museum(page);
-  await capture(page,'el-reno-320-nojs-enlarged');
+  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)) console.log('READING_REFLOW_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>{
+    const root=document.documentElement,body=document.body;
+    const boxes=[root,body,...body.querySelectorAll('*')].map(node=>{const box=node.getBoundingClientRect(),style=getComputedStyle(node);return {tag:node.tagName,id:node.id,cls:typeof node.className==='string'?node.className:'',width:box.width,left:box.left,right:box.right,scrollWidth:node.scrollWidth,clientWidth:node.clientWidth,overflowX:style.overflowX};});
+    const walker=document.createTreeWalker(body,NodeFilter.SHOW_TEXT),text=[];
+    for(let node=walker.nextNode();node;node=walker.nextNode()){
+      if(!node.textContent.trim())continue;
+      const range=document.createRange();range.selectNodeContents(node);
+      const box=range.getBoundingClientRect();
+      if(box.width>0&&(box.right>innerWidth+1||box.left< -1))text.push({tag:node.parentElement.tagName,id:node.parentElement.id,preview:node.textContent.trim().slice(0,100),left:box.left,right:box.right,width:box.width});
+      range.detach();
+    }
+    return {innerWidth,scrollX,scrollY,root:boxes.slice(0,2),outside:boxes.filter(row=>row.width>0&&(row.right>innerWidth+1||row.left< -1)).slice(0,30),scrolling:boxes.filter(row=>row.scrollWidth>row.clientWidth+1).slice(0,30),text:text.slice(0,30)};
+  })));
+  try {await reading(page);await museum(page);}
+  finally {await capture(page,'el-reno-320-enlarged-'+(enabled?'enhanced':'nojs'));}
 });
