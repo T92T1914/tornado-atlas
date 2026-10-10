@@ -95,3 +95,10 @@ release at the time this note was written. Local checks, independent review,
 required CI, deployment and public visitor acceptance remain separate gates.
 This editorial work does not complete the required historical El Reno
 appearance interval.
+
+## Museum links from the private curator
+
+The curator's header opens the public museum in a separate tab with no referrer
+or opener access. Its private server serves the shared navigation stylesheet
+alongside the existing editor assets. It continues to refuse article files and
+private store paths. Curator API requests remain on its private loopback origin.
