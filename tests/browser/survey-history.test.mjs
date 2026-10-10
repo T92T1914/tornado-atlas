@@ -245,7 +245,12 @@ test('survey Back closes a photo before replacing its opener and focuses a conne
     const button=document.getElementById('survey-next'),rect=button.getBoundingClientRect();
     return {url:location.href,selected:document.getElementById('survey-observation').value,nextDisabled:button.disabled,button:{x:rect.x,y:rect.y,width:rect.width,height:rect.height}};
   });
-  await page.locator('#survey-next').click();
+  const next=page.locator('#survey-next');
+  await next.scrollIntoViewIfNeeded();
+  await waitForSettledTouchTarget(page,next);
+  await beginSurveyActivation(page);
+  try{await next.click();}
+  finally{await finishSurveyActivation(t,page,'photo opener selection before Back');}
   try{
     await page.waitForFunction(()=>document.getElementById('survey-observation')?.value==='270275');
   }catch(error){

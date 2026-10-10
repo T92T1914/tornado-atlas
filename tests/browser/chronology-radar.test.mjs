@@ -8,6 +8,17 @@ const data=JSON.parse(await readFile(new URL('../../exhibits/joplin-2011/chronol
 const reference=data.radar_context.reference;
 const png='assets/joplin-2011/nist-radar-sequence.png';
 
+function nativeRadarClockComplete(seconds){
+  return document.querySelector('#chronology-time')?.value===seconds&&
+    new URL(location.href).searchParams.get('t')===seconds;
+}
+async function waitNativeRadarClock(page,seconds){
+  const expected=String(seconds),deadline=Date.now()+10000;
+  await page.waitForFunction(nativeRadarClockComplete,expected,{timeout:10000});
+  await page.waitForURL(url=>url.searchParams.get('t')===expected,
+    {timeout:Math.max(1,deadline-Date.now())});
+}
+
 async function completeImage(page) {
   try {
     await page.waitForFunction(()=>{const image=document.querySelector('#photo-full');return document.querySelector('#photo-dialog').open&&!image.hidden&&image.naturalWidth===947&&image.naturalHeight===1326;});
@@ -41,6 +52,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     assert.equal(new URL(page.url()).searchParams.get('t'),'14940');
     const documentary=await page.locator('.chronology-record h3').textContent();
     await page.locator('#chronology-time').focus();await page.keyboard.press('ArrowRight');
+    await waitNativeRadarClock(page,15000);
     assert.equal(new URL(page.url()).searchParams.get('t'),'15000');
     assert.match(await page.locator('#chronology-radar-age').textContent(),/1 min 0 s/);
     assert.match(await page.locator('#chronology-radar-selected').textContent(),/Latest earlier printed snapshot/);

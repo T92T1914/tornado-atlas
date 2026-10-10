@@ -56,6 +56,7 @@ jobs:
           node --test tests/chronology-clock-controls.test.mjs
           node --test tests/event-package-model.test.mjs
           node --test tests/appearance-timeline.test.mjs
+          node --test tests/photo-observations.test.mjs
           node --test tests/replay-context.test.mjs
           node --test tests/reconstruction-model.test.mjs tests/reconstruction-share-consumer.test.mjs
           node --check web/wind.js

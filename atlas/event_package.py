@@ -158,15 +158,192 @@ def _validate_registration(registration, source, start, end):
             for anchor, stamp in zip(anchors, stamps)}
 
 
+def _photo_text(value, label, maximum=2000):
+    if (not isinstance(value, str) or
+            not value.replace("\ufeff", "").strip() or len(value) > maximum):
+        raise ValueError(f"Invalid photographic {label}")
+
+
+def _photo_id(value, label):
+    if (not isinstance(value, str) or len(value) > 64 or
+            not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", value)):
+        raise ValueError(f"Invalid photographic {label}")
+
+
+def _photo_url(value):
+    _photo_text(value, "original URL", 2048)
+    # Photo-only syntax supports explicit HTTPS, ASCII DNS (including punycode),
+    # canonical decimal IPv4, decimal ports and whitespace/control-free suffixes.
+    # IPv6 and raw Unicode hosts are outside this increment, not a trust judgment.
+    # Preserve the URL identity; this checks neither DNS/publicness nor rights.
+    if "\\" in value or any(character.isspace() or character == "\ufeff" or
+                            ord(character) < 32 or 127 <= ord(character) <= 159
+                            for character in value):
+        raise ValueError("Invalid photographic original URL")
+    match = re.fullmatch(
+        r"https://([a-z0-9.-]+)(?::([0-9]{1,5}))?(?:[/?#][\s\S]*)?",
+        value, flags=re.IGNORECASE | re.ASCII,
+    )
+    if match is None:
+        raise ValueError("Photographic original URLs require explicit HTTPS without credentials")
+    host, port = match.group(1), match.group(2)
+    labels = host.split(".")
+    dns = (all(re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?", label)
+               for label in labels) and
+           re.search(r"[A-Za-z]", labels[-1]) is not None)
+    ipv4 = len(labels) == 4 and all(
+        re.fullmatch(r"(?:0|[1-9][0-9]{0,2})", label) and int(label) <= 255
+        for label in labels
+    )
+    if len(host) > 253 or not (dns or ipv4) or (port is not None and int(port) > 65535):
+        raise ValueError("Photographic original URLs require ASCII DNS or canonical IPv4 with a valid port")
+
+
+def _photo_digest(value):
+    if value is not None and (not isinstance(value, str) or
+                              not re.fullmatch(r"[0-9a-f]{64}", value)):
+        raise ValueError("Invalid photographic digest")
+
+
+def _photo_date(value):
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        raise ValueError("Photographic inspection requires YYYY-MM-DD")
+    date.fromisoformat(value)
+
+
+def _validate_photos(timeline, start, end):
+    # These checks establish declared consistency, not authentic inspection,
+    # source identity, clock accuracy or permission to reuse source pixels.
+    rows = timeline["photo_sources"]
+    sequences = timeline["photo_sequences"]
+    if not isinstance(rows, list) or len(rows) > 16:
+        raise ValueError("Photographic timelines permit at most 16 resource sources")
+    if not isinstance(sequences, list) or len(sequences) > 16:
+        raise ValueError("Photographic timelines permit at most 16 sparse sequences")
+    sources, resource_identities = {}, set()
+    for source in rows:
+        fields(source, ("id", "url", "title", "creator", "publisher",
+                        "publication_identity", "version_identity", "original_locator",
+                        "sha256", "identity_basis", "rights"), "photographic source")
+        _photo_id(source["id"], "source identity")
+        if source["id"] in sources:
+            raise ValueError("Duplicate photographic source identity")
+        _photo_url(source["url"])
+        for name in ("title", "creator", "publisher", "publication_identity",
+                     "version_identity", "original_locator"):
+            _photo_text(source[name], name, 512)
+        _photo_digest(source["sha256"])
+        _photo_text(source["identity_basis"], "source identity basis")
+        identity = tuple(source[name] for name in
+                         ("url", "publication_identity", "version_identity", "original_locator"))
+        if identity in resource_identities:
+            raise ValueError("Duplicate photographic resource version")
+        resource_identities.add(identity)
+        rights = source["rights"]
+        fields(rights, ("reuse", "rights_holder", "basis"), "photographic rights")
+        if rights["reuse"] != "external_links_only":
+            raise ValueError("Photographic sources permit original external links only")
+        _photo_text(rights["rights_holder"], "rights holder", 512)
+        _photo_text(rights["basis"], "rights basis")
+        sources[source["id"]] = source
+
+    sequence_ids, sample_ids, exposures, image_locators = set(), set(), set(), set()
+    total = 0
+    for sequence in sequences:
+        fields(sequence, ("id", "basis", "samples"), "photographic sequence")
+        _photo_id(sequence["id"], "sequence identity")
+        if sequence["id"] in sequence_ids:
+            raise ValueError("Duplicate photographic sequence identity")
+        sequence_ids.add(sequence["id"])
+        _photo_text(sequence["basis"], "sequence basis")
+        samples = sequence["samples"]
+        if not isinstance(samples, list) or not 1 <= len(samples) <= 64:
+            raise ValueError("Photographic sequences need one through 64 samples")
+        total += len(samples)
+        if total > 256:
+            raise ValueError("Photographic timelines permit at most 256 samples")
+        previous = None
+        for sample in samples:
+            fields(sample, ("id", "source_id", "exposure_id", "image", "reported_utc",
+                            "timing", "inspection", "viewpoint", "characteristics",
+                            "boundary_limits", "shape", "extent"), "photographic sample")
+            _photo_id(sample["id"], "sample identity")
+            _photo_id(sample["source_id"], "sample source identity")
+            _photo_id(sample["exposure_id"], "exposure identity")
+            if sample["id"] in sample_ids:
+                raise ValueError("Duplicate photographic sample identity")
+            if sample["source_id"] not in sources:
+                raise ValueError("Photographic sample lacks its original resource source")
+            if sample["exposure_id"] in exposures:
+                raise ValueError("Duplicate photographic exposure; crops are not new exposures")
+            sample_ids.add(sample["id"])
+            exposures.add(sample["exposure_id"])
+            image = sample["image"]
+            fields(image, ("original_url", "panel_locator", "sha256", "identity_basis"),
+                   "photographic image identity")
+            _photo_url(image["original_url"])
+            _photo_text(image["panel_locator"], "original image or panel locator", 512)
+            _photo_digest(image["sha256"])
+            _photo_text(image["identity_basis"], "image identity basis")
+            locator = (sample["source_id"], image["original_url"], image["panel_locator"])
+            if locator in image_locators:
+                raise ValueError("Duplicate photographic image or panel locator")
+            image_locators.add(locator)
+            stamp = utc(sample["reported_utc"])
+            if not start <= stamp <= end or (previous is not None and stamp <= previous):
+                raise ValueError("Photographic samples must be strictly ordered within replay coverage")
+            previous = stamp
+            timing = sample["timing"]
+            fields(timing, ("method", "basis", "uncertainty_seconds", "uncertainty_basis"),
+                   "photographic timing")
+            if timing["method"] != "source_reported":
+                raise ValueError("Unsupported photographic timing method")
+            _photo_text(timing["basis"], "reported timing basis")
+            _photo_text(timing["uncertainty_basis"], "sourced timing uncertainty basis")
+            if timing["uncertainty_seconds"] is not None:
+                _number(timing["uncertainty_seconds"], "photographic timing uncertainty", 0)
+            inspection = sample["inspection"]
+            fields(inspection, ("status", "pixels", "reviewed_on", "basis"),
+                   "photographic inspection")
+            if inspection["status"] != "still_pixels_inspected":
+                raise ValueError("Photographic samples require a still-pixel inspection declaration")
+            _photo_text(inspection["pixels"], "inspected pixels")
+            _photo_date(inspection["reviewed_on"])
+            _photo_text(inspection["basis"], "inspection basis")
+            viewpoint = sample["viewpoint"]
+            numeric_fields = ("coordinates", "bearing_degrees", "pitch_degrees", "roll_degrees",
+                              "position_uncertainty_m", "orientation_uncertainty_degrees",
+                              "lens_calibration")
+            fields(viewpoint, ("mode", "description", "basis") + numeric_fields,
+                   "photographic viewpoint")
+            if viewpoint["mode"] != "qualitative_text":
+                raise ValueError("Photographic viewpoints require sourced qualitative text")
+            _photo_text(viewpoint["description"], "viewpoint description")
+            _photo_text(viewpoint["basis"], "viewpoint basis")
+            if any(viewpoint[name] is not None for name in numeric_fields):
+                raise ValueError("Qualitative photographic registration cannot invent numeric camera fields")
+            for name in ("characteristics", "boundary_limits"):
+                texts = sample[name]
+                if not isinstance(texts, list) or not 1 <= len(texts) <= 16:
+                    raise ValueError(f"Photographic {name} needs one through 16 descriptions")
+                for text in texts:
+                    _photo_text(text, name, 1000)
+            if sample["shape"] is not None or sample["extent"] is not None:
+                raise ValueError("Qualitative photographic geometry must remain explicitly null")
+
+
 def validate_appearance_timeline(timeline, event_id, start, end, footage_sources):
-    """Check bounded normalized forms and the evidence required for admission."""
-    fields(timeline, ("schema_version", "event", "windows"), "appearance timeline")
-    if type(timeline["schema_version"]) is not int or timeline["schema_version"] != 1 or timeline["event"] != event_id:
+    """Check legacy windows and separately declared sparse photographic samples."""
+    version = timeline.get("schema_version") if isinstance(timeline, dict) else None
+    is_v2 = type(version) in (int, float) and version == 2
+    extra = ("photo_sources", "photo_sequences") if is_v2 else ()
+    fields(timeline, ("schema_version", "event", "windows") + extra, "appearance timeline")
+    if not ((type(version) is int and version == 1) or is_v2) or timeline["event"] != event_id:
         raise ValueError("Appearance timeline identity or schema differs")
     windows = timeline["windows"]
     if not isinstance(windows, list) or len(windows) > 16:
         raise ValueError("Appearance timeline requires at most 16 bounded windows")
-    if not isinstance(footage_sources, list) or not 1 <= len(footage_sources) <= 8:
+    if not isinstance(footage_sources, list) or not (1 if version == 1 else 0) <= len(footage_sources) <= 8:
         raise ValueError("Appearance timeline requires reviewed footage source identities")
     sources = {}
     for source in footage_sources:
@@ -217,6 +394,8 @@ def validate_appearance_timeline(timeline, event_id, start, end, footage_sources
             raise ValueError("Appearance form keys must cover their own window")
         if registered_keys is not None and any(key["at"] not in registered_keys for key in keys):
             raise ValueError("Observed appearance form keys require an exact inspected timing anchor")
+    if is_v2:
+        _validate_photos(timeline, start, end)
     return timeline
 
 

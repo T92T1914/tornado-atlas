@@ -60,28 +60,45 @@ async function start(){
   const origin=bounds.map(([lo,hi])=>(lo+hi)/2), stagePath=path.map(p=>localPoint(p,origin)), stageBoundary=boundary.map(p=>localPoint(p,origin));
   clock=new PlaybackClock((positions.at(-1).stamp-positions[0].stamp)/1000);
   const start=positions[0].stamp,anchors=data.footage.anchors;
-  clock.seek(replaySeconds(location.search,clock.duration,anchors,start));
+  const photoView=(href=location.href)=>new URL(href).searchParams.get('appearance_view')==='photo';
+  function selectedSeconds(search){
+    const params=new URLSearchParams(search);
+    if(params.get('appearance_view')==='photo')params.delete('footage');
+    return replaySeconds(params.toString(),clock.duration,anchors,start);
+  }
+  function momentURL(href,seconds){
+    const original=new URL(href);
+    if(!photoView(original.href))return replayURL(original.href,event.id,seconds,anchors,start);
+    original.searchParams.delete('footage');
+    const url=replayURL(original.href,event.id,seconds,anchors,start);
+    url.searchParams.delete('footage');
+    url.hash=original.hash;
+    return url;
+  }
+  clock.seek(selectedSeconds(location.search));
   syncLocation=(mode='replace',fragment=null)=>{
-    const url=replayURL(location.href,event.id,clock.seconds,anchors,start);
+    const url=momentURL(location.href,clock.seconds);
     if(fragment)url.hash=fragment;
     if(url.href!==location.href){
       history[mode==='push'?'pushState':'replaceState'](null,'',url);
       window.dispatchEvent(new Event('atlas:replay-url-change'));
     }
   };
+  if(photoView())syncLocation();
   function seek(seconds,{mode='push',fragment=null}={}){
     pause();clock.seek(seconds);refresh();if(mode)syncLocation(mode,fragment);
   }
-  function restore(){lastText=null;restoreAppearanceMode();seek(replaySeconds(location.search,clock.duration,anchors,start),{mode:null});syncLocation();}
+  function restore(){lastText=null;restoreAppearanceMode();seek(selectedSeconds(location.search),{mode:null});syncLocation();}
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
   let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null, selectedSurvey=null;
   const footageCreators=[...new Set(data.footage.sources.map(source=>source.creator))].join(' and ');
   const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seek,localStamp,footageCreators);
+  if(data.cameras&&!data.footage.sources.length)el('replay-camera-separation').textContent='This recorded observer track is separate from any photographic declarations. A matching clock does not connect their sources. No video source is declared in this package.';
   el('replay-camera-enabled').addEventListener('change',()=>{observer=updateObserver(current.utc);requestDraw();});
   el('replay-source-note').textContent=`The source supplies ${positions.length} minute positions and the center path. The moving marker uses linear interpolation between those positions. ${config.clock.basis}`;
   el('replay-geography-source').href=config.geography_source.url;
   const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},start,seconds=>seek(seconds,{mode:'replace'}),pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`,restoreInitialMoment:false,onMomentSelect:anchor=>seek((Date.parse(anchor.utc)-start)/1000,{fragment:'registered-footage'})});
-  el('footage-source').addEventListener('change',()=>{lastText=null;refresh();syncLocation();});
+  el('footage-source')?.addEventListener('change',()=>{lastText=null;refresh();syncLocation();});
   const chapters=replayChapters(data.history?.event===event.id?data.history:null,positions,start);
   const warnings=data.documentary?.event===event.id&&Array.isArray(data.documentary.warnings)?data.documentary.warnings:[];
   const mappedChapters=chapters.filter(chapter=>chapter.mapSeconds!==null);
@@ -131,45 +148,175 @@ async function start(){
     el('replay-chapter-next').disabled=!adjacentChapter(mappedChapters,clock.seconds,1);
   }
   const appearanceTimeline=data.appearance_timeline??null;
+  const photoSequences=appearanceTimeline?.photo_sequences??[];
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
   let appearanceRenderer=null,appearanceState={state:'unknown'};
-  if(appearanceTimeline?.windows.length){
+  let unavailablePhotoId=null,shownPhotoSequence=null,shownPhotoSample=null;
+  for(const sequence of photoSequences){
+    const option=document.createElement('option');option.value=`photo:${sequence.id}`;
+    const creators=[...new Set(sequence.samples.map(sample=>sample.source_id))]
+      .map(id=>appearanceTimeline.photo_sources.find(source=>source.id===id).creator);
+    option.textContent=`${creators.join(', ')}: ${sequence.samples.length} reported still${sequence.samples.length===1?'':'s'}`;
+    mode.append(option);
+  }
+  if(!appearanceTimeline?.windows.some(window=>window.kind==='illustrative'))mode.querySelector('[value="illustrative"]')?.remove();
+  restoreAppearanceMode();
+  if(appearanceTimeline?.windows.length||photoSequences.length){
     drawing.hidden=false;
-    if(!appearanceTimeline.windows.some(window=>window.kind==='illustrative'))mode.querySelector('[value="illustrative"]').remove();
-    restoreAppearanceMode();
     try{appearanceRenderer=createFormRenderer(formCanvas,3200);}
     catch(error){formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer could not start here. Source and coverage text remain available.';console.error('Appearance renderer failed:',error);}
-    formCanvas.addEventListener('webglcontextlost',event=>{event.preventDefault();appearanceRenderer=null;el('replay-appearance-renderer-status').textContent='The form renderer lost its graphics context. Source and coverage text remain available.';});
+    formCanvas.addEventListener('webglcontextlost',event=>{event.preventDefault();appearanceRenderer=null;formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer lost its graphics context. Source and coverage text remain available.';});
     formCanvas.addEventListener('webglcontextrestored',()=>{
       try{appearanceRenderer=createFormRenderer(formCanvas,3200);formCanvas.hidden=false;el('replay-appearance-renderer-status').textContent='';requestDraw();}
       catch(error){console.error('Appearance renderer recovery failed:',error);}
     });
     new ResizeObserver(requestDraw).observe(formCanvas);
     mode.addEventListener('change',()=>{
-      const url=replayURL(location.href,event.id,clock.seconds,anchors,start);
-      if(mode.value==='illustrative')url.searchParams.set('appearance_view','illustrative');
-      else url.searchParams.delete('appearance_view');
-      history.pushState(null,'',url);
-      window.dispatchEvent(new Event('atlas:replay-url-change'));
+      const requested=new URL(location.href);
+      if(mode.value.startsWith('photo:')){
+        requested.searchParams.set('appearance_view','photo');
+        requested.searchParams.set('appearance_photo',mode.value.slice(6));
+      }else if(mode.value==='unavailable-photo'){
+        requested.searchParams.set('appearance_view','photo');
+        if(unavailablePhotoId)requested.searchParams.set('appearance_photo',unavailablePhotoId);
+        else requested.searchParams.delete('appearance_photo');
+      }else{
+        requested.searchParams.delete('appearance_photo');
+        if(mode.value==='illustrative')requested.searchParams.set('appearance_view','illustrative');
+        else requested.searchParams.delete('appearance_view');
+      }
+      const url=momentURL(requested.href,clock.seconds);
+      if(url.href!==location.href){
+        history.pushState(null,'',url);
+        window.dispatchEvent(new Event('atlas:replay-url-change'));
+      }
       lastText=null;refresh();
     });
   }
   function restoreAppearanceMode(){
-    mode.value=new URL(location.href).searchParams.get('appearance_view')==='illustrative'&&
+    mode.querySelector('[data-unavailable-photo]')?.remove();
+    unavailablePhotoId=null;
+    const params=new URL(location.href).searchParams;
+    if(params.get('appearance_view')==='photo'){
+      const id=params.get('appearance_photo')??'';
+      if(photoSequences.some(sequence=>sequence.id===id))mode.value=`photo:${id}`;
+      else{
+        unavailablePhotoId=id;
+        const option=document.createElement('option');option.value='unavailable-photo';
+        option.dataset.unavailablePhoto='';option.textContent='Unavailable photograph selection';
+        mode.append(option);mode.value=option.value;
+      }
+      return;
+    }
+    mode.value=params.get('appearance_view')==='illustrative'&&
       appearanceTimeline?.windows.some(window=>window.kind==='illustrative')?'illustrative':'source';
   }
+  function renderPhotoRecord(sample,source){
+    const host=el('replay-photo-record'),record=document.createElement('dl');
+    function field(label,text){
+      const term=document.createElement('dt'),value=document.createElement('dd');
+      term.textContent=label;value.textContent=text;record.append(term,value);
+    }
+    field('Source title',source.title);
+    field('Creator',source.creator);
+    field('Publisher',source.publisher);
+    field('Publication identity',source.publication_identity);
+    field('Resource version',source.version_identity);
+    field('Original resource locator',source.original_locator);
+    field('Resource identity basis',source.identity_basis);
+    field('Resource digest',source.sha256??'Not established.');
+    field('Image or panel locator',sample.image.panel_locator);
+    field('Image identity basis',sample.image.identity_basis);
+    field('Image digest',sample.image.sha256??'Not established.');
+    field('Reported UTC label',sample.reported_utc);
+    field(`Reported local label (${config.clock.time_zone})`,localStamp(sample.reported_utc));
+    field('Source-reported timing basis',sample.timing.basis);
+    field('Timing uncertainty',sample.timing.uncertainty_seconds===null?'Unquantified.':`±${sample.timing.uncertainty_seconds} seconds.`);
+    field('Timing uncertainty basis',sample.timing.uncertainty_basis);
+    field('Viewpoint description',sample.viewpoint.description);
+    field('Viewpoint basis',sample.viewpoint.basis);
+    field('Numeric camera pose and calibration','Unknown: coordinates, bearing, pitch, roll, position uncertainty, orientation uncertainty and lens calibration. Orbit controls are authored display choices.');
+    field('Inspection declaration',`${sample.inspection.status}. ${sample.inspection.pixels} Reviewed on ${sample.inspection.reviewed_on}. ${sample.inspection.basis}`);
+    field('Use and rights basis',`External original links only. Rights holder: ${source.rights.rights_holder}. ${source.rights.basis}`);
+    field('Photographic geometry','Shape and extent are unassigned. No particle form is drawn.');
+    host.append(record);
+    for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits]]){
+      const heading=document.createElement('h4'),list=document.createElement('ul');heading.textContent=label;
+      for(const text of values){const item=document.createElement('li');item.textContent=text;list.append(item);}
+      host.append(heading,list);
+    }
+    const original=document.createElement('a');original.id='replay-photo-original';
+    original.href=sample.image.original_url;original.target='_blank';original.rel='noopener';
+    original.textContent=`Open the original image or panel: ${sample.image.panel_locator}`;
+    const boundary=document.createElement('p');
+    boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. No photograph is loaded or copied by this player.';
+    host.prepend(original);
+    host.append(boundary);
+  }
+  function updatePhotoPanel(sequence){
+    const panel=el('replay-appearance-photo'),list=el('replay-photo-samples'),record=el('replay-photo-record');
+    panel.hidden=!sequence;
+    if(sequence!==shownPhotoSequence){
+      shownPhotoSequence=sequence;shownPhotoSample=null;list.replaceChildren();record.replaceChildren();
+      if(sequence){
+        const count=sequence.samples.length,first=sequence.samples[0],last=sequence.samples.at(-1);
+        setText(el('replay-photo-sequence'),`${sequence.id}: ${count===1?
+          `One reported instant at ${first.reported_utc}, with no duration.`:
+          `${count} reported instants from ${first.reported_utc} to ${last.reported_utc}. This span is sparse context, not continuous coverage.`} ${sequence.basis}`);
+        for(const sample of sequence.samples){
+          const button=document.createElement('button');button.type='button';button.dataset.photoSample=sample.id;
+          button.textContent=`${localStamp(sample.reported_utc)} · ${sample.image.panel_locator}`;
+          button.title=`Reported UTC label: ${sample.reported_utc}. Timing uncertainty is separate from this label.`;
+          button.setAttribute('aria-pressed','false');
+          button.addEventListener('click',()=>seek((Date.parse(sample.reported_utc)-Date.parse(config.clock.start_utc))/1000));
+          list.append(button);
+        }
+      }
+    }
+    const sample=sequence&&appearanceState.state==='photo_observed'?appearanceState.sample:null;
+    for(const button of list.children){
+      const pressed=String(button.dataset.photoSample===sample?.id);
+      if(button.getAttribute('aria-pressed')!==pressed)button.setAttribute('aria-pressed',pressed);
+    }
+    if(sample!==shownPhotoSample){
+      shownPhotoSample=sample;record.replaceChildren();
+      if(sample&&appearanceState.source)renderPhotoRecord(sample,appearanceState.source);
+    }
+  }
   function updateAppearance(){
-    const sourceId=el('footage-source').value;
+    const sourceId=el('footage-source')?.value??'';
+    const photoSelected=mode.value.startsWith('photo:')||mode.value==='unavailable-photo';
+    const sequence=photoSequences.find(item=>mode.value===`photo:${item.id}`)??null;
     const selected=mode.value==='illustrative'?null:sourceId;
-    appearanceState=appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,selected);
-    const anchor=anchorAt(anchors,current.utc,sourceId);
+    appearanceState=photoSelected?
+      sequence?appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,{kind:'photo',id:sequence.id}):
+        {state:'unknown',shape:null,extent:null}:
+      appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,selected);
     const source=data.footage.sources.find(item=>item.id===sourceId);
+    const anchor=source?anchorAt(anchors,current.utc,sourceId):null;
     const status=el('replay-appearance-state'),detail=el('replay-appearance-detail'),link=el('replay-appearance-source');
     let statusText,detailText,linkTarget='',linkText='';
-    if(appearanceState.state==='unknown'){
+    if(photoSelected){
+      if(!sequence){
+        statusText='Photograph selection unavailable.';
+        detailText=`The requested sequence "${unavailablePhotoId||'(missing identity)'}" is not declared in this event package. Choose an available appearance view. No source has been substituted.`;
+      }else if(appearanceState.state==='photo_observed'){
+        statusText='Declared photographic observation at this reported instant.';
+        detailText='This still has no duration. Its reported label does not establish independently verified clock accuracy. Shape and extent are unassigned; no particle form is drawn.';
+        linkTarget=appearanceState.source.url;
+        linkText=`Open the original publication: ${appearanceState.source.title}`;
+      }else{
+        statusText='Photographic appearance unknown at this exact clock instant.';
+        const relation={before:'Before the first reported sample',between:'Between the reported samples',after:'After the last reported sample'}[appearanceState.relation];
+        detailText=`${relation}. ${sequence.samples.length===1?'One separately declared inspected instant has no duration.':'Only the separately declared sample instants have photographic observations.'} Samples are neither held nor interpolated. Timing uncertainty does not widen their appearance coverage.`;
+      }
+    }else if(appearanceState.state==='unknown'){
       if(mode.value==='illustrative'){
         statusText='No illustrative form assigned at this time.';
         detailText='The authored study leaves this interval blank. It does not fill an evidence gap.';
+      }else if(!source){
+        statusText='No video source is declared in this package.';
+        detailText='Choose a photographic sequence if one is available. Geographic timing and documentary reading remain available.';
       }else{
         statusText=anchor?'Checked original frame at this source clock. Appearance between frames remains unknown.':'Appearance unknown at this source and time.';
         detailText=anchor?anchor.note:'No continuous source view or form has been registered for this interval.';
@@ -184,6 +331,7 @@ async function start(){
         linkText='Open the original source near this registered moment';
       }
     }
+    updatePhotoPanel(photoSelected?sequence:null);
     setText(status,statusText);setText(detail,detailText);
     if(link.hidden===Boolean(linkTarget))link.hidden=!linkTarget;
     if(linkTarget&&link.href!==linkTarget)link.href=linkTarget;
@@ -260,8 +408,9 @@ async function start(){
     const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;
     if(key!==lastText)updateFootage(current.utc);
     updateAppearance();
-    el('replay-link').href=replayURL(location.href,event.id,Math.floor(clock.seconds),anchors,start).href;
-    el('replay-time').value=Math.round(clock.seconds);
+    el('replay-link').href=momentURL(location.href,photoView()?clock.seconds:Math.floor(clock.seconds)).href;
+    el('replay-time').step=photoView()?'any':'1';
+    el('replay-time').value=photoView()?clock.seconds:Math.round(clock.seconds);
     if(key===lastText)return;lastText=key;
     updateContext();
     const time=localStamp(current.utc);el('replay-clock').textContent=time;

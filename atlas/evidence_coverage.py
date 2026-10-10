@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from .archive import digest, dossiers
-from .event_package import build_event_packages, fields, replay_inputs, reviewed_index
+from .event_package import build_event_packages, fields, replay_inputs, reviewed_index, utc
 
 ROOT = Path(__file__).resolve().parents[1]
 LAYERS = {
@@ -125,7 +125,9 @@ def coverage_rows(root=ROOT):
         add('footage','samples' if samples else 'context' if videos else 'not_linked',
             'Discrete video samples' if samples else 'Recorded video context' if videos else 'No reviewed video linked',
             'Each linked recording keeps its inspection scope, edit identity and clock basis. Discrete samples do not establish a continuously inspected interval.',items=videos)
-        registered = [window for window in (bundle or {}).get('appearance_timeline',{}).get('windows',[]) if window['kind'] == 'registered']
+        timeline = (bundle or {}).get('appearance_timeline',{})
+        registered = [window for window in timeline.get('windows',[]) if window['kind'] == 'registered']
+        photos = timeline.get('photo_sequences',[])
         if registered and doc['reconstruction']['appearance'] == 'unregistered':
             raise ValueError('Appearance registration and dossier coverage disagree; review before publication')
         visual = []
@@ -137,6 +139,38 @@ def coverage_rows(root=ROOT):
             ('Appearance windows retain their published source and registration basis. ' if registered else
              'No appearance interval with reviewed historical timing and viewpoint registration is admitted in this event package. ')+
             (refs['appearance']['basis'] if refs else 'No reviewed visual-context classification is linked here.'),items=visual)
+        if photos:
+            appearance = layers['appearance']
+            count = sum(len(sequence['samples']) for sequence in photos)
+            appearance.update({
+                'state': 'registered' if registered else 'photo_samples',
+                'label': 'Registered video intervals and separate photo instants' if registered else
+                         'Separately declared inspected photo instants',
+                'basis': appearance['basis']+
+                         f' {count} separately declared inspected photo instants in {len(photos)} sparse sequences. '+
+                         'The sample span has no continuous coverage, and one photograph has no duration. '+
+                         'No photo is held or interpolated. Schema validation does not repeat inspection, '+
+                         'authenticate sources or grant reuse permission. Photo declarations do not change '+
+                         "the dossier's appearance classification.",
+                'registered_interval_count': len(registered),
+                'photo_sample_count': count,
+                'photo_sequence_count': len(photos),
+            })
+            photo_sources = {source['id']:source for source in timeline['photo_sources']}
+            def photo_url(sequence, sample):
+                seconds = int((utc(sample['reported_utc'])-utc(config['clock']['start_utc'])).total_seconds())
+                return 'reconstruction.html?'+urlencode({
+                    'event':event['id'], 't':seconds, 'appearance_view':'photo',
+                    'appearance_photo':sequence['id'],
+                })
+            appearance['photo_sequences'] = [{
+                'id':sequence['id'], 'basis':sequence['basis'],
+                'player_url':photo_url(sequence, sequence['samples'][0]),
+                'samples':[{
+                    **sample, 'source':photo_sources[sample['source_id']],
+                    'player_url':photo_url(sequence, sample),
+                } for sample in sequence['samples']],
+            } for sequence in photos]
         radar = [('media', item) for item in media if item['kind'] == 'radar']
         add('radar','context' if radar else 'not_linked','Source radar context' if radar else 'No reviewed radar linked',
             'Source radar images and their clocks remain separate from optical appearance, ground-level wind and surveyed outcomes.',items=radar)
@@ -192,6 +226,29 @@ def render_page(rows, root=ROOT):
             output.append(f'<section class="coverage-layer" data-layer="{layer["id"]}" data-state="{layer["state"]}" aria-labelledby="{event["id"]}-{layer["id"]}"><h3 id="{event["id"]}-{layer["id"]}">{layer["title"]}</h3><p class="coverage-state">{esc(layer["label"])}</p><p>{esc(layer["basis"])}</p>')
             for label, href in layer['routes']:
                 output.append(f'<p><a href="{esc(href)}">{esc(label)}</a></p>')
+            for sequence in layer.get('photo_sequences',[]):
+                output.append(f'<details class="coverage-photo-sequence"><summary>Separately declared photo sequence: {esc(sequence["id"])} ({len(sequence["samples"])} reported instants)</summary><p>{esc(sequence["basis"])}</p>')
+                output.append('<p>Sparse reported instants only. A single still has no duration. Before, between and after samples, photographic appearance remains unknown. Inspection declarations are retained here, without repeated inspection or source authentication.</p>')
+                output.append(f'<p><a href="{esc(sequence["player_url"])}">Open this sequence at its first reported photo instant</a></p><ul class="coverage-evidence">')
+                for sample in sequence['samples']:
+                    source = sample['source']
+                    uncertainty = 'Unquantified.' if sample['timing']['uncertainty_seconds'] is None else f'±{sample["timing"]["uncertainty_seconds"]} seconds.'
+                    output.append(f'<li><h4>{esc(sample["image"]["panel_locator"])}</h4><p>Source: {esc(source["title"])}. Creator: {esc(source["creator"])}. Publisher: {esc(source["publisher"])}.</p>')
+                    output.append(f'<p>Publication identity: {esc(source["publication_identity"])}. Resource version: {esc(source["version_identity"])}. Original resource locator: {esc(source["original_locator"])}.</p>')
+                    output.append(f'<p><a href="{esc(source["url"])}" target="_blank" rel="noopener">Open the original publication</a> · <a href="{esc(sample["image"]["original_url"])}" target="_blank" rel="noopener">Open the exact original image or panel</a></p>')
+                    output.append(f'<p>Reported UTC label: {esc(sample["reported_utc"])}. Timing uncertainty: {esc(uncertainty)}</p><p><a href="{esc(sample["player_url"])}">Open this reported photo instant in the player</a></p>')
+                    output.append('<div class="coverage-inspection">'+recorded_value({
+                        'source_identity_basis':source['identity_basis'],
+                        'resource_digest':source['sha256'],
+                        'image_identity':sample['image'],
+                        'source_reported_timing':sample['timing'],
+                        'inspection_declaration':sample['inspection'],
+                        'viewpoint':sample['viewpoint'],
+                        'declared_visible_characteristics':sample['characteristics'],
+                        'boundary_limits':sample['boundary_limits'],
+                        'use_and_rights_basis':source['rights'],
+                    })+'</div><p>Numeric pose and calibration are unestablished. Shape and extent are unassigned. These photo declarations supply no continuously registered appearance interval.</p></li>')
+                output.append('</ul></details>')
             if layer['items']:
                 output.append(f'<details><summary>Inspect linked evidence ({len(layer["items"])})</summary><ul class="coverage-evidence">')
                 for kind, item in layer['items']:

@@ -34,7 +34,8 @@ These are the full planned event-package parts. Replay manifest version 2
 accepts a bounded appearance subset only when its separate source, clock,
 fixed-view camera, inspection, rights and uncertainty contract passes.
 The existing observation notebook still rejects unsupported historical
-registration. The published El Reno package remains version 1.
+registration. El Reno uses version 2 for four sparse photo observations.
+Its continuous historical appearance timeline remains unregistered.
 
 ## Match the animation to the available evidence
 
@@ -219,3 +220,42 @@ and reload use the same replay position. Warning selection follows bulletin
 issue time; an earlier observation mentioned inside a bulletin does not make
 that bulletin available sooner. This adds source context to the geographic
 replay without creating new path points or an appearance interval.
+
+## October 10 sparse photo comparison
+
+El Reno's version 2 package records four separately inspected, creator-published
+stills from [Nick Nolte's event account](https://nnwx.us/blog/2013/07/15/may-31-2013-the-el-reno-ef-5/).
+Interpreting the account's caption labels as Central Daylight Time gives UTC
+labels of 23:10:37, 23:10:59, 23:12:02 and 23:12:55. Selecting a
+record seeks the existing historical clock to its arithmetic offset from
+23:04:00 and exposes its original-image link, attributed setting, partial visual
+observation and limits. The creator labels and sample count make that comparison
+choice readable without changing its stable sequence ID or source routes.
+
+Those are reported capture labels with unquantified clock error. They are not
+independently synchronized with the NWS positions. The acquired 1024 by 576
+resources identify published response versions, not recovered camera-original
+files. Qualitative roadside descriptions do not establish measured camera pose.
+The fourth image is identified as GoPro in the account, without evidence that it
+shares the earlier images' camera pose.
+
+All seven numeric historical camera fields, shape and extent remain null. The
+player supplies these partial records only at their declared source instants.
+The 22, 63 and 53 seconds between them remain unknown, including fractional
+seeks. A 138-second span between the first and last reported labels supplies no
+continuous appearance interval. Selecting an original source does not transfer
+its observations to another upload or admit an illustrative form as historical.
+
+Publication uses external original links and independently worded factual
+observations. No source photograph is copied, rehosted, traced or adapted, and
+no reproduction permission is inferred from public availability. The package
+build validates the source before writing outputs. The separate exhibit checker
+compares its exact typed representation with the generated bundle. These checks
+establish software and file consistency, without adding clock accuracy, camera
+calibration or rights.
+
+The first defensible El Reno appearance interval remains required. It needs an
+exact original view or sequence, an inspected interval, an edit and timing map,
+supported camera registration, uncertainty and a usable rights basis. This
+sparse comparison adds a truthful source-reading action while that historical
+requirement remains unresolved.

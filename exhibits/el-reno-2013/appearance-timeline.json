@@ -1,0 +1,216 @@
+{
+  "schema_version": 2,
+  "event": "el-reno-2013",
+  "windows": [],
+  "photo_sources": [
+    {
+      "id": "nolte-el-reno-2013-account",
+      "url": "https://nnwx.us/blog/2013/07/15/may-31-2013-the-el-reno-ef-5/",
+      "title": "Nick Nolte: May 31, 2013, El Reno account",
+      "creator": "Nick Nolte",
+      "publisher": "nnwx.us",
+      "publication_identity": "Creator article at its July 15, 2013 dated URL. This identifies the publication, not an unchanged 2013 edition or camera-original recording.",
+      "version_identity": "HTML response inspected on October 10, 2026; exact acquired page digest retained below.",
+      "original_locator": "Four creator-published still resources with caption labels 6:10:37, 6:10:59, 6:12:02 and 6:12:55.",
+      "sha256": "6b7b6bbe4f61ef30c2383a1a2cb1cbd261e36dea1877c9d10db2c57ec6f631f2",
+      "identity_basis": "The creator article supplied the exact resource links and captions. The retained digest identifies acquired HTML bytes, not camera-original bytes, an independently calibrated clock or a reuse license.",
+      "rights": {
+        "reuse": "external_links_only",
+        "rights_holder": "Copyright credit names Nick Nolte; full rights ownership is unestablished in the retained evidence.",
+        "basis": "Proposed display consists of independently worded factual observations and external links to the creator publication and exact still resources. No image copying, rehosting, tracing or adaptation. No reproduction or adaptation grant has been established."
+      }
+    }
+  ],
+  "photo_sequences": [
+    {
+      "id": "nolte-reported-stills",
+      "basis": "Four discrete creator-published stills at reported labels 23:10:37, 23:10:59, 23:12:02 and 23:12:55 UTC. The 22, 63 and 53 second interiors remain uninspected. The 138 second span is context only, with no inferred persistence, held appearance, interpolation or continuous coverage. All historical geometry remains null.",
+      "samples": [
+        {
+          "id": "nolte-231037",
+          "source_id": "nolte-el-reno-2013-account",
+          "exposure_id": "nolte-20130531-231037",
+          "image": {
+            "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231037-1024x576.jpg",
+            "panel_locator": "231037-1024x576.jpg; creator caption reports 18:10:37 CDT.",
+            "sha256": "3c0df58df73db28707c564f3d34f3d9324ab2c82b0e13125d1b297f2a81d1ebb",
+            "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+          },
+          "reported_utc": "2013-05-31T23:10:37Z",
+          "timing": {
+            "method": "source_reported",
+            "basis": "Creator caption interpreted as 18:10:37 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:10:37Z. The visible minute overlay May 31 2013 23:10Z is consistent with this conversion. Whole-second labels are reported source representations.",
+            "uncertainty_seconds": null,
+            "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+          },
+          "inspection": {
+            "status": "still_pixels_inspected",
+            "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231037-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+            "reviewed_on": "2026-10-10",
+            "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+          },
+          "viewpoint": {
+            "mode": "qualitative_text",
+            "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only.",
+            "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+            "coordinates": null,
+            "bearing_degrees": null,
+            "pitch_degrees": null,
+            "roll_degrees": null,
+            "position_uncertainty_m": null,
+            "orientation_uncertainty_degrees": null,
+            "lens_calibration": null
+          },
+          "characteristics": [
+            "A broad dark cloud underside occupies the center and right. A brighter opening on the left exposes a sloping tonal transition into a descending gray region.",
+            "Field, fence and utility poles provide foreground context."
+          ],
+          "boundary_limits": [
+            "Only a partial margin is resolved. The opposite tornado flank and lowest termination cannot be identified.",
+            "These dark and gray regions are not individually established as tornado rather than surrounding cloud or intervening material. A complete cone, dimensions and extent are unsupported."
+          ],
+          "shape": null,
+          "extent": null
+        },
+        {
+          "id": "nolte-231059",
+          "source_id": "nolte-el-reno-2013-account",
+          "exposure_id": "nolte-20130531-231059",
+          "image": {
+            "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231059-1024x576.jpg",
+            "panel_locator": "231059-1024x576.jpg; creator caption reports 18:10:59 CDT.",
+            "sha256": "9d94ad105d7f9fdb23f5c6f590017df894ddc653575abfc0b76155e453f72364",
+            "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+          },
+          "reported_utc": "2013-05-31T23:10:59Z",
+          "timing": {
+            "method": "source_reported",
+            "basis": "Creator caption interpreted as 18:10:59 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:10:59Z. The visible minute overlay May 31 2013 23:10Z is consistent with this conversion. Whole-second labels are reported source representations.",
+            "uncertainty_seconds": null,
+            "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+          },
+          "inspection": {
+            "status": "still_pixels_inspected",
+            "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231059-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+            "reviewed_on": "2026-10-10",
+            "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+          },
+          "viewpoint": {
+            "mode": "qualitative_text",
+            "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only.",
+            "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+            "coordinates": null,
+            "bearing_degrees": null,
+            "pitch_degrees": null,
+            "roll_degrees": null,
+            "position_uncertainty_m": null,
+            "orientation_uncertainty_degrees": null,
+            "lens_calibration": null
+          },
+          "characteristics": [
+            "Similar foreground features remain visible. The left and central underside includes irregular dark projections and diffuse gray regions.",
+            "Part of the dark region on the right has a locally discernible lower edge."
+          ],
+          "boundary_limits": [
+            "A complete cone or wedge and its termination are unresolved.",
+            "Changes in brightness and apparent breadth do not independently establish physical base growth or persistent component identity."
+          ],
+          "shape": null,
+          "extent": null
+        },
+        {
+          "id": "nolte-231202",
+          "source_id": "nolte-el-reno-2013-account",
+          "exposure_id": "nolte-20130531-231202",
+          "image": {
+            "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231202-1024x576.jpg",
+            "panel_locator": "231202-1024x576.jpg; creator caption reports 18:12:02 CDT.",
+            "sha256": "82ac179c316dc9889d51d84ede70ae6dd0cbae203371e82b6f311c12ae979d0c",
+            "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+          },
+          "reported_utc": "2013-05-31T23:12:02Z",
+          "timing": {
+            "method": "source_reported",
+            "basis": "Creator caption interpreted as 18:12:02 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:12:02Z. The visible minute overlay May 31 2013 23:12Z is consistent with this conversion. Whole-second labels are reported source representations.",
+            "uncertainty_seconds": null,
+            "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+          },
+          "inspection": {
+            "status": "still_pixels_inspected",
+            "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231202-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+            "reviewed_on": "2026-10-10",
+            "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+          },
+          "viewpoint": {
+            "mode": "qualitative_text",
+            "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only.",
+            "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+            "coordinates": null,
+            "bearing_degrees": null,
+            "pitch_degrees": null,
+            "roll_degrees": null,
+            "position_uncertainty_m": null,
+            "orientation_uncertainty_degrees": null,
+            "lens_calibration": null
+          },
+          "characteristics": [
+            "A foreground person obscures part of the lower-left scene. A diffuse gray region occupies the lower center beneath a large dark underside.",
+            "Darkness extends to and beyond the right image boundary."
+          ],
+          "boundary_limits": [
+            "The visible regions do not isolate a complete tornado body or ground contact.",
+            "Foreground occlusion, diffuse margins and the image boundary leave parts of the scene unresolved. A wedge transition or airflow interpretation is not established by these observations."
+          ],
+          "shape": null,
+          "extent": null
+        },
+        {
+          "id": "nolte-231255",
+          "source_id": "nolte-el-reno-2013-account",
+          "exposure_id": "nolte-20130531-231255",
+          "image": {
+            "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231255_GOPRO-1024x576.jpg",
+            "panel_locator": "231255_GOPRO-1024x576.jpg; creator caption reports 18:12:55 CDT.",
+            "sha256": "b9a3b470d53c4af1f3603ae780e18a2d0d974e92cb42a5b723ba92cf7674528a",
+            "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+          },
+          "reported_utc": "2013-05-31T23:12:55Z",
+          "timing": {
+            "method": "source_reported",
+            "basis": "Creator caption interpreted as 18:12:55 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:12:55Z. The visible minute overlay May 31 2013 23:12Z is consistent with this conversion. Whole-second labels are reported source representations.",
+            "uncertainty_seconds": null,
+            "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+          },
+          "inspection": {
+            "status": "still_pixels_inspected",
+            "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231255_GOPRO-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+            "reviewed_on": "2026-10-10",
+            "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+          },
+          "viewpoint": {
+            "mode": "qualitative_text",
+            "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only. The caption identifies this still as a GoPro frame; a common pose with the other photographs is not established.",
+            "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+            "coordinates": null,
+            "bearing_degrees": null,
+            "pitch_degrees": null,
+            "roll_degrees": null,
+            "position_uncertainty_m": null,
+            "orientation_uncertainty_degrees": null,
+            "lens_calibration": null
+          },
+          "characteristics": [
+            "A broad dark and gray region occupies much of the scene above the horizon. A brighter opening on the left creates a pronounced tonal transition.",
+            "The lower central and right regions have indistinct boundaries."
+          ],
+          "boundary_limits": [
+            "Upper and lateral separation from surrounding cloud and the lowest termination are unresolved. A complete wedge and its dimensions are unsupported.",
+            "The creator identifies this as the last GoPro frame before departure. That report does not establish a common fixed camera pose with the other stills."
+          ],
+          "shape": null,
+          "extent": null
+        }
+      ]
+    }
+  ]
+}

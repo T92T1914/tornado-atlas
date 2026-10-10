@@ -69,7 +69,8 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
     assert.match(await page.locator('#replay-appearance-state').textContent(),/Checked original frame/);
     assert.match(await page.locator('#replay-appearance-detail').textContent(),/S Choctaw/);
     assert.match(await page.locator('#replay-appearance-source').getAttribute('href'),/MxgU1QcFMJM&t=5s/);
-    assert.equal(await page.locator('#replay-appearance-drawing').isVisible(),false);
+    assert.equal(await page.locator('#replay-appearance-drawing').isVisible(),true);
+    assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-evidence-state'),'unknown');
     await page.locator('#replay-time').fill('782');
     assert.match(await page.locator('#replay-appearance-state').textContent(),/Appearance unknown/);
     assert.equal(await page.locator('#replay-appearance-source').isVisible(),false);

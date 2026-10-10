@@ -87,6 +87,9 @@ class EventPackageTests(unittest.TestCase):
             self.assertNotIn(b'\r', first)
 
     def test_future_synthetic_event_uses_same_validator(self):
+        self.config['schema_version'] = 1
+        self.config['coverage']['appearance'] = 'illustrative_symbol'
+        self.bundle.pop('appearance_timeline', None)
         self.config['event_id'] = 'synthetic-fixture'
         self.config['clock']['time_zone'] = 'UTC'
         self.bundle['exhibit']['id'] = 'synthetic-fixture'
@@ -157,7 +160,7 @@ class EventPackageTests(unittest.TestCase):
 
     def test_unsupported_precision_appearance_and_source_are_rejected(self):
         mutations = [
-            ('schema_version', None, 2),
+            ('schema_version', None, 3),
             ('coverage', 'appearance', 'historical_reconstruction'),
             ('clock', 'precision', 'second'),
             ('clock', 'end_utc', '2013-05-31T23:41:00+00:00'),
@@ -213,6 +216,9 @@ class EventPackageTests(unittest.TestCase):
             publication_artifacts(ROOT, (ROOT / 'web/data.json').read_bytes(), 'different.json')
 
     def test_version_one_remains_unchanged_and_refuses_silent_appearance_fields(self):
+        self.config['schema_version'] = 1
+        self.config['coverage']['appearance'] = 'illustrative_symbol'
+        self.bundle.pop('appearance_timeline', None)
         before = copy.deepcopy((self.config, self.bundle))
         validate_replay(self.config, self.bundle)
         self.assertEqual((self.config, self.bundle), before)

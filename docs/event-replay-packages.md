@@ -12,7 +12,7 @@ historical appearance reconstruction.
 
 ## Publication contract
 
-`exhibits/el-reno-2013/replay.json` declares schema version 1, event identity,
+`exhibits/el-reno-2013/replay.json` declares schema version 2, event identity,
 the bundle path, UTC clock bounds, display time zone, minute precision, timing
 basis, geographic source URL and SHA-256, and supported coverage. Version 1
 supports published minute positions, linear longitude/latitude interpolation,
@@ -105,9 +105,33 @@ and [display-clock API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/
 
 Replay manifest version 2 admits an `appearance_timeline` in the exact
 integrity-checked bundle. Version 1 still rejects that field, including
-`null`, and keeps its illustrative map symbol. The current published
-El Reno package remains version 1. No historical appearance interval has
-been added to it.
+`null`, and keeps its illustrative map symbol. The El Reno source package
+opts into version 2 for four separately inspected creator-published stills.
+Its appearance windows remain empty. No historical appearance interval has
+been admitted. A built source package does not establish public deployment.
+
+The authoritative sparse declaration is
+`exhibits/el-reno-2013/appearance-timeline.json`. It retains the exact creator
+publication and JPEG locators, acquired response digests, caption-reported UTC
+labels, inspection coverage, qualitative viewpoint, unquantified timing error
+and independently worded visible characteristics. The player provides original
+external links and text. It does not copy or display the source photographs,
+and no image reproduction or adaptation grant has been established.
+
+The reported labels select 397, 419, 482 and 535 seconds on the existing clock.
+Those offsets express label arithmetic, without independently calibrated
+alignment to the NWS minute positions. Each photograph is available only at
+its exact reported label. The 22, 63 and 53 second gaps supply no appearance
+state, persistence or interpolation. Shape, extent and all numeric historical
+camera fields remain null. The historical form renderer draws no particle
+form for these observations. The freely orbiting geographic view and its
+optional illustrative map symbol retain their existing authored roles.
+
+The build loads the declaration before publication validation and output.
+`check_exhibit.py` compares its full JSON representation with the bundled
+declaration, separately from the manifest's exact bundle digest. Coverage
+reports four discrete photo instants in one sequence and zero registered
+intervals. The dossier appearance classification remains unregistered.
 
 Version 2 uses the same geographic clock, player, URL history and source
 selector. Its windows are bounded by whole-second UTC times inside the

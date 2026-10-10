@@ -230,6 +230,9 @@ test('an unavailable survey target retains the clock and explains the replacemen
   const control=page.locator('#survey-observation');
   const originalControlFont=await control.evaluate(node=>parseFloat(getComputedStyle(node).fontSize));
   const originalOptions=await control.evaluate(node=>[...node.options].map(option=>[option.value,option.textContent]));
+  const appearanceControl=page.locator('#replay-appearance-mode');
+  const originalAppearance=await appearanceControl.evaluate(node=>({font:parseFloat(getComputedStyle(node).fontSize),
+    options:[...node.options].map(option=>[option.value,option.textContent]),value:node.value}));
   await page.addStyleTag({content:'html {font-size:200%}'});
   assert.match(await page.locator('#survey-link-status').textContent(),/999999 is unavailable/);
   assert.equal(await page.locator('#replay-time').inputValue(),'783');
@@ -266,6 +269,32 @@ test('an unavailable survey target retains the clock and explains the replacemen
         rect.top-extent>=label.top-.01 && rect.bottom+extent<=label.bottom+.01};
   });
   assert.ok(focusLayout.focused&&focusLayout.visible&&focusLayout.outline!=='none'&&focusLayout.width>=2&&focusLayout.contained,JSON.stringify(focusLayout));
+  const appearanceLayout=await appearanceControl.evaluate(node=>{
+    const wrapper=node.parentElement,label=wrapper.querySelector('label'),bounds=wrapper.getBoundingClientRect();
+    const range=document.createRange();range.selectNodeContents(label);
+    return {font:parseFloat(getComputedStyle(node).fontSize),options:[...node.options].map(option=>[option.value,option.textContent]),
+      value:node.value,selectedText:node.selectedOptions[0].textContent,labelFor:label.htmlFor,labelText:label.textContent,
+      captions:[...range.getClientRects()].map(rect=>({left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom})),
+      bounds:{left:bounds.left,right:bounds.right,top:bounds.top,bottom:bounds.bottom}};
+  });
+  assert.ok(appearanceLayout.font>=originalAppearance.font,'The appearance selector keeps its resolved text size');
+  assert.deepEqual(appearanceLayout.options,originalAppearance.options,'Full native option labels remain available');
+  assert.equal(appearanceLayout.value,originalAppearance.value);
+  assert.equal(appearanceLayout.selectedText,'Selected original video source');
+  assert.equal(appearanceLayout.labelFor,'replay-appearance-mode');
+  assert.equal(appearanceLayout.labelText,'Appearance view');
+  assert.ok(appearanceLayout.captions.length>0&&appearanceLayout.captions.every(rect=>
+    rect.left>=appearanceLayout.bounds.left&&rect.right<=appearanceLayout.bounds.right&&
+    rect.top>=appearanceLayout.bounds.top&&rect.bottom<=appearanceLayout.bounds.bottom),JSON.stringify(appearanceLayout));
+  await appearanceControl.focus();
+  const appearanceFocus=await appearanceControl.evaluate(node=>{
+    const style=getComputedStyle(node),rect=node.getBoundingClientRect(),wrapper=node.parentElement.getBoundingClientRect();
+    const extent=parseFloat(style.outlineWidth)+parseFloat(style.outlineOffset);
+    return {focused:document.activeElement===node,visible:node.matches(':focus-visible'),outline:style.outlineStyle,
+      width:parseFloat(style.outlineWidth),contained:rect.left-extent>=wrapper.left-.01&&rect.right+extent<=wrapper.right+.01&&
+        rect.top-extent>=wrapper.top-.01&&rect.bottom+extent<=wrapper.bottom+.01};
+  });
+  assert.ok(appearanceFocus.focused&&appearanceFocus.visible&&appearanceFocus.outline!=='none'&&appearanceFocus.width>=2&&appearanceFocus.contained,JSON.stringify(appearanceFocus));
   const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
     overflow:[...document.querySelectorAll('body *')].filter(e=>{
       const r=e.getBoundingClientRect();return r.right>innerWidth+1 &&
@@ -275,12 +304,21 @@ test('an unavailable survey target retains the clock and explains the replacemen
     const describe=node=>({tag:node.tagName,id:node.id,class:String(node.className),
       right:node.getBoundingClientRect().right,client:node.clientWidth,scroll:node.scrollWidth,
       overflow:getComputedStyle(node).overflowX,display:getComputedStyle(node).display});
-    const candidates=[...document.querySelectorAll('body>*,main>*,#replay-content>*,#survey-explorer>*,#registered-footage>*')];
+    const candidates=[...document.querySelectorAll('body>*,main>*,#replay-content>*,#survey-explorer>*,#registered-footage>*,#replay-appearance>*,#replay-appearance-drawing>*')];
     const isolation=candidates.map(node=>{
       const before=node.getAttribute('style');node.style.setProperty('display','none','important');
-      const width=document.documentElement.scrollWidth;
-      if(before===null)node.removeAttribute('style');else node.setAttribute('style',before);
-      return {...describe(node),documentWhenRemoved:width};
+      let width,drawingWhenRemoved;
+      try {
+        width=document.documentElement.scrollWidth;
+        drawingWhenRemoved=document.querySelector('#replay-appearance-drawing').scrollWidth;
+      } finally {
+        if(before===null)node.removeAttribute('style');else node.setAttribute('style',before);
+      }
+      return {...describe(node),documentWhenRemoved:width,
+        drawingWhenRemoved,
+        font:getComputedStyle(node).fontSize,hidden:node.hidden,
+        ...(node instanceof HTMLSelectElement?{value:node.value,options:[...node.options].map(option=>[option.value,option.textContent])}:{}),
+        ...(node instanceof HTMLCanvasElement?{backingWidth:node.width,backingHeight:node.height}:{})};
     });
     return {document:describe(document.documentElement),body:describe(document.body),
       scrollers:[...document.querySelectorAll('body *')].filter(node=>node.scrollWidth>node.clientWidth+1).map(describe).slice(0,40),isolation};

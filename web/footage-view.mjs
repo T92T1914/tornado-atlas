@@ -20,6 +20,12 @@ function youtubeAPI() {
 export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=localStamp,clockLabel='Historical clock (CDT)',onMomentSelect=null,restoreInitialMoment=true}={}) {
   if(![2,3].includes(headingLevel))throw new RangeError('Unsupported footage heading level');
   const host=document.getElementById('registered-footage');
+  if(!data.sources.length){
+    host.append(el('p','ORIGINAL FOOTAGE / NO VIDEO IN THIS PACKAGE','eyebrow'),el(`h${headingLevel}`,'No video in this package'));
+    const summary=el('p','No video source or checked video moment is declared in this package. Photograph choices, when available, are in the appearance evidence panel.','footage-status');
+    summary.id='footage-status';summary.setAttribute('role','status');host.append(summary);
+    return ()=>{};
+  }
   host.append(el('p','ORIGINAL FOOTAGE / CHECKED CLOCK READINGS','eyebrow'),el(`h${headingLevel}`,'See the storm at a recorded moment'),el('p',data.introduction));
   const sourceLabel=el('label','Original source version'),sourcePicker=el('select');sourcePicker.id='footage-source';sourceLabel.htmlFor=sourcePicker.id;
   for(const source of data.sources){const option=el('option',`${source.creator}: ${source.title}`);option.value=source.id;sourcePicker.append(option);}
@@ -69,7 +75,15 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=loc
     const source=data.sources.find(s=>s.id===selected.source_id);
     summary.textContent=`${formatTime(selected.utc)} · ${source.creator} · video ${sourceTime(selected.video_seconds)}`;
     caption.replaceChildren(el('p',selected.note),el('p',source.clock_basis,'fineprint'),el('p',source.limits,'fineprint'),external('Watch this moment on the original upload',sourceLink(source,selected)),el('p',source.rights,'fineprint'));
-    const momentURL=new URL(location.href);momentURL.searchParams.set('footage',selected.id);momentURL.hash='registered-footage';
+    const momentURL=new URL(location.href);
+    momentURL.searchParams.set('footage',selected.id);
+    momentURL.searchParams.set('footage_source',selected.source_id);
+    momentURL.searchParams.set('t',(Date.parse(selected.utc)-start)/1000);
+    if(momentURL.searchParams.get('appearance_view')==='photo'){
+      momentURL.searchParams.delete('appearance_view');
+      momentURL.searchParams.delete('appearance_photo');
+    }
+    momentURL.hash='registered-footage';
     caption.append(external('Link to this moment in the exhibit',momentURL.href));
     if(player&&ready){frame.hidden=false;reset.hidden=false;cue();}else state.textContent='Load the original player, or open the timestamped source link. Camera location and bearing have not been registered for this upload.';
   }

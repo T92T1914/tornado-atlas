@@ -48,9 +48,16 @@
           <p id="replay-appearance-detail" class="replay-help"></p>
           <a id="replay-appearance-source" target="_blank" rel="noopener" hidden>Open the original source at this moment</a>
           <p><a href="#registered-footage">Compare the checked source moments</a></p>
+          <div id="replay-appearance-photo" hidden>
+            <p id="replay-photo-sequence" class="replay-help"></p>
+            <div id="replay-photo-samples" class="replay-photo-samples" role="group" aria-label="Photograph reported clock instants"></div>
+            <div id="replay-photo-record" class="replay-photo-record"></div>
+          </div>
           <div id="replay-appearance-drawing" hidden>
-            <label for="replay-appearance-mode">Form view</label>
-            <select id="replay-appearance-mode"><option value="source">Selected original source</option><option value="illustrative">Illustrative study</option></select>
+            <div class="replay-appearance-control">
+              <label for="replay-appearance-mode">Appearance view</label>
+              <select id="replay-appearance-mode"><option value="source">Selected original video source</option><option value="illustrative">Illustrative study</option></select>
+            </div>
             <canvas id="replay-appearance-canvas" role="img" aria-describedby="replay-appearance-state replay-appearance-detail" aria-label="Normalized appearance form for the selected evidence state"></canvas>
             <p id="replay-appearance-renderer-status" class="replay-help"></p>
             <p class="replay-help">The form uses normalized artistic units. It does not show measured funnel width, wind or a calibrated geographic camera.</p>
