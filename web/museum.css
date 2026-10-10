@@ -27,8 +27,8 @@ header .museum-nav {align-items:flex-start;gap:12px 22px;font-size:14px}
 header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .documentary-exhibit a,.documentary-exhibit h1,.documentary-exhibit h2,.documentary-exhibit h3,.documentary-exhibit h4 {overflow-wrap:anywhere;max-width:100%}
 .documentary-exhibit .hero-grid>div {min-width:0;max-width:100%}
-.documentary-exhibit select {min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;appearance:none;-webkit-appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--text) 50%),linear-gradient(135deg,var(--text) 50%,transparent 50%);background-position:calc(100% - 16px) center,calc(100% - 10px) center;background-size:6px 6px;background-repeat:no-repeat}
-@media(forced-colors:active){.documentary-exhibit select {appearance:auto;-webkit-appearance:auto;background-image:none;padding-right:9px}}
+.documentary-exhibit select,.documentary-exhibit .timeline-evidence select,.documentary-exhibit .camera-controls select,.documentary-exhibit .playback-options select {min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;appearance:none;-webkit-appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--text) 50%),linear-gradient(135deg,var(--text) 50%,transparent 50%);background-position:calc(100% - 16px) center,calc(100% - 10px) center;background-size:6px 6px;background-repeat:no-repeat}
+@media(forced-colors:active){.documentary-exhibit select,.documentary-exhibit .timeline-evidence select,.documentary-exhibit .camera-controls select,.documentary-exhibit .playback-options select {appearance:auto;-webkit-appearance:auto;background-image:none;padding-right:9px}}
 .documentary-exhibit .camera-controls select {width:100%}
 .documentary-exhibit input[type=range] {margin-inline:0}
 .documentary-exhibit .section-title>div,.documentary-exhibit .note {min-width:0;max-width:100%}
