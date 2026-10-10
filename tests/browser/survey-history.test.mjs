@@ -184,8 +184,27 @@ test('survey Back closes a photo before replacing its opener and focuses a conne
     return image?.complete&&image.naturalWidth===1&&image.getBoundingClientRect().height>0;
   });
   const initialHistory=await page.evaluate(()=>history.length);
+  const transitionBefore=await page.evaluate(()=>{
+    window.__surveyTransitionEvents=[];
+    for(const type of ['pointerdown','mousedown','mouseup','click'])document.addEventListener(type,event=>{
+      if(window.__surveyTransitionEvents.length<16)window.__surveyTransitionEvents.push({type,target:event.target?.id||event.target?.tagName,x:event.clientX,y:event.clientY});
+    },{capture:true,passive:true});
+    const button=document.getElementById('survey-next'),rect=button.getBoundingClientRect();
+    return {url:location.href,selected:document.getElementById('survey-observation').value,nextDisabled:button.disabled,button:{x:rect.x,y:rect.y,width:rect.width,height:rect.height}};
+  });
   await page.locator('#survey-next').click();
-  await page.waitForFunction(()=>document.getElementById('survey-observation')?.value==='270275');
+  try{
+    await page.waitForFunction(()=>document.getElementById('survey-observation')?.value==='270275');
+  }catch(error){
+    try{
+      console.error('SURVEY_NEXT_DIAGNOSTIC '+JSON.stringify({before:transitionBefore,after:await page.evaluate(()=>{
+        const button=document.getElementById('survey-next'),rect=button?.getBoundingClientRect();
+        return {url:location.href,ready:document.readyState,selection:document.getElementById('survey-observation')?.value,nextDisabled:button?.disabled,
+          button:rect?{x:rect.x,y:rect.y,width:rect.width,height:rect.height}:null,events:window.__surveyTransitionEvents,
+          focus:document.activeElement?.id,history:history.length,scrollY};
+      })}));
+    }finally{throw error;}
+  }
   assert.equal(new URL(page.url()).searchParams.get('survey'),'270275');
   assert.equal(await page.evaluate(()=>history.length),initialHistory+1);
   const opener=page.locator('#survey-detail .survey-photo-open').first();
