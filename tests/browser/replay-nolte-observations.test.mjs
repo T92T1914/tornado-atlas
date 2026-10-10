@@ -86,10 +86,16 @@ test('actual photo source reading and controls reflow at 320px with doubled text
     };
   });
   await openActual(page,535);
-  await page.addStyleTag({content:'html{font-size:200% !important}'});
+  await page.evaluate(()=>{
+    const nodes=[...document.querySelectorAll('#replay-appearance,#replay-appearance *')];
+    const sizes=nodes.map(node=>Number.parseFloat(getComputedStyle(node).fontSize));
+    nodes.forEach((node,index)=>{node.style.fontSize=`${sizes[index]*2}px`;});
+  });
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   await canvasState(page,'photo_observed');
   assert.equal(await page.locator('#replay-photo-record').isVisible(),true);
   assert.equal(await page.locator('#replay-photo-original').isVisible(),true);
+  assert.ok(await page.locator('#replay-photo-original').evaluate(node=>Number.parseFloat(getComputedStyle(node).fontSize)>=26),'Fixed-size source text is actually doubled');
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No horizontal page overflow');
   for(const sample of sequence.samples){

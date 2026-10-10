@@ -154,7 +154,10 @@ async function start(){
   let unavailablePhotoId=null,shownPhotoSequence=null,shownPhotoSample=null;
   for(const sequence of photoSequences){
     const option=document.createElement('option');option.value=`photo:${sequence.id}`;
-    option.textContent=`Photograph sequence: ${sequence.id}`;mode.append(option);
+    const creators=[...new Set(sequence.samples.map(sample=>sample.source_id))]
+      .map(id=>appearanceTimeline.photo_sources.find(source=>source.id===id).creator);
+    option.textContent=`${creators.join(', ')}: ${sequence.samples.length} reported still${sequence.samples.length===1?'':'s'}`;
+    mode.append(option);
   }
   if(!appearanceTimeline?.windows.some(window=>window.kind==='illustrative'))mode.querySelector('[value="illustrative"]')?.remove();
   restoreAppearanceMode();
@@ -247,7 +250,8 @@ async function start(){
     original.textContent=`Open the original image or panel: ${sample.image.panel_locator}`;
     const boundary=document.createElement('p');
     boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. No photograph is loaded or copied by this player.';
-    host.append(original,boundary);
+    host.prepend(original);
+    host.append(boundary);
   }
   function updatePhotoPanel(sequence){
     const panel=el('replay-appearance-photo'),list=el('replay-photo-samples'),record=el('replay-photo-record');
