@@ -6,11 +6,14 @@ from .museum_reading import element, link, text
 
 ROUTES = ('atlas', 'index', 'joplin', 'blackwell', 'tuscaloosa', 'dossier', 'coverage',
           'reconstruction', 'survey', 'radar-source', 'study', 'wind', 'japan', 'curator')
+PUBLIC_MUSEUM = 'https://t92t1914.github.io/tornado-atlas/'
 
 
 def navigation(root, route):
     events = json.loads((root / 'exhibits/events.json').read_text(encoding='utf-8'))['events']
     def entry(label, destination):
+        if route == 'curator':
+            return link(label, PUBLIC_MUSEUM + destination, target='_blank', rel='noopener noreferrer')
         return link(label, destination, **({'aria_current':'page'} if destination == route+'.html' else {}))
     exhibits = ''.join(entry(event['title'], event['documentary']) for event in events)
     explore = ''.join(entry(label, destination) for label, destination in [

@@ -39,6 +39,21 @@ python -m atlas.evidence_coverage
 The coverage generator uses the same header. Its detailed evidence remains
 available behind the existing disclosures.
 
+## Starting routes through the other exhibits
+
+Joplin offers starting points through warnings and choices, buildings and refuge,
+and the surveyed path and original evidence. Blackwell keeps path, clocks and
+remembrance beside forecast bulletins, testimony, rescue and archival leads.
+Tuscaloosa and Birmingham connect the path through communities with warnings,
+storm observations and the aftermath. Each starting point links into the
+retained article. They do not assign an impact time to a survey place, register
+an appearance interval, or establish permission for an archival photograph.
+
+The appearance selector stays disabled at its system setting until the existing
+appearance script enables it. Reading without scripts follows the system's
+light or dark preference. Longer documentary credits and source words wrap
+at narrow widths and enlarged text without shortening their wording.
+
 ## Documentary photograph versions
 
 The two Daniel Rodriguez photographs retain their original bytes, credit,
