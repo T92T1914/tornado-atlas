@@ -24,7 +24,12 @@ export function mountReader(reading, chapters, selectMinute) {
   const chronology = document.getElementById('storm-chronology');
   for (const chapter of chapters) {
     chronology.querySelector(`[data-chapter-minute="${chapter.minute}"]`)
-      .addEventListener('click', () => selectMinute(chapter.minute));
+      .addEventListener('click', event => {
+        if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+        event.preventDefault();
+        selectMinute(chapter.minute,{fragment:'path'});
+        document.getElementById('path').scrollIntoView({behavior:'instant',block:'start'});
+      });
   }
   const groups = new Map();
   const sourceRows = [];
@@ -67,9 +72,10 @@ export function mountReader(reading, chapters, selectMinute) {
   let current = -1;
   function markCurrent() {
     scheduled = false;
-    let next = 0;
+    let next = 0, closest = -Infinity;
     sections.forEach((section, index) => {
-      if (section.getBoundingClientRect().top <= 110) next = index;
+      const top=section.getBoundingClientRect().top;
+      if (top <= 110 && top > closest) {next = index;closest = top;}
     });
     if (next === current) return;
     anchors.forEach((anchor, index) => {

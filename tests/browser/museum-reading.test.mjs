@@ -6,6 +6,36 @@ import {fixture,base} from './harness.mjs';
 
 const bundle=JSON.parse(await readFile(new URL('../../web/data.json',import.meta.url),'utf8'));
 const registry=JSON.parse(await readFile(new URL('../../exhibits/events.json',import.meta.url),'utf8'));
+for(const width of [320,1280]){
+  for(const activation of ['pointer','keyboard']){
+    test(`a chronology chapter has one Back and Forward step: ${width}px ${activation}`,async t=>{
+      const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
+      await page.goto(base+'/index.html?t=0#questions');
+      await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+      const chapter=page.locator('[data-chapter-minute="19"]');
+      if(activation==='keyboard'){await chapter.focus();await page.keyboard.press('Enter');}
+      else await chapter.click();
+      await page.waitForFunction(()=>new URL(location.href).searchParams.get('t')==='900'&&location.hash==='#path');
+      assert.equal(await page.locator('#published-position').inputValue(),'900');
+      await page.goBack();
+      await page.waitForFunction(()=>new URL(location.href).searchParams.get('t')==='0'&&location.hash==='#questions');
+      assert.equal(await page.locator('#published-position').inputValue(),'0');
+      await page.goForward();
+      await page.waitForFunction(()=>new URL(location.href).searchParams.get('t')==='900'&&location.hash==='#path');
+      assert.equal(await page.locator('#published-position').inputValue(),'900');
+    });
+  }
+  test(`grouped contents follow the actual reading position: ${width}px`,async t=>{
+    const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
+    await page.goto(base+'/index.html');
+    await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+    for(const id of ['photos','remembrance','questions','location-research','sources']){
+      await page.locator('#'+id).evaluate(node=>node.scrollIntoView({behavior:'instant',block:'start'}));
+      await page.waitForFunction(id=>document.querySelector('#exhibit-contents [aria-current="location"]')?.getAttribute('href')==='#'+id,id);
+      assert.equal(await page.locator('#exhibit-contents [aria-current="location"]').count(),1);
+    }
+  });
+}
 async function reading(page){
   assert.equal(await page.locator('#introduction').textContent(),bundle.exhibit.introduction+' NWS account');
   assert.deepEqual(await page.locator('#documentary-report article>p').allTextContents(),bundle.history.report.flatMap(row=>row.paragraphs));

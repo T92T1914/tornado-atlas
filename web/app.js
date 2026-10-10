@@ -287,10 +287,10 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   update();syncLocation();
   for (const id of ['play','timeline','published-position','playback-rate',
     'camera-sample','media-time','path-zoom-in','path-zoom-out','path-fit']) byId(id).disabled=false;
-  function selectMinute(minute) {
+  function selectMinute(minute,options) {
     const selected = positions.findIndex(p => Number(p.properties.source_name.split(':')[1]) === minute);
     if (selected < 0) return;
-    seek((timed[selected].stamp-start)/1000);
+    seek((timed[selected].stamp-start)/1000,options);
   }
   function prepareSurveyHistory() {
     stop(false);update();syncLocation();

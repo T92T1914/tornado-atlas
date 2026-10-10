@@ -44,8 +44,9 @@ available behind the existing disclosures.
 The two Daniel Rodriguez photographs retain their original bytes, credit,
 source links and CC BY 2.0 license links. Smaller JPEG versions at 640, 1280 and
 1920 pixels keep the full frame. They are resized with Lanczos resampling and
-JPEG compressed at quality 82. The original and each reading version have
-separate byte counts and SHA-256 records in the existing photograph data.
+JPEG compressed at quality 82. The original retains its SHA-256 identity and
+dimensions. Each reading version has separate byte counts, dimensions and a
+SHA-256 record in the existing photograph data.
 The page uses responsive versions for reading and preserves original-file links
 and enlargement. The photograph captions identify the resizing and compression.
 
