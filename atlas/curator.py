@@ -24,7 +24,7 @@ from .publication import write_bytes
 MAX_BODY = 2_000_000
 MAX_DRAFT = 250_000
 ID = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*\Z')
-ASSETS = {'curator.html', 'curator.mjs', 'curator.css', 'style.css', 'appearance.css', 'appearance.js'}
+ASSETS = {'curator.html', 'curator.mjs', 'curator.css', 'style.css', 'appearance.css', 'appearance.js', 'museum.css'}
 
 
 class Conflict(ValueError):

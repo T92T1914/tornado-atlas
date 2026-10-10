@@ -9,6 +9,7 @@ import re
 import unittest
 from urllib.parse import parse_qs, urlsplit
 
+from museum_test_support import assert_preserved_field
 from atlas.archive import digest, dossiers, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -143,7 +144,7 @@ class TuscaloosaOutlookPublicationTests(unittest.TestCase):
 
     def test_current_publication_preserves_the_complete_accepted_outlook(self):
         for field in ('title', 'coverage', 'summary', 'records', 'reconstruction'):
-            self.assertEqual(self.current[field], self.doc[field], field)
+            assert_preserved_field(self, self.current[field], self.doc[field], field)
         self.assertEqual(self.current['creators'][:len(self.doc['creators'])], self.doc['creators'])
         for field in ('media', 'sources', 'routes', 'observations'):
             self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)

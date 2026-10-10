@@ -24,7 +24,7 @@ STATUS_TEXT = {
     'disputed': 'Source disagreement', 'not_researched': 'Not researched',
     'source_label': 'Source time or date label', 'discrete_anchor': 'Discrete time anchor',
     'unregistered': 'Unregistered', 'links_only': 'Source links only',
-    'permitted_hosting': 'Hosting permission recorded', 'unknown': 'Unknown reuse status',
+    'permitted_hosting': 'Hosting basis recorded', 'unknown': 'Unknown reuse status',
     'restricted': 'Restricted reuse', 'reviewed_available': 'Reviewed record linked',
     'unavailable': 'Unavailable', 'documented_no_result': 'Documented search without a result',
     'not_applicable': 'Not applicable', 'published': 'Published record', 'candidate': 'Research lead',
@@ -167,11 +167,12 @@ def recorded_value(value):
     return html.escape(str(value))
 
 
-def render_page(rows):
+def render_page(rows, root=ROOT):
+    from .museum_navigation import navigation
     esc = html.escape
     output = ['<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-              '<title>Tornado Atlas | Evidence coverage</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="appearance.css"><link rel="stylesheet" href="coverage.css"><script src="appearance.js"></script><script type="module" src="coverage-view.mjs"></script></head>',
-              '<body><a class="skip" href="#coverage-content">Skip to coverage</a><header><a class="brand" href="atlas.html">TORNADO ATLAS</a><nav aria-label="Museum navigation"><a href="atlas.html">Map and catalogue</a><a href="dossier.html">Evidence dossiers</a><a href="coverage.html" aria-current="page">Evidence coverage</a></nav>',
+              '<title>Tornado Atlas | Evidence coverage</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="appearance.css"><link rel="stylesheet" href="coverage.css"><script src="appearance.js"></script><script type="module" src="coverage-view.mjs"></script><link rel="stylesheet" href="museum.css"></head>',
+              '<body><a class="skip" href="#coverage-content">Skip to coverage</a><header><a class="brand" href="atlas.html">TORNADO ATLAS</a><!-- museum-navigation -->'+navigation(root, 'coverage')+'<!-- /museum-navigation -->',
               '<div class="reading-appearance"><label for="reading-appearance">Appearance</label><select id="reading-appearance" disabled><option value="dark">Obscur</option><option value="light">Clair</option><option value="system" selected>Auto</option></select><small id="reading-appearance-help">Changing appearance requires JavaScript.</small></div></header>',
               '<main id="coverage-content" tabindex="-1" class="coverage-main"><h1>Evidence coverage</h1><p>Find the published evidence and the limits of each reconstruction layer.</p><p>This compares selected reviewed records. A missing layer means no reviewed item is linked for it here. Historical sources may exist elsewhere.</p><p>Inspection and rights statements are retained from the reviewed dossiers. Generating this coverage does not repeat source inspection.</p>',
               '<form id="coverage-filters" method="get" aria-label="Filter evidence coverage"><label for="coverage-event">Event</label><select name="event" id="coverage-event"><option value="">All published events</option>']
@@ -216,7 +217,7 @@ def render_page(rows):
 
 
 def publication(root=ROOT):
-    return {'coverage.html': render_page(coverage_rows(root))}
+    return {'coverage.html': render_page(coverage_rows(root), root)}
 
 
 def build(root=ROOT):

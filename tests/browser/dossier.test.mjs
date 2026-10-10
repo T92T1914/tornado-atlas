@@ -97,7 +97,7 @@ test('slow dossier keeps a readable loading state and navigation usable',async t
   assert.equal(await page.evaluate(()=>document.body.dataset.ready),undefined);
   const chapter=page.locator('#documentary-chapters a[href="joplin.html"]');
   await chapter.focus();assert.equal(await chapter.evaluate(e=>e===document.activeElement),true);
-  const navigation=page.getByRole('link',{name:'Map and catalogue',exact:true});
+  const navigation=page.getByRole('link',{name:'Collection',exact:true});
   await navigation.focus();assert.equal(await navigation.evaluate(e=>e===document.activeElement),true);
   release();await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.match(await page.locator('h1').textContent(),/El Reno/);

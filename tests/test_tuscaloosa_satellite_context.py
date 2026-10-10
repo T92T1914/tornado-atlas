@@ -8,6 +8,7 @@ import struct
 import unittest
 import zlib
 
+from museum_test_support import assert_preserved_field
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -68,7 +69,7 @@ class TuscaloosaSatelliteTests(unittest.TestCase):
         for key in ('media', 'sources', 'observations', 'creators', 'routes'):
             self.assertEqual(self.doc[key][:len(satellite[key])], satellite[key], key)
         for key in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
-            self.assertEqual(self.doc[key], satellite[key], key)
+            assert_preserved_field(self, self.doc[key], satellite[key], key)
         self.assertIs(validate_dossier(satellite), satellite)
         self.assertIs(validate_dossier(self.doc), self.doc)
         version = next(version for version in dossier_history(self.doc)['versions']

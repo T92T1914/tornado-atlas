@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import unittest
 
+from museum_test_support import assert_preserved_field
 from atlas.archive import digest, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,7 +71,7 @@ class TuscaloosaBridgeTests(unittest.TestCase):
             if field in ('observations', 'creators'):
                 self.assertEqual(self.doc[field][:len(bridge[field])], bridge[field], field)
             else:
-                self.assertEqual(self.doc[field], bridge[field], field)
+                assert_preserved_field(self, self.doc[field], bridge[field], field)
         self.assertEqual(bridge['media'][:-1], self.prior['media'])
         self.assertEqual(bridge['sources'][:-1], self.prior['sources'])
         self.assertEqual(bridge['media'][-1]['id'], MEDIA)

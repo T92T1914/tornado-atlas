@@ -5,12 +5,13 @@
   <title>Tornado Atlas | Interactive form study</title>
   <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css">
   <script type="module" src="study.js"></script>
-<link rel="stylesheet" href="appearance.css"><script src="appearance.js"></script></head>
+<link rel="stylesheet" href="appearance.css"><script src="appearance.js"></script><link rel="stylesheet" href="museum.css">
+</head>
 <body>
   <a class="skip" href="#main">Skip to form study</a>
-  <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><nav aria-label="Museum navigation"><a href="atlas.html">Atlas</a><a href="index.html">El Reno exhibit</a><a href="index.html#damage">Damage survey</a><a href="wind.html">Wind lab</a></nav><span class="local">VISUAL LAB / 001</span></header>
+  <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><!-- museum-navigation --><nav class="museum-nav" aria-label="Museum navigation"><a href="atlas.html">Collection</a><details><summary>Exhibits <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="index.html">El Reno · 2013</a><a href="joplin.html">Joplin · 2011</a><a href="blackwell.html">Blackwell · 1955</a><a href="tuscaloosa.html">Tuscaloosa and Birmingham · 2011</a></div></details><details><summary>Explore <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="atlas.html#catalogue">Map and catalogue</a><a href="reconstruction.html">El Reno spatial replay</a><a href="study.html" aria-current="page">Form study</a><a href="wind.html">Wind laboratory</a></div></details><details><summary>Sources <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="dossier.html">Event dossiers</a><a href="coverage.html">Reconstruction coverage</a><a href="survey.html">Damage survey</a><a href="radar-source.html">Radar source reader</a><a href="japan.html">Japan source records</a></div></details></nav><!-- /museum-navigation --><span class="local">VISUAL LAB / 001</span></header>
   <main id="main">
-<div class="reading-appearance appearance-bar"><label for="reading-appearance">Appearance</label><select id="reading-appearance"><option value="dark">Obscur · Dark</option><option value="light">Clair · Light</option><option value="system">Use system setting</option></select></div>
+<div class="reading-appearance appearance-bar"><label for="reading-appearance">Appearance</label><select id="reading-appearance" disabled><option value="dark">Obscur · Dark</option><option value="light">Clair · Light</option><option value="system" selected>Use system setting</option></select></div>
     <section class="study-intro"><div><div class="eyebrow">AN INTERACTIVE FORM STUDY</div><h1>Inside the shape.</h1></div><p>Turn the view. Change the form. Watch the cloud move. This is the first visual prototype for the museum, an illustration in three dimensions with no assigned storm, date or physical scale.</p></section>
     <div class="study-layout">
       <div class="scene-shell">

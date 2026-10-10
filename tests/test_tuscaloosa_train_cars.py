@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import unittest
 
+from museum_test_support import assert_preserved_field
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -119,7 +120,7 @@ class TuscaloosaTrainCarsTests(unittest.TestCase):
         for field in ('media', 'sources', 'creators', 'routes', 'observations'):
             self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
         for field in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
-            self.assertEqual(self.current[field], self.doc[field], field)
+            assert_preserved_field(self, self.current[field], self.doc[field], field)
         self.assertEqual(self.wrapper['adapter_sha256'], ADAPTER_SHA)
         standalone = (ROOT / f'exhibits/{EVENT}/dossier.json').read_bytes()
         self.assertEqual((len(standalone), hashlib.sha256(standalone).hexdigest()), (49883, STANDALONE_SHA))

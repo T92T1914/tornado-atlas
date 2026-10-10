@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import unittest
 
+from museum_test_support import assert_preserved_field
 from atlas.archive import digest, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,7 +65,7 @@ class TuscaloosaComplexTests(unittest.TestCase):
         self.assertEqual(len(self.prior['records']), 3)
         self.assertEqual(self.doc['observations'][:len(self.prior['observations'])], self.prior['observations'])
         for field in ('records', 'reconstruction', 'title', 'coverage'):
-            self.assertEqual(self.doc[field], self.prior[field], field)
+            assert_preserved_field(self, self.doc[field], self.prior[field], field)
         self.assertEqual(self.doc['creators'][:len(self.prior['creators'])], self.prior['creators'])
         self.assertEqual(self.doc['media'][:3], self.prior['media'])
         self.assertEqual(self.doc['sources'][:7], self.prior['sources'])

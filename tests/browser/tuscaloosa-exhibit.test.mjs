@@ -124,5 +124,6 @@ test('Blackwell shares heading wrapping at doubled text and 320 pixels',async t=
   });
   assert.equal(ratio,2,'The shared Blackwell title is doubled');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
-  assert.equal(await page.locator('.documentary-intro h1').textContent(),'Blackwell, after dark.');
+  assert.equal(await page.locator('.documentary-intro h1').textContent(),'BlackwellMay 25, 1955');
+  assert.equal(await page.locator('.exhibit-orientation').textContent(),'Blackwell, after dark.');
 });

@@ -205,7 +205,11 @@ test('responsive and expanded maps retain selection and center without reflow ov
     for(const theme of ['dark','light']){
       await page.locator('#reading-appearance').selectOption(theme);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${width} ${theme} reflow`);
-      const box=await page.locator('#world-map').boundingBox();assert.ok(box.width>250&&box.height>=330);
+      const box=await page.locator('#world-map').boundingBox();
+      const cssHeight=await page.locator('#world-map').evaluate(node=>parseFloat(getComputedStyle(node).height));
+      // Firefox reported 329.9998779 from rectangle subtraction for the 330px map.
+      // Keep the CSS minimum exact and allow only 0.001px in the painted rectangle.
+      assert.ok(box.width>250&&cssHeight>=330&&box.height>=330-.001,JSON.stringify({width,height,theme,box,cssHeight}));
       assert.equal(await page.locator('#detail .eyebrow').textContent(),'ncei:453682');
     }
   }

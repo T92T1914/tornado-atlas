@@ -40,7 +40,15 @@ export function mountTimelineMedia(manifest, photos, openPhoto) {
     }
     const button=document.createElement('button');button.type='button';button.className='timeline-media-enlarge';button.setAttribute('aria-label','Enlarge timeline evidence');
     const img=document.createElement('img');img.src=asset.asset;img.alt=asset.alt;img.width=597;img.height=599;
-    if(mode.value!=='radar') {img.width=photos[Number(mode.value)].width;img.height=photos[Number(mode.value)].height;}
+    if(mode.value!=='radar') {
+      const photo=photos[Number(mode.value)];img.width=photo.width;img.height=photo.height;
+      if(photo.reading_versions?.length) {
+        img.src=photo.reading_versions.find(row=>row.width===1280).file;
+        img.srcset=photo.reading_versions.map(row=>`${row.file} ${row.width}w`).join(', ');
+        img.sizes='(min-width: 1081px) 50vw, 100vw';
+        add('p','Reading version resized and JPEG compressed. Enlargement opens the preserved original.');
+      }
+    }
     img.addEventListener('error',()=>{button.replaceChildren(document.createTextNode('Image unavailable. Read the source below.'));button.disabled=true;},{once:true});
     button.append(img);button.addEventListener('click',()=>openPhoto(asset));slot.append(button);
     const credit=add('p',asset.credit+' '),source=document.createElement('a');source.textContent='Source and credit ↗';source.href=asset.source;source.target='_blank';source.rel='noopener';credit.append(source);

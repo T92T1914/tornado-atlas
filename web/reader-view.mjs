@@ -21,47 +21,34 @@ export function mountReader(reading, chapters, selectMinute) {
     anchor.rel = 'noopener noreferrer';
     return anchor;
   };
-  const updated = document.getElementById('exhibit-updated');
-  const date = create('time', new Date(reading.updated + 'T00:00:00Z').toLocaleDateString('en-US',
-    {year:'numeric', month:'long', day:'numeric', timeZone:'UTC'}));
-  date.dateTime = reading.updated;
-  updated.append('Exhibit updated ', date);
   const chronology = document.getElementById('storm-chronology');
   for (const chapter of chapters) {
-    const item = create('li', '');
-    item.id = `chronology-${chapter.minute}`;
-    item.append(create('span', chapter.time, 'chapter-time'),
-      create('h4', chapter.title), create('p', chapter.text));
-    const links = create('div', '', 'chapter-links');
-    // A chapter may describe an interval or precede the first observed point.
-    // Label the actual selectable map time instead of silently equating the two.
-    const mapLink = create('a', `View ${chapter.map_time} on the map`);
-    mapLink.href = '#path';
-    mapLink.addEventListener('click', () => selectMinute(chapter.minute));
-    links.append(mapLink, external('NWS account ↗', chapter.source));
-    item.append(links);
-    chronology.append(item);
+    chronology.querySelector(`[data-chapter-minute="${chapter.minute}"]`)
+      .addEventListener('click', event => {
+        if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+        event.preventDefault();
+        selectMinute(chapter.minute,{fragment:'path'});
+        document.getElementById('path').scrollIntoView({behavior:'instant',block:'start'});
+      });
   }
   const groups = new Map();
   const sourceRows = [];
   const sourceSearch = document.getElementById('source-search');
   const sourceGroup = document.getElementById('source-group');
-  for (const source of reading.sources) {
-    if (!groups.has(source.group)) {
-      const group = create('div', '', 'source-group');
-      const list = create('ol', '');
-      group.append(create('h3', source.group), list);
-      document.getElementById('source-register').append(group);
-      groups.set(source.group, list);
-      const option = create('option', source.group); option.value = source.group; sourceGroup.append(option);
-    }
-    const item = create('li', '');
-    const title = create('h4', '');
-    title.append(external(source.title + ' ↗', source.url));
-    item.append(create('p', source.publisher, 'source-publisher'), title, create('p', source.use));
-    groups.get(source.group).append(item);
-    sourceRows.push({source, item});
+  const cursors = new Map();
+  for (const group of document.querySelectorAll('#source-register .source-group')) {
+    const name = group.querySelector('h3').textContent;
+    groups.set(name, group.querySelector('ol'));
+    cursors.set(name, 0);
+    const option = create('option', name); option.value = name; sourceGroup.append(option);
   }
+  for (const source of reading.sources) {
+    const list = groups.get(source.group);
+    const index = cursors.get(source.group);
+    sourceRows.push({source, item:list.children[index]});
+    cursors.set(source.group, index + 1);
+  }
+  for (const control of [sourceSearch,sourceGroup,document.getElementById('source-reset')]) control.disabled = false;
   const filterSources = () => {
     let count = 0;
     for (const {source,item} of sourceRows) {
@@ -85,9 +72,10 @@ export function mountReader(reading, chapters, selectMinute) {
   let current = -1;
   function markCurrent() {
     scheduled = false;
-    let next = 0;
+    let next = 0, closest = -Infinity;
     sections.forEach((section, index) => {
-      if (section.getBoundingClientRect().top <= 110) next = index;
+      const top=section.getBoundingClientRect().top;
+      if (top <= 110 && top > closest) {next = index;closest = top;}
     });
     if (next === current) return;
     anchors.forEach((anchor, index) => {
