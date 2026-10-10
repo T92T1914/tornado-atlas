@@ -11,7 +11,7 @@ for(const width of [320,1280]){
     test(`a chronology chapter has one Back and Forward step: ${width}px ${activation}`,async t=>{
       const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
       await page.goto(base+'/index.html?t=0#questions');
-      await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+      await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
       const chapter=page.locator('[data-chapter-minute="19"]');
       if(activation==='keyboard'){await chapter.focus();await page.keyboard.press('Enter');}
       else await chapter.click();
@@ -28,7 +28,7 @@ for(const width of [320,1280]){
   test(`grouped contents follow the actual reading position: ${width}px`,async t=>{
     const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
     await page.goto(base+'/index.html');
-    await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+    await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
     for(const id of ['photos','remembrance','questions','location-research','sources']){
       await page.locator('#'+id).evaluate(node=>node.scrollIntoView({behavior:'instant',block:'start'}));
       await page.waitForFunction(id=>document.querySelector('#exhibit-contents [aria-current="location"]')?.getAttribute('href')==='#'+id,id);
@@ -77,14 +77,14 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
   test(`museum entrance and enhanced El Reno reading ${width} ${appearance}`,async t=>{
     const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
     await page.goto(base+'/atlas.html?layer=local');
-    await page.waitForFunction(()=>document.body.dataset.ready==='true');
+    await page.waitForFunction(()=>document.body?.dataset.ready==='true');
     await page.locator('#reading-appearance').selectOption(appearance);
     assert.equal(await page.locator('#museum article h2>a').count(),4);
     assert.ok((await page.locator('#museum').boundingBox()).y<(await page.locator('#catalogue').boundingBox()).y);
     await capture(page,`collection-${width}-${appearance}`);
     await museum(page);
     await page.locator('.museum-nav details').first().locator('a[href="index.html"]').click();
-    await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+    await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
     await reading(page);
     assert.match(await page.locator('#facts').textContent(),/8Direct tornado deaths/);
     await capture(page,`el-reno-${width}-${appearance}`);
@@ -102,7 +102,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     assert.ok(await page.locator('#source-register li:visible').count()<bundle.reading.sources.length);
     await page.locator('#source-reset').click();
     assert.equal(await page.locator('#source-register li:visible').count(),bundle.reading.sources.length);
-    await page.reload();await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+    await page.reload();await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
     assert.equal(new URL(page.url()).searchParams.get('t'),'900');
     await reading(page);
   });
@@ -131,7 +131,7 @@ for(const scenario of ['data503','module503','photographs503']){
     if(scenario==='module503') await page.route('**/photo-view.mjs',route=>route.fulfill({status:503,body:'controlled unavailable module'}));
     if(scenario==='photographs503') await page.route('**/assets/el-reno-2013/storm*.jpg',route=>route.fulfill({status:503,body:'controlled unavailable photograph'}));
     await page.goto(base+'/index.html');
-    await page.waitForFunction(()=>['error','true'].includes(document.body.dataset.exhibitReady));
+    await page.waitForFunction(()=>['error','true'].includes(document.body?.dataset.exhibitReady));
     await reading(page);
     await museum(page);
     assert.equal(await page.locator('#source-register a').count(),bundle.reading.sources.length);
