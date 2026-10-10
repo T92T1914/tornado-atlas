@@ -34,7 +34,8 @@ These are the full planned event-package parts. Replay manifest version 2
 accepts a bounded appearance subset only when its separate source, clock,
 fixed-view camera, inspection, rights and uncertainty contract passes.
 The existing observation notebook still rejects unsupported historical
-registration. The published El Reno package remains version 1.
+registration. El Reno uses version 2 for four sparse photo observations.
+Its continuous historical appearance timeline remains unregistered.
 
 ## Match the animation to the available evidence
 

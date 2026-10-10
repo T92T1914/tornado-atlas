@@ -18,12 +18,12 @@ async function fixture(t,href) {
   const location=new URL(href);let nextFrame=0,ready;
   const mounted=new Promise(resolve=>{ready=resolve;});
   class Element {
-    constructor(tag='div') {this.tagName=tag.toUpperCase();this.children=[];this.handlers=new Map();this.attributes=new Map();this.dataset={};this._text='';this._value='';this.checked=false;this.hidden=false;this.disabled=false;this.clientWidth=800;this.clientHeight=500;}
+    constructor(tag='div') {this.tagName=tag.toUpperCase();this.children=[];this.parentElement=null;this.handlers=new Map();this.attributes=new Map();this.dataset={};this._text='';this._value='';this.checked=false;this.hidden=false;this.disabled=false;this.clientWidth=800;this.clientHeight=500;}
     set id(value) {this._id=value;ids.set(value,this);}
     get id() {return this._id;}
     set value(value) {this._value=String(value);}
     get value() {return this._value;}
-    set textContent(value) {this._text=String(value);this.children=[];}
+    set textContent(value) {this.replaceChildren();this._text=String(value);}
     get textContent() {return this._text+this.children.map(child=>child.textContent).join('');}
     set href(value) {this.attributes.set('href',new URL(String(value),location.href).href);if(this.id==='replay-link')ready();}
     get href() {return this.attributes.get('href');}
@@ -31,8 +31,16 @@ async function fixture(t,href) {
     getAttribute(name) {return this.attributes.get(name)??null;}
     hasAttribute(name) {return this.attributes.has(name);}
     removeAttribute(name) {this.attributes.delete(name);}
-    append(...children) {this.children.push(...children);}
-    replaceChildren(...children) {this._text='';this.children=[...children];}
+    append(...children) {for(const child of children){child.remove();child.parentElement=this;this.children.push(child);}}
+    replaceChildren(...children) {for(const child of this.children)child.parentElement=null;this._text='';this.children=[];this.append(...children);}
+    remove() {if(this.parentElement){const siblings=this.parentElement.children;siblings.splice(siblings.indexOf(this),1);this.parentElement=null;}}
+    querySelector(selector) {
+      const match=selector==='[value="illustrative"]'?node=>node.value==='illustrative':
+        selector==='[data-unavailable-photo]'?node=>Object.hasOwn(node.dataset,'unavailablePhoto'):null;
+      assert.ok(match,`Unsupported consumer fixture selector: ${selector}`);
+      const visit=node=>{for(const child of node.children){if(match(child))return child;const found=visit(child);if(found)return found;}return null;};
+      return visit(this);
+    }
     addEventListener(name,callback) {if(!this.handlers.has(name))this.handlers.set(name,[]);this.handlers.get(name).push(callback);}
     fire(name) {for(const callback of this.handlers.get(name)||[])callback({target:this});}
     getContext() {return {};}
@@ -43,6 +51,16 @@ async function fixture(t,href) {
     querySelectorAll:()=>[],addEventListener:()=>{}};
   document.getElementById('replay-error').hidden=true;
   document.getElementById('replay-time').disabled=true;
+  const mode=document.createElement('select');mode.id='replay-appearance-mode';mode.value='source';
+  const sourceOption=document.createElement('option');sourceOption.value='source';sourceOption.textContent='Selected original video source';
+  const illustrativeOption=document.createElement('option');illustrativeOption.value='illustrative';illustrativeOption.textContent='Illustrative study';
+  mode.append(sourceOption,illustrativeOption);
+  assert.equal(mode.querySelector('[value="illustrative"]'),illustrativeOption,'The fixture supplies the actual static appearance option');
+  const unavailableOption=document.createElement('option');unavailableOption.dataset.unavailablePhoto='true';mode.append(unavailableOption);
+  assert.equal(mode.querySelector('[data-unavailable-photo]'),unavailableOption);
+  unavailableOption.remove();
+  assert.equal(mode.querySelector('[data-unavailable-photo]'),null,'Removal detaches the matched option');
+  assert.deepEqual(mode.children,[sourceOption,illustrativeOption],'Removing an unavailable option preserves the static options');
   const globals={document,location,crypto:webcrypto,window:new EventTarget(),
     history:Object.fromEntries(['pushState','replaceState'].map(method=>[method,(_state,_title,url)=>{location.href=String(url);historyWrites.push({method,href:location.href});}])),
     fetch:async path=>{
@@ -67,6 +85,8 @@ async function fixture(t,href) {
   finally {clearTimeout(timer);}
   assert.equal(document.getElementById('replay-error').hidden,true);
   assert.equal(document.getElementById('replay-time').disabled,false);
+  assert.equal(mode.querySelector('[value="illustrative"]'),null,'Real startup removes the unsupported illustrative option');
+  assert.ok(mode.children.includes(sourceOption),'Real startup retains the selected original source option');
   return {ids,location,historyWrites,dispose,
     share:()=>new URL(ids.get('replay-link').href),
     unloaded(){assert.deepEqual(requests,['events.json','events/el-reno-2013.json','data.json']);assert.equal(created.some(element=>['SCRIPT','IFRAME'].includes(element.tagName)),false,'Sharing never loads the video provider');},

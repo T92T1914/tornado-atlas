@@ -275,12 +275,21 @@ test('an unavailable survey target retains the clock and explains the replacemen
     const describe=node=>({tag:node.tagName,id:node.id,class:String(node.className),
       right:node.getBoundingClientRect().right,client:node.clientWidth,scroll:node.scrollWidth,
       overflow:getComputedStyle(node).overflowX,display:getComputedStyle(node).display});
-    const candidates=[...document.querySelectorAll('body>*,main>*,#replay-content>*,#survey-explorer>*,#registered-footage>*')];
+    const candidates=[...document.querySelectorAll('body>*,main>*,#replay-content>*,#survey-explorer>*,#registered-footage>*,#replay-appearance>*,#replay-appearance-drawing>*')];
     const isolation=candidates.map(node=>{
       const before=node.getAttribute('style');node.style.setProperty('display','none','important');
-      const width=document.documentElement.scrollWidth;
-      if(before===null)node.removeAttribute('style');else node.setAttribute('style',before);
-      return {...describe(node),documentWhenRemoved:width};
+      let width,drawingWhenRemoved;
+      try {
+        width=document.documentElement.scrollWidth;
+        drawingWhenRemoved=document.querySelector('#replay-appearance-drawing').scrollWidth;
+      } finally {
+        if(before===null)node.removeAttribute('style');else node.setAttribute('style',before);
+      }
+      return {...describe(node),documentWhenRemoved:width,
+        drawingWhenRemoved,
+        font:getComputedStyle(node).fontSize,hidden:node.hidden,
+        ...(node instanceof HTMLSelectElement?{value:node.value,options:[...node.options].map(option=>[option.value,option.textContent])}:{}),
+        ...(node instanceof HTMLCanvasElement?{backingWidth:node.width,backingHeight:node.height}:{})};
     });
     return {document:describe(document.documentElement),body:describe(document.body),
       scrollers:[...document.querySelectorAll('body *')].filter(node=>node.scrollWidth>node.clientWidth+1).map(describe).slice(0,40),isolation};
