@@ -120,17 +120,38 @@ test('survey choice during playback stores the current replay time before pausin
   await page.goto(base+'/index.html?t=780&footage_source=robinson-dashcam&survey=270271&surveyPhotos=0#survey-explorer');
   await page.locator('#survey-observation').waitFor();
   await page.locator('#timeline:not([disabled])').waitFor();
+  const readReplaySurvey=()=>page.evaluate(()=>{
+    const element=id=>document.getElementById(id);
+    return {url:location.href,timeline:element('timeline')?.value??null,
+      selection:element('survey-observation')?.value??null,
+      footageSource:element('footage-source')?.value??null,
+      play:element('play')?.textContent??null,
+      share:element('survey-share')?.href??null,
+      fatalityShare:element('fatality-share')?.href??null,
+      alternate:element('survey-alternate')?.href??null,
+      ready:document.body.dataset.exhibitReady??null,visibility:document.visibilityState};
+  });
+  const initial=await readReplaySurvey();
   await page.locator('#play').click();
   await page.waitForFunction(()=>Number(document.getElementById('timeline').value)>780);
+  const beforeSelection=await readReplaySurvey();
   await page.locator('#survey-next').click();
-  const selected=new URL(page.url()),savedTime=Number(selected.searchParams.get('t'));
+  const protocolUrlAfterClick=page.url(),completed=await readReplaySurvey();
+  t.diagnostic('SURVEY_REPLAY_SELECTION '+JSON.stringify({initial,beforeSelection,
+    protocolUrlAfterClick,protocolUrlAfterSnapshot:page.url(),completed}));
+  assert.equal(completed.selection,'270275','The intended survey selection completed');
+  const selected=new URL(completed.url),savedTime=Number(selected.searchParams.get('t'));
   assert.ok(savedTime>780);
-  assert.equal(Math.floor(savedTime),Number(await page.locator('#timeline').inputValue()));
+  assert.equal(Math.floor(savedTime),Number(completed.timeline));
   assert.equal(selected.searchParams.get('survey'),'270275');
   assert.equal(selected.searchParams.get('footage_source'),'robinson-dashcam');
-  assert.equal(await page.locator('#play').textContent(),'Play timeline');
-  assert.equal(Number(new URL(await page.locator('#survey-share').getAttribute('href')).searchParams.get('t')),savedTime);
-  assert.equal(new URL(await page.locator('#survey-alternate').getAttribute('href')).searchParams.get('survey'),'270275');
+  assert.equal(completed.footageSource,'robinson-dashcam');
+  assert.equal(completed.play,'Play timeline');
+  const share=new URL(completed.share);
+  assert.equal(Number(share.searchParams.get('t')),savedTime);
+  assert.equal(share.searchParams.get('survey'),'270275');
+  assert.equal(share.searchParams.get('footage_source'),'robinson-dashcam');
+  assert.equal(new URL(completed.alternate).searchParams.get('survey'),'270275');
   await page.reload();
   await page.locator('#survey-observation').waitFor();
   assert.equal(Math.floor(savedTime),Number(await page.locator('#timeline').inputValue()));
@@ -144,10 +165,22 @@ test('survey choice during playback stores the current replay time before pausin
   await page.locator('#play').click();
   await page.waitForFunction(time=>Number(document.getElementById('timeline').value)>Math.floor(time),savedTime);
   await page.locator('#survey-observation').selectOption('fatality:'+fatality.id);
-  const fatalityTime=Number(new URL(page.url()).searchParams.get('t'));
+  const protocolFatalityUrlAfterSelection=page.url(),completedFatality=await readReplaySurvey();
+  t.diagnostic('SURVEY_REPLAY_FATALITY '+JSON.stringify({savedTime,
+    protocolFatalityUrlAfterSelection,protocolUrlAfterSnapshot:page.url(),completed:completedFatality}));
+  assert.equal(completedFatality.selection,'fatality:'+fatality.id);
+  const fatalityUrl=new URL(completedFatality.url),fatalityTime=Number(fatalityUrl.searchParams.get('t'));
   assert.ok(fatalityTime>savedTime);
-  assert.equal(Number(new URL(await page.locator('#fatality-share').getAttribute('href')).searchParams.get('t')),fatalityTime);
-  assert.equal(new URL(await page.locator('#survey-alternate').getAttribute('href')).searchParams.get('fatality'),fatality.id);
+  assert.equal(Math.floor(fatalityTime),Number(completedFatality.timeline));
+  assert.equal(fatalityUrl.searchParams.get('fatality'),fatality.id);
+  assert.equal(fatalityUrl.searchParams.has('survey'),false);
+  assert.equal(fatalityUrl.searchParams.get('footage_source'),'robinson-dashcam');
+  assert.equal(completedFatality.footageSource,'robinson-dashcam');
+  assert.equal(completedFatality.play,'Play timeline');
+  const fatalityShare=new URL(completedFatality.fatalityShare);
+  assert.equal(Number(fatalityShare.searchParams.get('t')),fatalityTime);
+  assert.equal(fatalityShare.searchParams.get('fatality'),fatality.id);
+  assert.equal(new URL(completedFatality.alternate).searchParams.get('fatality'),fatality.id);
 });
 
 test('filtering during replay playback refreshes the current observation share time',async t=>{
