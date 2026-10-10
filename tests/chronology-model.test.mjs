@@ -32,3 +32,70 @@ test('malformed, unregistered and more precise evidence fails closed',()=>{
     const copy=structuredClone(data);mutate(copy);assert.throws(()=>validateChronology(copy,'joplin-2011'));
   }
 });
+
+import {validateReadingContext,resolveReadingContext,readingForEntry} from '../web/chronology-reading-model.mjs';
+import {loadVerifiedDossier} from '../web/dossier-file-model.mjs';
+import {webcrypto} from 'node:crypto';
+const readingReference=data.reading_context.reference;
+const readingVerified=await loadVerifiedDossier(readingReference,data.event_id,{fetcher:async()=>new Response(await readFile(new URL('../web/'+readingReference.file,import.meta.url))),subtle:webcrypto.subtle});
+
+test('later assessment context uses exact entry IDs and keeps unclocked observations separate',()=>{
+  const resolved=resolveReadingContext(data,readingVerified);
+  const distinction='intake-nws-local-siren-warning-distinction-2011',cessation='intake-nws-siren-cessation-2011';
+  assert.deepEqual(readingForEntry(resolved,'warning-30').map(row=>row.observation.id),[distinction]);
+  assert.deepEqual(readingForEntry(resolved,'first-siren').map(row=>row.observation.id),[distinction,cessation]);
+  for(const entry of data.entries.filter(row=>!['warning-30','first-siren'].includes(row.id)))assert.deepEqual(readingForEntry(resolved,entry.id),[]);
+  assert.deepEqual(readingForEntry(resolved,'unknown'),[]);assert.deepEqual(readingForEntry(null,'first-siren'),[]);
+  assert.equal(chronologyAt(data,13440).entry.id,'first-siren');
+  for(const {observation} of readingForEntry(resolved,'first-siren')){
+    assert.equal(observation.status.temporal,'unregistered');assert.equal(observation.status.spatial,'unregistered');assert.equal(observation.status.rights,'links_only');
+    for(const key of ['event','capture','video','alignment'])assert.equal(observation.time[key],null);
+    assert.equal(observation.place.coordinates,null);
+  }
+  assert.match(resolved.navigation_basis,/different scope/);
+  assert.match(readingForEntry(resolved,'first-siren')[1].observation.limits,/54 residents.*63 interviews.*nine excluded/);
+});
+
+test('both earlier chronology versions retain their existing clock and radar contract',()=>{
+  for(const version of [1,2]){
+    const old=structuredClone(data);old.schema_version=version;delete old.reading_context;if(version===1)delete old.radar_context;
+    assert.equal(validateChronology(old,data.event_id),old);assert.equal(chronologyAt(old,13260).entry.id,'first-siren');
+  }
+});
+
+test('reading metadata rejects missing, duplicate, unsafe or unassociated declarations',()=>{
+  for(const mutate of [
+    c=>c.event_id='other',c=>c.reference.file_sha256='0'.repeat(64),c=>c.navigation_basis='',
+    c=>c.observations[0].id='absent-but-valid',c=>c.observations[0].source_id='absent',
+    c=>c.observations[0].report_page=true,c=>c.observations[0].documentary_anchor='../unsafe',
+    c=>c.observations.push(c.observations[0]),c=>c.associations[0].entry_id='missing',
+    c=>c.associations.push(c.associations[0]),c=>c.associations[0].observation_ids.push(c.associations[0].observation_ids[0]),
+    c=>c.associations[0].observation_ids=['absent'],c=>c.associations.pop(),c=>c.alignment={utc:data.entries[2].utc}
+  ]){
+    const changed=structuredClone(data);mutate(changed.reading_context);
+    assert.throws(()=>validateReadingContext(changed,data.event_id));
+  }
+  const absent=structuredClone(data);delete absent.reading_context;
+  assert.throws(()=>validateChronology(absent,data.event_id));
+});
+
+test('verified bytes cannot substitute a missing, differently sourced or registered reading record',()=>{
+  for(const mutate of [
+    d=>d.observations=d.observations.filter(row=>row.id!==data.reading_context.observations[0].id),
+    d=>d.sources=d.sources.filter(row=>row.id!=='nws-assessment'),
+    d=>d.sources.find(row=>row.id==='nws-assessment').url='https://example.test/different.pdf',
+    d=>d.observations.find(row=>row.id===data.reading_context.observations[0].id).source_id='different'
+  ]){
+    const changed=structuredClone(readingVerified);mutate(changed.dossier);assert.throws(()=>resolveReadingContext(data,changed));
+  }
+  for(const dimension of ['intake','assertion','temporal','spatial','availability','rights']){
+    const changed=structuredClone(readingVerified);changed.dossier.observations.find(row=>row.id===data.reading_context.observations[0].id).status[dimension]='different';
+    assert.throws(()=>resolveReadingContext(data,changed));
+  }
+  for(const clock of ['event','capture','video','alignment']){
+    const changed=structuredClone(readingVerified);changed.dossier.observations.find(row=>row.id===data.reading_context.observations[0].id).time[clock]={utc:data.entries[2].utc};
+    assert.throws(()=>resolveReadingContext(data,changed));
+  }
+  const placed=structuredClone(readingVerified);placed.dossier.observations.find(row=>row.id===data.reading_context.observations[0].id).place.coordinates=[0,0];
+  assert.throws(()=>resolveReadingContext(data,placed));
+});

@@ -327,3 +327,55 @@ identity. Updating the chronology therefore requires a reviewed curated input
 rebase with an explicit publication predecessor. Layer classifications remain
 unchanged when their current dossier identity is refreshed. Build the archive
 first, chronology/event packages next and coverage last, then check all three.
+
+## Joplin assessment context beside a selected entry
+
+The Joplin chronology now carries a version 3 reading declaration. Open
+`reconstruction.html?event=joplin-2011&t=13140` to select warning 30 at the
+reported 5:09 p.m. CDT minute. Its card links the later assessment's distinction
+between that warning and the first siren. At `t=13260`, the reported
+5:11 p.m. first-siren entry also links the account of how some interviewees
+interpreted the siren stopping.
+
+The original selected account, limits, Table 1 citation on PDF page 8 and
+source-clock qualification remain above the later context. Each contextual
+account keeps its complete retained limits, a link to the exact observation
+in dossier revision
+`7c592efa31cda80b84ceef2928fa1582b91428f1d0c05e024fa70f6c24e35d68`,
+the original report passage and its static historical chapter section.
+The distinction links PDF page 19 and `joplin.html#warning-context`; cessation
+links PDF page 11 and `joplin.html#siren-response`. Source-card navigation
+stays in the same retained dossier revision.
+
+These are later assessment accounts, not new observations registered to the
+moving clock. The warning explanation and selected interviews in Section 3
+have a different scope from the limited Section 2 case study. Section 2 uses
+54 residents' perspectives from 63 interviews, with nine excluded. That
+denominator does not apply to Section 3. Individual reception and response
+times, video alignment and coordinates remain null or unregistered. No
+population rate, mortality explanation, survival counterfactual or current
+siren guidance is supplied.
+
+At `t=13440`, the existing latest-earlier rule still selects the first siren.
+This does not create a 5:14 p.m. event or assign a siren-ending time.
+Other chronology entry IDs receive no context. Previous entry, Next entry,
+the time control, reload and browser history continue to use the same
+`PlaybackClock` and selection path.
+
+Version 3 preserves the seven original entries and radar declaration.
+Its `reading_context` declares exact entry-to-observation associations and
+reuses the radar's retained dossier reference. The loader reads that file
+once through the existing bounded, byte-verifying boundary and resolves
+the two optional panels separately. Unavailable or invalid reading context
+leaves the documentary clock and valid radar usable. A failure of the radar
+record's content check can likewise leave qualified reading available.
+Missing reading context is admitted only in the loader's recovery path;
+default model and publication validation remain strict.
+
+The browser checks file consistency and readable structure against the
+declared reference. Publication validation supplies the retained-history and
+logical-digest checks. Neither establishes source authentication or expands
+historical inspection or rights. Chronology and dossier interaction require
+scripts. Without scripts, the existing historical chapter passages and source
+links remain the documentary reading route. The metadata rebase retains the
+previous current dossier and changes no historical accounts or classifications.

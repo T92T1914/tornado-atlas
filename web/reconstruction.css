@@ -97,6 +97,10 @@
 .chronology-radar figcaption {font-size:14px;margin:10px 0}
 .chronology-record {border-left:3px solid var(--text);padding:4px 20px;margin:22px 0;overflow-wrap:anywhere}
 .chronology-record h3 {font-size:25px}
+#chronology-reading-context {border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
+#chronology-reading-context h4 {font-size:21px;margin:0 0 12px}
+#chronology-reading-context h5 {font-size:18px;margin:22px 0 10px}
+#chronology-reading-context a {display:inline-block;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .chronology-record p:first-child {font-size:13px;color:var(--muted)}
 @media(max-width:600px){#replay-chronology{padding:16px}.chronology-controls{align-items:stretch}.chronology-record{padding-left:12px}}
 .replay-damage{margin:28px 0;border:1px solid var(--line);padding:20px;min-width:0;max-width:100%;overflow-wrap:anywhere}

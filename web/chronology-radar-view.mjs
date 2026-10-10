@@ -1,7 +1,7 @@
 import {radarAt} from './chronology-radar-model.mjs';
 
 export function mountChronologyRadar(container,data,event,resolved,openPhoto){
-  if(data.schema_version!==2)return ()=>{};
+  if(![2,3].includes(data.schema_version))return ()=>{};
   const make=(tag,text,parent)=>{const node=document.createElement(tag);if(text)node.textContent=text;parent.append(node);return node;};
   const section=make('section','',container);section.id='chronology-radar';section.className='chronology-radar';
   make('h3','Radar context on the documentary clock',section);

@@ -51,7 +51,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]) {
     await page.goForward();assert.equal(page.url(),selectedURL);
     assert.equal(await page.locator('#chronology-entry').inputValue(),selected);assert.equal(await frames(),0);
     const text=await page.locator('.chronology-record').textContent();
-    const source=await page.locator('.chronology-record a').getAttribute('href');
+    const source=await page.locator('.chronology-record > a').getAttribute('href');
     assert.match(source,/Joplin_tornado\.pdf#page=\d+$/);
     await page.evaluate(()=>{
       const nodes=[document.querySelector('#replay-chronology'),...document.querySelectorAll('#replay-chronology *')];
@@ -60,8 +60,8 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]) {
     });
     assert.equal(await page.locator('.chronology-record').textContent(),text);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
-    await page.locator('.chronology-record a').focus();
+    await page.locator('.chronology-record > a').focus();
     assert.equal(await page.evaluate(()=>document.activeElement?.tagName),'A');
-    assert.equal(await page.locator('.chronology-record a').getAttribute('href'),source);
+    assert.equal(await page.locator('.chronology-record > a').getAttribute('href'),source);
   });
 }

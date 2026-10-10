@@ -12,8 +12,9 @@ from .history import source_url
 def validate_chronology(data, event_id, root=None):
     version = data.get('schema_version') if isinstance(data, dict) else None
     fields(data, ('schema_version', 'event_id', 'title', 'clock', 'sources', 'entries') +
-           (('radar_context',) if version == 2 else ()), 'chronology')
-    if type(version) is not int or version not in (1, 2) or data['event_id'] != event_id:
+           (('radar_context',) if version in (2, 3) else ()) +
+           (('reading_context',) if version == 3 else ()), 'chronology')
+    if type(version) is not int or version not in (1, 2, 3) or data['event_id'] != event_id:
         raise ValueError('Chronology schema or event identity differs')
     def text(value):
         if not isinstance(value, str) or not value.strip():
@@ -59,8 +60,10 @@ def validate_chronology(data, event_id, root=None):
             raise ValueError('Unsupported chronology precision')
         if entry['source_id'] not in sources or type(entry['page']) is not int or entry['page'] < 1:
             raise ValueError('Chronology entry needs a known source and PDF page')
-    if version == 2:
+    if version in (2, 3):
         validate_radar_context(data, event_id, root)
+    if version == 3:
+        validate_reading_context(data, event_id, root)
     return data
 
 
@@ -134,4 +137,58 @@ def validate_radar_context(data, event_id, root=None):
             or image[:8] != b'\x89PNG\r\n\x1a\n' or image[12:16] != b'IHDR'
             or struct.unpack('>II', image[16:24]) != (transform['width'], transform['height'])):
         raise ValueError('Complete radar figure bytes or dimensions have changed')
+    return context
+
+
+def validate_reading_context(data, event_id, root=None):
+    """Link later assessment accounts without registering them on the clock."""
+    context = data['reading_context']
+    fields(context, ('event_id', 'reference', 'observations', 'associations', 'navigation_basis'), 'reading context')
+    reference = context['reference']
+    fields(reference, ('file', 'dossier_sha256', 'file_sha256'), 'retained reading reference')
+    if (context['event_id'] != event_id or reference != data['radar_context']['reference']
+            or not isinstance(context['navigation_basis'], str) or not context['navigation_basis'].strip()):
+        raise ValueError('Reading context must reuse the retained radar dossier')
+    # The radar validator checks this same immutable reference and history.
+    observations = context['observations']
+    if not isinstance(observations, list) or not 0 < len(observations) <= 32:
+        raise ValueError('Reading context needs bounded declared observations')
+    entries = {row['id'] for row in data['entries']}
+    sources = {row['id']: row for row in data['sources']}
+    seen = set()
+    for row in observations:
+        fields(row, ('id', 'source_id', 'report_page', 'documentary_anchor'), 'reading observation route')
+        if (any(not isinstance(row[key], str) or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', row[key]) for key in ('id', 'documentary_anchor'))
+                or row['id'] in seen or not isinstance(row['source_id'], str) or row['source_id'] not in sources
+                or type(row['report_page']) is not int or row['report_page'] < 1):
+            raise ValueError('Invalid reading observation route')
+        seen.add(row['id'])
+    associations = context['associations']
+    if not isinstance(associations, list) or not 0 < len(associations) <= len(entries):
+        raise ValueError('Invalid reading associations')
+    associated, used = set(), set()
+    for row in associations:
+        fields(row, ('entry_id', 'observation_ids'), 'reading association')
+        ids = row['observation_ids']
+        if (not isinstance(row['entry_id'], str) or row['entry_id'] not in entries or row['entry_id'] in associated
+                or not isinstance(ids, list) or not ids or any(not isinstance(value, str) or value not in seen for value in ids)
+                or len(set(ids)) != len(ids)):
+            raise ValueError('Reading context needs distinct known entry and observation IDs')
+        associated.add(row['entry_id']); used.update(ids)
+    if used != seen:
+        raise ValueError('Reading observations must have declared entry associations')
+    if root is None:
+        return context
+    from .archive import archive_bytes, validate_dossier
+    dossier = validate_dossier(json.loads(archive_bytes(root / 'web' / reference['file'], 200_000)))
+    expected = dict(intake='published', assertion='source_reported', temporal='unregistered',
+                    spatial='unregistered', availability='reviewed_available', rights='links_only')
+    for route in observations:
+        observation = next((row for row in dossier['observations'] if row['id'] == route['id']), None)
+        source = next((row for row in dossier['sources'] if row['id'] == route['source_id']), None)
+        if (observation is None or source is None or observation['source_id'] != route['source_id']
+                or source['url'] != sources[route['source_id']]['url'] or observation['status'] != expected
+                or any(observation['time'][key] is not None for key in ('event', 'capture', 'video', 'alignment'))
+                or observation['place']['coordinates'] is not None):
+            raise ValueError('Retained reading record must remain qualified and unregistered')
     return context

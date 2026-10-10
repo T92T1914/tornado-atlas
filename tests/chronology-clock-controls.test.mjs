@@ -20,6 +20,7 @@ function fixture(t,{withRadar=false}={}){
   class Element{
     constructor(tag){this.tag=tag;this.children=[];this.handlers=new Map();this.attributes=new Map();this.textContent='';this._value='';this._selected=false;elements.push(this);}
     append(child){child.parent=this;this.children.push(child);if(this.tag==='select'&&this.children.length===1)child.selected=true;}
+    replaceChildren(...children){for(const child of this.children)delete child.parent;this.children=[];this.textContent='';for(const child of children)this.append(child);}
     set value(value){this._value=String(value);if(this.tag==='option'&&this.selected)this.parent.value=this._value;}
     get value(){return this._value;}
     set selected(value){this._selected=Boolean(value);if(this._selected&&this.parent){for(const sibling of this.parent.children)if(sibling!==this)sibling._selected=false;this.parent.value=this.value;}}

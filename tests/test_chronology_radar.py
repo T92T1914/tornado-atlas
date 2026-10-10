@@ -27,6 +27,7 @@ class RadarChronologyTests(unittest.TestCase):
         old = copy.deepcopy(self.data)
         old['schema_version'] = 1
         old.pop('radar_context')
+        old.pop('reading_context')
         validate_chronology(old, 'joplin-2011', ROOT)
         old['radar_context'] = self.data['radar_context']
         with self.assertRaises(ValueError):
