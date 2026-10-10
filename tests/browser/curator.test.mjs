@@ -56,6 +56,16 @@ async function fitsReadingWidth(page,context){
 
 test('real retained media survives private save, idempotent intake, preview and candidate download',async t=>{
   const page=await pageFor(t);await newDraft(page,'browser-media-review');
+  assert.equal((await page.request.get(new URL('/museum.css',url).href)).status(),200);
+  const museumLinks=await page.locator('header .museum-nav a,header .brand').evaluateAll(nodes=>nodes.map(node=>({href:node.href,target:node.target,rel:node.rel})));
+  assert.ok(museumLinks.length>4);
+  for(const link of museumLinks){
+    assert.ok(link.href.startsWith('https://t92t1914.github.io/tornado-atlas/'));
+    assert.equal(new URL(link.href).search,'');
+    assert.equal(link.target,'_blank');
+    assert.ok(link.rel.split(' ').includes('noopener'));
+    assert.ok(link.rel.split(' ').includes('noreferrer'));
+  }
   await page.locator('#private-notes').fill('PRIVATE TEST NOTE must stay outside the public candidate');
   await page.getByRole('button',{name:'Save draft',exact:true}).click();await page.waitForFunction(()=>document.getElementById('status').textContent.startsWith('Draft saved atomically'));
   await page.getByRole('button',{name:'Fill from a retained video sample'}).click();
@@ -165,7 +175,7 @@ test('390 pixel layouts, both appearances, keyboard and source-record context wo
 
 test('rendered candidate text does not create source-supplied markup',async t=>{
   const page=await pageFor(t);await newDraft(page,'plain-text-preview');
-  await page.locator('summary').first().click();const doc=JSON.parse(await page.locator('#dossier-json').inputValue());doc.media[0].title='<img src=x onerror="window.unexpected=true">';await page.locator('#dossier-json').fill(JSON.stringify(doc));
+  await page.getByText('Edit the full dossier and inspect disagreements',{exact:true}).click();const doc=JSON.parse(await page.locator('#dossier-json').inputValue());doc.media[0].title='<img src=x onerror="window.unexpected=true">';await page.locator('#dossier-json').fill(JSON.stringify(doc));
   await page.getByRole('button',{name:'Validate and preview candidate'}).click();await page.locator('#candidate-panel').waitFor({state:'visible'});
   assert.equal(await page.locator('#candidate-summary img').count(),0);assert.equal(await page.evaluate(()=>Boolean(window.unexpected)),false);
 });
@@ -174,7 +184,7 @@ test('editing invalidates a preview and two browser copies cannot silently repla
   const first=await pageFor(t);await newDraft(first,'conflict-review');
   const second=await pageFor(t);await second.locator('#draft-choice').selectOption('conflict-review');await second.getByRole('button',{name:'Reopen draft',exact:true}).click();await second.waitForFunction(()=>!document.getElementById('workspace').hidden);
   await first.getByRole('button',{name:'Validate and preview candidate'}).click();await first.locator('#candidate-panel').waitFor({state:'visible'});assert.equal(await first.locator('#download').isEnabled(),true);
-  await first.locator('summary').first().click();const doc=JSON.parse(await first.locator('#dossier-json').inputValue());doc.summary+=' A private working edit.';await first.locator('#dossier-json').fill(JSON.stringify(doc,null,2));assert.equal(await first.locator('#download').isDisabled(),true);assert.match(await first.locator('#preview-state').textContent(),/Validate again/);
+  await first.getByText('Edit the full dossier and inspect disagreements',{exact:true}).click();const doc=JSON.parse(await first.locator('#dossier-json').inputValue());doc.summary+=' A private working edit.';await first.locator('#dossier-json').fill(JSON.stringify(doc,null,2));assert.equal(await first.locator('#download').isDisabled(),true);assert.match(await first.locator('#preview-state').textContent(),/Validate again/);
   await first.locator('#private-notes').fill('Newer notes in first tab');await first.getByRole('button',{name:'Save draft',exact:true}).click();await first.waitForFunction(()=>document.getElementById('status').textContent.startsWith('Draft saved atomically'));
   await second.locator('#private-notes').fill('Older tab edit');await second.getByRole('button',{name:'Save draft',exact:true}).click();await second.locator('#error').waitFor({state:'visible'});assert.match(await second.locator('#error').textContent(),/Saved draft changed/);assert.equal(await second.locator('#private-notes').inputValue(),'Older tab edit');
   second.once('dialog',dialog=>dialog.dismiss());await second.getByRole('button',{name:'Reopen draft',exact:true}).click();assert.equal(await second.locator('#private-notes').inputValue(),'Older tab edit');

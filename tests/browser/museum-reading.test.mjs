@@ -67,7 +67,7 @@ test('principal routes expose the same four-exhibit navigation at narrow width',
     await page.goto(base+'/'+route,{waitUntil:'load'});
     const summary=page.locator('.museum-nav details').first().locator('summary');
     await summary.focus();await page.keyboard.press('Enter');
-    assert.deepEqual(await page.locator('.museum-nav details').first().locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),registry.events.map(row=>row.documentary),route);
+    assert.deepEqual(await page.locator('.museum-nav details').first().locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),registry.events.map(row=>route==='curator.html'?'https://t92t1914.github.io/tornado-atlas/'+row.documentary:row.documentary),route);
     const bounds=await page.locator('.museum-nav').boundingBox();
     assert.ok(bounds.x>=0&&bounds.x+bounds.width<=321,route+' keeps its header within the viewport');
   }
