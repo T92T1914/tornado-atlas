@@ -28,7 +28,7 @@ test('all published current and retained references verify exact bytes without a
       files.add(version.file);
     }
   }
-  assert.equal(files.size,37);
+  assert.equal(files.size,38);
 });
 
 test('missing or malformed reference hashes and paths fail before any dossier fetch',async()=>{
