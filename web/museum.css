@@ -1,0 +1,43 @@
+/* Shared museum orientation, separate from each exhibit's contents. */
+header .museum-nav {align-items:flex-start;gap:12px 22px;font-size:14px}
+.museum-nav>a,.museum-nav summary {display:block;min-height:44px;padding:10px 0}
+.museum-nav details {position:relative;margin:0;padding:0;border:0;background:transparent;min-width:0}
+.museum-nav summary {cursor:pointer;border:1px solid var(--line);border-radius:5px;padding:8px}
+.museum-nav .museum-menu {position:absolute;z-index:1200;top:44px;right:0;width:280px;max-width:calc(100vw - 36px);padding:12px;background:var(--bg);border:1px solid var(--line);box-shadow:0 12px 24px #0003}
+.museum-menu a {display:block;padding:10px;min-height:44px;overflow-wrap:anywhere;line-height:1.5}
+.museum-nav [aria-current=page] {text-decoration:underline;text-underline-offset:5px;font-weight:600}
+.museum-nav summary:focus-visible {outline:2px solid var(--gold);outline-offset:3px}
+.museum-entrance {padding:30px 0 40px}
+.museum-entrance h1 {font:clamp(34px,5vw,58px)/1.1 Georgia,serif;margin:12px 0 20px}
+.museum-entrance>p {max-width:68ch;font-size:17px;line-height:1.7}
+.museum-entrance .museum-routes {grid-template-columns:repeat(3,minmax(0,1fr))}
+.museum-paths {display:flex;flex-wrap:wrap;gap:12px 22px;margin-top:22px;font-size:15px}
+.museum-paths a {display:inline-block;min-height:44px;padding:8px 0}
+.museum-feature .museum-photo-link {min-height:0}
+.museum-feature .museum-photo-link img {height:auto;min-height:0;max-height:none;object-fit:contain}
+.museum-entrance .museum-feature-copy {padding:24px}
+.museum-entrance .museum-feature-copy h2 {font-size:32px;margin:12px 0}
+.museum-entrance .museum-credit {font-size:12px;line-height:1.6;margin:14px 0 0}
+.exhibit-orientation {font:clamp(20px,3vw,28px)/1.35 Georgia,serif;margin:16px 0}
+.documentary-intro h1 span {display:block;font:clamp(20px,3vw,28px)/1.4 var(--interface-font);letter-spacing:0;margin-top:14px}
+#catalogue h2 {font:32px/1.2 Georgia,serif;margin:0}
+#enhancement-status {padding:14px;border-left:3px solid var(--line);font-size:14px;line-height:1.6;max-width:70ch}
+.storm-photo-button {display:block;text-decoration:none}
+.storm-photo-button img {display:block;width:100%;height:auto}
+header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.documentary-exhibit a,.documentary-exhibit h2,.documentary-exhibit h3,.documentary-exhibit h4 {overflow-wrap:anywhere;max-width:100%}
+.documentary-exhibit .section-title>div,.documentary-exhibit .note {min-width:0;max-width:100%}
+.documentary-exhibit .playback-options label,.documentary-exhibit .playback-options select {min-width:0;max-width:100%}
+@media(max-width:760px){
+ header .museum-nav {width:100%;gap:6px 18px;justify-content:flex-start}
+ .museum-nav details[open] {flex-basis:100%;order:2}
+ .museum-nav .museum-menu {position:static;width:100%;max-width:100%;box-shadow:none}
+ .museum-entrance {padding-top:22px}
+ .museum-entrance .museum-feature {grid-template-columns:1fr}
+ .museum-entrance .museum-routes {grid-template-columns:1fr;gap:14px}
+ .museum-entrance .museum-feature-copy {padding:18px}
+ .museum-entrance .museum-routes article {padding:18px}
+ .documentary-exhibit .notes,.documentary-exhibit .research-bottom {grid-template-columns:minmax(0,1fr)}
+}
+
+.contents-rail .contents-group {margin:18px 0 4px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "event": "el-reno-2013",
-  "updated": "2026-09-21",
+  "updated": "2026-10-10",
   "sources": [
     {
       "group": "Original photographs and accounts",
@@ -64,7 +64,7 @@
       "title": "El Reno tornado photograph, May 31, 2013",
       "publisher": "Daniel Rodriguez / Wikimedia Commons",
       "url": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado.jpg",
-      "use": "The second preserved photograph and its CC BY 2.0 attribution. This view has not been synchronized with the map."
+      "use": "The second preserved photograph and its CC BY 2.0 attribution. This view has not been synchronized with the map. The creator’s original Flickr caption places the camera approximately north of Banner Road and 15th Street. Exact coordinates, viewing direction and the camera clock remain unregistered."
     },
     {
       "group": "Remembrance and reporting",
@@ -169,7 +169,7 @@
       "title": "Aerial Damage Survey of the 2013 El Reno Tornado Combined with Mobile Radar Data",
       "publisher": "American Meteorological Society / Monthly Weather Review",
       "url": "https://doi.org/10.1175/MWR-D-15-0367.1",
-      "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable; the unfinished conclusion was not used."
+      "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable in that earlier abstract review; the unfinished conclusion was not used. Later, on October 1, 2026 UTC, selected NOAA-hosted PDF text on pages 1 to 4 and complete rendered pages 3 and 4 were inspected, including the aerial method and Figures 1 and 2. Other pages and figures remain outside that inspection. The event dossier records the exact PDF identity and copyright limits."
     },
     {
       "group": "Geography and imagery",

@@ -21,7 +21,7 @@ function svgNode(tag, attributes, text) {
 }
 async function main() {
   const response = await fetch('data.json');
-  if (!response.ok) throw new Error('Exhibit data could not be loaded. Run the exhibit build first.');
+  if (!response.ok) throw new Error('Interactive exploration is unavailable. The historical account, photographs and sources remain readable below. Reload to try the interactive tools again.');
   const data = await response.json();
   const { mountPhotoViewer } = await import('./photo-view.mjs');
   const openPhoto = mountPhotoViewer();
@@ -29,99 +29,25 @@ async function main() {
   const history = data.history;
   const { mountCommunity } = await import('./community-view.mjs');
   mountCommunity(data.community);
-  const sourceNames = new Map(data.reading.sources.map(source => [source.url, source.publisher]));
-  byId('history-introduction').textContent = history.introduction;
-  for (const entry of history.context) {
-    const card = node('article', null, 'note');
-    card.append(node('h3', entry.title),node('p',entry.text),link('Read the account ↗',entry.source));
-    byId('historical-context').append(card);
-  }
-  const contents=node('nav',null,'report-contents');contents.setAttribute('aria-label','In this history');contents.append(node('strong','In this history'));
-  for(const section of history.report){const entry=node('a',section.title);entry.href='#'+section.id;contents.append(entry);}
-  byId('documentary-report').append(contents);
-  for (const section of history.report) {
-    const article = node('article'); article.id = section.id;
-    const heading = node('h3'); const anchor = node('a', section.title); anchor.href = '#'+section.id;
-    heading.append(anchor); article.append(heading);
-    section.paragraphs.forEach(text => article.append(node('p', text)));
-    const sources = node('div', null, 'report-links');
-    section.sources.forEach(source => sources.append(link(source.label, source.url)));
-    article.append(sources); byId('documentary-report').append(article);
-  }
-  function stormFigure(photo, index, hero = false) {
-    const figure = node('figure');
-    const image = node('img');
-    image.src = photo.file; image.alt = photo.alt; image.loading = hero ? 'eager' : 'lazy';
-    image.decoding = 'async';
-    if (hero) image.fetchPriority = 'high';
-    image.width=photo.width; image.height=photo.height;
-    const full = node('button', null, 'storm-photo-button');
-    full.append(image); full.setAttribute('aria-label',`Enlarge storm photograph ${index + 1}`);
-    full.addEventListener('click', () => openPhoto({
-      title:`El Reno / storm photograph ${index + 1}`, asset:photo.file, alt:photo.alt,
-      caption:photo.caption, location:photo.timing_note, credit:photo.credit + '. ' + photo.changes,
-      source:photo.source, license:photo.license, licenseUrl:photo.license_url
-    }));
-    image.addEventListener('error', () => {
-      full.replaceChildren(node('span', 'Photograph unavailable. Use the source link below.'));
-      full.disabled = true;
-    }, {once:true});
-    const caption=node('figcaption');
-    caption.append(node('p', hero ? 'El Reno, photographed on May 31, 2013. Select to enlarge.' : photo.caption),
-      link(photo.credit + ' ↗',photo.source), document.createTextNode(' · '),link(photo.license,photo.license_url));
-    if (!hero) caption.append(node('p',photo.changes+' '+photo.timing_note,'fineprint'));
-    figure.append(full,caption);
-    return figure;
-  }
-  data.storm_photos.forEach((photo,index) => {
-    byId('storm-photographs').append(stormFigure(photo,index));
-  });
-  if (data.storm_photos.length) byId('hero-photograph').append(stormFigure(data.storm_photos[0],0,true));
-  for (const entry of data.visitor_guide) {
-    const details = node('details');
-    details.id = entry.id;
-    details.append(node('summary',entry.question),node('p',entry.answer));
-    const sources = node('p',null,'guide-sources');
-    entry.sources.forEach(source => sources.append(link(source.label+' ↗',source.url)));
-    details.append(sources);
-    byId('visitor-questions').append(details);
-  }
-  const impacts=history.impacts, memorial=history.remembrance;
-  for (const [label,value] of [['Direct fatalities',impacts.deaths_direct],['Direct injuries reported',impacts.injuries_direct]]) {
-    const card=node('div',null,'fact');
-    card.append(node('strong',String(value)),link(label+' ↗',impacts.source));byId('impact-counts').append(card);
-  }
-  byId('impact-scope').textContent=impacts.scope+' Source revision '+impacts.snapshot+'.';
-  byId('impact-definitions').textContent=impacts.note;
-  byId('impact-discrepancy').append(document.createTextNode(impacts.discrepancy+' '),link('Contemporary reporting ↗',impacts.discrepancy_source));
-  byId('remembrance-title').textContent=memorial.title;
-  byId('remembrance-introduction').textContent=memorial.introduction;
-  byId('remembrance-scope').textContent=memorial.scope;
-  byId('remembrance-source-note').textContent=memorial.source_note;
-  for (const person of memorial.people) {
-    const item=node('li');item.append(node('strong',person.name));
-    if(person.note)item.append(node('p',person.note));
-    const sources=node('div',null,'memorial-sources');
-    person.sources.forEach(url=>sources.append(link(`${sourceNames.get(url) || 'Public source'} ↗`,url)));
-    item.append(sources);byId('memorial-names').append(item);
-  }
-  byId('place').textContent = exhibit.location;
-  byId('introduction').textContent = exhibit.introduction;
-  byId('introduction').append(' ', link('NWS account ↗', exhibit.introduction_source));
-  byId('map-note').textContent = exhibit.map_note;
-  byId('time-note').textContent = exhibit.time_note;
-  byId('coverage').textContent = exhibit.coverage.video_review;
-  byId('remaining').textContent = exhibit.coverage.remaining;
-  for (const fact of exhibit.facts) {
-    const card = node('div', null, 'fact');
-    card.append(node('strong', fact.value), link(fact.label + ' ↗', fact.source));
-    byId('facts').append(card);
-  }
-  for (const entry of exhibit.discrepancies) {
-    const card = node('article', null, 'note');
-    card.append(node('h3', entry.title), node('p', entry.text));
-    entry.sources.forEach(url => card.append(link(`${sourceNames.get(url) || 'Source'} ↗`, url)));
-    byId('notes').append(card);
+  const memorial = history.remembrance;
+  // Reading is published from these same records. Enhance its original links
+  // only after the viewer is available; otherwise ordinary navigation works.
+  for (const anchor of document.querySelectorAll('[data-storm-photo]')) {
+    const index = Number(anchor.dataset.stormPhoto);
+    const photo = data.storm_photos[index];
+    anchor.addEventListener('click', event => {
+      event.preventDefault();
+      openPhoto({title:`El Reno / storm photograph ${index + 1}`, asset:photo.file,
+        alt:photo.alt, caption:photo.caption, location:photo.timing_note,
+        credit:photo.credit + '. ' + photo.changes, source:photo.source,
+        license:photo.license, licenseUrl:photo.license_url});
+    });
+    const image = anchor.querySelector('img');
+    const failed = () => {
+      anchor.replaceChildren(node('span', 'Photograph unavailable. Open the preserved original or use the credited source below.'));
+    };
+    image.addEventListener('error', failed, {once:true});
+    if (image.complete && !image.naturalWidth) failed();
   }
   const creators = new Map(data.creators.map(c => [c.id, c]));
   const notebook = data.notebook;
@@ -197,6 +123,7 @@ async function main() {
     catch { id = null; }
     if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
     document.body.dataset.exhibitReady = 'true';
+    byId('enhancement-status').hidden = true;
   });
 }
 async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage, photoContext) {
@@ -370,4 +297,4 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
   }
   return {selectMinute,prepareSurveyHistory};
 }
-main().catch(error => {document.body.dataset.exhibitReady='error';byId('error').hidden=false;byId('error').textContent=error.message;});
+main().catch(error => {document.body.dataset.exhibitReady='error';byId('error').hidden=false;byId('error').textContent=error.message;byId('enhancement-status').textContent='Interactive exploration could not finish loading. The historical account, photographs and source links remain available. Reload to try again.';});

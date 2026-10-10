@@ -176,6 +176,10 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(bundle_bytes)
     write_packages(destination.parent, packages)
+    if destination.parent == ROOT / 'web':
+        from .museum_reading import publish, validate_versions
+        validate_versions(photos, destination.parent)
+        publish(ROOT, result)
     geo_path = ROOT / "exhibits/el-reno-2013/path.geojson"
     geo_path.write_text(json.dumps(geojson, indent=2) + "\n", encoding="utf-8")
     return {"output": str(destination), "geometry": counts, "source_sha256": metadata["sha256"]}

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "tuscaloosa-birmingham-2011",
-  "dossier_sha256": "00443cb7e5034a74e86d0f57c423e1b2bb7d13183bc8ed288c9c98b33b7d0405",
+  "dossier_sha256": "dcdd215f71a4258fadc5bf7f7e43e7f58373d629b62f317cc31354bc43c362cd",
   "survey": null,
   "layers": {
     "geography": {

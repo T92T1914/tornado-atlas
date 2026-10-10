@@ -38,7 +38,7 @@ export function mountDocumentary(data,media,cameras,svg,project,start,end,seek,f
   toggle.addEventListener('change',()=>{if(last)update(last);});
   const sequence=document.getElementById('forecast-sequence');
   for(const record of data.warnings) {
-    const item=el('li');item.id=record.id;item.append(el('p',localStamp(record.issued),'eyebrow'),el('h3',record.title),el('p',record.summary),link('Original NWS text, preserved by IEM',record.source));
+    const item=document.getElementById(record.id);
     const stamp=Date.parse(record.issued);
     if(stamp>=start&&stamp<=end){const jump=el('button','Follow this moment on the path');jump.type='button';jump.addEventListener('click',()=>{seek((stamp-start)/1000);document.getElementById('evidence-desk').scrollIntoView({block:'start'});});item.append(jump);}
     else item.append(el('p','Before the first published path position.','fineprint'));

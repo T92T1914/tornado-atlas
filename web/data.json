@@ -2339,7 +2339,38 @@
       "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
       "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
       "width": 5103,
-      "height": 3402
+      "height": 3402,
+      "reading_versions": [
+        {
+          "file": "assets/el-reno-2013/storm01-640.jpg",
+          "width": 640,
+          "height": 427,
+          "bytes": 32967,
+          "sha256": "6f5c7b7cef4923cdce231c13aa7e18544a2adc20716f656e5b1d46fbc658315f",
+          "original_sha256": "0f345ef666729bd9b86d723772f371f0dde7acf9e7b7016896dfdd8c8db2c494",
+          "changes": "Full frame resized with Lanczos resampling and JPEG compressed at quality 82. No crop or generated image content."
+        },
+        {
+          "file": "assets/el-reno-2013/storm01-1280.jpg",
+          "width": 1280,
+          "height": 853,
+          "bytes": 136837,
+          "sha256": "70d98e714ca26fb780f370d07a0f72d6734d901697a28e43cf3b16ce76d258db",
+          "original_sha256": "0f345ef666729bd9b86d723772f371f0dde7acf9e7b7016896dfdd8c8db2c494",
+          "changes": "Full frame resized with Lanczos resampling and JPEG compressed at quality 82. No crop or generated image content."
+        },
+        {
+          "file": "assets/el-reno-2013/storm01-1920.jpg",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 351061,
+          "sha256": "39d1a927df0162ba76b3b92ca7fa3f013ae07e620e60f5dc7cda60cf14b7397f",
+          "original_sha256": "0f345ef666729bd9b86d723772f371f0dde7acf9e7b7016896dfdd8c8db2c494",
+          "changes": "Full frame resized with Lanczos resampling and JPEG compressed at quality 82. No crop or generated image content."
+        }
+      ],
+      "creator_url": "https://www.flickr.com/photos/drodphoto/8920496820/",
+      "creator_title": "El Reno EF-5 Tornado Wedge"
     },
     {
       "id": "storm-2",
@@ -2352,11 +2383,42 @@
       "sha256": "161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6",
       "retrieved_at": "2026-09-20T14:00:16.451457+00:00",
       "changes": "Original image bytes preserved; scaled by the browser.",
-      "caption": "El Reno tornado, May 31, 2013. Photograph by Daniel Rodriguez.",
+      "caption": "El Reno tornado, May 31, 2013. Daniel Rodriguez’s original caption places this view approximately north of Banner Road and 15th Street. Exact camera coordinates, bearing and historical time are not established.",
       "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
       "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
       "width": 5085,
-      "height": 3390
+      "height": 3390,
+      "reading_versions": [
+        {
+          "file": "assets/el-reno-2013/storm02-640.jpg",
+          "width": 640,
+          "height": 427,
+          "bytes": 33340,
+          "sha256": "df83a1047f0db6a0b3c78fb7e8fdbce8540f9556afabdecfd64ec87dd446ae57",
+          "original_sha256": "161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6",
+          "changes": "Full frame resized with Lanczos resampling and JPEG compressed at quality 82. No crop or generated image content."
+        },
+        {
+          "file": "assets/el-reno-2013/storm02-1280.jpg",
+          "width": 1280,
+          "height": 853,
+          "bytes": 143532,
+          "sha256": "4b2725bf95b1df663f06a312964167154869156fce4b2ca27c2bf4c25d18f354",
+          "original_sha256": "161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6",
+          "changes": "Full frame resized with Lanczos resampling and JPEG compressed at quality 82. No crop or generated image content."
+        },
+        {
+          "file": "assets/el-reno-2013/storm02-1920.jpg",
+          "width": 1920,
+          "height": 1280,
+          "bytes": 376467,
+          "sha256": "4dbc11741eb5466f23fb44f457804394790f408bc532443abdbb15bc8d7b25f2",
+          "original_sha256": "161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6",
+          "changes": "Full frame resized with Lanczos resampling and JPEG compressed at quality 82. No crop or generated image content."
+        }
+      ],
+      "creator_url": "https://www.flickr.com/photos/drodphoto/8964995898/",
+      "creator_title": "El Reno EF-5 Tornado"
     }
   ],
   "visitor_guide": [
@@ -2404,7 +2466,7 @@
     {
       "id": "question-reconstruction",
       "question": "Can we see exactly what it looked like at each moment?",
-      "answer": "Not yet. The photographs and linked footage provide views of the actual storm, but their camera positions and historical times still need to be matched. The form study and wind lab are separate illustrations. They do not recreate the recorded El Reno wind field or the damage to individual buildings.",
+      "answer": "Not at each moment. Selected paused footage samples have documented clock correspondences, which can be compared with the map. They do not establish a continuously inspected and registered appearance interval. The two documentary photographs have no assigned historical minute or registered viewing direction. The form study and wind lab are separate illustrations. They do not recreate the recorded El Reno wind field or the damage to individual buildings.",
       "sources": [
         {
           "label": "Our reconstruction and review record",
@@ -8466,7 +8528,7 @@
   "reading": {
     "schema": 1,
     "event": "el-reno-2013",
-    "updated": "2026-09-21",
+    "updated": "2026-10-10",
     "sources": [
       {
         "group": "Original photographs and accounts",
@@ -8529,7 +8591,7 @@
         "title": "El Reno tornado photograph, May 31, 2013",
         "publisher": "Daniel Rodriguez / Wikimedia Commons",
         "url": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado.jpg",
-        "use": "The second preserved photograph and its CC BY 2.0 attribution. This view has not been synchronized with the map."
+        "use": "The second preserved photograph and its CC BY 2.0 attribution. This view has not been synchronized with the map. The creator’s original Flickr caption places the camera approximately north of Banner Road and 15th Street. Exact coordinates, viewing direction and the camera clock remain unregistered."
       },
       {
         "group": "Remembrance and reporting",
@@ -8634,7 +8696,7 @@
         "title": "Aerial Damage Survey of the 2013 El Reno Tornado Combined with Mobile Radar Data",
         "publisher": "American Meteorological Society / Monthly Weather Review",
         "url": "https://doi.org/10.1175/MWR-D-15-0367.1",
-        "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable; the unfinished conclusion was not used."
+        "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable in that earlier abstract review; the unfinished conclusion was not used. Later, on October 1, 2026 UTC, selected NOAA-hosted PDF text on pages 1 to 4 and complete rendered pages 3 and 4 were inspected, including the aerial method and Figures 1 and 2. Other pages and figures remain outside that inspection. The event dossier records the exact PDF identity and copyright limits."
       },
       {
         "group": "Geography and imagery",
