@@ -27,6 +27,9 @@ header .museum-nav {align-items:flex-start;gap:12px 22px;font-size:14px}
 header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .documentary-exhibit a,.documentary-exhibit h1,.documentary-exhibit h2,.documentary-exhibit h3,.documentary-exhibit h4 {overflow-wrap:anywhere;max-width:100%}
 .documentary-exhibit .hero-grid>div {min-width:0;max-width:100%}
+.documentary-exhibit select {min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.documentary-exhibit .camera-controls select {width:100%}
+.documentary-exhibit input[type=range] {margin-inline:0}
 .documentary-exhibit .section-title>div,.documentary-exhibit .note {min-width:0;max-width:100%}
 .documentary-exhibit .playback-options label,.documentary-exhibit .playback-options select {min-width:0;max-width:100%}
 .documentary-exhibit .damage-filters label,.documentary-exhibit .survey-options label {min-width:0;max-width:100%}
