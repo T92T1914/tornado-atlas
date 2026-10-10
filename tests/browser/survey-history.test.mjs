@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fixture,base} from './harness.mjs';
+import {beginSurveyActivation,finishSurveyActivation} from './survey-activation-diagnostics.mjs';
 
 const data=JSON.parse(readFileSync(new URL('../../web/data.json',import.meta.url)));
 const fatality=data.history.remembrance.places[0];
@@ -135,8 +136,10 @@ test('survey choice during playback stores the current replay time before pausin
   await page.locator('#play').click();
   await page.waitForFunction(()=>Number(document.getElementById('timeline').value)>780);
   const beforeSelection=await readReplaySurvey();
+  await beginSurveyActivation(page);
   await page.locator('#survey-next').click();
   const protocolUrlAfterClick=page.url(),completed=await readReplaySurvey();
+  await finishSurveyActivation(t,page,'article survey selection during playback');
   t.diagnostic('SURVEY_REPLAY_SELECTION '+JSON.stringify({initial,beforeSelection,
     protocolUrlAfterClick,protocolUrlAfterSnapshot:page.url(),completed}));
   assert.equal(completed.selection,'270275','The intended survey selection completed');
