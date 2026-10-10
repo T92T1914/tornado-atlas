@@ -28,6 +28,9 @@ header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .documentary-exhibit a,.documentary-exhibit h2,.documentary-exhibit h3,.documentary-exhibit h4 {overflow-wrap:anywhere;max-width:100%}
 .documentary-exhibit .section-title>div,.documentary-exhibit .note {min-width:0;max-width:100%}
 .documentary-exhibit .playback-options label,.documentary-exhibit .playback-options select {min-width:0;max-width:100%}
+.documentary-exhibit .damage-filters label,.documentary-exhibit .survey-options label {min-width:0;max-width:100%}
+.documentary-exhibit .damage-filters select,.documentary-exhibit .damage-filters input {min-width:0;max-width:100%;width:100%}
+.documentary-exhibit .survey-options select {min-width:0;max-width:100%;width:100%}
 @media(max-width:760px){
  header .museum-nav {width:100%;gap:6px 18px;justify-content:flex-start}
  .museum-nav details[open] {flex-basis:100%;order:2}

@@ -152,9 +152,10 @@ for(const scenario of ['data503','module503','photographs503']){
     } else assert.equal(await page.locator('#enhancement-status').isVisible(),true);
   });
 }
-test('essential El Reno reading and museum navigation reflow at doubled text',async t=>{
-  const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});
+for(const enabled of [false,true])test(`essential El Reno reading and museum navigation reflow at doubled text, scripts ${enabled}`,async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:enabled});
   await page.goto(base+'/index.html');
+  if(enabled)await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
   await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')];const sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));nodes.forEach((node,index)=>node.style.fontSize=sizes[index]*2+'px');});
   await capture(page,'el-reno-320-nojs-enlarged');
   if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)) console.log('READING_REFLOW_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('body *')].map(node=>({tag:node.tagName,id:node.id,cls:node.className,width:node.getBoundingClientRect().width,right:node.getBoundingClientRect().right})).filter(row=>row.right>innerWidth+1&&row.width>0).slice(0,20))));
