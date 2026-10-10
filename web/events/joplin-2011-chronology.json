@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "event_id": "joplin-2011",
   "title": "Warnings and reported events",
   "clock": {
@@ -148,5 +148,43 @@
       }
     ],
     "navigation_basis": "The documentary clock selects the latest earlier printed radar minute from the complete report figure. This navigation comparison uses the existing NWS-based chronology. It does not calibrate the radar clock, assign an optical camera viewpoint, locate a building or create an alignment in the radar evidence record."
+  },
+  "reading_context": {
+    "event_id": "joplin-2011",
+    "reference": {
+      "file": "archive/joplin-2011-7c592efa31cda80b84ce.json",
+      "dossier_sha256": "7c592efa31cda80b84ceef2928fa1582b91428f1d0c05e024fa70f6c24e35d68",
+      "file_sha256": "3852134271d99837893f69987a70712901c71fa29e3c874df424c78c9d5a08cd"
+    },
+    "observations": [
+      {
+        "id": "intake-nws-local-siren-warning-distinction-2011",
+        "source_id": "nws-assessment",
+        "report_page": 19,
+        "documentary_anchor": "warning-context"
+      },
+      {
+        "id": "intake-nws-siren-cessation-2011",
+        "source_id": "nws-assessment",
+        "report_page": 11,
+        "documentary_anchor": "siren-response"
+      }
+    ],
+    "associations": [
+      {
+        "entry_id": "warning-30",
+        "observation_ids": [
+          "intake-nws-local-siren-warning-distinction-2011"
+        ]
+      },
+      {
+        "entry_id": "first-siren",
+        "observation_ids": [
+          "intake-nws-local-siren-warning-distinction-2011",
+          "intake-nws-siren-cessation-2011"
+        ]
+      }
+    ],
+    "navigation_basis": "These later assessment accounts help explain the selected warning or siren entry. They are not observations registered to this clock. Their individual reception and response times remain unregistered. The Section 3 warning explanation and selected interviews have a different scope from the Section 2 limited case study; they do not share a population denominator."
   }
 }

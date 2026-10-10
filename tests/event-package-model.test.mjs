@@ -146,3 +146,37 @@ test('camera evidence identity is checked even when bundle hash matches its pack
   manifest.bundle_sha256=Buffer.from(await webcrypto.subtle.digest('SHA-256',bytes)).toString('hex');
   await assert.rejects(loadEventPackage(null,fixture({'events/el-reno-2013.json':JSON.stringify(manifest),'data.json':bytes})),/Camera evidence belongs/);
 });
+
+test('reading and radar reuse one verified dossier while invalid optional reading keeps the clock',async()=>{
+  const env=fixture(),result=await loadEventPackage('joplin-2011',env);
+  assert.equal(result.readingContext.state,'available');assert.equal(result.radarContext.state,'available');
+  assert.deepEqual(env.calls,['events.json','events/joplin-2011-chronology.json',radarReference.file]);
+  for(const mutate of [
+    d=>d.reading_context.associations[0].entry_id='missing',
+    d=>d.reading_context.reference.file_sha256='0'.repeat(64),
+    d=>d.reading_context=null,
+    d=>delete d.reading_context
+  ]){
+    const bad=JSON.parse(chronology);mutate(bad);
+    const changed=fixture({'events/joplin-2011-chronology.json':JSON.stringify(bad)});
+    const loaded=await loadEventPackage('joplin-2011',changed);
+    assert.equal(loaded.chronology.entries.length,7);assert.equal(loaded.radarContext.state,'available');assert.equal(loaded.readingContext.state,'unavailable');
+    assert.deepEqual(changed.calls,['events.json','events/joplin-2011-chronology.json',radarReference.file]);
+  }
+  const failed=fixture({[radarReference.file]:null}),unavailable=await loadEventPackage('joplin-2011',failed);
+  assert.equal(unavailable.readingContext.state,'unavailable');assert.equal(unavailable.radarContext.state,'unavailable');assert.equal(unavailable.chronology.entries.length,7);
+});
+
+test('an incompatible radar record does not erase independently qualified assessment reading',async()=>{
+  const changed=JSON.parse(chronology),synthetic=JSON.parse(radarDossier);
+  synthetic.media.find(row=>row.id===changed.radar_context.media_id).kind='synthetic-incompatible-radar';
+  const bytes=Buffer.from(JSON.stringify(synthetic));
+  const fileHash=Buffer.from(await webcrypto.subtle.digest('SHA-256',bytes)).toString('hex');
+  changed.radar_context.reference.file_sha256=fileHash;changed.reading_context.reference.file_sha256=fileHash;
+  // A synthetic metadata/byte pair exercises consumer independence, not source truth.
+  const env=fixture({'events/joplin-2011-chronology.json':JSON.stringify(changed),[radarReference.file]:bytes});
+  const loaded=await loadEventPackage('joplin-2011',env);
+  assert.equal(loaded.radarContext.state,'unavailable');assert.equal(loaded.readingContext.state,'available');
+  assert.equal(loaded.chronology.entries.length,7);
+  assert.deepEqual(env.calls,['events.json','events/joplin-2011-chronology.json',radarReference.file]);
+});

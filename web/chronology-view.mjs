@@ -1,12 +1,16 @@
 import {PlaybackClock} from './playback-model.mjs';
 import {chronologyAt} from './chronology-model.mjs';
+import {readingForEntry} from './chronology-reading-model.mjs';
 import {mountChronologyRadar} from './chronology-radar-view.mjs';
 
-export function mountChronology(container,data,event,{radarContext=null,openPhoto=null}={}){
+export function mountChronology(container,data,event,{radarContext=null,readingContext=null,openPhoto=null}={}){
   const make=(tag,text,parent=container)=>{const node=document.createElement(tag);if(text)node.textContent=text;parent.append(node);return node;};
   container.hidden=false;
   make('h2',data.title);
   make('p',data.clock.basis);
+  if(readingContext?.state==='unavailable'){
+    make('p',readingContext.message);const recovery=make('a','Read the historical chapter and source accounts');recovery.href=event.documentary;
+  }
   const start=Date.parse(data.entries[0].utc),duration=(Date.parse(data.entries.at(-1).utc)-start)/1000;
   const clock=new PlaybackClock(duration),format=new Intl.DateTimeFormat('en-US',{timeZone:data.clock.time_zone,hour:'numeric',minute:'2-digit',timeZoneName:'short'});
   const label=seconds=>format.format(new Date(start+seconds*1000));
@@ -22,6 +26,23 @@ export function mountChronology(container,data,event,{radarContext=null,openPhot
   data.entries.forEach((entry,i)=>{const option=make('option',`${entry.precision==='approximate_minute'?'About ':''}${label((Date.parse(entry.utc)-start)/1000)}: ${entry.title}`,picker);option.value=i;});
   const card=make('article');card.className='chronology-record';
   const status=make('p','',card),title=make('h3','',card),account=make('p','',card),limits=make('p','',card),source=make('a','',card),original=make('p','',card);
+  const context=make('section','',card);context.id='chronology-reading-context';context.hidden=true;
+  function updateReading(entryId){
+    context.replaceChildren();const records=readingForEntry(readingContext,entryId);context.hidden=records.length===0;
+    if(context.hidden)return;
+    make('h4','Context from the later assessment',context);
+    make('p',readingContext.navigation_basis,context);
+    for(const {route,observation,source} of records){
+      const record=make('section','',context);record.dataset.observation=observation.id;
+      make('h5',observation.title,record);make('p',observation.account,record);make('p',observation.limits,record);
+      const links=make('p','',record);
+      const dossier=make('a','Read the evidence account, limits and inspection record',links);
+      const query=new URLSearchParams({event:event.id,revision:readingContext.reference.dossier_sha256,observation:observation.id});
+      dossier.href='dossier.html?'+query+'#observation-'+observation.id;
+      make('span',' · ',links);const report=make('a',source.title+': report passage',links);report.href=source.url+'#page='+route.report_page;
+      make('span',' · ',links);const chapter=make('a','Read this account in the historical chapter',links);chapter.href=event.documentary+'#'+route.documentary_anchor;
+    }
+  }
   const share=make('a','Link to this moment');share.id='chronology-link';
   make('p','The moving clock selects documentary entries. No registered images, tornado positions or wind estimates are supplied by this chronology.');
   const updateRadar=mountChronologyRadar(container,data,event,radarContext,openPhoto);
@@ -36,6 +57,7 @@ export function mountChronology(container,data,event,{radarContext=null,openPhot
     updateRadar(clock.seconds,seek);
     if(lastEntry!==entry.id){
       lastEntry=entry.id;title.textContent=entry.title;account.textContent=entry.account;limits.textContent=entry.limits;
+      updateReading(entry.id);
       const record=data.sources.find(row=>row.id===entry.source_id);
       source.href=`${record.url}#page=${entry.page}`;source.textContent=`${record.title}: ${entry.locator}`;
       original.textContent=`Source clock: ${entry.source_time}. ${entry.precision==='approximate_minute'?'Approximate time, with no numerical error bound supplied.':'Reported to the minute. Clock accuracy is not established.'}`;

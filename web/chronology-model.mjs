@@ -1,11 +1,12 @@
 // Source entries are discrete documentary records, never interpolated positions.
 import {validateRadarContext} from './chronology-radar-model.mjs';
+import {validateReadingContext} from './chronology-reading-model.mjs';
 function requireValue(value, message){if(!value)throw new Error(message);}
 function keys(value, expected){requireValue(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).sort().join('|')===expected.sort().join('|'),'Unsupported chronology fields.');}
 const text=value=>typeof value==='string'&&value.trim();
-export function validateChronology(data,eventId){
-  keys(data,['schema_version','event_id','title','clock','sources','entries',...(data?.schema_version===2?['radar_context']:[])]);
-  requireValue([1,2].includes(data.schema_version)&&data.event_id===eventId&&text(data.title),'Chronology schema or event identity differs.');
+export function validateChronology(data,eventId,{readingContext=true}={}){
+  keys(data,['schema_version','event_id','title','clock','sources','entries',...([2,3].includes(data?.schema_version)?['radar_context']:[]),...(data?.schema_version===3&&(readingContext||Object.hasOwn(data,'reading_context'))?['reading_context']:[])]);
+  requireValue([1,2,3].includes(data.schema_version)&&data.event_id===eventId&&text(data.title),'Chronology schema or event identity differs.');
   keys(data.clock,['time_zone','precision','basis']);
   requireValue(data.clock.precision==='minute'&&text(data.clock.basis)&&typeof data.clock.time_zone==='string'&&/^[A-Za-z_]+(?:\/[A-Za-z_+-]+)*$/.test(data.clock.time_zone),'Unsupported documentary clock.');
   new Intl.DateTimeFormat('en-US',{timeZone:data.clock.time_zone});
@@ -29,7 +30,8 @@ export function validateChronology(data,eventId){
     requireValue(['reported_minute','approximate_minute'].includes(entry.precision)&&sources.has(entry.source_id)&&Number.isInteger(entry.page)&&entry.page>0,'Chronology entry lacks precision or source.');
     seen.add(entry.id);previous=stamp;
   }
-  if(data.schema_version===2)validateRadarContext(data,eventId);
+  if([2,3].includes(data.schema_version))validateRadarContext(data,eventId);
+  if(data.schema_version===3&&readingContext)validateReadingContext(data,eventId);
   return data;
 }
 export function chronologyAt(data,seconds){
