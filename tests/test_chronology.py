@@ -71,6 +71,11 @@ class ChronologyTests(unittest.TestCase):
         self.assertEqual([(row['report_page'], row['documentary_anchor']) for row in context['observations']],
                          [(19, 'warning-context'), (11, 'siren-response')])
         self.assertEqual(len(self.data['entries']), 7)
+        # Chapter routes are checked here without making selective chronology
+        # publication depend on the chapter's content or other event pages.
+        chapter = (ROOT / 'web/joplin.html').read_text(encoding='utf-8')
+        for route in context['observations']:
+            self.assertIn('id="' + route['documentary_anchor'] + '"', chapter)
         dossier = json.loads((ROOT / 'web' / context['reference']['file']).read_text(encoding='utf-8'))
         for identity in (distinction, cessation):
             observation = next(row for row in dossier['observations'] if row['id'] == identity)

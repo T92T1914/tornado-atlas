@@ -191,7 +191,4 @@ def validate_reading_context(data, event_id, root=None):
                 or any(observation['time'][key] is not None for key in ('event', 'capture', 'video', 'alignment'))
                 or observation['place']['coordinates'] is not None):
             raise ValueError('Retained reading record must remain qualified and unregistered')
-        chapter = (root / 'web/joplin.html').read_text(encoding='utf-8')
-        if f'id="{route["documentary_anchor"]}"' not in chapter:
-            raise ValueError('Reading documentary anchor is absent')
     return context

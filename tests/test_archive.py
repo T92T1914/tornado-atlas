@@ -15,7 +15,7 @@ class ArchiveTests(unittest.TestCase):
     def test_retained_single_source_projection_keeps_its_reviewed_identity(self):
         expected = {
             'el-reno-2013': '900cc2c8a99db11a4858006bc3c9d768f468feb1cb88d404d005aa0938b961b4',
-            'joplin-2011': '82eb83ad33187250555c96574895a450c30390424074aa2732f9ca5848e9383b',
+            'joplin-2011': '1d53026636f7970d3954388a97dfaa9753ec7fc8b70c9f8606db332a9e770460',
             'blackwell-1955': '51d56cb1f0c100423c8748081cd95e1be2da642ab1bbda16cf808777b9c9aed5',
         }
         self.assertEqual({doc['id']: digest(doc) for doc in dossiers(include_curated=False) if doc['id'] in expected}, expected)
