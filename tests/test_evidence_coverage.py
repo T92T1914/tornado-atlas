@@ -1,13 +1,16 @@
 import copy
+import hashlib
 import html
 import json
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 from atlas.archive import dossiers
 from atlas.evidence_coverage import ROOT, coverage_rows, layer_references, publication, render_page, reviewed
+from atlas.event_package import build_event_packages, replay_inputs, reviewed_index, utc, validate_appearance_timeline
 
 
 class EvidenceCoverageTests(unittest.TestCase):
@@ -138,3 +141,183 @@ class EvidenceCoverageTests(unittest.TestCase):
                     if isinstance(value,str):self.assertIn(html.escape(value),raw)
         self.assertIn('camera metadata with unverified clock',raw)
         self.assertIn('Capture time or date',raw)
+
+
+class PhotoEvidenceCoverageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.docs = {doc['id']:doc for doc in dossiers(ROOT)}
+        cls.packages = build_event_packages(ROOT, replay_inputs(ROOT))
+        cls.index = reviewed_index(ROOT)
+        text = (ROOT/'tests/photo-observations.test.mjs').read_text(encoding='utf-8')
+        match = __import__('re').search(r'/\* PHOTO_CASES\r?\n([\s\S]*?)\r?\nPHOTO_CASES \*/', text)
+        if match is None:
+            raise ValueError('Shared synthetic photo cases are missing')
+        cls.spec = json.loads(match.group(1))
+
+    def synthetic_rows(self, event_id, *, registered=False):
+        spec = self.spec
+        packages = copy.deepcopy(self.packages)
+        index = copy.deepcopy(self.index)
+        config = copy.deepcopy(packages['events/el-reno-2013.json'])
+        original_bundle = json.loads(packages[config['bundle']])
+        origin = utc('2001-01-01T12:00:00Z')
+        def shifted(value):
+            return (origin+(utc(value)-utc(spec['clock']['start_utc']))).isoformat().replace('+00:00','Z')
+        clock = copy.deepcopy(spec['clock'])
+        clock.update(start_utc=shifted(spec['clock']['start_utc']),
+                     end_utc=shifted(spec['clock']['end_utc']),
+                     basis='Authored coverage fixture clock. No historical alignment.')
+        source = copy.deepcopy(spec['source'])
+        source['id'] = 'synthetic-coverage-publication'
+        source['title'] = 'Synthetic <script>resource title</script>'
+        source['url'] = 'https://example.test/coverage-fixture?edition=1&resource=synthetic'
+        sequences = []
+        for descriptor in spec['sequences']:
+            samples = []
+            for entry in descriptor['samples']:
+                sample = copy.deepcopy(spec['sample'])
+                sample.update(id='coverage-'+entry['id'], source_id=source['id'],
+                              exposure_id='coverage-'+entry['exposure_id'],
+                              reported_utc=shifted(entry['reported_utc']))
+                sample['image'].update(
+                    panel_locator='Synthetic <panel> '+entry['panel_locator'],
+                    original_url=source['url']+'#'+sample['exposure_id'],
+                )
+                samples.append(sample)
+            sequences.append({'id':'coverage-'+descriptor['id'],
+                              'basis':descriptor['basis'], 'samples':samples})
+        timeline = {'schema_version':2, 'event':event_id, 'windows':[],
+                    'photo_sources':[source], 'photo_sequences':sequences}
+        sources = []
+        if registered:
+            sources = [copy.deepcopy(spec['registered_source'])]
+            window = copy.deepcopy(spec['registered_window'])
+            window['start_utc'] = shifted(window['start_utc'])
+            window['end_utc'] = shifted(window['end_utc'])
+            for anchor in window['registration']['timing']['anchors']:
+                anchor['utc'] = shifted(anchor['utc'])
+            timeline['windows'] = [window]
+        validate_appearance_timeline(timeline, event_id, utc(clock['start_utc']),
+                                     utc(clock['end_utc']), sources)
+        provenance = {'url':'https://example.test/synthetic-coverage-geography', 'sha256':'a'*64}
+        def properties(role, **extra):
+            return {'role':role, 'source_url':provenance['url'],
+                    'source_sha256':provenance['sha256'], **extra}
+        features = [
+            {'geometry':{'type':'Point','coordinates':[0,0]},
+             'properties':properties('published_center_position',utc=clock['start_utc'],
+                                     display_time='Synthetic start')},
+            {'geometry':{'type':'Point','coordinates':[0.02,0.02]},
+             'properties':properties('published_center_position',utc=clock['end_utc'],
+                                     display_time='Synthetic end')},
+            {'geometry':{'type':'LineString','coordinates':[[0,0],[0.02,0.02]]},
+             'properties':properties('published_center_path')},
+            {'geometry':{'type':'Polygon','coordinates':[[[0,0],[0.02,0],[0.02,0.02],[0,0]]]},
+             'properties':properties('published_tornado_outline')},
+        ]
+        bundle = {
+            'exhibit':{'id':event_id},
+            'geometry':{'source':provenance,'features':features},
+            'timeline_media':{'event':event_id},
+            'footage':{'event':event_id,'sources':sources,'anchors':[]},
+            'appearance_timeline':timeline,
+        }
+        if event_id == 'el-reno-2013':
+            bundle['survey'] = copy.deepcopy(original_bundle['survey'])
+        raw = json.dumps(bundle, ensure_ascii=False).encode('utf-8')
+        config.update(schema_version=2,event_id=event_id,bundle='synthetic-coverage-photo.json',
+                      bundle_sha256=hashlib.sha256(raw).hexdigest(),clock=clock,
+                      geography_source=provenance)
+        config['coverage']['appearance'] = 'bounded_timeline'
+        packages[config['bundle']] = raw
+        packages[f'events/{event_id}.json'] = config
+        event = next(row for row in index['events'] if row['id'] == event_id)
+        event.update(title='Synthetic coverage fixture for '+event_id,
+                     replay=f'events/{event_id}.json',chronology=None)
+        docs = copy.deepcopy(list(self.docs.values()))
+        if registered:
+            next(doc for doc in docs if doc['id'] == event_id)['reconstruction']['appearance'] = 'registered'
+        def existing_references(root, doc):
+            return layer_references(root, self.docs[doc['id']])
+        with patch('atlas.evidence_coverage.reviewed_index',return_value=index), \
+                patch('atlas.evidence_coverage.replay_inputs',return_value={}), \
+                patch('atlas.evidence_coverage.build_event_packages',return_value=packages) as builder, \
+                patch('atlas.evidence_coverage.dossiers',return_value=docs), \
+                patch('atlas.evidence_coverage.layer_references',side_effect=existing_references):
+            rows = coverage_rows()
+        builder.assert_called_once_with(ROOT,{})
+        return rows
+
+    def test_photo_only_coverage_retains_unregistered_dossier_and_existing_context(self):
+        rows = self.synthetic_rows('joplin-2011')
+        row = next(row for row in rows if row['event']['id'] == 'joplin-2011')
+        appearance = row['layers']['appearance']
+        self.assertEqual(row['doc']['reconstruction']['appearance'],'unregistered')
+        self.assertEqual(appearance['state'],'photo_samples')
+        self.assertEqual(appearance['registered_interval_count'],0)
+        self.assertEqual(appearance['photo_sample_count'],3)
+        self.assertEqual(appearance['photo_sequence_count'],2)
+        self.assertEqual(row['layers']['footage']['state'],'not_linked')
+        self.assertEqual({item['id'] for _,item in appearance['items']},{'friskey-joplin-storm'})
+        self.assertIn('does not repeat inspection',appearance['basis'])
+        self.assertIn("do not change the dossier's appearance classification",appearance['basis'])
+        single,pair = appearance['photo_sequences']
+        self.assertEqual(len(single['samples']),1)
+        self.assertEqual(len(pair['samples']),2)
+        self.assertNotIn('duration_seconds',single)
+        for sequence in appearance['photo_sequences']:
+            for sample in sequence['samples']:
+                query = parse_qs(urlparse(sample['player_url']).query)
+                self.assertEqual(query['event'],['joplin-2011'])
+                self.assertEqual(query['appearance_view'],['photo'])
+                self.assertEqual(query['appearance_photo'],[sequence['id']])
+                expected = (utc(sample['reported_utc'])-utc('2001-01-01T12:00:00Z')).total_seconds()
+                self.assertEqual(float(query['t'][0]),expected)
+                self.assertNotIn('footage',query)
+                self.assertIsNone(sample['shape'])
+                self.assertIsNone(sample['extent'])
+        raw = render_page(rows).decode('utf-8')
+        self.assertIn('data-state="photo_samples"',raw)
+        self.assertIn('Before, between and after samples, photographic appearance remains unknown.',raw)
+        self.assertNotIn('<iframe',raw)
+        self.assertNotIn('<canvas',raw)
+
+    def test_mixed_coverage_keeps_video_classification_counts_and_dossier_routes(self):
+        rows = self.synthetic_rows('el-reno-2013',registered=True)
+        row = next(row for row in rows if row['event']['id'] == 'el-reno-2013')
+        appearance = row['layers']['appearance']
+        self.assertEqual(appearance['state'],'registered')
+        self.assertEqual(appearance['label'],'Registered video intervals and separate photo instants')
+        self.assertEqual(appearance['registered_interval_count'],1)
+        self.assertEqual(appearance['photo_sample_count'],3)
+        self.assertEqual(appearance['photo_sequence_count'],2)
+        self.assertEqual(row['layers']['footage']['state'],'samples')
+        self.assertEqual(len(row['layers']['footage']['items']),7)
+        self.assertEqual(row['layers']['damage']['state'],'survey')
+        raw = render_page(rows).decode('utf-8')
+        self.assertIn('revision='+row['dossier_sha256'],raw)
+        self.assertIn('These photo declarations supply no continuously registered appearance interval.',raw)
+        for source in self.docs['el-reno-2013']['sources']:
+            if source['id'] in {item['source_id'] for _,item in row['layers']['footage']['items']}:
+                self.assertIn(html.escape(source['url']),raw)
+
+    def test_photo_resource_panel_and_declared_text_are_escaped(self):
+        rows = self.synthetic_rows('joplin-2011')
+        row = next(row for row in rows if row['event']['id'] == 'joplin-2011')
+        sample = row['layers']['appearance']['photo_sequences'][0]['samples'][0]
+        sample['characteristics'][0] = 'Synthetic <img src=x onerror=untrusted> characteristic'
+        sample['boundary_limits'][0] = 'Synthetic <script>boundary</script>'
+        raw = render_page(rows).decode('utf-8')
+        self.assertNotIn('<script>resource title',raw)
+        self.assertNotIn('<script>boundary',raw)
+        self.assertNotIn('<img src=x',raw)
+        self.assertNotIn('<panel>',raw)
+        self.assertIn('&lt;script&gt;resource title&lt;/script&gt;',raw)
+        self.assertIn('&lt;script&gt;boundary&lt;/script&gt;',raw)
+        self.assertIn('&lt;img src=x',raw)
+        self.assertIn('&lt;panel&gt;',raw)
+        self.assertIn(html.escape(sample['source']['url']),raw)
+        self.assertIn(html.escape(sample['image']['original_url']),raw)
+        self.assertIn('Unquantified.',raw)
+        self.assertIn(html.escape(sample['source']['rights']['basis']),raw)
