@@ -71,6 +71,37 @@ test('checking unavailable after dossier resolution fails closed while clock and
   assert.equal(await page.locator('#photo-full').getAttribute('src'),null);assert.equal(await page.locator('#photo-full').isVisible(),false);
   assert.equal(await page.locator('#photo-source').getAttribute('href'),doc.sources.find(row=>row.id===media.source_id).url);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#photo-dialog').open);
+  await page.evaluate(()=>{
+    const range=document.getElementById('chronology-time');
+    const state=()=>({url:location.href,focus:document.activeElement?.id,range:range.value,
+      share:document.getElementById('chronology-link')?.href,dialogOpen:document.getElementById('photo-dialog').open});
+    const evidence={events:[],state,types:['focusin','keydown','keyup','input','change','cancel','close']};
+    evidence.listener=event=>{if(evidence.events.length<32)evidence.events.push({
+      type:event.type,key:event.key??null,trusted:event.isTrusted,cancelledAtCapture:event.defaultPrevented,
+      target:event.target?.id??null,state:state()});};
+    for(const type of evidence.types)document.addEventListener(type,evidence.listener,{capture:true,passive:true});
+    window.__atlasChronologyNative=evidence;
+  });
   await page.locator('#chronology-time').focus();await page.keyboard.press('End');
+  const immediateProtocolUrl=page.url();
+  let completionError,collectionError;
+  try{
+    await page.waitForFunction(()=>document.getElementById('chronology-time').value==='15480'&&
+      new URL(location.href).searchParams.get('t')==='15480');
+    await page.waitForURL(url=>url.searchParams.get('t')==='15480');
+  }catch(error){completionError=error;}
+  try{
+    const evidence=await page.evaluate(()=>{
+      const evidence=window.__atlasChronologyNative;
+      for(const type of evidence.types)document.removeEventListener(type,evidence.listener,true);
+      const result={events:evidence.events,after:evidence.state()};delete window.__atlasChronologyNative;return result;
+    });
+    t.diagnostic('CHRONOLOGY_NATIVE_END '+JSON.stringify({immediateProtocolUrl,...evidence}));
+  }catch(error){
+    collectionError=error;
+    t.diagnostic('CHRONOLOGY_NATIVE_COLLECTION_ERROR '+JSON.stringify({name:error.name,message:error.message.slice(0,2000)}));
+  }
+  if(completionError)throw completionError;
+  if(collectionError)throw collectionError;
   assert.equal(new URL(page.url()).searchParams.get('t'),'15480');
 });

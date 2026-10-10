@@ -104,7 +104,20 @@ test('full report survey history keeps replay time and footage source',async t=>
   await page.goto(base+'/index.html?t=780&footage_source=robinson-dashcam&survey=270271&surveyPhotos=0#survey-explorer');
   await page.locator('#survey-observation').waitFor();
   await page.locator('#timeline:not([disabled])').waitFor();
-  await page.locator('#survey-next').click();
+  await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+  const next=page.locator('#survey-next');
+  await next.scrollIntoViewIfNeeded();
+  await waitForSettledTouchTarget(page,next);
+  await beginSurveyActivation(page);
+  await next.click();
+  const immediateProtocolUrl=page.url();
+  await finishSurveyActivation(t,page,'ordinary full report survey selection');
+  t.diagnostic('SURVEY_ORDINARY_PROTOCOL '+JSON.stringify({immediateProtocolUrl}));
+  await page.waitForFunction(()=>document.getElementById('survey-observation').value==='270275'&&
+    document.getElementById('timeline').value==='780'&&
+    new URL(location.href).searchParams.get('survey')==='270275');
+  await page.waitForURL(url=>url.searchParams.get('survey')==='270275'&&
+    url.searchParams.get('t')==='780'&&url.searchParams.get('footage_source')==='robinson-dashcam');
   const selected=new URL(page.url());
   assert.equal(selected.searchParams.get('survey'),'270275');
   assert.equal(selected.searchParams.get('t'),'780');

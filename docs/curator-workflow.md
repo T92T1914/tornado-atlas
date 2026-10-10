@@ -36,6 +36,22 @@ For one open draft, **Download saved draft backup** preserves its complete saved
 
 A valid store can exceed the 2 MB whole-backup limit even when each draft fits its own limit. In that case, open each saved draft and download its private backup individually. Keep these files private and restore them one at a time into a separate store when inspecting conflicting versions.
 
+### Recover a draft after the reviewed event advances
+
+An event draft keeps its original reviewed base. If a newer account has been published, **Preview draft recovery** reads that current account and verifies the retained original against the draft's complete base digest. The preview changes no saved file. It compares the original, your edited draft and the current account using the archive's existing field comparison. Compatible private edits are carried onto current content. Private notes and the intake ledger stay in the recovered draft.
+
+When both accounts change the same field differently, choose **Use private edit** or **Keep current reviewed value**. Status, time, place and other structured fields are compared as complete values, so recovery does not invent a mixture of conflicting clock or rights qualifications. A removed row that has newer edits also needs a choice. Current row order is preserved and compatible private additions follow it. A private reorder or an insertion among existing rows needs an explicit order choice, which keeps the other account's additional rows available.
+
+Authored provenance changes receive their own choices. The current publication review stays attached as the record of its earlier publication. It does not approve the recovered candidate. A private change to `publication_review` cannot be recovered automatically. Keep that draft and inspect its provenance manually.
+
+Open each conflict's original, private and current values. **Inspect complete recovery context and result** includes all three dossiers and the resulting private draft, including notes. Keep this material private. After choosing conflicts, use **Review selected recovery choices** to inspect the validated result before **Save recovered draft**. Editing notes or dossier JSON invalidates the preview.
+
+Saving rechecks the expected private revision, exact edited content and freshly read current account. A changed preview, missing or invalid original, invalid combined result, exceeded size limit or storage error prevents a successful save. The saved original remains available until the atomic save succeeds. Reopen after a storage error to inspect the actual saved state. Source-record drafts have no reviewed event base and cannot use this recovery path.
+
+Recovery changes the private draft's base to the checked current account. Validate and inspect a new candidate before export. If the reviewed account advances again, the unchanged publication-time base check rejects that stale candidate. Recovery grants no publication permission, historical registration or new source approval.
+
+Conflict disclosures, complete recovery context and the dossier editor preserve server-produced JSON literal text. This keeps integer and floating point forms such as `1` and `1.0` distinguishable. Save, intake, recovery and candidate validation submit the literal edited dossier to the existing Python decoder. Candidate downloads and private backups also preserve those numeric forms. Restore sends the bounded original backup text through the same validator. JSON syntax and literal identity remain separate from the historical meaning of a number.
+
 Limits are 250 KB per draft, 100 drafts per store and 2 MB per backup/import request. Oversized or malformed documents fail before publication. The service serves only the editor's allowlisted static assets, not the private store, the full checkout or arbitrary paths. It sends no cross-origin API permission headers and does not fetch submitted URLs.
 
 ## Candidate boundary
