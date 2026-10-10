@@ -59,7 +59,7 @@ test('all actual retained dossiers fit the source-range bounds and preserve whol
       }
     }
   }
-  assert.equal(files.size,39);
+  assert.equal(files.size,40);
 });
 
 test('exact numeric forms, escaped strings, decoded keys and whole nested values survive S1',async()=>{
