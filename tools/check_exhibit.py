@@ -16,9 +16,11 @@ from atlas.community import validate_community
 from atlas.survey import load_survey
 from atlas.cameras import load_cameras
 from atlas.survey_attachments import load_survey_attachments
-from atlas.event_package import check_event_packages
+from atlas.event_package import check_event_packages, same_json
 check_event_packages(root)
 bundle = json.loads((root / 'web/data.json').read_text(encoding='utf-8'))
+appearance = json.loads((root / 'exhibits/el-reno-2013/appearance-timeline.json').read_text(encoding='utf-8'))
+assert same_json(bundle['appearance_timeline'], appearance), 'Stale bundle: appearance_timeline'
 geo = json.loads((root / 'exhibits/el-reno-2013/path.geojson').read_text(encoding='utf-8'))
 assert bundle['geometry'] == geo, 'Preview geometry differs from exhibit geometry'
 assert bundle['survey'] == load_survey(geo), 'Stale or invalid survey bundle'

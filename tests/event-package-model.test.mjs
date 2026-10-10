@@ -72,7 +72,7 @@ test('mixed deployment and missing assets fail before rendering',async()=>{
   await assert.rejects(loadEventPackage(null,{...fixture(),fetcher:async()=>{throw new TypeError('Failed to fetch');}}),/Check the connection or open the documentary/);
 });
 test('unsupported schema, historical appearance, zone and mixed identity fail',()=>{
-  for(const mutate of [c=>c.schema_version=2,c=>c.coverage.appearance='observed',c=>c.event_id='joplin-2011',c=>c.clock.time_zone='Mars/Olympus',c=>c.bundle='../private.json',c=>c.clock.precision='second',c=>c.clock.end_utc=c.clock.start_utc]){
+  for(const mutate of [c=>c.schema_version=3,c=>c.coverage.appearance='observed',c=>c.event_id='joplin-2011',c=>c.clock.time_zone='Mars/Olympus',c=>c.bundle='../private.json',c=>c.clock.precision='second',c=>c.clock.end_utc=c.clock.start_utc]){
     const copy=structuredClone(config);mutate(copy);assert.throws(()=>validatePackage(copy,index.events[0]));
   }
 });
@@ -114,6 +114,8 @@ test('a replay identity cannot claim another event chronology publication path',
 });
 test('synthetic second event uses the shared loader without historical claims',async()=>{
   const next=structuredClone(index),manifest=structuredClone(config),data=JSON.parse(bundle);
+  manifest.schema_version=1;manifest.coverage.appearance='illustrative_symbol';
+  delete data.appearance_timeline;
   next.schema_version=1;next.default_event='synthetic-test';next.events=[{id:'synthetic-test',title:'Synthetic fixture',documentary:'fixture.html',replay:'events/synthetic-test.json'}];
   manifest.event_id='synthetic-test';manifest.clock.time_zone='UTC';
   data.exhibit.id='synthetic-test';data.timeline_media.event='synthetic-test';data.footage.event='synthetic-test';data.cameras.event='synthetic-test';

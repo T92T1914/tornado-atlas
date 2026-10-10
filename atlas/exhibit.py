@@ -167,6 +167,9 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     validate_remembrance_coverage(history, result['documentary'])
     from .footage import load_footage
     result['footage'] = load_footage(ROOT)
+    result['appearance_timeline'] = json.loads(
+        (ROOT / 'exhibits/el-reno-2013/appearance-timeline.json').read_text(encoding='utf-8')
+    )
     reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
     validate_reading(reading, result)
     result['reading'] = reading
@@ -181,7 +184,7 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
         validate_versions(photos, destination.parent)
         publish(ROOT, result)
     geo_path = ROOT / "exhibits/el-reno-2013/path.geojson"
-    geo_path.write_text(json.dumps(geojson, indent=2) + "\n", encoding="utf-8")
+    geo_path.write_bytes((json.dumps(geojson, indent=2) + "\n").encode("utf-8"))
     return {"output": str(destination), "geometry": counts, "source_sha256": metadata["sha256"]}
 
 

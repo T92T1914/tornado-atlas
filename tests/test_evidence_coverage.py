@@ -29,8 +29,13 @@ class EvidenceCoverageTests(unittest.TestCase):
         for identifier in ('joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'):
             self.assertEqual(rows[identifier]['layers']['geography']['state'],'context')
             self.assertEqual(rows[identifier]['layers']['footage']['state'],'not_linked')
-        for row in rows.values():
-            self.assertEqual(row['layers']['appearance']['state'],'not_admitted')
+        appearance=rows['el-reno-2013']['layers']['appearance']
+        self.assertEqual(appearance['state'],'photo_samples')
+        self.assertEqual(appearance['photo_sample_count'],4)
+        self.assertEqual(appearance['photo_sequence_count'],1)
+        self.assertEqual(appearance['registered_interval_count'],0)
+        for identifier in ('joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'):
+            self.assertEqual(rows[identifier]['layers']['appearance']['state'],'not_admitted')
 
     def test_storm_photo_is_context_and_aftermath_does_not_join_appearance(self):
         rows = {row['event']['id']:row for row in coverage_rows()}

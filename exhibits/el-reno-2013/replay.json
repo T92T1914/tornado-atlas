@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "event_id": "el-reno-2013",
   "bundle": "data.json",
   "clock": {
@@ -17,6 +17,6 @@
     "positions": "published_minute_samples",
     "between_positions": "linear_longitude_latitude",
     "camera": "free_orbit",
-    "appearance": "illustrative_symbol"
+    "appearance": "bounded_timeline"
   }
 }

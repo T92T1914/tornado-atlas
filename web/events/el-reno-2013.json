@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "event_id": "el-reno-2013",
   "bundle": "data.json",
   "clock": {
@@ -17,7 +17,7 @@
     "positions": "published_minute_samples",
     "between_positions": "linear_longitude_latitude",
     "camera": "free_orbit",
-    "appearance": "illustrative_symbol"
+    "appearance": "bounded_timeline"
   },
-  "bundle_sha256": "8333ff542939cd4552214bc21e6ea62474dca6b92bf3c25b4f14542a3b915c69"
+  "bundle_sha256": "da0d7a6313c9f0a66ae1aebe00ebbbda94a63a2ac42e806b59abc0977857da1a"
 }
