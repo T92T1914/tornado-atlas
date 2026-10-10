@@ -36,7 +36,11 @@ for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: pu
   const first=guide.locator(`a[href="${task.first}"]`);await first.focus();await page.keyboard.press('Enter');
   assert.equal(new URL(page.url()).hash,task.first);
   assert.match(await page.locator(task.first).textContent(),task.wording);
-  const citation=guide.locator('a[href="#sources"]');await citation.focus();await page.keyboard.press('Enter');
+  const citation=guide.locator('a[href="#sources"]');await citation.focus();
+  await Promise.all([
+    page.waitForURL(url=>url.hash==='#sources'),
+    page.keyboard.press('Enter')
+  ]);
   assert.equal(new URL(page.url()).hash,'#sources');
   await page.locator(task.source).evaluate(node=>node.scrollIntoView({behavior:'instant',block:'start'}));
   assert.match(await page.locator(task.source).locator('a[href^="https://"]').first().getAttribute('href'),/^https:\/\//);
