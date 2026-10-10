@@ -158,8 +158,40 @@ test('retain an F and JEF case while browsing, with source bounds and provenance
  assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),[jef.id,f.id]);
  for(const record of [jef,f]){
   const card=compared(page,record.id),detail=await original(record);
+  await card.evaluate(node=>{
+   const evidence={node,details:[...node.querySelectorAll('details')],events:[],mutations:[]};
+   window.__atlasComparisonReading??=new Map();
+   window.__atlasComparisonReading.set(node.dataset.comparisonCase,evidence);
+   node.addEventListener('click',event=>{
+    const summary=event.target.closest('summary');
+    if(summary&&evidence.events.length<32)queueMicrotask(()=>evidence.events.push({
+     label:summary.textContent,connected:summary.isConnected,
+     open:summary.parentElement?.open,cancelled:event.defaultPrevented}));
+   },{passive:true});
+   evidence.observer=new MutationObserver(records=>{
+    for(const record of records)if(evidence.mutations.length<32)evidence.mutations.push({
+     type:record.type,attribute:record.attributeName,tag:record.target.tagName,
+     label:record.target.querySelector?.('summary')?.textContent??null,
+     open:record.target.open??null});
+   });
+   evidence.observer.observe(node,{subtree:true,childList:true,attributes:true,attributeFilter:['open']});
+  });
   for(const summary of await card.locator('summary').all())await summary.click();
-  const text=await card.innerText();
+  const snapshot=await card.evaluate((node,id)=>{
+   const evidence=window.__atlasComparisonReading?.get(id),details=[...node.querySelectorAll('details')];
+   const text=node.innerText;
+   evidence?.observer.disconnect();
+   return {text,record:node.dataset.comparisonCase,state:node.dataset.state,connected:node.isConnected,
+    sameCard:node===evidence?.node,sameDetails:details.length===evidence?.details.length&&
+     details.every((detail,index)=>detail===evidence.details[index]),
+    qualifications:{scope:text.includes('Shared-scope source cell:'),aggregation:text.includes('Not aggregated.')},
+    sections:details.map(detail=>({label:detail.querySelector('summary')?.textContent,open:detail.open})),
+    events:evidence?.events??[],mutations:evidence?.mutations??[]};
+  },record.id);
+  t.diagnostic('JMA_COMPARE_READING '+JSON.stringify({...snapshot,text:snapshot.text.slice(0,12000),diagnosticTextTruncated:snapshot.text.length>12000}));
+  assert.equal(snapshot.record,record.id);
+  assert.equal(snapshot.state,'ready');assert.equal(snapshot.connected,true);
+  const text=snapshot.text;
   assert.ok(text.includes(detail.classification_reported));
   assert.ok(text.includes('Reported scale\n'+detail.rating.scale));
   assert.ok(text.includes('Minimum category\n'+detail.rating.source_minimum.reported));
