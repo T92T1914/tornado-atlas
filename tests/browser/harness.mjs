@@ -46,7 +46,16 @@ export async function fixture(t,options={}){
   const context=await browser.newContext({viewport:{width:1280,height:800},acceptDownloads:false,permissions:[],...supportedOptions});
   t.after(()=>context.close());
   // Keep ordinary checks deterministic and prevent external protocol navigation.
-  await context.route('**/*',route=>route.request().url().startsWith(base+'/')?route.continue():route.abort());
+  await context.route('**/*',route=>{
+    const url=route.request().url();
+    // WebKit also intercepts a checked image's owned Blob URL. It carries
+    // already-read loopback bytes and does not request an external provider.
+    if(url.startsWith('blob:'+base+'/')) {
+      t.diagnostic('Owned loopback Blob request admitted.');
+      return route.continue();
+    }
+    return url.startsWith(base+'/')?route.continue():route.abort();
+  });
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
   t.after(()=>assert.deepEqual(errors,[],'Uncaught page errors'));
   page.setDefaultTimeout(10000);

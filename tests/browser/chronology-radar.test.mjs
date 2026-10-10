@@ -8,6 +8,25 @@ const data=JSON.parse(await readFile(new URL('../../exhibits/joplin-2011/chronol
 const reference=data.radar_context.reference;
 const png='assets/joplin-2011/nist-radar-sequence.png';
 
+async function completeImage(page) {
+  try {
+    await page.waitForFunction(()=>{const image=document.querySelector('#photo-full');return document.querySelector('#photo-dialog').open&&!image.hidden&&image.naturalWidth===947&&image.naturalHeight===1326;});
+  } catch (error) {
+    // Retain the actual reader state when a browser cannot complete this gate.
+    // A timeout alone does not distinguish transport, byte checking and decode.
+    console.error('COMPLETE_IMAGE_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>{
+      const image=document.querySelector('#photo-full');
+      return {dialog:document.querySelector('#photo-dialog').open,
+        status:document.querySelector('#photo-status')?.textContent,
+        failure:document.querySelector('#photo-failure')?.textContent,
+        retryVisible:!document.querySelector('#photo-retry')?.hidden,
+        image:{hidden:image.hidden,width:image.naturalWidth,height:image.naturalHeight,
+          complete:image.complete,sourceKind:image.getAttribute('src')?.split(':')[0]??null}};
+    })));
+    throw error;
+  }
+}
+
 for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
   test(`Joplin printed radar labels share documentary seeking and the complete figure ${width} ${appearance}`,async t=>{
     const page=await fixture(t,{viewport:{width,height:900},isMobile:width<600,hasTouch:width<600,reducedMotion:'reduce',serviceWorkers:'block'});
@@ -35,7 +54,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     await page.locator('#chronology-time').focus();await page.keyboard.press('End');
     assert.equal(await picker.inputValue(),'radar-2248');assert.equal(new URL(page.url()).searchParams.get('t'),'15480');
     const open=page.locator('#chronology-radar-open');await open.focus();await page.keyboard.press('Enter');
-    await page.waitForFunction(()=>{const image=document.querySelector('#photo-full');return document.querySelector('#photo-dialog').open&&!image.hidden&&image.naturalWidth===947&&image.naturalHeight===1326;});
+    await completeImage(page);
     assert.match(await page.locator('#photo-credit').textContent(),/National Oceanic and Atmospheric Administration/);
     assert.match(await page.locator('#photo-caption').textContent(),/not a continuous radar animation/);
     assert.match(await page.locator('#photo-license').textContent(),/Adjacent Figure 2-8/);
@@ -97,7 +116,7 @@ test('the reused viewer retries a failed complete figure and closes to its conne
   await page.locator('#photo-retry').waitFor();assert.equal(await page.locator('#photo-full').isVisible(),false);
   assert.ok(blockedFigureRequests>0);allowFigure=true;
   await page.locator('#photo-retry').focus();await page.keyboard.press('Enter');
-  await page.waitForFunction(()=>!document.querySelector('#photo-full').hidden&&document.querySelector('#photo-full').naturalWidth===947);
+  await completeImage(page);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#photo-dialog').open);
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'chronology-radar-open');
   assert.equal(new URL(page.url()).searchParams.get('t'),'15180');

@@ -282,6 +282,20 @@ identifies a printed pair in text. No panel crop, overlay, interpolated radar,
 optical appearance, building-level wind or camera alignment is introduced.
 The existing documentary figure and caption remain readable without scripting.
 
+The chronology passes the resolved derivative's `transformation.sha256` as
+the optional `expectedSha256` selection in that same viewer. It reads at most
+2 MiB and checks the complete response before decoding a Blob made from those
+bytes. The existing figure is 1,222,331 bytes. One ten-second deadline covers
+reading, hashing and explicit `img.decode()` completion. A monotonic expiry is
+also checked after asynchronous completions, so delayed timer delivery cannot
+authorize an overdue image. Failed checks retain the description, source,
+direct file link and Retry. Closing, replacing or retrying the selection
+aborts its request and retires its object URL. Late completions cannot display
+an earlier selection. Callers without an expected digest keep ordinary image
+loading. The preview and direct file link are outside this selected check.
+Matching a retained fingerprint establishes file consistency, not publisher
+authentication, historical timing, camera calibration or scientific accuracy.
+
 The chronology pins the existing immutable radar dossier rather than its own
 new current projection. The archive records the chronology input digest, so
 a reference to that newly generated current dossier would create a circular
