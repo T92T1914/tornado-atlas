@@ -34,7 +34,8 @@ These are the full planned event-package parts. Replay manifest version 2
 accepts a bounded appearance subset only when its separate source, clock,
 fixed-view camera, inspection, rights and uncertainty contract passes.
 The existing observation notebook still rejects unsupported historical
-registration. El Reno uses version 2 for four sparse photo observations.
+registration. El Reno has four sparse photo observations, with a version 3
+extension in preparation for two source-linked partial visible margins.
 Its continuous historical appearance timeline remains unregistered.
 
 ## Match the animation to the available evidence
@@ -259,3 +260,34 @@ exact original view or sequence, an inspected interval, an edit and timing map,
 supported camera registration, uncertainty and a usable rights basis. This
 sparse comparison adds a truthful source-reading action while that historical
 requirement remains unresolved.
+
+## October 10 reconstruction acceptance
+
+The reconstruction should let visitors recognize the supported appearance of the
+actual tornado, understand its size and inspect the damage it caused. A generic
+funnel, an isolated partial outline or a hypothetical component failure does not
+complete that goal. The first bounded appearance outcome remains a separate
+required step.
+
+Use the existing clock and renderer to build an event-specific visual account
+from inspected photographs and footage. Compare each supported view against its
+original observations. Preserve unknown views and intervening motion, and keep
+any authored interpretation visible. Partial evidence can advance the work
+without being presented as the full tornado.
+
+Show physical scale with its source definition. The visible condensation funnel,
+reported event maximum, radar circulation and damage envelope can differ. A
+reported maximum must not become the funnel's diameter at every replay instant.
+The new replay comparison puts the published optical estimates beside the NWS
+maximum without assigning them to a ground footprint or filling a camera gap.
+
+Use surveyed outcomes and authentic aftermath photographs to develop the damage
+journey. Keep inferred event joins and unknown impact times explicit. Develop
+the simulation through stated building, wind and failure assumptions, and compare
+its outputs with recorded damage where the evidence supports that comparison.
+The current generic force-capacity experiment remains uncalibrated.
+
+Acceptance of a useful partial-margin, scale or reading release leaves the full
+appearance and historical damage-model requirements open. Prioritize those
+capabilities alongside useful museum development, rather than treating navigation
+or source counts as their substitutes.

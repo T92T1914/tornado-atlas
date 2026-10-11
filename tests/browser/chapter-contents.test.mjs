@@ -1,0 +1,97 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {mkdir} from 'node:fs/promises';
+import {fixture,base} from './harness.mjs';
+
+const chapters=['joplin.html','blackwell.html','tuscaloosa.html'];
+const counts={'joplin.html':15,'blackwell.html':10,'tuscaloosa.html':16};
+const fits=page=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
+async function enlarge(page){
+  const result=await page.evaluate(()=>{
+    const nodes=[document.body,...document.body.querySelectorAll('*')];
+    const before=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));
+    nodes.forEach((node,index)=>node.style.fontSize=before[index]*2+'px');
+    return nodes.every((node,index)=>Math.abs(parseFloat(getComputedStyle(node).fontSize)-before[index]*2)<.1);
+  });
+  assert.equal(result,true,'Every computed text size actually doubles');
+}
+async function destinations(page,file){
+  const nav=page.locator('.documentary-layout > .documentary-contents');
+  const hrefs=await nav.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
+  assert.equal(hrefs.length,counts[file]);
+  assert.equal(new Set(hrefs).size,hrefs.length);
+  assert.equal(hrefs.at(-1),'#sources');
+  for(const href of hrefs){
+    assert.match(href,/^#[a-z][a-z0-9-]*$/);
+    assert.equal(await page.locator(href).count(),1,file+' '+href);
+    assert.equal(await page.locator(href).isVisible(),true,file+' retains visible destination '+href);
+  }
+  return {nav,hrefs};
+}
+for(const width of [1081,1280])for(const enabled of [false,true])test('wide chapter contents remain reachable with doubled text, '+width+', scripts '+enabled,async t=>{
+  const page=await fixture(t,{viewport:{width,height:900},javaScriptEnabled:enabled,colorScheme:width===1081?'dark':'light'});
+  for(const file of chapters){
+    await page.goto(base+'/'+file);
+    const {nav,hrefs}=await destinations(page,file);
+    const reading=page.locator('.documentary-layout > .documentary-reading');
+    const bounds=await page.evaluate(()=>{
+      const rail=document.querySelector('.documentary-contents').getBoundingClientRect();
+      const account=document.querySelector('.documentary-reading').getBoundingClientRect();
+      return {railRight:rail.right,accountLeft:account.left,accountWidth:account.width};
+    });
+    assert.ok(bounds.accountLeft>bounds.railRight,'Contents and account have distinct horizontal columns');
+    assert.ok(bounds.accountWidth>600,'At the wide boundary the readable account retains useful width');
+    assert.ok((await reading.innerText()).length>4000);
+    const original=await nav.textContent();
+    await enlarge(page);assert.equal(await fits(page),true,file+' enlarged width');
+    assert.equal(await nav.textContent(),original,'Enlargement preserves all contents labels');
+    const labelFits=await nav.locator('a').evaluateAll(nodes=>nodes.every(node=>node.scrollHeight<=node.clientHeight+1 && node.scrollWidth<=node.clientWidth+1));
+    assert.equal(labelFits,true,'Every doubled contents label fits its own link box without overlapping the next label');
+    const links=nav.locator('a');await links.first().focus();
+    for(let index=0;index<hrefs.length;index++){
+      assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),hrefs[index],'Native keyboard order follows the retained contents');
+      if(index<hrefs.length-1)await page.keyboard.press('Tab');
+    }
+    const focusDeadline=Date.now()+10000;
+    let focusSettled=false;
+    while(Date.now()<focusDeadline){
+      focusSettled=await page.evaluate(()=>{const node=document.activeElement;if(!node?.closest('.documentary-contents'))return false;const box=node.getBoundingClientRect();return box.top>=0 && box.bottom<=innerHeight;});
+      if(focusSettled)break;
+      await new Promise(resolve=>setTimeout(resolve,50));
+    }
+    assert.equal(focusSettled,true,'Native focused link reaches the viewport within the existing action timeout');
+    const visible=await links.last().evaluate(node=>{
+      const link=node.getBoundingClientRect(),rail=node.closest('nav').getBoundingClientRect();
+      return {top:link.top,bottom:link.bottom,railTop:rail.top,railBottom:rail.bottom,scroll:node.closest('nav').scrollTop,outline:getComputedStyle(node).outlineStyle};
+    });
+    assert.ok(visible.scroll>0,'Long doubled contents scroll to the final link');
+    assert.ok(visible.top>=visible.railTop-1 && visible.bottom<=visible.railBottom+1,'Final link remains inside its scrollable rail');
+    assert.ok(visible.top>=0 && visible.bottom<=900,'Final link remains inside the viewport');
+    assert.notEqual(visible.outline,'none','Keyboard focus remains visible');
+    if(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE){
+      await mkdir(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE,{recursive:true});
+      await page.screenshot({path:path.join(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE,file.replace('.html','-'+width+'-'+(enabled?'enhanced':'nojs')+'-enlarged.png'))});
+    }
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(()=>!document.activeElement.closest('.documentary-contents') && document.activeElement!==document.body),true,'Keyboard leaves the rail in native document order');
+    await links.last().focus();
+    await Promise.all([page.waitForURL(url=>url.hash==='#sources'),page.keyboard.press('Enter')]);
+    assert.equal(await page.locator('#sources').isVisible(),true);
+    await page.reload();assert.equal(new URL(page.url()).hash,'#sources');
+    await page.goBack();assert.equal(new URL(page.url()).hash,'');
+    assert.equal(await fits(page),true,file+' history return width');
+  }
+});
+for(const width of [1080,320])test('chapter contents retain normal flow and visible destinations, '+width,async t=>{
+  const page=await fixture(t,{viewport:{width,height:900},javaScriptEnabled:false,colorScheme:'dark'});
+  for(const file of chapters){
+    await page.goto(base+'/'+file);const {nav}=await destinations(page,file);
+    const flow=await page.evaluate(()=>({navBottom:document.querySelector('.documentary-contents').getBoundingClientRect().bottom,accountTop:document.querySelector('.documentary-reading').getBoundingClientRect().top}));
+    assert.ok(flow.accountTop>=flow.navBottom-1,'Contents remain before the account in ordinary flow');
+    await enlarge(page);assert.equal(await fits(page),true,file+' narrow enlarged width');
+    await nav.locator('a').last().focus();
+    await Promise.all([page.waitForURL(url=>url.hash==='#sources'),page.keyboard.press('Enter')]);
+    assert.equal(await page.locator('#sources').isVisible(),true);
+  }
+});

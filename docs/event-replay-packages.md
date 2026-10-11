@@ -379,3 +379,53 @@ historical inspection or rights. Chronology and dossier interaction require
 scripts. Without scripts, the existing historical chapter passages and source
 links remain the documentary reading route. The metadata rebase retains the
 previous current dossier and changes no historical accounts or classifications.
+
+## Partial photographic forms
+
+Appearance timeline version 3 extends the version 2 photographic sample with a
+required nullable `partial_form`. Versions 1 and 2 retain their existing fields
+and meanings. Replay manifests remain version 2. The same appearance input,
+bundle build, hashed manifest, browser loader and PlaybackClock are used.
+
+A non-null form names an independently authored visible margin in a normalized
+schematic plane, its component, two through 64 finite coordinate pairs, its
+comparison basis, a separate construction/use basis and bounded limits. Closed
+paths, collapsed segments, physical coordinates, duration fields and undeclared
+fields are rejected. Source photographic `shape`, `extent` and all numeric
+camera fields remain null. Schema validation checks the declaration's
+consistency; it does not perform or authenticate its source review.
+
+El Reno's `wakimoto-visible-margin` sequence uses the inspected 2015 PDF edition
+for two reported labels, 23:25:01 and 23:25:09 UTC. Figure 10(a) enlarges the
+Figure 9(a) exposure and supplies no additional exposure. The simpler of two
+independently compared mathematical curves is the conservative default. It
+expresses the visible southern margin's broad direction and bend. Fine
+scallops, the opposite edge, upper/lower continuation, surface contact, depth,
+physical dimensions and a numerical camera solution remain unestablished.
+
+Open `reconstruction.html?event=el-reno-2013&t=1261&appearance_view=photo&appearance_photo=wakimoto-visible-margin`,
+then compare `t=1269`. The exact photo resolver passes that sample's form to the
+existing renderer. The partial branch draws only an open soft line in an
+authored isotropic plane, without a particle funnel, ground grid, camera
+projection or generic orbit dependence. Its 17 mathematical samples and line
+width/softness are display choices, not historical measurements or error bounds.
+Both reported instants use identical points and establish no recovered change.
+
+At `t=1265`, every fractional neighbor and all other unsampled instants, the
+form is null and the player clears the previous line. Seeking, playback,
+source switching and browser history preserve that boundary. A photograph has
+no duration; timing uncertainty does not widen its appearance coverage. Source
+text and original panel links remain usable when graphics fail. No source
+photograph, raster, traced contour, annotation or figure layout is copied. AMS
+copyright and the absence of a figure-republication grant remain separate from
+the independently authored factual schematic's construction/use record.
+
+Coverage reports six declared optical instants across two sequences and two
+partial-form samples. Its registered continuous video interval count remains
+zero, and the dossier's global appearance classification remains unregistered.
+A qualified sparse photo interpretation and an inspected continuous video
+window have different evidence requirements. No additional interior exposure
+is universally required when every unsupported interior is explicitly unknown.
+
+The source and qualitative comparison are recorded in
+[El Reno partial-margin review](../research/el-reno-partial-margin-2026-10-11.md).

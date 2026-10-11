@@ -211,6 +211,36 @@ def _photo_date(value):
     date.fromisoformat(value)
 
 
+def _validate_partial_form(form):
+    if form is None:
+        return
+    fields(form, ("kind", "authorship", "coordinate_space", "component", "points",
+                  "basis", "use_basis", "limits"), "partial photographic form")
+    if (form["kind"] != "visible_margin" or form["authorship"] != "independently_authored" or
+            form["coordinate_space"] != "normalized_schematic_plane"):
+        raise ValueError("Unsupported partial photographic form")
+    _photo_text(form["component"], "partial component", 512)
+    for name in ("basis", "use_basis"):
+        _photo_text(form[name], "partial " + name)
+    limits = form["limits"]
+    if not isinstance(limits, list) or not 1 <= len(limits) <= 16:
+        raise ValueError("Partial photographic form requires bounded limits")
+    for text in limits:
+        _photo_text(text, "partial limit", 1000)
+    points = form["points"]
+    if not isinstance(points, list) or not 2 <= len(points) <= 64:
+        raise ValueError("Partial photographic form requires two through 64 points")
+    for index, point in enumerate(points):
+        if not isinstance(point, list) or len(point) != 2:
+            raise ValueError("Partial photographic points require coordinate pairs")
+        for coordinate in point:
+            _number(coordinate, "partial coordinate", 0, 1)
+        if index and point == points[index - 1]:
+            raise ValueError("Partial photographic margin cannot collapse a segment")
+    if points[0] == points[-1]:
+        raise ValueError("Partial photographic margin must remain open")
+
+
 def _validate_photos(timeline, start, end):
     # These checks establish declared consistency, not authentic inspection,
     # source identity, clock accuracy or permission to reuse source pixels.
@@ -266,7 +296,9 @@ def _validate_photos(timeline, start, end):
         for sample in samples:
             fields(sample, ("id", "source_id", "exposure_id", "image", "reported_utc",
                             "timing", "inspection", "viewpoint", "characteristics",
-                            "boundary_limits", "shape", "extent"), "photographic sample")
+                            "boundary_limits", "shape", "extent") +
+                   (("partial_form",) if timeline["schema_version"] == 3 else ()),
+                   "photographic sample")
             _photo_id(sample["id"], "sample identity")
             _photo_id(sample["source_id"], "sample source identity")
             _photo_id(sample["exposure_id"], "exposure identity")
@@ -330,15 +362,17 @@ def _validate_photos(timeline, start, end):
                     _photo_text(text, name, 1000)
             if sample["shape"] is not None or sample["extent"] is not None:
                 raise ValueError("Qualitative photographic geometry must remain explicitly null")
+            if timeline["schema_version"] == 3:
+                _validate_partial_form(sample["partial_form"])
 
 
 def validate_appearance_timeline(timeline, event_id, start, end, footage_sources):
     """Check legacy windows and separately declared sparse photographic samples."""
     version = timeline.get("schema_version") if isinstance(timeline, dict) else None
-    is_v2 = type(version) in (int, float) and version == 2
-    extra = ("photo_sources", "photo_sequences") if is_v2 else ()
+    is_photographic = type(version) in (int, float) and version in (2, 3)
+    extra = ("photo_sources", "photo_sequences") if is_photographic else ()
     fields(timeline, ("schema_version", "event", "windows") + extra, "appearance timeline")
-    if not ((type(version) is int and version == 1) or is_v2) or timeline["event"] != event_id:
+    if not ((type(version) is int and version == 1) or is_photographic) or timeline["event"] != event_id:
         raise ValueError("Appearance timeline identity or schema differs")
     windows = timeline["windows"]
     if not isinstance(windows, list) or len(windows) > 16:
@@ -394,7 +428,7 @@ def validate_appearance_timeline(timeline, event_id, start, end, footage_sources
             raise ValueError("Appearance form keys must cover their own window")
         if registered_keys is not None and any(key["at"] not in registered_keys for key in keys):
             raise ValueError("Observed appearance form keys require an exact inspected timing anchor")
-    if is_v2:
+    if is_photographic:
         _validate_photos(timeline, start, end)
     return timeline
 

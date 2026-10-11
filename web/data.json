@@ -59,7 +59,7 @@
     "source": {
       "url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
       "resolved_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
-      "retrieved_at": "2026-09-23T08:51:50.624370+00:00",
+      "retrieved_at": "2026-10-11T00:32:00.954779+00:00",
       "sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
       "bytes": 6583,
       "path": "raw/3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
@@ -8526,7 +8526,7 @@
     ]
   },
   "appearance_timeline": {
-    "schema_version": 2,
+    "schema_version": 3,
     "event": "el-reno-2013",
     "windows": [],
     "photo_sources": [
@@ -8545,6 +8545,23 @@
           "reuse": "external_links_only",
           "rights_holder": "Copyright credit names Nick Nolte; full rights ownership is unestablished in the retained evidence.",
           "basis": "Proposed display consists of independently worded factual observations and external links to the creator publication and exact still resources. No image copying, rehosting, tracing or adaptation. No reproduction or adaptation grant has been established."
+        }
+      },
+      {
+        "id": "wakimoto-2015",
+        "url": "https://doi.org/10.1175/MWR-D-15-0034.1",
+        "title": "Wakimoto and colleagues, 2015 photogrammetric analysis",
+        "creator": "Wakimoto and colleagues (publication authors; individual photographer unestablished)",
+        "publisher": "American Meteorological Society; retained eScholarship copy",
+        "publication_identity": "2015 Monthly Weather Review paper, DOI 10.1175/MWR-D-15-0034.1.",
+        "version_identity": "Retained 27-page PDF edition, SHA-256 recorded below; selected text and original published photograph panels inspected separately.",
+        "original_locator": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf",
+        "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
+        "identity_basis": "The digest identifies the acquired complete PDF edition. Figure 9(a) and its Figure 10(a) enlargement are one exposure; Figure 11(a) is another. No camera-original photograph, unchanged camera file or isolated photographic-byte digest is claimed.",
+        "rights": {
+          "reuse": "external_links_only",
+          "rights_holder": "AMS copyright present; individual photographic ownership not independently established.",
+          "basis": "Original publication and exact PDF panel links only. No source photograph, figure crop, radar overlay or author annotation is copied, hosted or adapted. No figure-republication grant has been established. The independently authored mathematical factual schematic has its own declared construction and use basis."
         }
       }
     ],
@@ -8597,7 +8614,8 @@
               "These dark and gray regions are not individually established as tornado rather than surrounding cloud or intervening material. A complete cone, dimensions and extent are unsupported."
             ],
             "shape": null,
-            "extent": null
+            "extent": null,
+            "partial_form": null
           },
           {
             "id": "nolte-231059",
@@ -8643,7 +8661,8 @@
               "Changes in brightness and apparent breadth do not independently establish physical base growth or persistent component identity."
             ],
             "shape": null,
-            "extent": null
+            "extent": null,
+            "partial_form": null
           },
           {
             "id": "nolte-231202",
@@ -8689,7 +8708,8 @@
               "Foreground occlusion, diffuse margins and the image boundary leave parts of the scene unresolved. A wedge transition or airflow interpretation is not established by these observations."
             ],
             "shape": null,
-            "extent": null
+            "extent": null,
+            "partial_form": null
           },
           {
             "id": "nolte-231255",
@@ -8735,7 +8755,284 @@
               "The creator identifies this as the last GoPro frame before departure. That report does not establish a common fixed camera pose with the other stills."
             ],
             "shape": null,
-            "extent": null
+            "extent": null,
+            "partial_form": null
+          }
+        ]
+      },
+      {
+        "id": "wakimoto-visible-margin",
+        "basis": "Two separately inspected published exposures at source-reported 23:25:01 and 23:25:09 UTC. The same independently authored coarse visible-margin interpretation is drawn at each exact label. The eight-second interior and every fractional neighbor remain unknown. Figure 10(a) enlarges the first exposure; it adds no exposure. This sparse span has no continuous appearance or recovered evolution.",
+        "samples": [
+          {
+            "id": "wakimoto-232501",
+            "source_id": "wakimoto-2015",
+            "exposure_id": "wakimoto-20130531-232501",
+            "image": {
+              "original_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=18",
+              "panel_locator": "Figure 9(a), same exposure enlarged in Figure 10(a), PDF page 18.",
+              "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
+              "identity_basis": "Digest of the complete retained PDF edition, not isolated photograph or camera-original bytes. The named complete source page was visually inspected again on October 11, 2026 UTC; enlargement does not create another exposure."
+            },
+            "reported_utc": "2013-05-31T23:25:01Z",
+            "timing": {
+              "method": "source_reported",
+              "basis": "Whole-second UTC label printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC; exact software selection represents that source label.",
+              "uncertainty_seconds": null,
+              "uncertainty_basis": "Capture-clock error and alignment error relative to the NWS minute-position clock are not independently quantified. The paper's angular-method error is not clock uncertainty and is not transferred here."
+            },
+            "inspection": {
+              "status": "still_pixels_inspected",
+              "pixels": "Complete retained rendering of PDF page 18, including Figure 10(a), an enlargement of the Figure 9(a) exposure.",
+              "reviewed_on": "2026-10-11",
+              "basis": "Root and independent agent inspected each complete named source-page raster and all five actual private comparison captures. This declares two published photograph observations, not original-camera inspection or continuous footage."
+            },
+            "viewpoint": {
+              "mode": "qualitative_text",
+              "description": "Named published photographic view near the radar and I-40/Banner Road setting discussed in the paper. The interpretation concerns the visible southern margin in this view only.",
+              "basis": "The source paper supplies the qualitative site/view context and printed horizon/angular annotations. Atlas has no numeric lens, crop, pose or physical projection solution. The authored isotropic plane is not an alternative camera calibration.",
+              "coordinates": null,
+              "bearing_degrees": null,
+              "pitch_degrees": null,
+              "roll_degrees": null,
+              "position_uncertainty_m": null,
+              "orientation_uncertainty_degrees": null,
+              "lens_calibration": null
+            },
+            "characteristics": [
+              "A visible partial southern margin descends diagonally with a broad bend. The lower photograph contains foreground obscuration.",
+              "The published view does not establish the complete opposite edge or upper and lower continuations. The coarse interpretation omits fine scallops and irregularities."
+            ],
+            "boundary_limits": [
+              "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
+              "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
+              "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
+              "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
+              "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned."
+            ],
+            "shape": null,
+            "extent": null,
+            "partial_form": {
+              "kind": "visible_margin",
+              "authorship": "independently_authored",
+              "coordinate_space": "normalized_schematic_plane",
+              "component": "Coarse visible southern margin, open at both endpoints.",
+              "points": [
+                [
+                  0.25,
+                  0.78
+                ],
+                [
+                  0.267554,
+                  0.742065
+                ],
+                [
+                  0.283086,
+                  0.703398
+                ],
+                [
+                  0.297153,
+                  0.664204
+                ],
+                [
+                  0.310312,
+                  0.624688
+                ],
+                [
+                  0.32312,
+                  0.585054
+                ],
+                [
+                  0.336133,
+                  0.545508
+                ],
+                [
+                  0.349907,
+                  0.506255
+                ],
+                [
+                  0.365,
+                  0.4675
+                ],
+                [
+                  0.381968,
+                  0.429448
+                ],
+                [
+                  0.401367,
+                  0.392305
+                ],
+                [
+                  0.423755,
+                  0.356274
+                ],
+                [
+                  0.449688,
+                  0.321563
+                ],
+                [
+                  0.479722,
+                  0.288374
+                ],
+                [
+                  0.514414,
+                  0.256914
+                ],
+                [
+                  0.554321,
+                  0.227388
+                ],
+                [
+                  0.6,
+                  0.2
+                ]
+              ],
+              "basis": "Independently authored cubic Bezier interpretation of the inspected published photographs' broad direction and bend. Two original panels and both mathematical variants were compared visually by root and an independent agent on October 11, 2026 UTC. The simpler bend is the conservative default. No image raster, measurements, tracing or author annotation generated these points.",
+              "use_basis": "Original mathematical factual schematic with source attribution and original panel links. It contains no source photograph texture, traced contour, angular grid, dotted annotation, radar overlay or figure layout. This specific construction and output were reviewed independently. AMS photograph/figure copyright and the absence of a figure-republication grant remain separate; no photograph is copied or hosted.",
+              "limits": [
+                "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
+                "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
+                "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
+                "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
+                "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned.",
+                "This omits scallops and fine irregularities. The independently reviewed stronger S bend remains an authored alternative, not a unique source contour."
+              ]
+            }
+          },
+          {
+            "id": "wakimoto-232509",
+            "source_id": "wakimoto-2015",
+            "exposure_id": "wakimoto-20130531-232509",
+            "image": {
+              "original_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=21",
+              "panel_locator": "Figure 11(a), PDF page 21.",
+              "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
+              "identity_basis": "Digest of the complete retained PDF edition, not isolated photograph or camera-original bytes. The named complete source page was visually inspected again on October 11, 2026 UTC; enlargement does not create another exposure."
+            },
+            "reported_utc": "2013-05-31T23:25:09Z",
+            "timing": {
+              "method": "source_reported",
+              "basis": "Whole-second UTC label printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC; exact software selection represents that source label.",
+              "uncertainty_seconds": null,
+              "uncertainty_basis": "Capture-clock error and alignment error relative to the NWS minute-position clock are not independently quantified. The paper's angular-method error is not clock uncertainty and is not transferred here."
+            },
+            "inspection": {
+              "status": "still_pixels_inspected",
+              "pixels": "Complete retained rendering of PDF page 21, including Figure 11(a).",
+              "reviewed_on": "2026-10-11",
+              "basis": "Root and independent agent inspected each complete named source-page raster and all five actual private comparison captures. This declares two published photograph observations, not original-camera inspection or continuous footage."
+            },
+            "viewpoint": {
+              "mode": "qualitative_text",
+              "description": "Named published photographic view near the radar and I-40/Banner Road setting discussed in the paper. The interpretation concerns the visible southern margin in this view only.",
+              "basis": "The source paper supplies the qualitative site/view context and printed horizon/angular annotations. Atlas has no numeric lens, crop, pose or physical projection solution. The authored isotropic plane is not an alternative camera calibration.",
+              "coordinates": null,
+              "bearing_degrees": null,
+              "pitch_degrees": null,
+              "roll_degrees": null,
+              "position_uncertainty_m": null,
+              "orientation_uncertainty_degrees": null,
+              "lens_calibration": null
+            },
+            "characteristics": [
+              "A visible partial southern margin descends diagonally with a broad bend. The lower photograph contains foreground obscuration.",
+              "The published view does not establish the complete opposite edge or upper and lower continuations. The coarse interpretation omits fine scallops and irregularities."
+            ],
+            "boundary_limits": [
+              "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
+              "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
+              "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
+              "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
+              "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned."
+            ],
+            "shape": null,
+            "extent": null,
+            "partial_form": {
+              "kind": "visible_margin",
+              "authorship": "independently_authored",
+              "coordinate_space": "normalized_schematic_plane",
+              "component": "Coarse visible southern margin, open at both endpoints.",
+              "points": [
+                [
+                  0.25,
+                  0.78
+                ],
+                [
+                  0.267554,
+                  0.742065
+                ],
+                [
+                  0.283086,
+                  0.703398
+                ],
+                [
+                  0.297153,
+                  0.664204
+                ],
+                [
+                  0.310312,
+                  0.624688
+                ],
+                [
+                  0.32312,
+                  0.585054
+                ],
+                [
+                  0.336133,
+                  0.545508
+                ],
+                [
+                  0.349907,
+                  0.506255
+                ],
+                [
+                  0.365,
+                  0.4675
+                ],
+                [
+                  0.381968,
+                  0.429448
+                ],
+                [
+                  0.401367,
+                  0.392305
+                ],
+                [
+                  0.423755,
+                  0.356274
+                ],
+                [
+                  0.449688,
+                  0.321563
+                ],
+                [
+                  0.479722,
+                  0.288374
+                ],
+                [
+                  0.514414,
+                  0.256914
+                ],
+                [
+                  0.554321,
+                  0.227388
+                ],
+                [
+                  0.6,
+                  0.2
+                ]
+              ],
+              "basis": "Independently authored cubic Bezier interpretation of the inspected published photographs' broad direction and bend. Two original panels and both mathematical variants were compared visually by root and an independent agent on October 11, 2026 UTC. The simpler bend is the conservative default. No image raster, measurements, tracing or author annotation generated these points.",
+              "use_basis": "Original mathematical factual schematic with source attribution and original panel links. It contains no source photograph texture, traced contour, angular grid, dotted annotation, radar overlay or figure layout. This specific construction and output were reviewed independently. AMS photograph/figure copyright and the absence of a figure-republication grant remain separate; no photograph is copied or hosted.",
+              "limits": [
+                "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
+                "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
+                "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
+                "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
+                "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned.",
+                "This omits scallops and fine irregularities. The independently reviewed stronger S bend remains an authored alternative, not a unique source contour."
+              ]
+            }
           }
         ]
       }

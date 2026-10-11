@@ -32,8 +32,21 @@ class EvidenceCoverageTests(unittest.TestCase):
             self.assertEqual(rows[identifier]['layers']['footage']['state'],'not_linked')
         appearance=rows['el-reno-2013']['layers']['appearance']
         self.assertEqual(appearance['state'],'photo_samples')
-        self.assertEqual(appearance['photo_sample_count'],4)
-        self.assertEqual(appearance['photo_sequence_count'],1)
+        self.assertEqual(appearance['photo_sample_count'],6)
+        self.assertEqual(appearance['photo_sequence_count'],2)
+        self.assertEqual(appearance['partial_form_sample_count'],2)
+        sequences=appearance['photo_sequences']
+        self.assertEqual([sequence['id'] for sequence in sequences],['nolte-reported-stills','wakimoto-visible-margin'])
+        margins=sequences[1]['samples']
+        self.assertEqual([sample['reported_utc'] for sample in margins],['2013-05-31T23:25:01Z','2013-05-31T23:25:09Z'])
+        self.assertEqual(margins[0]['partial_form']['points'],margins[1]['partial_form']['points'])
+        self.assertEqual(len(margins[0]['partial_form']['points']),17)
+        for sequence in sequences:
+            for sample in sequence['samples']:
+                self.assertIsNone(sample['shape']);self.assertIsNone(sample['extent'])
+                for field in ('coordinates','bearing_degrees','pitch_degrees','roll_degrees','position_uncertainty_m','orientation_uncertainty_degrees','lens_calibration'):
+                    self.assertIsNone(sample['viewpoint'][field])
+        self.assertTrue(all(sample['partial_form'] is None for sample in sequences[0]['samples']))
         self.assertEqual(appearance['registered_interval_count'],0)
         for identifier in ('joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'):
             self.assertEqual(rows[identifier]['layers']['appearance']['state'],'not_admitted')
