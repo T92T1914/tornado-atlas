@@ -154,7 +154,9 @@ void main(){
   float density=(1.0-smoothstep(-feather,feather,signedDistance))*.91;
   vec2 opening=(p-vec2(.18,.22))/vec2(.22,.34);
   float lightOpening=exp(-2.2*dot(opening,opening))*.72;
-  vec3 background=vec3(.66,.66,.61);
+  // Authored dark context where the source does not resolve a northern outline.
+  float northContext=smoothstep(.55,.82,p.x);
+  vec3 background=mix(vec3(.66,.66,.61),vec3(.22,.25,.23),northContext);
   vec3 body=mix(vec3(.18,.22,.20),vec3(.24,.27,.25),smoothstep(.15,1.0,p.y));
   vec3 color=mix(background,body,density);
   color=mix(color,vec3(.90,.87,.76),lightOpening);
@@ -165,17 +167,23 @@ void main(){
   outputColor=vec4(color,alpha);
 }`;
 
+// Source-compared display proportions and clipping, without a camera solution.
+const condensationDisplayLayout=Object.freeze({frameAspect:2.37,planeWidthRatio:8/7,leftOffsetRatio:-1/7});
+
 export function buildCondensationGeometry(points,cssWidth,cssHeight){
   const packed=validateCondensationSupport(points);
   if(!Number.isFinite(cssWidth)||!Number.isFinite(cssHeight)||cssWidth<=0||cssHeight<=0)throw new TypeError('Invalid display bounds');
-  // Authored landscape layout. This ratio is not recovered camera geometry.
-  const width=Math.min(cssWidth-40,(cssHeight-40)*2),height=width/2;
-  if(width<=0)return null;
-  const plane=new Float32Array([(cssWidth-width)/2,(cssHeight-height)/2,width,height]);
-  if(![...plane].every(Number.isFinite)||plane[2]<=0||plane[3]<=0)throw new TypeError('Condensation display bounds exceed finite buffer range');
+  // The complete construction moves together inside a responsive authored frame.
+  const layout=condensationDisplayLayout;
+  const frameWidth=Math.min(cssWidth-40,(cssHeight-40)*layout.frameAspect),height=frameWidth/layout.frameAspect;
+  if(frameWidth<=0)return null;
+  const frame=new Float32Array([(cssWidth-frameWidth)/2,(cssHeight-height)/2,frameWidth,height]);
+  const width=frameWidth*layout.planeWidthRatio;
+  const plane=new Float32Array([frame[0]+frameWidth*layout.leftOffsetRatio,frame[1],width,height]);
+  if(![...frame,...plane].every(Number.isFinite)||plane[2]<=0||plane[3]<=0)throw new TypeError('Condensation display bounds exceed finite buffer range');
   for(let i=0;i<points.length;i++){const next=(i+1)%points.length;if(packed[i*2]===packed[next*2]&&packed[i*2+1]===packed[next*2+1])throw new TypeError('Condensation support collapsed in display buffer');}
   const x0=plane[0]/cssWidth*2-1,x1=(plane[0]+width)/cssWidth*2-1,y0=plane[1]/cssHeight*2-1,y1=(plane[1]+height)/cssHeight*2-1;
-  return {vertices:new Float32Array([x0,y0,x1,y0,x0,y1,x0,y1,x1,y0,x1,y1]),points:packed,pointCount:points.length,plane};
+  return {vertices:new Float32Array([x0,y0,x1,y0,x0,y1,x0,y1,x1,y0,x1,y1]),points:packed,pointCount:points.length,plane,frame};
 }
 
 export function createFormRenderer(canvas, quality) {
@@ -261,14 +269,22 @@ export function createFormRenderer(canvas, quality) {
     const width=Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
     const height=Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
-    gl.viewport(0,0,width,height);gl.clear(gl.COLOR_BUFFER_BIT);
+    // Every selection clears the complete canvas, including an unknown instant.
+    gl.viewport(0,0,width,height);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);
     if(partialForm?.kind==='visible_condensation_region'){
       const geometry=buildCondensationGeometry(partialForm.points,rect.width,rect.height);
       if(!geometry)return;
       const body=condensationResources();gl.useProgram(body.program);gl.bindVertexArray(body.attribute.vao);
       gl.bindBuffer(gl.ARRAY_BUFFER,body.attribute.buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,geometry.vertices);
       gl.uniform2fv(body.uniforms['points[0]'],geometry.points);gl.uniform1i(body.uniforms.pointCount,geometry.pointCount);gl.uniform2f(body.uniforms.cssPerPixel,rect.width/width,rect.height/height);
-      gl.uniform4fv(body.uniforms.plane,geometry.plane);gl.drawArrays(gl.TRIANGLES,0,6);return;
+      gl.uniform4fv(body.uniforms.plane,geometry.plane);
+      const [left,bottom,frameWidth,frameHeight]=geometry.frame;
+      const x0=Math.floor(left/rect.width*width),y0=Math.floor(bottom/rect.height*height);
+      const x1=Math.ceil((left+frameWidth)/rect.width*width),y1=Math.ceil((bottom+frameHeight)/rect.height*height);
+      gl.enable(gl.SCISSOR_TEST);
+      try{gl.scissor(x0,y0,x1-x0,y1-y0);gl.drawArrays(gl.TRIANGLES,0,6);}
+      finally{gl.disable(gl.SCISSOR_TEST);}
+      return;
     }
     if(partialForm!==null){
       const geometry=buildMarginGeometry(partialForm.points,rect.width,rect.height);
@@ -282,10 +298,10 @@ export function createFormRenderer(canvas, quality) {
       gl.uniform3f(margin.uniforms.marginColor,light ? .22 : .52,light ? .29 : .59,light ? .25 : .55);
       gl.drawArrays(gl.TRIANGLES,0,6);return;
     }
+    if(!shape)return;
     const camera=cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
     gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
     gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);
-    if(!shape)return;
     gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
     const u=gpu.uniforms;
     gl.uniformMatrix4fv(u.camera,false,camera);gl.uniform3f(u.shape,shape.base,shape.flare,shape.bend);

@@ -93,8 +93,9 @@ test('one replay clock drives synthetic source comparison, gaps, rate, pause and
   assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-evidence-state'),'observed');
   const graphics=await page.locator('#replay-appearance-canvas').evaluate(canvas=>{
     const gl=canvas.getContext('webgl2');if(!gl)return false;
-    window.appearanceDraws={lines:0,points:0};
-    const draw=gl.drawArrays;
+    window.appearanceDraws={clears:0,lines:0,points:0};
+    const clear=gl.clear,draw=gl.drawArrays;
+    gl.clear=function(...args){const result=clear.apply(this,args);const pixels=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4);gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,pixels);window.appearanceDraws.lastClear={clipped:gl.isEnabled(gl.SCISSOR_TEST),painted:pixels.some((value,index)=>index%4===3&&value>0),error:gl.getError()};window.appearanceDraws.clears++;return result;};
     gl.drawArrays=function(...args){
       if(args[0]===gl.LINES)window.appearanceDraws.lines++;
       if(args[0]===gl.POINTS)window.appearanceDraws.points++;
@@ -120,7 +121,9 @@ test('one replay clock drives synthetic source comparison, gaps, rate, pause and
   if(graphics){
     const before=await page.evaluate(()=>({...window.appearanceDraws}));
     await time.fill('76');
-    await page.waitForFunction(before=>window.appearanceDraws.lines>before.lines,before);
+    await page.waitForFunction(before=>window.appearanceDraws.clears>before.clears,before);
+    assert.equal(await page.evaluate(()=>window.appearanceDraws.lines),before.lines,'Unknown interval draws no grid');
+    assert.deepEqual(await page.evaluate(()=>window.appearanceDraws.lastClear),{clipped:false,painted:false,error:0});
     assert.equal(await page.evaluate(()=>window.appearanceDraws.points),before.points,'Unknown interval draws no funnel particles');
   }
   assert.equal(await page.evaluate(()=>window.appearanceStatusMutations),0,'An unchanged unknown interval does not rewrite the live status');

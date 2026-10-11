@@ -328,7 +328,7 @@ async function start(){
           appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
           'Declared photographic observation at this reported instant.';
         detailText='This still has no duration. Its reported label does not establish independently verified clock accuracy. Physical shape and extent are unassigned. '+
-          (condensation?'The broad condensation and brighter southern opening are interpreted in an authored plane. Upper continuation is outside this supported view. Lower appearance is omitted because foreground obscures it. The northern margin, ground contact, depth and intervening motion remain unresolved.':
+          (condensation?'The broad dark body and brighter southern opening are interpreted in an authored view. The dark area at right supplies context where the northern outline remains unresolved. Upper and right cutoffs mark the limits of this view. Lower appearance is omitted because foreground obscures it. Its smooth fade is a drawing choice. Ground contact, depth and motion between photographs remain unknown.':
             appearanceState.partialForm?'Only the declared coarse visible margin is drawn in its authored display plane. The unseen edges, surface contact, depth and intervening motion remain unknown.':'No particle form is drawn.');
         linkTarget=appearanceState.source.url;
         linkText=`Open the original publication: ${appearanceState.source.title}`;

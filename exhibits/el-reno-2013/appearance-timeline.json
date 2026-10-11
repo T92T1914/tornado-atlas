@@ -556,7 +556,7 @@
           "boundary_limits": [
             "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
             "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
-            "The northern margin remains uncertain. The authored northward transition and bend are coarse approximations rather than measured boundary positions.",
+            "The northern outline remains unresolved. The darker right context and soft transition are authored display choices, not a recovered exterior or hidden condensation boundary.",
             "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
             "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
             "The approximately 500 m reference at 2 degrees elevation belongs to the authors' source-defined analysis slice. It does not calibrate this drawing or determine a ground diameter.",
@@ -606,12 +606,12 @@
             ],
             "closure": "display_support_only",
             "completeness": "partial",
-            "basis": "Independently authored eight-vertex mathematical display support derived from broad factual relations in the inspected Figure 5(a), with Figure 13(a) as complementary context. Root and an independent reviewer compared both actual refined outputs with the original complete source pages. Exact contour, northward bend, tones and soft transitions remain authored approximations, not digitized source boundaries.",
+            "basis": "Independently authored eight-vertex mathematical display support informed by broad factual relations in the inspected Figure 5(a), with Figure 13(a) as complementary context. Root and an independent reviewer compared the complete source pages with the broader display, narrower bright southern opening and darker northern context. Proportions, clipping, tones, smooth lower fade and soft transitions remain authored choices. No source contour or camera projection is digitized.",
             "use_basis": "Original mathematical factual schematic, attributed and linked to the original publication. No photograph raster, texture, sampled color, traced contour, dotted source boundary, angular grid, arrows, radar overlay or figure layout is copied. This specific construction and output received separate independent source-use and qualitative-appearance decisions. AMS copyright and absent photograph/figure republication permission remain separate. No source photograph is hosted.",
             "limits": [
               "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
               "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
-              "The northern margin remains uncertain. The authored northward transition and bend are coarse approximations rather than measured boundary positions.",
+              "The northern outline remains unresolved. The darker right context and soft transition are authored display choices, not a recovered exterior or hidden condensation boundary.",
               "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
               "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
               "The approximately 500 m reference at 2 degrees elevation belongs to the authors' source-defined analysis slice. It does not calibrate this drawing or determine a ground diameter.",
