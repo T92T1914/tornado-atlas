@@ -17,7 +17,7 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 3, 'joplin-2011': 18, 'blackwell-1955': 6,
+        counts = {'el-reno-2013': 3, 'joplin-2011': 18, 'blackwell-1955': 7,
                   'tuscaloosa-birmingham-2011': 12}
         self.assertEqual({e['id'] for e in index['events']}, set(counts))
         for entry in index['events']:

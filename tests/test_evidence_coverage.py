@@ -2,13 +2,14 @@ import copy
 import hashlib
 import html
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
-from atlas.archive import dossiers
+from atlas.archive import digest, dossiers
 from atlas.evidence_coverage import ROOT, coverage_rows, layer_references, publication, render_page, reviewed
 from atlas.event_package import build_event_packages, replay_inputs, reviewed_index, utc, validate_appearance_timeline
 
@@ -44,6 +45,46 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(rows['tuscaloosa-birmingham-2011']['layers']['appearance']['items'],[])
         self.assertNotIn('nws-joplin-aftermath',linked)
         self.assertEqual(rows['blackwell-1955']['layers']['gaps']['state'],'disputed')
+
+    def test_blackwell_online_previews_keep_damage_gap_membership_and_pinned_routes(self):
+        doc = self.docs['blackwell-1955']
+        row = next(row for row in coverage_rows() if row['event']['id'] == doc['id'])
+        previews = {'ou-flora62-online-preview', 'ou-flora67-online-preview'}
+        expected = {
+            'damage': {'blackwell-debris-directions', 'ou-flora62-railroad-yard-caption',
+                       'ou-flora67-fire-response-caption'} | previews,
+            'gaps': {'blackwell-clocks', 'blackwell-injuries', 'ou-flora62-railroad-yard-caption',
+                     'ou-flora67-fire-response-caption'} | previews,
+        }
+        article = re.search(r'<article class="coverage-event" data-event="blackwell-1955">([\s\S]*?)</article>',
+                            publication()['coverage.html'].decode('utf-8'))
+        self.assertIsNotNone(article)
+        for layer, identifiers in expected.items():
+            with self.subTest(layer=layer):
+                items = row['layers'][layer]['items']
+                self.assertEqual({item['id'] for kind, item in items if kind == 'observations'}, identifiers)
+                self.assertEqual({item['id'] for kind, item in items if kind == 'media'},
+                                 {'nws-blackwell-smoothed-map'} if layer == 'damage' else set())
+                section = re.search(r'<section class="coverage-layer" data-layer="' + layer +
+                                    r'"[^>]*>([\s\S]*?)</section>', article.group(1))
+                self.assertIsNotNone(section)
+                links = [urlparse(html.unescape(href)) for href in
+                         re.findall(r'<h4><a href="([^"]+)">', section.group(1))]
+                for identifier in previews:
+                    item = next(item for kind, item in items if item['id'] == identifier)
+                    self.assertEqual(item, next(item for item in doc['observations'] if item['id'] == identifier))
+                    matches = [link for link in links if parse_qs(link.query).get('observation') == [identifier]]
+                    self.assertEqual(len(matches), 1)
+                    link = matches[0]
+                    self.assertEqual(link.path, 'dossier.html')
+                    self.assertEqual(parse_qs(link.query), {'event': ['blackwell-1955'],
+                                     'revision': [digest(doc)], 'observation': [identifier]})
+                    self.assertEqual(link.fragment, 'observation-' + identifier)
+        self.assertEqual(row['layers']['appearance']['items'], [])
+        basis = row['layers']['gaps']['basis']
+        for anchor in ('October 6, 2026', 'October 10, 2026', 'Complete original-print coverage',
+                       'remain unresolved', 'Permission to host or alter the images is not established'):
+            self.assertIn(anchor, basis)
 
     def test_layer_membership_rejects_foreign_references_and_changed_source_accounts(self):
         doc = self.docs['joplin-2011']

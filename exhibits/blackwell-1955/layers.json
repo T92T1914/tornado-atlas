@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "blackwell-1955",
-  "dossier_sha256": "7ece223222ef94b0e0f65fafa42040a2cd028e10d14eb9ad4a7c9a0f92b45634",
+  "dossier_sha256": "35e98413c80a66e59d2427176127a9cb987a368480948150286647bd19000638",
   "survey": null,
   "layers": {
     "geography": {
@@ -17,21 +17,25 @@
       "media": []
     },
     "damage": {
-      "basis": "Keep the interpreted damage map, debris-direction account and archive captions distinct. A caption record does not establish that its original photograph was inspected.",
+      "basis": "Keep the interpreted damage map, debris-direction account, archive captions and separately inspected small online versions distinct. A caption record does not establish pixel inspection. The preview records describe visible aftermath without surveyed damage classification or historical registration.",
       "observations": [
         "blackwell-debris-directions",
         "ou-flora62-railroad-yard-caption",
-        "ou-flora67-fire-response-caption"
+        "ou-flora67-fire-response-caption",
+        "ou-flora62-online-preview",
+        "ou-flora67-online-preview"
       ],
       "media": [
         "nws-blackwell-smoothed-map"
       ]
     },
     "gaps": {
-      "basis": "Reported clock and injury disagreements remain unresolved. The linked archive captions describe records whose original photograph pixels were not inspected. A source date label is not a calibrated capture clock.",
+      "basis": "Reported clock and injury disagreements remain unresolved. The Flora captions were qualified as text on October 6, 2026. The complete returned small online versions were inspected on October 10, 2026. Complete original-print coverage, capture clocks, precise scene locations and camera geometry remain unresolved. Permission to host or alter the images is not established. A source date label is not a calibrated capture clock.",
       "observations": [
         "ou-flora62-railroad-yard-caption",
-        "ou-flora67-fire-response-caption"
+        "ou-flora67-fire-response-caption",
+        "ou-flora62-online-preview",
+        "ou-flora67-online-preview"
       ],
       "media": []
     }
