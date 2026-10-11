@@ -14,8 +14,9 @@ for(const width of [1280,390])test(`bounded form windows remain separate at ${wi
   await page.locator('#scene').scrollIntoViewIfNeeded();
   const available=await page.locator('#scene').evaluate(canvas=>{
     const gl=canvas.getContext('webgl2');if(!gl)return false;
-    window.boundedDraws={gl,points:0,lines:0};
-    const draw=gl.drawArrays;
+    window.boundedDraws={gl,clears:0,points:0,lines:0};
+    const clear=gl.clear,draw=gl.drawArrays;
+    gl.clear=function(...args){const result=clear.apply(this,args);const pixels=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4);gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,pixels);window.boundedDraws.lastClear={clipped:gl.isEnabled(gl.SCISSOR_TEST),painted:pixels.some((value,index)=>index%4===3&&value>0),error:gl.getError()};window.boundedDraws.clears++;return result;};
     gl.drawArrays=function(...args){
       if(args[0]===gl.POINTS)window.boundedDraws.points++;
       if(args[0]===gl.LINES)window.boundedDraws.lines++;
@@ -24,7 +25,9 @@ for(const width of [1280,390])test(`bounded form windows remain separate at ${wi
   });
   if(!available){t.skip('Isolated browser has no WebGL2 for actual draw checks');return;}
   await page.locator('#quality').selectOption('3600');
-  await page.waitForFunction(()=>window.boundedDraws.lines>0);
+  await page.waitForFunction(()=>window.boundedDraws.clears>0);
+  assert.equal(await page.evaluate(()=>window.boundedDraws.lines),0,'No reference grid across the gap');
+  assert.deepEqual(await page.evaluate(()=>window.boundedDraws.lastClear),{clipped:false,painted:false,error:0});
   assert.equal(await page.evaluate(()=>window.boundedDraws.points),0,'No funnel drawing across the gap');
   assert.equal(await page.locator('#scene').getAttribute('data-appearance-coverage'),'gap');
   assert.equal(await page.locator('#sequence-time').inputValue(),'0.5');

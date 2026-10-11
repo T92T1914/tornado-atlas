@@ -218,7 +218,7 @@ test('mixed video to photo uses the existing renderer to clear the previous form
     const gl=canvas.getContext('webgl2');if(!gl)return false;
     window.photoDraws={clears:0,lines:0,points:0};
     const clear=gl.clear,draw=gl.drawArrays;
-    gl.clear=function(...args){window.photoDraws.clears++;return clear.apply(this,args);};
+    gl.clear=function(...args){const result=clear.apply(this,args);const pixels=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4);gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,pixels);window.photoDraws.lastClear={clipped:gl.isEnabled(gl.SCISSOR_TEST),painted:pixels.some((value,index)=>index%4===3&&value>0),error:gl.getError()};window.photoDraws.clears++;return result;};
     gl.drawArrays=function(...args){
       if(args[0]===gl.LINES)window.photoDraws.lines++;
       if(args[0]===gl.POINTS)window.photoDraws.points++;
@@ -237,7 +237,8 @@ test('mixed video to photo uses the existing renderer to clear the previous form
   if(graphics){
     const after=await page.evaluate(()=>({...window.photoDraws}));
     assert.ok(after.clears>before.clears,'The existing renderer clears the previous canvas');
-    assert.ok(after.lines>before.lines,'The existing renderer still draws its reference grid');
+    assert.equal(after.lines,before.lines,'A photo gap draws no reference grid');
+    assert.deepEqual(after.lastClear,{clipped:false,painted:false,error:0});
     assert.equal(after.points,before.points,'A photo gap draws no particle form');
   }
   const gap=graphics?await page.evaluate(()=>({...window.photoDraws})):null;
@@ -248,6 +249,8 @@ test('mixed video to photo uses the existing renderer to clear the previous form
     const after=await page.evaluate(()=>({...window.photoDraws}));
     assert.ok(after.clears>gap.clears,'An exact photo observation also clears the canvas');
     assert.equal(after.points,gap.points,'An exact photo observation draws no particle form');
+    assert.equal(after.lines,gap.lines,'An unassigned photo form draws no reference grid');
+    assert.deepEqual(after.lastClear,{clipped:false,painted:false,error:0});
   }
   assert.equal(new URL(page.url()).searchParams.get('footage_source'),sourceId);
   assert.equal(new URL(page.url()).searchParams.has('footage'),false,'A coincident video anchor is not a photo link');
