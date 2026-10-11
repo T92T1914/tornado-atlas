@@ -16,6 +16,35 @@ async function enlarge(page){
   });
   assert.equal(result,true,'Every computed text size actually doubles');
 }
+async function nativeRevealProbe(page){
+  await page.addInitScript(()=>{
+    const original=Element.prototype.scrollIntoView;
+    window.chapterContentsRevealCalls=[];
+    Element.prototype.scrollIntoView=function(options){
+      const result=original.call(this,options);
+      if(this.matches('.documentary-layout > .documentary-contents a')){
+        const rect=this.getBoundingClientRect(),rail=this.closest('nav').getBoundingClientRect();
+        const rows=window.chapterContentsRevealCalls;
+        if(rows.length<64)rows.push({href:this.getAttribute('href'),active:document.activeElement===this,behavior:options?.behavior,block:options?.block,inline:options?.inline,linkTop:rect.top,linkBottom:rect.bottom,railTop:rail.top,railBottom:rail.bottom,viewportHeight:innerHeight});
+      }
+      return result;
+    };
+  });
+}
+async function movingDocument(page){
+  const motion=await page.evaluate(async()=>{
+    const start=scrollY,destination=Math.min(document.documentElement.scrollHeight-innerHeight,start+1600),samples=[start];
+    scrollTo({top:destination,behavior:'smooth'});
+    for(let frame=0;frame<60;frame++){
+      await new Promise(resolve=>requestAnimationFrame(resolve));
+      if(scrollY!==samples.at(-1))samples.push(scrollY);
+      if(samples.length>=3&&scrollY!==destination)return {start,destination,samples,moving:true};
+    }
+    return {start,destination,samples,moving:false};
+  });
+  assert.equal(motion.moving,true,'Two differing measured scroll positions establish movement before native focus');
+  return motion;
+}
 async function destinations(page,file){
   const nav=page.locator('.documentary-layout > .documentary-contents');
   const hrefs=await nav.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
@@ -31,6 +60,7 @@ async function destinations(page,file){
 }
 for(const width of [1081,1280])for(const enabled of [false,true])test('wide chapter contents remain reachable with doubled text, '+width+', scripts '+enabled,async t=>{
   const page=await fixture(t,{viewport:{width,height:900},javaScriptEnabled:enabled,colorScheme:width===1081?'dark':'light'});
+  if(enabled)await nativeRevealProbe(page);
   for(const file of chapters){
     await page.goto(base+'/'+file);
     const {nav,hrefs}=await destinations(page,file);
@@ -48,6 +78,7 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
     assert.equal(await nav.textContent(),original,'Enlargement preserves all contents labels');
     const labelFits=await nav.locator('a').evaluateAll(nodes=>nodes.every(node=>node.scrollHeight<=node.clientHeight+1 && node.scrollWidth<=node.clientWidth+1));
     assert.equal(labelFits,true,'Every doubled contents label fits its own link box without overlapping the next label');
+    const motion=enabled?await movingDocument(page):null;
     const links=nav.locator('a');await links.first().focus();
     for(let index=0;index<hrefs.length;index++){
       assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),hrefs[index],'Native keyboard order follows the retained contents');
@@ -56,7 +87,7 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
     const focusDeadline=Date.now()+10000;
     let focusSettled=false;
     while(Date.now()<focusDeadline){
-      focusSettled=await page.evaluate(()=>{const node=document.activeElement;if(!node?.closest('.documentary-contents'))return false;const box=node.getBoundingClientRect();return box.top>=0 && box.bottom<=innerHeight;});
+      focusSettled=await page.evaluate(()=>{const node=document.activeElement;if(!node?.closest('.documentary-contents'))return false;const box=node.getBoundingClientRect(),rail=node.closest('.documentary-contents').getBoundingClientRect();return box.top>=0 && box.bottom<=innerHeight && box.top>=rail.top-1 && box.bottom<=rail.bottom+1;});
       if(focusSettled)break;
       await new Promise(resolve=>setTimeout(resolve,50));
     }
@@ -66,7 +97,7 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
       const style=rail?getComputedStyle(rail):null,root=getComputedStyle(document.documentElement);
       return {file,url:location.href,active_href:active?.getAttribute('href'),active_tag:active?.tagName,active_in_contents:Boolean(active?.closest('.documentary-contents')),link_rect:box(active),rail_rect:box(rail),rail_scroll_top:rail?.scrollTop,rail_client_height:rail?.clientHeight,rail_scroll_height:rail?.scrollHeight,window_scroll_y:scrollY,window_inner_height:innerHeight,rail_style:style?{position:style.position,top:style.top,max_height:style.maxHeight,overflow_x:style.overflowX,overflow_y:style.overflowY,scroll_behavior:style.scrollBehavior}:null,document_scroll_behavior:root.scrollBehavior,ready_state:document.readyState,font_status:document.fonts?.status};
     },file)));
-    assert.equal(focusSettled,true,'Native focused link reaches the viewport within the existing action timeout');
+    assert.equal(focusSettled,true,'Native focused link fits its rail and viewport within the existing action timeout');
     const visible=await links.last().evaluate(node=>{
       const link=node.getBoundingClientRect(),rail=node.closest('nav').getBoundingClientRect();
       return {top:link.top,bottom:link.bottom,railTop:rail.top,railBottom:rail.bottom,scroll:node.closest('nav').scrollTop,outline:getComputedStyle(node).outlineStyle};
@@ -75,6 +106,11 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
     assert.ok(visible.top>=visible.railTop-1 && visible.bottom<=visible.railBottom+1,'Final link remains inside its scrollable rail');
     assert.ok(visible.top>=0 && visible.bottom<=900,'Final link remains inside the viewport');
     assert.notEqual(visible.outline,'none','Keyboard focus remains visible');
+    if(enabled){
+      const calls=await page.evaluate(()=>window.chapterContentsRevealCalls);
+      assert.ok(calls.some(row=>row.href==='#sources'&&row.active&&row.behavior==='instant'&&row.block==='nearest'&&row.inline==='nearest'),'Actual product reveal reaches the final native focus');
+      console.log('CHAPTER_CONTENTS_NATIVE_REVEAL '+JSON.stringify({width,file,motion,calls,final:visible}));
+    }
     if(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE){
       await mkdir(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE,{recursive:true});
       await page.screenshot({path:path.join(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE,file.replace('.html','-'+width+'-'+(enabled?'enhanced':'nojs')+'-enlarged.png'))});
