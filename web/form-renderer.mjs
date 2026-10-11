@@ -130,6 +130,7 @@ uniform vec2 points[64];
 uniform int pointCount;
 uniform vec2 cssPerPixel;
 uniform vec4 plane;
+uniform bool lightTaper;
 out vec4 outputColor;
 void main(){
   vec2 p=(gl_FragCoord.xy*cssPerPixel-plane.xy)/plane.zw;
@@ -148,6 +149,15 @@ void main(){
     nearest=min(nearest,length(p-mix(a,b,t)));
   }
   float signedDistance=inside?-nearest:nearest;
+  if(lightTaper){
+    // Independent bright descending support. Display tones and softness carry no photometry.
+    float density=(1.0-smoothstep(-.045,.045,signedDistance))*.92;
+    vec3 color=mix(vec3(.18,.22,.22),vec3(.84,.82,.74),density);
+    // Omit and soften the lowest region. Upper continuation ends at a display cutoff.
+    float alpha=smoothstep(.10,.25,p.y);
+    if(alpha<.002)discard;
+    outputColor=vec4(color,alpha);return;
+  }
   // A wider northward transition is an authored display cue for the source's
   // difficult northern margin. It is not a numerical uncertainty estimate.
   float feather=mix(.045,.14,smoothstep(.55,.82,p.x));
@@ -170,11 +180,12 @@ void main(){
 // Source-compared display proportions and clipping, without a camera solution.
 const condensationDisplayLayout=Object.freeze({frameAspect:2.37,planeWidthRatio:8/7,leftOffsetRatio:-1/7});
 
-export function buildCondensationGeometry(points,cssWidth,cssHeight){
+export function buildCondensationGeometry(points,cssWidth,cssHeight,preset=null){
   const packed=validateCondensationSupport(points);
   if(!Number.isFinite(cssWidth)||!Number.isFinite(cssHeight)||cssWidth<=0||cssHeight<=0)throw new TypeError('Invalid display bounds');
   // The complete construction moves together inside a responsive authored frame.
-  const layout=condensationDisplayLayout;
+  if(preset!==null && preset!==undefined && preset!=='light_tapered_region')throw new TypeError('Unknown independent display preset');
+  const layout=preset==='light_tapered_region'?{frameAspect:1.40,planeWidthRatio:1,leftOffsetRatio:0}:condensationDisplayLayout;
   const frameWidth=Math.min(cssWidth-40,(cssHeight-40)*layout.frameAspect),height=frameWidth/layout.frameAspect;
   if(frameWidth<=0)return null;
   const frame=new Float32Array([(cssWidth-frameWidth)/2,(cssHeight-height)/2,frameWidth,height]);
@@ -259,7 +270,7 @@ export function createFormRenderer(canvas, quality) {
     let p=null,a=null;
     try{
       p=program(marginVertex,condensationFragment);a=attribute(p,'position',new Float32Array(12),2);
-      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['points[0]','pointCount','cssPerPixel','plane'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['points[0]','pointCount','cssPerPixel','plane','lightTaper'].map(name=>[name,gl.getUniformLocation(p,name)]))};
       gpu.condensation=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
@@ -272,12 +283,13 @@ export function createFormRenderer(canvas, quality) {
     // Every selection clears the complete canvas, including an unknown instant.
     gl.viewport(0,0,width,height);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);
     if(partialForm?.kind==='visible_condensation_region'){
-      const geometry=buildCondensationGeometry(partialForm.points,rect.width,rect.height);
+      const geometry=buildCondensationGeometry(partialForm.points,rect.width,rect.height,partialForm.display_preset);
       if(!geometry)return;
       const body=condensationResources();gl.useProgram(body.program);gl.bindVertexArray(body.attribute.vao);
       gl.bindBuffer(gl.ARRAY_BUFFER,body.attribute.buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,geometry.vertices);
       gl.uniform2fv(body.uniforms['points[0]'],geometry.points);gl.uniform1i(body.uniforms.pointCount,geometry.pointCount);gl.uniform2f(body.uniforms.cssPerPixel,rect.width/width,rect.height/height);
       gl.uniform4fv(body.uniforms.plane,geometry.plane);
+      gl.uniform1i(body.uniforms.lightTaper,partialForm.display_preset==='light_tapered_region'?1:0);
       const [left,bottom,frameWidth,frameHeight]=geometry.frame;
       const x0=Math.floor(left/rect.width*width),y0=Math.floor(bottom/rect.height*height);
       const x1=Math.ceil((left+frameWidth)/rect.width*width),y1=Math.ceil((bottom+frameHeight)/rect.height*height);

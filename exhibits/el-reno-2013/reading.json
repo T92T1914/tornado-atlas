@@ -1,8 +1,15 @@
 {
   "schema": 1,
   "event": "el-reno-2013",
-  "updated": "2026-10-10",
+  "updated": "2026-10-11",
   "sources": [
+    {
+      "group": "Original photographs and accounts",
+      "title": "May 31, 2013: El Reno, Oklahoma tornado",
+      "publisher": "William T. Reid / Stormbruiser",
+      "url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/",
+      "use": "Complete published 4178 photograph and the creator’s 6:04 PM CDT caption inspected. Supports a specific independently authored, coarse light taper schematic. The reported minute is not an exact exposure second or replay interval. Camera pose, lens and crop remain unregistered; earlier group optics are not transferred. Copyright photograph is linked at its original publication, not copied into the exhibit."
+    },
     {
       "group": "Original photographs and accounts",
       "title": "Storm Chase May 31, 2013: El Reno, Oklahoma Tornado",

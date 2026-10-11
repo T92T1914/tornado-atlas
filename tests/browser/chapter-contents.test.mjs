@@ -60,6 +60,12 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
       if(focusSettled)break;
       await new Promise(resolve=>setTimeout(resolve,50));
     }
+    if(!focusSettled) console.log('CHAPTER_CONTENTS_FOCUS_FAILURE '+JSON.stringify(await page.evaluate(file=>{
+      const active=document.activeElement,rail=document.querySelector('.documentary-contents');
+      const box=node=>{const r=node?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height,top:r.top,right:r.right,bottom:r.bottom,left:r.left}:null;};
+      const style=rail?getComputedStyle(rail):null,root=getComputedStyle(document.documentElement);
+      return {file,url:location.href,active_href:active?.getAttribute('href'),active_tag:active?.tagName,active_in_contents:Boolean(active?.closest('.documentary-contents')),link_rect:box(active),rail_rect:box(rail),rail_scroll_top:rail?.scrollTop,rail_client_height:rail?.clientHeight,rail_scroll_height:rail?.scrollHeight,window_scroll_y:scrollY,window_inner_height:innerHeight,rail_style:style?{position:style.position,top:style.top,max_height:style.maxHeight,overflow_x:style.overflowX,overflow_y:style.overflowY,scroll_behavior:style.scrollBehavior}:null,document_scroll_behavior:root.scrollBehavior,ready_state:document.readyState,font_status:document.fonts?.status};
+    },file)));
     assert.equal(focusSettled,true,'Native focused link reaches the viewport within the existing action timeout');
     const visible=await links.last().evaluate(node=>{
       const link=node.getBoundingClientRect(),rail=node.closest('nav').getBoundingClientRect();

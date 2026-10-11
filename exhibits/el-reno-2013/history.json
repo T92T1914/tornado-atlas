@@ -303,12 +303,16 @@
       "paragraphs": [
         "The El Reno Survey Project demonstrates how footage can become a scientific record. Seimon and colleagues describe correcting video times against recorded lightning flashes and locating viewpoints using recognizable scene features. That permits observations from separate cameras to be compared with radar at corresponding times.",
         "For this exhibit, a useful image record therefore needs more than a date and a credit. It needs an original source, a defensible time or interval, a viewpoint when known, and an explanation of any correction. An upload time is not a capture time. An eyewitness’s position is not the tornado center. A clear view of the funnel is not a complete view of the wind field.",
-        "At present, the original storm photographs are available without assigned timestamps. The radar frames and published camera samples can be explored on the clock. A future historical animation should inherit those distinctions: observed positions, interpolation, inferred form and missing evidence should remain inspectable while it plays."
+        "The two preserved Daniel Rodriguez storm photographs remain without assigned historical times. Separately, published research photographs have sparse reported second labels, and William T. Reid’s creator account labels an earlier photograph 6:04 PM CDT. The earlier taper and later broad bodies can be compared as distinct visible observations. These records do not establish continuous motion or a shared calibrated camera. Radar frames and published camera samples remain available on the clock, with observed positions, interpolation and missing evidence distinguished."
       ],
       "sources": [
         {
           "label": "Seimon and colleagues, time correction and georeferencing",
           "url": "https://doi.org/10.1175/BAMS-D-15-00174.1"
+        },
+        {
+          "label": "Reid’s original account and reported minute",
+          "url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/"
         }
       ]
     },

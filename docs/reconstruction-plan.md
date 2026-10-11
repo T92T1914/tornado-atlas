@@ -347,3 +347,22 @@ describes actual private source/output inspection and the remaining integration
 and release gates. It adds no camera solution, historical duration, three-dimensional
 silhouette or calibrated damage prediction. The first defensible continuous
 appearance interval remains required.
+
+## October 11 earlier reported-minute view
+
+Reid’s inspected photograph, labeled 6:04 PM CDT on May 31, 2013, supports
+a coarse light taper against darker cloud in the article. The reported minute
+is retained outside the exact replay timeline. No exposure second, clock accuracy,
+camera solution or physical size is assigned. The drawing uses the existing
+renderer without animating the observation or holding it across a minute.
+
+The [source and comparison record](../research/el-reno-reported-minute-taper-2026-10-11.md)
+describes its seven authored support points, incomplete upper cloud and omitted
+lowest region. The original photograph remains an external link. The specific
+private source-use decision supplies no photograph-hosting permission.
+
+The corrected private integration passed 19 scoped Chrome cases. Actual source
+and viewport comparison covered narrow and wide layouts, doubled text and
+reading fallbacks. Whole visitor-journey review, hosted CI and public acceptance
+remain ahead. This earlier view leaves the continuous appearance interval,
+metric camera registration and historical damage-model requirements open.

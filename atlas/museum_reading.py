@@ -84,6 +84,23 @@ def regions(bundle):
         report += element('article', element('h3', link(row['title'], '#'+row['id'])) + ''.join(p(value) for value in row['paragraphs'])
                           + element('div', ''.join(link(source['label'], source['url']) for source in row['sources']), class_='report-links'), id=row['id'])
     result['documentary-report'] = report
+    observation = bundle['documentary']['reported_appearance']['observations'][0]
+    drawing = element('canvas', '', id='early-condensation-canvas', role='img',
+                      aria_label='Independent schematic of the lighter condensation taper in the earlier photograph',
+                      aria_describedby='early-condensation-caption early-condensation-omission early-condensation-time', hidden='hidden')
+    record = json.dumps(observation, ensure_ascii=False).replace('<', chr(92) + 'u003c')
+    result['early-condensation'] = (element('h3', text(observation['title']))
+        + p('Reported '+observation['reported_time']['local']+' / '+observation['reported_time']['utc'], class_='eyebrow')
+        + element('figure', drawing + element('figcaption', p(observation['caption'], id='early-condensation-caption')
+            + p(observation['omission'], id='early-condensation-omission')))
+        + p('The source account and interpretation remain readable here. The drawing loads when available.', id='early-condensation-status', role='status', class_='fineprint')
+        + p(observation['clock_note'], id='early-condensation-time')
+        + element('p', link('Open Reid’s original photograph', observation['original_url'])+' · '
+            + link('Read the creator’s account and caption', observation['account_url'])+' · '
+            + link('Compare the later photographed body', '#partial-condensation-reading'))
+        + element('details', element('summary', 'What this view can tell us')
+            + p('The photograph supports a coarse visible form, not measured tornado height, radius, ground contact or damaging-wind extent. The earlier group’s camera lens is not assigned to this relocated view. The original photograph remains at its creator publication; source pixels are not hosted here.'))
+        + '<script type="application/json" id="early-condensation-record">'+record+'</script>')
     result['hero-photograph'] = photo_figure(photos[0], 0, True)
     result['storm-photographs'] = ''.join(photo_figure(photo, index) for index, photo in enumerate(photos))
     result['visitor-questions'] = ''.join(element('details', element('summary', text(row['question'])) + p(row['answer'])

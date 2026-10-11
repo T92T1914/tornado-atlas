@@ -2275,12 +2275,16 @@
         "paragraphs": [
           "The El Reno Survey Project demonstrates how footage can become a scientific record. Seimon and colleagues describe correcting video times against recorded lightning flashes and locating viewpoints using recognizable scene features. That permits observations from separate cameras to be compared with radar at corresponding times.",
           "For this exhibit, a useful image record therefore needs more than a date and a credit. It needs an original source, a defensible time or interval, a viewpoint when known, and an explanation of any correction. An upload time is not a capture time. An eyewitness’s position is not the tornado center. A clear view of the funnel is not a complete view of the wind field.",
-          "At present, the original storm photographs are available without assigned timestamps. The radar frames and published camera samples can be explored on the clock. A future historical animation should inherit those distinctions: observed positions, interpolation, inferred form and missing evidence should remain inspectable while it plays."
+          "The two preserved Daniel Rodriguez storm photographs remain without assigned historical times. Separately, published research photographs have sparse reported second labels, and William T. Reid’s creator account labels an earlier photograph 6:04 PM CDT. The earlier taper and later broad bodies can be compared as distinct visible observations. These records do not establish continuous motion or a shared calibrated camera. Radar frames and published camera samples remain available on the clock, with observed positions, interpolation and missing evidence distinguished."
         ],
         "sources": [
           {
             "label": "Seimon and colleagues, time correction and georeferencing",
             "url": "https://doi.org/10.1175/BAMS-D-15-00174.1"
+          },
+          {
+            "label": "Reid’s original account and reported minute",
+            "url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/"
           }
         ]
       },
@@ -2466,7 +2470,7 @@
     {
       "id": "question-reconstruction",
       "question": "Can we see exactly what it looked like at each moment?",
-      "answer": "Not at each moment. Selected paused footage samples have documented clock correspondences, which can be compared with the map. They do not establish a continuously inspected and registered appearance interval. The two documentary photographs have no assigned historical minute or registered viewing direction. The form study and wind lab are separate illustrations. They do not recreate the recorded El Reno wind field or the damage to individual buildings.",
+      "answer": "Not at each moment. Selected paused footage samples have documented clock correspondences, and separate published stills support coarse interpretations at reported labels. An earlier Reid photograph has a reported minute only and stays outside the exact replay clock. The two preserved Daniel Rodriguez photographs have no assigned historical minute or registered viewing direction. No continuously inspected and camera-registered appearance interval is established. The form study and wind lab remain separate illustrations; they do not recreate the recorded El Reno wind field or the damage to individual buildings.",
       "sources": [
         {
           "label": "Our reconstruction and review record",
@@ -8328,7 +8332,108 @@
           }
         ]
       }
-    ]
+    ],
+    "reported_appearance": {
+      "schema_version": 1,
+      "event": "el-reno-2013",
+      "observations": [
+        {
+          "schema_version": 1,
+          "id": "reid-4178-reported-minute",
+          "event": "el-reno-2013",
+          "state": "documentary_reported_minute",
+          "creator": "William T. Reid",
+          "original_url": "https://stormbruiser.com/chase/wp-content/uploads/2013/06/130531_4178_El-Reno_OK.jpg",
+          "account_url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/",
+          "published_image": {
+            "bytes": 72156,
+            "sha256": "7676ed47e4d95d6f0cb5772af3311af39b941c43e70cba691e1e787e27d778e1",
+            "dimensions": [
+              700,
+              451
+            ]
+          },
+          "reported_time": {
+            "local": "May 31, 2013, 6:04 PM CDT",
+            "utc": "May 31, 2013, 23:04 UTC",
+            "precision": "minute",
+            "exposure_second": null,
+            "clock_accuracy": null,
+            "exact_replay_seconds": null
+          },
+          "viewpoint": {
+            "reported_relocation": "About one-quarter mile south of the original shooting location.",
+            "longitude": null,
+            "latitude": null,
+            "azimuth_deg": null,
+            "elevation_deg": null,
+            "roll_deg": null,
+            "horizontal_fov_deg": null,
+            "height_m": null,
+            "lens": null,
+            "crop": null
+          },
+          "shape": null,
+          "physical_extent": null,
+          "continuous_registration": null,
+          "partial_form": {
+            "kind": "visible_condensation_region",
+            "display_preset": "light_tapered_region",
+            "points": [
+              [
+                0.63,
+                0.12
+              ],
+              [
+                0.5,
+                0.34
+              ],
+              [
+                0.32,
+                0.7
+              ],
+              [
+                0.12,
+                1
+              ],
+              [
+                0.86,
+                1
+              ],
+              [
+                0.76,
+                0.72
+              ],
+              [
+                0.7,
+                0.36
+              ]
+            ],
+            "construction": "Independent seven-point coarse tapered display support. No contour tracing or photogrammetric solution.",
+            "basis": "A lighter descending tapered region under broader cloud, with its lowest region obscured and its upper connection unresolved.",
+            "use_basis": "Specific independently authored seven-point mathematical schematic compared with the complete original photograph in a rendered private review on October 11, 2026. Original photograph copyright remains with William T. Reid; external links only.",
+            "limits": [
+              "Source reports a minute; exposure second and clock accuracy are unknown.",
+              "Published 700 by 451 image has no recovered camera-original crop, projection or metric scale.",
+              "The reported relocation is approximate; earlier group optics and pose are not assigned.",
+              "Display support, palette, frame and softness are authored presentation choices, not measured photometry or uncertainty.",
+              "No ground contact, damaging-wind extent, motion or hidden optical boundary is assigned.",
+              "The original photograph is linked at its creator publication; no source pixels are copied into this exhibit."
+            ]
+          },
+          "title": "A lighter taper in the earlier photograph",
+          "inspection": {
+            "status": "complete_published_still_pixels_inspected",
+            "reviewed_on": "2026-10-11",
+            "source_reuse": "external_links_only",
+            "basis": "Complete published 700 by 451 JPEG and creator caption inspected. Private rendered schematic compared with the complete original, with camera, scale, exact exposure second and continuous interval unassigned."
+          },
+          "caption": "Reid labels this photograph 6:04 PM CDT, 23:04 UTC. A lighter condensation region tapers downward against darker cloud. This independently authored schematic interprets that visible region; it is not the photograph or a complete tornado silhouette.",
+          "omission": "The lowest region is omitted where the source does not resolve a supported boundary. The fade is a drawing convention, not ground contact, cloud clearance or dissipation. The broad upper cloud and its ragged structure are not fully depicted.",
+          "clock_note": "Reported minute only. The exposure second and clock accuracy are unknown. This view stays separate from the replay clock and is not held across a minute or animated into the later photographs."
+        }
+      ]
+    }
   },
   "footage": {
     "schema": 1,
@@ -9125,8 +9230,15 @@
   "reading": {
     "schema": 1,
     "event": "el-reno-2013",
-    "updated": "2026-10-10",
+    "updated": "2026-10-11",
     "sources": [
+      {
+        "group": "Original photographs and accounts",
+        "title": "May 31, 2013: El Reno, Oklahoma tornado",
+        "publisher": "William T. Reid / Stormbruiser",
+        "url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/",
+        "use": "Complete published 4178 photograph and the creator’s 6:04 PM CDT caption inspected. Supports a specific independently authored, coarse light taper schematic. The reported minute is not an exact exposure second or replay interval. Camera pose, lens and crop remain unregistered; earlier group optics are not transferred. Copyright photograph is linked at its original publication, not copied into the exhibit."
+      },
       {
         "group": "Original photographs and accounts",
         "title": "Storm Chase May 31, 2013: El Reno, Oklahoma Tornado",
