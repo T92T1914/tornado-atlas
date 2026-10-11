@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "event": "el-reno-2013",
   "windows": [],
   "photo_sources": [
@@ -30,7 +30,7 @@
       "version_identity": "Retained 27-page PDF edition, SHA-256 recorded below; selected text and original published photograph panels inspected separately.",
       "original_locator": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf",
       "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
-      "identity_basis": "The digest identifies the acquired complete PDF edition. Figure 9(a) and its Figure 10(a) enlargement are one exposure; Figure 11(a) is another. No camera-original photograph, unchanged camera file or isolated photographic-byte digest is claimed.",
+      "identity_basis": "The digest identifies the acquired complete PDF edition. Figure 9(a) and its Figure 10(a) enlargement are one exposure; Figure 11(a) is another. No camera-original photograph, unchanged camera file or isolated photographic-byte digest is claimed. Figure 5(a) provides the separately admitted 23:24:41 UTC observation. Figure 13(a) supplies complementary context at that reported label without establishing camera-original correspondence.",
       "rights": {
         "reuse": "external_links_only",
         "rights_holder": "AMS copyright present; individual photographic ownership not independently established.",
@@ -504,6 +504,119 @@
               "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
               "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned.",
               "This omits scallops and fine irregularities. The independently reviewed stronger S bend remains an authored alternative, not a unique source contour."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wakimoto-visible-condensation",
+      "basis": "One separately inspected source-reported photograph at 23:24:41 UTC. Its coarse partial condensation is shown only at this exact label. Figure 13(a) is complementary southern context at the same reported whole-second time, not an additional admitted exposure. Physical geometry and camera calibration remain unknown, and this still has no duration.",
+      "samples": [
+        {
+          "id": "wakimoto-232441",
+          "source_id": "wakimoto-2015",
+          "exposure_id": "wakimoto-20130531-232441-fig5a",
+          "image": {
+            "original_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=10",
+            "panel_locator": "Figure 5(a), PDF page 10. Figure 13(a), PDF page 23, supplies complementary southern context at the same reported whole-second label.",
+            "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
+            "identity_basis": "Digest of the complete retained PDF edition, not isolated photograph or camera-original bytes. The complete named page 10 and complementary page 23 were inspected. Figure 13(a) is context rather than an additional registered exposure or independently established camera-original correspondence."
+          },
+          "reported_utc": "2013-05-31T23:24:41Z",
+          "timing": {
+            "method": "source_reported",
+            "basis": "Whole-second UTC label printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC; exact software selection represents that source label.",
+            "uncertainty_seconds": null,
+            "uncertainty_basis": "Capture-clock error and alignment error relative to the NWS minute-position clock are not independently quantified. The paper's angular-method error is not clock uncertainty and is not transferred here."
+          },
+          "inspection": {
+            "status": "still_pixels_inspected",
+            "pixels": "Complete retained rendering of PDF page 10, including the original Figure 5(a) photograph. Complete page 23, Figure 13(a), was inspected separately for complementary southern context.",
+            "reviewed_on": "2026-10-11",
+            "basis": "Root and independent reviewer inspected the original whole source pages and both actual refined private output captures. The specific independent construction and bounded qualitative appearance correspondence were accepted separately. No original-camera file or continuous video was inspected."
+          },
+          "viewpoint": {
+            "mode": "qualitative_text",
+            "description": "Published photographic view discussed near the RaXPol and I-40/Banner Road setting. The interpretation concerns the broad visible condensation and southern opening in Figure 5(a).",
+            "basis": "The paper provides qualitative site/view context and angular annotations. No exact Atlas crop, camera pose, lens or calibrated projection is recovered. The authored landscape display is not a camera solution.",
+            "coordinates": null,
+            "bearing_degrees": null,
+            "pitch_degrees": null,
+            "roll_degrees": null,
+            "position_uncertainty_m": null,
+            "orientation_uncertainty_degrees": null,
+            "lens_calibration": null
+          },
+          "characteristics": [
+            "A broad dark condensation mass fills much of the supported view. Its southern side contains a brighter opening.",
+            "The upper condensation continues beyond the supported view. Foreground obscures the lowest region. The northern margin is difficult to discern.",
+            "Figure 13(a) supplies complementary cloudy underside and southern dust/debris context. Its arrows do not establish closed boundaries or particle motion."
+          ],
+          "boundary_limits": [
+            "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
+            "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
+            "The northern margin remains uncertain. The authored northward transition and bend are coarse approximations rather than measured boundary positions.",
+            "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
+            "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
+            "The approximately 500 m reference at 2 degrees elevation belongs to the authors' source-defined analysis slice. It does not calibrate this drawing or determine a ground diameter.",
+            "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+            "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
+          ],
+          "shape": null,
+          "extent": null,
+          "partial_form": {
+            "kind": "visible_condensation_region",
+            "authorship": "independently_authored",
+            "coordinate_space": "normalized_schematic_plane",
+            "component": "Broad visible condensation and brighter southern opening, with uncertain northern transition and obscured lower region.",
+            "points": [
+              [
+                0.28,
+                0.08
+              ],
+              [
+                0.25,
+                0.27
+              ],
+              [
+                0.29,
+                0.72
+              ],
+              [
+                0.3,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                0.7
+              ],
+              [
+                0.86,
+                0.24
+              ],
+              [
+                0.72,
+                0.08
+              ]
+            ],
+            "closure": "display_support_only",
+            "completeness": "partial",
+            "basis": "Independently authored eight-vertex mathematical display support derived from broad factual relations in the inspected Figure 5(a), with Figure 13(a) as complementary context. Root and an independent reviewer compared both actual refined outputs with the original complete source pages. Exact contour, northward bend, tones and soft transitions remain authored approximations, not digitized source boundaries.",
+            "use_basis": "Original mathematical factual schematic, attributed and linked to the original publication. No photograph raster, texture, sampled color, traced contour, dotted source boundary, angular grid, arrows, radar overlay or figure layout is copied. This specific construction and output received separate independent source-use and qualitative-appearance decisions. AMS copyright and absent photograph/figure republication permission remain separate. No source photograph is hosted.",
+            "limits": [
+              "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
+              "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
+              "The northern margin remains uncertain. The authored northward transition and bend are coarse approximations rather than measured boundary positions.",
+              "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
+              "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
+              "The approximately 500 m reference at 2 degrees elevation belongs to the authors' source-defined analysis slice. It does not calibrate this drawing or determine a ground diameter.",
+              "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+              "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
             ]
           }
         }

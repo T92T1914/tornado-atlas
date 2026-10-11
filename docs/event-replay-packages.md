@@ -420,8 +420,10 @@ photograph, raster, traced contour, annotation or figure layout is copied. AMS
 copyright and the absence of a figure-republication grant remain separate from
 the independently authored factual schematic's construction/use record.
 
-Coverage reports six declared optical instants across two sequences and two
-partial-form samples. Its registered continuous video interval count remains
+The version 3 margin declaration supplied six optical instants across two
+sequences and two partial-form samples. The current version 4 declaration
+described below adds one separately supported condensation instant. Its
+registered continuous video interval count remains
 zero, and the dossier's global appearance classification remains unregistered.
 A qualified sparse photo interpretation and an inspected continuous video
 window have different evidence requirements. No additional interior exposure
@@ -429,3 +431,48 @@ is universally required when every unsupported interior is explicitly unknown.
 
 The source and qualitative comparison are recorded in
 [El Reno partial-margin review](../research/el-reno-partial-margin-2026-10-11.md).
+
+## Partial filled condensation at one reported instant
+
+Appearance timeline version 4 preserves the photographic and open-margin
+contracts and adds `visible_condensation_region`. Replay manifests remain
+version 2. A filled sample must state `closure: display_support_only` and
+`completeness: partial`, with the existing independent authorship, normalized
+schematic plane, component, comparison basis, construction/use basis and
+bounded limits. Three through 64 distinct finite coordinate pairs describe
+an authored display support. Self-intersection, contact between nonadjacent
+segments, repeated vertices, adjacent doubleback, collapsed segments and
+vanishing area are rejected by Python and the shared JavaScript geometry
+validator. The numeric thresholds concern software/display precision. They
+are not historical resolution or uncertainty.
+
+El Reno adds `wakimoto-visible-condensation`, a single reported 23:24:41 UTC
+sample at offset 1241, linked to Figure 5(a) on PDF page 10. Figure 13(a) on
+page 23 is complementary context with the same whole-second label, without
+claiming camera-original exposure identity or adding another observation.
+The retained full-PDF digest identifies an acquired edition, not an isolated
+photograph or its camera-original bytes.
+
+Open `reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=wakimoto-visible-condensation`.
+The existing renderer fills the broad partial condensation body in an authored
+2:1 landscape plane. The bright southern opening, subdued dark interior and
+soft visible margin are qualitative display choices. Top and right edges are
+view cutoffs rather than optical boundaries. Lower appearance is omitted
+where the source does not resolve contact. Eight support vertices, color,
+opacity, lower omission and softness are not measured contour, dimensions,
+lighting, density or error bounds. Physical shape, extent and all seven numeric
+historical camera fields remain null. No particle funnel, ground grid, moving
+dust, geographic projection or generic orbit contribution is drawn.
+
+Only the exact reported source label supplies this form. Fractional neighbors,
+other sequences and every unsampled instant clear it. There is no hold, duration
+or interpolated evolution. Selection, playback, history, reload and graphics
+restoration follow the existing clock. The source record and original link
+remain useful when graphics are unavailable.
+
+Current coverage reports seven optical instants in three sequences, three
+partial forms comprising two open margins and one filled condensation view,
+and zero registered continuous intervals. The dossier appearance classification
+remains unregistered. The [specific source/output comparison](../research/el-reno-partial-condensation-2026-10-11.md)
+records the permitted factual construction separately from copyright, qualitative
+source correspondence, executed software checks and publication acceptance.

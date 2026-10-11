@@ -54,7 +54,7 @@ async function start(){
   const localStamp=displayClock(config.clock.time_zone),features=data.geometry.features;
   let sharedPhotoViewer=null;
   const openReplayPhoto=photo=>(sharedPhotoViewer??=mountPhotoViewer())(photo);
-  mountReplayScaleImpact(data,openReplayPhoto);
+  mountReplayScaleImpact(data,openReplayPhoto,seek);
   el('replay-content').hidden=false;
   canvas.setAttribute('aria-label',`Three-dimensional view of the documented ${event.title} path. Drag or use arrow keys to turn the scene. The following controls provide the same options.`);
   const positions=preparePositions(features.filter(f=>f.geometry.type==='Point'));
@@ -164,6 +164,13 @@ async function start(){
     mode.append(option);
   }
   if(!appearanceTimeline?.windows.some(window=>window.kind==='illustrative'))mode.querySelector('[value="illustrative"]')?.remove();
+  const condensationSequence=photoSequences.find(sequence=>sequence.id==='wakimoto-visible-condensation');
+  if(event.id==='el-reno-2013'&&condensationSequence?.samples.length===1){
+    const first=condensationSequence.samples[0],href=new URL('reconstruction.html',location.href);
+    href.searchParams.set('event',event.id);href.searchParams.set('t',String((Date.parse(first.reported_utc)-start)/1000));
+    href.searchParams.set('appearance_view','photo');href.searchParams.set('appearance_photo',condensationSequence.id);
+    el('replay-appearance-start').href=href.href;el('replay-appearance-start').hidden=false;
+  }
   restoreAppearanceMode();
   if(appearanceTimeline?.windows.length||photoSequences.length){
     drawing.hidden=false;
@@ -247,7 +254,11 @@ async function start(){
       field('Interpreted component',sample.partial_form.component);
       field('Independent authorship and comparison',sample.partial_form.basis);
       field('Schematic use basis',sample.partial_form.use_basis);
-      field('Display coordinates','An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
+      const condensation=sample.partial_form.kind==='visible_condensation_region';
+      field('Display coordinates',condensation?
+        'An authored landscape plane. Support points, colors, opacity and soft transitions are presentation choices, not measured dimensions, lighting, optical density or uncertainty.':
+        'An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
+      if(condensation)field('Support closure and completeness','Closed for display filling only. The optical outline remains partial. Top and right drawing edges are view cutoffs, not recovered tornado boundaries.');
     }
     host.append(record);
     for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits],
@@ -312,10 +323,13 @@ async function start(){
         statusText='Photograph selection unavailable.';
         detailText=`The requested sequence "${unavailablePhotoId||'(missing identity)'}" is not declared in this event package. Choose an available appearance view. No source has been substituted.`;
       }else if(appearanceState.state==='photo_observed'){
-        statusText=appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
+        const condensation=appearanceState.partialForm?.kind==='visible_condensation_region';
+        statusText=condensation?'Independently authored partial condensation at this reported instant.':
+          appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
           'Declared photographic observation at this reported instant.';
         detailText='This still has no duration. Its reported label does not establish independently verified clock accuracy. Physical shape and extent are unassigned. '+
-          (appearanceState.partialForm?'Only the declared coarse visible margin is drawn in its authored display plane. The unseen edges, surface contact, depth and intervening motion remain unknown.':'No particle form is drawn.');
+          (condensation?'The broad condensation and brighter southern opening are interpreted in an authored plane. Upper continuation is outside this supported view. Lower appearance is omitted because foreground obscures it. The northern margin, ground contact, depth and intervening motion remain unresolved.':
+            appearanceState.partialForm?'Only the declared coarse visible margin is drawn in its authored display plane. The unseen edges, surface contact, depth and intervening motion remain unknown.':'No particle form is drawn.');
         linkTarget=appearanceState.source.url;
         linkText=`Open the original publication: ${appearanceState.source.title}`;
       }else{
@@ -353,6 +367,7 @@ async function start(){
     if(drawing.dataset.evidenceState!==appearanceState.state)drawing.dataset.evidenceState=appearanceState.state;
     if(formCanvas.dataset.evidenceState!==appearanceState.state)formCanvas.dataset.evidenceState=appearanceState.state;
     formCanvas.dataset.partialForm=String(Boolean(appearanceState.partialForm));
+    formCanvas.dataset.partialKind=appearanceState.partialForm?.kind??'';
     if(appearanceRenderer)formCanvas.style.visibility=photoSelected&&!appearanceState.partialForm?'hidden':'visible';
   }
   function readCamera(center){
@@ -391,7 +406,7 @@ async function start(){
     el('replay-damage-offscreen').hidden=!selectedSurvey||Boolean(surveyed);
     for(const point of positions){const p=project(localPoint(point.geometry.coordinates,origin));if(!p)continue;context.beginPath();context.arc(p.x,p.y,2.5,0,Math.PI*2);context.fillStyle=text;context.fill();}
     const marker=project(center);
-    if(el('replay-funnel').checked){
+    if(el('replay-funnel').checked&&!photoView()){
       // The glyph's dimensions are deliberately fixed artwork, never inferred from the path envelope.
       const particles=funnelGlyph(clock.seconds/12).map(p=>project(p.map((v,i)=>v+center[i]))).filter(Boolean).sort((a,b)=>b.depth-a.depth);
       context.fillStyle=text;
@@ -425,6 +440,9 @@ async function start(){
     const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;
     if(key!==lastText)updateFootage(current.utc);
     updateAppearance();
+    el('replay-funnel').disabled=photoView();
+    setText(el('replay-stage-kind'),photoView()?'SOURCE APPEARANCE / CENTER POSITION':'DOCUMENTED PATH / ILLUSTRATIVE FUNNEL');
+    setText(el('replay-funnel-help'),photoView()?'Photograph mode keeps only the center marker in the geographic scene, including unknown appearance times. The source form above is a separate authored display plane. Neither marks a wind field or a recorded orbit viewpoint.':'Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.');
     el('replay-link').href=momentURL(location.href,photoView()?clock.seconds:Math.floor(clock.seconds)).href;
     el('replay-time').step=photoView()?'any':'1';
     el('replay-time').value=photoView()?clock.seconds:Math.round(clock.seconds);
@@ -432,7 +450,9 @@ async function start(){
     updateContext();
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
     el('replay-time').setAttribute('aria-valuetext',time);
-    el('replay-basis').textContent=current.published?'Published source minute position. The funnel remains an illustrative symbol.':`Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. Funnel appearance is not registered.`;
+    el('replay-basis').textContent=current.published?
+      (photoView()?'Published source minute position. The geographic scene shows only the center marker.':'Published source minute position. The funnel remains an illustrative symbol.'):
+      `Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. ${photoView()?'Only the center marker is shown; no photographic appearance is assigned by the path.':'Funnel appearance is not registered.'}`;
     const media=data.timeline_media;
     const match=frameAt(media.frames,current.utc,media.max_age_seconds);
     const image=el('replay-radar-image');image.hidden=!match||failedRadar.has(match?.frame.file);

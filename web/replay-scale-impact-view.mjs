@@ -1,11 +1,15 @@
-// Existing source facts and one inspected aftermath image, independent of the replay clock.
-export function mountReplayScaleImpact(data,openPhoto){
+// Preserve sourced widths and recorded outcomes. Only the declared radar comparison seeks the existing clock.
+export function mountReplayScaleImpact(data,openPhoto,seek){
   if(data.exhibit?.id!=='el-reno-2013')return;
   const byId=id=>document.getElementById(id),section=byId('replay-scale-impact');
   const maximum=data.exhibit.facts.find(row=>row.label==='Reported maximum tornado width');
   if(maximum?.value!=='2.6 mi'||maximum.source!=='https://www.weather.gov/oun/events-20130531')return;
   section.hidden=false;byId('replay-scale-jump').hidden=false;
   byId('replay-survey-jump').addEventListener('click',()=>{byId('replay-damage').open=true;});
+  if(seek)byId('replay-ground-clock').addEventListener('click',event=>{
+    if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+    event.preventDefault();seek(488,{fragment:'replay-ground-scouring'});
+  });
   const photo=data.damage?.event==='el-reno-2013'&&data.damage.photos.find(row=>row.id==='nws-el-reno-damage-04');
   if(!photo){byId('replay-impact-example').hidden=true;return;}
   const image=byId('replay-impact-image');

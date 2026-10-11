@@ -147,6 +147,9 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
     const source=data.survey.points.find(point=>point.id===270271).source_url;
     assert.equal(await page.locator('#survey-detail a').filter({hasText:'Open this NWS record'}).getAttribute('href'),source);
     await page.locator('#survey-next').click();
+    // The native action must update both the selection and browser address.
+    await page.waitForFunction(()=>document.querySelector('#survey-observation').value==='270275'&&new URL(location.href).searchParams.get('survey')==='270275');
+    await page.waitForURL(url=>url.searchParams.get('survey')==='270275',{timeout:10000});
     assert.equal(params(page).get('survey'),'270275');
     assert.equal(params(page).get('t'),'783');
     assert.equal(params(page).get('footage_source'),'robinson-dashcam');

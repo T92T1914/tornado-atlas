@@ -1,0 +1,71 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import path from 'node:path';
+import {fixture,base} from './harness.mjs';
+
+const observation='intake-wakimoto-field-scouring-2312';
+const initial=()=>base+'/reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=wakimoto-visible-condensation';
+async function ready(page){await page.locator('#replay-time:not([disabled])').waitFor();await page.locator('#replay-ground-scouring').waitFor();}
+async function capture(page,name){if(!process.env.ATLAS_GROUND_READING_CAPTURE)return;await mkdir(process.env.ATLAS_GROUND_READING_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_GROUND_READING_CAPTURE,name+'.png'),fullPage:false});}
+for(const [width,theme] of [[320,'dark'],[1280,'light']])test('original field-scouring account, distinct clocks and unchanged source selection at '+width,async t=>{
+  const page=await fixture(t,{viewport:{width,height:1100},reducedMotion:'reduce'});
+  await page.addInitScript(theme=>localStorage.setItem('tornado-atlas-appearance',theme),theme);
+  await page.goto(initial());await ready(page);
+  const article=page.locator('#replay-ground-scouring'),text=await article.textContent();
+  for(const fact of ['around 23:12 UTC','23:12:08 UTC, 6:12:08 PM CDT','15th Street','separate interpretation','not this RaXPol scan','exact exposure','no assigned field coordinates','individual failure times'])assert.ok(text.includes(fact),fact);
+  assert.equal(await page.locator('#replay-ground-original').getAttribute('href'),'https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=9');
+  assert.equal(await article.locator('img,canvas,video,audio').count(),0);
+  assert.equal(await page.locator('#replay-time').inputValue(),'1241');
+  assert.equal(await page.locator('#replay-appearance-mode').inputValue(),'photo:wakimoto-visible-condensation');
+  const native=await page.locator('#replay-ground-clock').getAttribute('href');assert.ok(native.includes('t=488#replay-ground-scouring'));
+  await page.locator('#replay-ground-clock').click();
+  assert.equal(await page.locator('#replay-time').inputValue(),'488');
+  assert.equal(new URL(page.url()).searchParams.get('appearance_photo'),'wakimoto-visible-condensation');
+  assert.equal(new URL(page.url()).hash,'#replay-ground-scouring');
+  assert.match(await page.locator('#replay-clock').textContent(),/6:12:08 PM CDT/);
+  assert.notEqual(await page.locator('#replay-appearance-canvas').getAttribute('data-partial-form'),'true');
+  assert.equal(await page.locator('#replay-funnel').isDisabled(),true);
+  assert.equal(await page.locator('#replay-funnel').isChecked(),true);
+  await page.reload();await ready(page);assert.equal(await page.locator('#replay-time').inputValue(),'488');
+  await page.goBack();await ready(page);assert.equal(await page.locator('#replay-time').inputValue(),'1241');
+  await page.goForward();await ready(page);assert.equal(await page.locator('#replay-time').inputValue(),'488');
+  const enlarged=await article.evaluate(node=>{const rows=[node,...node.querySelectorAll('*')].map(n=>[n,parseFloat(getComputedStyle(n).fontSize)]);for(const [n,size] of rows)n.style.fontSize=size*2+'px';return {count:rows.length,doubled:rows.every(([n,size])=>Math.abs(parseFloat(getComputedStyle(n).fontSize)-size*2)<.1)};});
+  assert.equal(enlarged.doubled,true);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  const target=await page.locator('#replay-ground-clock').boundingBox();assert.ok(target.height>=44&&target.width>=44);
+  await page.locator('#replay-ground-scouring-heading').scrollIntoViewIfNeeded();await capture(page,width+'-ground-account');
+  await page.locator('#replay-ground-record').click();
+  const card=page.locator('#observation-'+observation);await card.waitFor();
+  assert.equal(new URL(page.url()).searchParams.get('observation'),observation);
+  const record=await card.textContent();for(const fact of ['source reported','unregistered','links only','around 23:12 UTC','not this RaXPol scan'])assert.ok(record.includes(fact),fact);
+  assert.equal(await card.locator('img,canvas,video,audio').count(),0);
+  await page.goBack();await ready(page);assert.equal(await page.locator('#replay-time').inputValue(),'488');
+  t.diagnostic('GROUND_ACCOUNT_CLOCK_READING '+JSON.stringify({width,theme,offset:488,enlarged,target,appearance:'unknown; source selection retained',media:'original external link only'}));
+});
+test('field account survives unavailable dossier and the same selected record retries',async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:1100}});
+  await page.route('**/archive/el-reno-2013-edb1325186415fdf5c9e.json',route=>route.fulfill({status:503,body:'Owned unavailable dossier fixture'}));
+  await page.goto(initial());await ready(page);await page.locator('#replay-ground-record').click();
+  await page.getByRole('heading',{name:'Evidence unavailable',exact:true}).waitFor();
+  assert.equal(new URL(page.url()).searchParams.get('observation'),observation);
+  const retry=page.getByRole('link',{name:'Retry this view',exact:true});
+  assert.equal(new URL(await retry.getAttribute('href'),base).searchParams.get('observation'),observation);
+  await page.unroute('**/archive/el-reno-2013-edb1325186415fdf5c9e.json');
+  await retry.click();await page.locator('#observation-'+observation).waitFor();
+  await page.goBack();await ready(page);assert.equal(await page.locator('#replay-time').inputValue(),'1241');
+  assert.equal(await page.locator('#replay-ground-original').isVisible(),true);
+});
+test('native article keeps the original field source and clock link without JavaScript',async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:1100},javaScriptEnabled:false});
+  await page.goto(base+'/index.html#damage');
+  const account=page.locator('#damage-ground-scouring');assert.equal(await account.isVisible(),true);
+  assert.match(await account.textContent(),/around 23:12 UTC.*23:12:08 UTC.*no exact exposure or individual failure times/);
+  assert.equal(await account.locator('img,canvas,video,audio').count(),0);
+  assert.equal(await account.getByRole('link',{name:'Inspect the original photograph and separate interpretation in Figure 7'}).getAttribute('href'),'https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=9');
+  await account.getByRole('link',{name:'Compare the reported radar time in the replay'}).click();
+  assert.equal(new URL(page.url()).searchParams.get('t'),'488');
+  t.diagnostic('GROUND_NATIVE_REPLAY_FALLBACK '+JSON.stringify(await page.locator('noscript').evaluateAll(nodes=>nodes.map(node=>({text:node.textContent,html:node.innerHTML,parents:[node,node.parentElement,node.parentElement.parentElement].map(n=>({tag:n.tagName,id:n.id,hidden:n.hidden,display:getComputedStyle(n).display,rect:n.getBoundingClientRect().toJSON()}))})))));
+  const fallback=page.locator('#main > noscript > p');await fallback.waitFor();
+  assert.equal(await fallback.isVisible(),true);
+  assert.equal(await fallback.textContent(),'The spatial replay requires JavaScript. Historical accounts and source links remain available through the atlas.');
+});

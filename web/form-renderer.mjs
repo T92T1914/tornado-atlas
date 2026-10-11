@@ -1,4 +1,5 @@
 import {particles, cameraMatrix} from './vortex-model.mjs';
+import {validateCondensationSupport} from './partial-form-geometry.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
@@ -120,6 +121,63 @@ export function buildMarginGeometry(points,cssWidth,cssHeight){
   return {vertices:new Float32Array([x0,y0,x1,y0,x0,y1,x0,y1,x1,y0,x1,y1]),points:packed,pointCount:points.length,totalLength:packed[packed.length-1]};
 }
 
+
+// Independently authored planar support polygon. Closing its display container
+// does not close the unseen optical silhouette or assign physical geometry.
+const condensationFragment = `#version 300 es
+precision highp float;
+uniform vec2 points[64];
+uniform int pointCount;
+uniform vec2 cssPerPixel;
+uniform vec4 plane;
+out vec4 outputColor;
+void main(){
+  vec2 p=(gl_FragCoord.xy*cssPerPixel-plane.xy)/plane.zw;
+  bool inside=false;
+  float nearest=1e30;
+  for(int i=0;i<64;i++){
+    if(i>=pointCount)break;
+    vec2 a=points[i],b=points[i==pointCount-1?0:i+1];
+    if((a.y>p.y)!=(b.y>p.y)){
+      if(p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)inside=!inside;
+    }
+    // Top/right edges on the display frame are view cutoffs, not optical edges.
+    if((a.y==1.0&&b.y==1.0)||(a.x==1.0&&b.x==1.0))continue;
+    vec2 segment=b-a;
+    float t=clamp(dot(p-a,segment)/dot(segment,segment),0.0,1.0);
+    nearest=min(nearest,length(p-mix(a,b,t)));
+  }
+  float signedDistance=inside?-nearest:nearest;
+  // A wider northward transition is an authored display cue for the source's
+  // difficult northern margin. It is not a numerical uncertainty estimate.
+  float feather=mix(.045,.14,smoothstep(.55,.82,p.x));
+  float density=(1.0-smoothstep(-feather,feather,signedDistance))*.91;
+  vec2 opening=(p-vec2(.18,.22))/vec2(.22,.34);
+  float lightOpening=exp(-2.2*dot(opening,opening))*.72;
+  vec3 background=vec3(.66,.66,.61);
+  vec3 body=mix(vec3(.18,.22,.20),vec3(.24,.27,.25),smoothstep(.15,1.0,p.y));
+  vec3 color=mix(background,body,density);
+  color=mix(color,vec3(.90,.87,.76),lightOpening);
+  // Omit the foreground-obscured lower band. Its fade is a display convention,
+  // not observed cloud dissipation or a ground-contact boundary.
+  float alpha=smoothstep(.06,.18,p.y);
+  if(alpha<.002)discard;
+  outputColor=vec4(color,alpha);
+}`;
+
+export function buildCondensationGeometry(points,cssWidth,cssHeight){
+  const packed=validateCondensationSupport(points);
+  if(!Number.isFinite(cssWidth)||!Number.isFinite(cssHeight)||cssWidth<=0||cssHeight<=0)throw new TypeError('Invalid display bounds');
+  // Authored landscape layout. This ratio is not recovered camera geometry.
+  const width=Math.min(cssWidth-40,(cssHeight-40)*2),height=width/2;
+  if(width<=0)return null;
+  const plane=new Float32Array([(cssWidth-width)/2,(cssHeight-height)/2,width,height]);
+  if(![...plane].every(Number.isFinite)||plane[2]<=0||plane[3]<=0)throw new TypeError('Condensation display bounds exceed finite buffer range');
+  for(let i=0;i<points.length;i++){const next=(i+1)%points.length;if(packed[i*2]===packed[next*2]&&packed[i*2+1]===packed[next*2+1])throw new TypeError('Condensation support collapsed in display buffer');}
+  const x0=plane[0]/cssWidth*2-1,x1=(plane[0]+width)/cssWidth*2-1,y0=plane[1]/cssHeight*2-1,y1=(plane[1]+height)/cssHeight*2-1;
+  return {vertices:new Float32Array([x0,y0,x1,y0,x0,y1,x0,y1,x1,y0,x1,y1]),points:packed,pointCount:points.length,plane};
+}
+
 export function createFormRenderer(canvas, quality) {
   const gl=canvas.getContext('webgl2',{alpha:true,antialias:false,depth:false,powerPreference:'low-power'});
   if(!gl)throw new Error('WebGL 2 is unavailable');
@@ -153,6 +211,7 @@ export function createFormRenderer(canvas, quality) {
       gl.deleteVertexArray(gpu[key].vao);gl.deleteBuffer(gpu[key].buffer);
     }
     if(gpu.margin){gl.deleteVertexArray(gpu.margin.attribute.vao);gl.deleteBuffer(gpu.margin.attribute.buffer);gl.deleteProgram(gpu.margin.program);}
+    if(gpu.condensation){gl.deleteVertexArray(gpu.condensation.attribute.vao);gl.deleteBuffer(gpu.condensation.attribute.buffer);gl.deleteProgram(gpu.condensation.program);}
     gl.deleteProgram(gpu.cloud);gl.deleteProgram(gpu.grid);gpu=null;
   }
   function initialize(){
@@ -187,6 +246,15 @@ export function createFormRenderer(canvas, quality) {
       gpu.margin=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
+  function condensationResources(){
+    if(gpu.condensation)return gpu.condensation;
+    let p=null,a=null;
+    try{
+      p=program(marginVertex,condensationFragment);a=attribute(p,'position',new Float32Array(12),2);
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['points[0]','pointCount','cssPerPixel','plane'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      gpu.condensation=resource;return resource;
+    }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
+  }
   function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7}={}){
     if(!gpu)return;
     const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
@@ -194,6 +262,14 @@ export function createFormRenderer(canvas, quality) {
     const height=Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
     gl.viewport(0,0,width,height);gl.clear(gl.COLOR_BUFFER_BIT);
+    if(partialForm?.kind==='visible_condensation_region'){
+      const geometry=buildCondensationGeometry(partialForm.points,rect.width,rect.height);
+      if(!geometry)return;
+      const body=condensationResources();gl.useProgram(body.program);gl.bindVertexArray(body.attribute.vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER,body.attribute.buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,geometry.vertices);
+      gl.uniform2fv(body.uniforms['points[0]'],geometry.points);gl.uniform1i(body.uniforms.pointCount,geometry.pointCount);gl.uniform2f(body.uniforms.cssPerPixel,rect.width/width,rect.height/height);
+      gl.uniform4fv(body.uniforms.plane,geometry.plane);gl.drawArrays(gl.TRIANGLES,0,6);return;
+    }
     if(partialForm!==null){
       const geometry=buildMarginGeometry(partialForm.points,rect.width,rect.height);
       if(!geometry)return;

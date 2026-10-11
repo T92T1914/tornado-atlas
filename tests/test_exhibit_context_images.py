@@ -41,9 +41,13 @@ class ContextImageTests(unittest.TestCase):
                 increment_files = {
                     'joplin-2011': 'joplin-2011-22debeaf0abaa4cb5c06.json',
                     'blackwell-1955': 'blackwell-1955-a90a7539209f78940922.json',
+                    'el-reno-2013': 'el-reno-2013-378998be743afb381966.json',
                 }
                 current = (json.loads((ROOT / 'web/archive' / increment_files[event]).read_bytes())
                            if event in increment_files else latest)
+                if event == 'el-reno-2013':
+                    self.assertEqual(hashlib.sha256((ROOT / 'web/archive' / increment_files[event]).read_bytes()).hexdigest(),
+                                     '61c0c84e5896d456a3b93df1d87b7902af6fd93c8f439aac9c8676eed7589e02')
                 for field in ('records', 'reconstruction', 'observations'):
                     self.assertEqual(current[field], old[field])
                 for field in ('sources', 'media', 'creators', 'routes'):
@@ -64,7 +68,14 @@ class ContextImageTests(unittest.TestCase):
                 for field in ('sources', 'media', 'creators', 'routes'):
                     by_id = {row.get('id', row.get('href')): row for row in latest[field]}
                     for prior in current[field]:
-                        self.assertEqual(by_id[prior.get('id', prior.get('href'))], prior)
+                        now = by_id[prior.get('id', prior.get('href'))]
+                        normalized = dict(now)
+                        if event == 'el-reno-2013' and field == 'sources' and prior['id'] == 'wakimoto-aerial-2016':
+                            for key in ('access', 'agent_processing', 'locator'):
+                                self.assertTrue(now[key].startswith(prior[key]))
+                                self.assertGreater(len(now[key]), len(prior[key]))
+                                normalized[key] = prior[key]
+                        self.assertEqual(normalized, prior)
 
     def test_available_context_images_do_not_acquire_storm_alignment_or_coordinates(self):
         for event, ids in ADDITIONS.items():

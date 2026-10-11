@@ -22,37 +22,16 @@
     <div id="replay-content" hidden>
     <p class="replay-boundary"><strong>The route is historical. The funnel symbol is illustrative.</strong> Its shape, height, width and rotation are drawing choices. The outline covers the whole event; it is not the tornado's size at the selected time. Ground is flat, with no modeled buildings or terrain.</p>
     <div class="replay-layout">
-      <section class="replay-stage" aria-label="Historical path scene">
-        <div class="replay-bar"><strong id="replay-clock">Loading historical positions</strong><span>DOCUMENTED PATH / ILLUSTRATIVE FUNNEL</span></div>
-        <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status replay-damage-status" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
-        <p id="replay-basis" class="replay-caption"></p>
-        <p id="replay-camera-key" class="replay-caption" hidden>Square and arrow: recorded observer.</p>
-        <p id="replay-camera-offscreen" class="replay-caption" hidden>The recorded observer is outside this view. Whole path restores the overview. The sample's time and bearing remain available in the observer controls.</p>
-        <p id="replay-damage-status" class="replay-caption" hidden></p>
-        <p id="replay-damage-offscreen" class="replay-caption" hidden>The selected surveyed feature is outside this view. Whole path restores the overview; its record remains below.</p>
-        <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a><a id="replay-scale-jump" href="#replay-scale-impact" hidden>Size and recorded damage</a></div>
-        <label class="replay-time-label" for="replay-time">Historical time</label><input id="replay-time" type="range" min="0" max="2280" value="0" step="1" disabled>
-        <p class="replay-help">Drag to orbit. Scroll to zoom. Keyboard: arrows turn the view, + and - zoom, Home restores the whole path. Playback pauses when the page is hidden.</p>
-      </section>
-      <aside class="replay-controls" aria-label="Scene and evidence controls">
-        <h2>Choose your view</h2>
-        <label for="replay-azimuth">View direction <output id="replay-azimuth-value"></output></label><input id="replay-azimuth" type="range" min="-180" max="180" value="0">
-        <label for="replay-elevation">View elevation <output id="replay-elevation-value"></output></label><input id="replay-elevation" type="range" min="10" max="80" value="48">
-        <label for="replay-distance">View distance <output id="replay-distance-value"></output></label><input id="replay-distance" type="range" min="3" max="60" value="8" step=".25">
-        <label class="replay-check"><input id="replay-follow" type="checkbox" checked> Follow the center position</label>
-        <label class="replay-check"><input id="replay-funnel" type="checkbox" checked> Show the illustrative funnel symbol</label>
-        <p class="replay-help">Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.</p>
+      <div class="replay-main">
         <section id="replay-appearance" class="replay-appearance" aria-labelledby="replay-appearance-heading">
-          <h3 id="replay-appearance-heading">Appearance evidence at this moment</h3>
+          <h2 id="replay-appearance-heading">Appearance evidence at this moment</h2>
           <p id="replay-appearance-state" role="status">Checking the selected source and time.</p>
           <p id="replay-appearance-detail" class="replay-help"></p>
           <a id="replay-appearance-source" target="_blank" rel="noopener" hidden>Open the original source at this moment</a>
-          <p><a href="#registered-footage">Compare the checked source moments</a></p>
-          <div id="replay-appearance-photo" hidden>
-            <p id="replay-photo-sequence" class="replay-help"></p>
-            <div id="replay-photo-samples" class="replay-photo-samples" role="group" aria-label="Photograph reported clock instants"></div>
-            <div id="replay-photo-record" class="replay-photo-record"></div>
-          </div>
+          <p class="replay-appearance-actions"><a id="replay-appearance-start" hidden>See the reported condensation view</a><a href="#replay-path-stage">Geographic position and path</a><a href="#registered-footage">Compare the checked source moments</a></p>
+        <div class="replay-bar"><strong id="replay-clock">Loading historical positions</strong><span id="replay-stage-kind">DOCUMENTED PATH / ILLUSTRATIVE FUNNEL</span></div>
+        <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a><a id="replay-scale-jump" href="#replay-scale-impact" hidden>Size and recorded damage</a></div>
+        <label class="replay-time-label" for="replay-time">Historical time</label><input id="replay-time" type="range" min="0" max="2280" value="0" step="1" disabled>
           <div id="replay-appearance-drawing" hidden>
             <div class="replay-appearance-control">
               <label for="replay-appearance-mode">Appearance view</label>
@@ -62,7 +41,32 @@
             <p id="replay-appearance-renderer-status" class="replay-help"></p>
             <p class="replay-help">The form uses normalized artistic units. It does not show measured funnel width, wind or a calibrated geographic camera.</p>
           </div>
+          <div id="replay-appearance-photo" hidden>
+            <p id="replay-photo-sequence" class="replay-help"></p>
+            <div id="replay-photo-samples" class="replay-photo-samples" role="group" aria-label="Photograph reported clock instants"></div>
+            <div id="replay-photo-record" class="replay-photo-record"></div>
+          </div>
         </section>
+      <section id="replay-path-stage" class="replay-stage" aria-label="Historical path scene">
+        <div class="replay-bar"><strong>Geographic position and recorded path</strong><span>GROUND REFERENCE</span></div>
+        <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status replay-damage-status" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
+        <p id="replay-basis" class="replay-caption"></p>
+        <p id="replay-camera-key" class="replay-caption" hidden>Square and arrow: recorded observer.</p>
+        <p id="replay-camera-offscreen" class="replay-caption" hidden>The recorded observer is outside this view. Whole path restores the overview. The sample's time and bearing remain available in the observer controls.</p>
+        <p id="replay-damage-status" class="replay-caption" hidden></p>
+        <p id="replay-damage-offscreen" class="replay-caption" hidden>The selected surveyed feature is outside this view. Whole path restores the overview; its record remains below.</p>
+        <p class="replay-help">Drag to orbit. Scroll to zoom. Keyboard: arrows turn the view, + and - zoom, Home restores the whole path. Playback pauses when the page is hidden.</p>
+      </section>
+      </div>
+      <aside class="replay-controls" aria-label="Scene and evidence controls">
+        <h2>Geographic scene controls</h2>
+        <p class="replay-help">These controls turn the geographic path scene. The source drawing stays in its authored display plane.</p>
+        <label for="replay-azimuth">View direction <output id="replay-azimuth-value"></output></label><input id="replay-azimuth" type="range" min="-180" max="180" value="0">
+        <label for="replay-elevation">View elevation <output id="replay-elevation-value"></output></label><input id="replay-elevation" type="range" min="10" max="80" value="48">
+        <label for="replay-distance">View distance <output id="replay-distance-value"></output></label><input id="replay-distance" type="range" min="3" max="60" value="8" step=".25">
+        <label class="replay-check"><input id="replay-follow" type="checkbox" checked> Follow the center position</label>
+        <label class="replay-check"><input id="replay-funnel" type="checkbox" checked> Show the illustrative funnel symbol</label>
+        <p id="replay-funnel-help" class="replay-help">Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.</p>
         <section id="replay-camera" class="replay-observer" aria-labelledby="replay-camera-name" hidden>
           <h3 id="replay-camera-name">Recorded observer</h3>
           <label class="replay-check"><input id="replay-camera-enabled" type="checkbox"> Show recorded observer position and bearing</label>
@@ -110,7 +114,7 @@
             <li data-width-metres="800"><strong>About 800 m: visible funnel</strong><div class="replay-width-reference" aria-hidden="true"><span style="width:16%"></span></div><p>The authors report this approximate diameter for the next analysis, 23:24:54 to 23:25:06 UTC. That passage does not repeat the earlier elevation definition. <a href="https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=20" target="_blank" rel="noopener">Read section 4b</a>.</p></li>
             <li data-width-metres="4184.2944"><strong>2.6 miles, about 4.2 km: reported event maximum</strong><div class="replay-width-reference" aria-hidden="true"><span style="width:83.685888%"></span></div><p>The NWS reports the tornado's maximum width. This is a different quantity from the paper's visible-funnel estimates and is not assigned to every replay instant. <a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">Read the NWS event account</a>.</p></li>
           </ol>
-          <p class="replay-help">The paper's analysis periods are source context, not continuously reconstructed appearance. No width is assigned to its final 23:25:09 photograph. The scene's 2 km grid provides a ground reference; its small moving funnel remains an illustrative position symbol.</p>
+          <p class="replay-help">The paper's analysis periods are source context, not continuously reconstructed appearance. No width is assigned to its final 23:25:09 photograph. The scene's 2 km grid provides a ground reference. Photograph mode shows only the center marker there. In other appearance modes, the optional small funnel is an illustrative position symbol.</p>
         </div>
         <div id="replay-impact-example">
           <h3>An observed damage outcome.</h3>
@@ -122,6 +126,13 @@
           <p class="replay-help">The damage inspector preserves individual survey assessments and source links. Geographic inclusion alone does not establish event membership or an impact time. The separate <a href="wind.html">wind experiment</a> uses assumed winds and one generic component; it has not reproduced this house's failure.</p>
         </div>
       </div>
+      <article id="replay-ground-scouring" class="replay-ground-scouring" aria-labelledby="replay-ground-scouring-heading">
+        <h3 id="replay-ground-scouring-heading">Read the marks left in a field.</h3>
+        <p>Wakimoto and colleagues associate debris and scouring marks in this field with the main tornado’s passage around 23:12 UTC. <a id="replay-ground-original" href="https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=9" target="_blank" rel="noopener">Open Figure 7: the aerial photograph and the authors’ separate interpretation</a>. Its street label is 15th Street. The published overview places this example along the main track before the subsequent cusp.</p>
+        <p>The authors compare their interpreted center with a RaXPol radar observation at <strong>23:12:08 UTC, 6:12:08 PM CDT</strong>. <a id="replay-ground-clock" href="reconstruction.html?event=el-reno-2013&amp;t=488#replay-ground-scouring">Compare that reported radar time on the replay clock</a>. The replay’s position marker interpolates the NWS minute positions. Its regional radar image is not this RaXPol scan.</p>
+        <p>The passage around 23:12, the radar observation at 23:12:08 and the later aerial collection have different roles. The June 4 survey date does not establish this photograph’s exact exposure. The source supports an attributed damage account, with no assigned field coordinates, wind measurement or individual failure times.</p>
+        <p><a id="replay-ground-record" href="dossier.html?event=el-reno-2013&amp;observation=intake-wakimoto-field-scouring-2312#observation-intake-wakimoto-field-scouring-2312">Read the reviewed field-scouring record and its limits</a>.</p>
+      </article>
     </section>
     <details id="replay-damage" class="replay-damage" hidden>
       <summary>Inspect surveyed damage alongside the replay</summary>

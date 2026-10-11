@@ -159,12 +159,25 @@ def coverage_rows(root=ROOT):
                 'photo_sequence_count': len(photos),
             })
             if partial_count:
+                forms = [sample['partial_form'] for sequence in photos for sample in sequence['samples'] if sample.get('partial_form')]
+                margin_count = sum(form['kind'] == 'visible_margin' for form in forms)
+                condensation_count = sum(form['kind'] == 'visible_condensation_region' for form in forms)
                 appearance['partial_form_sample_count'] = partial_count
-                appearance['label'] = 'Sparse photo instants and independently authored partial margins'
-                appearance['basis'] += (f' {partial_count} samples include a separately admitted source-linked '
-                                        'coarse open-margin interpretation. Physical shape, extent and numeric '
-                                        'camera fields remain null. These forms have no duration and leave '
-                                        'every unsampled instant unknown; they are not continuous video intervals.')
+                if condensation_count:
+                    appearance['partial_margin_sample_count'] = margin_count
+                    appearance['partial_condensation_sample_count'] = condensation_count
+                    appearance['label'] = 'Sparse photo instants and independently authored partial forms'
+                    appearance['basis'] += (f' {margin_count} samples include open-margin interpretations and '
+                                            f'{condensation_count} include a filled partial-condensation interpretation. '
+                                            'A closed support polygon is a display container, not a complete optical silhouette. '
+                                            'Physical shape, extent and numeric camera fields remain null. Each form has no '
+                                            'duration and leaves every unsampled instant unknown.')
+                else:
+                    appearance['label'] = 'Sparse photo instants and independently authored partial margins'
+                    appearance['basis'] += (f' {partial_count} samples include a separately admitted source-linked '
+                                            'coarse open-margin interpretation. Physical shape, extent and numeric '
+                                            'camera fields remain null. These forms have no duration and leave '
+                                            'every unsampled instant unknown; they are not continuous video intervals.')
             photo_sources = {source['id']:source for source in timeline['photo_sources']}
             def photo_url(sequence, sample):
                 seconds = int((utc(sample['reported_utc'])-utc(config['clock']['start_utc'])).total_seconds())
