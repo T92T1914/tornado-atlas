@@ -42,3 +42,36 @@
 #hospital-services .utility-reporting-entries p{margin:6px 0}
 #hospital-services .report-label{font-weight:600}
 @media(max-width:700px){#hospital-services .hospital-service-comparison{grid-template-columns:1fr}}
+
+@media (min-width:1081px) {
+  .documentary-layout {
+    display:grid;
+    grid-template-columns:210px minmax(0,1fr);
+    gap:48px;
+    align-items:start;
+  }
+  .documentary-layout > .documentary-contents {
+    position:sticky;
+    top:24px;
+    align-self:start;
+    display:flex;
+    flex-direction:column;
+    flex-wrap:nowrap;
+    gap:3px;
+    min-width:0;
+    max-height:calc(100vh - 48px);
+    overflow:auto;
+    padding:48px 8px 16px;
+    border-bottom:0;
+    scroll-padding-block:8px;
+  }
+  .documentary-layout > .documentary-contents a {
+    flex-shrink:0;
+    min-height:44px;
+    padding:8px 12px;
+    border-left:2px solid var(--line);
+    line-height:1.45;
+    overflow-wrap:anywhere;
+  }
+  .documentary-layout > .documentary-reading {min-width:0;}
+}
