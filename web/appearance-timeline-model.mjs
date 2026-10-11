@@ -103,6 +103,31 @@ function photoUtc(value){
   requireValue(!value.startsWith('0000-'),'Invalid photographic UTC year.');
   return stamp;
 }
+function validatePartialForm(form){
+  if(form===null)return;
+  fields(form,['kind','authorship','coordinate_space','component','points','basis','use_basis','limits'],
+    'partial photographic form');
+  requireValue(form.kind==='visible_margin'&&form.authorship==='independently_authored'&&
+    form.coordinate_space==='normalized_schematic_plane','Unsupported partial photographic form.');
+  photoText(form.component,'partial component',512);
+  for(const name of ['basis','use_basis'])photoText(form[name],'partial '+name);
+  requireValue(Array.isArray(form.limits)&&form.limits.length>=1&&form.limits.length<=16,
+    'Partial photographic form requires bounded limits.');
+  for(const text of form.limits)photoText(text,'partial limit',1000);
+  requireValue(Array.isArray(form.points)&&form.points.length>=2&&form.points.length<=64,
+    'Partial photographic form requires two through 64 points.');
+  for(let index=0;index<form.points.length;index++){
+    const point=form.points[index];
+    requireValue(Array.isArray(point)&&point.length===2&&number(point[0],0,1)&&number(point[1],0,1),
+      'Partial photographic points require finite coordinate pairs.');
+    const previous=form.points[index-1];
+    requireValue(!index||point[0]!==previous[0]||point[1]!==previous[1],
+      'Partial photographic margin cannot collapse a segment.');
+  }
+  const first=form.points[0],last=form.points.at(-1);
+  requireValue(first[0]!==last[0]||first[1]!==last[1],'Partial photographic margin must remain open.');
+}
+
 function validatePhotos(timeline,lower,upper){
   // Declared consistency cannot authenticate inspection, provenance or rights.
   requireValue(Array.isArray(timeline.photo_sources)&&timeline.photo_sources.length<=16,
@@ -142,7 +167,8 @@ function validatePhotos(timeline,lower,upper){
     let previous=-Infinity;
     for(const sample of sequence.samples){
       fields(sample,['id','source_id','exposure_id','image','reported_utc','timing','inspection',
-        'viewpoint','characteristics','boundary_limits','shape','extent'],'photographic sample');
+        'viewpoint','characteristics','boundary_limits','shape','extent',
+        ...(timeline.schema_version===3?['partial_form']:[])],'photographic sample');
       photoId(sample.id,'sample identity');photoId(sample.source_id,'sample source identity');
       photoId(sample.exposure_id,'exposure identity');
       requireValue(!sampleIds.has(sample.id),'Duplicate photographic sample identity.');
@@ -184,14 +210,15 @@ function validatePhotos(timeline,lower,upper){
       }
       requireValue(sample.shape===null&&sample.extent===null,
         'Qualitative photographic geometry must remain explicitly null.');
+      if(timeline.schema_version===3)validatePartialForm(sample.partial_form);
     }
   }
 }
 
 export function validateAppearanceTimeline(timeline,eventId,clock,footage){
   const version=timeline?.schema_version;
-  fields(timeline,['schema_version','event','windows',...(version===2?['photo_sources','photo_sequences']:[])],'appearance timeline');
-  requireValue([1,2].includes(version)&&timeline.event===eventId&&Array.isArray(timeline.windows)&&timeline.windows.length<=16,'Appearance timeline identity or version differs.');
+  fields(timeline,['schema_version','event','windows',...([2,3].includes(version)?['photo_sources','photo_sequences']:[])],'appearance timeline');
+  requireValue([1,2,3].includes(version)&&timeline.event===eventId&&Array.isArray(timeline.windows)&&timeline.windows.length<=16,'Appearance timeline identity or version differs.');
   requireValue(Array.isArray(footage?.sources)&&footage.sources.length>=(version===1?1:0)&&footage.sources.length<=8&&
     footage.sources.every(source=>typeof source.id==='string'&&idPattern.test(source.id))&&
     new Set(footage.sources.map(source=>source.id)).size===footage.sources.length,'Appearance source versions need distinct identities.');
@@ -226,7 +253,7 @@ export function validateAppearanceTimeline(timeline,eventId,clock,footage){
       }
     }else throw new Error('Unsupported appearance evidence state.');
   }
-  if(version===2)validatePhotos(timeline,lower,upper);
+  if([2,3].includes(version))validatePhotos(timeline,lower,upper);
   return timeline;
 }
 
@@ -234,9 +261,9 @@ function photoAt(timeline,seconds,startUtc,selection){
   fields(selection,['kind','id'],'photographic selection');
   requireValue(selection.kind==='photo','Unsupported typed appearance selection.');
   photoId(selection.id,'selected sequence identity');
-  const sequence=timeline.schema_version===2?timeline.photo_sequences.find(item=>item.id===selection.id):null;
+  const sequence=[2,3].includes(timeline.schema_version)?timeline.photo_sequences.find(item=>item.id===selection.id):null;
   if(!sequence)return {state:'unknown',reason:'No photographic sequence is assigned to this selection.',
-    sequence:null,shape:null,extent:null};
+    sequence:null,shape:null,extent:null,partialForm:null};
   const origin=photoUtc(startUtc);
   const offset=sample=>(photoUtc(sample.reported_utc)-origin)/1000;
   const context={id:sequence.id,basis:sequence.basis,coverage:'sparse_instants',
@@ -248,10 +275,10 @@ function photoAt(timeline,seconds,startUtc,selection){
     reason:'No inspected photograph exists at this exact reported clock instant.',
     sequence:context,relation:seconds<offset(sequence.samples[0])?'before':
       seconds>offset(sequence.samples.at(-1))?'after':'between',
-    shape:null,extent:null};
+    shape:null,extent:null,partialForm:null};
   return {state:'photo_observed',sequence:context,sourceId:sample.source_id,
     source:timeline.photo_sources.find(item=>item.id===sample.source_id),sample,
-    shape:null,extent:null};
+    shape:null,extent:null,partialForm:sample.partial_form??null};
 }
 
 export function appearanceAt(timeline,seconds,startUtc,sourceId=null){

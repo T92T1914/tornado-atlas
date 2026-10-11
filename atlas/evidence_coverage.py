@@ -142,6 +142,8 @@ def coverage_rows(root=ROOT):
         if photos:
             appearance = layers['appearance']
             count = sum(len(sequence['samples']) for sequence in photos)
+            partial_count = sum(sample.get('partial_form') is not None
+                                for sequence in photos for sample in sequence['samples'])
             appearance.update({
                 'state': 'registered' if registered else 'photo_samples',
                 'label': 'Registered video intervals and separate photo instants' if registered else
@@ -156,6 +158,13 @@ def coverage_rows(root=ROOT):
                 'photo_sample_count': count,
                 'photo_sequence_count': len(photos),
             })
+            if partial_count:
+                appearance['partial_form_sample_count'] = partial_count
+                appearance['label'] = 'Sparse photo instants and independently authored partial margins'
+                appearance['basis'] += (f' {partial_count} samples include a separately admitted source-linked '
+                                        'coarse open-margin interpretation. Physical shape, extent and numeric '
+                                        'camera fields remain null. These forms have no duration and leave '
+                                        'every unsampled instant unknown; they are not continuous video intervals.')
             photo_sources = {source['id']:source for source in timeline['photo_sources']}
             def photo_url(sequence, sample):
                 seconds = int((utc(sample['reported_utc'])-utc(config['clock']['start_utc'])).total_seconds())
@@ -246,6 +255,7 @@ def render_page(rows, root=ROOT):
                         'viewpoint':sample['viewpoint'],
                         'declared_visible_characteristics':sample['characteristics'],
                         'boundary_limits':sample['boundary_limits'],
+                        'partial_form':sample.get('partial_form'),
                         'use_and_rights_basis':source['rights'],
                     })+'</div><p>Numeric pose and calibration are unestablished. Shape and extent are unassigned. These photo declarations supply no continuously registered appearance interval.</p></li>')
                 output.append('</ul></details>')

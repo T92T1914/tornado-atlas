@@ -62,6 +62,64 @@ in float fade;
 out vec4 outputColor;
 void main(){outputColor=vec4(.47,.58,.47,.22*fade);}`;
 
+// Authored planar display geometry. It carries no camera or physical units.
+const marginVertex = `#version 300 es
+in vec2 position;
+void main(){gl_Position=vec4(position,0.0,1.0);}`;
+const marginFragment = `#version 300 es
+precision highp float;
+uniform vec3 points[64];
+uniform int pointCount;
+uniform vec2 cssPerPixel;
+uniform float totalLength;
+uniform vec3 marginColor;
+out vec4 outputColor;
+void main(){
+  vec2 p=gl_FragCoord.xy*cssPerPixel;
+  float nearestSquared=1e30,nearestArc=0.0;
+  for(int i=0;i<63;i++){
+    if(i>=pointCount-1)break;
+    vec3 a=points[i],b=points[i+1];
+    vec2 segment=b.xy-a.xy;
+    float t=clamp(dot(p-a.xy,segment)/dot(segment,segment),0.0,1.0);
+    vec2 delta=p-mix(a.xy,b.xy,t);
+    float squared=dot(delta,delta);
+    if(squared<nearestSquared){nearestSquared=squared;nearestArc=mix(a.z,b.z,t);}
+  }
+  // Fixed presentation styling, not measured boundary uncertainty.
+  float alpha=1.0-smoothstep(2.0,6.0,sqrt(nearestSquared));
+  alpha*=smoothstep(0.0,14.0,nearestArc)*smoothstep(0.0,14.0,totalLength-nearestArc)*0.82;
+  if(alpha<0.002)discard;
+  outputColor=vec4(marginColor,alpha);
+}`;
+
+export function buildMarginGeometry(points,cssWidth,cssHeight){
+  if(!Array.isArray(points)||points.length<2||points.length>64)throw new TypeError('A margin requires 2 through 64 points');
+  for(let i=0;i<points.length;i++){
+    const point=points[i];
+    if(!Array.isArray(point)||point.length!==2||![point[0],point[1]].every(value=>Number.isFinite(value)&&value>=0&&value<=1))throw new TypeError('Margin coordinates must be finite normalized pairs');
+    if(i && point[0]===points[i-1][0] && point[1]===points[i-1][1])throw new TypeError('Adjacent margin points must differ');
+  }
+  if(points[0][0]===points.at(-1)[0] && points[0][1]===points.at(-1)[1])throw new TypeError('A margin path must remain open');
+  if(!Number.isFinite(cssWidth)||!Number.isFinite(cssHeight)||cssWidth<=0||cssHeight<=0)throw new TypeError('Invalid display bounds');
+  const side=Math.min(cssWidth,cssHeight)-40;
+  if(side<=0)return null;
+  const left=(cssWidth-side)/2,bottom=(cssHeight-side)/2;
+  const packed=new Float32Array(points.length*3);
+  let length=0,minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  for(let i=0;i<points.length;i++){
+    const k=i*3;packed[k]=left+points[i][0]*side;packed[k+1]=bottom+points[i][1]*side;
+    if(!Number.isFinite(packed[k])||!Number.isFinite(packed[k+1]))throw new TypeError('Display coordinates exceed finite buffer range');
+    if(i){const segment=Math.hypot(packed[k]-packed[k-3],packed[k+1]-packed[k-2]);if(segment===0)throw new TypeError('Display margin segment collapsed');length+=segment;}
+    packed[k+2]=length;
+    if(!Number.isFinite(packed[k+2])||(i && packed[k+2]<=packed[k-1]))throw new TypeError('Display path length must remain finite and increasing');
+    minX=Math.min(minX,packed[k]);maxX=Math.max(maxX,packed[k]);minY=Math.min(minY,packed[k+1]);maxY=Math.max(maxY,packed[k+1]);
+  }
+  const x0=Math.max(0,minX-6)/cssWidth*2-1,x1=Math.min(cssWidth,maxX+6)/cssWidth*2-1;
+  const y0=Math.max(0,minY-6)/cssHeight*2-1,y1=Math.min(cssHeight,maxY+6)/cssHeight*2-1;
+  return {vertices:new Float32Array([x0,y0,x1,y0,x0,y1,x0,y1,x1,y0,x1,y1]),points:packed,pointCount:points.length,totalLength:packed[packed.length-1]};
+}
+
 export function createFormRenderer(canvas, quality) {
   const gl=canvas.getContext('webgl2',{alpha:true,antialias:false,depth:false,powerPreference:'low-power'});
   if(!gl)throw new Error('WebGL 2 is unavailable');
@@ -94,6 +152,7 @@ export function createFormRenderer(canvas, quality) {
     for(const key of ['cloudAttribute','gridAttribute']){
       gl.deleteVertexArray(gpu[key].vao);gl.deleteBuffer(gpu[key].buffer);
     }
+    if(gpu.margin){gl.deleteVertexArray(gpu.margin.attribute.vao);gl.deleteBuffer(gpu.margin.attribute.buffer);gl.deleteProgram(gpu.margin.program);}
     gl.deleteProgram(gpu.cloud);gl.deleteProgram(gpu.grid);gpu=null;
   }
   function initialize(){
@@ -119,13 +178,34 @@ export function createFormRenderer(canvas, quality) {
     gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
     gpu.count=values.length/4;
   }
-  function render({shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7}={}){
+  function marginResources(){
+    if(gpu.margin)return gpu.margin;
+    let p=null,a=null;
+    try{
+      p=program(marginVertex,marginFragment);a=attribute(p,'position',new Float32Array(12),2);
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['points[0]','pointCount','cssPerPixel','totalLength','marginColor'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      gpu.margin=resource;return resource;
+    }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
+  }
+  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7}={}){
     if(!gpu)return;
     const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
     const width=Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
     const height=Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
     gl.viewport(0,0,width,height);gl.clear(gl.COLOR_BUFFER_BIT);
+    if(partialForm!==null){
+      const geometry=buildMarginGeometry(partialForm.points,rect.width,rect.height);
+      if(!geometry)return;
+      const margin=marginResources();gl.useProgram(margin.program);gl.bindVertexArray(margin.attribute.vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER,margin.attribute.buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,geometry.vertices);
+      gl.uniform3fv(margin.uniforms['points[0]'],geometry.points);gl.uniform1i(margin.uniforms.pointCount,geometry.pointCount);
+      gl.uniform2f(margin.uniforms.cssPerPixel,rect.width/width,rect.height/height);gl.uniform1f(margin.uniforms.totalLength,geometry.totalLength);
+      // Palette follows reading contrast; the authored source geometry is unchanged.
+      const light=getComputedStyle(canvas).colorScheme==='light';
+      gl.uniform3f(margin.uniforms.marginColor,light ? .22 : .52,light ? .29 : .59,light ? .25 : .55);
+      gl.drawArrays(gl.TRIANGLES,0,6);return;
+    }
     const camera=cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
     gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
     gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);

@@ -12,6 +12,7 @@ import {issuedAt} from './documentary-model.mjs';
 import {replayChapters,chapterAt,adjacentChapter} from './replay-context-model.mjs';
 import {mountSurvey} from './survey-view.mjs';
 import {mountPhotoViewer} from './photo-view.mjs';
+import {mountReplayScaleImpact} from './replay-scale-impact-view.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
@@ -51,6 +52,9 @@ async function start(){
   }
   if(!context) throw new Error('The scene cannot start in this browser. The source map and historical account remain available.');
   const localStamp=displayClock(config.clock.time_zone),features=data.geometry.features;
+  let sharedPhotoViewer=null;
+  const openReplayPhoto=photo=>(sharedPhotoViewer??=mountPhotoViewer())(photo);
+  mountReplayScaleImpact(data,openReplayPhoto);
   el('replay-content').hidden=false;
   canvas.setAttribute('aria-label',`Three-dimensional view of the documented ${event.title} path. Drag or use arrow keys to turn the scene. The following controls provide the same options.`);
   const positions=preparePositions(features.filter(f=>f.geometry.type==='Point'));
@@ -167,7 +171,7 @@ async function start(){
     catch(error){formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer could not start here. Source and coverage text remain available.';console.error('Appearance renderer failed:',error);}
     formCanvas.addEventListener('webglcontextlost',event=>{event.preventDefault();appearanceRenderer=null;formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer lost its graphics context. Source and coverage text remain available.';});
     formCanvas.addEventListener('webglcontextrestored',()=>{
-      try{appearanceRenderer=createFormRenderer(formCanvas,3200);formCanvas.hidden=false;el('replay-appearance-renderer-status').textContent='';requestDraw();}
+      try{appearanceRenderer=createFormRenderer(formCanvas,3200);formCanvas.hidden=false;el('replay-appearance-renderer-status').textContent='';updateAppearance();requestDraw();}
       catch(error){console.error('Appearance renderer recovery failed:',error);}
     });
     new ResizeObserver(requestDraw).observe(formCanvas);
@@ -238,9 +242,16 @@ async function start(){
     field('Numeric camera pose and calibration','Unknown: coordinates, bearing, pitch, roll, position uncertainty, orientation uncertainty and lens calibration. Orbit controls are authored display choices.');
     field('Inspection declaration',`${sample.inspection.status}. ${sample.inspection.pixels} Reviewed on ${sample.inspection.reviewed_on}. ${sample.inspection.basis}`);
     field('Use and rights basis',`External original links only. Rights holder: ${source.rights.rights_holder}. ${source.rights.basis}`);
-    field('Photographic geometry','Shape and extent are unassigned. No particle form is drawn.');
+    field('Photographic geometry','Physical shape and extent are unassigned. No particle funnel is drawn.');
+    if(sample.partial_form){
+      field('Interpreted component',sample.partial_form.component);
+      field('Independent authorship and comparison',sample.partial_form.basis);
+      field('Schematic use basis',sample.partial_form.use_basis);
+      field('Display coordinates','An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
+    }
     host.append(record);
-    for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits]]){
+    for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits],
+      ...(sample.partial_form?[['Partial interpretation limits',sample.partial_form.limits]]:[])]){
       const heading=document.createElement('h4'),list=document.createElement('ul');heading.textContent=label;
       for(const text of values){const item=document.createElement('li');item.textContent=text;list.append(item);}
       host.append(heading,list);
@@ -301,8 +312,10 @@ async function start(){
         statusText='Photograph selection unavailable.';
         detailText=`The requested sequence "${unavailablePhotoId||'(missing identity)'}" is not declared in this event package. Choose an available appearance view. No source has been substituted.`;
       }else if(appearanceState.state==='photo_observed'){
-        statusText='Declared photographic observation at this reported instant.';
-        detailText='This still has no duration. Its reported label does not establish independently verified clock accuracy. Shape and extent are unassigned; no particle form is drawn.';
+        statusText=appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
+          'Declared photographic observation at this reported instant.';
+        detailText='This still has no duration. Its reported label does not establish independently verified clock accuracy. Physical shape and extent are unassigned. '+
+          (appearanceState.partialForm?'Only the declared coarse visible margin is drawn in its authored display plane. The unseen edges, surface contact, depth and intervening motion remain unknown.':'No particle form is drawn.');
         linkTarget=appearanceState.source.url;
         linkText=`Open the original publication: ${appearanceState.source.title}`;
       }else{
@@ -339,6 +352,8 @@ async function start(){
     if(linkText)setText(link,linkText);
     if(drawing.dataset.evidenceState!==appearanceState.state)drawing.dataset.evidenceState=appearanceState.state;
     if(formCanvas.dataset.evidenceState!==appearanceState.state)formCanvas.dataset.evidenceState=appearanceState.state;
+    formCanvas.dataset.partialForm=String(Boolean(appearanceState.partialForm));
+    if(appearanceRenderer)formCanvas.style.visibility=photoSelected&&!appearanceState.partialForm?'hidden':'visible';
   }
   function readCamera(center){
     const camera={focus:el('replay-follow').checked?center:[0,0,0]};
@@ -401,7 +416,9 @@ async function start(){
     el('replay-camera-offscreen').hidden=!observer?.visible||Boolean(glyph);
     const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('N',north.x,north.y);}
     context.fillStyle=muted;context.font='11px '+getComputedStyle(canvas).fontFamily;context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
-    if(appearanceRenderer)appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,time:clock.seconds,dust:false});
+    if(appearanceRenderer)appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,
+      partialForm:appearanceState.state==='photo_observed'?appearanceState.partialForm??null:null,
+      time:clock.seconds,dust:false});
   };
   refresh=()=>{
     current=positionAt(positions,clock.seconds);observer=updateObserver(current.utc);requestDraw();
@@ -435,7 +452,7 @@ async function start(){
     function mountDamage(){
       if(mounted)return;mounted=true;
       try{
-        mountSurvey(data.survey,data.geometry,data.survey_media,mountPhotoViewer(),data.history?.remembrance?.places??[],{
+        mountSurvey(data.survey,data.geometry,data.survey_media,openReplayPhoto,data.history?.remembrance?.places??[],{
           reportPage:event.documentary,alternatePage:'survey.html',alternateLabel:'Open this selection in the focused survey map',
           beforeHistoryChange:()=>{if(clock.playing)clock.tick(performance.now());pause();refresh();syncLocation();},
           afterHistoryChange:refresh,

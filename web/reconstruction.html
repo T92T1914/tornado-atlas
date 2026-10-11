@@ -30,7 +30,7 @@
         <p id="replay-camera-offscreen" class="replay-caption" hidden>The recorded observer is outside this view. Whole path restores the overview. The sample's time and bearing remain available in the observer controls.</p>
         <p id="replay-damage-status" class="replay-caption" hidden></p>
         <p id="replay-damage-offscreen" class="replay-caption" hidden>The selected surveyed feature is outside this view. Whole path restores the overview; its record remains below.</p>
-        <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a></div>
+        <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a><a id="replay-scale-jump" href="#replay-scale-impact" hidden>Size and recorded damage</a></div>
         <label class="replay-time-label" for="replay-time">Historical time</label><input id="replay-time" type="range" min="0" max="2280" value="0" step="1" disabled>
         <p class="replay-help">Drag to orbit. Scroll to zoom. Keyboard: arrows turn the view, + and - zoom, Home restores the whole path. Playback pauses when the page is hidden.</p>
       </section>
@@ -96,6 +96,32 @@
       <h3>Jump to a documented chapter</h3>
       <div id="replay-chapter-list" class="replay-chapter-list"></div>
       <div class="replay-chapter-controls"><button id="replay-chapter-previous" disabled>Previous chapter</button><button id="replay-chapter-next" disabled>Next chapter</button></div>
+    </section>
+    <section id="replay-scale-impact" class="replay-scale-impact" aria-labelledby="replay-scale-impact-heading" hidden>
+      <div class="eyebrow">EL RENO / SIZE AND RECORDED DAMAGE</div>
+      <h2 id="replay-scale-impact-heading">Put the storm's scale beside its effects.</h2>
+      <p>The visible funnel, the reported maximum tornado width and the surveyed damage describe different parts of this event. Compare their evidence here while keeping your selected replay moment.</p>
+      <div class="replay-scale-impact-layout">
+        <div>
+          <h3>Three sourced lengths, with their definitions.</h3>
+          <p class="replay-help">The bars share a 5 km length reference. They compare reported magnitudes, not three footprints or the tornado's size at the current clock time.</p>
+          <ol class="replay-width-comparison">
+            <li data-width-metres="500"><strong>About 500 m: visible funnel</strong><div class="replay-width-reference" aria-hidden="true"><span style="width:10%"></span></div><p>Wakimoto and colleagues estimate the width at 2° elevation in their 23:24:38 to 23:24:50 UTC analysis. The northern edge was difficult to discern. <a href="https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=12" target="_blank" rel="noopener">Read section 4a and its limits</a>.</p></li>
+            <li data-width-metres="800"><strong>About 800 m: visible funnel</strong><div class="replay-width-reference" aria-hidden="true"><span style="width:16%"></span></div><p>The authors report this approximate diameter for the next analysis, 23:24:54 to 23:25:06 UTC. That passage does not repeat the earlier elevation definition. <a href="https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=20" target="_blank" rel="noopener">Read section 4b</a>.</p></li>
+            <li data-width-metres="4184.2944"><strong>2.6 miles, about 4.2 km: reported event maximum</strong><div class="replay-width-reference" aria-hidden="true"><span style="width:83.685888%"></span></div><p>The NWS reports the tornado's maximum width. This is a different quantity from the paper's visible-funnel estimates and is not assigned to every replay instant. <a href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">Read the NWS event account</a>.</p></li>
+          </ol>
+          <p class="replay-help">The paper's analysis periods are source context, not continuously reconstructed appearance. No width is assigned to its final 23:25:09 photograph. The scene's 2 km grid provides a ground reference; its small moving funnel remains an illustrative position symbol.</p>
+        </div>
+        <div id="replay-impact-example">
+          <h3>An observed damage outcome.</h3>
+          <figure><button id="replay-impact-photo" type="button" class="replay-impact-photo" aria-label="Enlarge the original NWS roof-loss photograph"><img id="replay-impact-image" loading="lazy" decoding="async" width="1280" height="960" alt="A damaged brick house with large roof sections missing, exposed timber and debris in front; sections of the exterior walls remain standing."><span>Enlarge original photograph</span></button><figcaption><strong>Roof loss near Rother Road.</strong> The NWS caption assigns EF2 to this house, with large roof sections removed while most walls remained standing.</figcaption></figure>
+          <p id="replay-impact-image-failure" role="status" hidden>The photograph could not load here. Its description and original source remain available.</p>
+          <p>NOAA / National Weather Service survey personnel. <a id="replay-impact-source" href="https://www.weather.gov/oun/events-20130531" target="_blank" rel="noopener">Inspect the source and survey captions</a>.</p>
+          <p class="replay-help">This is an aftermath photograph, not a simulated collapse. Its exact camera position, capture time, structural details and failure order remain unregistered. It is not joined to a map record by appearance or proximity.</p>
+          <p><a id="replay-impact-dossier" href="dossier.html?event=el-reno-2013&amp;media=nws-el-reno-roof-loss-04#media-nws-el-reno-roof-loss-04">Read the reviewed photograph record</a> · <a id="replay-survey-jump" href="#replay-damage">Inspect the geographically selected damage records</a> · <a href="index.html#damage">Read the complete damage account</a></p>
+          <p class="replay-help">The damage inspector preserves individual survey assessments and source links. Geographic inclusion alone does not establish event membership or an impact time. The separate <a href="wind.html">wind experiment</a> uses assumed winds and one generic component; it has not reproduced this house's failure.</p>
+        </div>
+      </div>
     </section>
     <details id="replay-damage" class="replay-damage" hidden>
       <summary>Inspect surveyed damage alongside the replay</summary>
