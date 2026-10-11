@@ -59,7 +59,11 @@ for(const width of [320,1280])for(const unavailable of [false,true])test('primar
  assert.match(await page.locator('#replay-appearance-state').textContent(),/unknown at this exact clock instant/);
  await page.locator('#replay-appearance-mode').selectOption('photo:wakimoto-visible-margin');
  await page.locator('[data-photo-sample="wakimoto-232501"]').click();await expectCenterOnly(page);
+ assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-partial-kind'),'visible_condensation_region');
+ assert.equal(await page.locator('#replay-time').inputValue(),'1261');
+ await page.locator('[data-photo-sample="wakimoto-232509"]').click();await expectCenterOnly(page);
  assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-partial-kind'),'visible_margin');
+ assert.equal(await page.locator('#replay-time').inputValue(),'1269');
  await page.locator('#replay-time').fill('1265');await expectCenterOnly(page);
  assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
  await page.locator('#replay-scale-jump').click();
