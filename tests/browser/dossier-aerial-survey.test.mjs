@@ -55,7 +55,10 @@ for (const width of [390, 1280]) for (const appearance of ['dark', 'light']) {
       'https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=3');
     await page.reload();
     await ready(page);
-    assert.equal(await page.locator('[id^="observation-"]').count(), 1);
+    assert.equal(new URL(page.url()).searchParams.get('source'), sourceId);
+    assert.equal(new URL(page.url()).searchParams.has('observation'), false);
+    assert.deepEqual(await page.locator('[id^="observation-"]').evaluateAll(rows => rows.map(row => row.id).sort()),
+      ['observation-' + observationId, 'observation-intake-wakimoto-field-scouring-2312'].sort());
     await page.goBack();
     await ready(page);
     await page.locator('#observation-' + observationId).waitFor();
