@@ -105,7 +105,41 @@ for (const width of [308, 390, 768, 1280]) {
     for (const key of ['event', 'capture', 'publication', 'video', 'alignment']) assert.equal(interview.time[key], null);
     assert.equal(interview.place.coordinates, null);
 
-    await card.getByRole('link', {name: 'Inspect the source card', exact: true}).click();
+    const observationLocation=page.url();
+    const sourceLink=card.getByRole('link',{name:'Inspect the source card',exact:true});
+    const sourceLocation=new URL(await sourceLink.getAttribute('href'));
+    assert.equal(sourceLocation.origin,new URL(base).origin);
+    assert.equal(sourceLocation.searchParams.get('event'),'joplin-2011');
+    assert.equal(sourceLocation.searchParams.get('source'),'nws-assessment');
+    assert.equal(sourceLocation.searchParams.has('observation'),false);
+    const expectedSourceIds=current.observations.filter(row=>row.source_id==='nws-assessment').map(row=>'observation-'+row.id).sort();
+    assert.equal(expectedSourceIds.length,9);
+    const sourceReady=page.waitForFunction(({expected})=>{
+      const q=new URLSearchParams(location.search);
+      const actual=[...document.querySelectorAll('[id^="observation-"]')].map(node=>node.id).sort();
+      return q.get('event')==='joplin-2011'&&q.get('source')==='nws-assessment'&&!q.has('observation')&&document.body?.dataset.ready==='true'&&JSON.stringify(actual)===JSON.stringify(expected);
+    },{expected:expectedSourceIds});
+    // Keep the readiness rejection handled while native navigation is in flight.
+    // The original promise is awaited below and still fails this test.
+    let sourceSettled=false;sourceReady.then(()=>{sourceSettled=true;},()=>{});
+    if(width===390){
+      let release;const held=new Promise(resolve=>{release=resolve;});
+      const documentURL=new URL(sourceLocation);documentURL.hash='';
+      await page.route(documentURL.href,async route=>{await held;await route.continue();},{times:1});
+      // Inspect the preceding document before starting held navigation. Browser
+      // evaluation during pending document navigation can itself await commit.
+      const preceding=await page.evaluate(()=>({ready:document.body?.dataset.ready,observation:new URLSearchParams(location.search).get('observation'),source:new URLSearchParams(location.search).get('source'),observations:document.querySelectorAll('[id^="observation-"]').length}));
+      assert.deepEqual(preceding,{ready:'true',observation:id,source:null,observations:1});
+      const request=page.waitForRequest(row=>row.isNavigationRequest()&&row.url()===documentURL.href,{timeout:10000});
+      const navigation=sourceLink.click();navigation.catch(()=>{});
+      try{
+        await request;
+        assert.equal(sourceSettled,false,'The old ready observation document cannot satisfy source-route readiness');
+        t.diagnostic('DELAYED_SOURCE_ROUTE_BARRIER '+JSON.stringify({preceding,source_ready_settled:false,expected_source_observations:expectedSourceIds.length}));
+      }finally{release();}
+      await navigation;
+    }else await sourceLink.click();
+    await sourceReady;
     await ready(page);
     const source = page.locator('#source-nws-assessment');
     assert.match(await source.textContent(), /PDF pages 17, 18 and 19/);
@@ -115,7 +149,7 @@ for (const width of [308, 390, 768, 1280]) {
     assert.equal(await page.locator('#observation-' + id).count(), 1);
     assert.ok(await page.locator('#observation-first-siren').count());
     assert.ok(await page.locator('#observation-intake-nws-siren-cessation-2011').count());
-    await page.goBack();
+    await Promise.all([page.waitForURL(observationLocation,{waitUntil:'load'}),page.goBack()]);
     await ready(page);
     assert.equal(new URL(page.url()).searchParams.get('observation'), id);
     assert.equal(await page.locator('[id^="observation-"]').count(), 1);
