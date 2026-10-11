@@ -211,12 +211,52 @@ def _photo_date(value):
     date.fromisoformat(value)
 
 
-def _validate_partial_form(form):
+def _validate_condensation_support(points):
+    if not isinstance(points, list) or not 3 <= len(points) <= 64:
+        raise ValueError('Condensation support requires three through 64 points')
+    seen = set()
+    for point in points:
+        if not isinstance(point, list) or len(point) != 2:
+            raise ValueError('Condensation support requires finite normalized pairs')
+        for coordinate in point:
+            _number(coordinate, 'condensation display coordinate', 0, 1)
+        pair = tuple(point)
+        if pair in seen:
+            raise ValueError('Condensation support vertices must differ')
+        seen.add(pair)
+    def cross(a, b, c):
+        return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+    def on(a, b, p):
+        return cross(a,b,p) == 0 and min(a[0],b[0]) <= p[0] <= max(a[0],b[0]) and min(a[1],b[1]) <= p[1] <= max(a[1],b[1])
+    def intersects(a, b, c, d):
+        ab_c, ab_d, cd_a, cd_b = cross(a,b,c), cross(a,b,d), cross(c,d,a), cross(c,d,b)
+        return (((ab_c > 0 > ab_d or ab_c < 0 < ab_d) and (cd_a > 0 > cd_b or cd_a < 0 < cd_b)) or
+                on(a,b,c) or on(a,b,d) or on(c,d,a) or on(c,d,b))
+    area = 0
+    for i, a in enumerate(points):
+        b, prior = points[(i+1) % len(points)], points[(i-1) % len(points)]
+        if math.hypot(b[0]-a[0],b[1]-a[1]) < 1e-6:
+            raise ValueError('Condensation support segment is below display precision')
+        if cross(prior,a,b) == 0 and (a[0]-prior[0])*(b[0]-a[0])+(a[1]-prior[1])*(b[1]-a[1]) < 0:
+            raise ValueError('Condensation support cannot double back')
+        area += a[0]*b[1]-b[0]*a[1]
+        for j in range(i+1, len(points)):
+            if j == i+1 or i == 0 and j == len(points)-1:
+                continue
+            if intersects(a,b,points[j],points[(j+1) % len(points)]):
+                raise ValueError('Condensation support cannot self-intersect')
+    if abs(area) < 1e-6:
+        raise ValueError('Condensation support needs nonzero display area')
+
+
+def _validate_partial_form(form, version):
     if form is None:
         return
+    condensation = version == 4 and isinstance(form, dict) and form.get("kind") == "visible_condensation_region"
     fields(form, ("kind", "authorship", "coordinate_space", "component", "points",
-                  "basis", "use_basis", "limits"), "partial photographic form")
-    if (form["kind"] != "visible_margin" or form["authorship"] != "independently_authored" or
+                  "basis", "use_basis", "limits") + (("closure", "completeness") if condensation else ()),
+           "partial photographic form")
+    if (not (form["kind"] == "visible_margin" or condensation) or form["authorship"] != "independently_authored" or
             form["coordinate_space"] != "normalized_schematic_plane"):
         raise ValueError("Unsupported partial photographic form")
     _photo_text(form["component"], "partial component", 512)
@@ -227,6 +267,11 @@ def _validate_partial_form(form):
         raise ValueError("Partial photographic form requires bounded limits")
     for text in limits:
         _photo_text(text, "partial limit", 1000)
+    if condensation:
+        if form["closure"] != "display_support_only" or form["completeness"] != "partial":
+            raise ValueError("Condensation closure is display support only; optical completeness remains partial")
+        _validate_condensation_support(form["points"])
+        return
     points = form["points"]
     if not isinstance(points, list) or not 2 <= len(points) <= 64:
         raise ValueError("Partial photographic form requires two through 64 points")
@@ -297,7 +342,7 @@ def _validate_photos(timeline, start, end):
             fields(sample, ("id", "source_id", "exposure_id", "image", "reported_utc",
                             "timing", "inspection", "viewpoint", "characteristics",
                             "boundary_limits", "shape", "extent") +
-                   (("partial_form",) if timeline["schema_version"] == 3 else ()),
+                   (("partial_form",) if timeline["schema_version"] in (3, 4) else ()),
                    "photographic sample")
             _photo_id(sample["id"], "sample identity")
             _photo_id(sample["source_id"], "sample source identity")
@@ -362,14 +407,14 @@ def _validate_photos(timeline, start, end):
                     _photo_text(text, name, 1000)
             if sample["shape"] is not None or sample["extent"] is not None:
                 raise ValueError("Qualitative photographic geometry must remain explicitly null")
-            if timeline["schema_version"] == 3:
-                _validate_partial_form(sample["partial_form"])
+            if timeline["schema_version"] in (3, 4):
+                _validate_partial_form(sample["partial_form"], timeline["schema_version"])
 
 
 def validate_appearance_timeline(timeline, event_id, start, end, footage_sources):
     """Check legacy windows and separately declared sparse photographic samples."""
     version = timeline.get("schema_version") if isinstance(timeline, dict) else None
-    is_photographic = type(version) in (int, float) and version in (2, 3)
+    is_photographic = type(version) in (int, float) and version in (2, 3, 4)
     extra = ("photo_sources", "photo_sequences") if is_photographic else ()
     fields(timeline, ("schema_version", "event", "windows") + extra, "appearance timeline")
     if not ((type(version) is int and version == 1) or is_photographic) or timeline["event"] != event_id:

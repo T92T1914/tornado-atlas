@@ -247,7 +247,11 @@ async function start(){
       field('Interpreted component',sample.partial_form.component);
       field('Independent authorship and comparison',sample.partial_form.basis);
       field('Schematic use basis',sample.partial_form.use_basis);
-      field('Display coordinates','An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
+      const condensation=sample.partial_form.kind==='visible_condensation_region';
+      field('Display coordinates',condensation?
+        'An authored landscape plane. Support points, colors, opacity and soft transitions are presentation choices, not measured dimensions, lighting, optical density or uncertainty.':
+        'An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
+      if(condensation)field('Support closure and completeness','Closed for display filling only. The optical outline remains partial. Top and right drawing edges are view cutoffs, not recovered tornado boundaries.');
     }
     host.append(record);
     for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits],
@@ -312,10 +316,13 @@ async function start(){
         statusText='Photograph selection unavailable.';
         detailText=`The requested sequence "${unavailablePhotoId||'(missing identity)'}" is not declared in this event package. Choose an available appearance view. No source has been substituted.`;
       }else if(appearanceState.state==='photo_observed'){
-        statusText=appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
+        const condensation=appearanceState.partialForm?.kind==='visible_condensation_region';
+        statusText=condensation?'Independently authored partial condensation at this reported instant.':
+          appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
           'Declared photographic observation at this reported instant.';
         detailText='This still has no duration. Its reported label does not establish independently verified clock accuracy. Physical shape and extent are unassigned. '+
-          (appearanceState.partialForm?'Only the declared coarse visible margin is drawn in its authored display plane. The unseen edges, surface contact, depth and intervening motion remain unknown.':'No particle form is drawn.');
+          (condensation?'The broad condensation and brighter southern opening are interpreted in an authored plane. Upper continuation is outside this supported view. Lower appearance is omitted because foreground obscures it. The northern margin, ground contact, depth and intervening motion remain unresolved.':
+            appearanceState.partialForm?'Only the declared coarse visible margin is drawn in its authored display plane. The unseen edges, surface contact, depth and intervening motion remain unknown.':'No particle form is drawn.');
         linkTarget=appearanceState.source.url;
         linkText=`Open the original publication: ${appearanceState.source.title}`;
       }else{
@@ -353,6 +360,7 @@ async function start(){
     if(drawing.dataset.evidenceState!==appearanceState.state)drawing.dataset.evidenceState=appearanceState.state;
     if(formCanvas.dataset.evidenceState!==appearanceState.state)formCanvas.dataset.evidenceState=appearanceState.state;
     formCanvas.dataset.partialForm=String(Boolean(appearanceState.partialForm));
+    formCanvas.dataset.partialKind=appearanceState.partialForm?.kind??'';
     if(appearanceRenderer)formCanvas.style.visibility=photoSelected&&!appearanceState.partialForm?'hidden':'visible';
   }
   function readCamera(center){

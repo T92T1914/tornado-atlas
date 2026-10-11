@@ -34,8 +34,9 @@ These are the full planned event-package parts. Replay manifest version 2
 accepts a bounded appearance subset only when its separate source, clock,
 fixed-view camera, inspection, rights and uncertainty contract passes.
 The existing observation notebook still rejects unsupported historical
-registration. El Reno has four sparse photo observations, with a version 3
-extension in preparation for two source-linked partial visible margins.
+registration. El Reno now has seven sparse photo observations across three
+sequences. Version 3 added two source-linked partial visible margins, and
+version 4 adds one coarse filled condensation view at a reported instant.
 Its continuous historical appearance timeline remains unregistered.
 
 ## Match the animation to the available evidence
@@ -291,3 +292,26 @@ Acceptance of a useful partial-margin, scale or reading release leaves the full
 appearance and historical damage-model requirements open. Prioritize those
 capabilities alongside useful museum development, rather than treating navigation
 or source counts as their substitutes.
+
+## October 11 partial condensation view
+
+The reported 23:24:41 UTC photograph in Figure 5(a) of the inspected 2015
+paper now guides a coarse, independently authored filled condensation view.
+It uses the existing replay clock and renderer at offset 1241. The broad dark
+body and lighter southern opening provide a more useful appearance account
+than an open margin alone. The upper continuation lies outside the supported
+view, and the lower appearance is omitted where contact is obscured.
+
+The display support, colors, opacity and softness are authored choices. They
+are not a measured complete contour, photographic lighting reconstruction,
+wind density, physical size or camera calibration. Figure 13(a) supplies
+complementary source context with the same whole-second label; that matching
+label does not establish the same camera-original exposure. Every adjacent
+fractional instant and intervening motion remains unknown.
+
+The [specific source and comparison record](../research/el-reno-partial-condensation-2026-10-11.md)
+separates original source inspection, private output comparison, integrated
+software checks and required publication acceptance. This increment leaves
+the first defensible appearance interval, a complete evolving likeness and a
+historically supported damage model required. The source-qualified size and
+recorded aftermath panels retain their separate definitions and timing limits.

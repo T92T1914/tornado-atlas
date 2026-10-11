@@ -32,15 +32,24 @@ class EvidenceCoverageTests(unittest.TestCase):
             self.assertEqual(rows[identifier]['layers']['footage']['state'],'not_linked')
         appearance=rows['el-reno-2013']['layers']['appearance']
         self.assertEqual(appearance['state'],'photo_samples')
-        self.assertEqual(appearance['photo_sample_count'],6)
-        self.assertEqual(appearance['photo_sequence_count'],2)
-        self.assertEqual(appearance['partial_form_sample_count'],2)
+        self.assertEqual(appearance['photo_sample_count'],7)
+        self.assertEqual(appearance['photo_sequence_count'],3)
+        self.assertEqual(appearance['partial_form_sample_count'],3)
+        self.assertEqual(appearance['partial_margin_sample_count'],2)
+        self.assertEqual(appearance['partial_condensation_sample_count'],1)
         sequences=appearance['photo_sequences']
-        self.assertEqual([sequence['id'] for sequence in sequences],['nolte-reported-stills','wakimoto-visible-margin'])
+        self.assertEqual([sequence['id'] for sequence in sequences],['nolte-reported-stills','wakimoto-visible-margin','wakimoto-visible-condensation'])
         margins=sequences[1]['samples']
         self.assertEqual([sample['reported_utc'] for sample in margins],['2013-05-31T23:25:01Z','2013-05-31T23:25:09Z'])
         self.assertEqual(margins[0]['partial_form']['points'],margins[1]['partial_form']['points'])
         self.assertEqual(len(margins[0]['partial_form']['points']),17)
+        condensation=sequences[2]['samples']
+        self.assertEqual(len(condensation),1)
+        self.assertEqual(condensation[0]['reported_utc'],'2013-05-31T23:24:41Z')
+        self.assertEqual(condensation[0]['partial_form']['kind'],'visible_condensation_region')
+        self.assertEqual(condensation[0]['partial_form']['closure'],'display_support_only')
+        self.assertEqual(condensation[0]['partial_form']['completeness'],'partial')
+        self.assertEqual(len(condensation[0]['partial_form']['points']),8)
         for sequence in sequences:
             for sample in sequence['samples']:
                 self.assertIsNone(sample['shape']);self.assertIsNone(sample['extent'])
