@@ -17,7 +17,7 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 3, 'joplin-2011': 18, 'blackwell-1955': 7,
+        counts = {'el-reno-2013': 4, 'joplin-2011': 18, 'blackwell-1955': 7,
                   'tuscaloosa-birmingham-2011': 12}
         self.assertEqual({e['id'] for e in index['events']}, set(counts))
         for entry in index['events']:
@@ -25,6 +25,18 @@ class ArchiveHistoryTests(unittest.TestCase):
             self.assertEqual(history['event_id'], entry['id'])
             self.assertEqual(len(history['versions']), counts[entry['id']])
             self.assertEqual(history['versions'][0]['file'], entry['file'])
+            if entry['id'] == 'el-reno-2013':
+                current = history['versions'][0]
+                self.assertEqual(current['dossier_sha256'],
+                                 'edb1325186415fdf5c9e30f74df034a6fcdfb075463a2d0fa07faf0f22ef4815')
+                self.assertEqual(current['review']['previous_dossier_sha256'],
+                                 '378998be743afb381966f64599f8d3954f0498f4b87da3cf0fe77047cbdaf14c')
+                self.assertTrue(current['predecessor_available'])
+                self.assertEqual(current['changes'], [
+                    {'kind': 'sources', 'id': 'wakimoto-aerial-2016', 'change': 'updated',
+                     'fields': ['access', 'agent_processing', 'locator']},
+                    {'kind': 'observations', 'id': 'intake-wakimoto-field-scouring-2312',
+                     'change': 'added', 'fields': []}])
             for version in history['versions']:
                 old = json.loads((ROOT / 'web' / version['file']).read_text(encoding='utf-8'))
                 self.assertEqual(digest(old), version['dossier_sha256'])

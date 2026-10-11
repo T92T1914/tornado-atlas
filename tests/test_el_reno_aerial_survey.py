@@ -18,7 +18,36 @@ class ElRenoAerialSurveyTests(unittest.TestCase):
         raw = (ROOT / 'web' / OLD).read_bytes()
         self.assertEqual(hashlib.sha256(raw).hexdigest(), OLD_SHA256)
         old = json.loads(raw)
-        current = next(d for d in dossiers() if d['id'] == old['id'])
+        latest = next(d for d in dossiers() if d['id'] == old['id'])
+        # Keep the original aerial increment bound to its immutable bytes.
+        introduced_raw = (ROOT / 'web/archive/el-reno-2013-06dd86bd23866e8be810.json').read_bytes()
+        self.assertEqual(hashlib.sha256(introduced_raw).hexdigest(),
+                         '0446ffc961d253678ff56f8af50aa4c6fd9f7a74d80da8d2b70fd214ddeca934')
+        current = json.loads(introduced_raw)
+        prior_ids = {row['id'] for row in current['observations']}
+        self.assertEqual([row for row in latest['observations'] if row['id'] in prior_ids],
+                         current['observations'])
+        self.assertEqual([row['id'] for row in latest['observations'] if row['id'] not in prior_ids],
+                         ['intake-wakimoto-field-scouring-2312'])
+        field_record = next(row for row in latest['observations'] if row['id'] == 'intake-wakimoto-field-scouring-2312')
+        self.assertEqual(field_record['source_id'], SOURCE_ID)
+        self.assertEqual(field_record['status'], {'intake': 'published', 'assertion': 'source_reported',
+                         'temporal': 'unregistered', 'spatial': 'unregistered',
+                         'availability': 'reviewed_available', 'rights': 'links_only'})
+        self.assertIsNone(field_record['place']['coordinates'])
+        self.assertIsNone(field_record['time']['alignment'])
+        for prior in current['sources']:
+            now = next(row for row in latest['sources'] if row['id'] == prior['id'])
+            normalized = dict(now)
+            if prior['id'] == SOURCE_ID:
+                for field in ('access', 'agent_processing', 'locator'):
+                    self.assertTrue(now[field].startswith(prior[field]))
+                    self.assertGreater(len(now[field]), len(prior[field]))
+                    normalized[field] = prior[field]
+            self.assertEqual(normalized, prior)
+        for key in ('records', 'routes', 'creators', 'reconstruction'):
+            self.assertEqual(latest[key], current[key])
+        self.assertEqual(latest['provenance']['inputs'], current['provenance']['inputs'])
         self.assertEqual([o for o in current['observations'] if o['id'] != NEW_ID], old['observations'])
         prior_source_ids = {row['id'] for row in old['sources']}
         self.assertEqual([s for s in current['sources'] if s['id'] in prior_source_ids], old['sources'])
