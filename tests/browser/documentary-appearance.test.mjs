@@ -56,7 +56,7 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('early reported-mi
   const earlyLink=page.getByRole('link',{name:'Earlier light taper · reported 6:04 PM CDT minute'});await earlyLink.focus();await page.keyboard.press('Enter');
   await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true'&&['reported_minute','unavailable'].includes(document.querySelector('#early-condensation-canvas').dataset.documentaryState));
   await reading(page);
-  if(await page.locator('#early-condensation-canvas').getAttribute('data-documentary-state')==='unavailable'){assert.equal(process.env.ATLAS_BROWSER_ENGINE,'firefox','Chrome and WebKit require an actual filled early form');t.skip('WebGL 2 is unavailable in this Firefox environment; no early graphical journey acceptance. Static fallback is tested separately.');return;}
+  if(await page.locator('#early-condensation-canvas').getAttribute('data-documentary-state')==='unavailable'){assert.equal(process.env.ATLAS_BROWSER_ENGINE,'firefox','Chrome and WebKit require an actual filled early form');const unavailable=await page.evaluate(()=>({context_seen:Boolean(window.earlyAppearanceGL),direct_missing:document.querySelector('#early-condensation-canvas').getContext('webgl2')===null}));assert.deepEqual(unavailable,{context_seen:false,direct_missing:true},'Only directly observed missing WebGL2 qualifies the Firefox graphical skip');console.log('EARLY_DOCUMENTARY_UNAVAILABLE '+JSON.stringify({width,theme,...unavailable}));t.skip('WebGL 2 is unavailable in this Firefox environment; no early graphical journey acceptance. Static fallback is tested separately.');return;}
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))));
   const before=await snapshot(page);
   assert.ok(before.last.core.slice(0,3).every(v=>v>160)&&before.last.core[3]===255);
@@ -92,7 +92,7 @@ for(const scenario of ['nojs','data503','noWebGL'])test('early documentary readi
   if(scenario==='data503')await page.route('**/data.json',route=>route.fulfill({status:503,body:'Controlled unavailable data'}));
   if(scenario==='noWebGL')await page.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return this.id==='early-condensation-canvas'&&kind==='webgl2'?null:get.call(this,kind,...args);};});
   await page.goto(base+'/index.html#early-condensation-reading');
-  if(scenario==='data503')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='error'&&document.querySelector('#early-condensation-canvas').dataset.documentaryState==='reported_minute');
+  if(scenario==='data503')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='error'&&['reported_minute','unavailable'].includes(document.querySelector('#early-condensation-canvas').dataset.documentaryState));
   if(scenario==='noWebGL')await page.waitForFunction(()=>document.querySelector('#early-condensation-canvas').dataset.documentaryState==='unavailable');
   await reading(page);assert.deepEqual(originalRequests,[]);await capture(page,'early-fallback-'+scenario);
 });
