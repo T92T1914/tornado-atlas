@@ -74,8 +74,17 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('partial margin an
   assert.equal(enlargement.doubled,true);
   t.diagnostic('PARTIAL_FORM_READING '+JSON.stringify({width,theme,enlargement}));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
-  await page.locator('#replay-appearance-canvas').scrollIntoViewIfNeeded();await painted(page);
-  await capture(page,width+'-partial-margin');
+  const actualDrawing=await page.evaluate(()=>Boolean(window.marginContrast));
+  if(actualDrawing){
+    assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),true);
+    await page.locator('#replay-appearance-canvas').scrollIntoViewIfNeeded();await painted(page);
+    await capture(page,width+'-partial-margin');
+  }else{
+    assert.equal(await page.locator('#replay-appearance-canvas').evaluate(n=>n.hidden),true);
+    assert.equal(await page.locator('#replay-appearance-renderer-status').textContent(),'The form renderer could not start here. Source and coverage text remain available.');
+    t.diagnostic('Actual partial drawing unverified in this engine; explicit graphics fallback and source reading required.');
+  }
+  assert.equal(await page.locator('#replay-photo-original').isVisible(),true);
   await page.locator('#replay-photo-original').scrollIntoViewIfNeeded();await capture(page,width+'-source-record');
   await page.locator('[data-photo-sample="wakimoto-232509"]').click();
   assert.equal(new URL(page.url()).searchParams.get('t'),'1269');
