@@ -146,7 +146,12 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]){
     assert.match(await page.locator('#replay-appearance-state').textContent(),/Checked original frame/);
     const source=data.survey.points.find(point=>point.id===270271).source_url;
     assert.equal(await page.locator('#survey-detail a').filter({hasText:'Open this NWS record'}).getAttribute('href'),source);
-    await page.locator('#survey-next').click();
+    const next=page.locator('#survey-next');
+    await next.scrollIntoViewIfNeeded();
+    await waitForSettledTouchTarget(page,next);
+    await beginSurveyActivation(page);
+    await next.click();
+    await finishSurveyActivation(t,page,'selected surveyed outcome Next '+width);
     // The native action must update both the selection and browser address.
     await page.waitForFunction(()=>document.querySelector('#survey-observation').value==='270275'&&new URL(location.href).searchParams.get('survey')==='270275');
     await page.waitForURL(url=>url.searchParams.get('survey')==='270275',{timeout:10000});

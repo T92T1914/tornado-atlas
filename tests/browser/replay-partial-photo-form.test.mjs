@@ -7,7 +7,7 @@ const data=JSON.parse(await readFile(new URL('../../web/data.json',import.meta.u
 const sequence=data.appearance_timeline.photo_sequences.find(row=>row.id==='wakimoto-visible-margin');
 const url=seconds=>base+'/reconstruction.html?event=el-reno-2013&t='+seconds+'&appearance_view=photo&appearance_photo='+sequence.id;
 const painted=page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-async function ready(page,seconds=1261){
+async function ready(page,seconds=1269){
   await page.goto(url(seconds));await page.locator('#replay-time:not([disabled])').waitFor();
   await page.waitForFunction(()=>document.querySelector('#replay-appearance-canvas').dataset.evidenceState==='photo_observed');
   await painted(page);
@@ -57,12 +57,12 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('partial margin an
     await page.locator('#reading-appearance').selectOption('system');
     for(const colorScheme of ['light','dark']){await page.emulateMedia({colorScheme});await painted(page);await coreContrast(page,colorScheme,t);}
     await page.locator('#reading-appearance').selectOption(theme);await painted(page);await coreContrast(page,theme,t);
-    assert.equal(await page.locator('#replay-time').inputValue(),'1261');
+    assert.equal(await page.locator('#replay-time').inputValue(),'1269');
   }
   assert.equal(await page.locator('html').getAttribute('data-appearance'),theme);
   assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),theme);
   const record=await page.locator('#replay-photo-record').textContent();
-  const sample=sequence.samples[0];
+  const sample=sequence.samples[1];
   for(const text of [sample.partial_form.component,sample.partial_form.basis,sample.partial_form.use_basis,...sample.partial_form.limits])assert.ok(record.includes(text));
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Independently authored partial margin/);
   assert.equal(await page.locator('#replay-photo-original').getAttribute('href'),sample.image.original_url);
@@ -86,14 +86,14 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('partial margin an
   }
   assert.equal(await page.locator('#replay-photo-original').isVisible(),true);
   await page.locator('#replay-photo-original').scrollIntoViewIfNeeded();await capture(page,width+'-source-record');
-  await page.locator('[data-photo-sample="wakimoto-232509"]').click();
-  assert.equal(new URL(page.url()).searchParams.get('t'),'1269');
+  await page.locator('[data-photo-sample="wakimoto-232501"]').click();
+  assert.equal(new URL(page.url()).searchParams.get('t'),'1261');
   await page.locator('#replay-time').fill('1265');await painted(page);
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
   assert.match(await page.locator('#replay-appearance-state').textContent(),/unknown at this exact clock instant/);
   assert.equal(await page.locator('#replay-photo-record').textContent(),'');
   await page.locator('#replay-appearance-state').scrollIntoViewIfNeeded();await capture(page,width+'-unknown-gap');
-  await page.goBack();await page.waitForFunction(()=>new URL(location.href).searchParams.get('t')==='1261');
+  await page.goBack();await page.waitForFunction(()=>new URL(location.href).searchParams.get('t')==='1269');
   await painted(page);assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-partial-form'),'true');
   await page.reload();await page.locator('#replay-time:not([disabled])').waitFor();
   assert.equal(await page.locator('#replay-appearance-mode').inputValue(),'photo:'+sequence.id);
@@ -120,14 +120,14 @@ test('partial margin draw clears on fractional playback, seeking and appearance 
   const graphics=await page.evaluate(()=>Boolean(window.partialDraws));
   if(graphics){const draw=await page.evaluate(()=>({...window.partialDraws}));assert.ok(draw.triangles>0);assert.ok(draw.partialAlpha>0);assert.equal(draw.lines,0);assert.equal(draw.points,0);t.diagnostic('PARTIAL_FORM_ACTUAL_GL '+JSON.stringify(draw));}
   else t.diagnostic('WebGL2 unavailable: qualified text and source route tested, actual draw is unverified in this engine.');
-  for(const seconds of ['1261.25','1265','1268.99']){
+  for(const seconds of ['1269.25','1265','1268.99']){
     const previous=graphics?await page.evaluate(()=>({...window.partialDraws})):null;
     await page.locator('#replay-time').fill(seconds);await painted(page);
     assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-partial-form'),'false');
     assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
     if(graphics){const draw=await page.evaluate(()=>({...window.partialDraws}));assert.ok(draw.clears>previous.clears);assert.equal(draw.triangles,previous.triangles);assert.equal(draw.points,0);}
   }
-  await page.locator('[data-photo-sample="wakimoto-232501"]').click();await painted(page);
+  await page.locator('[data-photo-sample="wakimoto-232509"]').click();await painted(page);
   await page.locator('#replay-play').click();
   await page.waitForFunction(()=>document.querySelector('#replay-appearance-canvas').dataset.partialForm==='false');
   await page.locator('#replay-play').click();
@@ -148,7 +148,7 @@ test('graphics recovery restores the currently selected exact margin or unknown 
     return Boolean(window.marginLossExtension);
   });
   if(!available){t.diagnostic('Actual context-loss extension unavailable; recovery remains unverified in this engine.');return;}
-  for(const [destination,expected] of [['1265',false],['1261',true]]){
+  for(const [destination,expected] of [['1265',false],['1269',true]]){
     await page.evaluate(()=>window.marginLossExtension.loseContext());
     await page.waitForFunction(()=>document.querySelector('#replay-appearance-renderer-status').textContent.includes('lost its graphics context'));
     await page.locator('#replay-time').fill(destination);await painted(page);

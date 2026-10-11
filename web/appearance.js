@@ -13,6 +13,19 @@
   };
   apply(choice);
   document.addEventListener('DOMContentLoaded', () => {
+    // Keep the whole focused contents label visible in its sticky reading rail.
+    const revealContentsLink = link => {
+      const rail = link.closest('.documentary-contents');
+      if (!link.isConnected || document.activeElement !== link || !rail ||
+        getComputedStyle(rail).position !== 'sticky') return;
+      link.scrollIntoView({behavior: 'instant', block: 'nearest', inline: 'nearest'});
+    };
+    document.addEventListener('focusin', event => {
+      const link = event.target.closest?.('.documentary-layout > .documentary-contents a');
+      if (!link) return;
+      revealContentsLink(link);
+      requestAnimationFrame(() => revealContentsLink(link));
+    });
     const select = document.getElementById('reading-appearance');
     if (!select) return;
     select.value = choice;

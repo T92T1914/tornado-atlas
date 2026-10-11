@@ -72,6 +72,7 @@
     border-left:2px solid var(--line);
     line-height:1.45;
     overflow-wrap:anywhere;
+    scroll-margin-block:8px;
   }
   .documentary-layout > .documentary-reading {min-width:0;}
 }

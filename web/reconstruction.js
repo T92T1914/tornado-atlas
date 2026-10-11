@@ -171,6 +171,15 @@ async function start(){
     href.searchParams.set('appearance_view','photo');href.searchParams.set('appearance_photo',condensationSequence.id);
     el('replay-appearance-start').href=href.href;el('replay-appearance-start').hidden=false;
   }
+  const laterSequence=photoSequences.find(sequence=>sequence.id==='wakimoto-visible-margin');
+  const laterSample=laterSequence?.samples.find(sample=>sample.id==='wakimoto-232501'&&sample.partial_form?.kind==='visible_condensation_region');
+  if(event.id==='el-reno-2013'&&laterSample){
+    const href=new URL('reconstruction.html',location.href);
+    href.searchParams.set('event',event.id);href.searchParams.set('t',String((Date.parse(laterSample.reported_utc)-start)/1000));
+    href.searchParams.set('appearance_view','photo');href.searchParams.set('appearance_photo',laterSequence.id);
+    el('replay-appearance-later').href=href.href;el('replay-appearance-later').hidden=false;
+    el('replay-appearance-comparison-note').hidden=el('replay-appearance-start').hidden;
+  }
   restoreAppearanceMode();
   if(appearanceTimeline?.windows.length||photoSequences.length){
     drawing.hidden=false;
