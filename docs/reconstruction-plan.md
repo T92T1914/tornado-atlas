@@ -315,3 +315,13 @@ software checks and required publication acceptance. This increment leaves
 the first defensible appearance interval, a complete evolving likeness and a
 historically supported damage model required. The source-qualified size and
 recorded aftermath panels retain their separate definitions and timing limits.
+
+## October 11 appearance and field-damage reading candidate
+
+The private candidate makes the checked source appearance the main visual and places the existing clock controls beside it. The geographic scene appears below the full source record. Photograph mode shows only the center marker in that geographic scene, including unsupported times. The authored source form remains in its separate display plane. This changes presentation without supplying new historical geometry or camera registration.
+
+The [field-scouring source record](../research/el-reno-field-scouring-2026-10-11.md) connects the original Figure 7 account to the replay at the paper’s reported 23:12:08 UTC RaXPol time. The passage around 23:12 and later aerial collection remain separate. The comparison creates no exact damage timing, new field coordinates or simulated failure sequence. Original figure links retain the links-only use basis.
+
+The source-qualified record is promoted in the isolated private candidate. Current rendered checks and required revision-linked publication gates remain ahead. Complete evolving appearance, a defensible continuous interval and historical damage-model acceptance remain separate required outcomes.
+
+The scoped private source and browser review subsequently accepted the primary appearance hierarchy and the field-account clock journey. The preserved failed checks and corrections remain in the acceptance record. An exact publication candidate, full required CI and anonymous deployed acceptance remain ahead. No historical interval, calibrated camera or damage-model coverage was added by those software checks.

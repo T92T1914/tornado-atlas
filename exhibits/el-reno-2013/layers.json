@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "el-reno-2013",
-  "dossier_sha256": "378998be743afb381966f64599f8d3954f0498f4b87da3cf0fe77047cbdaf14c",
+  "dossier_sha256": "edb1325186415fdf5c9e30f74df034a6fcdfb075463a2d0fa07faf0f22ef4815",
   "survey": {
     "sha256": "8148ac4b2e4b837ce3d8b75997e0fd59921db04d4a19a9264a76eaaadb6550d1",
     "basis": "The existing source-checked NWS survey selection retains 336 outcomes inside or on the published outline. Its storm and survey dates do not establish individual impact times."
@@ -25,19 +25,21 @@
       ]
     },
     "damage": {
-      "basis": "Keep the mapped survey outcomes, aerial damage-envelope interpretation and individual roof-loss photograph separate from storm-time optical appearance.",
+      "basis": "Keep the mapped survey outcomes, aerial damage-envelope interpretation and individual roof-loss photograph separate from storm-time optical appearance. The field-scouring account compares an approximate passage and a reported radar observation with later aerial evidence, without coordinates or individual failure times.",
       "observations": [
-        "intake-wakimoto-aerial-envelope-2016"
+        "intake-wakimoto-aerial-envelope-2016",
+        "intake-wakimoto-field-scouring-2312"
       ],
       "media": [
         "nws-el-reno-roof-loss-04"
       ]
     },
     "gaps": {
-      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits.",
+      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits. The field example keeps radar time, approximate passage and later aerial collection distinct.",
       "observations": [
         "photogrammetry-figure-samples",
-        "intake-wakimoto-aerial-envelope-2016"
+        "intake-wakimoto-aerial-envelope-2016",
+        "intake-wakimoto-field-scouring-2312"
       ],
       "media": [
         "ER13-HARK-PHOTO-604",
