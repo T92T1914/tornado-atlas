@@ -395,7 +395,7 @@ fields are rejected. Source photographic `shape`, `extent` and all numeric
 camera fields remain null. Schema validation checks the declaration's
 consistency; it does not perform or authenticate its source review.
 
-El Reno's `wakimoto-visible-margin` sequence uses the inspected 2015 PDF edition
+The original version 3 El Reno `wakimoto-visible-margin` sequence used the inspected 2015 PDF edition
 for two reported labels, 23:25:01 and 23:25:09 UTC. Figure 10(a) enlarges the
 Figure 9(a) exposure and supplies no additional exposure. The simpler of two
 independently compared mathematical curves is the conservative default. It
@@ -403,13 +403,16 @@ expresses the visible southern margin's broad direction and bend. Fine
 scallops, the opposite edge, upper/lower continuation, surface contact, depth,
 physical dimensions and a numerical camera solution remain unestablished.
 
-Open `reconstruction.html?event=el-reno-2013&t=1261&appearance_view=photo&appearance_photo=wakimoto-visible-margin`,
-then compare `t=1269`. The exact photo resolver passes that sample's form to the
-existing renderer. The partial branch draws only an open soft line in an
-authored isotropic plane, without a particle funnel, ground grid, camera
-projection or generic orbit dependence. Its 17 mathematical samples and line
-width/softness are display choices, not historical measurements or error bounds.
-Both reported instants use identical points and establish no recovered change.
+At that version 3 boundary, `t=1261` and `t=1269` used identical 17-point open
+margins and established no recovered change. The subsequent version 4 source
+review replaces the 1261 margin with a separately compared partial body, as
+described below. The 1269 margin retains its original points. The current
+renderer uses an authored landscape display frame for filled forms. The
+retained 1269 margin keeps its original isotropic plane. Neither supplies a
+particle funnel, ground grid, historical camera projection or generic orbit
+dependence. Its
+mathematical points, framing and softness are display choices, not historical
+measurements or error bounds.
 
 At `t=1265`, every fractional neighbor and all other unsampled instants, the
 form is null and the player clears the previous line. Seeking, playback,
@@ -421,8 +424,9 @@ copyright and the absence of a figure-republication grant remain separate from
 the independently authored factual schematic's construction/use record.
 
 The version 3 margin declaration supplied six optical instants across two
-sequences and two partial-form samples. The current version 4 declaration
-described below adds one separately supported condensation instant. Its
+sequences and two partial-form samples. Version 4 adds the separately supported
+23:24:41 UTC condensation instant and now also supplies a partial body for the
+existing 23:25:01 UTC observation. Its
 registered continuous video interval count remains
 zero, and the dossier's global appearance classification remains unregistered.
 A qualified sparse photo interpretation and an inspected continuous video
@@ -432,7 +436,7 @@ is universally required when every unsupported interior is explicitly unknown.
 The source and qualitative comparison are recorded in
 [El Reno partial-margin review](../research/el-reno-partial-margin-2026-10-11.md).
 
-## Partial filled condensation at one reported instant
+## Partial filled condensation at separate reported instants
 
 Appearance timeline version 4 preserves the photographic and open-margin
 contracts and adds `visible_condensation_region`. Replay manifests remain
@@ -455,7 +459,7 @@ photograph or its camera-original bytes.
 
 Open `reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=wakimoto-visible-condensation`.
 The existing renderer fills the broad partial condensation body in an authored
-2:1 landscape plane. The bright southern opening, subdued dark interior and
+2.37:1 landscape display frame. The bright southern opening, subdued dark interior and
 soft visible margin are qualitative display choices. Top and right edges are
 view cutoffs rather than optical boundaries. Lower appearance is omitted
 where the source does not resolve contact. Eight support vertices, color,
@@ -470,8 +474,26 @@ or interpolated evolution. Selection, playback, history, reload and graphics
 restoration follow the existing clock. The source record and original link
 remain useful when graphics are unavailable.
 
+The later 23:25:01 UTC sample, offset 1261, uses Figure 9(a), enlarged in
+Figure 10(a) on PDF page 18. Its separately authored eight-point support
+expresses the broad dark body, sloping southern boundary and brighter lower
+left. The opposite margin remains unresolved, upper and right edges are view
+cutoffs, and lower appearance is omitted. The reported 800 m and 500 m widths
+refer to different definitions; neither sizes this uncalibrated display.
+The source record preserves their roles and the numeric camera fields remain
+null. The [later source/output comparison](../research/el-reno-later-partial-body-2026-10-11.md)
+records the specific inspection and construction basis.
+
+The player provides separate earlier and later partial-view links beside the
+shared clock. Each selects its own reported time, sequence and source record.
+Browser history, reload and shared moment links retain that selection. The
+existing sequence menu changes the selected source while preserving time.
+Selecting the other sequence at an unsupported time therefore shows unknown
+appearance. Motion between the two stills is unknown, and the 23:25:09 UTC
+margin remains separate from the two filled views.
+
 Current coverage reports seven optical instants in three sequences, three
-partial forms comprising two open margins and one filled condensation view,
+partial forms comprising two filled condensation views and one open margin,
 and zero registered continuous intervals. The dossier appearance classification
 remains unregistered. The [specific source/output comparison](../research/el-reno-partial-condensation-2026-10-11.md)
 records the permitted factual construction separately from copyright, qualitative

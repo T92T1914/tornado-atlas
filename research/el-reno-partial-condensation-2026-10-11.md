@@ -106,8 +106,8 @@ No real visitor feedback, physical phone use, spoken screen-reader operation or
 whole-page appearance correspondence was established. Automated widths and text
 checks are browser evidence.
 
-Current coverage is seven sparse optical instants across three sequences, with
-two partial margins and this one partial filled body. Continuous registered
+At the first filled-view boundary, coverage was seven sparse optical instants
+across three sequences, with two partial margins and this one partial filled body. Continuous registered
 interval count remains zero; the dossier appearance classification remains
 unregistered. A complete evolving likeness, the first defensible appearance
 interval and a historically supported damage model remain required outcomes.
@@ -122,3 +122,8 @@ It does not host the source figures or private comparison captures. This decisio
 does not authorize other expressive figure uses. The original NWS aftermath
 photograph and source-qualified size estimates retain their separately reviewed
 hosting, definitions and uncertainty.
+
+The subsequent [second partial body](el-reno-later-partial-body-2026-10-11.md)
+retains this first observation and replaces the 23:25:01 margin with its own
+source-compared partial body. The 23:25:09 margin remains. Those separate
+interpretations supply no recovered motion between photographs.

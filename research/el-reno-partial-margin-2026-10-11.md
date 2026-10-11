@@ -1,5 +1,16 @@
 # El Reno: a coarse partial margin at two reported instants
 
+## Subsequent partial-body review
+
+This record preserves the first version 3 margin comparison and its executed
+checks. The [later partial-body review](el-reno-later-partial-body-2026-10-11.md)
+subsequently replaces the 23:25:01 UTC margin with a separately compared filled
+partial view. The 23:25:09 UTC margin retains the original points and isotropic
+display plane described here. The two current filled views use an authored
+landscape display frame. The earlier two-margin description below records that
+preceding boundary; it does not describe the current 1261 drawing. No continuous
+motion, physical scale or numerical camera solution is established.
+
 ## Source and inspection
 
 The source is Wakimoto and colleagues' 2015 photogrammetric analysis,

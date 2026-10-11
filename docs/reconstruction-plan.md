@@ -35,8 +35,9 @@ accepts a bounded appearance subset only when its separate source, clock,
 fixed-view camera, inspection, rights and uncertainty contract passes.
 The existing observation notebook still rejects unsupported historical
 registration. El Reno now has seven sparse photo observations across three
-sequences. Version 3 added two source-linked partial visible margins, and
-version 4 adds one coarse filled condensation view at a reported instant.
+sequences. Version 3 added two source-linked partial visible margins. Version 4 now
+provides two coarse filled partial condensation views and retains one partial
+margin, each at its own source-reported instant.
 Its continuous historical appearance timeline remains unregistered.
 
 ## Match the animation to the available evidence
@@ -325,3 +326,24 @@ The [field-scouring source record](../research/el-reno-field-scouring-2026-10-11
 The source-qualified record is promoted in the isolated private candidate. Current rendered checks and required revision-linked publication gates remain ahead. Complete evolving appearance, a defensible continuous interval and historical damage-model acceptance remain separate required outcomes.
 
 The scoped private source and browser review subsequently accepted the primary appearance hierarchy and the field-account clock journey. The preserved failed checks and corrections remain in the acceptance record. An exact publication candidate, full required CI and anonymous deployed acceptance remain ahead. No historical interval, calibrated camera or damage-model coverage was added by those software checks.
+
+## October 11 second partial body and comparison
+
+The separately inspected 23:25:01 UTC photograph, enlarged in Figure 10(a)
+of the 2015 paper, now guides a second independently authored partial body.
+Its broad dark region and sloping southern transition enclose a more conspicuous
+bright lower-left opening. The display support differs from the earlier view
+without applying the ratio between the paper's 800 m and 500 m references.
+
+Both reported views are reachable beside the existing replay clock. Each link
+selects its own sequence and reported time. They remain separate interpreted
+stills, with unknown motion between them. The 23:25:09 margin stays unchanged;
+its interval and every fractional neighbor remain unknown. Existing links,
+exposure identities, null physical geometry and source-defined lengths remain
+separate. The geographic path scene remains a center-position reference.
+
+The [second-view source and comparison record](../research/el-reno-later-partial-body-2026-10-11.md)
+describes actual private source/output inspection and the remaining integration
+and release gates. It adds no camera solution, historical duration, three-dimensional
+silhouette or calibrated damage prediction. The first defensible continuous
+appearance interval remains required.

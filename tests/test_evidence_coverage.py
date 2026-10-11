@@ -35,14 +35,17 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(appearance['photo_sample_count'],7)
         self.assertEqual(appearance['photo_sequence_count'],3)
         self.assertEqual(appearance['partial_form_sample_count'],3)
-        self.assertEqual(appearance['partial_margin_sample_count'],2)
-        self.assertEqual(appearance['partial_condensation_sample_count'],1)
+        self.assertEqual(appearance['partial_margin_sample_count'],1)
+        self.assertEqual(appearance['partial_condensation_sample_count'],2)
         sequences=appearance['photo_sequences']
         self.assertEqual([sequence['id'] for sequence in sequences],['nolte-reported-stills','wakimoto-visible-margin','wakimoto-visible-condensation'])
         margins=sequences[1]['samples']
         self.assertEqual([sample['reported_utc'] for sample in margins],['2013-05-31T23:25:01Z','2013-05-31T23:25:09Z'])
-        self.assertEqual(margins[0]['partial_form']['points'],margins[1]['partial_form']['points'])
-        self.assertEqual(len(margins[0]['partial_form']['points']),17)
+        self.assertEqual(margins[0]['partial_form']['kind'],'visible_condensation_region')
+        self.assertEqual(margins[1]['partial_form']['kind'],'visible_margin')
+        self.assertEqual(len(margins[0]['partial_form']['points']),8)
+        self.assertEqual(len(margins[1]['partial_form']['points']),17)
+        self.assertNotEqual(margins[0]['partial_form']['points'],margins[1]['partial_form']['points'])
         condensation=sequences[2]['samples']
         self.assertEqual(len(condensation),1)
         self.assertEqual(condensation[0]['reported_utc'],'2013-05-31T23:24:41Z')

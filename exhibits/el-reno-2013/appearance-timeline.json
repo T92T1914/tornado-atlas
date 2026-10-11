@@ -235,7 +235,7 @@
     },
     {
       "id": "wakimoto-visible-margin",
-      "basis": "Two separately inspected published exposures at source-reported 23:25:01 and 23:25:09 UTC. The same independently authored coarse visible-margin interpretation is drawn at each exact label. The eight-second interior and every fractional neighbor remain unknown. Figure 10(a) enlarges the first exposure; it adds no exposure. This sparse span has no continuous appearance or recovered evolution.",
+      "basis": "Two separately inspected published exposures at source-reported 23:25:01 and 23:25:09 UTC. The first guides an independently authored coarse filled partial body and sloping southern opening. The second retains its independently reviewed open southern margin. The eight-second interior and every fractional neighbor remain unknown. Figure 10(a) enlarges the first exposure and adds no exposure. Different interpretations do not establish continuous motion, physical growth or a recovered camera projection.",
       "samples": [
         {
           "id": "wakimoto-232501",
@@ -258,12 +258,12 @@
             "status": "still_pixels_inspected",
             "pixels": "Complete retained rendering of PDF page 18, including Figure 10(a), an enlargement of the Figure 9(a) exposure.",
             "reviewed_on": "2026-10-11",
-            "basis": "Root and independent agent inspected each complete named source-page raster and all five actual private comparison captures. This declares two published photograph observations, not original-camera inspection or continuous footage."
+            "basis": "Root and an independent reviewer inspected the complete Figure 10(a) source page and three unique complete rendered comparison captures on October 11, 2026 UTC. A fourth return capture was byte-identical to the first. The earlier five-capture margin comparison remains a separate record, rather than acceptance of this new body. This declares one published photographic view, not original-camera inspection, calibrated shape or continuous footage."
           },
           "viewpoint": {
             "mode": "qualitative_text",
-            "description": "Named published photographic view near the radar and I-40/Banner Road setting discussed in the paper. The interpretation concerns the visible southern margin in this view only.",
-            "basis": "The source paper supplies the qualitative site/view context and printed horizon/angular annotations. Atlas has no numeric lens, crop, pose or physical projection solution. The authored isotropic plane is not an alternative camera calibration.",
+            "description": "Named published photographic view near the radar and I-40/Banner Road setting discussed in the paper. The interpretation concerns the broad partial condensation, visible southern transition and brighter lower-left opening in this view only.",
+            "basis": "The source paper supplies qualitative site and view context with printed horizon and angular annotations. Atlas has no numeric lens, crop, pose or physical projection solution. The authored landscape display frame is not a recovered camera view; the printed grid does not calibrate it.",
             "coordinates": null,
             "bearing_degrees": null,
             "pitch_degrees": null,
@@ -273,102 +273,73 @@
             "lens_calibration": null
           },
           "characteristics": [
-            "A visible partial southern margin descends diagonally with a broad bend. The lower photograph contains foreground obscuration.",
-            "The published view does not establish the complete opposite edge or upper and lower continuations. The coarse interpretation omits fine scallops and irregularities."
+            "A broad dark condensation region continues through the upper and right limits of the published view. Its southern transition slopes toward a conspicuous bright lower-left opening.",
+            "Foreground and obscuration interrupt the lower appearance. The opposite outline, ground contact and upper continuation remain unresolved. Fine scallops, texture and foreground objects are omitted."
           ],
           "boundary_limits": [
-            "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
-            "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
-            "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
-            "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
-            "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned."
+            "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
+            "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
+            "The northern outline remains unresolved. The darker right context and soft transition are authored display choices, not a recovered exterior or hidden condensation boundary.",
+            "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
+            "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
+            "The authors' approximately 800 m diameter belongs to their 23:24:54-23:25:06 analysis. It does not determine this drawing's dimensions or calibrate its projection.",
+            "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+            "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
           ],
           "shape": null,
           "extent": null,
           "partial_form": {
-            "kind": "visible_margin",
+            "kind": "visible_condensation_region",
             "authorship": "independently_authored",
             "coordinate_space": "normalized_schematic_plane",
-            "component": "Coarse visible southern margin, open at both endpoints.",
+            "component": "Broad partial condensation and sloping southern transition above a bright lower-left opening.",
             "points": [
               [
-                0.25,
-                0.78
+                0.34,
+                0.08
               ],
               [
-                0.267554,
-                0.742065
+                0.26,
+                0.27
               ],
               [
-                0.283086,
-                0.703398
+                0.13,
+                0.64
               ],
               [
-                0.297153,
-                0.664204
+                0.06,
+                1
               ],
               [
-                0.310312,
-                0.624688
+                1,
+                1
               ],
               [
-                0.32312,
-                0.585054
+                1,
+                0.7
               ],
               [
-                0.336133,
-                0.545508
+                0.86,
+                0.24
               ],
               [
-                0.349907,
-                0.506255
-              ],
-              [
-                0.365,
-                0.4675
-              ],
-              [
-                0.381968,
-                0.429448
-              ],
-              [
-                0.401367,
-                0.392305
-              ],
-              [
-                0.423755,
-                0.356274
-              ],
-              [
-                0.449688,
-                0.321563
-              ],
-              [
-                0.479722,
-                0.288374
-              ],
-              [
-                0.514414,
-                0.256914
-              ],
-              [
-                0.554321,
-                0.227388
-              ],
-              [
-                0.6,
-                0.2
+                0.72,
+                0.08
               ]
             ],
-            "basis": "Independently authored cubic Bezier interpretation of the inspected published photographs' broad direction and bend. Two original panels and both mathematical variants were compared visually by root and an independent agent on October 11, 2026 UTC. The simpler bend is the conservative default. No image raster, measurements, tracing or author annotation generated these points.",
-            "use_basis": "Original mathematical factual schematic with source attribution and original panel links. It contains no source photograph texture, traced contour, angular grid, dotted annotation, radar overlay or figure layout. This specific construction and output were reviewed independently. AMS photograph/figure copyright and the absence of a figure-republication grant remain separate; no photograph is copied or hosted.",
+            "closure": "display_support_only",
+            "completeness": "partial",
+            "basis": "Independently authored eight-vertex mathematical support based on the broad dark body, sloping southern transition and bright lower-left opening in the inspected Figure 10(a), at the reported 23:25:01 UTC label. Root and an independent reviewer compared the complete original source page and the specific rendered output on October 11, 2026 UTC. This differs from the earlier 23:24:41 interpretation. No image pixels, measured contour, traced boundary, transferred angular plane or 800/500 enlargement generated these points.",
+            "use_basis": "Original mathematical factual schematic with source attribution and the original panel link. Its specific construction and rendered output were reviewed independently. No source raster, texture, sampled colors, traced contour, dotted annotation, grid, radar or figure layout is copied into the drawing. AMS photograph and figure copyright remains recorded, without a figure-republication grant. No photograph or source figure is copied or hosted.",
             "limits": [
-              "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
-              "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
-              "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
-              "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
-              "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned.",
-              "This omits scallops and fine irregularities. The independently reviewed stronger S bend remains an authored alternative, not a unique source contour."
+              "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
+              "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
+              "The northern outline remains unresolved. The darker right context and soft transition are authored display choices, not a recovered exterior or hidden condensation boundary.",
+              "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
+              "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
+              "The authors' approximately 800 m diameter belongs to their 23:24:54-23:25:06 analysis. It does not determine this drawing's dimensions or calibrate its projection.",
+              "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+              "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
             ]
           }
         },
@@ -415,7 +386,7 @@
             "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
             "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
             "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
-            "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
+            "This view retains the independently reviewed coarse visible margin. Its relation to the other photographic interpretations does not establish physical growth or motion.",
             "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned."
           ],
           "shape": null,
@@ -501,7 +472,7 @@
               "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
               "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
               "The 17 mathematical points, line width, softness and endpoint fade are display choices, not measured boundary positions or uncertainty.",
-              "The same interpretation is repeated at the two source labels. Differences, growth and motion between the photographs are unresolved.",
+              "This view retains the independently reviewed coarse visible margin. Its relation to the other photographic interpretations does not establish physical growth or motion.",
               "Every interior and fractional neighboring instant remains unknown. No duration, hold, crossfade or interpolation is assigned.",
               "This omits scallops and fine irregularities. The independently reviewed stronger S bend remains an authored alternative, not a unique source contour."
             ]
