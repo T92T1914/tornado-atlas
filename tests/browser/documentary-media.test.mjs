@@ -8,6 +8,7 @@ for(const width of [320,1280])for(const event of events)test('real documentary m
  const page=await fixture(t,{viewport:{width,height:900}}),providers=[];
  page.on('request',r=>{if(/youtube|googlevideo|ytimg/.test(r.url()))providers.push(r.url());});
  await page.goto(base+'/'+event.file+(event.file==='index.html'?'?t=0':'')+'#'+event.section);
+ if(event.file==='index.html')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
  const section=page.locator('#'+event.section),image=section.locator('img[src="'+event.photo+'"]');
  await image.scrollIntoViewIfNeeded();await page.waitForFunction(src=>{const image=document.querySelector('img[src="'+src+'"]');return image?.complete&&image.naturalWidth>0;},event.photo);
  assert.equal(await section.locator('canvas').count(),0,'Museum photographs never include an authored reconstruction canvas');
