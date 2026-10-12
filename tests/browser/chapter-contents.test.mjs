@@ -5,7 +5,7 @@ import {mkdir} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
 
 const chapters=['joplin.html','blackwell.html','tuscaloosa.html'];
-const counts={'joplin.html':15,'blackwell.html':10,'tuscaloosa.html':16};
+const counts={'joplin.html':15,'blackwell.html':10,'tuscaloosa.html':17};
 const fits=page=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
 async function enlarge(page){
   const result=await page.evaluate(()=>{
@@ -50,6 +50,7 @@ async function destinations(page,file){
   const hrefs=await nav.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
   assert.equal(hrefs.length,counts[file]);
   assert.equal(new Set(hrefs).size,hrefs.length);
+  if(file==='tuscaloosa.html')assert.equal(hrefs.filter(href=>href==='#damage-map').length,1);
   assert.equal(hrefs.at(-1),'#sources');
   for(const href of hrefs){
     assert.match(href,/^#[a-z][a-z0-9-]*$/);

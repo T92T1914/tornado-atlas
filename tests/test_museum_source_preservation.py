@@ -10,6 +10,7 @@ from museum_test_support import CURRENT_LIMITS, STATIC_SURVEY_LIMITS, assert_pre
 ROOT = Path(__file__).resolve().parents[1]
 PREVIOUS = '00443cb7e5034a74e86d0f57c423e1b2bb7d13183bc8ed288c9c98b33b7d0405'
 SUMMARY = 'dcdd215f71a4258fadc5bf7f7e43e7f58373d629b62f317cc31354bc43c362cd'
+STATIC = '5899368c411f1e0f382a10571759817a3574fda3fda727c3be4084d97241f100'
 EVENT = 'tuscaloosa-birmingham-2011'
 
 
@@ -25,7 +26,8 @@ class MuseumSourcePreservationTests(unittest.TestCase):
         self.assertEqual(summary, expected)
         self.assertEqual(summary['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS)
 
-        current = next(row for row in dossiers() if row['id'] == EVENT)
+        current = json.loads((ROOT / f'web/archive/{EVENT}-{STATIC[:20]}.json').read_text(encoding='utf-8'))
+        self.assertEqual(digest(current), STATIC)
         expected = copy.deepcopy(summary)
         additions = {'sources':['bmx-estimated-damage-map'],
                      'observations':['bmx-estimated-footprint','bmx-198-damage-accounts'],
@@ -59,7 +61,8 @@ class MuseumSourcePreservationTests(unittest.TestCase):
         expected['provenance']['publication_review'] = current['provenance']['publication_review']
         self.assertEqual(current, expected)
         self.assertEqual(current['provenance']['publication_review']['previous_dossier_sha256'], SUMMARY)
-        versions = dossier_history(current)['versions']
+        selected = next(row for row in dossiers() if row['id'] == EVENT)
+        versions = dossier_history(selected)['versions']
         summary_change = next(row for row in versions if row['dossier_sha256'] == SUMMARY)
         self.assertEqual(summary_change['changes'], [{'kind':'dossier','id':EVENT,'change':'updated','fields':['reconstruction']}])
         latest = next(row for row in versions if row['dossier_sha256'] == digest(current))
@@ -70,6 +73,27 @@ class MuseumSourcePreservationTests(unittest.TestCase):
             {'kind':'media','id':'bmx-static-survey-map','change':'added','fields':[]},
             {'kind':'dossier','id':EVENT,'change':'updated','fields':['routes']},
             {'kind':'dossier','id':EVENT,'change':'updated','fields':['reconstruction']}])
+
+    def test_portable_correction_changes_only_the_derived_package_and_its_basis(self):
+        before = json.loads((ROOT / f'web/archive/{EVENT}-{STATIC[:20]}.json').read_text(encoding='utf-8'))
+        self.assertEqual(digest(before), STATIC)
+        current = next(row for row in dossiers() if row['id'] == EVENT)
+        expected = copy.deepcopy(before)
+        package = {'file':'events/tuscaloosa-birmingham-2011-survey-5ee7602b7022556858cb.json',
+                   'bytes':186401, 'sha256':'5ee7602b7022556858cbd7b99fce99ad0bf81750b79d8427acc12bf8a3efaefb'}
+        media = next(row for row in expected['media'] if row['id'] == 'bmx-static-survey-map')
+        media['transformation']['survey_package'] = package
+        media['transformation']['recipe'] += (' Converted display coordinates are rounded to eight '
+            'decimal places for portable serialization, not field accuracy.')
+        expected['provenance']['static_survey_increment']['survey_package'] = {
+            'schema_version':1, 'event_id':EVENT, **package,
+            'source_data_sha256':'dcc72bcd35da89d8bf4095516e066b164116a9bfa94cce858a43877c6078a025'}
+        expected['provenance']['publication_review'] = current['provenance']['publication_review']
+        self.assertEqual(current, expected)
+        self.assertEqual(current['provenance']['publication_review']['previous_dossier_sha256'], STATIC)
+        latest = next(row for row in dossier_history(current)['versions'] if row['dossier_sha256'] == digest(current))
+        self.assertEqual(latest['changes'], [{'kind':'media','id':'bmx-static-survey-map',
+            'change':'updated','fields':['transformation']}])
 
     def test_the_summary_exception_rejects_new_registration_or_arbitrary_text(self):
         previous = json.loads((ROOT / f'web/archive/{EVENT}-{PREVIOUS[:20]}.json').read_text(encoding='utf-8'))['reconstruction']

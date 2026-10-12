@@ -19,7 +19,7 @@ html:has(.damage-survey-section) {scroll-behavior:auto}
 #damage-map-controls,#damage-account-controls {display:flex;flex-wrap:wrap;gap:.75rem;align-items:end;margin:1rem 0}
 #damage-map-controls[hidden],#damage-account-controls[hidden],#damage-map-enhancement[hidden] {display:none}
 #damage-account-controls label {display:flex;flex-direction:column;gap:.35rem;flex:1 1 180px;min-width:0}
-#damage-account-controls select,#damage-account-controls input {max-width:100%;width:100%;min-height:44px;min-width:0}
+#damage-account-controls select,#damage-account-controls input {box-sizing:border-box;max-width:100%;width:100%;min-height:44px;min-width:0}
 #damage-account-controls>p {flex-basis:100%}
 .damage-account-list {padding-left:1.6rem}
 .documentary-reading .damage-account {margin:.7rem 0;border:1px solid var(--line);border-radius:4px;padding:.7rem;overflow-wrap:anywhere;scroll-margin-top:1rem}

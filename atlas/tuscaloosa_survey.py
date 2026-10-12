@@ -36,8 +36,9 @@ def identity(layer, fid):
 
 def inverse_mercator(coordinates):
     x, y = coordinates
-    return [math.degrees(x / 6378137),
-            math.degrees(2 * math.atan(math.exp(y / 6378137)) - math.pi / 2)]
+    # Portable display serialization, separate from the retained source coordinates.
+    return [round(math.degrees(x / 6378137), 8),
+            round(math.degrees(2 * math.atan(math.exp(y / 6378137)) - math.pi / 2), 8)]
 
 
 def finite_pair(value):
@@ -142,7 +143,9 @@ def _compile_survey(data, item):
                        'retrieved_at': '2026-10-12T04:40:29Z', 'url': MAP_URL,
                        'data_url': DATA_URL, 'parent_url': PARENT_URL,
                        'data_sha256': DATA_SHA256, 'item_sha256': ITEM_SHA256,
-                       'projection': REFERENCE, 'length_unit': 'miles', 'maximum_width_unit': 'yards',
+                       'projection': REFERENCE, 'display_coordinate_decimal_places': 8,
+                       'display_coordinate_basis': 'Inverse Mercator rounded only for portable display serialization, not field accuracy.',
+                       'length_unit': 'miles', 'maximum_width_unit': 'yards',
                        'point_wind_unit': None, 'dates': 'Source calendar labels, not arrival or failure times.',
                        'rights': 'NWS government data, credited under https://www.weather.gov/disclaimer. No endorsement. Third-party basemap and images are separate and not copied.'},
             'polygons': polygons, 'points': points,
@@ -232,7 +235,7 @@ def native_section(survey, filename, raw):
 <div id="damage-map-enhancement" hidden><button type="button" id="damage-map-load">Explore the damage map</button><p id="damage-map-status" role="status">The complete accounts below work without loading the interactive map.</p><div id="damage-interactive-map" hidden></div><div id="damage-map-group" hidden aria-label="Choose an account in this map group"></div><div id="damage-map-controls" hidden><button type="button" id="damage-fit">Whole estimated footprint</button><button type="button" id="damage-zoom-out">Zoom out</button><button type="button" id="damage-zoom-in">Zoom in</button><button type="button" id="damage-drag" aria-pressed="false">Enable map dragging</button></div></div>
 <div id="damage-account-controls" hidden><label for="damage-rating">Local rating <select id="damage-rating"><option value="">All recorded ratings</option>{''.join(f'<option value="{escape(r)}">{escape(r)}</option>' for r in sorted(survey['inventory']['ratings']))}</select></label><label for="damage-search">Find an account <input id="damage-search" type="search" maxlength="300"></label><button type="button" id="damage-reset">Clear filters</button><label for="damage-account">Survey account <select id="damage-account"><option value="">Choose an account</option></select></label><div><button type="button" id="damage-previous" disabled>Previous account</button><button type="button" id="damage-next" disabled>Next account</button></div><p id="damage-account-status" role="status"></p></div>
 <details id="survey-accounts"><summary>Read all 198 original survey accounts</summary><p>Source order is a browsing order, not the tornado's movement or the order buildings failed. Ratings are individual source assessments. Fields such as “Null”, “N/A” and blank strings are preserved in the original details.</p><ol class="damage-account-list">{''.join(cards)}</ol></details>
-<details class="damage-map-method"><summary>Source edition, conversion and limits</summary><p>This is the maintained NWS Birmingham map, created in 2015 and last modified February 25, 2026, retrieved October 12, 2026. It is not a recovered 2011 map revision. Original agency data are credited under the <a href="https://www.weather.gov/disclaimer">NWS use policy</a>; this derived display is not an official replacement product or government endorsement. The original basemap, external county service and linked imagery are not copied or requested.</p><p>Raw point and ring coordinates declare Web Mercator, 102100/3857. Display latitude and longitude use spherical inverse Mercator with a radius of 6,378,137 meters. Their agreement with the separately reported coordinates to four decimal places checks representation, not field accuracy. Original source fields remain unchanged. Dates are calendar labels; point wind-speed units remain unknown. No linked photograph has been inspected or cleared by this addition.</p><p><a href="dossier.html?event={EVENT}&amp;source=bmx-estimated-damage-map#source-bmx-estimated-damage-map">Read the source and inspection record</a> · <a href="{escape(filename)}">Preserved survey package</a> · <a href="#path">Return to the six written community stops</a></p></details>
+<details class="damage-map-method"><summary>Source edition, conversion and limits</summary><p>This is the maintained NWS Birmingham map, created in 2015 and last modified February 25, 2026, retrieved October 12, 2026. It is not a recovered 2011 map revision. Original agency data are credited under the <a href="https://www.weather.gov/disclaimer">NWS use policy</a>; this derived display is not an official replacement product or government endorsement. The original basemap, external county service and linked imagery are not copied or requested.</p><p>Raw point and ring coordinates declare Web Mercator, 102100/3857. Display latitude and longitude use spherical inverse Mercator with a radius of 6,378,137 meters. Converted display coordinates are rounded to eight decimal places for portable serialization. Their agreement with the separately reported coordinates to four decimal places checks representation, not field accuracy. Original source fields remain unchanged. Dates are calendar labels; point wind-speed units remain unknown. No linked photograph has been inspected or cleared by this addition.</p><p><a href="dossier.html?event={EVENT}&amp;source=bmx-estimated-damage-map#source-bmx-estimated-damage-map">Read the source and inspection record</a> · <a href="{escape(filename)}">Preserved survey package</a> · <a href="#path">Return to the six written community stops</a></p></details>
 </section>
 <!-- tuscaloosa-damage-survey:end -->'''
 

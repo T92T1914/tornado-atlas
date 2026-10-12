@@ -4,10 +4,12 @@ import json
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
+import math
 from pathlib import Path
 
 from atlas.tuscaloosa_survey import (ROOT, FOLDER, ITEM, AREA_LAYER, POINT_LAYER,
-    DATA_SHA256, compile_survey, load_survey, publication, native_section, build)
+    DATA_SHA256, compile_survey, load_survey, publication, native_section, build, inverse_mercator)
 
 
 class TuscaloosaSurveyTests(unittest.TestCase):
@@ -60,6 +62,24 @@ class TuscaloosaSurveyTests(unittest.TestCase):
             with self.subTest(mutate=mutate):
                 data = copy.deepcopy(self.data);mutate(data)
                 with self.assertRaises(ValueError):compile_survey(data, self.item)
+
+    def test_portable_display_serialization_keeps_the_reviewed_package_identity(self):
+        artifacts = publication(ROOT)
+        index = json.loads(artifacts['events/tuscaloosa-birmingham-2011-survey-index.json'])
+        self.assertEqual((index['bytes'], index['sha256']), (186401,
+            '5ee7602b7022556858cbd7b99fce99ad0bf81750b79d8427acc12bf8a3efaefb'))
+        self.assertEqual((ROOT / 'web' / index['file']).read_bytes(), artifacts[index['file']])
+        self.assertEqual(self.survey['source']['display_coordinate_decimal_places'], 8)
+        for original, display in [
+                ([-9747513.1, 3919020.9], [-87.5634, 33.17850007]),
+                ([-9685886.6, 3955707.7], [-87.00979973, 33.45389969]),
+                ([-9695270.1, 3951241.4], [-87.09409314, 33.42041872])]:
+            self.assertEqual(inverse_mercator(original), display)
+        # A small transcendental-result perturbation must not change display serialization.
+        # This is a numerical software check, not a historical accuracy estimate.
+        original_atan = math.atan
+        with patch('atlas.tuscaloosa_survey.math.atan', side_effect=lambda value: original_atan(value) + 1e-16):
+            self.assertEqual(publication(ROOT), artifacts)
 
     def test_changed_original_bytes_fail_before_any_publication_write(self):
         with tempfile.TemporaryDirectory() as directory:
