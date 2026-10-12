@@ -20,6 +20,10 @@ html:has(.damage-survey-section) {scroll-behavior:auto}
 #damage-map-controls[hidden],#damage-account-controls[hidden],#damage-map-enhancement[hidden] {display:none}
 #damage-account-controls label {display:flex;flex-direction:column;gap:.35rem;flex:1 1 180px;min-width:0}
 #damage-account-controls select,#damage-account-controls input {box-sizing:border-box;max-width:100%;width:100%;min-height:44px;min-width:0}
+/* Match the existing exhibit treatment for enlarged native select text. */
+#damage-account-controls select {white-space:normal;overflow:hidden;text-overflow:ellipsis;appearance:none;-webkit-appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--text) 50%),linear-gradient(135deg,var(--text) 50%,transparent 50%);background-position:calc(100% - 16px) center,calc(100% - 10px) center;background-size:6px 6px;background-repeat:no-repeat}
+@media(forced-colors:active) {#damage-account-controls select {appearance:auto;-webkit-appearance:auto;background-image:none;padding-right:9px}}
+#damage-account-controls button:disabled {opacity:1;color:var(--muted);background:var(--panel);border-style:dashed}
 #damage-account-controls>p {flex-basis:100%}
 .damage-account-list {padding-left:1.6rem}
 .documentary-reading .damage-account {margin:.7rem 0;border:1px solid var(--line);border-radius:4px;padding:.7rem;overflow-wrap:anywhere;scroll-margin-top:1rem}
