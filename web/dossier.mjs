@@ -204,7 +204,7 @@ async function main(){
     for(const e of events){const {dossier:doc}=await loadVerifiedDossier(e,e.id);contributions.append(link(e.title,route({event:e.id})));for(const m of doc.media.filter(m=>Object.values(m.roles).includes(id)))contributions.append(evidenceCard(m,doc,'media'));}
     host.replaceChildren(contributions);
   }else listIndex(index);
+  if(location.hash){const target=document.getElementById(decodeURIComponent(location.hash.slice(1)));target?.scrollIntoView({behavior:'instant',block:'start'});}
   document.body.dataset.ready='true';
-  if(location.hash){const target=document.getElementById(decodeURIComponent(location.hash.slice(1)));target?.scrollIntoView();}
 }
 main().catch(error=>{host.replaceChildren(element('h1','Evidence unavailable'),element('p',error.message),retryView(),link('Browse the archive','dossier.html'),link('Open the catalogue','atlas.html'));document.body.dataset.ready='error';});
