@@ -69,7 +69,7 @@ def simulator_early_region(bundle):
         + p(observation['clock_note'], id='early-condensation-time')
         + element('p', link('Open Reid’s original photograph', observation['original_url'])+' · '
             + link('Read the creator’s account and caption', observation['account_url'])+' · '
-            + link('Compare the later photographed body', '#partial-condensation-reading'))
+            + link('Compare the later appearance study', 'reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=wakimoto-visible-condensation#replay-appearance'))
         + element('details', element('summary', 'What this view can tell us')
             + p('The photograph supports a coarse visible form, not measured tornado height, radius, ground contact or damaging-wind extent. The earlier group’s camera lens is not assigned to this relocated view. The original photograph remains at its creator publication; source pixels are not hosted here.'))
         + '<script type="application/json" id="early-condensation-record">'+record+'</script>')

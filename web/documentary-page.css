@@ -56,10 +56,7 @@
     position:sticky;
     top:24px;
     align-self:start;
-    display:flex;
-    flex-direction:column;
-    flex-wrap:nowrap;
-    gap:3px;
+    display:block;
     min-width:0;
     max-height:calc(100vh - 48px);
     overflow:auto;
@@ -68,7 +65,7 @@
     scroll-padding-block:8px;
   }
   .documentary-layout > .documentary-contents a {
-    flex-shrink:0;
+    display:block;
     min-height:44px;
     padding:8px 12px;
     border-left:2px solid var(--line);
@@ -76,5 +73,6 @@
     overflow-wrap:anywhere;
     scroll-margin-block:8px;
   }
+  .documentary-layout > .documentary-contents a + a {margin-top:3px;}
   .documentary-layout > .documentary-reading {min-width:0;}
 }

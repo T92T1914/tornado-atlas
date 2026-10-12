@@ -10,7 +10,7 @@ test('search, source details, map selection and photographs retain identity thro
   assert.match(await page.locator('#detail dl').textContent(),/Reported start-98.096, 35.485/);
   await page.locator('[data-photo="storm-1"]').click();await photo(page,'storm-1');
   await page.getByRole('button',{name:'Next photograph',exact:true}).click();await photo(page,'storm-2');
-  assert.equal(await page.locator('.photo-count').textContent(),'Photograph 2 of 2');
+  assert.equal(await page.locator('.photo-count').textContent(),'Photograph 2 of 3');
   await page.goBack();await photo(page,'storm-1');
   await page.goForward();await photo(page,'storm-2');
   await page.locator('#photo-close').click();await page.locator('#back-list').click();

@@ -47,7 +47,7 @@ async function reading(page){
   assert.equal(await article.getByRole('link',{name:'Read the creator’s account and caption'}).getAttribute('href'),observation.account_url);
   assert.equal(await article.locator('img,video,iframe').count(),0);
   const fits=await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
-  if(!fits)console.log('REPORTED_STUDY_REFLOW_FAILURE '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('body *')].map(n=>({tag:n.tagName,id:n.id,cls:n.className,text:n.textContent?.slice(0,90),right:n.getBoundingClientRect().right,width:n.getBoundingClientRect().width,scroll:n.scrollWidth})).filter(n=>n.right>innerWidth+1).sort((a,b)=>b.right-a.right).slice(0,12))));
+  if(!fits)console.log('REPORTED_STUDY_REFLOW_FAILURE '+JSON.stringify(await page.evaluate(()=>({root:{scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,inner:innerWidth},nodes:[...document.querySelectorAll('body *')].map(n=>({tag:n.tagName,id:n.id,cls:n.className,text:n.textContent?.slice(0,90),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right,width:n.getBoundingClientRect().width,scroll:n.scrollWidth,client:n.clientWidth})).filter(n=>n.scrollWidth>n.clientWidth+1||n.getBoundingClientRect().right>innerWidth+1).sort((a,b)=>b.scroll-b.client-(a.scroll-a.client)).slice(0,24)}))));
   assert.equal(fits,true);
 }
 for(const [width,theme] of [[320,'dark'],[1280,'light']])test('early reported-minute form, source return and replay isolation '+width+' '+theme,async t=>{
