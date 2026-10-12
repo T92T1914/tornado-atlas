@@ -171,7 +171,14 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
                      'APRIL 27, 2011 · CENTRAL ALABAMA'):
             self.assertIn(text, self.html)
         self.assertEqual(self.html.count('◎'), 1)
-        self.assertEqual(self.html.count('·'), 24)  # Four shared exhibit links retain their literal date separators.
+        start, end = '<!-- tuscaloosa-damage-survey:start -->', '<!-- tuscaloosa-damage-survey:end -->'
+        self.assertEqual(self.html.count(start), 1)
+        self.assertEqual(self.html.count(end), 1)
+        before, generated = self.html.split(start)
+        _, after = generated.split(end)
+        # The new source-generated account labels use their own separators.
+        # Keep the original document and shared navigation's exact UTF-8 guard.
+        self.assertEqual((before + after).count('·'), 24)
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)
 

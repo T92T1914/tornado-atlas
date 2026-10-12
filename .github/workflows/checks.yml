@@ -72,6 +72,7 @@ jobs:
           node --check web/tuscaloosa-radar-view.mjs
           node --test tests/photo-view.test.mjs
           node --check web/tuscaloosa-survey-reader.mjs
+          node --check web/tuscaloosa-damage-map.mjs
           node --test tests/tuscaloosa-reader-history.test.mjs tests/tuscaloosa-request-contract.test.mjs
           node --check web/notebook-view.mjs
           node --test tests/notebook-view.test.mjs

@@ -187,7 +187,11 @@ class TuscaloosaExhibitTests(unittest.TestCase):
                           'railway-bridge-aftermath', 'aerial-context-aftermath',
                           'train-cars-aftermath', 'goes-east-storm-context', 'eo1-tuscaloosa-track',
                           'usgs-tuscaloosa-landsat-scar'])
-        self.assertEqual(len(self.current['media']), 10)
+        self.assertEqual(len(self.current['media']), 11)
+        self.assertEqual(len([m for m in self.current['media'] if m['id'] != 'bmx-static-survey-map']), 10)
+        maps = [m for m in self.current['media'] if m['id'] == 'bmx-static-survey-map']
+        self.assertEqual(len(maps), 1)
+        self.assertEqual((maps[0]['kind'], maps[0]['source_id']), ('map', 'bmx-estimated-damage-map'))
         item = photos[0]
         self.assertEqual(item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG')
         self.assertEqual(item['roles'], dict(creator=None, uploader='nws-birmingham', rights_holder=None))

@@ -1,0 +1,35 @@
+/* Deep native account targets must settle immediately in this long document. */
+html:has(.damage-survey-section) {scroll-behavior:auto}
+.damage-survey-section {min-width:0}
+.damage-source-overview {margin:1.5rem 0}
+.damage-source-overview svg {display:block;width:100%;height:auto;background:var(--panel,var(--bg));border:1px solid var(--line);border-radius:4px}
+.damage-overall {fill:var(--text);fill-opacity:.035;stroke:var(--text);stroke-width:2;vector-effect:non-scaling-stroke}
+.damage-local {fill:#ad577d;fill-opacity:.2;stroke:#ad577d;stroke-dasharray:6 4;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.damage-point {fill:var(--text)}
+#damage-interactive-map {height:420px;border:1px solid var(--line);margin:1rem 0;background:var(--bg)}
+#damage-interactive-map[hidden] {display:none}
+.survey-estimated-overall {stroke:var(--text);fill:var(--text)}
+.survey-estimated-local {stroke:#ad577d;fill:#ad577d}
+#damage-interactive-map .context-land {fill:var(--panel);stroke:var(--muted);fill-opacity:1}
+#damage-interactive-map .catalogue-cluster {display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#242424;color:#fff;font:700 11px var(--interface-font);box-shadow:0 1px 5px #0009}
+#damage-interactive-map .catalogue-cluster:hover {background:#555;outline:3px solid #fff}
+#damage-interactive-map .catalogue-pin {background:#fff;border:3px solid #171717;border-radius:50%;box-shadow:0 0 0 1px #fff}
+#damage-interactive-map .catalogue-pin:hover {outline:3px solid #fff}
+#damage-interactive-map .map-selected {stroke:var(--text);filter:drop-shadow(0 0 2px var(--bg));stroke-width:4}
+#damage-map-controls,#damage-account-controls {display:flex;flex-wrap:wrap;gap:.75rem;align-items:end;margin:1rem 0}
+#damage-map-controls[hidden],#damage-account-controls[hidden],#damage-map-enhancement[hidden] {display:none}
+#damage-account-controls label {display:flex;flex-direction:column;gap:.35rem;flex:1 1 180px;min-width:0}
+#damage-account-controls select,#damage-account-controls input {max-width:100%;width:100%;min-height:44px;min-width:0}
+#damage-account-controls>p {flex-basis:100%}
+.damage-account-list {padding-left:1.6rem}
+.documentary-reading .damage-account {margin:.7rem 0;border:1px solid var(--line);border-radius:4px;padding:.7rem;overflow-wrap:anywhere;scroll-margin-top:1rem}
+.damage-account>summary,#survey-accounts>summary,.damage-map-method>summary,.damage-raw>summary {min-height:44px;cursor:pointer;display:list-item;align-content:center}
+.damage-account.damage-selected {border-color:var(--text);box-shadow:inset 4px 0 var(--text)}
+.damage-raw pre {white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:.85rem}
+.damage-survey-section button,.damage-survey-section summary {touch-action:manipulation}
+.damage-survey-section :focus-visible {outline:3px solid var(--text);outline-offset:3px}
+#damage-map-status,#damage-account-status {overflow-wrap:anywhere}
+#damage-map-group {display:grid;gap:.5rem;margin:1rem 0}
+#damage-map-group[hidden] {display:none}
+#damage-map-group>a {padding:.7rem;border:1px solid var(--line);overflow-wrap:anywhere}
+@media(max-width:760px) {#damage-interactive-map {height:360px}.damage-account-list {padding-left:1rem}.documentary-reading .damage-account {padding:.6rem}}

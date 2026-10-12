@@ -34,7 +34,11 @@ class TuscaloosaSurveyReaderTests(unittest.TestCase):
         for field in ('sources', 'observations', 'creators', 'routes', 'media'):
             for row in old[field]:
                 self.assertIn(row, self.doc[field], field)
-        self.assertEqual(len(self.doc['media']), 10)
+        self.assertEqual(len(self.doc['media']), 11)
+        self.assertEqual(len([m for m in self.doc['media'] if m['id'] != 'bmx-static-survey-map']), 10)
+        maps = [m for m in self.doc['media'] if m['id'] == 'bmx-static-survey-map']
+        self.assertEqual(len(maps), 1)
+        self.assertEqual((maps[0]['kind'], maps[0]['source_id']), ('map', 'bmx-estimated-damage-map'))
 
     def test_method_record_has_original_authors_and_separate_clock_roles(self):
         source = next(row for row in self.doc['sources'] if row['id'] == 'tuscaloosa-field-survey-method')
