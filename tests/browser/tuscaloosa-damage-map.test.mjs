@@ -7,6 +7,64 @@ const item = '0deae8ed1989461faf99b315bb0e3126';
 const account = fid => `${item}:TCLBHM_Points_1947:${fid}`;
 const url = fid => `${base}/tuscaloosa.html?account=${encodeURIComponent(account(fid))}#survey-account-${fid}`;
 const ready = page => page.waitForFunction(() => document.body.dataset.surveyReader === 'ready');
+async function observeAccountPhotoFocus(page) {
+  await page.addInitScript(() => {
+    if (!location.pathname.endsWith('/tuscaloosa.html')) return;
+    const evidence = {rows: [], omitted: 0};
+    const record = phase => {
+      if (evidence.rows.length >= 24) {evidence.omitted++;return;}
+      const active = document.activeElement;
+      evidence.rows.push({phase, time: performance.now(), ready: document.readyState,
+        reader: document.body?.dataset.surveyReader ?? null,
+        dialogOpen: document.getElementById('photo-dialog')?.open ?? null,
+        activeTag: active?.tagName ?? null, activeId: active?.id?.slice(0,64) ?? null,
+        insideDialog: Boolean(active?.closest('#photo-dialog')),
+        hash: location.hash.slice(0,80), photo: new URL(location.href).searchParams.get('photo')?.slice(0,80) ?? null});
+    };
+    window.__atlasAccountPhotoFocus = evidence;
+    record('installed');
+    for (const event of ['focusin','DOMContentLoaded','load','pageshow','popstate'])
+      window.addEventListener(event, () => record(event), true);
+    const observer = new MutationObserver(rows => {
+      if (rows.some(row => row.target.id === 'photo-dialog')) record('dialog-open-attribute');
+    });
+    observer.observe(document, {subtree:true, attributes:true, attributeFilter:['open']});
+    window.addEventListener('pagehide', () => observer.disconnect(), {once:true});
+  });
+}
+async function recordAccountPhotoFocus(page, phase, original) {
+  let timer, observed;
+  try {
+    observed = await Promise.race([page.evaluate(() => ({ready:document.readyState,
+      reader:document.body?.dataset.surveyReader ?? null, viewer:document.body?.dataset.photoViewer ?? null,
+      activeTag:document.activeElement?.tagName ?? null, activeId:document.activeElement?.id?.slice(0,64) ?? null,
+      dialogOpen:document.getElementById('photo-dialog')?.open ?? null,
+      insideDialog:Boolean(document.activeElement?.closest('#photo-dialog')),
+      events:window.__atlasAccountPhotoFocus ?? null})),
+      new Promise((_, reject) => {timer=setTimeout(() => reject(new Error('Focus diagnostic exceeded 500 milliseconds')),500);})]);
+  } catch (error) {observed={collectionError:String(error.message).slice(0,200)};}
+  finally {clearTimeout(timer);}
+  console.error('TUSCALOOSA_ACCOUNT_PHOTO_FOCUS_DIAGNOSTIC '+JSON.stringify({phase,original,observed}));
+}
+async function waitForAccountPhotoFocus(page, phase) {
+  try {
+    await page.waitForFunction(expected => {
+      const parameters = new URL(location.href).searchParams;
+      return document.body?.dataset.surveyReader === 'ready' && document.body?.dataset.photoViewer === 'ready' &&
+        parameters.get('account') === expected.account && parameters.get('photo') === expected.photo &&
+        document.getElementById('photo-dialog')?.open && Boolean(document.activeElement?.closest('#photo-dialog'));
+    }, {account:account(16), photo:'birmingham-aftermath-april29'});
+  } catch (error) {
+    await recordAccountPhotoFocus(page, phase, {errorName:error.name, errorMessage:String(error.message).slice(0,200)});
+    throw error;
+  }
+}
+async function assertAccountPhotoFocus(page, phase) {
+  // Freeze the original assertion before the additional diagnostic read.
+  const insideAtAssertion = await page.evaluate(() => Boolean(document.activeElement?.closest('#photo-dialog')));
+  if (!insideAtAssertion) await recordAccountPhotoFocus(page, phase, {insideAtAssertion});
+  assert.equal(insideAtAssertion, true);
+}
 async function capture(page, label) {
   if (process.env.ATLAS_TUSCA_CAPTURE_DIR) await page.screenshot({
     path: path.join(process.env.ATLAS_TUSCA_CAPTURE_DIR, label + '.png'), fullPage: false});
@@ -171,16 +229,17 @@ test('Tuscaloosa map group chooses a real member without merging its account ide
 
 test('Tuscaloosa account and existing photograph retain independent history', async t => {
   const page = await fixture(t, {viewport: {width: 390, height: 900}});
+  await observeAccountPhotoFocus(page);
   await page.goto(url(16));await ready(page);await selected(page, 16);
   await page.locator('a[data-photo-id="birmingham-aftermath-april29"]').click();
   await page.locator('#photo-dialog[open]').waitFor();
   assert.equal(new URL(page.url()).searchParams.get('account'), account(16));
   assert.equal(new URL(page.url()).searchParams.get('photo'), 'birmingham-aftermath-april29');
-  await page.reload();await ready(page);await page.locator('#photo-dialog[open]').waitFor();
-  assert.equal(await page.evaluate(() => Boolean(document.activeElement?.closest('#photo-dialog'))), true);
+  await page.reload();await waitForAccountPhotoFocus(page, 'reload');
+  await assertAccountPhotoFocus(page, 'reload');
   await page.goBack();await page.locator('#photo-dialog[open]').waitFor({state: 'hidden'});await selected(page, 16);
-  await page.goForward();await page.locator('#photo-dialog[open]').waitFor();
-  assert.equal(await page.evaluate(() => Boolean(document.activeElement?.closest('#photo-dialog'))), true);
+  await page.goForward();await waitForAccountPhotoFocus(page, 'forward');
+  await assertAccountPhotoFocus(page, 'forward');
   await page.locator('#photo-close').click();await page.locator('#photo-dialog[open]').waitFor({state: 'hidden'});
   assert.equal(new URL(page.url()).searchParams.get('account'), account(16));
   await selected(page, 16);

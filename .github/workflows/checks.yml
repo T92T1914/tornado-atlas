@@ -168,7 +168,7 @@ jobs:
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_ENGINE: webkit
-        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 tests/browser/replay-damage.test.mjs tests/browser/survey-history.test.mjs tests/browser/tuscaloosa-satellite-context.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs tests/browser/chronology-radar.test.mjs tests/browser/revision-comparison.test.mjs tests/browser/replay-appearance-reading.test.mjs tests/browser/chapter-contents.test.mjs
+        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 tests/browser/replay-damage.test.mjs tests/browser/survey-history.test.mjs tests/browser/tuscaloosa-satellite-context.test.mjs tests/browser/tuscaloosa-damage-map.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs tests/browser/chronology-radar.test.mjs tests/browser/revision-comparison.test.mjs tests/browser/replay-appearance-reading.test.mjs tests/browser/chapter-contents.test.mjs
       - name: Verify museum reading and map sizes in Firefox
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:
