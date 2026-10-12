@@ -8,6 +8,7 @@ const dialog = document.getElementById('photo-dialog');
 const openPhoto = mountPhotoViewer();
 let currentId = null, ownedEntry = null, opener = null;
 let closingDestination = null;
+let cancelInitialPhotoFocus = null;
 
 function selectedLink() {
   return links.get(new URL(location.href).searchParams.get('photo'));
@@ -31,6 +32,7 @@ function returnFocus() {
   });
 }
 function showFromLocation() {
+  cancelInitialPhotoFocus?.();
   const link = selectedLink();
   if (!link) {
     currentId = null;
@@ -94,6 +96,51 @@ dialog.addEventListener('close', () => {
     showFromLocation();
   }
 });
+function claimInitialPhotoFocus() {
+  const initialLink = selectedLink();
+  if (!initialLink || !dialog.open) return;
+  const destination = location.href, initialId = currentId;
+  const inputs = ['wheel','touchstart','pointerdown','keydown'];
+  let pending = null, retired = false;
+  function retire() {
+    if (retired) return;
+    retired = true;
+    if (pending !== null) cancelAnimationFrame(pending);
+    pending = null;
+    window.removeEventListener('load', schedule);
+    window.removeEventListener('pagehide', retire);
+    window.removeEventListener('popstate', retire);
+    dialog.removeEventListener('close', retire);
+    document.removeEventListener('visibilitychange', visibility);
+    for (const type of inputs) window.removeEventListener(type, retire, true);
+    if (cancelInitialPhotoFocus === retire) cancelInitialPhotoFocus = null;
+  }
+  function visibility() {if (document.visibilityState === 'hidden') retire();}
+  function place() {
+    pending = null;
+    const active = document.activeElement;
+    const recover = !retired && location.href === destination && currentId === initialId &&
+      selectedLink() === initialLink && dialog.open && document.visibilityState !== 'hidden' &&
+      (!active || active === document.body);
+    retire();
+    const close = document.getElementById('photo-close');
+    if (recover && close?.isConnected) close.focus({preventScroll:true});
+  }
+  function schedule() {
+    if (!retired && pending === null) pending = requestAnimationFrame(place);
+  }
+  // A direct photo reload can lose autofocus by load completion. Recover only
+  // unclaimed body focus once, while newer input or navigation retires the claim.
+  cancelInitialPhotoFocus = retire;
+  for (const type of inputs) window.addEventListener(type, retire, {capture:true,passive:true});
+  window.addEventListener('pagehide', retire, {once:true});
+  window.addEventListener('popstate', retire, {once:true});
+  dialog.addEventListener('close', retire, {once:true});
+  document.addEventListener('visibilitychange', visibility);
+  if (document.readyState === 'complete') schedule();
+  else window.addEventListener('load', schedule, {once:true});
+}
 window.addEventListener('popstate', showFromLocation);
 showFromLocation();
+claimInitialPhotoFocus();
 document.body.dataset.photoViewer = 'ready';

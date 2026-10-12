@@ -143,3 +143,73 @@ test('closing a photograph restores its opener when focus remains unclaimed',{ti
   await page.waitForFunction(()=>document.getElementById('photo-dialog').open&&
     new URL(location.href).searchParams.get('photo')==='aerial-context-aftermath');
 });
+
+async function directPhotoWithQueuedFocus(t) {
+  const page=await fixture(t,{viewport:{width:390,height:900}});
+  await page.addInitScript(()=>{window.__initialPhotoFrames=new Map();window.__initialPhotoFrameId=0;});
+  // Control only this gallery's frames. Native load, reader and modal behavior remain.
+  await page.route('**/tuscaloosa-radar-view.mjs',route=>route.fulfill({status:200,contentType:'text/javascript',
+    body:'const requestAnimationFrame=callback=>{const id=++window.__initialPhotoFrameId;window.__initialPhotoFrames.set(id,callback);return id;};\n'+
+      'const cancelAnimationFrame=id=>window.__initialPhotoFrames.delete(id);\n'+gallery}));
+  const account='0deae8ed1989461faf99b315bb0e3126:TCLBHM_Points_1947:16';
+  await page.goto(base+'/tuscaloosa.html?account='+encodeURIComponent(account)+'&photo=birmingham-aftermath-april29#survey-account-16');
+  await page.waitForFunction(()=>document.body?.dataset.photoViewer==='ready'&&document.body?.dataset.surveyReader==='ready'&&
+    document.getElementById('photo-dialog').open&&window.__initialPhotoFrames.size===1);
+  const initialFrame=await page.evaluate(()=>[...window.__initialPhotoFrames.keys()][0]);
+  return {page,initialFrame};
+}
+async function releaseInitialPhotoFrames(page) {
+  return page.evaluate(()=>{
+    const queued=[...window.__initialPhotoFrames.values()];window.__initialPhotoFrames.clear();
+    for(const callback of queued)callback(performance.now());
+    return queued.length;
+  });
+}
+
+test('direct photo reload recovers only unclaimed body focus once in a controlled frame',async t=>{
+  const {page}=await directPhotoWithQueuedFocus(t);
+  await page.evaluate(()=>document.activeElement.blur());
+  assert.equal(await page.evaluate(()=>document.activeElement===document.body),true);
+  assert.equal(await releaseInitialPhotoFrames(page),1);
+  assert.equal(await page.evaluate(()=>document.activeElement?.id==='photo-close'),true);
+  assert.equal(await releaseInitialPhotoFrames(page),0);
+});
+test('direct photo initial frame preserves a newer modal destination',async t=>{
+  const {page}=await directPhotoWithQueuedFocus(t);
+  await page.locator('#photo-source').focus();
+  assert.equal(await releaseInitialPhotoFrames(page),1);
+  assert.equal(await page.evaluate(()=>document.activeElement?.id==='photo-source'),true);
+});
+test('closing a direct photo cancels its initial frame',async t=>{
+  const {page,initialFrame}=await directPhotoWithQueuedFocus(t);
+  assert.equal(await page.evaluate(()=>{document.getElementById('photo-dialog').close();
+    document.getElementById('reading-appearance').focus();return document.activeElement?.id==='reading-appearance';}),true);
+  await page.waitForFunction(()=>!document.getElementById('photo-dialog').open&&!new URL(location.href).searchParams.has('photo'));
+  assert.equal(await page.evaluate(id=>window.__initialPhotoFrames.has(id),initialFrame),false);
+  await releaseInitialPhotoFrames(page);
+  assert.equal(await page.evaluate(()=>document.getElementById('photo-dialog').open),false);
+  assert.equal(await page.evaluate(()=>Boolean(document.activeElement?.closest('#photo-dialog'))),false);
+  assert.equal(await page.evaluate(()=>document.activeElement?.id==='reading-appearance'),true);
+});
+test('a photo route away and back cannot revive the initial focus claim',async t=>{
+  const {page,initialFrame}=await directPhotoWithQueuedFocus(t);
+  await page.evaluate(()=>{
+    const original=location.href,other=new URL(original);other.searchParams.set('photo','aerial-context-aftermath');
+    history.replaceState(null,'',other);window.dispatchEvent(new PopStateEvent('popstate'));
+    history.replaceState(null,'',original);window.dispatchEvent(new PopStateEvent('popstate'));
+    document.activeElement.blur();
+  });
+  assert.equal(await page.evaluate(id=>window.__initialPhotoFrames.has(id),initialFrame),false);
+  await releaseInitialPhotoFrames(page);
+  assert.equal(await page.evaluate(()=>document.activeElement===document.body),true);
+});
+test('visitor input cancels a pending direct-photo body-focus recovery',async t=>{
+  const {page,initialFrame}=await directPhotoWithQueuedFocus(t);
+  await page.evaluate(()=>document.activeElement.blur());
+  assert.equal(await page.evaluate(()=>document.activeElement===document.body),true);
+  await page.keyboard.press('Shift');
+  const chosen=await page.evaluate(()=>({tag:document.activeElement?.tagName,id:document.activeElement?.id}));
+  assert.equal(await page.evaluate(id=>window.__initialPhotoFrames.has(id),initialFrame),false);
+  await releaseInitialPhotoFrames(page);
+  assert.deepEqual(await page.evaluate(()=>({tag:document.activeElement?.tagName,id:document.activeElement?.id})),chosen);
+});
