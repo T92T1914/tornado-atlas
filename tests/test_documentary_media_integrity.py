@@ -18,18 +18,22 @@ ADDITIONS = {
             "nick-nolte-commons",
             "commons-stratosphere",
             "ray-bohac-archived-film",
-            "bidgee-commons-archive-upload"
+            "bidgee-commons-archive-upload",
+            "david-conrady-publication-account"
         ],
         "sources": [
             "commons-nolte-el-reno",
             "youtube-snyder-provider-playback",
-            "bohac-licensed-archive-publication"
+            "bohac-licensed-archive-publication",
+            "conrady-el-reno-primary-publication"
         ],
         "media": [
             "nolte-el-reno-documentary-photo",
             "bohac-archived-extended-film",
-            "bohac-opening-film-still"
+            "bohac-opening-film-still",
+            "conrady-roadside-opening"
         ],
+        "observations": ["conrady-later-description"],
         "routes": [
             {
                 "label": "Photographs and film",
@@ -118,7 +122,11 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                     elif field == 'provenance':
                         self.assertEqual(set(current[field]), set(old[field]))
                         for key in old[field]:
-                            if key != 'publication_review':
+                            if key == 'inputs' and event == 'el-reno-2013':
+                                expected_inputs = dict(old[field][key])
+                                expected_inputs['exhibits/el-reno-2013/footage.json'] = '4cc3ab95635d9b63a763dc5b635c8f53435eccad0d564cecc0f9d711b3f83860'
+                                self.assertEqual(current[field][key], expected_inputs, key)
+                            elif key != 'publication_review':
                                 self.assertEqual(current[field][key], old[field][key], key)
                     else:
                         self.assertEqual(current[field], old[field], field)
@@ -164,9 +172,12 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                             'brown-tuscaloosa-original': ('9KjWtBrEYHY', 'john-brown-tuscaloosa-maker', 'brown-tuscaloosa-original-uploader', 'john-brown-tuscaloosa-maker'),
                             'tulsa-blackwell-enhanced-edition': ('Em5HbYt0Fsk', None, 'tulsa-blackwell-enhanced-edition-uploader', None),
                             'rosolowski-tuscaloosa-original': ('5ohIVzIZLuQ', 'jason-rosolowski-creator-upload', 'jason-rosolowski-creator-upload', None),
+                            'conrady-roadside-opening': ('s-W92EOU138', None, 'david-conrady-publication-account', None),
                         }
                         video, creator, uploader, holder = expected[identity]
-                        self.assertEqual(item['source_id'], 'rosolowski-tuscaloosa-creator-publication' if identity == 'rosolowski-tuscaloosa-original' else identity+'-publication')
+                        source = {'rosolowski-tuscaloosa-original': 'rosolowski-tuscaloosa-creator-publication',
+                                  'conrady-roadside-opening': 'conrady-el-reno-primary-publication'}.get(identity, identity+'-publication')
+                        self.assertEqual(item['source_id'], source)
                         self.assertEqual(item['url'], 'https://www.youtube.com/watch?v='+video)
                         self.assertEqual(item['roles'], {'creator':creator, 'uploader':uploader, 'rights_holder':holder})
         blackwell = next(m for m in self.docs['blackwell-1955']['media'] if m['id'] == 'tulsa-blackwell-enhanced-edition')
