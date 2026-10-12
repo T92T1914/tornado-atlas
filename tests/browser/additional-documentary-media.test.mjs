@@ -10,8 +10,21 @@ for(const width of [320,1280])test('derived film still, parent source and additi
  page.on('request',r=>{if(/youtube|googlevideo|ytimg/.test(r.url()))providers.push(r.url());});
  await page.goto(base+'/index.html?t=0#photos');
  const region=page.locator('#bohac-film-reading'),img=region.locator('img');
+ // Finish the existing hash restoration before scrolling the lower lazy image.
+ await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
  await img.evaluate(node=>node.scrollIntoView({behavior:'instant',block:'center'}));
- await page.waitForFunction(src=>{const img=document.querySelector('img[src="'+src+'"]');return img?.complete&&img.naturalWidth===1280&&img.naturalHeight===720;},still);
+ assert.equal(await img.evaluate(node=>{const r=node.getBoundingClientRect();return r.top<innerHeight&&r.bottom>0;}),true,'The real film still intersects the viewport');
+ try {
+  await page.waitForFunction(src=>{const img=document.querySelector('img[src="'+src+'"]');return img?.complete&&img.naturalWidth===1280&&img.naturalHeight===720;},still);
+ } catch(error) {
+  let timer;
+  try {
+   const state=await Promise.race([img.evaluate(node=>{const r=node.getBoundingClientRect();return {src:node.getAttribute('src'),currentSrc:node.currentSrc,loading:node.loading,complete:node.complete,naturalWidth:node.naturalWidth,naturalHeight:node.naturalHeight,rect:{top:r.top,bottom:r.bottom,width:r.width,height:r.height},viewport:innerHeight,scrollY,hash:location.hash,exhibitReady:document.body.dataset.exhibitReady};}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Film still diagnostic exceeded 500 milliseconds')),500);})]);
+   t.diagnostic('FILM_STILL_FAILURE '+JSON.stringify(state));
+  } catch(diagnosticError) {t.diagnostic('FILM_STILL_FAILURE '+String(diagnosticError.message).slice(0,256));}
+  finally {clearTimeout(timer);}
+  throw error;
+ }
  await img.evaluate(i=>i.decode());
  assert.match(await region.textContent(),/Decoded film still/);
  assert.match(await region.textContent(),/rather than a separately taken photograph/);
