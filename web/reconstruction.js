@@ -231,12 +231,17 @@ async function start(){
     mode.value=params.get('appearance_view')==='illustrative'&&
       appearanceTimeline?.windows.some(window=>window.kind==='illustrative')?'illustrative':'source';
   }
-  function renderPhotoRecord(sample,source){
+  function renderPhotoRecord(sample,source,sequence){
     const host=el('replay-photo-record'),record=document.createElement('dl');
+    const details=document.createElement('details'),summary=document.createElement('summary');
+    details.id='replay-photo-details';summary.textContent='Source and interpretation details';
+    details.append(summary);
     function field(label,text){
       const term=document.createElement('dt'),value=document.createElement('dd');
       term.textContent=label;value.textContent=text;record.append(term,value);
     }
+    field('Sequence identity',sequence.id);
+    field('Sequence basis',sequence.basis);
     field('Source title',source.title);
     field('Creator',source.creator);
     field('Publisher',source.publisher);
@@ -269,20 +274,20 @@ async function start(){
         'An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
       if(condensation)field('Support closure and completeness','Closed for display filling only. The optical outline remains partial. Top and right drawing edges are view cutoffs, not recovered tornado boundaries.');
     }
-    host.append(record);
+    details.append(record);
     for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits],
       ...(sample.partial_form?[['Partial interpretation limits',sample.partial_form.limits]]:[])]){
       const heading=document.createElement('h4'),list=document.createElement('ul');heading.textContent=label;
       for(const text of values){const item=document.createElement('li');item.textContent=text;list.append(item);}
-      host.append(heading,list);
+      details.append(heading,list);
     }
     const original=document.createElement('a');original.id='replay-photo-original';
     original.href=sample.image.original_url;original.target='_blank';original.rel='noopener';
     original.textContent=`Open the original image or panel: ${sample.image.panel_locator}`;
     const boundary=document.createElement('p');
     boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. No photograph is loaded or copied by this player.';
-    host.prepend(original);
-    host.append(boundary);
+    host.append(original);
+    details.append(boundary);host.append(details);
   }
   function updatePhotoPanel(sequence){
     const panel=el('replay-appearance-photo'),list=el('replay-photo-samples'),record=el('replay-photo-record');
@@ -291,9 +296,9 @@ async function start(){
       shownPhotoSequence=sequence;shownPhotoSample=null;list.replaceChildren();record.replaceChildren();
       if(sequence){
         const count=sequence.samples.length,first=sequence.samples[0],last=sequence.samples.at(-1);
-        setText(el('replay-photo-sequence'),`${sequence.id}: ${count===1?
-          `One reported instant at ${first.reported_utc}, with no duration.`:
-          `${count} reported instants from ${first.reported_utc} to ${last.reported_utc}. This span is sparse context, not continuous coverage.`} ${sequence.basis}`);
+        setText(el('replay-photo-sequence'),count===1?
+          `One reported instant at ${localStamp(first.reported_utc)}, with no duration.`:
+          `${count} separate photographs, from ${localStamp(first.reported_utc)} to ${localStamp(last.reported_utc)}. Appearance between samples is unknown.`);
         for(const sample of sequence.samples){
           const button=document.createElement('button');button.type='button';button.dataset.photoSample=sample.id;
           button.textContent=`${localStamp(sample.reported_utc)} · ${sample.image.panel_locator}`;
@@ -311,7 +316,7 @@ async function start(){
     }
     if(sample!==shownPhotoSample){
       shownPhotoSample=sample;record.replaceChildren();
-      if(sample&&appearanceState.source)renderPhotoRecord(sample,appearanceState.source);
+      if(sample&&appearanceState.source)renderPhotoRecord(sample,appearanceState.source,sequence);
     }
   }
   function updateAppearance(){
@@ -336,9 +341,9 @@ async function start(){
         statusText=condensation?'Independently authored partial condensation at this reported instant.':
           appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
           'Declared photographic observation at this reported instant.';
-        detailText='This still has no duration. Its reported label does not establish independently verified clock accuracy. Physical shape and extent are unassigned. '+
-          (condensation?'The broad dark body and brighter southern opening are interpreted in an authored view. The dark area at right supplies context where the northern outline remains unresolved. Upper and right cutoffs mark the limits of this view. Lower appearance is omitted because foreground obscures it. Its smooth fade is a drawing choice. Ground contact, depth and motion between photographs remain unknown.':
-            appearanceState.partialForm?'Only the declared coarse visible margin is drawn in its authored display plane. The unseen edges, surface contact, depth and intervening motion remain unknown.':'No particle form is drawn.');
+        detailText=(condensation?'An independently authored interpretation of one photograph. Lower appearance is omitted where foreground obscures it. Top and right edges are display cutoffs. The dark northern area is context.':
+          appearanceState.partialForm?'An independently authored interpretation of the visible margin in one photograph. Unseen edges remain unresolved.':'No particle form is drawn.')+
+          ' Physical shape, dimensions and camera geometry are unassigned. Ground contact, depth and motion between photographs remain unknown. This still has no duration. Clock accuracy is unverified.';
         linkTarget=appearanceState.source.url;
         linkText=`Open the original publication: ${appearanceState.source.title}`;
       }else{

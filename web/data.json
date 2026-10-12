@@ -2308,7 +2308,8 @@
         "paragraphs": [
           "TornadoTRX builds its El Reno documentary around the changing circulation and the people trying to understand and escape it. That makes a useful route into the history. Its English transcript also contains inconsistent spellings of names and detailed claims about conversations, routes and exact intervals. Captions help locate questions to investigate; they do not establish those details on their own.",
           "Pecos Hank provides another route through the event with footage and commentary. The footage notebook below records the limited passages already inspected. Neither an edited film nor its elapsed running time is automatically a continuous storm clock. Matching a scene to the map still requires a location and a defensible historical time.",
-          "The Wikipedia article is a useful overview and a way to find further references. Where summaries disagree with a source record, this exhibit keeps the disagreement visible. The reported ending time and the scope of injury totals need that treatment. We do not average conflicting numbers or turn the most repeated number into a new measurement."
+          "The Wikipedia article is a useful overview and a way to find further references. Where summaries disagree with a source record, this exhibit keeps the disagreement visible. The reported ending time and the scope of injury totals need that treatment. We do not average conflicting numbers or turn the most repeated number into a new measurement.",
+          "TornadoCentral’s published genesis and intensification recording adds another route into the early storm. Its opening card names Jeff Snyder as the copyright claimant. This exhibit has inspected that card and two later paused field views. The whole video and audio remain unreviewed, and its running time has not been matched to the historical clock. Camera geometry and visible dimensions remain unregistered."
         ],
         "sources": [
           {
@@ -2322,6 +2323,10 @@
           {
             "label": "Wikipedia: overview and references",
             "url": "https://en.wikipedia.org/wiki/2013_El_Reno_tornado"
+          },
+          {
+            "label": "TornadoCentral: published El Reno genesis and intensification recording",
+            "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc"
           }
         ]
       }
@@ -9469,6 +9474,13 @@
         "publisher": "The Oklahoman / Legacy, June 5, 2013",
         "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764",
         "use": "Full name, age 35, Hinton background and date of death. This does not locate the fatal incident."
+      },
+      {
+        "group": "Original footage and registration",
+        "title": "5/31/13 - Genesis and Intensification of the El Reno tornado",
+        "publisher": "TornadoCentral",
+        "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc",
+        "use": "Watch-page metadata, the opening copyright card and separate paused player positions near 75 and 145 seconds inspected on October 11, 2026 UTC. The opening card attributes copyright to Jeff Snyder; camera operation and original-file lineage remain unverified. The whole video and audio have not been reviewed. No UTC alignment, calibrated camera, visible width or continuous appearance interval is supplied. Ordinary external watch link only; source video and inspection screenshots are not hosted."
       }
     ]
   }

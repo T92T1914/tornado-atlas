@@ -48,7 +48,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])test(`selected rad
   restored=true;await page.locator('#photo-retry').focus();await page.keyboard.press('Enter');
   await page.waitForFunction(()=>{const image=document.querySelector('#photo-full');return !image.hidden&&image.naturalWidth===947&&image.naturalHeight===1326;});
   assert.equal(selectedRequests,2);assert.match(await page.locator('#photo-full').getAttribute('src'),/^blob:/);
-  assert.match(await page.locator('#photo-status').textContent(),/bytes match/);
+  assert.match(await page.locator('#photo-status').textContent(),/displayed image matches the reviewed file/);
   const displayedDigest=await page.evaluate(async()=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',await(await fetch(document.querySelector('#photo-full').src)).arrayBuffer()))].map(value=>value.toString(16).padStart(2,'0')).join(''));
   assert.equal(displayedDigest,transform.sha256,'Hash the actual displayed Blob, not a replacement asset fetch');
   await page.evaluate(()=>{const nodes=[document.querySelector('#photo-dialog'),...document.querySelectorAll('#photo-dialog *')];const sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));nodes.forEach((node,i)=>node.style.fontSize=`${sizes[i]*2}px`);});

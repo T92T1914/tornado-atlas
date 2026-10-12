@@ -49,6 +49,8 @@
 .replay-photo-samples button {box-sizing:border-box;flex:1 1 180px;min-width:0;max-width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere;text-align:left;padding:10px 12px;font:inherit;line-height:1.5}
 .replay-photo-samples button[aria-pressed="true"] {border-color:var(--text);outline:2px solid var(--text);outline-offset:1px}
 .replay-photo-record {min-width:0;max-width:100%;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.replay-photo-record summary {box-sizing:border-box;min-height:44px;padding:10px 0;cursor:pointer}
+.replay-photo-record summary:focus-visible {outline:3px solid var(--text);outline-offset:2px}
 .replay-photo-record dl {margin:16px 0}
 .replay-photo-record dt {font-weight:650;margin-top:12px}
 .replay-photo-record dd {margin:3px 0 12px}

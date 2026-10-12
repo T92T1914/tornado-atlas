@@ -8,6 +8,7 @@ async function capture(page,name){
   if(!process.env.ATLAS_EARLY_APPEARANCE_CAPTURE)return;
   await mkdir(process.env.ATLAS_EARLY_APPEARANCE_CAPTURE,{recursive:true});
   await page.locator('#early-condensation-reading').evaluate(node=>node.scrollIntoView({behavior:'instant',block:'start'}));
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   await page.screenshot({path:path.join(process.env.ATLAS_EARLY_APPEARANCE_CAPTURE,name+'.png'),fullPage:false});
 }
 async function probe(page){
@@ -95,4 +96,27 @@ for(const scenario of ['nojs','data503','noWebGL'])test('early documentary readi
   if(scenario==='data503')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='error'&&['reported_minute','unavailable'].includes(document.querySelector('#early-condensation-canvas').dataset.documentaryState));
   if(scenario==='noWebGL')await page.waitForFunction(()=>document.querySelector('#early-condensation-canvas').dataset.documentaryState==='unavailable');
   await reading(page);assert.deepEqual(originalRequests,[]);await capture(page,'early-fallback-'+scenario);
+});
+
+for(const javaScriptEnabled of [true,false])test('qualified published video remains a source link with '+(javaScriptEnabled?'scripts':'no scripts'),async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:1000},javaScriptEnabled}),providerRequests=[];
+  page.on('request',request=>{if(/(?:youtube\.com|youtu\.be|googlevideo\.com|ytimg\.com)/.test(request.url()))providerRequests.push(request.url());});
+  const watch='https://www.youtube.com/watch?v=EFwJAlg0qWc';
+  await page.goto(base+'/index.html#reading-films-and-encyclopedias');
+  if(javaScriptEnabled)await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+  await page.locator('#reading-films-and-encyclopedias').waitFor();
+  const links=page.locator('a[href="'+watch+'"]');assert.ok(await links.count()>=2,'Article account and reading register retain the same source URL');
+  const articleText=await page.locator('body').textContent();
+  for(const text of ['TornadoCentral','Jeff Snyder','whole video and audio remain unreviewed','running time has not been matched to the historical clock'])assert.ok(articleText.includes(text),text);
+  assert.equal(await page.locator('iframe[src*="youtube"],video[src*="youtube"]').count(),0,'Reading creates no external player');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  if(javaScriptEnabled){
+    await page.goto(base+'/dossier.html?event=el-reno-2013&media=snyder-genesis-three-samples#media-snyder-genesis-three-samples');
+    const card=page.locator('#media-snyder-genesis-three-samples');await card.waitFor();
+    assert.match(await card.textContent(),/Player positions 0, 75 and 145 seconds/);
+    assert.match(await card.textContent(),/not a historical clock/);
+    assert.ok(await card.locator('a[href="'+watch+'"]').count()>=1);
+    assert.equal(await page.locator('iframe[src*="youtube"],video[src*="youtube"]').count(),0);
+  }
+  assert.deepEqual(providerRequests,[],'No video or provider image is fetched by the source journey');
 });

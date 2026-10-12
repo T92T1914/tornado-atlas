@@ -22,9 +22,10 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('source-defined sc
   await page.locator('#replay-impact-photo').scrollIntoViewIfNeeded();
   await page.waitForFunction(()=>{const image=document.getElementById('replay-impact-image');return image.complete&&image.naturalWidth===1280&&image.naturalHeight===960;});
   await capture(page,width+'-damage');await page.locator('#replay-impact-photo').click();
-  await page.waitForFunction(()=>document.getElementById('photo-status')?.textContent==='Image bytes match the selected record.');
+  await page.waitForFunction(()=>document.getElementById('photo-status')?.textContent==='The displayed image matches the reviewed file.');
   assert.equal(await page.locator('#photo-full').evaluate(image=>image.naturalWidth),1280);
-  assert.match(await page.locator('#photo-caption').textContent(),/EF2.*unregistered/);
+  assert.equal(await page.evaluate(()=>['photo-caption','photo-location','photo-credit'].every(id=>Boolean(document.getElementById(id).compareDocumentPosition(document.getElementById('photo-status'))&Node.DOCUMENT_POSITION_FOLLOWING))),true,'Historical account and credit precede file verification');
+  assert.match(await page.locator('#photo-caption').textContent(),/EF2.*not been established/);
   assert.equal(await page.locator('#photo-source').getAttribute('href'),'https://www.weather.gov/oun/events-20130531');
   assert.equal(await page.locator('#replay-time').inputValue(),'1261');await capture(page,width+'-damage-enlarged');
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
@@ -46,7 +47,7 @@ test('failed aftermath image preserves its account and checked retry without cha
   assert.equal(await page.locator('#replay-impact-photo span').isVisible(),true);assert.equal(await page.locator('#replay-impact-photo span').textContent(),'Enlarge original photograph');
   t.diagnostic('FAILED_DAMAGE_TARGET '+JSON.stringify(target));await page.locator('#replay-impact-photo').click();
   await page.locator('#photo-retry').waitFor();assert.equal(await page.locator('#photo-full').isVisible(),false);
-  assert.match(await page.locator('#photo-caption').textContent(),/Capture time and failure order remain unregistered/);
-  await page.unroute(imagePattern);await page.locator('#photo-retry').click();await page.waitForFunction(()=>document.getElementById('photo-status').textContent==='Image bytes match the selected record.');
+  assert.match(await page.locator('#photo-caption').textContent(),/Capture time and the order of structural failures have not been established/);
+  await page.unroute(imagePattern);await page.locator('#photo-retry').click();await page.waitForFunction(()=>document.getElementById('photo-status').textContent==='The displayed image matches the reviewed file.');
   assert.equal(await page.locator('#replay-time').inputValue(),'1261');await page.keyboard.press('Escape');
 });

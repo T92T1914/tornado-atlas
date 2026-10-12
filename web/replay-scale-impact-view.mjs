@@ -18,7 +18,7 @@ export function mountReplayScaleImpact(data,openPhoto,seek){
   byId('replay-impact-source').href=photo.source_page;
   byId('replay-impact-photo').addEventListener('click',()=>openPhoto({
     title:photo.title,asset:photo.asset,expectedSha256:photo.sha256,alt:image.alt,
-    caption:photo.caption+' '+photo.reported_rating+' in the original NWS caption. Capture time and failure order remain unregistered.',
+    caption:photo.caption+' The original NWS caption rates this house '+photo.reported_rating+'. Capture time and the order of structural failures have not been established.',
     location:photo.location_description,credit:photo.credit,source:photo.source_page,
     license:photo.rights_basis,licenseUrl:data.damage.rights_url,
   }));
