@@ -129,3 +129,36 @@ for(const javaScriptEnabled of [true,false])test('qualified published video rema
   }
   assert.deepEqual(providerRequests,[],'No video or provider image is fetched by the source journey');
 });
+
+test('rejected appearance records stay unavailable after reopen and context recovery',async t=>{
+ // Controlled invalid records exercise rejection, without altering historical evidence.
+ for(const mutate of [record=>record.reported_time.exact_replay_seconds=120,record=>record.continuous_registration={unsupported:true}]){
+  const page=await fixture(t,{viewport:{width:320,height:1000},reducedMotion:'reduce'});
+  const broken=structuredClone(observation);mutate(broken);
+  await page.addInitScript(()=>{
+   window.rejectedAppearanceContexts=0;
+   const original=HTMLCanvasElement.prototype.getContext;
+   HTMLCanvasElement.prototype.getContext=function(kind,...args){
+    if(this.id==='early-condensation-canvas'&&kind==='webgl2')window.rejectedAppearanceContexts++;
+    return original.call(this,kind,...args);
+   };
+  });
+  await page.route('**/reconstruction.html*',async route=>{
+   const response=await route.fetch(),html=await response.text();
+   const changed=html.replace(/(<script\b[^>]*\bid="early-condensation-record"[^>]*>)[\s\S]*?(<\/script>)/,(_,open,close)=>open+JSON.stringify(broken)+close);
+   assert.notEqual(changed,html,'The intended controlled record was replaced');
+   await route.fulfill({response,body:changed});
+  });
+  await page.goto(base+'/reconstruction.html?event=el-reno-2013#replay-reported-appearance');
+  const panel=page.locator('#replay-reported-appearance');
+  await page.waitForFunction(()=>document.querySelector('#early-condensation-canvas').dataset.documentaryState==='unavailable');
+  const summary=panel.locator('summary').first();await summary.click();
+  await page.waitForFunction(()=>!document.querySelector('#replay-reported-appearance').open);
+  await summary.click();await page.waitForFunction(()=>document.querySelector('#replay-reported-appearance').open);
+  await page.locator('#early-condensation-canvas').dispatchEvent('webglcontextrestored');
+  assert.equal(await page.locator('#early-condensation-canvas').getAttribute('data-documentary-state'),'unavailable');
+  assert.equal(await page.evaluate(()=>window.rejectedAppearanceContexts),0,'Rejected records never allocate their appearance context');
+  assert.match(await page.locator('#early-condensation-status').textContent(),/drawing is unavailable/);
+  await page.close();
+ }
+});

@@ -7,7 +7,7 @@ export function mountDocumentaryAppearance(root=document){
   const record=root.getElementById('early-condensation-record');
   const status=root.getElementById('early-condensation-status');
   if(!canvas||!record||!status)return null;
-  let renderer=null,observer=null,frame=null,active=true,enabled=true,disposed=false,observation;
+  let renderer=null,observer=null,frame=null,active=true,enabled=true,disposed=false,validated=false,observation;
   function cancel(){if(frame!==null)cancelAnimationFrame(frame);frame=null;}
   function unavailable(){
     canvas.style.visibility='hidden';canvas.dataset.documentaryState='unavailable';
@@ -23,7 +23,7 @@ export function mountDocumentaryAppearance(root=document){
   }
   function schedule(){if(active&&frame===null)frame=requestAnimationFrame(draw);}
   function start(){
-    if(disposed||!enabled)return;
+    if(disposed||!enabled||!validated)return;
     active=true;
     observer?.disconnect();
     try{
@@ -38,6 +38,7 @@ export function mountDocumentaryAppearance(root=document){
     if(observation.state!=='documentary_reported_minute'||observation.reported_time.precision!=='minute'||
        observation.reported_time.exact_replay_seconds!==null||observation.continuous_registration!==null||
        observation.shape!==null||observation.physical_extent!==null)throw new Error('Unsupported documentary observation');
+    validated=true;
     start();
   }catch{unavailable();}
   const lost=event=>{event.preventDefault();stop();unavailable();};
