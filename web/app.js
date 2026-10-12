@@ -20,6 +20,18 @@ function svgNode(tag, attributes, text) {
   return element;
 }
 async function main() {
+  const initialHash = location.hash;
+  let ownsInitialFragment = true;
+  const inputs = ['pointerdown','keydown','wheel','touchstart','hashchange','popstate','pagehide'];
+  const yieldInitialFragment = event => {
+    if (event.isTrusted || ['hashchange','popstate','pagehide'].includes(event.type)) ownsInitialFragment = false;
+    if (event.type === 'pagehide') retireInitialFragment();
+  };
+  const retireInitialFragment = () => {
+    for (const type of inputs) window.removeEventListener(type, yieldInitialFragment, true);
+  };
+  for (const type of inputs) window.addEventListener(type, yieldInitialFragment, {capture:true,passive:true});
+  try {
   const response = await fetch('data.json');
   if (!response.ok) throw new Error('Interactive exploration is unavailable. The historical account, photographs and sources remain readable below. Reload to try the interactive tools again.');
   const data = await response.json();
@@ -122,10 +134,16 @@ async function main() {
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); }
     catch { id = null; }
-    if (id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
+    // A late startup scroll must yield to a newer reader choice or route.
+    if (ownsInitialFragment && location.hash === initialHash && id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
+    retireInitialFragment();
     document.body.dataset.exhibitReady = 'true';
     byId('enhancement-status').hidden = true;
   });
+  } catch (error) {
+    retireInitialFragment();
+    throw error;
+  }
 }
 async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage, photoContext) {
   // Resolve dependencies before exposing controls or focusable map positions.

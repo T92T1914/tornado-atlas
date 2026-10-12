@@ -175,7 +175,7 @@ jobs:
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_ENGINE: webkit
-        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 --test-name-pattern='early reported-minute|derived film still|additional documentary sources' tests/browser/documentary-appearance.test.mjs tests/browser/additional-documentary-media.test.mjs
+        run: python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 --test-name-pattern='early reported-minute|derived film still|additional documentary sources|documentary startup|documentary source controls remain independent' tests/browser/documentary-appearance.test.mjs tests/browser/additional-documentary-media.test.mjs tests/browser/documentary-startup-choice.test.mjs
       - name: Verify museum reading and map sizes in Firefox
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:
@@ -188,7 +188,7 @@ jobs:
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_ENGINE: firefox
-        run: python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 tests/browser/survey-history.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs tests/browser/chronology-radar.test.mjs tests/browser/revision-comparison.test.mjs tests/browser/chapter-contents.test.mjs
+        run: python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 tests/browser/survey-history.test.mjs tests/browser/footage-sources.test.mjs tests/browser/evidence-comparison.test.mjs tests/browser/dossier-file-verification.test.mjs tests/browser/chronology-radar.test.mjs tests/browser/revision-comparison.test.mjs tests/browser/chapter-contents.test.mjs tests/browser/documentary-media.test.mjs tests/browser/documentary-startup-choice.test.mjs
       - name: Retain focused browser failure diagnostics
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4
