@@ -11,7 +11,7 @@ own contents.
 El Reno's essential historical reading is generated into `web/index.html` from
 the same exhibit records supplied to its interactive tools. The introduction,
 historical context and complete report, warning sequence, chronological account,
-photographs, questions, impact figures, named remembrance, discrepancies and
+photographs, questions, footage-reading guide, impact figures, named remembrance, discrepancies and
 source register remain available when scripts or the exhibit data cannot load.
 Their existing anchors remain intact. The path player, source filtering and
 photograph viewer enhance this reading when their dependencies are available.
