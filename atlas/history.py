@@ -65,7 +65,7 @@ def validate_history(history, photos, web_root=None):
         if not photo['credit'] or not photo['license'] or not photo['changes'] or not photo['timing_note']:
             raise ValueError('Photographs require attribution and evidence limits')
         path=Path(photo['file'])
-        if path.as_posix() not in ('assets/el-reno-2013/storm01.jpg','assets/el-reno-2013/storm02.jpg'):
+        if path.as_posix() not in ('assets/el-reno-2013/storm01.jpg','assets/el-reno-2013/storm02.jpg','assets/el-reno-2013/storm03.jpg'):
             raise ValueError('Photograph outside curated asset set')
         if web_root is not None and hashlib.sha256((web_root/path).read_bytes()).hexdigest()!=photo['sha256']:
             raise ValueError('Storm photograph integrity mismatch')

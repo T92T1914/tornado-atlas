@@ -21,13 +21,14 @@ test('all eight reviewed Tuscaloosa PNG/JPEG paths are permitted exactly',()=>{
   for(const path of reviewed)assert.equal(tuscaloosaRequestForbidden(base+path,base),false,path);
 });
 
-test('the explicit contract matches the article seven raster images and preserves its two GIFs',async()=>{
+test('the explicit contract matches eight original rasters, their gallery copies and two GIFs',async()=>{
   const html=await readFile(new URL('../web/tuscaloosa.html',import.meta.url),'utf8');
   const sources=[...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map(match=>'/'+match[1]);
-  assert.equal(sources.length,10,'Ten reviewed article images have source attributes');
+  assert.equal(sources.length,15,'Ten original article images plus five opening-gallery copies');
   const raster=sources.filter(path=>/\.(?:png|jpe?g)$/i.test(path));
-  assert.equal(raster.length,8);
-  assert.deepEqual(raster.sort(),[...reviewed].sort());
+  assert.equal(raster.length,13);
+  assert.deepEqual([...new Set(raster)].sort(),[...reviewed].sort());
+  for(const [index,path] of reviewed.entries())assert.equal(raster.filter(source=>source===path).length,index<3?1:2,'Only the five aftermath photographs are repeated');
   assert.deepEqual(sources.filter(path=>/\.gif$/i.test(path)),[
     '/assets/tuscaloosa-birmingham-2011/kbmx-reflectivity-2238.gif',
     '/assets/tuscaloosa-birmingham-2011/kbmx-storm-relative-velocity-2238.gif',

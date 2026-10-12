@@ -82,6 +82,10 @@ def coverage_rows(root=ROOT):
         config = packages.get(event['replay']) if event['replay'] else None
         bundle = json.loads(packages[config['bundle']]) if config else None
         chronology = packages.get(event.get('chronology'))
+        static_survey = None
+        if doc['id'] == 'tuscaloosa-birmingham-2011' and refs and refs['survey'] is not None:
+            from .tuscaloosa_survey import load_survey
+            static_survey = load_survey(root)
         layers = {}
         def add(identifier, state, label, basis, *, items=None, routes=None):
             layers[identifier] = {'id':identifier, 'title':LAYERS[identifier], 'state':state,
@@ -111,10 +115,16 @@ def coverage_rows(root=ROOT):
                     'Published minute positions with linear longitude/latitude interpolation between them. The orbiting viewpoint and map symbol are illustrative.',
                     items=selected,routes=[('Inspect replay and its source','reconstruction.html?'+urlencode({'event':event['id']}))])
             elif identifier == 'damage' and refs and refs['survey'] is not None:
-                if not bundle or digest(bundle.get('survey')) != refs['survey']['sha256'] or not bundle['survey'].get('points'):
+                survey = static_survey if static_survey is not None else (bundle or {}).get('survey')
+                if not survey or digest(survey) != refs['survey']['sha256'] or not survey.get('points'):
                     raise ValueError('Mapped survey coverage differs from its reviewed event reference')
-                add(identifier,'survey','Mapped, untimed survey outcomes',bundle['survey']['time_note']+' '+refs['survey']['basis'],
-                    items=selected,routes=[('Inspect surveyed outcomes','reconstruction.html?'+urlencode({'event':event['id'],'survey':bundle['survey']['points'][0]['id']}))])
+                if static_survey is not None:
+                    add(identifier,'survey','Estimated footprint and untimed survey accounts',survey['limits']+' '+refs['survey']['basis'],
+                        items=selected,routes=[('Explore the NWS survey accounts','tuscaloosa.html#damage-map'),
+                            ('Read an original survey account','tuscaloosa.html?'+urlencode({'account':survey['points'][0]['id']})+'#survey-account-0')])
+                else:
+                    add(identifier,'survey','Mapped, untimed survey outcomes',survey['time_note']+' '+refs['survey']['basis'],
+                        items=selected,routes=[('Inspect surveyed outcomes','reconstruction.html?'+urlencode({'event':event['id'],'survey':survey['points'][0]['id']}))])
             else:
                 add(identifier,'context' if selected else 'not_classified',
                     'Source context, without geographic replay' if selected and identifier == 'geography' else

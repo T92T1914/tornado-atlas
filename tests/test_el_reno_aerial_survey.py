@@ -18,7 +18,9 @@ class ElRenoAerialSurveyTests(unittest.TestCase):
         raw = (ROOT / 'web' / OLD).read_bytes()
         self.assertEqual(hashlib.sha256(raw).hexdigest(), OLD_SHA256)
         old = json.loads(raw)
-        latest = next(d for d in dossiers() if d['id'] == old['id'])
+        retained = '2b90f2a01971831df78bf5ec0405c734fc1eea2d2d583f5ee2aa34cb6a2f6739'
+        latest = json.loads((ROOT / f'web/archive/el-reno-2013-{retained[:20]}.json').read_bytes())
+        self.assertEqual(digest(latest), retained)
         # Keep the original aerial increment bound to its immutable bytes.
         introduced_raw = (ROOT / 'web/archive/el-reno-2013-06dd86bd23866e8be810.json').read_bytes()
         self.assertEqual(hashlib.sha256(introduced_raw).hexdigest(),

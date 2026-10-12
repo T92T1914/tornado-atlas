@@ -81,6 +81,8 @@ function readerFixture(initial = 'path-birmingham',
     assert.equal(selector, '#path .documentary-timeline'); return {children: stops};
   };
   document.querySelectorAll = selector => {
+    // This ordering fixture models the older written reader without survey-account rows.
+    if (selector === '[data-account-row]') return [];
     assert.equal(selector, 'a[data-photo-id]'); return [photoLink];
   };
   document.createElement = tag => {assert.equal(tag, 'a'); return new Element();};

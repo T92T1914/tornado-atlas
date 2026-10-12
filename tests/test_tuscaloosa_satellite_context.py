@@ -197,7 +197,7 @@ class TuscaloosaSatelliteTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Unregistered evidence cannot acquire a map point'):
                 validate_dossier(broken)
         broken = copy.deepcopy(self.doc)
-        broken['media'][-1]['transformation']['exif'] = {'GPSInfo': 'Synthetic fixture only'}
+        next(m for m in broken['media'] if m['id'] == EO1)['transformation']['exif'] = {'GPSInfo': 'Synthetic fixture only'}
         with self.assertRaisesRegex(ValueError, 'Private curator fields'):
             validate_dossier(broken)
 

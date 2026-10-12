@@ -17,6 +17,7 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
   map.attributionControl.setPrefix('Leaflet');
   map.attributionControl.addAttribution('<a href="https://www.naturalearthdata.com/about/terms-of-use/">Natural Earth</a> | NOAA records');
   const markers=L.layerGroup().addTo(map),selection=L.layerGroup().addTo(map);
+  let footprint=null;
   let records=[],selected=null,revealDisputed=false,tiles=null,layer='local',tileGeneration=0,cancelTileWait=()=>{};
   const narrow=matchMedia('(max-width:760px)');
   let explicitDragging=null;
@@ -46,7 +47,7 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
       [bounds.min.x,bounds.min.y,bounds.max.x,bounds.max.y],72);
     for(const group of summary.groups) {
       const count=group.records.length,single=count===1,record=group.records[0];
-      const label=single?`${record.title}, ${record.date||'date unknown'}, ${record.rating||'unrated'}`:`${count.toLocaleString()} source records. Select to browse this group.`;
+      const label=single?(record.mapLabel||`${record.title}, ${record.date||'date unknown'}, ${record.rating||'unrated'}`):`${count.toLocaleString()} source records. Select to browse this group.`;
       const content=document.createElement('span');content.textContent=single?'':compactCount(count);
       // The mean of visible members keeps edge groups inside the viewport.
       // It represents a screen-space group, not an observed tornado location.
@@ -92,6 +93,18 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
   function resizeMap(){if(host.clientWidth&&host.clientHeight)map.invalidateSize({animate:false});}
   const resize=new ResizeObserver(resizeMap);resize.observe(host);
   return {
+    // Optional static source geometry. This adds no playback or event clock.
+    setFootprint(data){
+      if(footprint) footprint.remove();
+      if(!map.getPane('surveyFootprint')) {
+        map.createPane('surveyFootprint');map.getPane('surveyFootprint').style.zIndex=250;
+      }
+      footprint=L.geoJSON(data,{pane:'surveyFootprint',interactive:false,style:feature=>
+        feature.properties.role==='estimated_overall_footprint' ?
+          {className:'survey-estimated-overall',weight:2,fillOpacity:.06} :
+          {className:'survey-estimated-local',weight:2,dashArray:'6 4',fillOpacity:.18}}).addTo(map);
+    },
+    fitFootprint(){if(footprint)map.fitBounds(footprint.getBounds(),{padding:[24,24],animate:false});},
     setRecords(value){records=value;render();},
     select(record){if(record?.id!==selected?.id)revealDisputed=false;selected=record;renderSelection();},
     setView(view){map.setView([view[0],view[1]],view[2],{animate:false});},

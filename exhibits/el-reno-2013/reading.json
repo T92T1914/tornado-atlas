@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "event": "el-reno-2013",
-  "updated": "2026-10-11",
+  "updated": "2026-10-12",
   "sources": [
     {
       "group": "Original photographs and accounts",
@@ -247,6 +247,13 @@
       "publisher": "TornadoCentral",
       "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc",
       "use": "Watch-page metadata, the opening copyright card and separate paused player positions near 75 and 145 seconds inspected on October 11, 2026 UTC. The opening card attributes copyright to Jeff Snyder; camera operation and original-file lineage remain unverified. The whole video and audio have not been reviewed. No UTC alignment, calibrated camera, visible width or continuous appearance interval is supplied. Ordinary external watch link only; source video and inspection screenshots are not hosted."
+    },
+    {
+      "group": "Photographs",
+      "title": "Nick Nolte’s El Reno photograph, May 31, 2013",
+      "publisher": "Nick Nolte / Wikimedia Commons",
+      "url": "https://commons.wikimedia.org/wiki/File:El_Reno,_OK_EF3_Tornado_2013-05-31.jpg",
+      "use": "Original-work attribution and CC BY-SA 3.0 source notice inspected. Complete original photograph inspected and preserved unchanged. Source camera-clock and approximate viewpoint labels are unregistered here."
     }
   ]
 }

@@ -7,7 +7,7 @@ export function mountDocumentaryAppearance(root=document){
   const record=root.getElementById('early-condensation-record');
   const status=root.getElementById('early-condensation-status');
   if(!canvas||!record||!status)return null;
-  let renderer=null,observer=null,frame=null,active=true,observation;
+  let renderer=null,observer=null,frame=null,active=true,enabled=true,disposed=false,validated=false,observation;
   function cancel(){if(frame!==null)cancelAnimationFrame(frame);frame=null;}
   function unavailable(){
     canvas.style.visibility='hidden';canvas.dataset.documentaryState='unavailable';
@@ -23,7 +23,9 @@ export function mountDocumentaryAppearance(root=document){
   }
   function schedule(){if(active&&frame===null)frame=requestAnimationFrame(draw);}
   function start(){
+    if(disposed||!enabled||!validated)return;
     active=true;
+    observer?.disconnect();
     try{
       if(renderer)renderer.initialize();else renderer=createFormRenderer(canvas,100);
       canvas.hidden=false;
@@ -36,12 +38,25 @@ export function mountDocumentaryAppearance(root=document){
     if(observation.state!=='documentary_reported_minute'||observation.reported_time.precision!=='minute'||
        observation.reported_time.exact_replay_seconds!==null||observation.continuous_registration!==null||
        observation.shape!==null||observation.physical_extent!==null)throw new Error('Unsupported documentary observation');
+    validated=true;
     start();
   }catch{unavailable();}
-  canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();stop();unavailable();});
-  canvas.addEventListener('webglcontextrestored',start);
-  window.addEventListener('pagehide',stop);
-  window.addEventListener('pageshow',event=>{if(event.persisted)start();});
-  return {dispose:stop};
+  const lost=event=>{event.preventDefault();stop();unavailable();};
+  const restored=()=>{if(enabled&&!disposed)start();};
+  const departure=()=>stop();
+  const returned=event=>{if(event.persisted&&enabled&&!disposed)start();};
+  canvas.addEventListener('webglcontextlost',lost);
+  canvas.addEventListener('webglcontextrestored',restored);
+  window.addEventListener('pagehide',departure);
+  window.addEventListener('pageshow',returned);
+  return {
+    suspend(){enabled=false;stop();},
+    resume(){if(disposed||enabled&&active)return;enabled=true;start();},
+    dispose(){disposed=true;enabled=false;stop();
+      canvas.removeEventListener('webglcontextlost',lost);
+      canvas.removeEventListener('webglcontextrestored',restored);
+      window.removeEventListener('pagehide',departure);
+      window.removeEventListener('pageshow',returned);
+    }
+  };
 }
-mountDocumentaryAppearance();

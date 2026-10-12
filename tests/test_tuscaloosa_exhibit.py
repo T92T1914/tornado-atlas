@@ -144,7 +144,9 @@ class TuscaloosaExhibitTests(unittest.TestCase):
         }
         radar = [m for m in self.doc['media'] if m['kind'] == 'radar']
         self.assertEqual({m['id'] for m in radar}, set(expected))
-        self.assertEqual(len(self.links.images), 11)  # Radar pair, five photographs, three satellite views and empty viewer.
+        self.assertEqual(len(self.links.images), 16)  # The five original aftermath photographs also appear in the opening gallery.
+        for item in radar:
+            self.assertEqual(sum(image.get('src') == item['transformation']['asset'] for image in self.links.images), 1)
         for item in radar:
             identity, width, height = expected[item['id']]
             raw = (ROOT / 'web' / item['transformation']['asset']).read_bytes()
@@ -187,7 +189,12 @@ class TuscaloosaExhibitTests(unittest.TestCase):
                           'railway-bridge-aftermath', 'aerial-context-aftermath',
                           'train-cars-aftermath', 'goes-east-storm-context', 'eo1-tuscaloosa-track',
                           'usgs-tuscaloosa-landsat-scar'])
-        self.assertEqual(len(self.current['media']), 10)
+        self.assertEqual(len(self.current['media']), 13)
+        self.assertEqual([m['id'] for m in self.current['media'] if m['kind'] == 'video'], ['brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'])
+        self.assertEqual(len([m for m in self.current['media'] if m['id'] not in {'bmx-static-survey-map', 'brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'}]), 10)
+        maps = [m for m in self.current['media'] if m['id'] == 'bmx-static-survey-map']
+        self.assertEqual(len(maps), 1)
+        self.assertEqual((maps[0]['kind'], maps[0]['source_id']), ('map', 'bmx-estimated-damage-map'))
         item = photos[0]
         self.assertEqual(item['url'], 'https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/6.JPG')
         self.assertEqual(item['roles'], dict(creator=None, uploader='nws-birmingham', rights_holder=None))

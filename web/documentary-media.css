@@ -1,0 +1,15 @@
+.documentary-media {margin:40px 0;scroll-margin-top:90px}
+.documentary-media-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.documentary-media figure {margin:0}
+.documentary-media img {display:block;width:100%;height:auto;border:1px solid var(--line)}
+.documentary-media figcaption {padding:12px 0;line-height:1.65}
+.documentary-media p,.documentary-media a {overflow-wrap:anywhere}
+.documentary-media .documentary-video {padding:20px;border:1px solid var(--line);background:var(--panel);margin:24px 0}
+.documentary-video button {min-height:44px;padding:10px 16px;font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);cursor:pointer}
+.documentary-video button:focus-visible {outline:2px solid currentColor;outline-offset:4px}
+.documentary-video iframe {display:block;width:100%;height:auto;aspect-ratio:16/9;min-height:200px;border:0;margin-top:16px}
+.documentary-video [hidden] {display:none}
+.documentary-media-entry {margin:18px 0}
+@media(max-width:700px){.documentary-media-grid{grid-template-columns:minmax(0,1fr)}.documentary-video{padding:16px!important}}
+
+.documentary-media details>summary {min-height:44px;padding:10px 0;cursor:pointer}

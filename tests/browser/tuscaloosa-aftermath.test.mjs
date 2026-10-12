@@ -67,7 +67,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     assert.match(await page.locator('#photo-location').textContent(),/KBMX/);
     assert.match(await page.locator('#photo-original').textContent(),/original radar image/);
     await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
-    await page.getByRole('link',{name:'Inspect the photograph, attribution and reuse record',exact:true}).click();
+    await page.locator('#birmingham-aftermath').getByRole('link',{name:'Inspect the photograph, attribution and reuse record',exact:true}).click();
     await page.waitForFunction(()=>document.body?.dataset.ready==='true');
     const media=page.locator('#media-'+id);await media.waitFor();
     assert.match(await media.textContent(),/printed April 29/);

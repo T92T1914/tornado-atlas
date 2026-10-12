@@ -45,36 +45,43 @@
 
 @media (min-width:1081px) {
   /* Keep native focus scrolling immediate in the nested reading rail. */
-  html {scroll-behavior:auto;}
+  html {scroll-behavior:auto;scroll-padding-block:24px;}
   .documentary-layout {
+    display:block;
+  }
+  .documentary-layout[data-focus-reveal="ready"] {
     display:grid;
     grid-template-columns:210px minmax(0,1fr);
     gap:48px;
     align-items:start;
   }
   .documentary-layout > .documentary-contents {
-    position:sticky;
-    top:24px;
     align-self:start;
     display:flex;
-    flex-direction:column;
-    flex-wrap:nowrap;
-    gap:3px;
+    flex-wrap:wrap;
     min-width:0;
-    max-height:calc(100vh - 48px);
-    overflow:auto;
     padding:48px 8px 16px;
     border-bottom:0;
+  }
+  .documentary-layout > .documentary-contents[data-focus-reveal="ready"] {
+    display:block;
+    position:sticky;
+    top:24px;
+    max-height:calc(100vh - 48px);
+    overflow:auto;
     scroll-padding-block:8px;
   }
   .documentary-layout > .documentary-contents a {
-    flex-shrink:0;
+    display:block;
     min-height:44px;
+    min-width:0;
+    max-width:100%;
     padding:8px 12px;
     border-left:2px solid var(--line);
     line-height:1.45;
     overflow-wrap:anywhere;
     scroll-margin-block:8px;
   }
+  .documentary-layout > .documentary-contents a + a {margin-top:3px;}
   .documentary-layout > .documentary-reading {min-width:0;}
 }

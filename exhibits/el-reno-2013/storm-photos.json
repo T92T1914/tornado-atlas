@@ -94,5 +94,33 @@
     ],
     "creator_url": "https://www.flickr.com/photos/drodphoto/8964995898/",
     "creator_title": "El Reno EF-5 Tornado"
+  },
+  {
+    "id": "storm-3",
+    "file": "assets/el-reno-2013/storm03.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:El_Reno,_OK_EF3_Tornado_2013-05-31.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/12/El_Reno%2C_OK_EF3_Tornado_2013-05-31.jpg",
+    "credit": "Nick Nolte",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "sha256": "a3cd7a67eb7d3ab91309c71251ce0e9c1c3af71d85147887b9527c438d43e3d5",
+    "retrieved_at": "2026-10-12T12:18:43Z",
+    "changes": "Original image bytes preserved; full frame displayed by the browser with no crop or generated content.",
+    "caption": "El Reno tornado, May 31, 2013. Nick Nolte’s view shows the broad dark storm above a green field.",
+    "alt": "A broad, dark storm and tornado over a green field, with a lighter sky at the left.",
+    "timing_note": "The source reports a camera timestamp and approximate viewpoint. Their clock accuracy and calibrated direction are unestablished here. This photograph has no assigned simulator time or measured funnel width.",
+    "width": 800,
+    "height": 450,
+    "reading_versions": [
+      {
+        "file": "assets/el-reno-2013/storm03.jpg",
+        "width": 800,
+        "height": 450,
+        "bytes": 56622,
+        "sha256": "a3cd7a67eb7d3ab91309c71251ce0e9c1c3af71d85147887b9527c438d43e3d5",
+        "original_sha256": "a3cd7a67eb7d3ab91309c71251ce0e9c1c3af71d85147887b9527c438d43e3d5",
+        "changes": "Original full frame, unchanged bytes."
+      }
+    ]
   }
 ]

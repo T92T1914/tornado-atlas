@@ -25,11 +25,12 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(rows['el-reno-2013']['layers']['geography']['state'],'replay')
         self.assertEqual(rows['el-reno-2013']['layers']['damage']['state'],'survey')
         self.assertEqual(rows['el-reno-2013']['layers']['footage']['state'],'samples')
-        self.assertEqual(len(rows['el-reno-2013']['layers']['footage']['items']),8)
+        self.assertEqual(len(rows['el-reno-2013']['layers']['footage']['items']),9)
         self.assertEqual(rows['joplin-2011']['layers']['chronology']['state'],'documentary')
         for identifier in ('joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'):
             self.assertEqual(rows[identifier]['layers']['geography']['state'],'context')
-            self.assertEqual(rows[identifier]['layers']['footage']['state'],'not_linked')
+            self.assertEqual(rows[identifier]['layers']['footage']['state'],'context')
+            self.assertTrue(all(item['status']['temporal'] == 'unregistered' for _, item in rows[identifier]['layers']['footage']['items']))
         appearance=rows['el-reno-2013']['layers']['appearance']
         self.assertEqual(appearance['state'],'photo_samples')
         self.assertEqual(appearance['photo_sample_count'],7)
@@ -74,7 +75,7 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(footage['state'], 'samples')
         self.assertEqual(footage['label'], 'Discrete video samples and separate documentary context')
         self.assertIn('7 linked video records retain discrete time anchors.', footage['basis'])
-        self.assertIn('1 additional video record supplies documentary context', footage['basis'])
+        self.assertIn('2 additional video records supply documentary context', footage['basis'])
         self.assertIn('do not inherit', footage['basis'])
         untimed = next(item for _, item in footage['items']
                        if item['id'] == 'snyder-genesis-three-samples')
@@ -88,7 +89,7 @@ class EvidenceCoverageTests(unittest.TestCase):
         section = re.search(r'<section class="coverage-layer" data-layer="footage"[\s\S]*?</section>',
                             text).group()
         self.assertEqual(section.count('Time: Discrete time anchor'), 7)
-        self.assertEqual(section.count('Time: Unregistered'), 1)
+        self.assertEqual(section.count('Time: Unregistered'), 2)
         for _, item in footage['items']:
             href = ('dossier.html?event=el-reno-2013&revision=' + row['dossier_sha256'] +
                     '&media=' + item['id'] + '#media-' + item['id'])
@@ -111,12 +112,12 @@ class EvidenceCoverageTests(unittest.TestCase):
         footage = row['layers']['footage']
         self.assertEqual(footage['state'], 'context')
         self.assertEqual(footage['label'], 'Recorded video context')
-        self.assertEqual([item['id'] for _, item in footage['items']], ['snyder-genesis-three-samples'])
+        self.assertEqual([item['id'] for _, item in footage['items']], ['snyder-genesis-three-samples', 'bohac-archived-extended-film'])
         self.assertNotIn('retain discrete time anchors', footage['basis'])
         section = re.search(r'<section class="coverage-layer" data-layer="footage"[\s\S]*?</section>',
                             render_page([row]).decode('utf-8')).group()
         self.assertNotIn('Time: Discrete time anchor', section)
-        self.assertEqual(section.count('Time: Unregistered'), 1)
+        self.assertEqual(section.count('Time: Unregistered'), 2)
 
     def test_storm_photo_is_context_and_aftermath_does_not_join_appearance(self):
         rows = {row['event']['id']:row for row in coverage_rows()}
@@ -281,7 +282,7 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
             raise ValueError('Shared synthetic photo cases are missing')
         cls.spec = json.loads(match.group(1))
 
-    def synthetic_rows(self, event_id, *, registered=False):
+    def synthetic_rows(self, event_id, *, registered=False, photo_only=False):
         spec = self.spec
         packages = copy.deepcopy(self.packages)
         index = copy.deepcopy(self.index)
@@ -362,6 +363,11 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
         event.update(title='Synthetic coverage fixture for '+event_id,
                      replay=f'events/{event_id}.json',chronology=None)
         docs = copy.deepcopy(list(self.docs.values()))
+        # This fixture explicitly exercises photo-only coverage even as the real
+        # collection acquires documentary video. Source records are not mutated.
+        if photo_only:
+            candidate = next(doc for doc in docs if doc['id'] == event_id)
+            candidate['media'] = [item for item in candidate['media'] if item['kind'] != 'video']
         if registered:
             next(doc for doc in docs if doc['id'] == event_id)['reconstruction']['appearance'] = 'registered'
         def existing_references(root, doc):
@@ -376,7 +382,7 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
         return rows
 
     def test_photo_only_coverage_retains_unregistered_dossier_and_existing_context(self):
-        rows = self.synthetic_rows('joplin-2011')
+        rows = self.synthetic_rows('joplin-2011', photo_only=True)
         row = next(row for row in rows if row['event']['id'] == 'joplin-2011')
         appearance = row['layers']['appearance']
         self.assertEqual(row['doc']['reconstruction']['appearance'],'unregistered')
@@ -419,7 +425,7 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(appearance['photo_sample_count'],3)
         self.assertEqual(appearance['photo_sequence_count'],2)
         self.assertEqual(row['layers']['footage']['state'],'samples')
-        self.assertEqual(len(row['layers']['footage']['items']),8)
+        self.assertEqual(len(row['layers']['footage']['items']),9)
         self.assertEqual(row['layers']['damage']['state'],'survey')
         raw = render_page(rows).decode('utf-8')
         self.assertIn('revision='+row['dossier_sha256'],raw)
