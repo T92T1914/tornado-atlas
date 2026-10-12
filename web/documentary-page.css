@@ -45,7 +45,7 @@
 
 @media (min-width:1081px) {
   /* Keep native focus scrolling immediate in the nested reading rail. */
-  html {scroll-behavior:auto;}
+  html {scroll-behavior:auto;scroll-padding-block:24px;}
   .documentary-layout {
     display:block;
   }
