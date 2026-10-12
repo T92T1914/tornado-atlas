@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile,readdir} from 'node:fs/promises';
 import {createHash,webcrypto} from 'node:crypto';
 import {validateArchiveReferences,validateDossierHistory,validateDossierReference,loadVerifiedDossier,boundedResponseBytes,boundedJSON,DOSSIER_FILE_LIMIT} from '../web/dossier-file-model.mjs';
 
@@ -28,7 +28,11 @@ test('all published current and retained references verify exact bytes without a
       files.add(version.file);
     }
   }
-  assert.equal(files.size,41);
+  const retained=new Set((await readdir(new URL('../web/archive/',import.meta.url)))
+    .filter(name=>index.events.some(event=>name.startsWith(event.id+'-') &&
+      /^[0-9a-f]{20}\.json$/.test(name.slice(event.id.length+1))))
+    .map(name=>'archive/'+name));
+  assert.deepEqual([...files].sort(),[...retained].sort(),'Every retained dossier is indexed and byte-checked');
 });
 
 test('missing or malformed reference hashes and paths fail before any dossier fetch',async()=>{
