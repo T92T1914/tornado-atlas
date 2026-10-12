@@ -45,8 +45,10 @@ class ElRenoAerialSurveyTests(unittest.TestCase):
                     self.assertGreater(len(now[field]), len(prior[field]))
                     normalized[field] = prior[field]
             self.assertEqual(normalized, prior)
-        for key in ('records', 'routes', 'creators', 'reconstruction'):
+        for key in ('records', 'routes', 'reconstruction'):
             self.assertEqual(latest[key], current[key])
+        self.assertEqual(latest['creators'][:len(current['creators'])], current['creators'],
+                         'Later documentary credits preserve every prior creator and its order')
         self.assertEqual(latest['provenance']['inputs'], current['provenance']['inputs'])
         self.assertEqual([o for o in current['observations'] if o['id'] != NEW_ID], old['observations'])
         prior_source_ids = {row['id'] for row in old['sources']}

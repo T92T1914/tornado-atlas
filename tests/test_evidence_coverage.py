@@ -25,7 +25,7 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(rows['el-reno-2013']['layers']['geography']['state'],'replay')
         self.assertEqual(rows['el-reno-2013']['layers']['damage']['state'],'survey')
         self.assertEqual(rows['el-reno-2013']['layers']['footage']['state'],'samples')
-        self.assertEqual(len(rows['el-reno-2013']['layers']['footage']['items']),7)
+        self.assertEqual(len(rows['el-reno-2013']['layers']['footage']['items']),8)
         self.assertEqual(rows['joplin-2011']['layers']['chronology']['state'],'documentary')
         for identifier in ('joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'):
             self.assertEqual(rows[identifier]['layers']['geography']['state'],'context')
@@ -62,6 +62,61 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(appearance['registered_interval_count'],0)
         for identifier in ('joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'):
             self.assertEqual(rows[identifier]['layers']['appearance']['state'],'not_admitted')
+
+
+    def test_mixed_video_coverage_keeps_each_record_clock_and_source_route(self):
+        rows = coverage_rows()
+        row = next(row for row in rows if row['event']['id'] == 'el-reno-2013')
+        footage = row['layers']['footage']
+        expected = [item for item in reviewed(self.docs['el-reno-2013']['media'])
+                    if item['kind'] == 'video']
+        self.assertEqual(footage['items'], [('media', item) for item in expected])
+        self.assertEqual(footage['state'], 'samples')
+        self.assertEqual(footage['label'], 'Discrete video samples and separate documentary context')
+        self.assertIn('7 linked video records retain discrete time anchors.', footage['basis'])
+        self.assertIn('1 additional video record supplies documentary context', footage['basis'])
+        self.assertIn('do not inherit', footage['basis'])
+        untimed = next(item for _, item in footage['items']
+                       if item['id'] == 'snyder-genesis-three-samples')
+        self.assertEqual(untimed['status']['temporal'], 'unregistered')
+        self.assertEqual(untimed['status']['spatial'], 'unregistered')
+        self.assertEqual(untimed['status']['rights'], 'links_only')
+        self.assertIsNone(untimed['place']['coordinates'])
+        for role in ('event', 'capture', 'video', 'alignment'):
+            self.assertIsNone(untimed['time'][role])
+        text = render_page([row]).decode('utf-8')
+        section = re.search(r'<section class="coverage-layer" data-layer="footage"[\s\S]*?</section>',
+                            text).group()
+        self.assertEqual(section.count('Time: Discrete time anchor'), 7)
+        self.assertEqual(section.count('Time: Unregistered'), 1)
+        for _, item in footage['items']:
+            href = ('dossier.html?event=el-reno-2013&revision=' + row['dossier_sha256'] +
+                    '&media=' + item['id'] + '#media-' + item['id'])
+            self.assertIn(html.escape(href), section)
+        self.assertEqual(row['layers']['appearance']['registered_interval_count'], 0)
+        self.assertEqual(row['layers']['appearance']['photo_sample_count'], 7)
+        self.assertEqual(self.docs['el-reno-2013']['reconstruction']['appearance'], 'unregistered')
+
+    def test_unregistered_only_video_fixture_remains_context(self):
+        # Authored aggregate fixture, without changing any historical source record.
+        docs = copy.deepcopy(list(self.docs.values()))
+        doc = next(doc for doc in docs if doc['id'] == 'el-reno-2013')
+        doc['media'] = [item for item in doc['media']
+                        if item['kind'] != 'video' or item['status']['temporal'] == 'unregistered']
+        def existing_references(root, candidate):
+            return layer_references(root, self.docs[candidate['id']])
+        with patch('atlas.evidence_coverage.dossiers', return_value=docs), \
+                patch('atlas.evidence_coverage.layer_references', side_effect=existing_references):
+            row = next(row for row in coverage_rows() if row['event']['id'] == doc['id'])
+        footage = row['layers']['footage']
+        self.assertEqual(footage['state'], 'context')
+        self.assertEqual(footage['label'], 'Recorded video context')
+        self.assertEqual([item['id'] for _, item in footage['items']], ['snyder-genesis-three-samples'])
+        self.assertNotIn('retain discrete time anchors', footage['basis'])
+        section = re.search(r'<section class="coverage-layer" data-layer="footage"[\s\S]*?</section>',
+                            render_page([row]).decode('utf-8')).group()
+        self.assertNotIn('Time: Discrete time anchor', section)
+        self.assertEqual(section.count('Time: Unregistered'), 1)
 
     def test_storm_photo_is_context_and_aftermath_does_not_join_appearance(self):
         rows = {row['event']['id']:row for row in coverage_rows()}
@@ -364,7 +419,7 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(appearance['photo_sample_count'],3)
         self.assertEqual(appearance['photo_sequence_count'],2)
         self.assertEqual(row['layers']['footage']['state'],'samples')
-        self.assertEqual(len(row['layers']['footage']['items']),7)
+        self.assertEqual(len(row['layers']['footage']['items']),8)
         self.assertEqual(row['layers']['damage']['state'],'survey')
         raw = render_page(rows).decode('utf-8')
         self.assertIn('revision='+row['dossier_sha256'],raw)

@@ -112,6 +112,8 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
       console.log('CHAPTER_CONTENTS_NATIVE_REVEAL '+JSON.stringify({width,file,motion,calls,final:visible}));
     }
     if(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE){
+      if(enabled)await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      else await new Promise(resolve=>setTimeout(resolve,50));
       await mkdir(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE,{recursive:true});
       await page.screenshot({path:path.join(process.env.ATLAS_CHAPTER_CONTENTS_CAPTURE,file.replace('.html','-'+width+'-'+(enabled?'enhanced':'nojs')+'-enlarged.png'))});
     }
