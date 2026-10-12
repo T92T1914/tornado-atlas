@@ -55,6 +55,14 @@ async function reading(page){
   assert.equal(await page.locator('#storm-chronology>li').count(),bundle.history.chapters.length);
   assert.equal(await page.locator('#forecast-sequence>li').count(),bundle.documentary.warnings.length);
   assert.deepEqual(await page.locator('#storm-photographs [data-storm-photo]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),bundle.storm_photos.map(photo=>photo.file));
+  for(const item of bundle.footage.guide){
+    const article=page.locator('#reading-footage>article').filter({has:page.locator('h3',{hasText:item.title})});
+    assert.equal(await article.count(),1,'One published guide article: '+item.id);
+    assert.equal(await article.getAttribute('id'),item.id);
+    assert.equal(await article.locator('h3').textContent(),item.title);
+    assert.deepEqual(await article.locator(':scope>p').allTextContents(),[item.text]);
+    assert.deepEqual(await article.locator(':scope>a').evaluateAll(nodes=>nodes.map(a=>({label:a.textContent,url:a.getAttribute('href'),target:a.getAttribute('target'),rel:a.getAttribute('rel')}))),item.sources.map(source=>({...source,target:'_blank',rel:'noopener'})));
+  }
   assert.match(await page.locator('#chronology-42').textContent(),/6:42/);
   assert.match(await page.locator('#chronology-42').textContent(),/6:44/);
   const ids=await page.locator('[id]').evaluateAll(nodes=>nodes.map(node=>node.id));

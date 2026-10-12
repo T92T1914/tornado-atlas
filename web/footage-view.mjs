@@ -116,7 +116,10 @@ export function mountFootage(data,start,seek,stop,{headingLevel=3,formatTime=loc
 
 export function mountReadingTools(data) {
   const guide=document.getElementById('reading-footage');
-  for(const item of data.guide){const article=el('article');article.id=item.id;article.append(el('h3',item.title),el('p',item.text));item.sources.forEach(source=>article.append(external(source.label,source.url)));guide.append(article);}
+  for(const item of data.guide){
+    if([...guide.children].some(node=>node.tagName==='ARTICLE'&&node.id===item.id))continue;
+    const article=el('article');article.id=item.id;article.append(el('h3',item.title),el('p',item.text));item.sources.forEach(source=>article.append(external(source.label,source.url)));guide.append(article);
+  }
   const input=document.getElementById('passage-search'),out=document.getElementById('passage-results'),count=document.getElementById('passage-count');
   input.disabled = false;
   const entries=[...document.querySelectorAll('.exhibit-story h2,.exhibit-story h3')].map(heading=>{
