@@ -52,7 +52,7 @@ function listIndex(index){
   const form=element('form',undefined,'archive-tools');form.setAttribute('aria-label','Evidence discovery');
   const label=element('label','Search dossiers'),search=element('input');search.type='search';search.name='q';search.value=query.get('q')||'';label.append(search);
   const kindLabel=element('label','Evidence available'),kind=element('select');kind.name='evidence';
-  for(const [value,text] of [['','Any reviewed evidence'],['photograph','Linked photographs'],['video','Discrete video samples'],['radar','Historical radar'],['map','Source maps'],['chronology','Chronology'],['source_disagreement','Source disagreements'],['registered','Media with reviewed time and place']]){const o=element('option',text);o.value=value;kind.append(o);}kind.value=query.get('evidence')||'';
+  for(const [value,text] of [['','Any reviewed evidence'],['photograph','Photographs and film stills'],['video','Discrete video samples'],['radar','Historical radar'],['map','Source maps'],['chronology','Chronology'],['source_disagreement','Source disagreements'],['registered','Media with reviewed time and place']]){const o=element('option',text);o.value=value;kind.append(o);}kind.value=query.get('evidence')||'';
   kindLabel.append(kind);const button=element('button','Search');form.append(label,kindLabel,button);form.method='get';host.append(form);
   const grid=element('div',undefined,'archive-grid'),needle=search.value.toLowerCase();
   const rows=index.events.filter(e=>[e.title,e.summary,...e.creators.map(c=>c.name)].join(' ').toLowerCase().includes(needle)&&(!kind.value||(kind.value==='registered'?e.registered_media>0:e.evidence.includes(kind.value))));
@@ -90,9 +90,13 @@ async function showSources(index){
   host.append(grid);
   if(!rows.length)host.append(element('p','No inspected source card meets these filters. Sources may exist outside this reviewed collection.'),link('Clear source filters',route({view:'sources'})));
 }
+function mediaLabel(item,doc){
+  const parent=doc.media.find(row=>row.id===item.parent);
+  return item.kind==='photograph'&&parent?.kind==='video'?'Film still':human(item.kind);
+}
 function evidenceCard(item,doc,type,version,comparisonVersion=version){
   const card=element('article',undefined,'archive-card');card.id=`${type}-${item.id}`;
-  card.append(element('p',type==='media'?human(item.kind):'Observation or attributed claim','eyebrow'),element('h3',item.title),element('p',item.account),element('p',item.limits));
+  card.append(element('p',type==='media'?mediaLabel(item,doc):'Observation or attributed claim','eyebrow'),element('h3',item.title),element('p',item.account),element('p',item.limits));
   card.append(element('p','Exact locator: '+item.locator),link('Inspect the source card',revisionRoute(doc,{source:item.source_id},version)+'#source-'+item.source_id));
   const fields=element('dl');for(const [key,value] of Object.entries(item.status))fields.append(element('dt',human(key)),element('dd',human(value)));card.append(fields);
   if(type==='media'){

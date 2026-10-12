@@ -43,7 +43,7 @@ test('documentary media source links and photographs remain readable without scr
   assert.equal(await section.locator('img[src="'+event.photo+'"]').isVisible(),true);
   assert.equal(await section.locator('canvas,iframe').count(),0);
   assert.equal(await section.getByRole('button',{name:'Load video here'}).count(),0);
-  assert.equal(await section.getByRole('link',{name:'Watch the original publication on YouTube'}).getAttribute('href'),'https://www.youtube.com/watch?v='+event.video);
+  assert.equal(await section.locator('[data-documentary-video=\"'+event.video+'\"]').getByRole('link',{name:'Watch the original publication on YouTube'}).getAttribute('href'),'https://www.youtube.com/watch?v='+event.video);
   await page.close();
  }
 });

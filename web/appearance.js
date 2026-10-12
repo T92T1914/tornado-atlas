@@ -26,6 +26,15 @@
       revealContentsLink(link);
       requestAnimationFrame(() => revealContentsLink(link));
     });
+    // The bounded rail starts only after its native focus reveal is owned.
+    for (const rail of document.querySelectorAll('.documentary-layout > .documentary-contents')) {
+      rail.dataset.focusReveal = 'ready';
+    }
+    const current = document.activeElement?.closest?.('.documentary-layout > .documentary-contents a');
+    if (current) {
+      revealContentsLink(current);
+      requestAnimationFrame(() => revealContentsLink(current));
+    }
     const select = document.getElementById('reading-appearance');
     if (!select) return;
     select.value = choice;

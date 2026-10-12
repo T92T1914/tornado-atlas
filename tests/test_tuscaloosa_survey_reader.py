@@ -34,9 +34,9 @@ class TuscaloosaSurveyReaderTests(unittest.TestCase):
         for field in ('sources', 'observations', 'creators', 'routes', 'media'):
             for row in old[field]:
                 self.assertIn(row, self.doc[field], field)
-        self.assertEqual(len(self.doc['media']), 12)
-        self.assertEqual([m['id'] for m in self.doc['media'] if m['kind'] == 'video'], ['brown-tuscaloosa-original'])
-        self.assertEqual(len([m for m in self.doc['media'] if m['id'] not in {'bmx-static-survey-map', 'brown-tuscaloosa-original'}]), 10)
+        self.assertEqual(len(self.doc['media']), 13)
+        self.assertEqual([m['id'] for m in self.doc['media'] if m['kind'] == 'video'], ['brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'])
+        self.assertEqual(len([m for m in self.doc['media'] if m['id'] not in {'bmx-static-survey-map', 'brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'}]), 10)
         maps = [m for m in self.doc['media'] if m['id'] == 'bmx-static-survey-map']
         self.assertEqual(len(maps), 1)
         self.assertEqual((maps[0]['kind'], maps[0]['source_id']), ('map', 'bmx-estimated-damage-map'))

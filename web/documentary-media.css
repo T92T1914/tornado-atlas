@@ -11,3 +11,5 @@
 .documentary-video [hidden] {display:none}
 .documentary-media-entry {margin:18px 0}
 @media(max-width:700px){.documentary-media-grid{grid-template-columns:minmax(0,1fr)}.documentary-video{padding:16px!important}}
+
+.documentary-media details>summary {min-height:44px;padding:10px 0;cursor:pointer}

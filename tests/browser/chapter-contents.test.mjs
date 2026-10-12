@@ -74,6 +74,11 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
     assert.ok(bounds.accountLeft>bounds.railRight,'Contents and account have distinct horizontal columns');
     assert.ok(bounds.accountWidth>600,'At the wide boundary the readable account retains useful width');
     assert.ok((await reading.innerText()).length>4000);
+    const railContract=await nav.evaluate(node=>{const style=getComputedStyle(node);return {marker:node.dataset.focusReveal||null,position:style.position,maxHeight:style.maxHeight,overflow:style.overflowY,scroll:node.scrollHeight,client:node.clientHeight};});
+    assert.equal(railContract.marker,enabled?'ready':null);
+    assert.equal(railContract.position,enabled?'sticky':'static');
+    if(enabled){assert.equal(railContract.overflow,'auto');assert.notEqual(railContract.maxHeight,'none');}
+    else{assert.equal(railContract.overflow,'visible');assert.equal(railContract.maxHeight,'none');assert.ok(railContract.scroll<=railContract.client+1,'Fallback has no clipped internal scrollport');}
     const original=await nav.textContent();
     await enlarge(page);assert.equal(await fits(page),true,file+' enlarged width');
     assert.equal(await nav.textContent(),original,'Enlargement preserves all contents labels');
@@ -103,7 +108,8 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
       const link=node.getBoundingClientRect(),rail=node.closest('nav').getBoundingClientRect();
       return {top:link.top,bottom:link.bottom,railTop:rail.top,railBottom:rail.bottom,scroll:node.closest('nav').scrollTop,outline:getComputedStyle(node).outlineStyle};
     });
-    assert.ok(visible.scroll>0,'Long doubled contents scroll to the final link');
+    if(enabled)assert.ok(visible.scroll>0,'Long doubled contents scroll to the final link');
+    else{assert.equal(visible.scroll,0,'Ordinary document flow has no nested rail scrolling');assert.ok(await page.evaluate(()=>scrollY>0),'Native keyboard navigation scrolls the document');}
     assert.ok(visible.top>=visible.railTop-1 && visible.bottom<=visible.railBottom+1,'Final link remains inside its scrollable rail');
     assert.ok(visible.top>=0 && visible.bottom<=900,'Final link remains inside the viewport');
     assert.notEqual(visible.outline,'none','Keyboard focus remains visible');

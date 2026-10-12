@@ -53,15 +53,17 @@
     align-items:start;
   }
   .documentary-layout > .documentary-contents {
-    position:sticky;
-    top:24px;
     align-self:start;
     display:block;
     min-width:0;
-    max-height:calc(100vh - 48px);
-    overflow:auto;
     padding:48px 8px 16px;
     border-bottom:0;
+  }
+  .documentary-layout > .documentary-contents[data-focus-reveal="ready"] {
+    position:sticky;
+    top:24px;
+    max-height:calc(100vh - 48px);
+    overflow:auto;
     scroll-padding-block:8px;
   }
   .documentary-layout > .documentary-contents a {
