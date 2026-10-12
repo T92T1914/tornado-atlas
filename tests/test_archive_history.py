@@ -1,6 +1,7 @@
 """Revision discovery must preserve historical accounts and explicit gaps."""
 import copy
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -17,16 +18,27 @@ class ArchiveHistoryTests(unittest.TestCase):
     def test_events_have_exact_retained_revision_routes(self):
         artifacts = publication()
         index = artifacts['archive/index.json']
-        counts = {'el-reno-2013': 4, 'joplin-2011': 18, 'blackwell-1955': 7,
-                  'tuscaloosa-birmingham-2011': 12}
-        self.assertEqual({e['id'] for e in index['events']}, set(counts))
+        events = {'el-reno-2013', 'joplin-2011', 'blackwell-1955',
+                  'tuscaloosa-birmingham-2011'}
+        self.assertEqual({e['id'] for e in index['events']}, events)
         for entry in index['events']:
             history = artifacts[entry['history_file']]
             self.assertEqual(history['event_id'], entry['id'])
-            self.assertEqual(len(history['versions']), counts[entry['id']])
-            self.assertEqual(history['versions'][0]['file'], entry['file'])
+            files = [version['file'] for version in history['versions']]
+            retained = {'archive/' + path.name
+                        for path in (ROOT / 'web/archive').glob(entry['id'] + '-*.json')
+                        if re.fullmatch(re.escape(entry['id']) + r'-[0-9a-f]{20}\.json', path.name)}
+            self.assertEqual(len(files), len(set(files)), 'Each retained revision appears once')
+            identities = [version['dossier_sha256'] for version in history['versions']]
+            self.assertEqual(len(identities), len(set(identities)), 'Logical revisions remain distinct')
+            self.assertEqual(identities[0], history['current_dossier_sha256'])
+            self.assertEqual(set(files), retained, 'Every retained dossier has a history route')
+            for key in ('file', 'dossier_sha256', 'file_sha256'):
+                self.assertEqual(history['versions'][0][key], entry[key])
             if entry['id'] == 'el-reno-2013':
-                current = history['versions'][0]
+                current = next(version for version in history['versions']
+                               if version['dossier_sha256'] ==
+                               'edb1325186415fdf5c9e30f74df034a6fcdfb075463a2d0fa07faf0f22ef4815')
                 self.assertEqual(current['dossier_sha256'],
                                  'edb1325186415fdf5c9e30f74df034a6fcdfb075463a2d0fa07faf0f22ef4815')
                 self.assertEqual(current['review']['previous_dossier_sha256'],

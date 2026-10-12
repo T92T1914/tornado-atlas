@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -27,7 +28,13 @@ class ArchiveFileIdentityTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), version['file_sha256'])
                 self.assertEqual(digest(json.loads(raw)), version['dossier_sha256'])
                 references[version['file']] = version['file_sha256']
-        self.assertEqual(len(references), 41)
+        retained_files = {
+            'archive/' + path.name
+            for event in artifacts['archive/index.json']['events']
+            for path in (ROOT / 'web/archive').glob(event['id'] + '-*.json')
+            if re.fullmatch(re.escape(event['id']) + r'-[0-9a-f]{20}\.json', path.name)
+        }
+        self.assertEqual(set(references), retained_files, 'Every retained dossier is indexed and byte-checked')
 
     def test_encoder_and_writer_use_identical_utf8_and_lf(self):
         payload = {'text': '雪', 'float': 1.0, 'zero': -0.0}

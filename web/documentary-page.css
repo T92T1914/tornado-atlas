@@ -44,6 +44,8 @@
 @media(max-width:700px){#hospital-services .hospital-service-comparison{grid-template-columns:1fr}}
 
 @media (min-width:1081px) {
+  /* Keep native focus scrolling immediate in the nested reading rail. */
+  html {scroll-behavior:auto;}
   .documentary-layout {
     display:grid;
     grid-template-columns:210px minmax(0,1fr);

@@ -1,9 +1,13 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdir} from 'node:fs/promises';
+import {readFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
 
+const currentEntries=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8')).events.filter(entry=>entry.id==='el-reno-2013');
+assert.equal(currentEntries.length,1,'The unavailable fixture requires one current El Reno dossier');
+const currentDossierFile=currentEntries[0].file;
+assert.match(currentDossierFile,/^archive\/el-reno-2013-[0-9a-f]{20}\.json$/);
 const observation='intake-wakimoto-field-scouring-2312';
 const initial=()=>base+'/reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=wakimoto-visible-condensation';
 async function ready(page){await page.locator('#replay-time:not([disabled])').waitFor();await page.locator('#replay-ground-scouring').waitFor();}
@@ -44,16 +48,24 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('original field-sc
 });
 test('field account survives unavailable dossier and the same selected record retries',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:1100}});
-  await page.route('**/archive/el-reno-2013-edb1325186415fdf5c9e.json',route=>route.fulfill({status:503,body:'Owned unavailable dossier fixture'}));
-  await page.goto(initial());await ready(page);await page.locator('#replay-ground-record').click();
+  const dossierURL=new URL(currentDossierFile,base+'/').href,fulfilled=[];
+  const unavailableDossier=route=>{fulfilled.push(route.request().url());return route.fulfill({status:503,body:'Owned unavailable dossier fixture'});};
+  await page.route(dossierURL,unavailableDossier);
+  await page.goto(initial());await ready(page);
+  const failedResponse=page.waitForResponse(response=>response.url()===dossierURL&&response.status()===503);
+  await page.locator('#replay-ground-record').click();assert.equal((await failedResponse).status(),503);
   await page.getByRole('heading',{name:'Evidence unavailable',exact:true}).waitFor();
+  assert.deepEqual(fulfilled,[dossierURL],'The current immutable dossier was made unavailable exactly once');
   assert.equal(new URL(page.url()).searchParams.get('observation'),observation);
   const retry=page.getByRole('link',{name:'Retry this view',exact:true});
   assert.equal(new URL(await retry.getAttribute('href'),base).searchParams.get('observation'),observation);
-  await page.unroute('**/archive/el-reno-2013-edb1325186415fdf5c9e.json');
-  await retry.click();await page.locator('#observation-'+observation).waitFor();
+  await page.unroute(dossierURL,unavailableDossier);
+  const retriedResponse=page.waitForResponse(response=>response.url()===dossierURL&&response.status()===200);
+  await retry.click();assert.equal((await retriedResponse).status(),200);await page.locator('#observation-'+observation).waitFor();
   await page.goBack();await ready(page);assert.equal(await page.locator('#replay-time').inputValue(),'1241');
   assert.equal(await page.locator('#replay-ground-original').isVisible(),true);
+  assert.equal(await page.locator('#replay-ground-original').getAttribute('href'),'https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=9');
+  assert.equal(new URL(page.url()).searchParams.get('appearance_photo'),'wakimoto-visible-condensation');
 });
 test('native article keeps the original field source and clock link without JavaScript',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:1100},javaScriptEnabled:false});

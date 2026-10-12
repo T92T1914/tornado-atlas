@@ -121,10 +121,22 @@ def coverage_rows(root=ROOT):
                     'Reported outcomes and documentary context' if selected else 'No reviewed layer reference linked',
                     refs[identifier]['basis'] if refs else 'This dossier has no reviewed layer classification in this publication.',items=selected)
         videos = [('media', item) for item in media if item['kind'] == 'video']
-        samples = videos and all(item['status']['temporal'] == 'discrete_anchor' for _, item in videos)
+        anchored = [(kind, item) for kind, item in videos
+                    if item['status']['temporal'] == 'discrete_anchor']
+        context = [(kind, item) for kind, item in videos
+                   if item['status']['temporal'] != 'discrete_anchor']
+        samples = bool(anchored)
+        mixed = bool(anchored and context)
+        video_basis = 'Each linked recording keeps its inspection scope, edit identity and clock basis. Discrete samples do not establish a continuously inspected interval.'
+        if mixed:
+            video_basis = (f'{len(anchored)} linked video records retain discrete time anchors. '
+                           f'{len(context)} additional video record'+('s supply' if len(context) != 1 else ' supplies')+
+                           ' documentary context without a discrete historical anchor. '
+                           'Unregistered records do not inherit another recording’s timing, viewpoint or appearance coverage. '+video_basis)
         add('footage','samples' if samples else 'context' if videos else 'not_linked',
+            'Discrete video samples and separate documentary context' if mixed else
             'Discrete video samples' if samples else 'Recorded video context' if videos else 'No reviewed video linked',
-            'Each linked recording keeps its inspection scope, edit identity and clock basis. Discrete samples do not establish a continuously inspected interval.',items=videos)
+            video_basis,items=videos)
         timeline = (bundle or {}).get('appearance_timeline',{})
         registered = [window for window in timeline.get('windows',[]) if window['kind'] == 'registered']
         photos = timeline.get('photo_sequences',[])

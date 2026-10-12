@@ -55,3 +55,10 @@
   .explorable-map .selected-core {fill:CanvasText;stroke:Canvas}
   .documentary-exhibit .legend .line {background:CanvasText;forced-color-adjust:none}
 }
+
+.documentary-appearance figure {margin:20px 0}
+.documentary-appearance canvas {display:block;width:100%;height:auto;aspect-ratio:1.4;border:1px solid var(--line);background:var(--panel)}
+.documentary-appearance canvas[hidden] {display:none}
+.documentary-appearance figcaption p {font-size:14px;line-height:1.7}
+.documentary-appearance details summary {min-height:44px;cursor:pointer;padding:8px 0}
+.documentary-appearance p,.documentary-appearance a {overflow-wrap:anywhere}

@@ -129,7 +129,7 @@ test('checked bytes alone create the display URL and close retires it exactly on
   await settled();assert.equal(urls.length,1);assert.deepEqual(new Uint8Array(await urls[0].blob.arrayBuffer()),bytes);
   assert.equal(get('photo-full').src,urls[0].url);assert.equal(get('photo-full').hidden,true);
   get('photo-full').emit('load');await flush();assert.equal(get('photo-full').hidden,false);
-  assert.match(get('photo-status').textContent,/bytes match/);
+  assert.match(get('photo-status').textContent,/displayed image matches the reviewed file/);
   get('photo-dialog').close();assert.deepEqual(retired,[urls[0].url]);
   get('photo-dialog').emit('close');assert.deepEqual(retired,[urls[0].url]);
 });
@@ -202,7 +202,7 @@ test('checked load stays hidden until explicit decoding resolves',async t=>{
   const {settled}=checkedNetwork(t),{open,get}=fixture(t);open(checkedFirst);await settled();
   let decoded;const image=get('photo-full');image.decode=()=>new Promise(resolve=>{decoded=resolve;});
   image.emit('load');assert.equal(image.hidden,true);assert.match(get('photo-status').textContent,/Checking/);
-  decoded();await flush();assert.equal(image.hidden,false);assert.match(get('photo-status').textContent,/bytes match/);
+  decoded();await flush();assert.equal(image.hidden,false);assert.match(get('photo-status').textContent,/displayed image matches the reviewed file/);
   get('photo-dialog').close();
 });
 

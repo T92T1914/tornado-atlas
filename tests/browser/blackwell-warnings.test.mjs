@@ -57,7 +57,7 @@ for (const viewport of [{width:1280,height:900},{width:390,height:844},{width:32
       assert.equal(await card.locator('dt:has-text("Temporal") + dd').textContent(),'unregistered');
       assert.equal(await card.locator('dt:has-text("Spatial") + dd').textContent(),'unregistered');
       assert.match(await card.innerText(),/Wichita/);
-      const {dossier:metadata} = await readDossierDownload(page);
+      const {dossier:metadata} = await readDossierDownload(page,{diagnostic:{bulletin:item.id,index:number,width:viewport.width,height:viewport.height,appearance}});
       const media = metadata.media.find(row => row.id===item.id);
       assert.ok(media);
       assert.equal(media.status.rights,'permitted_hosting');

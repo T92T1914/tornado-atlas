@@ -465,6 +465,8 @@ test('photo text and native controls remain available at 320px with doubled text
   const value=await synthetic(page);
   await ready(page,`t=20&appearance_view=photo&appearance_photo=${pairId}`);
   await photoState(page,'photo_observed');
+  const normalDisclosure=await page.locator('#replay-photo-details summary').boundingBox();
+  assert.ok(normalDisclosure.height>=44&&normalDisclosure.width>=44,'Disclosure retains a normal-size touch target');
   await page.evaluate(()=>{
     const nodes=[...document.querySelectorAll('#replay-appearance,#replay-appearance *')];
     const sizes=nodes.map(node=>Number.parseFloat(getComputedStyle(node).fontSize));
@@ -486,6 +488,15 @@ test('photo text and native controls remain available at 320px with doubled text
     assert.ok(control.width<=control.parent+1,'Sample buttons wrap inside their container');
   }
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  const details=page.locator('#replay-photo-details');
+  assert.equal(await details.getAttribute('open'),null,'Full record starts closed');
+  assert.equal(await page.locator('#replay-photo-original').isVisible(),true,'Original source remains visible before opening details');
+  const summary=details.locator('summary');await summary.focus();await page.keyboard.press('Enter');
+  await page.waitForFunction(()=>document.getElementById('replay-photo-details').open);
+  assert.equal(await details.locator('dl').isVisible(),true,'Native keyboard action reveals the complete source record');
+  assert.match(await details.textContent(),/Sequence identity/);
+  assert.match(await details.textContent(),/Synthetic creator/);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Expanded source record wraps at doubled narrow text');
   await sampleButton(page,'sample-second').click();
   await photoState(page,'photo_observed');
   assert.equal(await page.locator('#replay-time').inputValue(),'30');

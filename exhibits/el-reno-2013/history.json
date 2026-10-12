@@ -303,12 +303,16 @@
       "paragraphs": [
         "The El Reno Survey Project demonstrates how footage can become a scientific record. Seimon and colleagues describe correcting video times against recorded lightning flashes and locating viewpoints using recognizable scene features. That permits observations from separate cameras to be compared with radar at corresponding times.",
         "For this exhibit, a useful image record therefore needs more than a date and a credit. It needs an original source, a defensible time or interval, a viewpoint when known, and an explanation of any correction. An upload time is not a capture time. An eyewitness’s position is not the tornado center. A clear view of the funnel is not a complete view of the wind field.",
-        "At present, the original storm photographs are available without assigned timestamps. The radar frames and published camera samples can be explored on the clock. A future historical animation should inherit those distinctions: observed positions, interpolation, inferred form and missing evidence should remain inspectable while it plays."
+        "The two preserved Daniel Rodriguez storm photographs remain without assigned historical times. Separately, published research photographs have sparse reported second labels, and William T. Reid’s creator account labels an earlier photograph 6:04 PM CDT. The earlier taper and later broad bodies can be compared as distinct visible observations. These records do not establish continuous motion or a shared calibrated camera. Radar frames and published camera samples remain available on the clock, with observed positions, interpolation and missing evidence distinguished."
       ],
       "sources": [
         {
           "label": "Seimon and colleagues, time correction and georeferencing",
           "url": "https://doi.org/10.1175/BAMS-D-15-00174.1"
+        },
+        {
+          "label": "Reid’s original account and reported minute",
+          "url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/"
         }
       ]
     },
@@ -332,7 +336,8 @@
       "paragraphs": [
         "TornadoTRX builds its El Reno documentary around the changing circulation and the people trying to understand and escape it. That makes a useful route into the history. Its English transcript also contains inconsistent spellings of names and detailed claims about conversations, routes and exact intervals. Captions help locate questions to investigate; they do not establish those details on their own.",
         "Pecos Hank provides another route through the event with footage and commentary. The footage notebook below records the limited passages already inspected. Neither an edited film nor its elapsed running time is automatically a continuous storm clock. Matching a scene to the map still requires a location and a defensible historical time.",
-        "The Wikipedia article is a useful overview and a way to find further references. Where summaries disagree with a source record, this exhibit keeps the disagreement visible. The reported ending time and the scope of injury totals need that treatment. We do not average conflicting numbers or turn the most repeated number into a new measurement."
+        "The Wikipedia article is a useful overview and a way to find further references. Where summaries disagree with a source record, this exhibit keeps the disagreement visible. The reported ending time and the scope of injury totals need that treatment. We do not average conflicting numbers or turn the most repeated number into a new measurement.",
+        "TornadoCentral’s published genesis and intensification recording adds another route into the early storm. Its opening card names Jeff Snyder as the copyright claimant. This exhibit has inspected that card and two later paused field views. The whole video and audio remain unreviewed, and its running time has not been matched to the historical clock. Camera geometry and visible dimensions remain unregistered."
       ],
       "sources": [
         {
@@ -346,6 +351,10 @@
         {
           "label": "Wikipedia: overview and references",
           "url": "https://en.wikipedia.org/wiki/2013_El_Reno_tornado"
+        },
+        {
+          "label": "TornadoCentral: published El Reno genesis and intensification recording",
+          "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc"
         }
       ]
     }

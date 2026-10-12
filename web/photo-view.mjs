@@ -59,7 +59,8 @@ export function mountPhotoViewer() {
   status.id = 'photo-status'; status.setAttribute('role', 'status');
   const retry = document.createElement('button');
   retry.id = 'photo-retry'; retry.type = 'button'; retry.textContent = 'Retry image'; retry.hidden = true;
-  failure.after(status, retry);
+  failure.after(retry);
+  byId('photo-credit').after(status);
   function retire() {
     if (!attempt) return;
     attempt.active = false; clearTimeout(attempt.timer); attempt.controller?.abort();
@@ -117,7 +118,7 @@ export function mountPhotoViewer() {
         if (!withinDeadline()) return;
       }
       clearTimeout(owned.timer); request.hidden = false;
-      status.textContent = checked ? 'Image bytes match the selected record.' : '';
+      status.textContent = checked ? 'The displayed image matches the reviewed file.' : '';
     }, {once:true});
     request.addEventListener('error', () => {
       failed('The checked image could not be displayed.');

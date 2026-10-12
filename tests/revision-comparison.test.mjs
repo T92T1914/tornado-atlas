@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile,readdir} from 'node:fs/promises';
 import {createHash,webcrypto} from 'node:crypto';
 import {loadVerifiedDossier,validateDossierForReader,DOSSIER_FILE_LIMIT} from '../web/dossier-file-model.mjs';
 import {indexDossierLiterals,literalValue,selectedLiteralChanges,LITERAL_DEPTH_LIMIT,LITERAL_TOKEN_LIMIT} from '../web/dossier-literal-model.mjs';
@@ -59,7 +59,11 @@ test('all actual retained dossiers fit the source-range bounds and preserve whol
       }
     }
   }
-  assert.equal(files.size,41);
+  const retained=new Set((await readdir(new URL('../web/archive/',import.meta.url)))
+    .filter(name=>index.events.some(event=>name.startsWith(event.id+'-') &&
+      /^[0-9a-f]{20}\.json$/.test(name.slice(event.id.length+1))))
+    .map(name=>'archive/'+name));
+  assert.deepEqual([...files].sort(),[...retained].sort(),'Every retained dossier has its complete literal values checked');
 });
 
 test('exact numeric forms, escaped strings, decoded keys and whole nested values survive S1',async()=>{

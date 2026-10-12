@@ -1,8 +1,15 @@
 {
   "schema": 1,
   "event": "el-reno-2013",
-  "updated": "2026-10-10",
+  "updated": "2026-10-11",
   "sources": [
+    {
+      "group": "Original photographs and accounts",
+      "title": "May 31, 2013: El Reno, Oklahoma tornado",
+      "publisher": "William T. Reid / Stormbruiser",
+      "url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/",
+      "use": "Complete published 4178 photograph and the creator’s 6:04 PM CDT caption inspected. Supports a specific independently authored, coarse light taper schematic. The reported minute is not an exact exposure second or replay interval. Camera pose, lens and crop remain unregistered; earlier group optics are not transferred. Copyright photograph is linked at its original publication, not copied into the exhibit."
+    },
     {
       "group": "Original photographs and accounts",
       "title": "Storm Chase May 31, 2013: El Reno, Oklahoma Tornado",
@@ -233,6 +240,13 @@
       "publisher": "The Oklahoman / Legacy, June 5, 2013",
       "url": "https://www.legacy.com/us/obituaries/oklahoman/name/richard-henderson-obituary?id=22636764",
       "use": "Full name, age 35, Hinton background and date of death. This does not locate the fatal incident."
+    },
+    {
+      "group": "Original footage and registration",
+      "title": "5/31/13 - Genesis and Intensification of the El Reno tornado",
+      "publisher": "TornadoCentral",
+      "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc",
+      "use": "Watch-page metadata, the opening copyright card and separate paused player positions near 75 and 145 seconds inspected on October 11, 2026 UTC. The opening card attributes copyright to Jeff Snyder; camera operation and original-file lineage remain unverified. The whole video and audio have not been reviewed. No UTC alignment, calibrated camera, visible width or continuous appearance interval is supplied. Ordinary external watch link only; source video and inspection screenshots are not hosted."
     }
   ]
 }
