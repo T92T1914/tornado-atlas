@@ -36,3 +36,11 @@ The ordinary external provider player loads after a visitor selects **Load video
 Player interaction checks use a labeled controlled external-player response. Actual paused source inspection is separate evidence. Neither establishes a visitor’s continuous playback session.
 
 Earlier evidence values and immutable dossier revisions remain preserved. New documentary media do not admit a registered appearance interval, measured funnel extent, calibrated camera or historical building-failure sequence. The Tuscaloosa estimated footprint and 198 original damage accounts remain a separately sourced static exploration.
+
+## A roadside publication linked as documentary context
+
+David Conrady’s [May 31st, 2013 El Reno tornado](https://www.youtube.com/watch?v=s-W92EOU138) supplies a separately attributed road-view account. Primary player metadata identifies his publication account and channel, a 424-second duration label, and a May 19, 2023 publication label. The title’s event date and that publication date remain separate. Camera-original identity and the full edit lineage are unestablished.
+
+The inspected opening presentation shows a road, a white SUV with red lights, a green-gray storm and a dark overhead obstruction. It was paused and muted at player position zero. The retained image includes player controls and is not an original camera frame. Root and independent reviewers inspected this opening. A requested 120-second sample did not settle. No later passage or audio review is claimed. The accompanying description’s I-40, viewing-direction and later-return statements remain attributed testimony, separate from the observed opening.
+
+The article offers an ordinary original watch link and separate archive routes for the opening and reported description. The existing visibility field guide cites the same publication. No video, audio, thumbnail, frame or inspection screenshot is copied into the site. Creator and rights-holder roles remain unknown, with the named account recorded as uploader. Both evidence records retain unregistered time and viewpoint, null alignment and coordinates, and links-only use. No clock anchor, appearance interval, measured width or historical damage behavior is added.
