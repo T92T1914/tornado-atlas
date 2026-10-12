@@ -29,6 +29,7 @@
     // The bounded rail starts only after its native focus reveal is owned.
     for (const rail of document.querySelectorAll('.documentary-layout > .documentary-contents')) {
       rail.dataset.focusReveal = 'ready';
+      rail.parentElement.dataset.focusReveal = 'ready';
     }
     const current = document.activeElement?.closest?.('.documentary-layout > .documentary-contents a');
     if (current) {

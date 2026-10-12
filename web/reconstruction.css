@@ -151,6 +151,7 @@
 .replay-reported-appearance p,.replay-reported-appearance a {overflow-wrap:anywhere}
 
 .replay-reading > article {min-width:0;overflow-wrap:anywhere}
+.replay-controls h2 {overflow-wrap:anywhere}
 
 .replay-event-control {display:grid;grid-template-columns:minmax(0,1fr);max-width:100%;min-width:0;overflow:hidden;overflow-wrap:anywhere;padding:6px}
 #replay-event {display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px;font:inherit;overflow:hidden;text-overflow:ellipsis}

@@ -10,7 +10,7 @@ for(const width of [320,1280])test('derived film still, parent source and additi
  page.on('request',r=>{if(/youtube|googlevideo|ytimg/.test(r.url()))providers.push(r.url());});
  await page.goto(base+'/index.html?t=0#photos');
  const region=page.locator('#bohac-film-reading'),img=region.locator('img');
- await img.scrollIntoViewIfNeeded();
+ await img.evaluate(node=>node.scrollIntoView({behavior:'instant',block:'center'}));
  await page.waitForFunction(src=>{const img=document.querySelector('img[src="'+src+'"]');return img?.complete&&img.naturalWidth===1280&&img.naturalHeight===720;},still);
  await img.evaluate(i=>i.decode());
  assert.match(await region.textContent(),/Decoded film still/);

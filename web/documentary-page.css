@@ -47,6 +47,9 @@
   /* Keep native focus scrolling immediate in the nested reading rail. */
   html {scroll-behavior:auto;}
   .documentary-layout {
+    display:block;
+  }
+  .documentary-layout[data-focus-reveal="ready"] {
     display:grid;
     grid-template-columns:210px minmax(0,1fr);
     gap:48px;
@@ -54,12 +57,14 @@
   }
   .documentary-layout > .documentary-contents {
     align-self:start;
-    display:block;
+    display:flex;
+    flex-wrap:wrap;
     min-width:0;
     padding:48px 8px 16px;
     border-bottom:0;
   }
   .documentary-layout > .documentary-contents[data-focus-reveal="ready"] {
+    display:block;
     position:sticky;
     top:24px;
     max-height:calc(100vh - 48px);
@@ -69,6 +74,8 @@
   .documentary-layout > .documentary-contents a {
     display:block;
     min-height:44px;
+    min-width:0;
+    max-width:100%;
     padding:8px 12px;
     border-left:2px solid var(--line);
     line-height:1.45;

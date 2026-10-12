@@ -69,9 +69,10 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
     const bounds=await page.evaluate(()=>{
       const rail=document.querySelector('.documentary-contents').getBoundingClientRect();
       const account=document.querySelector('.documentary-reading').getBoundingClientRect();
-      return {railRight:rail.right,accountLeft:account.left,accountWidth:account.width};
+      return {railRight:rail.right,railBottom:rail.bottom,accountLeft:account.left,accountTop:account.top,accountWidth:account.width};
     });
-    assert.ok(bounds.accountLeft>bounds.railRight,'Contents and account have distinct horizontal columns');
+    if(enabled)assert.ok(bounds.accountLeft>bounds.railRight,'Enhanced contents and account have distinct horizontal columns');
+    else assert.ok(bounds.accountTop>=bounds.railBottom-1,'Native contents remain above the account in ordinary flow');
     assert.ok(bounds.accountWidth>600,'At the wide boundary the readable account retains useful width');
     assert.ok((await reading.innerText()).length>4000);
     const railContract=await nav.evaluate(node=>{const style=getComputedStyle(node);return {marker:node.dataset.focusReveal||null,position:style.position,maxHeight:style.maxHeight,overflow:style.overflowY,scroll:node.scrollHeight,client:node.clientHeight};});
