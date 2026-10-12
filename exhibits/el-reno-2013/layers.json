@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "el-reno-2013",
-  "dossier_sha256": "e13089f596375a61254461f53492aac75b4d9d08a21f665a97d3d31032623c08",
+  "dossier_sha256": "7621c8281f6e6a3cdf7e1612d6cb44dc15c23cf984091bcab7e945757084642b",
   "survey": {
     "sha256": "8148ac4b2e4b837ce3d8b75997e0fd59921db04d4a19a9264a76eaaadb6550d1",
     "basis": "The existing source-checked NWS survey selection retains 336 outcomes inside or on the published outline. Its storm and survey dates do not establish individual impact times."
@@ -35,15 +35,17 @@
       ]
     },
     "gaps": {
-      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits. The field example keeps radar time, approximate passage and later aerial collection distinct.",
+      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits. The field example keeps radar time, approximate passage and later aerial collection distinct. The roadside opening and creator’s later description remain external documentary context with unregistered timing and viewpoint.",
       "observations": [
         "photogrammetry-figure-samples",
         "intake-wakimoto-aerial-envelope-2016",
-        "intake-wakimoto-field-scouring-2312"
+        "intake-wakimoto-field-scouring-2312",
+        "conrady-later-description"
       ],
       "media": [
         "ER13-HARK-PHOTO-604",
-        "ER13-HARK-PHOTO-609"
+        "ER13-HARK-PHOTO-609",
+        "conrady-roadside-opening"
       ]
     }
   }
