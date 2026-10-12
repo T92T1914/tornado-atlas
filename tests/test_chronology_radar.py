@@ -52,7 +52,8 @@ class RadarChronologyTests(unittest.TestCase):
         retained={version['dossier_sha256'] for version in history['versions']}
         self.assertIn(reference['dossier_sha256'],retained)
         self.assertIn(metadata_sha,retained)
-        self.assertEqual(current['media'],rebased['media'])
+        self.assertEqual(current['media'][:len(rebased['media'])],rebased['media'])
+        self.assertEqual([row['id'] for row in current['media'][len(rebased['media']):]], ['piotrowski-joplin-original'])
         self.assertEqual(current['reconstruction'],rebased['reconstruction'])
 
     def test_mixed_malformed_and_overprecise_navigation_fails(self):

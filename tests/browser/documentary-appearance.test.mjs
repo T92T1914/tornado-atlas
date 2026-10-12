@@ -7,7 +7,7 @@ const observation=JSON.parse(await readFile(new URL('../../exhibits/el-reno-2013
 async function capture(page,name){
   if(!process.env.ATLAS_EARLY_APPEARANCE_CAPTURE)return;
   await mkdir(process.env.ATLAS_EARLY_APPEARANCE_CAPTURE,{recursive:true});
-  await page.locator('#early-condensation-reading').evaluate(node=>node.scrollIntoView({behavior:'instant',block:'start'}));
+  await page.locator('#early-condensation-study').evaluate(node=>node.scrollIntoView({behavior:'instant',block:'start'}));
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   await page.screenshot({path:path.join(process.env.ATLAS_EARLY_APPEARANCE_CAPTURE,name+'.png'),fullPage:false});
 }
@@ -37,16 +37,18 @@ async function probe(page){
     };
   });
 }
-async function snapshot(page){return page.evaluate(async()=>({...window.earlyAppearanceProbe,last:{...window.earlyAppearanceProbe.last},sha256:await window.earlyAppearanceProbe.hashPromise,hashPromise:undefined,scissor_after_draw:window.earlyAppearanceGL.isEnabled(window.earlyAppearanceGL.SCISSOR_TEST),state:document.querySelector('#early-condensation-canvas').dataset.documentaryState,url:location.href,clock:document.querySelector('#timeline').value,record:JSON.parse(document.querySelector('#early-condensation-record').textContent)}));}
+async function snapshot(page){return page.evaluate(async()=>({...window.earlyAppearanceProbe,last:{...window.earlyAppearanceProbe.last},sha256:await window.earlyAppearanceProbe.hashPromise,hashPromise:undefined,scissor_after_draw:window.earlyAppearanceGL.isEnabled(window.earlyAppearanceGL.SCISSOR_TEST),state:document.querySelector('#early-condensation-canvas').dataset.documentaryState,url:location.href,clock:document.querySelector('#replay-time').value,record:JSON.parse(document.querySelector('#early-condensation-record').textContent)}));}
 async function reading(page){
-  const article=page.locator('#early-condensation-reading');
+  const article=page.locator('#early-condensation-study');
   assert.match(await article.textContent(),/6:04 PM CDT/);
   assert.match(await article.textContent(),/exposure second and clock accuracy are unknown/);
   assert.match(await article.textContent(),/not ground contact/);
   assert.equal(await article.getByRole('link',{name:'Open Reid’s original photograph'}).getAttribute('href'),observation.original_url);
   assert.equal(await article.getByRole('link',{name:'Read the creator’s account and caption'}).getAttribute('href'),observation.account_url);
   assert.equal(await article.locator('img,video,iframe').count(),0);
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  const fits=await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
+  if(!fits)console.log('REPORTED_STUDY_REFLOW_FAILURE '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('body *')].map(n=>({tag:n.tagName,id:n.id,cls:n.className,text:n.textContent?.slice(0,90),right:n.getBoundingClientRect().right,width:n.getBoundingClientRect().width,scroll:n.scrollWidth})).filter(n=>n.right>innerWidth+1).sort((a,b)=>b.right-a.right).slice(0,12))));
+  assert.equal(fits,true);
 }
 for(const [width,theme] of [[320,'dark'],[1280,'light']])test('early reported-minute form, source return and replay isolation '+width+' '+theme,async t=>{
   const page=await fixture(t,{viewport:{width,height:1000},reducedMotion:'reduce'}),sourceRequests=[];
@@ -54,8 +56,8 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('early reported-mi
   await page.addInitScript(theme=>localStorage.setItem('tornado-atlas-appearance',theme),theme);await probe(page);
   await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=1261&appearance_view=photo&appearance_photo=wakimoto-visible-condensation');
   await page.locator('#replay-time:not([disabled])').waitFor();
-  const earlyLink=page.getByRole('link',{name:'Earlier light taper · reported 6:04 PM CDT minute'});await earlyLink.focus();await page.keyboard.press('Enter');
-  await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true'&&['reported_minute','unavailable'].includes(document.querySelector('#early-condensation-canvas').dataset.documentaryState));
+  const earlyLink=page.getByRole('link',{name:'Earlier appearance study · reported 6:04 PM CDT minute'});await earlyLink.focus();await page.keyboard.press('Enter');
+  await page.waitForFunction(()=>!document.querySelector('#replay-time').disabled&&['reported_minute','unavailable'].includes(document.querySelector('#early-condensation-canvas').dataset.documentaryState));
   await reading(page);
   if(await page.locator('#early-condensation-canvas').getAttribute('data-documentary-state')==='unavailable'){assert.equal(process.env.ATLAS_BROWSER_ENGINE,'firefox','Chrome and WebKit require an actual filled early form');const unavailable=await page.evaluate(()=>({context_seen:Boolean(window.earlyAppearanceGL),direct_missing:document.querySelector('#early-condensation-canvas').getContext('webgl2')===null}));assert.deepEqual(unavailable,{context_seen:false,direct_missing:true},'Only directly observed missing WebGL2 qualifies the Firefox graphical skip');console.log('EARLY_DOCUMENTARY_UNAVAILABLE '+JSON.stringify({width,theme,...unavailable}));t.skip('WebGL 2 is unavailable in this Firefox environment; no early graphical journey acceptance. Static fallback is tested separately.');return;}
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))));
@@ -70,16 +72,16 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('early reported-mi
   await page.waitForFunction(()=>document.querySelector('#early-condensation-canvas').dataset.documentaryState==='reported_minute');
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const recovered=await snapshot(page);assert.equal(recovered.sha256,before.sha256);assert.equal(recovered.last.clipped_during_draw,true);assert.equal(recovered.scissor_after_draw,false);
-  await page.locator('#timeline').focus();await page.keyboard.press('End');
-  await page.waitForFunction(()=>document.querySelector('#timeline').value!=='0');
+  await page.locator('#replay-time').focus();await page.keyboard.press('End');
+  await page.waitForFunction(()=>document.querySelector('#replay-time').value!=='1261');
   const after=await snapshot(page);assert.equal(after.sha256,before.sha256);assert.notEqual(after.clock,before.clock);assert.equal(after.triangles,recovered.triangles,'No clock subscription redraws the documentary observation');
   // Native source-return behavior with a declared synthetic body, not live media acceptance.
   await page.route(observation.original_url,route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Controlled source return fixture</title><p>No historical content is supplied by this route fixture.</p>'}));
-  await page.locator('#early-condensation-reading').getByRole('link',{name:'Open Reid’s original photograph'}).click();
+  await page.locator('#early-condensation-study').getByRole('link',{name:'Open Reid’s original photograph'}).click();
   await page.waitForURL(observation.original_url);await page.goBack();
   await page.waitForFunction(()=>document.querySelector('#early-condensation-canvas').dataset.documentaryState==='reported_minute');
   assert.equal(new URL(page.url()).searchParams.get('t'),after.clock);await reading(page);
-  await page.reload();await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true'&&document.querySelector('#early-condensation-canvas').dataset.documentaryState==='reported_minute');await reading(page);
+  await page.reload();await page.waitForFunction(()=>!document.querySelector('#replay-time').disabled&&document.querySelector('#early-condensation-canvas').dataset.documentaryState==='reported_minute');await reading(page);
   assert.equal(new URL(page.url()).searchParams.get('t'),after.clock);
   // Reflow both the caption and the displayed authored form.
   await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')],sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));nodes.forEach((node,i)=>node.style.fontSize=sizes[i]*2+'px');});
@@ -88,14 +90,21 @@ for(const [width,theme] of [[320,'dark'],[1280,'light']])test('early reported-mi
   console.log('EARLY_DOCUMENTARY_ACTUAL '+JSON.stringify({width,theme,before:{...before,record:undefined},after:{...after,record:undefined},source_return_basis:'Native original URL with controlled synthetic body; not live source rendering',source_requests:sourceRequests}));
 });
 for(const scenario of ['nojs','data503','noWebGL'])test('early documentary reading survives '+scenario,async t=>{
-  const page=await fixture(t,{viewport:{width:320,height:1000},javaScriptEnabled:scenario!=='nojs'}),originalRequests=[];
-  page.on('request',req=>{if(req.url().includes('stormbruiser.com'))originalRequests.push(req.url());});
-  if(scenario==='data503')await page.route('**/data.json',route=>route.fulfill({status:503,body:'Controlled unavailable data'}));
-  if(scenario==='noWebGL')await page.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return this.id==='early-condensation-canvas'&&kind==='webgl2'?null:get.call(this,kind,...args);};});
-  await page.goto(base+'/index.html#early-condensation-reading');
-  if(scenario==='data503')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='error'&&['reported_minute','unavailable'].includes(document.querySelector('#early-condensation-canvas').dataset.documentaryState));
-  if(scenario==='noWebGL')await page.waitForFunction(()=>document.querySelector('#early-condensation-canvas').dataset.documentaryState==='unavailable');
-  await reading(page);assert.deepEqual(originalRequests,[]);await capture(page,'early-fallback-'+scenario);
+ const page=await fixture(t,{viewport:{width:320,height:1000},javaScriptEnabled:scenario!=='nojs'}),originalRequests=[];
+ page.on('request',req=>{if(req.url().includes('stormbruiser.com'))originalRequests.push(req.url());});
+ if(scenario==='data503')await page.route('**/data.json',route=>route.fulfill({status:503,body:'Controlled unavailable data'}));
+ if(scenario==='noWebGL')await page.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return kind==='webgl2'?null:get.call(this,kind,...args);};});
+ await page.goto(base+'/index.html#early-condensation-reading');
+ if(scenario==='data503')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='error');
+ const article=page.locator('#early-condensation-reading');
+ assert.match(await article.textContent(),/6:04 PM CDT/);
+ assert.equal(await article.getByRole('link',{name:'Open Reid’s original photograph'}).getAttribute('href'),observation.original_url);
+ assert.equal(await article.getByRole('link',{name:'Read the creator’s account and caption'}).getAttribute('href'),observation.account_url);
+ assert.equal(await article.locator('canvas,img,iframe,video,script').count(),0);
+ assert.equal(await page.locator('#photos canvas').count(),0);
+ assert.equal(await article.getByRole('link',{name:'Open the appearance study in the simulator'}).getAttribute('href'),'reconstruction.html?event=el-reno-2013#replay-reported-appearance');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+ assert.deepEqual(originalRequests,[]);
 });
 
 for(const javaScriptEnabled of [true,false])test('qualified published video remains a source link with '+(javaScriptEnabled?'scripts':'no scripts'),async t=>{

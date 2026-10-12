@@ -5,7 +5,7 @@ import {mkdir} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
 
 const chapters=['joplin.html','blackwell.html','tuscaloosa.html'];
-const counts={'joplin.html':15,'blackwell.html':10,'tuscaloosa.html':17};
+const counts={'joplin.html':16,'blackwell.html':11,'tuscaloosa.html':18};
 const fits=page=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
 async function enlarge(page){
   const result=await page.evaluate(()=>{

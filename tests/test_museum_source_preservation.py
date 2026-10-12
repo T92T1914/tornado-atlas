@@ -77,7 +77,9 @@ class MuseumSourcePreservationTests(unittest.TestCase):
     def test_portable_correction_changes_only_the_derived_package_and_its_basis(self):
         before = json.loads((ROOT / f'web/archive/{EVENT}-{STATIC[:20]}.json').read_text(encoding='utf-8'))
         self.assertEqual(digest(before), STATIC)
-        current = next(row for row in dossiers() if row['id'] == EVENT)
+        portable = '2d248fb261debf757e75465ef4549fdc4a42b2e4737fe10fa49c066345c7cf5b'
+        current = json.loads((ROOT / f'web/archive/{EVENT}-{portable[:20]}.json').read_bytes())
+        self.assertEqual(digest(current), portable)
         expected = copy.deepcopy(before)
         package = {'file':'events/tuscaloosa-birmingham-2011-survey-5ee7602b7022556858cb.json',
                    'bytes':186401, 'sha256':'5ee7602b7022556858cbd7b99fce99ad0bf81750b79d8427acc12bf8a3efaefb'}
@@ -91,7 +93,8 @@ class MuseumSourcePreservationTests(unittest.TestCase):
         expected['provenance']['publication_review'] = current['provenance']['publication_review']
         self.assertEqual(current, expected)
         self.assertEqual(current['provenance']['publication_review']['previous_dossier_sha256'], STATIC)
-        latest = next(row for row in dossier_history(current)['versions'] if row['dossier_sha256'] == digest(current))
+        selected = next(row for row in dossiers() if row['id'] == EVENT)
+        latest = next(row for row in dossier_history(selected)['versions'] if row['dossier_sha256'] == portable)
         self.assertEqual(latest['changes'], [{'kind':'media','id':'bmx-static-survey-map',
             'change':'updated','fields':['transformation']}])
 

@@ -45,6 +45,9 @@ class BlackwellArchiveRouteTests(unittest.TestCase):
         self.page = (ROOT / 'web/blackwell.html').read_text(encoding='utf-8')
 
     def test_previous_evidence_is_unchanged_and_no_media_is_added(self):
+        # Verify the completed Flora increment against its immutable publication.
+        self.doc = json.loads((ROOT / 'web/archive/blackwell-1955-35e98413c80a66e59d24.json').read_bytes())
+        self.assertEqual(digest(self.doc), '35e98413c80a66e59d2427176127a9cb987a368480948150286647bd19000638')
         validate_dossier(self.doc)
         for field in ('media', 'records', 'reconstruction'):
             self.assertEqual(self.doc[field], self.prior[field], field)

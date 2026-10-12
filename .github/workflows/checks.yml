@@ -46,6 +46,8 @@ jobs:
           node --check web/study.js
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
+          node --check web/documentary-appearance.mjs
+          node --check web/documentary-media.mjs
           node --check web/reconstruction.js
           node --check web/replay-scale-impact-view.mjs
           node --check web/appearance-timeline-model.mjs

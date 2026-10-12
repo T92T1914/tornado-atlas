@@ -13,6 +13,7 @@ import {replayChapters,chapterAt,adjacentChapter} from './replay-context-model.m
 import {mountSurvey} from './survey-view.mjs';
 import {mountPhotoViewer} from './photo-view.mjs';
 import {mountReplayScaleImpact} from './replay-scale-impact-view.mjs';
+import {mountDocumentaryAppearance} from './documentary-appearance.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
@@ -27,6 +28,20 @@ async function start(){
   const {index,event,config,data,chronology,radarContext,readingContext}=await loadEventPackage(new URLSearchParams(location.search).get('event'));
   const picker=el('replay-event');picker.replaceChildren();
   for(const row of index.events){const option=document.createElement('option');option.value=row.id;option.textContent=`${row.title}${row.replay?' · Geographic replay':row.chronology?' · Source chronology':' · Research readiness'}`;picker.append(option);}
+  const reportedPanel=el('replay-reported-appearance');
+  if(event.id==='el-reno-2013'&&data?.documentary?.reported_appearance){
+    reportedPanel.hidden=false;
+    let reportedStudy=null;
+    const toggleStudy=()=>{
+      if(reportedPanel.open){
+        if(reportedStudy)reportedStudy.resume();
+        else reportedStudy=mountDocumentaryAppearance();
+      }else reportedStudy?.suspend();
+    };
+    reportedPanel.addEventListener('toggle',toggleStudy);
+    el('replay-appearance-early').addEventListener('click',()=>{reportedPanel.open=true;});
+    if(location.hash==='#replay-reported-appearance'){reportedPanel.open=true;toggleStudy();}
+  }
   picker.value=event.id;picker.disabled=false;
   picker.addEventListener('change',()=>{location.href=`reconstruction.html?event=${encodeURIComponent(picker.value)}`;});
   document.title=`${event.title} in space and time | Tornado Atlas`;

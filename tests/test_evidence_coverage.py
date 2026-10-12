@@ -29,7 +29,8 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(rows['joplin-2011']['layers']['chronology']['state'],'documentary')
         for identifier in ('joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'):
             self.assertEqual(rows[identifier]['layers']['geography']['state'],'context')
-            self.assertEqual(rows[identifier]['layers']['footage']['state'],'not_linked')
+            self.assertEqual(rows[identifier]['layers']['footage']['state'],'context')
+            self.assertTrue(all(item['status']['temporal'] == 'unregistered' for _, item in rows[identifier]['layers']['footage']['items']))
         appearance=rows['el-reno-2013']['layers']['appearance']
         self.assertEqual(appearance['state'],'photo_samples')
         self.assertEqual(appearance['photo_sample_count'],7)
@@ -281,7 +282,7 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
             raise ValueError('Shared synthetic photo cases are missing')
         cls.spec = json.loads(match.group(1))
 
-    def synthetic_rows(self, event_id, *, registered=False):
+    def synthetic_rows(self, event_id, *, registered=False, photo_only=False):
         spec = self.spec
         packages = copy.deepcopy(self.packages)
         index = copy.deepcopy(self.index)
@@ -362,6 +363,11 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
         event.update(title='Synthetic coverage fixture for '+event_id,
                      replay=f'events/{event_id}.json',chronology=None)
         docs = copy.deepcopy(list(self.docs.values()))
+        # This fixture explicitly exercises photo-only coverage even as the real
+        # collection acquires documentary video. Source records are not mutated.
+        if photo_only:
+            candidate = next(doc for doc in docs if doc['id'] == event_id)
+            candidate['media'] = [item for item in candidate['media'] if item['kind'] != 'video']
         if registered:
             next(doc for doc in docs if doc['id'] == event_id)['reconstruction']['appearance'] = 'registered'
         def existing_references(root, doc):
@@ -376,7 +382,7 @@ class PhotoEvidenceCoverageTests(unittest.TestCase):
         return rows
 
     def test_photo_only_coverage_retains_unregistered_dossier_and_existing_context(self):
-        rows = self.synthetic_rows('joplin-2011')
+        rows = self.synthetic_rows('joplin-2011', photo_only=True)
         row = next(row for row in rows if row['event']['id'] == 'joplin-2011')
         appearance = row['layers']['appearance']
         self.assertEqual(row['doc']['reconstruction']['appearance'],'unregistered')

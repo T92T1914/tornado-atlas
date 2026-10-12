@@ -54,7 +54,7 @@ async function reading(page){
   assert.equal(await page.locator('#source-register li').count(),bundle.reading.sources.length);
   assert.equal(await page.locator('#storm-chronology>li').count(),bundle.history.chapters.length);
   assert.equal(await page.locator('#forecast-sequence>li').count(),bundle.documentary.warnings.length);
-  assert.equal(await page.locator('#storm-photographs [data-storm-photo]').count(),2);
+  assert.deepEqual(await page.locator('#storm-photographs [data-storm-photo]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),bundle.storm_photos.map(photo=>photo.file));
   assert.match(await page.locator('#chronology-42').textContent(),/6:42/);
   assert.match(await page.locator('#chronology-42').textContent(),/6:44/);
   const ids=await page.locator('[id]').evaluateAll(nodes=>nodes.map(node=>node.id));

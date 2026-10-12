@@ -33,7 +33,7 @@ def link(label, url, **attrs):
 
 def photo_figure(photo, index, hero=False):
     versions = photo['reading_versions']
-    preferred = next(row for row in versions if row['width'] == 1280)
+    preferred = min(versions, key=lambda row: abs(row['width']-1280))
     sizes = '(min-width: 1081px) 56vw, (min-width: 701px) 50vw, 100vw'
     image = (f'<img src="{text(preferred["file"])}" '
              f'srcset="{text(", ".join(row["file"]+" "+str(row["width"])+"w" for row in versions))}" '
@@ -47,10 +47,32 @@ def photo_figure(photo, index, hero=False):
     if photo.get('creator_url'):
         caption += p('Original creator title: '+photo['creator_title']+'. The historical title uses EF5; the final NWS damage rating is EF3.', class_='fineprint')
         caption += link('Original creator page and caption', photo['creator_url'])
-    caption += p('Reading versions resized and JPEG compressed from the preserved original. '
-                 + photo['timing_note'], class_='fineprint')
+    presentation = ('Original photograph preserved and displayed in full frame. '
+        if len(versions) == 1 and versions[0]['file'] == photo['file']
+        else 'Reading versions resized and JPEG compressed from the preserved original. ')
+    caption += p(presentation + photo['timing_note'], class_='fineprint')
     caption += link('Open the preserved full resolution photograph', photo['file'])
     return element('figure', image_link + element('figcaption', caption))
+
+
+def simulator_early_region(bundle):
+    observation = bundle['documentary']['reported_appearance']['observations'][0]
+    drawing = element('canvas', '', id='early-condensation-canvas', role='img',
+                      aria_label='Independent schematic of the lighter condensation taper in the earlier photograph',
+                      aria_describedby='early-condensation-caption early-condensation-omission early-condensation-time', hidden='hidden')
+    record = json.dumps(observation, ensure_ascii=False).replace('<', chr(92) + 'u003c')
+    return (element('h3', text(observation['title']))
+        + p('Reported '+observation['reported_time']['local']+' / '+observation['reported_time']['utc'], class_='eyebrow')
+        + element('figure', drawing + element('figcaption', p(observation['caption'], id='early-condensation-caption')
+            + p(observation['omission'], id='early-condensation-omission')))
+        + p('The source account and interpretation remain readable here. The drawing loads when available.', id='early-condensation-status', role='status', class_='fineprint')
+        + p(observation['clock_note'], id='early-condensation-time')
+        + element('p', link('Open Reid’s original photograph', observation['original_url'])+' · '
+            + link('Read the creator’s account and caption', observation['account_url'])+' · '
+            + link('Compare the later photographed body', '#partial-condensation-reading'))
+        + element('details', element('summary', 'What this view can tell us')
+            + p('The photograph supports a coarse visible form, not measured tornado height, radius, ground contact or damaging-wind extent. The earlier group’s camera lens is not assigned to this relocated view. The original photograph remains at its creator publication; source pixels are not hosted here.'))
+        + '<script type="application/json" id="early-condensation-record">'+record+'</script>')
 
 
 def regions(bundle):
@@ -85,22 +107,13 @@ def regions(bundle):
                           + element('div', ''.join(link(source['label'], source['url']) for source in row['sources']), class_='report-links'), id=row['id'])
     result['documentary-report'] = report
     observation = bundle['documentary']['reported_appearance']['observations'][0]
-    drawing = element('canvas', '', id='early-condensation-canvas', role='img',
-                      aria_label='Independent schematic of the lighter condensation taper in the earlier photograph',
-                      aria_describedby='early-condensation-caption early-condensation-omission early-condensation-time', hidden='hidden')
-    record = json.dumps(observation, ensure_ascii=False).replace('<', chr(92) + 'u003c')
-    result['early-condensation'] = (element('h3', text(observation['title']))
-        + p('Reported '+observation['reported_time']['local']+' / '+observation['reported_time']['utc'], class_='eyebrow')
-        + element('figure', drawing + element('figcaption', p(observation['caption'], id='early-condensation-caption')
-            + p(observation['omission'], id='early-condensation-omission')))
-        + p('The source account and interpretation remain readable here. The drawing loads when available.', id='early-condensation-status', role='status', class_='fineprint')
-        + p(observation['clock_note'], id='early-condensation-time')
+    result['early-condensation'] = (element('h3', 'An earlier photograph by William T. Reid')
+        + p('Creator caption: '+observation['reported_time']['local']+' / '+observation['reported_time']['utc'], class_='eyebrow')
+        + p('Open the original photograph and read Reid’s account of this earlier view. The photograph remains at its creator’s publication.')
         + element('p', link('Open Reid’s original photograph', observation['original_url'])+' · '
-            + link('Read the creator’s account and caption', observation['account_url'])+' · '
-            + link('Compare the later photographed body', '#partial-condensation-reading'))
-        + element('details', element('summary', 'What this view can tell us')
-            + p('The photograph supports a coarse visible form, not measured tornado height, radius, ground contact or damaging-wind extent. The earlier group’s camera lens is not assigned to this relocated view. The original photograph remains at its creator publication; source pixels are not hosted here.'))
-        + '<script type="application/json" id="early-condensation-record">'+record+'</script>')
+            + link('Read the creator’s account and caption', observation['account_url']))
+        + p('The caption supplies a reported minute. The exposure second, camera clock accuracy and calibrated viewpoint remain unknown.', class_='fineprint')
+        + element('p', link('Open the appearance study in the simulator', 'reconstruction.html?event=el-reno-2013#replay-reported-appearance')))
     result['hero-photograph'] = photo_figure(photos[0], 0, True)
     result['storm-photographs'] = ''.join(photo_figure(photo, index) for index, photo in enumerate(photos))
     result['visitor-questions'] = ''.join(element('details', element('summary', text(row['question'])) + p(row['answer'])
@@ -145,24 +158,37 @@ def rendered_page(template, bundle):
 
 
 def publish(root, bundle, check=False):
-    path = root / 'web/index.html'
-    current = path.read_text(encoding='utf-8')
-    generated = rendered_page(current, bundle)
+    article = root / 'web/index.html'
+    simulator = root / 'web/reconstruction.html'
+    current_article = article.read_text(encoding='utf-8')
+    current_simulator = simulator.read_text(encoding='utf-8')
+    generated_article = rendered_page(current_article, bundle)
+    start, end = '<!-- reading:simulator-early-condensation -->', '<!-- /reading:simulator-early-condensation -->'
+    generated_simulator, count = re.subn(re.escape(start)+r'.*?'+re.escape(end),
+        lambda match: start+simulator_early_region(bundle)+end, current_simulator, flags=re.S)
+    if count != 1:
+        raise ValueError('Expected one simulator appearance reading region')
     if check:
-        if current != generated:
-            raise ValueError('El Reno reading differs from its source records; rebuild museum reading')
+        if current_article != generated_article or current_simulator != generated_simulator:
+            raise ValueError('Museum or simulator reading differs from its source records; rebuild museum reading')
     else:
-        path.write_text(generated, encoding='utf-8', newline='\n')
+        article.write_text(generated_article, encoding='utf-8', newline='\n')
+        simulator.write_text(generated_simulator, encoding='utf-8', newline='\n')
 
 
 def validate_versions(photos, web):
     for photo in photos:
         versions = photo['reading_versions']
-        if [row['width'] for row in versions] != [640, 1280, 1920]:
-            raise ValueError('Expected three ordered, full-frame reading versions')
+        original_only = (photo['width'] < 1280 and len(versions) == 1
+            and versions[0]['file'] == photo['file']
+            and versions[0]['width'] == photo['width']
+            and versions[0]['height'] == photo['height']
+            and versions[0]['sha256'] == photo['sha256'])
+        if not original_only and [row['width'] for row in versions] != [640, 1280, 1920]:
+            raise ValueError('Expected three ordered reading versions or the unchanged smaller original')
         for row in versions:
             path = Path(row['file'])
-            if path.as_posix() != f'assets/el-reno-2013/{Path(photo["file"]).stem}-{row["width"]}.jpg':
+            if not original_only and path.as_posix() != f'assets/el-reno-2013/{Path(photo["file"]).stem}-{row["width"]}.jpg':
                 raise ValueError('Reading version outside its original photograph family')
             raw = (web / path).read_bytes()
             if len(raw) != row['bytes'] or hashlib.sha256(raw).hexdigest() != row['sha256']:

@@ -3,6 +3,7 @@ import copy
 import hashlib
 from html.parser import HTMLParser
 import json
+import re
 from pathlib import Path
 import unittest
 
@@ -178,7 +179,9 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         _, after = generated.split(end)
         # The new source-generated account labels use their own separators.
         # Keep the original document and shared navigation's exact UTF-8 guard.
-        self.assertEqual((before + after).count('·'), 24)
+        original_document = re.sub(r'<section id="photographs-and-film"[\s\S]*?</section>', '', before + after)
+        self.assertEqual(original_document.count('·'), 24)
+        self.assertNotIn('\ufffd', self.html)
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)
 

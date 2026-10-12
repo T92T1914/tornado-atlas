@@ -24,6 +24,15 @@ for photo in photos:
     versions = []
     with Image.open(original) as image:
         assert image.size == (photo['width'], photo['height'])
+    if photo['width'] < 1280:
+        # Preserve the smaller original rather than inventing detail by enlargement.
+        raw = original.read_bytes()
+        photo['reading_versions'] = [{'file': photo['file'], 'width': photo['width'],
+            'height': photo['height'], 'bytes': len(raw), 'sha256': photo['sha256'],
+            'original_sha256': photo['sha256'], 'changes': 'Original full frame, unchanged bytes.'}]
+        continue
+    with Image.open(original) as image:
+        assert image.size == (photo['width'], photo['height'])
         for width in [640, 1280, 1920]:
             height = round(width * image.height / image.width)
             relative = f'assets/el-reno-2013/{original.stem}-{width}.jpg'

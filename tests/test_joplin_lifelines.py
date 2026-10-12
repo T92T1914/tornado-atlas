@@ -15,7 +15,9 @@ class JoplinLifelineTests(unittest.TestCase):
     def test_preexisting_evidence_and_reconstruction_are_preserved(self):
         previous = json.loads((ROOT / f'web/archive/joplin-2011-{BASE[:20]}.json').read_text(encoding='utf-8'))
         self.assertEqual(digest(previous), BASE)
-        current = next(row for row in dossiers(ROOT) if row['id'] == 'joplin-2011')
+        introduced = '0de641621571ae90409fdd4d987bd2b5e82d1826c39aaed0c3174d1e8a7d004a'
+        current = json.loads((ROOT / f'web/archive/joplin-2011-{introduced[:20]}.json').read_bytes())
+        self.assertEqual(digest(current), introduced)
         for kind in ['records', 'routes', 'creators', 'media', 'reconstruction']:
             self.assertEqual(current[kind], previous[kind], kind)
         for kind in ['sources', 'observations']:
