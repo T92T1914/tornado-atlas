@@ -286,6 +286,51 @@ def _validate_partial_form(form, version):
         raise ValueError("Partial photographic margin must remain open")
 
 
+def _validate_source_comparison(value, reported):
+    """Declared documentary context only; no shared exposure or clock accuracy."""
+    fields(value, ("id", "kind", "source_id", "record_id", "url", "video_id",
+                   "version_identity", "duration_seconds", "requested_seconds",
+                   "callback_seconds", "paused_seconds", "printed_clock", "printed_utc",
+                   "reading_precision", "visibility_limits", "scene_features",
+                   "exposure_identity", "reviewed_on", "inspection_basis", "reuse",
+                   "rights_basis", "limits", "contract_sha256"), "source comparison")
+    for name in ("id", "source_id", "record_id"):
+        _photo_id(value[name], name)
+    if (value["kind"] != "source_label_and_scene_context"
+            or value["exposure_identity"] != "unknown"
+            or value["reuse"] != "external_links_only"):
+        raise ValueError("Source comparison requires context, unknown exposure and original links")
+    if (not isinstance(value["video_id"], str)
+            or not re.fullmatch(r"[A-Za-z0-9_-]{11}", value["video_id"])
+            or value["url"] != "https://www.youtube.com/watch?v=" + value["video_id"]):
+        raise ValueError("Source comparison watch identity differs")
+    _number(value["duration_seconds"], "comparison duration", 0.001, 72000)
+    for name in ("requested_seconds", "callback_seconds", "paused_seconds"):
+        _number(value[name], name, 0, value["duration_seconds"])
+    precision = value["reading_precision"]
+    suffix = r"\.\d{3}Z" if precision == "millisecond_label_readable" else "Z"
+    if precision not in ("millisecond_label_readable", "whole_second_label_readable"):
+        raise ValueError("Unsupported comparison clock reading precision")
+    label = value["printed_utc"]
+    if (not isinstance(label, str)
+            or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}" + suffix, label)
+            or value["printed_clock"] != label[11:-1]):
+        raise ValueError("Invalid literal comparison clock label")
+    stamp = datetime.fromisoformat(label.replace("Z", "+00:00"))
+    if not 0 <= (stamp - reported).total_seconds() < 1:
+        raise ValueError("Comparison clock differs from the reported photo second")
+    for name in ("version_identity", "visibility_limits", "inspection_basis", "rights_basis"):
+        _photo_text(value[name], name)
+    _photo_date(value["reviewed_on"])
+    if not isinstance(value["contract_sha256"], str) or not re.fullmatch(r"[a-f0-9]{64}", value["contract_sha256"]):
+        raise ValueError("Source comparison lacks its declared contract identity")
+    for name in ("scene_features", "limits"):
+        if not isinstance(value[name], list) or not 1 <= len(value[name]) <= 8:
+            raise ValueError("Source comparison requires bounded features and limits")
+        for text in value[name]:
+            _photo_text(text, name, 1000)
+
+
 def _validate_photos(timeline, start, end):
     # These checks establish declared consistency, not authentic inspection,
     # source identity, clock accuracy or permission to reuse source pixels.
@@ -323,6 +368,7 @@ def _validate_photos(timeline, start, end):
         sources[source["id"]] = source
 
     sequence_ids, sample_ids, exposures, image_locators = set(), set(), set(), set()
+    comparison_ids = set()
     total = 0
     for sequence in sequences:
         fields(sequence, ("id", "basis", "samples"), "photographic sequence")
@@ -342,7 +388,8 @@ def _validate_photos(timeline, start, end):
             fields(sample, ("id", "source_id", "exposure_id", "image", "reported_utc",
                             "timing", "inspection", "viewpoint", "characteristics",
                             "boundary_limits", "shape", "extent") +
-                   (("partial_form",) if timeline["schema_version"] in (3, 4) else ()),
+                   (("partial_form",) if timeline["schema_version"] in (3, 4) else ()) +
+                   (("source_comparison",) if timeline["schema_version"] == 4 and isinstance(sample, dict) and "source_comparison" in sample else ()),
                    "photographic sample")
             _photo_id(sample["id"], "sample identity")
             _photo_id(sample["source_id"], "sample source identity")
@@ -370,6 +417,12 @@ def _validate_photos(timeline, start, end):
             if not start <= stamp <= end or (previous is not None and stamp <= previous):
                 raise ValueError("Photographic samples must be strictly ordered within replay coverage")
             previous = stamp
+            if "source_comparison" in sample:
+                comparison = sample["source_comparison"]
+                _validate_source_comparison(comparison, stamp)
+                if comparison["id"] in comparison_ids:
+                    raise ValueError("Duplicate source comparison identity")
+                comparison_ids.add(comparison["id"])
             timing = sample["timing"]
             fields(timing, ("method", "basis", "uncertainty_seconds", "uncertainty_basis"),
                    "photographic timing")

@@ -299,9 +299,31 @@ async function start(){
     const original=document.createElement('a');original.id='replay-photo-original';
     original.href=sample.image.original_url;original.target='_blank';original.rel='noopener';
     original.textContent=`Open the original image or panel: ${sample.image.panel_locator}`;
+    host.append(original);
+    if(sample.source_comparison){
+      const comparison=sample.source_comparison,section=document.createElement('section');
+      section.id='replay-photo-movie-context';
+      const heading=document.createElement('h4'),message=document.createElement('p'),labels=document.createElement('p'),movieLabel=document.createElement('p');
+      heading.textContent='Checked movie context';
+      message.textContent='An inspected paused presentation shows a compatible scene near this photograph’s reported time. The exact photographic exposure has not been identified in the movie.';
+      const photoDate=new Date(sample.reported_utc).toLocaleDateString('en-US',{timeZone:'UTC',month:'long',day:'numeric',year:'numeric'});
+      labels.textContent=`Photo reported time: ${sample.reported_utc.slice(11,19)} UTC on ${photoDate}.`;
+      movieLabel.textContent=`Movie clock read: ${comparison.printed_clock} UTC. ${comparison.visibility_limits}`;
+      const movie=document.createElement('a'),movieURL=new URL(comparison.url);
+      movieURL.searchParams.set('t',`${Math.floor(comparison.requested_seconds)}s`);
+      movie.id='replay-photo-movie-original';movie.href=movieURL.href;movie.target='_blank';movie.rel='noopener';
+      movie.textContent='Open the creator’s original movie near this checked view';
+      section.append(heading,message,labels,movieLabel,movie);host.append(section);
+      field('Movie publication version',comparison.version_identity);
+      field('Requested movie locator',`${comparison.requested_seconds} seconds.`);
+      field('Callback composition time',`${comparison.callback_seconds} seconds.`);
+      field('Paused playback time',`${comparison.paused_seconds} seconds. Neither playback value identifies the original photographic exposure.`);
+      field('Movie comparison inspection',comparison.inspection_basis);
+      field('Movie use basis',comparison.rights_basis);
+      field('Movie comparison limits',comparison.limits.join(' '));
+    }
     const boundary=document.createElement('p');
     boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. No photograph is loaded or copied by this player.';
-    host.append(original);
     details.append(boundary);host.append(details);
   }
   function updatePhotoPanel(sequence){

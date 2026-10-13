@@ -1,0 +1,148 @@
+{
+  "sample_ids": [
+    "nolte-231037",
+    "nolte-231059"
+  ],
+  "invalid": [
+    {
+      "name": "known exposure",
+      "path": [
+        "exposure_identity"
+      ],
+      "value": "verified"
+    },
+    {
+      "name": "hosting permission",
+      "path": [
+        "reuse"
+      ],
+      "value": "permitted_hosting"
+    },
+    {
+      "name": "other watch",
+      "path": [
+        "video_id"
+      ],
+      "value": "aaaaaaaaaaa"
+    },
+    {
+      "name": "numeric string locator",
+      "path": [
+        "requested_seconds"
+      ],
+      "value": "1241.223333"
+    },
+    {
+      "name": "negative locator",
+      "path": [
+        "requested_seconds"
+      ],
+      "value": -1
+    },
+    {
+      "name": "boolean callback",
+      "path": [
+        "callback_seconds"
+      ],
+      "value": true
+    },
+    {
+      "name": "past movie duration",
+      "path": [
+        "paused_seconds"
+      ],
+      "value": 1500
+    },
+    {
+      "name": "wrong reported second",
+      "path": [
+        "printed_utc"
+      ],
+      "value": "2013-05-31T23:10:38.254Z",
+      "changes": [
+        {
+          "path": [
+            "printed_utc"
+          ],
+          "value": "2013-05-31T23:10:38.254Z"
+        },
+        {
+          "path": [
+            "printed_clock"
+          ],
+          "value": "23:10:38.254"
+        }
+      ]
+    },
+    {
+      "name": "invalid calendar",
+      "path": [
+        "printed_utc"
+      ],
+      "value": "2013-02-30T23:10:37.254Z"
+    },
+    {
+      "name": "lost fractional label",
+      "path": [
+        "printed_clock"
+      ],
+      "value": "23:10:37"
+    },
+    {
+      "name": "reading precision conflict",
+      "path": [
+        "reading_precision"
+      ],
+      "value": "whole_second_label_readable"
+    },
+    {
+      "name": "invented timing uncertainty",
+      "path": [
+        "uncertainty_seconds"
+      ],
+      "value": 0.1
+    },
+    {
+      "name": "invented physical width",
+      "path": [
+        "width_m"
+      ],
+      "value": 2000
+    },
+    {
+      "name": "continuous interval",
+      "path": [
+        "end_utc"
+      ],
+      "value": "2013-05-31T23:10:59Z"
+    },
+    {
+      "name": "empty inspection",
+      "path": [
+        "inspection_basis"
+      ],
+      "value": ""
+    },
+    {
+      "name": "empty features",
+      "path": [
+        "scene_features"
+      ],
+      "value": []
+    },
+    {
+      "name": "extra metadata",
+      "path": [
+        "unexpected"
+      ],
+      "value": 1
+    },
+    {
+      "name": "other valid date",
+      "path": [
+        "printed_utc"
+      ],
+      "value": "2013-06-01T23:10:37.254Z"
+    }
+  ]
+}
