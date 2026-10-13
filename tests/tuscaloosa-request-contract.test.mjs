@@ -13,22 +13,24 @@ const reviewed=[
   '/assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/train-cars-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/aerial-context-april29.jpg',
+  '/assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png',
 ];
 
-test('all eight reviewed Tuscaloosa PNG/JPEG paths are permitted exactly',()=>{
+test('all nine reviewed Tuscaloosa PNG/JPEG paths are permitted exactly',()=>{
   assert.deepEqual(TUSCALOOSA_REVIEWED_IMAGES,reviewed);
-  assert.equal(new Set(TUSCALOOSA_REVIEWED_IMAGES).size,8);
+  assert.equal(new Set(TUSCALOOSA_REVIEWED_IMAGES).size,9);
   for(const path of reviewed)assert.equal(tuscaloosaRequestForbidden(base+path,base),false,path);
 });
 
-test('the explicit contract matches eight original rasters, their gallery copies and two GIFs',async()=>{
+test('the explicit contract matches nine original rasters, their gallery copies and two GIFs',async()=>{
   const html=await readFile(new URL('../web/tuscaloosa.html',import.meta.url),'utf8');
   const sources=[...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map(match=>'/'+match[1]);
-  assert.equal(sources.length,15,'Ten original article images plus five opening-gallery copies');
+  assert.equal(sources.length,16,'Ten retained article images, one published figure and five opening-gallery copies');
   const raster=sources.filter(path=>/\.(?:png|jpe?g)$/i.test(path));
-  assert.equal(raster.length,13);
+  assert.equal(raster.length,14);
   assert.deepEqual([...new Set(raster)].sort(),[...reviewed].sort());
-  for(const [index,path] of reviewed.entries())assert.equal(raster.filter(source=>source===path).length,index<3?1:2,'Only the five aftermath photographs are repeated');
+  for(const [index,path] of reviewed.slice(0,8).entries())assert.equal(raster.filter(source=>source===path).length,index<3?1:2,'Only the five aftermath photographs are repeated');
+  assert.equal(raster.filter(source=>source===reviewed[8]).length,1,'The complete published figure occurs once');
   assert.deepEqual(sources.filter(path=>/\.gif$/i.test(path)),[
     '/assets/tuscaloosa-birmingham-2011/kbmx-reflectivity-2238.gif',
     '/assets/tuscaloosa-birmingham-2011/kbmx-storm-relative-velocity-2238.gif',
