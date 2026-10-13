@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,withNavigationDiagnostics} from './harness.mjs';
 import {beginSurveyActivation,finishSurveyActivation} from './survey-activation-diagnostics.mjs';
 import {waitForSettledTouchTarget} from './touch-target-readiness.mjs';
 
@@ -291,21 +291,30 @@ test('survey Back closes a photo before replacing its opener and focuses a conne
 
 test('replay Back keeps an unchanged survey photo opener connected',async t=>{
   const page=await fixture(t,{viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  await withNavigationDiagnostics(page,'survey_navigation',async mark=>{
   await syntheticSurveyImage(page);
   await page.goto(base+'/index.html?t=780&survey=270271&surveyPhotos=1#survey-explorer');
   await page.locator('#survey-observation').waitFor();
   await page.locator('#timeline:not([disabled])').waitFor();
+  const historyBeforeNext=await page.evaluate(()=>history.length);
+  mark('replay_next_activation');
   await page.locator('#next').click();
+  mark('replay_next_history_prerequisite');
+  await page.waitForFunction(initial=>new URL(location.href).searchParams.get('t')==='840'
+    &&document.getElementById('timeline')?.value==='840'&&history.length===initial+1,historyBeforeNext);
   const nextTime=new URL(page.url()).searchParams.get('t');
   assert.equal(new URL(await page.locator('#survey-share').getAttribute('href')).searchParams.get('t'),nextTime);
+  mark('photo_activation');
   const opener=page.locator('#survey-detail .survey-photo-open').first();
   const oldOpener=await opener.elementHandle();
   await opener.click();
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
+  mark('replay_back');
   await page.goBack();
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
   assert.equal(await oldOpener.evaluate(node=>node.isConnected),true);
   assert.equal(new URL(await page.locator('#survey-share').getAttribute('href')).searchParams.get('t'),'780');
+  mark('replay_forward');
   await page.goForward();
   assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
   assert.equal(await oldOpener.evaluate(node=>node.isConnected),true);
@@ -313,4 +322,5 @@ test('replay Back keeps an unchanged survey photo opener connected',async t=>{
   await page.locator('#photo-close').click();
   await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
   assert.equal(await page.evaluate(()=>document.activeElement?.isConnected),true);
+  });
 });
