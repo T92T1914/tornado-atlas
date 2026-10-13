@@ -88,7 +88,42 @@
           ],
           "shape": null,
           "extent": null,
-          "partial_form": null
+          "partial_form": null,
+          "source_comparison": {
+            "id": "nolte-context-231037",
+            "kind": "source_label_and_scene_context",
+            "source_id": "nolte-original-timecoded-publication",
+            "record_id": "nolte-timecoded-context-231037",
+            "url": "https://www.youtube.com/watch?v=jsBDFA6_81M",
+            "video_id": "jsBDFA6_81M",
+            "version_identity": "The timecoded edition jsBDFA6_81M linked by the creator. The public 1080p HD presentation was inspected on October 13, 2026. A digest of the complete movie bytes has not been established.",
+            "duration_seconds": 1423.721,
+            "requested_seconds": 1241.223333,
+            "callback_seconds": 1241.24,
+            "paused_seconds": 1241.26,
+            "printed_clock": "23:10:37.254",
+            "printed_utc": "2013-05-31T23:10:37.254Z",
+            "reading_precision": "millisecond_label_readable",
+            "visibility_limits": "The complete printed clock label is readable in the retained presentation.",
+            "scene_features": [
+              "Compatible curved field horizon, foreground fence and left utility poles.",
+              "Compatible broad cloud arrangement and lightning-lit left region; publication processing and exact exposure remain unknown."
+            ],
+            "exposure_identity": "unknown",
+            "reviewed_on": "2026-10-13",
+            "inspection_basis": "Root and independent reviewers inspected the complete paused browser presentation against the published first still. The video decoded at 1920 by 1080; the saved presentation is 1112 by 626. A composition callback does not establish the original camera exposure.",
+            "reuse": "external_links_only",
+            "rights_basis": "Original creator-linked public watch page and nearby timestamped link only. The separate Commons photograph license does not license this movie or these source stills.",
+            "limits": [
+              "Exact photographic exposure and original camera assignment are unknown.",
+              "Printed clocks and creator photo labels do not establish absolute clock accuracy or a fractional photo capture time.",
+              "Requested locator, callback composition time and paused currentTime describe separate browser observations.",
+              "Camera pose, lens, physical width, depth and complete tornado boundary are unregistered.",
+              "Appearance between the separately reported photo instants remains unknown.",
+              "The comparison supplies original external links; private inspection screenshots and movie frames are not hosted."
+            ],
+            "contract_sha256": "0a721e08247f1c47421165eca98dc771da20f3c62dd2b942b96a90443f806bc8"
+          }
         },
         {
           "id": "nolte-231059",
@@ -135,7 +170,42 @@
           ],
           "shape": null,
           "extent": null,
-          "partial_form": null
+          "partial_form": null,
+          "source_comparison": {
+            "id": "nolte-context-231059",
+            "kind": "source_label_and_scene_context",
+            "source_id": "nolte-original-timecoded-publication",
+            "record_id": "nolte-timecoded-context-231059",
+            "url": "https://www.youtube.com/watch?v=jsBDFA6_81M",
+            "video_id": "jsBDFA6_81M",
+            "version_identity": "The timecoded edition jsBDFA6_81M linked by the creator. The public 1080p HD presentation was inspected on October 13, 2026. A digest of the complete movie bytes has not been established.",
+            "duration_seconds": 1423.721,
+            "requested_seconds": 1263.223333,
+            "callback_seconds": 1263.228633,
+            "paused_seconds": 1263.203416,
+            "printed_clock": "23:10:59",
+            "printed_utc": "2013-05-31T23:10:59Z",
+            "reading_precision": "whole_second_label_readable",
+            "visibility_limits": "A Settings tooltip obscures some fractional clock digits. Only the readable whole second is retained; no fraction is inferred from playback metadata.",
+            "scene_features": [
+              "Compatible left utility pole, immediate fence, smaller roadside poles and curved field horizon.",
+              "Compatible broad cloud scene. Illumination differs from the lightning-lit published second still; exact exposure remains unknown."
+            ],
+            "exposure_identity": "unknown",
+            "reviewed_on": "2026-10-13",
+            "inspection_basis": "Root and an independent reviewer inspected the complete paused browser presentation against the published second still. The video decoded at 1920 by 1080; the saved presentation is 1168 by 657. The lookup fixed 22 seconds after the first reached the reported second. Some fractional digits were obscured, so numerical clock differences were unavailable.",
+            "reuse": "external_links_only",
+            "rights_basis": "Original creator-linked public watch page and nearby timestamped link only. No movie, still or inspection screenshot hosting permission is inferred.",
+            "limits": [
+              "Exact photographic exposure and original camera assignment are unknown.",
+              "Printed clocks and creator photo labels do not establish absolute clock accuracy or a fractional photo capture time.",
+              "Requested locator, callback composition time and paused currentTime describe separate browser observations.",
+              "Camera pose, lens, physical width, depth and complete tornado boundary are unregistered.",
+              "Appearance between the separately reported photo instants remains unknown.",
+              "The comparison supplies original external links; private inspection screenshots and movie frames are not hosted."
+            ],
+            "contract_sha256": "0a721e08247f1c47421165eca98dc771da20f3c62dd2b942b96a90443f806bc8"
+          }
         },
         {
           "id": "nolte-231202",

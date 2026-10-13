@@ -22,6 +22,38 @@ function https(value){
 }
 function number(value,lo,hi){return typeof value==='number'&&Number.isFinite(value)&&value>=lo&&value<=hi;}
 
+function validateSourceComparison(value,reported){
+  fields(value,['id','kind','source_id','record_id','url','video_id','version_identity',
+    'duration_seconds','requested_seconds','callback_seconds','paused_seconds','printed_clock',
+    'printed_utc','reading_precision','visibility_limits','scene_features','exposure_identity',
+    'reviewed_on','inspection_basis','reuse','rights_basis','limits','contract_sha256'],'source comparison');
+  for(const key of ['id','source_id','record_id'])photoId(value[key],key);
+  requireValue(value.kind==='source_label_and_scene_context'&&value.exposure_identity==='unknown'&&
+    value.reuse==='external_links_only','Source comparison requires context, unknown exposure and original links.');
+  requireValue(typeof value.video_id==='string'&&/^[A-Za-z0-9_-]{11}$/.test(value.video_id)&&
+    value.url===`https://www.youtube.com/watch?v=${value.video_id}`,'Source comparison watch identity differs.');
+  requireValue(number(value.duration_seconds,.001,72000),'Invalid comparison duration.');
+  for(const key of ['requested_seconds','callback_seconds','paused_seconds'])
+    requireValue(number(value[key],0,value.duration_seconds),`Invalid comparison ${key}.`);
+  const precise=value.reading_precision==='millisecond_label_readable';
+  requireValue(precise||value.reading_precision==='whole_second_label_readable','Unsupported comparison clock reading precision.');
+  const pattern=precise?/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+  const label=value.printed_utc;
+  requireValue(typeof label==='string'&&pattern.test(label)&&Number(label.slice(0,4))>0&&
+    value.printed_clock===label.slice(11,-1),'Invalid literal comparison clock label.');
+  const stamp=Date.parse(label);
+  requireValue(Number.isFinite(stamp)&&new Date(stamp).toISOString()===(precise?label:label.slice(0,-1)+'.000Z'),
+    'Invalid comparison calendar date.');
+  requireValue(stamp>=reported&&stamp<reported+1000,'Comparison clock differs from the reported photo second.');
+  for(const key of ['version_identity','visibility_limits','inspection_basis','rights_basis'])photoText(value[key],key);
+  photoDate(value.reviewed_on);
+  requireValue(typeof value.contract_sha256==='string'&&digestPattern.test(value.contract_sha256),'Missing comparison contract identity.');
+  for(const key of ['scene_features','limits']){
+    requireValue(Array.isArray(value[key])&&value[key].length>=1&&value[key].length<=8,'Comparison needs bounded features and limits.');
+    for(const text of value[key])photoText(text,key,1000);
+  }
+}
+
 function validateRegistration(registration,window,source){
   fields(registration,['source','inspection','timing','camera','rights','uncertainty'],'appearance registration');
   const identity=registration.source;
@@ -160,7 +192,7 @@ function validatePhotos(timeline,lower,upper){
     photoText(source.rights.basis,'rights basis');
     sources.set(source.id,source);
   }
-  const sequenceIds=new Set(),sampleIds=new Set(),exposures=new Set(),imageLocators=new Set();
+  const sequenceIds=new Set(),sampleIds=new Set(),exposures=new Set(),imageLocators=new Set(),comparisonIds=new Set();
   let total=0;
   for(const sequence of timeline.photo_sequences){
     fields(sequence,['id','basis','samples'],'photographic sequence');
@@ -175,7 +207,8 @@ function validatePhotos(timeline,lower,upper){
     for(const sample of sequence.samples){
       fields(sample,['id','source_id','exposure_id','image','reported_utc','timing','inspection',
         'viewpoint','characteristics','boundary_limits','shape','extent',
-        ...([3,4].includes(timeline.schema_version)?['partial_form']:[])],'photographic sample');
+        ...([3,4].includes(timeline.schema_version)?['partial_form']:[]),
+        ...(timeline.schema_version===4&&sample&&Object.hasOwn(sample,'source_comparison')?['source_comparison']:[])],'photographic sample');
       photoId(sample.id,'sample identity');photoId(sample.source_id,'sample source identity');
       photoId(sample.exposure_id,'exposure identity');
       requireValue(!sampleIds.has(sample.id),'Duplicate photographic sample identity.');
@@ -192,6 +225,11 @@ function validatePhotos(timeline,lower,upper){
       requireValue(stamp>=lower&&stamp<=upper&&stamp>previous,
         'Photographic samples must be strictly ordered within replay coverage.');
       previous=stamp;
+      if(Object.hasOwn(sample,'source_comparison')){
+        validateSourceComparison(sample.source_comparison,stamp);
+        requireValue(!comparisonIds.has(sample.source_comparison.id),'Duplicate source comparison identity.');
+        comparisonIds.add(sample.source_comparison.id);
+      }
       fields(sample.timing,['method','basis','uncertainty_seconds','uncertainty_basis'],'photographic timing');
       requireValue(sample.timing.method==='source_reported','Unsupported photographic timing method.');
       photoText(sample.timing.basis,'reported timing basis');

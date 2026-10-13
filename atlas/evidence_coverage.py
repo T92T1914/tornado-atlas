@@ -67,6 +67,44 @@ def reviewed(items):
             and item['status']['assertion'] != 'not_researched']
 
 
+def validate_source_comparison_joins(doc, timeline):
+    """Join declared photo context to its reviewed documentary point record."""
+    sources = {row['id']: row for row in doc['sources']}
+    media = {row['id']: row for row in doc['media']}
+    used = set()
+    for sequence in timeline.get('photo_sequences', []):
+        for sample in sequence['samples']:
+            comparison = sample.get('source_comparison')
+            if comparison is None:
+                continue
+            source = sources.get(comparison['source_id'])
+            point = media.get(comparison['record_id'])
+            if (source is None or point is None or point['id'] in used
+                    or source['url'] != comparison['url']
+                    or source['revision'] != comparison['version_identity']
+                    or point['source_id'] != source['id']
+                    or point['url'] != comparison['url'] or point['kind'] != 'video'
+                    or point['parent'] is not None
+                    or point['status']['intake'] != 'published'
+                    or point['status']['availability'] != 'reviewed_available'
+                    or point['status']['assertion'] != 'observed_sample'
+                    or point['status']['temporal'] != 'source_label'
+                    or point['status']['spatial'] != 'unregistered'
+                    or point['status']['rights'] != 'links_only'
+                    or point['time']['alignment'] is not None
+                    or point['place']['coordinates'] is not None
+                    or not isinstance(point['review'], dict)
+                    or point['review'].get('photo_sample_id') != sample['id']
+                    or point['review'].get('photo_reported_utc') != sample['reported_utc']
+                    or digest(point['review'].get('source_comparison')) != digest(comparison)
+                    or point['time']['video'] != {'start_seconds': comparison['requested_seconds'],
+                                                 'end_seconds': comparison['requested_seconds']}
+                    or point['time']['capture'] != {'reported': comparison['printed_utc'],
+                                                   'precision': comparison['reading_precision']}):
+                raise ValueError('Photo source comparison differs from its reviewed documentary point')
+            used.add(point['id'])
+
+
 def coverage_rows(root=ROOT):
     index = reviewed_index(root)
     packages = build_event_packages(root, replay_inputs(root))
@@ -81,6 +119,8 @@ def coverage_rows(root=ROOT):
         observations = reviewed(doc['observations'])
         config = packages.get(event['replay']) if event['replay'] else None
         bundle = json.loads(packages[config['bundle']]) if config else None
+        if bundle:
+            validate_source_comparison_joins(doc, bundle.get('appearance_timeline', {}))
         chronology = packages.get(event.get('chronology'))
         static_survey = None
         if doc['id'] == 'tuscaloosa-birmingham-2011' and refs and refs['survey'] is not None:
@@ -281,6 +321,12 @@ def render_page(rows, root=ROOT):
                     output.append(f'<p>Publication identity: {esc(source["publication_identity"])}. Resource version: {esc(source["version_identity"])}. Original resource locator: {esc(source["original_locator"])}.</p>')
                     output.append(f'<p><a href="{esc(source["url"])}" target="_blank" rel="noopener">Open the original publication</a> · <a href="{esc(sample["image"]["original_url"])}" target="_blank" rel="noopener">Open the exact original image or panel</a></p>')
                     output.append(f'<p>Reported UTC label: {esc(sample["reported_utc"])}. Timing uncertainty: {esc(uncertainty)}</p><p><a href="{esc(sample["player_url"])}">Open this reported photo instant in the player</a></p>')
+                    if sample.get('source_comparison'):
+                        comparison = sample['source_comparison']
+                        movie_url = comparison['url'] + '&t=' + str(int(comparison['requested_seconds'])) + 's'
+                        output.append('<p>Checked movie context. Readable movie clock: ' + esc(comparison['printed_clock']) +
+                                      ' UTC. The exact photographic exposure remains unknown. ' + esc(comparison['visibility_limits']) +
+                                      '</p><p><a href="' + esc(movie_url) + '" target="_blank" rel="noopener">Open the original movie near this checked view</a></p>')
                     output.append('<div class="coverage-inspection">'+recorded_value({
                         'source_identity_basis':source['identity_basis'],
                         'resource_digest':source['sha256'],

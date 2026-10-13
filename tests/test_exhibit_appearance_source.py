@@ -126,5 +126,23 @@ class AppearanceSourcePublicationTests(unittest.TestCase):
         self.assertEqual(self.outputs(),before)
 
 
+    def test_invalid_movie_context_fails_before_any_publication_write(self):
+        for mutation in ('wrong_watch','dangling_record','missing_source'):
+            with self.subTest(mutation=mutation):
+                source=json.loads(self.original)
+                sample=next(s for q in source['photo_sequences'] for s in q['samples'] if s['id']=='nolte-231037')
+                if mutation=='wrong_watch':
+                    sample['source_comparison']['video_id']='aaaaaaaaaaa'
+                elif mutation=='dangling_record':
+                    sample['source_comparison']['record_id']='missing-documentary-point'
+                else:
+                    sample['source_comparison']['source_id']='missing-original-publication'
+                self.source.write_bytes(json.dumps(source).encode('utf8'))
+                before=self.outputs()
+                result=self.child(['-c',CHILD])
+                self.assertNotEqual(result.returncode,0)
+                self.assertIn('ValueError',result.stderr)
+                self.assertEqual(self.outputs(),before)
+
 if __name__=='__main__':
     unittest.main()
