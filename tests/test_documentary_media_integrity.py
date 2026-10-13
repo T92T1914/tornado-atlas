@@ -19,19 +19,23 @@ ADDITIONS = {
             "commons-stratosphere",
             "ray-bohac-archived-film",
             "bidgee-commons-archive-upload",
-            "david-conrady-publication-account"
+            "david-conrady-publication-account",
+            "ray-bohac-short-archived-film",
+            "bidgee-commons-short-film-transfer"
         ],
         "sources": [
             "commons-nolte-el-reno",
             "youtube-snyder-provider-playback",
             "bohac-licensed-archive-publication",
-            "conrady-el-reno-primary-publication"
+            "conrady-el-reno-primary-publication",
+            "bohac-short-licensed-archive"
         ],
         "media": [
             "nolte-el-reno-documentary-photo",
             "bohac-archived-extended-film",
             "bohac-opening-film-still",
-            "conrady-roadside-opening"
+            "conrady-roadside-opening",
+            "bohac-short-visibility-film"
         ],
         "observations": ["conrady-later-description"],
         "routes": [
@@ -164,6 +168,15 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                         self.assertEqual(item['source_id'], 'bohac-licensed-archive-publication')
                         self.assertEqual(item['roles'], {'creator':'ray-bohac-archived-film', 'uploader':'bidgee-commons-archive-upload', 'rights_holder':'ray-bohac-archived-film'})
                         self.assertEqual(item['url'], 'https://commons.wikimedia.org/wiki/File:May_31_El_Reno_EF5_Extended_Version_filmed_up_close_in_the_TVN_Dominator_1.ogv')
+                    elif identity == 'bohac-short-visibility-film':
+                        self.assertEqual(item['kind'], 'video')
+                        self.assertEqual(item['status']['rights'], 'links_only')
+                        self.assertEqual(item['status']['assertion'], 'observed_sample')
+                        self.assertEqual(item['source_id'], 'bohac-short-licensed-archive')
+                        self.assertEqual(item['roles'], {'creator':'ray-bohac-short-archived-film', 'uploader':'bidgee-commons-short-film-transfer', 'rights_holder':'ray-bohac-short-archived-film'})
+                        self.assertEqual(item['url'], 'https://commons.wikimedia.org/wiki/File:May_31,_2013_EF5_El_Reno,_OK_Tornado_showing_multiple_sub_vortices.ogv')
+                        self.assertIsNone(item['parent'])
+                        self.assertEqual(item['transformation'], 'External source-page film link. No Atlas-hosted video, still, generated imagery or automatic third-party player request.')
                     else:
                         self.assertEqual(item['kind'], 'video')
                         self.assertEqual(item['status']['rights'], 'links_only')
