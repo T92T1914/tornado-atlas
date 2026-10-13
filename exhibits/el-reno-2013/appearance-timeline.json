@@ -58,13 +58,13 @@
             "method": "source_reported",
             "basis": "Creator caption interpreted as 18:10:37 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:10:37Z. The visible minute overlay May 31 2013 23:10Z is consistent with this conversion. Whole-second labels are reported source representations.",
             "uncertainty_seconds": null,
-            "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+            "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy. The related full-size published JPEG contains the literal IPTC time 231037-0600, while its visible overlay says 23:10Z. The field writer and clock basis are not authenticated. This conflict is retained without converting the tag into a replacement reported time."
           },
           "inspection": {
             "status": "still_pixels_inspected",
             "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231037-1024x576.jpg. No intervening recording or camera-original file was inspected.",
             "reviewed_on": "2026-10-10",
-            "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+            "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity. A separate review on October 13, 2026 inspected the related full-size published JPEG, https://nnwx.us/wp-content/uploads/2018/02/231037.jpg: 1920 by 1080 pixels, 216698 bytes, SHA-256 e9ad30c4fdcb6a28340bbb0e422b80cbc937ef248b497092246c7bff51fd4847. Its file tags report GoPro Hero 3 Black Edition and later Lightroom processing. These are recorded tags, not an authenticated capture-camera or clip/frame extraction chain."
           },
           "viewpoint": {
             "mode": "qualitative_text",

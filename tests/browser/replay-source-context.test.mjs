@@ -32,6 +32,13 @@ for(const width of [320,1280])for(const index of [0,1]){
   await page.waitForFunction(()=>document.getElementById('replay-photo-details').open);
   const text=await details.textContent();
   for(const value of [c.requested_seconds,c.callback_seconds,c.paused_seconds])assert.ok(text.includes(String(value)));
+  if(index===0){
+   assert.ok(text.includes(sample.inspection.basis),'The related published-JPEG provenance remains readable in the actual disclosure');
+   assert.ok(text.includes(sample.timing.uncertainty_basis),'The unresolved clock conflict remains readable without replacing the reported label');
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Expanded provenance remains within the viewport');
+   const disclosureFolder=process.env.ATLAS_SOURCE_CONTEXT_CAPTURE;
+   if(disclosureFolder){await mkdir(disclosureFolder,{recursive:true});await details.screenshot({path:path.join(disclosureFolder,'details-'+width+'-'+sample.id+'.png')});}
+  }
   if(index===1){const visible=await page.locator('#replay-photo-movie-context').textContent();assert.match(visible,/tooltip obscures some fractional clock digits/);assert.equal(visible.includes('23:10:59.'),false);}
   await page.locator('#replay-photo-movie-original').focus();
   await page.setViewportSize({width:width===320?390:1024,height:1000});await painted(page);
