@@ -91,6 +91,7 @@ async function showSources(index){
   if(!rows.length)host.append(element('p','No inspected source card meets these filters. Sources may exist outside this reviewed collection.'),link('Clear source filters',route({view:'sources'})));
 }
 function mediaLabel(item,doc){
+  if(item.kind==='photograph'&&item.transformation?.content_role==='published_video_frame_figure')return 'Published video-frame figure';
   const parent=doc.media.find(row=>row.id===item.parent);
   return item.kind==='photograph'&&parent?.kind==='video'?'Film still':human(item.kind);
 }

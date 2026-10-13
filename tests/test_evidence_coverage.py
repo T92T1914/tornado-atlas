@@ -123,7 +123,8 @@ class EvidenceCoverageTests(unittest.TestCase):
         rows = {row['event']['id']:row for row in coverage_rows()}
         linked = {item['id'] for _,item in rows['joplin-2011']['layers']['appearance']['items']}
         self.assertEqual(linked,{'friskey-joplin-storm'})
-        self.assertEqual(rows['tuscaloosa-birmingham-2011']['layers']['appearance']['items'],[])
+        self.assertEqual([item['id'] for _,item in rows['tuscaloosa-birmingham-2011']['layers']['appearance']['items']], ['oliveira-2019-tornado-video-frames'])
+        self.assertEqual(rows['tuscaloosa-birmingham-2011']['layers']['appearance']['state'], 'not_admitted')
         self.assertNotIn('nws-joplin-aftermath',linked)
         self.assertEqual(rows['blackwell-1955']['layers']['gaps']['state'],'disputed')
 

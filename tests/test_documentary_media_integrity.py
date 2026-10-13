@@ -86,15 +86,20 @@ ADDITIONS = {
         "creators": [
             "brown-tuscaloosa-original-uploader",
             "john-brown-tuscaloosa-maker",
-            "jason-rosolowski-creator-upload"
+            "jason-rosolowski-creator-upload",
+            "oliveira-2019-figure-authors",
+            "mike-wilhelm-tuscaloosa-film",
+            "noaa-institutional-repository"
         ],
         "sources": [
             "brown-tuscaloosa-original-publication",
-            "rosolowski-tuscaloosa-creator-publication"
+            "rosolowski-tuscaloosa-creator-publication",
+            "oliveira-2019-tuscaloosa-figure6"
         ],
         "media": [
             "brown-tuscaloosa-original",
-            "rosolowski-tuscaloosa-original"
+            "rosolowski-tuscaloosa-original",
+            "oliveira-2019-tornado-video-frames"
         ],
         "routes": [
             {
@@ -141,6 +146,7 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
             'nolte-el-reno-documentary-photo': ('assets/el-reno-2013/storm03.jpg', 56622, 'a3cd7a67eb7d3ab91309c71251ce0e9c1c3af71d85147887b9527c438d43e3d5'),
             'nara-blackwell-aerial-aftermath': ('assets/blackwell-1955/nara-283884.jpg', 1649278, '66ea06de076b831c60710ee56168484ce90c7ef510cb1d6f87e3b28c67d58e34'),
             'bohac-opening-film-still': ('assets/el-reno-2013/bohac-opening-film-still.png', 209071, 'a93d6b3a156ebf5ae7008e8e6e6bb18e11eb3467dc92e046f95aaa965b4c6af6'),
+            'oliveira-2019-tornado-video-frames': ('assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png', 361114, 'd8e89044ea98c4beab8d568598ea3a1711b73bfe3a425e5afd304af491e48d4f'),
         }
         for event, added in ADDITIONS.items():
             for identity in added['media']:
@@ -162,6 +168,21 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                         self.assertEqual(item['status']['rights'], 'permitted_hosting')
                         self.assertEqual(item['transformation']['asset'], asset)
                         self.assertEqual(item['transformation']['sha256'], sha)
+                        if identity == 'oliveira-2019-tornado-video-frames':
+                            self.assertEqual(item['kind'], 'photograph')
+                            self.assertEqual(item['transformation']['content_role'], 'published_video_frame_figure')
+                            self.assertEqual((item['transformation']['width'], item['transformation']['height']), (1351, 767))
+                            self.assertEqual(raw[:8], b'\x89PNG\r\n\x1a\n')
+                            self.assertEqual((int.from_bytes(raw[16:20], 'big'), int.from_bytes(raw[20:24], 'big')), (1351, 767))
+                            self.assertEqual(item['source_id'], 'oliveira-2019-tuscaloosa-figure6')
+                            self.assertEqual(item['url'], 'https://repository.library.noaa.gov/view/noaa/26149/noaa_26149_DS1.pdf#page=10')
+                            self.assertEqual(item['roles'], {'creator':'oliveira-2019-figure-authors', 'uploader':'noaa-institutional-repository', 'rights_holder':None})
+                            self.assertIsNone(item['parent'])
+                            self.assertIn('estimated', item['time']['event'])
+                            self.assertEqual(item['time']['publication'], '2019-11-16')
+                            figure_source = next(source for source in self.docs[event]['sources'] if source['id'] == item['source_id'])
+                            self.assertIn('CC BY4.0', figure_source['rights'])
+                            self.assertIn('This does not license the complete original recordings', figure_source['rights'])
                     elif identity == 'bohac-archived-extended-film':
                         self.assertEqual(item['kind'], 'video')
                         self.assertEqual(item['status']['rights'], 'links_only')

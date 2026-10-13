@@ -144,7 +144,7 @@ class TuscaloosaExhibitTests(unittest.TestCase):
         }
         radar = [m for m in self.doc['media'] if m['kind'] == 'radar']
         self.assertEqual({m['id'] for m in radar}, set(expected))
-        self.assertEqual(len(self.links.images), 16)  # The five original aftermath photographs also appear in the opening gallery.
+        self.assertEqual(len(self.links.images), 17)  # The five original aftermath photographs also appear in the opening gallery.
         for item in radar:
             self.assertEqual(sum(image.get('src') == item['transformation']['asset'] for image in self.links.images), 1)
         for item in radar:
@@ -188,10 +188,12 @@ class TuscaloosaExhibitTests(unittest.TestCase):
                          ['birmingham-aftermath-april29', 'apartment-complex-aftermath',
                           'railway-bridge-aftermath', 'aerial-context-aftermath',
                           'train-cars-aftermath', 'goes-east-storm-context', 'eo1-tuscaloosa-track',
-                          'usgs-tuscaloosa-landsat-scar'])
-        self.assertEqual(len(self.current['media']), 13)
+                          'usgs-tuscaloosa-landsat-scar', 'oliveira-2019-tornado-video-frames'])
+        self.assertEqual(len(self.current['media']), 14)
         self.assertEqual([m['id'] for m in self.current['media'] if m['kind'] == 'video'], ['brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'])
-        self.assertEqual(len([m for m in self.current['media'] if m['id'] not in {'bmx-static-survey-map', 'brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'}]), 10)
+        self.assertEqual(len([m for m in self.current['media'] if m['id'] not in {'bmx-static-survey-map', 'brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'}]), 11)
+        figure = next(m for m in photos if m['id'] == 'oliveira-2019-tornado-video-frames')
+        self.assertEqual(sum(image.get('src') == figure['transformation']['asset'] for image in self.links.images), 1)
         maps = [m for m in self.current['media'] if m['id'] == 'bmx-static-survey-map']
         self.assertEqual(len(maps), 1)
         self.assertEqual((maps[0]['kind'], maps[0]['source_id']), ('map', 'bmx-estimated-damage-map'))
