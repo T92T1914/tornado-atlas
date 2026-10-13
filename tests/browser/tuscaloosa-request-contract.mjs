@@ -9,6 +9,7 @@ export const TUSCALOOSA_REVIEWED_IMAGES=Object.freeze([
   '/assets/tuscaloosa-birmingham-2011/railway-bridge-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/train-cars-april29.jpg',
   '/assets/tuscaloosa-birmingham-2011/aerial-context-april29.jpg',
+  '/assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png',
 ]);
 
 export function tuscaloosaRequestForbidden(url,base) {
