@@ -61,9 +61,8 @@ export async function fixture(t,options={}){
   page.setDefaultTimeout(10000);
   return page;
 }
-function observeOpenResources(page){
+function observeOpenResources(page,critical=new Set(['/atlas.js','/catalogue/index.json.gz','/catalogue/index.json','/catalogue/media.json'])){
   const started=Date.now(),rows=[],states=new WeakMap(),counts={requested:0,responded:0,finished:0,failed:0,pending:0,omitted:0,outside_scope:0};
-  const critical=new Set(['/atlas.js','/catalogue/index.json.gz','/catalogue/index.json','/catalogue/media.json']);
   let frozen=false,ordinary=0;
   const bounded=value=>String(value??'').slice(0,256);
   const elapsed=()=>Date.now()-started;
@@ -97,15 +96,15 @@ function openRoute(value){
     return {path:url.pathname.slice(0,256),layer:layer?.slice(0,256)??null,record:record?.slice(0,256)??null};
   }catch{return {path:'unavailable',layer:null,record:null};}
 }
-async function boundedOpenSnapshot(page){
+async function boundedOpenSnapshot(page,readState=null){
   let timer;
   try{return {status:'observed',state:await Promise.race([
-    page.evaluate(()=>{
+    page.evaluate(readState??(()=>{
       const read=id=>{const node=document.getElementById(id);if(!node)return {present:false};const style=getComputedStyle(node);
         return {present:true,visible:!node.hidden&&style.display!=='none'&&style.visibility!=='hidden'&&node.getClientRects().length>0,text:node.textContent.slice(0,256)};};
       return {captured_at_ms:performance.now(),document_ready_state:document.readyState,body_ready:document.body?.dataset.ready??null,
         atlas_ready_mark:performance.getEntriesByName('atlas-ready').length>0,error:read('error'),record_error:read('record-error'),retry_catalogue:read('retry-catalogue'),coverage:read('coverage')};
-    }),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Owned DOM diagnostic exceeded 500 milliseconds')),500);})
+    })),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Owned DOM diagnostic exceeded 500 milliseconds')),500);})
   ])};}catch(error){
     const snapshot={status:'unavailable',error_name:error.name,error_message:String(error.message).slice(0,256),owned_context_cleanup:'not_needed'};
     if(error.message==='Owned DOM diagnostic exceeded 500 milliseconds'){
@@ -115,16 +114,95 @@ async function boundedOpenSnapshot(page){
     return snapshot;
   }finally{clearTimeout(timer);}
 }
-function printOpenDiagnostic(record){
+function printOpenDiagnostic(record,prefix='ATLAS_OPEN_FAILURE_DIAGNOSTIC'){
   let text=JSON.stringify(record);record.json_resource_rows_omitted=0;
   while(Buffer.byteLength(text,'utf8')>16384&&record.resources.length){
     const ordinary=record.resources.findIndex(row=>!row.critical);record.resources.splice(ordinary>=0?ordinary:record.resources.length-1,1);
     record.json_resource_rows_omitted++;text=JSON.stringify(record);
   }
   text=JSON.stringify(record);
+  if(record.events)record.json_event_rows_omitted=0;
+  while(Buffer.byteLength(text,'utf8')>16384&&record.events?.length){
+    record.events.pop();record.json_event_rows_omitted++;text=JSON.stringify(record);
+  }
+  text=JSON.stringify(record);
   // All scalar and DOM text fields have fixed caps; resource rows are optional.
   if(Buffer.byteLength(text,'utf8')>16384)text=JSON.stringify({phase:record.phase,error_name:record.error_name,error_message:record.error_message,diagnostic:'Size bound exceeded; detailed snapshot omitted',counters:record.counters,limits:record.limits});
-  console.error('ATLAS_OPEN_FAILURE_DIAGNOSTIC '+text);
+  console.error(prefix+' '+text);
+}
+function navigationRoute(value){
+  try{const url=new URL(value);return {path:url.pathname.slice(0,256),
+    query:Object.fromEntries(['event','t','appearance_view','appearance_photo','survey','surveyPhotos'].map(key=>[key,url.searchParams.get(key)?.slice(0,256)??null])),
+    fragment:url.hash.slice(0,256)};
+  }catch{return {path:'unavailable'};}
+}
+// Observe the original journey. Only a failure prints these bounded details.
+// Inputs, history, clock state and the original assertion deadlines stay intact.
+export async function withNavigationDiagnostics(page,phase,journey){
+  const critical=new Set(['/app.js','/reconstruction.html','/reconstruction.js','/event-package-model.mjs',
+    '/playback-model.mjs','/footage-view.mjs','/data.json','/events.json','/events/el-reno-2013.json']);
+  const observer=observeOpenResources(page,critical),events=[];
+  let omitted=0,expectedRoute=null;
+  const mark=(stage,destination=null)=>{phase=String(stage).slice(0,96);if(destination)expectedRoute=navigationRoute(new URL(destination,page.url()).href);};
+  const retain=row=>{if(events.length>=16){events.splice(8,1);omitted++;}events.push(row);};
+  const consoleListener=message=>{
+    const text=message.text();if(!text.startsWith('ATLAS_NAVIGATION_OBSERVATION '))return;
+    if(text.length>4096){omitted++;return;}
+    try{
+      const row=JSON.parse(text.slice('ATLAS_NAVIGATION_OBSERVATION '.length)),small=value=>value===null||typeof value==='string'&&value.length<=256;
+      if(!row||!['pointerdown','click','atlas:replay-url-change','popstate','hashchange'].includes(row.type)
+        ||typeof row.trusted!=='boolean'||typeof row.intended_target!=='boolean'
+        ||!small(row.target_id)||!small(row.control_id)||!small(row.time)
+        ||!row.route||!small(row.route.path)||!small(row.route.t)||!small(row.route.fragment)
+        ||!Number.isFinite(row.document_time_origin)||!Number.isInteger(row.history_length)
+        ||!([true,false,null].includes(row.dialog_open)))throw new Error('Unexpected passive observation shape');
+      retain({type:row.type,trusted:row.trusted,target_id:row.target_id,control_id:row.control_id,intended_target:row.intended_target,
+        route:{path:row.route.path,t:row.route.t,fragment:row.route.fragment},document_time_origin:row.document_time_origin,
+        history_length:row.history_length,time:row.time,dialog_open:row.dialog_open});
+    }catch{omitted++;}
+  };
+  const navigationListener=frame=>{if(frame===page.mainFrame())retain({type:'main_frame_commit',route:navigationRoute(frame.url())});};
+  page.on('console',consoleListener);page.on('framenavigated',navigationListener);
+  try{
+    await page.addInitScript(()=>{
+      const route=()=>({path:location.pathname.slice(0,256),t:new URL(location.href).searchParams.get('t')?.slice(0,256)??null,fragment:location.hash.slice(0,256)});
+      const state=()=>({route:route(),document_time_origin:performance.timeOrigin,history_length:history.length,
+        time:(document.getElementById('timeline')?.value??document.getElementById('replay-time')?.value)?.slice(0,256)??null,
+        dialog_open:document.getElementById('photo-dialog')?.open??null});
+      let count=0;
+      const observe=event=>{
+        if(count++>=16)return;
+        const target=event.target instanceof Element?event.target:null,control=target?.closest('a,button,input');
+        console.debug('ATLAS_NAVIGATION_OBSERVATION '+JSON.stringify({type:event.type,trusted:event.isTrusted,
+          target_id:target?.id.slice(0,96)??null,control_id:control?.id.slice(0,96)??null,
+          intended_target:Boolean(target?.closest('#next, #partial-condensation-reading a[href*="reconstruction.html"]')),
+          ...state()}));
+      };
+      for(const type of ['pointerdown','click'])document.addEventListener(type,observe,{capture:true,passive:true});
+      for(const type of ['atlas:replay-url-change','popstate','hashchange'])window.addEventListener(type,observe,{capture:true,passive:true});
+    });
+    return await journey(mark);
+  }catch(error){
+    const record={...observer.freeze(),phase,expected_route:expectedRoute,observed_route:navigationRoute(page.url()),events:[...events],events_omitted:omitted,
+      error_name:error.name,error_message:String(error.message).slice(0,256),resource_snapshot_at_original_failure:true};
+    Object.assign(record.limits,{event_rows:16,document_event_rows:16,observation_payload_characters:4096});
+    observer.stop();page.off('console',consoleListener);page.off('framenavigated',navigationListener);
+    try{
+      record.dom=await boundedOpenSnapshot(page,()=>{
+        const read=id=>{const node=document.getElementById(id);if(!node)return {present:false};const style=getComputedStyle(node),rect=node.getBoundingClientRect();
+          return {present:true,hidden:node.hidden,visible:!node.hidden&&style.display!=='none'&&style.visibility!=='hidden'&&node.getClientRects().length>0,
+            disabled:node.disabled??null,value:node.value?.slice(0,256)??null,open:node.open??null,text:node.textContent.slice(0,256),rect:[rect.x,rect.y,rect.width,rect.height]};};
+        return {captured_at_ms:performance.now(),document_ready_state:document.readyState,document_time_origin:performance.timeOrigin,history_length:history.length,
+          path:location.pathname.slice(0,256),t:new URL(location.href).searchParams.get('t')?.slice(0,256)??null,title:document.title.slice(0,256),
+          replay_content:read('replay-content'),replay_time:read('replay-time'),replay_event:read('replay-event'),replay_error:read('replay-error'),timeline:read('timeline'),
+          next:read('next'),dialog:read('photo-dialog'),survey_share:document.getElementById('survey-share')?.getAttribute('href')?.slice(0,256)??null};
+      });
+      record.listener_cleanup='Node listeners removed. Passive document listeners retire with the owned fixture context.';
+      printOpenDiagnostic(record,'ATLAS_NAVIGATION_FAILURE_DIAGNOSTIC');
+    }catch(diagnosticError){console.error('ATLAS_NAVIGATION_FAILURE_DIAGNOSTIC '+JSON.stringify({phase,error_name:error.name,
+      error_message:String(error.message).slice(0,256),diagnostic_error:String(diagnosticError.message).slice(0,256),original_failure_retained:true}));}
+    throw error;
+  }finally{observer.stop();page.off('console',consoleListener);page.off('framenavigated',navigationListener);}
 }
 export async function open(page,suffix=''){
   const requested=base+'/atlas.html?layer=local'+suffix,observer=observeOpenResources(page);
