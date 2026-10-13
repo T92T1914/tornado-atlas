@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 import {fixture,base} from './harness.mjs';
@@ -205,4 +205,65 @@ test('Unavailable passage module retains the complete declared default calculati
   await expectedRows(page,defaults.field,defaults.capacity,'node-static');
   assert.match(await page.locator('#sampled-values-static').textContent(),/controls cannot recalculate it/);
   assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Nominal spacing is approximately 0\.284 model seconds between samples/);
+});
+
+const capacityCapture=process.env.ATLAS_CAPACITY_CAPTURE;
+const V=100*.44704,B=20*.44704,R=500*.3048,U=30*.44704,C=1600,K=.5*1.225*1*1.2;
+function capacityReference(beta) {
+ let first=null,peak=0;
+ const rows=Array.from({length:481},(_,i)=>{
+  const t=(i/480*2-1)*6*R/U,s=-U*t/R,q=s*s+beta*beta;
+  const square=q<=1?(B-V*beta)**2+V**2*s*s:B**2+(V**2-2*B*V*beta)/q;
+  const speed=Math.sqrt(square),force=K*square;
+  peak=Math.max(peak,force);
+  if(force>C&&first===null)first=i;
+  return {values:[t,speed/.44704,speed,.5*1.225*square/1000,force/1000,force/C],failed:first!==null};
+ });
+ return {rows,first,peak};
+}
+async function capacityRange(page,id,rights,value) {
+ const input=page.locator('#'+id);await input.focus();await page.keyboard.press('Home');
+ for(let i=0;i<rights;i++)await page.keyboard.press('ArrowRight');
+ assert.equal(Number(await input.inputValue()),value,id+' exact native control value');
+}
+for(const width of [320,1280])for(const beta of [-.7,.7])test('Independent assumed capacity consumer '+width+' '+beta,async t=>{
+ const reference=capacityReference(beta);
+ assert.equal(reference.first,beta<0?206:null);
+ const page=await fixture(t,{viewport:{width,height:900},serviceWorkers:'block'});
+ await page.emulateMedia({colorScheme:width===320?'dark':'light',reducedMotion:'reduce'});
+ await page.goto(base+'/wind.html');
+ await page.waitForFunction(()=>document.body.dataset.windSamples==='ready');
+ await capacityRange(page,'background',4,20);await capacityRange(page,'offset',beta<0?23:37,beta);
+ await capacityRange(page,'capacity',15,1.6);
+ for(const [id,value] of [['peak',100],['radius',500],['travel',30],['area',1],['coefficient',1.2]])assert.equal(Number(await page.locator('#'+id).inputValue()),value);
+ await expectedRows(page,{...defaults.field,background:20*MPH,offset:beta},1600);
+ assert.match(await page.locator('#sampled-values-assumptions').innerText(),/eastward background 20.0 mph/);
+ assert.match(await page.locator('#sampled-values-assumptions').innerText(),/assumed capacity 1.6 kN/);
+ const actual=await page.locator('#sampled-values-body tr').evaluateAll(rows=>rows.map(row=>({values:[...row.querySelectorAll('td[data-value]')].map(c=>Number(c.dataset.value)),state:row.cells[7].textContent})));
+ assert.equal(actual.length,481);
+ let maxError=0;
+ for(let i=0;i<481;i++) {
+  assert.equal(actual[i].values.length,6);
+  for(let c=0;c<6;c++){assert.ok(Number.isFinite(actual[i].values[c]));const error=Math.abs(actual[i].values[c]-reference.rows[i].values[c]);maxError=Math.max(maxError,error);assert.ok(error<1e-10,'Independent SI value row'+i+' column'+c);}
+  assert.equal(actual[i].state,reference.rows[i].failed?'Failed under this rule':'Capacity not exceeded so far');
+ }
+ assert.equal(await page.locator('#component-peak').innerText(),(reference.peak/1000).toFixed(2)+' kN');
+ if(beta<0) {
+  assert.equal(await page.locator('#component-first').innerText(),'-9.7 s from closest approach (first failing sample)');
+  await capacityRange(page,'passage-time',205,205);assert.equal(await page.locator('#component-state').innerText(),'Capacity not exceeded so far');
+  await page.keyboard.press('ArrowRight');assert.equal(Number(await page.locator('#passage-time').inputValue()),206);
+  assert.equal(await page.locator('#component-state').innerText(),'Failed under this rule');
+  assert.equal(await page.locator('#component-panel').evaluate(n=>n.classList.contains('failed')),true);
+  assert.equal(await page.locator('#component-time').inputValue(),'206');
+  await page.keyboard.press('ArrowLeft');assert.equal(await page.locator('#component-state').innerText(),'Capacity not exceeded so far');
+  await page.keyboard.press('ArrowRight');
+ } else {
+  assert.equal(await page.locator('#component-first').innerText(),'Not exceeded in this sampled window');
+  await capacityRange(page,'component-time',300,300);
+  assert.equal(await page.locator('#component-state').innerText(),'Capacity not exceeded so far');
+  assert.equal(await page.locator('#passage-time').inputValue(),'300');
+ }
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+ if(capacityCapture){await mkdir(capacityCapture,{recursive:true});await page.locator('#component-diagram').screenshot({path:capacityCapture+'/component-'+width+'-'+beta+'.png'});}
+ t.diagnostic(JSON.stringify({case:'independent_capacity_consumer',width,beta,samples:actual.length,max_numeric_error:maxError,first:reference.first,peak_kN:reference.peak/1000,scope:'Isolated actual native keyboard controls and unrounded DOM values versus independent assumed-model algebra, no historical or physical-device acceptance'}));
 });
