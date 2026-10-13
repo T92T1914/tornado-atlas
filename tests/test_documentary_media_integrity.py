@@ -21,21 +21,25 @@ ADDITIONS = {
             "bidgee-commons-archive-upload",
             "david-conrady-publication-account",
             "ray-bohac-short-archived-film",
-            "bidgee-commons-short-film-transfer"
+            "bidgee-commons-short-film-transfer",
+            "nick-nolte-timecoded-publication-account"
         ],
         "sources": [
             "commons-nolte-el-reno",
             "youtube-snyder-provider-playback",
             "bohac-licensed-archive-publication",
             "conrady-el-reno-primary-publication",
-            "bohac-short-licensed-archive"
+            "bohac-short-licensed-archive",
+            "nolte-original-timecoded-publication"
         ],
         "media": [
             "nolte-el-reno-documentary-photo",
             "bohac-archived-extended-film",
             "bohac-opening-film-still",
             "conrady-roadside-opening",
-            "bohac-short-visibility-film"
+            "bohac-short-visibility-film",
+            "nolte-timecoded-context-231037",
+            "nolte-timecoded-context-231059"
         ],
         "observations": ["conrady-later-description"],
         "routes": [
@@ -153,10 +157,32 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                 with self.subTest(event=event, media=identity):
                     item = next(m for m in self.docs[event]['media'] if m['id'] == identity)
                     self.assertEqual(item['status']['spatial'], 'unregistered')
-                    self.assertEqual(item['status']['temporal'], 'unregistered')
+                    if identity not in ('nolte-timecoded-context-231037', 'nolte-timecoded-context-231059'):
+                        self.assertEqual(item['status']['temporal'], 'unregistered')
                     self.assertIsNone(item['place']['coordinates'])
-                    for clock in ('video', 'alignment'):
-                        self.assertIsNone(item['time'][clock])
+                    self.assertIsNone(item['time']['alignment'])
+                    movie_context = {
+                        'nolte-timecoded-context-231037': (1241.223333, '2013-05-31T23:10:37.254Z', 'millisecond_label_readable', 'nolte-231037', '2013-05-31T23:10:37Z'),
+                        'nolte-timecoded-context-231059': (1263.223333, '2013-05-31T23:10:59Z', 'whole_second_label_readable', 'nolte-231059', '2013-05-31T23:10:59Z'),
+                    }.get(identity)
+                    if movie_context:
+                        locator, label, precision, photo, photo_label = movie_context
+                        self.assertEqual(item['time']['video'], {'start_seconds':locator, 'end_seconds':locator})
+                        self.assertEqual(item['time']['capture'], {'reported':label, 'precision':precision})
+                        self.assertEqual(item['status']['temporal'], 'source_label')
+                        self.assertEqual(item['status']['assertion'], 'observed_sample')
+                        self.assertEqual(item['status']['rights'], 'links_only')
+                        self.assertEqual(item['kind'], 'video')
+                        self.assertEqual(item['source_id'], 'nolte-original-timecoded-publication')
+                        self.assertEqual(item['url'], 'https://www.youtube.com/watch?v=jsBDFA6_81M')
+                        self.assertEqual(item['roles'], {'creator':'nick-nolte-timecoded-publication-account', 'uploader':'nick-nolte-timecoded-publication-account', 'rights_holder':None})
+                        self.assertIsNone(item['parent'])
+                        self.assertEqual(item['review']['photo_sample_id'], photo)
+                        self.assertEqual(item['review']['photo_reported_utc'], photo_label)
+                        self.assertEqual(item['review']['source_comparison']['exposure_identity'], 'unknown')
+                        self.assertEqual(item['review']['source_comparison']['reuse'], 'external_links_only')
+                        continue
+                    self.assertIsNone(item['time']['video'])
                     if identity == 'nolte-el-reno-documentary-photo':
                         self.assertEqual(item['time']['capture'], {'reported':'2013-05-31 23:28:34, Commons label', 'clock_accuracy_and_time_zone':'unestablished'})
                     else:
