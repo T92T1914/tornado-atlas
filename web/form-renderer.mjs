@@ -217,36 +217,54 @@ export function createFormRenderer(canvas, quality) {
     finally{for(const shader of shaders)gl.deleteShader(shader);}
   }
   function attribute(p,name,values,width){
-    const vao=gl.createVertexArray(),buffer=gl.createBuffer();
-    gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-    gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
-    const location=gl.getAttribLocation(p,name);
-    gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,width,gl.FLOAT,false,0,0);
-    return {vao,buffer};
+    let vao=null,buffer=null;
+    try{
+      vao=gl.createVertexArray();buffer=gl.createBuffer();
+      gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+      gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
+      const location=gl.getAttribLocation(p,name);
+      gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,width,gl.FLOAT,false,0,0);
+      return {vao,buffer};
+    }catch(error){
+      if(vao)gl.deleteVertexArray(vao);
+      if(buffer)gl.deleteBuffer(buffer);
+      throw error;
+    }
+  }
+  function retire(resources){
+    if(!resources)return;
+    for(const key of ['cloudAttribute','gridAttribute']){
+      const item=resources[key];
+      if(item){gl.deleteVertexArray(item.vao);gl.deleteBuffer(item.buffer);}
+    }
+    if(resources.margin){gl.deleteVertexArray(resources.margin.attribute.vao);gl.deleteBuffer(resources.margin.attribute.buffer);gl.deleteProgram(resources.margin.program);}
+    if(resources.condensation){gl.deleteVertexArray(resources.condensation.attribute.vao);gl.deleteBuffer(resources.condensation.attribute.buffer);gl.deleteProgram(resources.condensation.program);}
+    if(resources.cloud)gl.deleteProgram(resources.cloud);
+    if(resources.grid)gl.deleteProgram(resources.grid);
   }
   function dispose(){
-    if(!gpu)return;
-    for(const key of ['cloudAttribute','gridAttribute']){
-      gl.deleteVertexArray(gpu[key].vao);gl.deleteBuffer(gpu[key].buffer);
-    }
-    if(gpu.margin){gl.deleteVertexArray(gpu.margin.attribute.vao);gl.deleteBuffer(gpu.margin.attribute.buffer);gl.deleteProgram(gpu.margin.program);}
-    if(gpu.condensation){gl.deleteVertexArray(gpu.condensation.attribute.vao);gl.deleteBuffer(gpu.condensation.attribute.buffer);gl.deleteProgram(gpu.condensation.program);}
-    gl.deleteProgram(gpu.cloud);gl.deleteProgram(gpu.grid);gpu=null;
+    const owned=gpu;gpu=null;retire(owned);
   }
   function initialize(){
     dispose();
-    const cloud=program(particleVertex,particleFragment),grid=program(gridVertex,gridFragment);
-    const values=particles(Number(quality));
-    const cloudAttribute=attribute(cloud,'seed',values,4),lines=[];
-    for(let i=-6;i<=6;i++)lines.push(i,0,-6,i,0,6,-6,0,i,6,0,i);
-    const gridAttribute=attribute(grid,'position',new Float32Array(lines),3);
-    gpu={cloud,grid,cloudAttribute,gridAttribute,count:values.length/4,
-      gridCount:lines.length/3,maxPoint:gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1],
-      uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust'].map(name=>[name,gl.getUniformLocation(cloud,name)])),
-      gridCamera:gl.getUniformLocation(grid,'camera')};
-    gl.enable(gl.BLEND);
-    gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
-    gl.disable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);
+    const pending={};
+    try{
+      pending.cloud=program(particleVertex,particleFragment);
+      pending.grid=program(gridVertex,gridFragment);
+      const values=particles(Number(quality));
+      pending.cloudAttribute=attribute(pending.cloud,'seed',values,4);
+      const lines=[];
+      for(let i=-6;i<=6;i++)lines.push(i,0,-6,i,0,6,-6,0,i,6,0,i);
+      pending.gridAttribute=attribute(pending.grid,'position',new Float32Array(lines),3);
+      Object.assign(pending,{count:values.length/4,
+        gridCount:lines.length/3,maxPoint:gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1],
+        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
+        gridCamera:gl.getUniformLocation(pending.grid,'camera')});
+      gl.enable(gl.BLEND);
+      gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+      gl.disable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);
+      gpu=pending;
+    }catch(error){retire(pending);throw error;}
   }
   function setQuality(next){
     quality=next;
