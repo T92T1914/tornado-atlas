@@ -51,18 +51,30 @@ ADDITIONS = {
     },
     "joplin-2011": {
         "creators": [
-            "piotrowski-joplin-original-uploader"
+            "piotrowski-joplin-original-uploader",
+            "nws-sgf-storymap-publisher"
         ],
         "sources": [
-            "piotrowski-joplin-original-publication"
+            "piotrowski-joplin-original-publication",
+            "nws-joplin-storymap-damage-photos"
         ],
         "media": [
-            "piotrowski-joplin-original"
+            "piotrowski-joplin-original",
+            "nws-joplin-st-johns-aftermath",
+            "nws-joplin-high-school-aftermath"
         ],
         "routes": [
             {
                 "label": "Photographs and film",
                 "href": "joplin.html#photographs-and-film"
+            },
+            {
+                "label": "St. John's: the hospital and its surroundings",
+                "href": "joplin.html?photo=nws-joplin-st-johns-aftermath#hospital-services"
+            },
+            {
+                "label": "Joplin High School: damage beside the refuge account",
+                "href": "joplin.html?photo=nws-joplin-high-school-aftermath#school-refuge"
             }
         ]
     },
@@ -147,6 +159,8 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
 
     def test_media_use_basis_does_not_register_capture_or_camera(self):
         hosted = {
+            'nws-joplin-st-johns-aftermath': ('assets/joplin-2011/nws-st-johns-aftermath.jpg', 4038164, '8c28031659db5d046b78eb1b510cbeb8a794855c385e52556a48afb1015f19ae'),
+            'nws-joplin-high-school-aftermath': ('assets/joplin-2011/nws-high-school-aftermath.jpg', 132606, '34121880416d15911ec9cc29957eb04a4961dcfb4528a597b63f729c39678da1'),
             'nolte-el-reno-documentary-photo': ('assets/el-reno-2013/storm03.jpg', 56622, 'a3cd7a67eb7d3ab91309c71251ce0e9c1c3af71d85147887b9527c438d43e3d5'),
             'nara-blackwell-aerial-aftermath': ('assets/blackwell-1955/nara-283884.jpg', 1649278, '66ea06de076b831c60710ee56168484ce90c7ef510cb1d6f87e3b28c67d58e34'),
             'bohac-opening-film-still': ('assets/el-reno-2013/bohac-opening-film-still.png', 209071, 'a93d6b3a156ebf5ae7008e8e6e6bb18e11eb3467dc92e046f95aaa965b4c6af6'),
