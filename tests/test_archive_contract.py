@@ -64,6 +64,25 @@ class ArchiveContractTests(unittest.TestCase):
                 self.assertEqual(doc, before)
                 self.assertEqual(doc['title'].encode('utf-8'), title.encode('utf-8'))
 
+    def test_creator_attribution_rejects_nontext_and_empty_values(self):
+        for field in ('name', 'basis'):
+            for value in (None, False, True, 123, 1.5, '', [], ['text'], {}, {'text': 'value'}):
+                with self.subTest(field=field, value=value):
+                    doc = specimen()
+                    doc['creators'][0][field] = value
+                    before = copy.deepcopy(doc)
+                    with self.assertRaisesRegex(ValueError, 'Creator name and attribution basis'):
+                        validate_dossier(doc)
+                    self.assertEqual(doc, before)
+
+    def test_creator_attribution_preserves_exact_valid_text(self):
+        for value in ('Synthetic attribution', 'Unicode Ω 測', 'Cafe\u0301', '  text  ', ' '):
+            doc = specimen()
+            doc['creators'][0].update(name=value, basis=value)
+            before = copy.deepcopy(doc)
+            self.assertIs(validate_dossier(doc), doc)
+            self.assertEqual(doc, before)
+
     def test_independent_restrictions_do_not_erase_a_valid_observation(self):
         doc = specimen()
         doc['media'][0]['status'].update(assertion='observed_sample', rights='restricted',

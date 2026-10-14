@@ -270,3 +270,31 @@ test('installed Inter supplies curator interface glyphs while code and museum he
     assert.match(await page.locator('#dossier-json').evaluate(el=>getComputedStyle(el).fontFamily),/monospace/);
   }finally{await session.detach();}
 });
+
+for(const [field,value] of [['name',['invalid name']],['basis',{'invalid':'basis'}]])test(`malformed creator ${field} disables candidate export and preserves private saved draft`,async t=>{
+  const page=await pageFor(t,390);await newDraft(page,'creator-'+field+'-review');
+  const original=JSON.parse(await page.locator('#dossier-json').inputValue());
+  const revision=await page.locator('#revision').textContent();
+  const savedResponse=await privateApi(page,'/api/draft/creator-'+field+'-review');
+  const saved=await savedResponse.json();
+  await page.getByRole('button',{name:'Validate and preview candidate',exact:true}).click();
+  await page.locator('#candidate-panel').waitFor({state:'visible'});
+  assert.equal(await page.locator('#download').isEnabled(),true);
+  await page.getByText('Edit the full dossier and inspect disagreements',{exact:true}).click();
+  const bad=structuredClone(original);bad.creators[0][field]=value;
+  await page.locator('#dossier-json').fill(JSON.stringify(bad));
+  assert.equal(await page.locator('#download').isEnabled(),false);
+  await page.getByRole('button',{name:'Validate and preview candidate',exact:true}).click();
+  await page.locator('#error').waitFor({state:'visible'});
+  assert.match(await page.locator('#error').textContent(),/Creator name and attribution basis/);
+  await page.waitForFunction(()=>!document.querySelector('main').hasAttribute('aria-busy'));
+  assert.equal(await page.locator('#download').isEnabled(),false);
+  assert.equal(await page.locator('#revision').textContent(),revision);
+  assert.deepEqual(await (await privateApi(page,'/api/draft/creator-'+field+'-review')).json(),saved);
+  await page.locator('#dossier-json').fill(JSON.stringify(original));
+  await page.getByRole('button',{name:'Validate and preview candidate',exact:true}).click();
+  await page.waitForFunction(()=>!document.querySelector('main').hasAttribute('aria-busy')&&document.getElementById('error').hidden);
+  assert.match(await page.locator('#status').textContent(),/^Candidate validation passed/);
+  assert.equal(await page.locator('#download').isEnabled(),true);
+  assert.deepEqual(JSON.parse(await page.locator('#candidate-json').textContent()).dossier.creators,original.creators);
+});
