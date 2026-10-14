@@ -92,7 +92,12 @@ class ArchiveFileIdentityTests(unittest.TestCase):
     def test_repeated_build_preserves_source_directory_above_dossier_budget(self):
         docs = copy.deepcopy(dossiers()[:2])
         for doc in docs:
-            doc['sources'][0]['access'] += ' Repeated-build source-directory fixture.' * 2500
+            padding = ' Repeated-build source-directory fixture.'
+            # Keep each evolving source dossier inside its original budget,
+            # while the combined source directory crosses that smaller limit.
+            repeats = min(2500, (195_000 - len(json_bytes(doc))) // len(padding.encode('utf-8')))
+            self.assertGreater(repeats, 0, 'Synthetic source padding needs dossier headroom')
+            doc['sources'][0]['access'] += padding * repeats
             self.assertLessEqual(len(json_bytes(doc)), 200_000)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

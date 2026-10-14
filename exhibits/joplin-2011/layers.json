@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "joplin-2011",
-  "dossier_sha256": "788ea858c4f8cc85493608f3a7591ce1e0a1bd08470ff0e50d8f689faf1efd70",
+  "dossier_sha256": "232cae340b227461d5e6bf529d1fa1363b6ec0133c471c352482d057adae2c25",
   "survey": null,
   "layers": {
     "geography": {
@@ -22,7 +22,7 @@
       ]
     },
     "damage": {
-      "basis": "Building cases and aftermath images describe surveyed or reported outcomes. Surviving areas do not establish who sheltered there, and a failure interpretation is not a timed observation of collapse. Regional utility restoration and internal hospital services remain investigation-reported, with different exposure and no assigned building impact clocks or controlled design comparison.",
+      "basis": "Building cases and aftermath images describe surveyed or reported outcomes. Surviving areas do not establish who sheltered there, and a failure interpretation is not a timed observation of collapse. Regional utility restoration and internal hospital services remain investigation-reported, with different exposure and no assigned building impact clocks or controlled design comparison. Two separate agency StoryMap photographs show hospital surroundings and major school damage. They do not identify refuge areas, time service failures or supply a controlled comparison of winds and construction.",
       "observations": [
         "intake-nist-east-middle-refuge-2014",
         "intake-nist-high-school-refuge-2014",
@@ -37,7 +37,9 @@
         "nist-west-tower",
         "nist-west-tower-south-windows",
         "nist-home-depot-roof",
-        "nws-joplin-aftermath"
+        "nws-joplin-aftermath",
+        "nws-joplin-st-johns-aftermath",
+        "nws-joplin-high-school-aftermath"
       ]
     },
     "gaps": {

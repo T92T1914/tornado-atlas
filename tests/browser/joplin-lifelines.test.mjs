@@ -45,7 +45,27 @@ for(const scenario of [
   assert.match(phases,/2012 is inferred/);assert.match(phases,/has not been reconciled/);
   assert.match(phases,/not independent corroboration/);
   assert.equal(await section.locator('time[datetime]').count(),0);
-  assert.equal(await section.locator('img').count(),0);
+  assert.equal(await section.locator('img').count(),1);
+  const photograph=section.locator('a[data-photo-id="nws-joplin-st-johns-aftermath"]');
+  assert.equal(await photograph.count(),1);
+  assert.equal(await photograph.getAttribute('href'),'assets/joplin-2011/nws-st-johns-aftermath.jpg');
+  assert.equal(await photograph.getAttribute('data-photo-kind'),'context-photograph');
+  const image=photograph.locator('img');
+  assert.equal(await image.count(),1);
+  assert.equal(await image.getAttribute('src'),'assets/joplin-2011/nws-st-johns-aftermath.jpg');
+  assert.equal(await image.getAttribute('width'),'3888');
+  assert.equal(await image.getAttribute('height'),'2592');
+  assert.match(await image.getAttribute('alt'),/damaged multistory hospital/);
+  const source='https://storymaps.arcgis.com/stories/d64c8d41c28949bd87478f252ac7e378';
+  assert.equal(await photograph.getAttribute('data-photo-source'),source);
+  assert.equal(await photograph.getAttribute('data-photo-rights'),'https://creativecommons.org/publicdomain/zero/1.0/');
+  assert.match(await photograph.getAttribute('data-photo-credit'),/Individual photographer unestablished/);
+  assert.match(await photograph.getAttribute('data-photo-location'),/Camera capture time and position remain unregistered/);
+  const caption=photograph.locator('..').locator('figcaption');
+  assert.match(await caption.textContent(),/does not show internal service conditions or the order of failures/);
+  assert.match(await caption.textContent(),/Complete photograph preserved unchanged/);
+  assert.equal(await caption.getByRole('link',{name:'Agency photograph context',exact:true}).getAttribute('href'),source);
+  assert.equal(await caption.getByRole('link',{name:'Inspect the photograph, reuse and limits',exact:true}).getAttribute('href'),'dossier.html?event=joplin-2011&media=nws-joplin-st-johns-aftermath#media-nws-joplin-st-johns-aftermath');
   const layout=await section.evaluate(node=>({
     width:document.documentElement.scrollWidth,viewport:innerWidth,
     escaped:[...node.querySelectorAll('article,p,dt,dd,li,summary')].filter(element=>{
