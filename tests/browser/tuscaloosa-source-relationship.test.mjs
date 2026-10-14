@@ -7,7 +7,7 @@ for(const width of [320,390,1280])test(`Tuscaloosa published sample context and 
   const requests=[];page.on('request',r=>requests.push(r.url()));
   await page.goto(base+'/tuscaloosa.html#rosolowski-published-samples');
   const section=page.locator('#rosolowski-published-samples');
-  for(const text of ['04:22','04:27','04:30','04:32','not historical UTC','150–200','counterclockwise 7°'])
+  for(const text of ['04:22','04:27','04:30','04:32','not historical UTC','150 to 200','counterclockwise 7°'])
     assert.ok((await section.textContent()).includes(text));
   assert.equal(await section.locator('img,iframe,video,audio').count(),0);
   assert.equal(await page.locator('iframe').count(),0);

@@ -125,7 +125,20 @@ class EvidenceCoverageTests(unittest.TestCase):
         rows = {row['event']['id']:row for row in coverage_rows()}
         linked = {item['id'] for _,item in rows['joplin-2011']['layers']['appearance']['items']}
         self.assertEqual(linked,{'friskey-joplin-storm'})
-        self.assertEqual([item['id'] for _,item in rows['tuscaloosa-birmingham-2011']['layers']['appearance']['items']], ['oliveira-2019-tornado-video-frames'])
+        appearance = rows['tuscaloosa-birmingham-2011']['layers']['appearance']['items']
+        self.assertEqual([item['id'] for _, item in appearance], [
+            'rosolowski-2022-panel-a', 'rosolowski-2022-panel-b',
+            'rosolowski-2022-panel-c', 'rosolowski-2022-panel-d',
+            'oliveira-2019-tornado-video-frames'])
+        for kind, item in appearance[:4]:
+            self.assertEqual(kind, 'observations')
+            self.assertEqual(item['source_id'], 'oliveira-2022-trailing-vortices')
+            self.assertEqual(item['status']['assertion'], 'source_reported')
+            self.assertEqual(item['status']['rights'], 'links_only')
+            self.assertIsNone(item['time']['capture'])
+            self.assertIsNone(item['time']['alignment'])
+            self.assertIsNone(item['time']['video'])
+            self.assertIsNone(item['place']['coordinates'])
         self.assertEqual(rows['tuscaloosa-birmingham-2011']['layers']['appearance']['state'], 'not_admitted')
         self.assertNotIn('nws-joplin-aftermath',linked)
         self.assertEqual(rows['blackwell-1955']['layers']['gaps']['state'],'disputed')
