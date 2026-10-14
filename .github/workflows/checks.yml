@@ -46,6 +46,7 @@ jobs:
           node --check web/study.js
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
+          node --test tests/form-renderer-resource-ownership.test.mjs
           node --check web/documentary-appearance.mjs
           node --check web/documentary-media.mjs
           node --check web/reconstruction.js
