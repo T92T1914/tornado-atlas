@@ -53,7 +53,9 @@ class RadarChronologyTests(unittest.TestCase):
         self.assertIn(reference['dossier_sha256'],retained)
         self.assertIn(metadata_sha,retained)
         self.assertEqual(current['media'][:len(rebased['media'])],rebased['media'])
-        self.assertEqual([row['id'] for row in current['media'][len(rebased['media']):]], ['piotrowski-joplin-original'])
+        self.assertEqual([row['id'] for row in current['media'][len(rebased['media']):]],
+                         ['piotrowski-joplin-original', 'nws-joplin-st-johns-aftermath',
+                          'nws-joplin-high-school-aftermath'])
         self.assertEqual(current['reconstruction'],rebased['reconstruction'])
 
     def test_mixed_malformed_and_overprecise_navigation_fails(self):
