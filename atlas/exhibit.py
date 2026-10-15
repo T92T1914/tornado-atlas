@@ -173,6 +173,8 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
     validate_reading(reading, result)
     result['reading'] = reading
+    from .documentary_clip import load_clip
+    result['documentary_clip'] = load_clip(ROOT)
     from .event_package import publication_artifacts, write_packages
     bundle_bytes = (json.dumps(result, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     packages = publication_artifacts(ROOT, bundle_bytes, destination.name)

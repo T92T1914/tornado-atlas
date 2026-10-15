@@ -16,3 +16,9 @@
 
 /* Keep the wrapped source action one continuous native hit target. */
 #bohac-film-reading .source-record-link {display:inline-block}
+
+.documentary-media video {display:block;width:100%;height:auto;max-width:100%;background:#000;border:1px solid var(--line)}
+.documentary-media video:focus-visible {outline:2px solid currentColor;outline-offset:4px}
+
+[data-clip-action] {min-height:44px;padding:10px 16px;font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);cursor:pointer}
+[data-clip-action]:focus-visible {outline:2px solid currentColor;outline-offset:4px}

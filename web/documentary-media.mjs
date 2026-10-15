@@ -17,3 +17,30 @@ for(const card of document.querySelectorAll('[data-documentary-video]')){
  });
  window.addEventListener('pagehide',close);
 }
+
+// Native source-relative clips stay separate from the historical playback clock.
+for(const clip of document.querySelectorAll('[data-documentary-clip]')){
+ const region=clip.closest('section'),button=region?.querySelector('[data-clip-action]'),status=region?.querySelector('[data-clip-status]');
+ if(!button||!status)continue;
+ button.hidden=false;
+ let failed=false,attempt=0;const failedSources=new Set(),sources=[...clip.querySelectorAll('source')];
+ const unavailable=()=>{failed=true;button.textContent='Retry short clip';status.textContent='The clip could not load. Retry, open an alternate format or follow the archived source link.';};
+ clip.addEventListener('loadstart',()=>{failed=false;failedSources.clear();});
+ for(const source of sources)source.addEventListener('error',()=>{failedSources.add(source);if(failedSources.size===sources.length)unavailable();});
+ const paused=()=>{button.textContent=(clip.error||failed)?'Retry short clip':'Play short clip';};
+ clip.addEventListener('play',()=>{
+  if(document.hidden){clip.pause();return;}
+  button.textContent='Pause short clip';status.textContent='Playing the silent source-relative passage. The historical clock is unchanged.';
+ });
+ clip.addEventListener('pause',()=>{paused();if(!clip.error)status.textContent='Clip paused. Use the native controls to examine a moment.';});
+ clip.addEventListener('ended',()=>{paused();status.textContent='Passage ended. Replay or examine a moment with the native controls.';});
+ clip.addEventListener('error',unavailable);
+ button.addEventListener('click',()=>{
+  if(!clip.paused&&!failed&&!clip.error){attempt++;clip.pause();return;}
+  if(clip.error||failed)clip.load();
+  const ownedAttempt=++attempt;
+  clip.play().catch(()=>{if(ownedAttempt!==attempt)return;paused();status.textContent='Playback did not start. Use the native controls, retry or open an alternate format below.';});
+ });
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){attempt++;clip.pause();}});
+ window.addEventListener('pagehide',()=>{attempt++;clip.pause();});
+}

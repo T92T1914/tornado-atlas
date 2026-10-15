@@ -113,6 +113,22 @@ def documentary_photographs(bundle):
     return ''.join(groups)
 
 
+def documentary_motion(clip):
+    sources = ''.join('<source src="'+text(a['asset'])+'" type="'+text(a['type'])+'">' for a in clip['assets'])
+    video = ('<video controls playsinline preload="none" width="1280" height="720" poster="'+text(clip['poster'])+'" '
+             'aria-label="Ray Bohac: four seconds of changing viewpoint" aria-describedby="bohac-motion-description bohac-motion-limits" data-documentary-clip>'
+             +sources+'Your browser cannot play these formats. Use the clip or archived source links below.</video>')
+    content = element('h3', 'Watch the foreground before judging the shape')
+    content += p('Play this short, silent passage, then pause and move through it with the video controls. It stays still until you choose to play.')
+    content += '<button type="button" hidden data-clip-action>Play short clip</button><p data-clip-status role="status">The silent clip plays only when selected. Native video controls and original links remain available.</p>'
+    content += element('figure', video + element('figcaption',
+        p('Ray Bohac · Silent opening passage, preserved in full frame. Shortened and compressed from the archived extended film.') + element('details', element('summary', 'How this clip was prepared') + p(clip['recipe'])) + element('p', link('Archived extended film', clip['source_url'])+' · '+link('CC BY 3.0',clip['license_url'])+' · '+link('Clip, parent and reuse record',clip['record_url']))))
+    content += p('Follow the tree beside the dark lowering, the roadside pole and the vehicle mirror. As the view shifts and tilts, the tree moves from in front of the lower region toward its right side. The pole crosses the view. These foreground changes help explain why the visible outline can change without supplying a measurement of the tornado’s growth.',id='bohac-motion-description')
+    content += p('The controls show elapsed time in this clip, not UTC. The 120 consecutive source presentations occupy 4.004 seconds at the original cadence. Camera motion, perspective, obstruction and storm evolution are not separated here. This passage supplies no calibrated viewpoint, physical dimensions or historical appearance interval.',id='bohac-motion-limits')
+    content += element('p',link('Open the MP4 clip',clip['assets'][0]['asset'])+' · '+link('Open the WebM clip',clip['assets'][1]['asset']))
+    return content
+
+
 def regions(bundle):
     exhibit, history = bundle['exhibit'], bundle['history']
     reading, photos = bundle['reading'], bundle['storm_photos']
@@ -155,6 +171,7 @@ def regions(bundle):
     result['hero-photograph'] = photo_figure(photos[0], 0, True)
     result['storm-photographs'] = ''.join(photo_figure(photo, index) for index, photo in enumerate(photos))
     result['documentary-photographs'] = documentary_photographs(bundle)
+    result['bohac-opening-motion'] = documentary_motion(bundle['documentary_clip'])
     result['visitor-questions'] = ''.join(element('details', element('summary', text(row['question'])) + p(row['answer'])
         + element('p', ''.join(link(source['label'], source['url']) for source in row['sources']), class_='guide-sources'), id=row['id']) for row in bundle['visitor_guide'])
     result['footage-guide'] = ''.join(element('article', element('h3', text(row['title'])) + p(row['text'])
