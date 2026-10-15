@@ -13,3 +13,6 @@
 @media(max-width:700px){.documentary-media-grid{grid-template-columns:minmax(0,1fr)}.documentary-video{padding:16px!important}}
 
 .documentary-media details>summary {min-height:44px;padding:10px 0;cursor:pointer}
+
+/* Keep the wrapped source action one continuous native hit target. */
+#bohac-film-reading .source-record-link {display:inline-block}
