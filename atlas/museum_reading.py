@@ -158,7 +158,8 @@ def regions(bundle):
     report = element('nav', element('strong', 'In this history') + ''.join(link(row['title'], '#'+row['id']) for row in history['report']), class_='report-contents', aria_label='In this history')
     for row in history['report']:
         report += element('article', element('h3', link(row['title'], '#'+row['id'])) + ''.join(p(value) for value in row['paragraphs'])
-                          + element('div', ''.join(link(source['label'], source['url']) for source in row['sources']), class_='report-links'), id=row['id'])
+                          + element('div', ''.join(link(source['label'], source['url']) for source in row['sources'])
+                              + (link('Inspect the feature-tracking observation and limits', 'dossier.html?event=el-reno-2013&observation=wakimoto-2016-dust-feature-radar-comparison#observation-wakimoto-2016-dust-feature-radar-comparison') if row['id']=='tracked-feature-radar' else ''), class_='report-links'), id=row['id'])
     result['documentary-report'] = report
     observation = bundle['documentary']['reported_appearance']['observations'][0]
     result['early-condensation'] = (element('h3', 'An earlier photograph by William T. Reid')
