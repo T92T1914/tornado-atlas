@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {inspectDossierHop} from './dossier-navigation-diagnostics.mjs';
 const still='assets/el-reno-2013/bohac-opening-film-still.png';
 const archive='https://commons.wikimedia.org/wiki/File:May_31_El_Reno_EF5_Extended_Version_filmed_up_close_in_the_TVN_Dominator_1.ogv';
 for(const width of [320,1280])test('derived film still, parent source and additional creator player '+width,async t=>{
@@ -37,8 +38,11 @@ for(const width of [320,1280])test('derived film still, parent source and additi
  await region.getByRole('link',{name:'Open Ray Bohac’s decoded film still at full resolution'}).click();
  await page.waitForURL(u=>u.pathname.endsWith('/bohac-opening-film-still.png'));
  await page.goBack();await region.waitFor();
- await region.getByRole('link',{name:'Inspect this still, its parent film and reuse record'}).click();
- const card=page.locator('#media-bohac-opening-film-still');await card.waitFor();
+ const card=page.locator('#media-bohac-opening-film-still');
+ await inspectDossierHop(page,async()=>{
+  await region.getByRole('link',{name:'Inspect this still, its parent film and reuse record'}).click();
+  await card.waitFor();
+ });
  assert.equal(await card.locator(':scope > .eyebrow').textContent(),'Film still');
  assert.match(await card.textContent(),/not a separately taken photograph/);
  assert.match(await card.textContent(),/bohac-archived-extended-film/);
