@@ -110,7 +110,13 @@ ADDITIONS = {
         "sources": [
             "brown-tuscaloosa-original-publication",
             "rosolowski-tuscaloosa-creator-publication",
-            "oliveira-2019-tuscaloosa-figure6"
+            "oliveira-2019-tuscaloosa-figure6",
+            "oliveira-2022-trailing-vortices"
+        ],
+        "observations": [
+            "rosolowski-2022-reported-viewpoint",
+            "rosolowski-2022-panel-a", "rosolowski-2022-panel-b",
+            "rosolowski-2022-panel-c", "rosolowski-2022-panel-d"
         ],
         "media": [
             "brown-tuscaloosa-original",
@@ -131,7 +137,7 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
     def setUpClass(cls):
         cls.docs = {doc['id']: doc for doc in dossiers(ROOT)}
 
-    def test_only_named_media_extensions_change_the_previous_publications(self):
+    def test_only_named_documentary_extensions_change_the_previous_publications(self):
         for event, identity in PREVIOUS.items():
             with self.subTest(event=event):
                 old = json.loads((ROOT / f'web/archive/{event}-{identity[:20]}.json').read_bytes())
@@ -145,7 +151,9 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                         extra = current[field][len(old[field]):]
                         self.assertEqual(extra if field == 'routes' else [row['id'] for row in extra], ADDITIONS[event][field], field)
                     elif field == 'provenance':
-                        self.assertEqual(set(current[field]), set(old[field]))
+                        expected_keys = set(old[field]) | ({'source_relationship_2022_increment'}
+                            if event == 'tuscaloosa-birmingham-2011' else set())
+                        self.assertEqual(set(current[field]), expected_keys)
                         for key in old[field]:
                             if key == 'inputs' and event == 'el-reno-2013':
                                 expected_inputs = dict(old[field][key])

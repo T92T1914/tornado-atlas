@@ -120,8 +120,9 @@ def _validate_dossier(doc):
             raise ValueError('Source metadata must contain nonempty text')
         public_url(source['url'])
     for creator in doc['creators']:
-        if set(creator) != {'id', 'name', 'basis'} or not creator['basis']:
-            raise ValueError('Attribution basis required; no inferred biography')
+        if set(creator) != {'id', 'name', 'basis'} or not all(
+                isinstance(creator[key], str) and creator[key] for key in ('name', 'basis')):
+            raise ValueError('Creator name and attribution basis must contain nonempty text')
     for item in doc['observations'] + doc['media']:
         required_item = {'id', 'title', 'source_id', 'locator', 'account', 'limits', 'status',
                          'time', 'place', 'review'}

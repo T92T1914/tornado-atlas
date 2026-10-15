@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {inspectDossierHop} from './dossier-navigation-diagnostics.mjs';
 const still='assets/el-reno-2013/bohac-opening-film-still.png';
 const archive='https://commons.wikimedia.org/wiki/File:May_31_El_Reno_EF5_Extended_Version_filmed_up_close_in_the_TVN_Dominator_1.ogv';
 for(const width of [320,1280])test('derived film still, parent source and additional creator player '+width,async t=>{
@@ -37,8 +38,11 @@ for(const width of [320,1280])test('derived film still, parent source and additi
  await region.getByRole('link',{name:'Open Ray Bohac’s decoded film still at full resolution'}).click();
  await page.waitForURL(u=>u.pathname.endsWith('/bohac-opening-film-still.png'));
  await page.goBack();await region.waitFor();
- await region.getByRole('link',{name:'Inspect this still, its parent film and reuse record'}).click();
- const card=page.locator('#media-bohac-opening-film-still');await card.waitFor();
+ const card=page.locator('#media-bohac-opening-film-still');
+ await inspectDossierHop(page,async()=>{
+  await region.getByRole('link',{name:'Inspect this still, its parent film and reuse record'}).click();
+  await card.waitFor();
+ });
  assert.equal(await card.locator(':scope > .eyebrow').textContent(),'Film still');
  assert.match(await card.textContent(),/not a separately taken photograph/);
  assert.match(await card.textContent(),/bohac-archived-extended-film/);
@@ -64,6 +68,36 @@ for(const width of [320,1280])test('derived film still, parent source and additi
  assert.equal(await source.getByRole('link',{name:'Open original media at its source'}).getAttribute('href'),'https://www.youtube.com/watch?v=5ohIVzIZLuQ');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
 });
+for(const width of [320,1280])test('derived film still source link has a continuous native hit target '+width,async t=>{
+ const page=await fixture(t,{viewport:{width,height:900}});
+ await page.goto(base+'/index.html?t=0#photos');
+ await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+ const region=page.locator('#bohac-film-reading');
+ await region.getByRole('link',{name:'Open Ray Bohac’s decoded film still at full resolution'}).click();
+ await page.waitForURL(u=>u.pathname.endsWith('/bohac-opening-film-still.png'));
+ await page.goBack();await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+ const link=region.getByRole('link',{name:'Inspect this still, its parent film and reuse record'});
+ await link.scrollIntoViewIfNeeded();
+ const hit=()=>link.evaluate(a=>{const r=a.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2,node=document.elementFromPoint(x,y);
+  return {display:getComputedStyle(a).display,rects:[...a.getClientRects()].map(r=>[r.x,r.y,r.width,r.height]),point:[x,y],target:node?.tagName,owns:node===a||a.contains(node)};});
+ if(width===320){
+  // Reintroduce only the old inline style inside this disposable page. The
+  // union rectangle spans a gap between text lines and is not an anchor hit.
+  await link.evaluate(a=>a.style.display='inline');const old=await hit();
+  const gap=!old.rects.some(([x,y,w,h])=>old.point[0]>=x&&old.point[0]<=x+w&&old.point[1]>=y&&old.point[1]<=y+h);
+  t.diagnostic('SOURCE_LINK_INLINE_CONTROL '+JSON.stringify({...old,center_between_fragments:gap,disposition:gap?'miss control applicable':'this layout has no center-gap control'}));
+  if(gap)assert.equal(old.owns,false,'A point between the old inline fragments misses the source link');
+  await link.evaluate(a=>a.style.removeProperty('display'));
+ }
+ const current=await hit();t.diagnostic('SOURCE_LINK_NATIVE_HIT '+JSON.stringify(current));
+ assert.equal(current.owns,true,'The complete source action owns its center, including wrapped-line gaps');
+ await inspectDossierHop(page,async()=>{await page.mouse.click(...current.point);await page.locator('#media-bohac-opening-film-still').waitFor();});
+ await page.goBack();await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+ await link.focus();assert.equal(await link.evaluate(a=>a===document.activeElement),true);
+ await page.keyboard.press('Enter');await page.locator('#media-bohac-opening-film-still').waitFor();
+ assert.equal(new URL(page.url()).searchParams.get('media'),'bohac-opening-film-still');
+});
+
 test('additional documentary sources and full film still remain native without scripts',async t=>{
  const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900}});
  await page.goto(base+'/index.html#bohac-film-reading');
