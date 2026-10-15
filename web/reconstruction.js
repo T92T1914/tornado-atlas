@@ -11,7 +11,7 @@ import {createFormRenderer} from './form-renderer.mjs';
 import {issuedAt} from './documentary-model.mjs';
 import {replayChapters,chapterAt,adjacentChapter} from './replay-context-model.mjs';
 import {mountSurvey} from './survey-view.mjs';
-import {mountPhotoViewer} from './photo-view.mjs';
+import {mountPhotoViewer,documentaryPhoto} from './photo-view.mjs';
 import {mountReplayScaleImpact} from './replay-scale-impact-view.mjs';
 import {mountDocumentaryAppearance} from './documentary-appearance.mjs';
 
@@ -277,7 +277,7 @@ async function start(){
     field('Viewpoint basis',sample.viewpoint.basis);
     field('Numeric camera pose and calibration','Unknown: coordinates, bearing, pitch, roll, position uncertainty, orientation uncertainty and lens calibration. Orbit controls are authored display choices.');
     field('Inspection declaration',`${sample.inspection.status}. ${sample.inspection.pixels} Reviewed on ${sample.inspection.reviewed_on}. ${sample.inspection.basis}`);
-    field('Use and rights basis',`External original links only. Rights holder: ${source.rights.rights_holder}. ${source.rights.basis}`);
+    field('Use and rights basis',`Earlier inspected version: external original links only. Rights holder: ${source.rights.rights_holder}. ${source.rights.basis}`);
     field('Photographic geometry','Physical shape and extent are unassigned. No particle funnel is drawn.');
     if(sample.partial_form){
       field('Interpreted component',sample.partial_form.component);
@@ -300,11 +300,36 @@ async function start(){
     original.href=sample.image.original_url;original.target='_blank';original.rel='noopener';
     original.textContent=`Open the original image or panel: ${sample.image.panel_locator}`;
     host.append(original);
+    if(sample.hosted_image){
+      const image=sample.hosted_image,report=image.creator_report;
+      const section=document.createElement('section'),heading=document.createElement('h4');
+      section.id='replay-photo-documentary';heading.textContent='Creator-attributed discrete documentary observation';
+      section.append(heading);
+      const view=document.createElement('a');view.id='replay-photo-full';view.href=image.asset;
+      view.textContent='View the complete photograph';view.className='source-record-link';
+      view.addEventListener('click',event=>{
+        if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+        event.preventDefault();pause();openReplayPhoto(documentaryPhoto(sample));
+      });
+      section.append(view);
+      for(const text of [image.caption,image.rights_basis,report.lineage,report.viewpoint,report.limits,report.clock_disposition]){
+        const p=document.createElement('p');p.textContent=text;section.append(p);
+      }
+      const movie=document.createElement('a'),url=new URL(report.movie_url);
+      url.searchParams.set('t',report.movie_seconds+'s');movie.href=url.href;movie.target='_blank';movie.rel='noopener';
+      movie.id='replay-photo-creator-guide';movie.textContent='Creator-reported movie guide '+report.movie_locator+' (not a frame identifier)';
+      const sourceLink=document.createElement('a');sourceLink.href='dossier.html?event=el-reno-2013&media='+image.record_id+'#media-'+image.record_id;
+      sourceLink.textContent='Inspect this full image, source and item permission';sourceLink.className='source-record-link';
+      const story=document.createElement('a');story.href='index.html#documentary-'+sample.id;story.textContent='Return to this image in the El Reno story';
+      section.append(movie,document.createTextNode(' · '),sourceLink,document.createTextNode(' · '),story);host.append(section);
+      field('Full documentary JPEG identity',image.original_url+'; '+image.width+' × '+image.height+'; '+image.bytes+' bytes; SHA256 '+image.sha256);
+      field('Full copy permission',image.rights_basis);
+    }
     if(sample.source_comparison){
       const comparison=sample.source_comparison,section=document.createElement('section');
       section.id='replay-photo-movie-context';
       const heading=document.createElement('h4'),message=document.createElement('p'),labels=document.createElement('p'),movieLabel=document.createElement('p');
-      heading.textContent='Checked movie context';
+      heading.textContent='Earlier checked movie context ('+comparison.reviewed_on+')';
       message.textContent='An inspected paused presentation shows a compatible scene near this photograph’s reported time. The exact photographic exposure has not been identified in the movie.';
       const photoDate=new Date(sample.reported_utc).toLocaleDateString('en-US',{timeZone:'UTC',month:'long',day:'numeric',year:'numeric'});
       labels.textContent=`Photo reported time: ${sample.reported_utc.slice(11,19)} UTC on ${photoDate}.`;
@@ -323,13 +348,15 @@ async function start(){
       field('Movie comparison limits',comparison.limits.join(' '));
     }
     const boundary=document.createElement('p');
-    boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. No photograph is loaded or copied by this player.';
+    boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. '+(sample.hosted_image?'The complete permitted documentary copy opens on request; it supplies no calibrated registration.':'No photograph is loaded or copied by this player.');
     details.append(boundary);host.append(details);
   }
   function updatePhotoPanel(sequence){
     const panel=el('replay-appearance-photo'),list=el('replay-photo-samples'),record=el('replay-photo-record');
     panel.hidden=!sequence;
     if(sequence!==shownPhotoSequence){
+      if(shownPhotoSample&&sharedPhotoViewer?.dismiss('appearance:'+shownPhotoSample.id))
+        el('replay-appearance-mode').focus({preventScroll:true});
       shownPhotoSequence=sequence;shownPhotoSample=null;list.replaceChildren();record.replaceChildren();
       if(sequence){
         const count=sequence.samples.length,first=sequence.samples[0],last=sequence.samples.at(-1);
@@ -352,6 +379,8 @@ async function start(){
       if(button.getAttribute('aria-pressed')!==pressed)button.setAttribute('aria-pressed',pressed);
     }
     if(sample!==shownPhotoSample){
+      if(shownPhotoSample&&sharedPhotoViewer?.dismiss('appearance:'+shownPhotoSample.id))
+        el('replay-appearance-mode').focus({preventScroll:true});
       shownPhotoSample=sample;record.replaceChildren();
       if(sample&&appearanceState.source)renderPhotoRecord(sample,appearanceState.source,sequence);
     }

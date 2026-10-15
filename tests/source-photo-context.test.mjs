@@ -20,7 +20,7 @@ test('source context preserves observed clock reading precision and legacy photo
  for(const sample of samples)assert.equal(sample.partial_form,null);
  assert.equal(Object.hasOwn(samples[2],'source_comparison'),false);
  assert.equal(Object.hasOwn(samples[3],'source_comparison'),false);
- const legacy=fixture();for(const s of legacy.photo_sequences[0].samples)delete s.source_comparison;
+ const legacy=fixture();for(const s of legacy.photo_sequences[0].samples){delete s.source_comparison;delete s.hosted_image;}
  assert.equal(validate(legacy),legacy);legacy.schema_version=3;assert.equal(validate(legacy),legacy);
  const old=fixture();old.schema_version=3;assert.throws(()=>validate(old));
 });

@@ -60,3 +60,9 @@ header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .museum-reading-paths a {display:block;min-height:44px;padding:10px 0;font-size:15px;line-height:1.5}
 .museum-reading-paths .museum-reading-limit {font-size:13px;margin:14px 0 0;color:var(--muted)}
 .documentary-hero figcaption,.documentary-figure figcaption,.documentary-reading p {overflow-wrap:anywhere}
+
+/* The permitted originals retain every edge and bottom source mark. */
+#nolte-documentary-photographs figure{margin:1.5rem 0 2.5rem;}
+#nolte-documentary-photographs img{display:block;width:100%;height:auto;object-fit:contain;}
+#nolte-documentary-photographs a{overflow-wrap:anywhere;}
+.documentary-photo-link{display:block;}

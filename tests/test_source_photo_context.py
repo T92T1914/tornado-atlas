@@ -22,7 +22,8 @@ class SourcePhotoContextTests(unittest.TestCase):
   self.assertEqual(samples[0]['source_comparison']['printed_utc'],'2013-05-31T23:10:37.254Z')
   self.assertEqual(samples[1]['source_comparison']['reading_precision'],'whole_second_label_readable')
   self.assertNotIn('source_comparison',samples[2]);self.assertNotIn('source_comparison',samples[3])
-  for sample in samples:sample.pop('source_comparison',None)
+  for sample in samples:
+   sample.pop('source_comparison',None);sample.pop('hosted_image',None)
   validate(value);value['schema_version']=3;validate(value)
   old=fixture();old['schema_version']=3
   with self.assertRaises(ValueError):validate(old)

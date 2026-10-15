@@ -35,7 +35,7 @@ async function main() {
   const response = await fetch('data.json');
   if (!response.ok) throw new Error('Interactive exploration is unavailable. The historical account, photographs and sources remain readable below. Reload to try the interactive tools again.');
   const data = await response.json();
-  const { mountPhotoViewer } = await import('./photo-view.mjs');
+  const { mountPhotoViewer, documentaryPhoto } = await import('./photo-view.mjs');
   const openPhoto = mountPhotoViewer();
   const exhibit = data.exhibit;
   const history = data.history;
@@ -61,6 +61,15 @@ async function main() {
     };
     image.addEventListener('error', failed, {once:true});
     if (image.complete && !image.naturalWidth) failed();
+  }
+  for(const anchor of document.querySelectorAll('[data-documentary-photo]')){
+    const sample=data.appearance_timeline?.photo_sequences.flatMap(row=>row.samples)
+      .find(row=>row.id===anchor.dataset.documentaryPhoto&&row.hosted_image);
+    if(!sample)continue;
+    anchor.addEventListener('click',event=>{
+      if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+      event.preventDefault();openPhoto(documentaryPhoto(sample));
+    });
   }
   const creators = new Map(data.creators.map(c => [c.id, c]));
   const notebook = data.notebook;

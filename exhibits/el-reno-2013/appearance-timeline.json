@@ -1,5 +1,5 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "event": "el-reno-2013",
   "windows": [],
   "photo_sources": [
@@ -123,6 +123,30 @@
               "The comparison supplies original external links; private inspection screenshots and movie frames are not hosted."
             ],
             "contract_sha256": "0a721e08247f1c47421165eca98dc771da20f3c62dd2b942b96a90443f806bc8"
+          },
+          "hosted_image": {
+            "record_id": "nolte-231037-full-documentary",
+            "source_id": "nolte-three-permitted-full-exports",
+            "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231037.jpg",
+            "asset": "assets/el-reno-2013/nolte-231037-full.jpg",
+            "sha256": "e9ad30c4fdcb6a28340bbb0e422b80cbc937ef248b497092246c7bff51fd4847",
+            "bytes": 216698,
+            "width": 1920,
+            "height": 1080,
+            "alt": "A dark tapered lowering beneath the storm above a field, with bright illumination at left, a fence and roadside poles in the foreground.",
+            "caption": "The published caption describes a cone with a wide base. Dark cloud and precipitation leave the physical boundary unresolved. Creator-reported label: 2013-05-31T23:10:37Z. The visible bottom mark reads 23:10Z; the exposure second and UTC accuracy are not independently calibrated.",
+            "creator": "Nick Nolte",
+            "rights_basis": "Used with Nick Nolte’s item-specific permission for unchanged copies of 231037.jpg, 231059.jpg and 231202.jpg. Complete location, time and copyright marks are retained. The fourth still and movie remain outside this grant. The previously hosted Commons image keeps its separate license.",
+            "creator_report": {
+              "kind": "creator_reported_documentary_context",
+              "lineage": "Nick Nolte identifies these three published images as exports from his roof-mounted GoPro recording. He reports using the GPS-equipped Sony HDR-PJ710V recording as a time reference and aligning the GoPro video through shared lightning flashes. He believes the exports came from his Vegas Pro timeline. The original camera files, GPS record, flash correspondence and editor project have not been inspected for this record.",
+              "viewpoint": "Nolte recalls a camera stop near 35.450045, -97.968850, saying he is pretty sure of the location and describing the view as mostly west. This is approximate camera context, not a surveyed pose, precise azimuth or tornado coordinate.",
+              "movie_url": "https://www.youtube.com/watch?v=jsBDFA6_81M",
+              "movie_locator": "20:41",
+              "movie_seconds": 1241,
+              "limits": "The movie marks are creator-reported navigation guides. The exact exported frames may be absent from the public video. A nearby scene is not an original exposure identifier or a calibrated UTC alignment. The three exports come from one reported GoPro stream. They are selected moments, not independent cameras or continuous coverage. Appearance between samples remains unknown.",
+              "clock_disposition": "Still-label offsets of 0, 22 and 85 seconds and creator movie-guide offsets of 0, 21 and 86 seconds remain distinct. Existing browser request, callback and paused readings, raw IPTC/EXIF and the failed original protocol remain unchanged."
+            }
           }
         },
         {
@@ -205,6 +229,30 @@
               "The comparison supplies original external links; private inspection screenshots and movie frames are not hosted."
             ],
             "contract_sha256": "0a721e08247f1c47421165eca98dc771da20f3c62dd2b942b96a90443f806bc8"
+          },
+          "hosted_image": {
+            "record_id": "nolte-231059-full-documentary",
+            "source_id": "nolte-three-permitted-full-exports",
+            "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231059.jpg",
+            "asset": "assets/el-reno-2013/nolte-231059-full.jpg",
+            "sha256": "10de8e092a55e9f4e87650f6731fb70e0829ba90246335f48c484ce3bca47a8c",
+            "bytes": 237567,
+            "width": 1920,
+            "height": 1080,
+            "alt": "A dark lowering and broad cloud base over the same field and fence, with a bright region at left and roadside poles along the horizon.",
+            "caption": "The published caption describes the base continuing to grow. The image supplies no calibrated physical width. Creator-reported label: 2013-05-31T23:10:59Z. The visible bottom mark reads 23:10Z; the exposure second and UTC accuracy are not independently calibrated.",
+            "creator": "Nick Nolte",
+            "rights_basis": "Used with Nick Nolte’s item-specific permission for unchanged copies of 231037.jpg, 231059.jpg and 231202.jpg. Complete location, time and copyright marks are retained. The fourth still and movie remain outside this grant. The previously hosted Commons image keeps its separate license.",
+            "creator_report": {
+              "kind": "creator_reported_documentary_context",
+              "lineage": "Nick Nolte identifies these three published images as exports from his roof-mounted GoPro recording. He reports using the GPS-equipped Sony HDR-PJ710V recording as a time reference and aligning the GoPro video through shared lightning flashes. He believes the exports came from his Vegas Pro timeline. The original camera files, GPS record, flash correspondence and editor project have not been inspected for this record.",
+              "viewpoint": "Nolte recalls a camera stop near 35.450045, -97.968850, saying he is pretty sure of the location and describing the view as mostly west. This is approximate camera context, not a surveyed pose, precise azimuth or tornado coordinate.",
+              "movie_url": "https://www.youtube.com/watch?v=jsBDFA6_81M",
+              "movie_locator": "21:02",
+              "movie_seconds": 1262,
+              "limits": "The movie marks are creator-reported navigation guides. The exact exported frames may be absent from the public video. A nearby scene is not an original exposure identifier or a calibrated UTC alignment. The three exports come from one reported GoPro stream. They are selected moments, not independent cameras or continuous coverage. Appearance between samples remains unknown.",
+              "clock_disposition": "Still-label offsets of 0, 22 and 85 seconds and creator movie-guide offsets of 0, 21 and 86 seconds remain distinct. Existing browser request, callback and paused readings, raw IPTC/EXIF and the failed original protocol remain unchanged."
+            }
           }
         },
         {
@@ -252,7 +300,31 @@
           ],
           "shape": null,
           "extent": null,
-          "partial_form": null
+          "partial_form": null,
+          "hosted_image": {
+            "record_id": "nolte-231202-full-documentary",
+            "source_id": "nolte-three-permitted-full-exports",
+            "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231202.jpg",
+            "asset": "assets/el-reno-2013/nolte-231202-full.jpg",
+            "sha256": "2232f9f7276c1a59f96464720e5295d8cad6d8a0f1ef3289d9a111a1a1a27e36",
+            "bytes": 189386,
+            "width": 1920,
+            "height": 1080,
+            "alt": "A person in the left foreground faces a broad dark lowering above a field, fence and distant road, beneath the storm cloud.",
+            "caption": "The published caption describes a transition toward a wedge and a wrapping rear-flanking downdraft (RFD) cut. These are attributed descriptions, not measured circulation geometry. Creator-reported label: 2013-05-31T23:12:02Z. The visible bottom mark reads 23:12Z; the exposure second and UTC accuracy are not independently calibrated.",
+            "creator": "Nick Nolte",
+            "rights_basis": "Used with Nick Nolte’s item-specific permission for unchanged copies of 231037.jpg, 231059.jpg and 231202.jpg. Complete location, time and copyright marks are retained. The fourth still and movie remain outside this grant. The previously hosted Commons image keeps its separate license.",
+            "creator_report": {
+              "kind": "creator_reported_documentary_context",
+              "lineage": "Nick Nolte identifies these three published images as exports from his roof-mounted GoPro recording. He reports using the GPS-equipped Sony HDR-PJ710V recording as a time reference and aligning the GoPro video through shared lightning flashes. He believes the exports came from his Vegas Pro timeline. The original camera files, GPS record, flash correspondence and editor project have not been inspected for this record.",
+              "viewpoint": "Nolte recalls a camera stop near 35.450045, -97.968850, saying he is pretty sure of the location and describing the view as mostly west. This is approximate camera context, not a surveyed pose, precise azimuth or tornado coordinate.",
+              "movie_url": "https://www.youtube.com/watch?v=jsBDFA6_81M",
+              "movie_locator": "22:07",
+              "movie_seconds": 1327,
+              "limits": "The movie marks are creator-reported navigation guides. The exact exported frames may be absent from the public video. A nearby scene is not an original exposure identifier or a calibrated UTC alignment. The three exports come from one reported GoPro stream. They are selected moments, not independent cameras or continuous coverage. Appearance between samples remains unknown.",
+              "clock_disposition": "Still-label offsets of 0, 22 and 85 seconds and creator movie-guide offsets of 0, 21 and 86 seconds remain distinct. Existing browser request, callback and paused readings, raw IPTC/EXIF and the failed original protocol remain unchanged."
+            }
+          }
         },
         {
           "id": "nolte-231255",
