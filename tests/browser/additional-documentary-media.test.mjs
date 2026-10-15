@@ -105,7 +105,7 @@ test('additional documentary sources and full film still remain native without s
  assert.match(await region.textContent(),/Decoded film still/);assert.equal(await region.locator('canvas,svg,iframe').count(),0);
  assert.equal(await region.getByRole('link',{name:'Watch the archived film on Wikimedia Commons'}).getAttribute('href'),archive);
  const summary=region.getByText('About this film and still',{exact:true});await summary.focus();await page.keyboard.press('Enter');
- assert.equal(await summary.evaluate(node=>node.parentElement.open),true);assert.match(await region.locator('details').innerText(),/complete film and audio remain unreviewed/);
+ assert.equal(await summary.evaluate(node=>node.parentElement.open),true);assert.match(await region.locator('details').innerText(),/remainder of the film and its audio remain unreviewed/);
  await region.getByRole('link',{name:'Open Ray Bohac’s decoded film still at full resolution'}).focus();
  await Promise.all([page.waitForURL(u=>u.pathname.endsWith('/bohac-opening-film-still.png')),page.keyboard.press('Enter')]);
  await page.goto(base+'/tuscaloosa.html#photographs-and-film');const ros=page.locator('[data-documentary-video="5ohIVzIZLuQ"]');

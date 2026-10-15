@@ -59,7 +59,7 @@
     "source": {
       "url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
       "resolved_url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
-      "retrieved_at": "2026-10-11T00:32:00.954779+00:00",
+      "retrieved_at": "2026-10-13T15:12:44.567916+00:00",
       "sha256": "3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
       "bytes": 6583,
       "path": "raw/3a6fb5a007e5fab120d844e8c34136fff6cbf8f65b890ba09bdadb4bc630fdce",
@@ -2327,6 +2327,21 @@
           {
             "label": "TornadoCentral: published El Reno genesis and intensification recording",
             "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc"
+          }
+        ]
+      },
+      {
+        "id": "tracked-feature-radar",
+        "title": "When a visible feature can constrain motion",
+        "paragraphs": [
+          "Wakimoto and colleagues give a worked example in Figures 22 and 23 of their 2016 study. They track a dust/debris pocket over four author-labeled times, 23:24:52–23:24:55 UTC, using a specified photographic plane. Their earlier horizontal and vertical estimates are 19.0 and 3.7 m/s; later estimates are 39.8 and 15.7 m/s. Edge selection contributes a reported 2–3 m/s velocity uncertainty. These are the authors’ results, not measurements made by Atlas.",
+          "The radar comparison uses a spatially filtered dual-Doppler field at 23:24:54, including roughly 20 m/s tornado-relative radial inflow near the feature. That radial inflow and the later photo-plane horizontal speed are different quantities. The comparison is qualitative consistency, not numerical equality. Particle-following assumptions and camera geometry matter; the velocity uncertainty is not clock accuracy.",
+          "This shows the kind of relationship needed for reconstruction: an identifiable feature, a defensible camera model and an independent comparison that could disagree. Atlas has not acquired the underlying raw video and calibration package. This source-specific geometry cannot calibrate Nolte’s camera, and the example adds no registered appearance interval."
+        ],
+        "sources": [
+          {
+            "label": "Read the original Figures 22 and 23 discussion",
+            "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=24"
           }
         ]
       }
@@ -9409,7 +9424,7 @@
   "reading": {
     "schema": 1,
     "event": "el-reno-2013",
-    "updated": "2026-10-12",
+    "updated": "2026-10-15",
     "sources": [
       {
         "group": "Original photographs and accounts",
@@ -9669,7 +9684,44 @@
         "publisher": "David Conrady, YouTube publication account",
         "url": "https://www.youtube.com/watch?v=s-W92EOU138",
         "use": "Opening paused presentation inspected: road, white SUV, storm beyond and overhead obstruction. The creator’s later-travel account is attributed separately, not inspected as footage. A requested later sample did not settle. Complete film and audio remain unreviewed, and historical timing and viewpoint are unregistered. Ordinary original watch link only; source video, frames and audio are not hosted."
+      },
+      {
+        "group": "Scientific studies",
+        "publisher": "Wakimoto and colleagues · Monthly Weather Review, 2016",
+        "title": "Tracked dust/debris feature and radar comparison",
+        "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=24",
+        "use": "Attributed Figures22and23method example, not a newly registered Atlas observation or permission to reproduce figures."
       }
     ]
+  },
+  "documentary_clip": {
+    "id": "bohac-opening-documentary-motion",
+    "source_url": "https://commons.wikimedia.org/wiki/File:May_31_El_Reno_EF5_Extended_Version_filmed_up_close_in_the_TVN_Dominator_1.ogv",
+    "record_url": "dossier.html?event=el-reno-2013&media=bohac-opening-documentary-motion#media-bohac-opening-documentary-motion",
+    "recipe": "Opening source PTS [0,4), 120 consecutive full-frame presentations, original 30000/1001 cadence; silent lossy H.264/VP8 conversions. No crop, interpolation, stabilization or generated detail. WebM timestamps are quantized to milliseconds.",
+    "source_sha256": "b869bf7799b4d388e047216f5343e5aa85cc681f5bda8a760899a6261b698932",
+    "creator": "Ray Bohac",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "poster": "assets/el-reno-2013/bohac-opening-film-still.png",
+    "assets": [
+      {
+        "asset": "assets/el-reno-2013/bohac-opening-source-relative.mp4",
+        "bytes": 965874,
+        "sha256": "a8cadb5074a14b09221eb4cc7cadd06b22eddb0a7db43d516df138b1f32d1053",
+        "type": "video/mp4"
+      },
+      {
+        "asset": "assets/el-reno-2013/bohac-opening-source-relative.webm",
+        "bytes": 905286,
+        "sha256": "d394f7969b26a6f140e55f24fa713046aa99874aadfc25163baeddb06f66774c",
+        "type": "video/webm"
+      }
+    ],
+    "width": 1280,
+    "height": 720,
+    "frames": 120,
+    "frame_rate": "30000/1001",
+    "duration_seconds": 4.004,
+    "audio_streams": 0
   }
 }

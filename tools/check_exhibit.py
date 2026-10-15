@@ -66,3 +66,6 @@ check_navigation(root, check=True)
 minutes = {int(point['properties']['source_name'].split(':')[1]) for point in points}
 assert all(chapter['minute'] in minutes for chapter in bundle['history']['chapters']), 'Chapter lacks a published map position'
 print(f"Exhibit verified: {len(points)} timed positions, {len(ids)} video leads, 3 creators, {len(bundle['notebook']['observations'])} footage notes, {len(bundle['damage']['photos'])} preserved gallery photographs, {bundle['survey_media']['photo_count']} linked survey photographs.")
+
+from atlas.documentary_clip import load_clip
+assert bundle['documentary_clip'] == load_clip(root), 'Stale documentary clip source join'

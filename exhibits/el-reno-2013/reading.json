@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "event": "el-reno-2013",
-  "updated": "2026-10-12",
+  "updated": "2026-10-15",
   "sources": [
     {
       "group": "Original photographs and accounts",
@@ -261,6 +261,13 @@
       "publisher": "David Conrady, YouTube publication account",
       "url": "https://www.youtube.com/watch?v=s-W92EOU138",
       "use": "Opening paused presentation inspected: road, white SUV, storm beyond and overhead obstruction. The creator’s later-travel account is attributed separately, not inspected as footage. A requested later sample did not settle. Complete film and audio remain unreviewed, and historical timing and viewpoint are unregistered. Ordinary original watch link only; source video, frames and audio are not hosted."
+    },
+    {
+      "group": "Scientific studies",
+      "publisher": "Wakimoto and colleagues · Monthly Weather Review, 2016",
+      "title": "Tracked dust/debris feature and radar comparison",
+      "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=24",
+      "use": "Attributed Figures22and23method example, not a newly registered Atlas observation or permission to reproduce figures."
     }
   ]
 }

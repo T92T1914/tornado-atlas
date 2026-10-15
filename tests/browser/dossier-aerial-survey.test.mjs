@@ -58,7 +58,13 @@ for (const width of [390, 1280]) for (const appearance of ['dark', 'light']) {
     assert.equal(new URL(page.url()).searchParams.get('source'), sourceId);
     assert.equal(new URL(page.url()).searchParams.has('observation'), false);
     assert.deepEqual(await page.locator('[id^="observation-"]').evaluateAll(rows => rows.map(row => row.id).sort()),
-      ['observation-' + observationId, 'observation-intake-wakimoto-field-scouring-2312'].sort());
+      ['observation-' + observationId, 'observation-intake-wakimoto-field-scouring-2312',
+        'observation-wakimoto-2016-dust-feature-radar-comparison'].sort());
+    const comparison = page.locator('#observation-wakimoto-2016-dust-feature-radar-comparison');
+    assert.match(await comparison.textContent(), /Attributed author results, not Atlas measurements\./);
+    assert.match(await source.textContent(), /Wakimoto and colleagues \(2016\)/);
+    assert.match(await comparison.textContent(), /different quantities, not a numerical equality/);
+    assert.match(await comparison.textContent(), /No raw video\/calibration package acquired/);
     await page.goBack();
     await ready(page);
     await page.locator('#observation-' + observationId).waitFor();

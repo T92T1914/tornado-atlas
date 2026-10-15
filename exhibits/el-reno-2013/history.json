@@ -357,6 +357,21 @@
           "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc"
         }
       ]
+    },
+    {
+      "id": "tracked-feature-radar",
+      "title": "When a visible feature can constrain motion",
+      "paragraphs": [
+        "Wakimoto and colleagues give a worked example in Figures 22 and 23 of their 2016 study. They track a dust/debris pocket over four author-labeled times, 23:24:52–23:24:55 UTC, using a specified photographic plane. Their earlier horizontal and vertical estimates are 19.0 and 3.7 m/s; later estimates are 39.8 and 15.7 m/s. Edge selection contributes a reported 2–3 m/s velocity uncertainty. These are the authors’ results, not measurements made by Atlas.",
+        "The radar comparison uses a spatially filtered dual-Doppler field at 23:24:54, including roughly 20 m/s tornado-relative radial inflow near the feature. That radial inflow and the later photo-plane horizontal speed are different quantities. The comparison is qualitative consistency, not numerical equality. Particle-following assumptions and camera geometry matter; the velocity uncertainty is not clock accuracy.",
+        "This shows the kind of relationship needed for reconstruction: an identifiable feature, a defensible camera model and an independent comparison that could disagree. Atlas has not acquired the underlying raw video and calibration package. This source-specific geometry cannot calibrate Nolte’s camera, and the example adds no registered appearance interval."
+      ],
+      "sources": [
+        {
+          "label": "Read the original Figures 22 and 23 discussion",
+          "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=24"
+        }
+      ]
     }
   ]
 }

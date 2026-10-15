@@ -8,10 +8,10 @@ import path from 'node:path';
 import {chromium,webkit,firefox} from 'playwright';
 
 // Serve the checked-in exhibit in an owned loopback server. No user profile,
-// display capture, clipboard, media playback or external tile service is used.
+// display capture, clipboard, audible playback or external tile service is used.
 const root=fileURLToPath(new URL('../../web/',import.meta.url));
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript',
-  '.css':'text/css','.json':'application/json','.gz':'application/gzip',
+  '.mp4':'video/mp4','.webm':'video/webm','.css':'text/css','.json':'application/json','.gz':'application/gzip',
   '.jpg':'image/jpeg','.webp':'image/webp','.png':'image/png','.gif':'image/gif','.svg':'image/svg+xml'};
 let browser,server;
 export let base;
@@ -21,8 +21,16 @@ before(async()=>{
     const file=path.resolve(root,'.'+decodeURIComponent(pathname==='/'?'/index.html':pathname));
     if(!file.startsWith(root.endsWith(path.sep)?root:root+path.sep)){res.writeHead(403).end();return;}
     try{const info=await stat(file);if(!info.isFile())throw Error('Not a file');
-      res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream'});
-      createReadStream(file).pipe(res);
+      const type=mime[path.extname(file)]||'application/octet-stream';
+      const media=/^video\//.test(type),headers={'Content-Type':type,'Content-Length':info.size,...(media?{'Accept-Ranges':'bytes'}:{})};
+      if(media&&req.headers.range){
+        const match=/^bytes=(\d+)-(\d*)$/.exec(req.headers.range);
+        const start=match?Number(match[1]):NaN,end=match&&match[2]?Math.min(Number(match[2]),info.size-1):info.size-1;
+        if(!Number.isSafeInteger(start)||start<0||start>end||start>=info.size){res.writeHead(416,{'Content-Range':'bytes */'+info.size}).end();return;}
+        res.writeHead(206,{...headers,'Content-Length':end-start+1,'Content-Range':'bytes '+start+'-'+end+'/'+info.size});
+        createReadStream(file,{start,end}).pipe(res);return;
+      }
+      res.writeHead(200,headers);createReadStream(file).pipe(res);
     }catch{res.writeHead(404).end('Not found');}
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
