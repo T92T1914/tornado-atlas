@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 
 // A no-script page can still be completing its native fragment animation when
 // load finishes. Sample outside the page before entering locator auto-waiting.
+// Protocol round trips share the overall bound; one slower sample is not a
+// failure while the page still has time to establish stable visibility.
 export async function settledFragment(page, fragmentId, photoId) {
   const started=performance.now(),deadline=started+3000;
   let previous=null,stableSince=null,last=null;
@@ -24,10 +26,11 @@ export async function settledFragment(page, fragmentId, photoId) {
               section.y<innerHeight && section.x<innerWidth && section.x+section.width>0)};
         },{fragmentId,photoId}),
         new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Fragment snapshot exceeded its remaining bound')),
-          Math.min(200,Math.max(1,deadline-performance.now())));}),
+          Math.max(1,deadline-performance.now()));}),
       ]);
     } finally {clearTimeout(timer);}
     const now=performance.now(),key=JSON.stringify(last);
+    if(now>=deadline) break;
     if(last.fragmentInView && last.opener) {
       if(key!==previous) stableSince=now;
       if(stableSince!==null && now-stableSince>=250) return;
