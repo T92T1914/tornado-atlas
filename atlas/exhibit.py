@@ -176,13 +176,14 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     from .event_package import publication_artifacts, write_packages
     bundle_bytes = (json.dumps(result, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     packages = publication_artifacts(ROOT, bundle_bytes, destination.name)
-    if any('source_comparison' in sample
+    if any('source_comparison' in sample or 'hosted_image' in sample
            for sequence in result['appearance_timeline'].get('photo_sequences', [])
            for sample in sequence['samples']):
         from .archive import dossiers
-        from .evidence_coverage import validate_source_comparison_joins
+        from .evidence_coverage import validate_source_comparison_joins, validate_hosted_photo_joins
         reviewed = next(doc for doc in dossiers(ROOT) if doc['id'] == 'el-reno-2013')
         validate_source_comparison_joins(reviewed, result['appearance_timeline'])
+        validate_hosted_photo_joins(reviewed, result['appearance_timeline'], ROOT / 'web')
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(bundle_bytes)
     write_packages(destination.parent, packages)

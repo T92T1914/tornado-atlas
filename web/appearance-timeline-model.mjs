@@ -138,7 +138,7 @@ function photoUtc(value){
 }
 function validatePartialForm(form,version){
   if(form===null)return;
-  const condensation=version===4&&form?.kind==='visible_condensation_region';
+  const condensation=[4,5].includes(version)&&form?.kind==='visible_condensation_region';
   fields(form,['kind','authorship','coordinate_space','component','points','basis','use_basis','limits',
     ...(condensation?['closure','completeness']:[])],'partial photographic form');
   requireValue((form.kind==='visible_margin'||condensation)&&form.authorship==='independently_authored'&&
@@ -165,6 +165,26 @@ function validatePartialForm(form,version){
   }
   const first=form.points[0],last=form.points.at(-1);
   requireValue(first[0]!==last[0]||first[1]!==last[1],'Partial photographic margin must remain open.');
+}
+
+function validateHostedPhoto(value,sample){
+  fields(value,['record_id','source_id','original_url','asset','sha256','bytes','width','height',
+    'alt','caption','creator','rights_basis','creator_report'],'hosted documentary photograph');
+  photoId(value.record_id,'record identity');photoId(value.source_id,'source identity');
+  photoUrl(value.original_url);photoDigest(value.sha256);
+  requireValue(value.sha256!==null&&value.sha256!==sample.image.sha256&&
+    value.asset==='assets/el-reno-2013/'+sample.id+'-full.jpg'&&Number.isInteger(value.bytes)&&
+    value.bytes>=1&&value.bytes<=2*1024*1024&&['width','height'].every(k=>Number.isInteger(value[k])&&value[k]>=1&&value[k]<=16384),
+    'Hosted full photograph needs its own bounded file identity.');
+  for(const key of ['alt','caption','creator','rights_basis'])photoText(value[key],key,2000);
+  const report=value.creator_report;
+  fields(report,['kind','lineage','viewpoint','movie_url','movie_locator','movie_seconds','limits','clock_disposition'],'creator documentary report');
+  requireValue(report.kind==='creator_reported_documentary_context','Creator testimony is documentary context only.');
+  for(const key of ['lineage','viewpoint','limits','clock_disposition'])photoText(report[key],key,3000);
+  photoUrl(report.movie_url);
+  requireValue(typeof report.movie_locator==='string'&&/^[0-9]{1,3}:[0-5][0-9]$/.test(report.movie_locator)&&
+    Number.isInteger(report.movie_seconds)&&report.movie_seconds===report.movie_locator.split(':').reduce((m,s)=>m*60+Number(s),0),
+    'Creator movie locator differs from its navigation label.');
 }
 
 function validatePhotos(timeline,lower,upper){
@@ -207,8 +227,9 @@ function validatePhotos(timeline,lower,upper){
     for(const sample of sequence.samples){
       fields(sample,['id','source_id','exposure_id','image','reported_utc','timing','inspection',
         'viewpoint','characteristics','boundary_limits','shape','extent',
-        ...([3,4].includes(timeline.schema_version)?['partial_form']:[]),
-        ...(timeline.schema_version===4&&sample&&Object.hasOwn(sample,'source_comparison')?['source_comparison']:[])],'photographic sample');
+        ...([3,4,5].includes(timeline.schema_version)?['partial_form']:[]),
+        ...([4,5].includes(timeline.schema_version)&&sample&&Object.hasOwn(sample,'source_comparison')?['source_comparison']:[]),
+        ...(timeline.schema_version===5&&sample&&Object.hasOwn(sample,'hosted_image')?['hosted_image']:[])],'photographic sample');
       photoId(sample.id,'sample identity');photoId(sample.source_id,'sample source identity');
       photoId(sample.exposure_id,'exposure identity');
       requireValue(!sampleIds.has(sample.id),'Duplicate photographic sample identity.');
@@ -230,6 +251,7 @@ function validatePhotos(timeline,lower,upper){
         requireValue(!comparisonIds.has(sample.source_comparison.id),'Duplicate source comparison identity.');
         comparisonIds.add(sample.source_comparison.id);
       }
+      if(Object.hasOwn(sample,'hosted_image'))validateHostedPhoto(sample.hosted_image,sample);
       fields(sample.timing,['method','basis','uncertainty_seconds','uncertainty_basis'],'photographic timing');
       requireValue(sample.timing.method==='source_reported','Unsupported photographic timing method.');
       photoText(sample.timing.basis,'reported timing basis');
@@ -255,15 +277,15 @@ function validatePhotos(timeline,lower,upper){
       }
       requireValue(sample.shape===null&&sample.extent===null,
         'Qualitative photographic geometry must remain explicitly null.');
-      if([3,4].includes(timeline.schema_version))validatePartialForm(sample.partial_form,timeline.schema_version);
+      if([3,4,5].includes(timeline.schema_version))validatePartialForm(sample.partial_form,timeline.schema_version);
     }
   }
 }
 
 export function validateAppearanceTimeline(timeline,eventId,clock,footage){
   const version=timeline?.schema_version;
-  fields(timeline,['schema_version','event','windows',...([2,3,4].includes(version)?['photo_sources','photo_sequences']:[])],'appearance timeline');
-  requireValue([1,2,3,4].includes(version)&&timeline.event===eventId&&Array.isArray(timeline.windows)&&timeline.windows.length<=16,'Appearance timeline identity or version differs.');
+  fields(timeline,['schema_version','event','windows',...([2,3,4,5].includes(version)?['photo_sources','photo_sequences']:[])],'appearance timeline');
+  requireValue([1,2,3,4,5].includes(version)&&timeline.event===eventId&&Array.isArray(timeline.windows)&&timeline.windows.length<=16,'Appearance timeline identity or version differs.');
   requireValue(Array.isArray(footage?.sources)&&footage.sources.length>=(version===1?1:0)&&footage.sources.length<=8&&
     footage.sources.every(source=>typeof source.id==='string'&&idPattern.test(source.id))&&
     new Set(footage.sources.map(source=>source.id)).size===footage.sources.length,'Appearance source versions need distinct identities.');
@@ -298,7 +320,7 @@ export function validateAppearanceTimeline(timeline,eventId,clock,footage){
       }
     }else throw new Error('Unsupported appearance evidence state.');
   }
-  if([2,3,4].includes(version))validatePhotos(timeline,lower,upper);
+  if([2,3,4,5].includes(version))validatePhotos(timeline,lower,upper);
   return timeline;
 }
 
@@ -306,7 +328,7 @@ function photoAt(timeline,seconds,startUtc,selection){
   fields(selection,['kind','id'],'photographic selection');
   requireValue(selection.kind==='photo','Unsupported typed appearance selection.');
   photoId(selection.id,'selected sequence identity');
-  const sequence=[2,3,4].includes(timeline.schema_version)?timeline.photo_sequences.find(item=>item.id===selection.id):null;
+  const sequence=[2,3,4,5].includes(timeline.schema_version)?timeline.photo_sequences.find(item=>item.id===selection.id):null;
   if(!sequence)return {state:'unknown',reason:'No photographic sequence is assigned to this selection.',
     sequence:null,shape:null,extent:null,partialForm:null};
   const origin=photoUtc(startUtc);

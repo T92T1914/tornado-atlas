@@ -252,7 +252,7 @@ def _validate_condensation_support(points):
 def _validate_partial_form(form, version):
     if form is None:
         return
-    condensation = version == 4 and isinstance(form, dict) and form.get("kind") == "visible_condensation_region"
+    condensation = version in (4, 5) and isinstance(form, dict) and form.get("kind") == "visible_condensation_region"
     fields(form, ("kind", "authorship", "coordinate_space", "component", "points",
                   "basis", "use_basis", "limits") + (("closure", "completeness") if condensation else ()),
            "partial photographic form")
@@ -331,6 +331,37 @@ def _validate_source_comparison(value, reported):
             _photo_text(text, name, 1000)
 
 
+def _validate_hosted_photo(value, sample):
+    """An item reference, not a source-wide hosting grant or registration."""
+    fields(value, ("record_id", "source_id", "original_url", "asset", "sha256", "bytes",
+                   "width", "height", "alt", "caption", "creator", "rights_basis", "creator_report"),
+           "hosted documentary photograph")
+    for key in ("record_id", "source_id"):
+        _photo_id(value[key], key)
+    _photo_url(value["original_url"])
+    _photo_digest(value["sha256"])
+    if (value["sha256"] is None or value["sha256"] == sample["image"]["sha256"]
+            or value["asset"] != "assets/el-reno-2013/" + sample["id"] + "-full.jpg"
+            or type(value["bytes"]) is not int or not 1 <= value["bytes"] <= 2 * 1024 * 1024
+            or any(type(value[k]) is not int or not 1 <= value[k] <= 16384 for k in ("width", "height"))):
+        raise ValueError("Hosted full photograph needs its own bounded file identity")
+    for key in ("alt", "caption", "creator", "rights_basis"):
+        _photo_text(value[key], key, 2000)
+    report = value["creator_report"]
+    fields(report, ("kind", "lineage", "viewpoint", "movie_url", "movie_locator", "movie_seconds",
+                    "limits", "clock_disposition"), "creator documentary report")
+    if report["kind"] != "creator_reported_documentary_context":
+        raise ValueError("Creator testimony is documentary context only")
+    for key in ("lineage", "viewpoint", "limits", "clock_disposition"):
+        _photo_text(report[key], key, 3000)
+    _photo_url(report["movie_url"])
+    label = report["movie_locator"]
+    if (not isinstance(label, str) or not re.fullmatch(r"[0-9]{1,3}:[0-5][0-9]", label)
+            or type(report["movie_seconds"]) is not int
+            or report["movie_seconds"] != int(label.split(":")[0]) * 60 + int(label.split(":")[1])):
+        raise ValueError("Creator movie locator differs from its navigation label")
+
+
 def _validate_photos(timeline, start, end):
     # These checks establish declared consistency, not authentic inspection,
     # source identity, clock accuracy or permission to reuse source pixels.
@@ -388,8 +419,9 @@ def _validate_photos(timeline, start, end):
             fields(sample, ("id", "source_id", "exposure_id", "image", "reported_utc",
                             "timing", "inspection", "viewpoint", "characteristics",
                             "boundary_limits", "shape", "extent") +
-                   (("partial_form",) if timeline["schema_version"] in (3, 4) else ()) +
-                   (("source_comparison",) if timeline["schema_version"] == 4 and isinstance(sample, dict) and "source_comparison" in sample else ()),
+                   (("partial_form",) if timeline["schema_version"] in (3, 4, 5) else ()) +
+                   (("source_comparison",) if timeline["schema_version"] in (4, 5) and isinstance(sample, dict) and "source_comparison" in sample else ()) +
+                   (("hosted_image",) if timeline["schema_version"] == 5 and isinstance(sample, dict) and "hosted_image" in sample else ()),
                    "photographic sample")
             _photo_id(sample["id"], "sample identity")
             _photo_id(sample["source_id"], "sample source identity")
@@ -423,6 +455,8 @@ def _validate_photos(timeline, start, end):
                 if comparison["id"] in comparison_ids:
                     raise ValueError("Duplicate source comparison identity")
                 comparison_ids.add(comparison["id"])
+            if "hosted_image" in sample:
+                _validate_hosted_photo(sample["hosted_image"], sample)
             timing = sample["timing"]
             fields(timing, ("method", "basis", "uncertainty_seconds", "uncertainty_basis"),
                    "photographic timing")
@@ -460,14 +494,14 @@ def _validate_photos(timeline, start, end):
                     _photo_text(text, name, 1000)
             if sample["shape"] is not None or sample["extent"] is not None:
                 raise ValueError("Qualitative photographic geometry must remain explicitly null")
-            if timeline["schema_version"] in (3, 4):
+            if timeline["schema_version"] in (3, 4, 5):
                 _validate_partial_form(sample["partial_form"], timeline["schema_version"])
 
 
 def validate_appearance_timeline(timeline, event_id, start, end, footage_sources):
     """Check legacy windows and separately declared sparse photographic samples."""
     version = timeline.get("schema_version") if isinstance(timeline, dict) else None
-    is_photographic = type(version) in (int, float) and version in (2, 3, 4)
+    is_photographic = type(version) in (int, float) and version in (2, 3, 4, 5)
     extra = ("photo_sources", "photo_sequences") if is_photographic else ()
     fields(timeline, ("schema_version", "event", "windows") + extra, "appearance timeline")
     if not ((type(version) is int and version == 1) or is_photographic) or timeline["event"] != event_id:

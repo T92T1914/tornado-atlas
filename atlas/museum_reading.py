@@ -75,6 +75,44 @@ def simulator_early_region(bundle):
         + '<script type="application/json" id="early-condensation-record">'+record+'</script>')
 
 
+def documentary_photographs(bundle):
+    from datetime import datetime
+    timeline = bundle.get('appearance_timeline', {})
+    groups = []
+    for sequence in timeline.get('photo_sequences', []):
+        samples = [sample for sample in sequence['samples'] if sample.get('hosted_image')]
+        if not samples:
+            continue
+        report = samples[0]['hosted_image']['creator_report']
+        content = element('h3', 'Three moments in Nick Nolte’s El Reno account')
+        content += p('Creator-attributed discrete documentary observations. These full published GoPro exports retain their complete location, time and copyright marks.')
+        content += p(report['lineage']) + p(report['viewpoint']) + p(report['limits'])
+        for sample in samples:
+            image = sample['hosted_image']
+            guide = image['creator_report']
+            bitmap = (f'<img src="{text(image["asset"])}" width="{image["width"]}" height="{image["height"]}" '
+                      f'alt="{text(image["alt"])}" loading="lazy" decoding="async">')
+            view = element('a', bitmap, href=image['asset'], data_documentary_photo=sample['id'],
+                           class_='documentary-photo-link', aria_label='View complete '+sample['id']+'.jpg by '+image['creator'])
+            record = 'dossier.html?event=el-reno-2013&media='+image['record_id']+'#media-'+image['record_id']
+            seconds = int((datetime.fromisoformat(sample['reported_utc'].replace('Z','+00:00'))-
+                           datetime.fromisoformat(min(row['properties']['utc'] for row in bundle['geometry']['features'] if row['geometry']['type']=='Point'))).total_seconds())
+            player = ('reconstruction.html?event=el-reno-2013&t='+str(seconds)+'&appearance_view=photo&appearance_photo='
+                      +sequence['id']+'#replay-appearance')
+            caption = p(image['caption']) + p(image['creator']+' · '+image['rights_basis'])
+            caption += element('p', link('Open the unchanged full resolution JPEG', image['asset'])+' · '
+                +link('Original full JPEG at the creator’s site', image['original_url'])+' · '
+                +link('Source and item permission', record)+' · '+link('Read this reported instant in the player',player))
+            caption += element('p', link('Creator-reported movie guide '+guide['movie_locator'],guide['movie_url']+'&t='+str(guide['movie_seconds'])+'s')
+                +' (navigation guide, not a source frame number or calibrated UTC).')
+            caption += element('details', element('summary','Identity and clock limits')
+                +p('Unchanged '+str(image['width'])+' × '+str(image['height'])+' JPEG; '+str(image['bytes'])+' bytes; SHA256 '+image['sha256'])
+                +p(guide['clock_disposition']))
+            content += element('figure',view+element('figcaption',caption),id='documentary-'+sample['id'])
+        groups.append(element('section',content,id='nolte-documentary-photographs',class_='documentary-media'))
+    return ''.join(groups)
+
+
 def regions(bundle):
     exhibit, history = bundle['exhibit'], bundle['history']
     reading, photos = bundle['reading'], bundle['storm_photos']
@@ -116,6 +154,7 @@ def regions(bundle):
         + element('p', link('Open the appearance study in the simulator', 'reconstruction.html?event=el-reno-2013#replay-reported-appearance')))
     result['hero-photograph'] = photo_figure(photos[0], 0, True)
     result['storm-photographs'] = ''.join(photo_figure(photo, index) for index, photo in enumerate(photos))
+    result['documentary-photographs'] = documentary_photographs(bundle)
     result['visitor-questions'] = ''.join(element('details', element('summary', text(row['question'])) + p(row['answer'])
         + element('p', ''.join(link(source['label'], source['url']) for source in row['sources']), class_='guide-sources'), id=row['id']) for row in bundle['visitor_guide'])
     result['footage-guide'] = ''.join(element('article', element('h3', text(row['title'])) + p(row['text'])

@@ -105,6 +105,57 @@ def validate_source_comparison_joins(doc, timeline):
             used.add(point['id'])
 
 
+def validate_hosted_photo_joins(doc, timeline, web=None):
+    """Require each full copy's own reviewed item grant and exact source identity.
+
+    These declarations cannot authenticate permission. Their source review is
+    separate; neither the article nor a sibling item inherits a hosting grant.
+    """
+    import hashlib
+    media = {row['id']: row for row in doc['media']}
+    sources = {row['id']: row for row in doc['sources']}
+    used = set()
+    for sequence in timeline.get('photo_sequences', []):
+        for sample in sequence['samples']:
+            image = sample.get('hosted_image')
+            if image is None:
+                continue
+            from .event_package import _validate_hosted_photo
+            _validate_hosted_photo(image, sample)
+            point = media.get(image['record_id'])
+            source = sources.get(image['source_id'])
+            if (point is None or source is None or point['id'] in used
+                    or point['source_id'] != source['id'] or point['url'] != image['original_url']
+                    or point['kind'] != 'photograph' or point['parent'] is not None
+                    or point['status'] != dict(intake='published', assertion='observed_sample',
+                        temporal='source_label', spatial='unregistered', availability='reviewed_available', rights='permitted_hosting')
+                    or point['time']['alignment'] is not None or point['time']['video'] is not None
+                    or point['place']['coordinates'] is not None
+                    or point['time']['capture'] != {'reported':sample['reported_utc'], 'precision':'creator_reported_second_unquantified'}
+                    or not isinstance(point['review'], dict)
+                    or point['review'].get('photo_sample_id') != sample['id']
+                    or digest(point['review'].get('hosted_image')) != digest(image)
+                    or point['review'].get('permission') != dict(item_url=image['original_url'],
+                        use='unchanged_documentary_display', credit=image['creator'], preserve_marks=True,
+                        basis=image['rights_basis'])
+                    or point['transformation'] != dict(recipe='Unchanged full published JPEG; complete location, time and copyright marks retained.',
+                        **{k:image[k] for k in ('asset','sha256','bytes','width','height','alt')}, source_sha256=image['sha256'])):
+                raise ValueError('Hosted photograph differs from its own reviewed item permission or identity')
+            creator = next((row for row in doc['creators'] if row['id'] == point['roles']['creator']), None)
+            if (creator is None or creator['name'] != image['creator']
+                    or point['roles']['rights_holder'] != creator['id']):
+                raise ValueError('Hosted photograph differs from its credited creator and rights holder')
+            used.add(point['id'])
+            if web is not None:
+                path = web / image['asset']
+                if (path.is_symlink() or not path.resolve().is_relative_to(web.resolve())
+                        or not path.is_file() or path.stat().st_size != image['bytes']):
+                    raise ValueError('Hosted full photograph is missing or has different bytes')
+                raw = path.read_bytes()
+                if hashlib.sha256(raw).hexdigest() != image['sha256']:
+                    raise ValueError('Hosted full photograph fingerprint differs')
+
+
 def coverage_rows(root=ROOT):
     index = reviewed_index(root)
     packages = build_event_packages(root, replay_inputs(root))
@@ -121,6 +172,7 @@ def coverage_rows(root=ROOT):
         bundle = json.loads(packages[config['bundle']]) if config else None
         if bundle:
             validate_source_comparison_joins(doc, bundle.get('appearance_timeline', {}))
+            validate_hosted_photo_joins(doc, bundle.get('appearance_timeline', {}), root / 'web')
         chronology = packages.get(event.get('chronology'))
         static_survey = None
         if doc['id'] == 'tuscaloosa-birmingham-2011' and refs and refs['survey'] is not None:

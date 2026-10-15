@@ -149,7 +149,10 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                     if field in ADDITIONS[event]:
                         self.assertEqual(current[field][:len(old[field])], old[field], field)
                         extra = current[field][len(old[field]):]
-                        self.assertEqual(extra if field == 'routes' else [row['id'] for row in extra], ADDITIONS[event][field], field)
+                        nolte = {'creators':['nick-nolte-three-permitted-exports'], 'sources':['nolte-three-permitted-full-exports'],
+                                 'media':['nolte-231037-full-documentary','nolte-231059-full-documentary','nolte-231202-full-documentary']}
+                        expected = ADDITIONS[event][field] + (nolte.get(field, []) if event == 'el-reno-2013' else [])
+                        self.assertEqual(extra if field == 'routes' else [row['id'] for row in extra], expected, field)
                     elif field == 'provenance':
                         expected_keys = set(old[field]) | ({'source_relationship_2022_increment'}
                             if event == 'tuscaloosa-birmingham-2011' else set())

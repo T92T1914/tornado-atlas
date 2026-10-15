@@ -48,6 +48,16 @@ export async function checkedPhotoBytes(photo, {signal, fetcher = globalThis.fet
   } finally {reader?.releaseLock();}
 }
 
+// Documentary copies retain a different identity from earlier reading versions.
+export function documentaryPhoto(sample) {
+  const image=sample.hosted_image;
+  if(!image)throw Error('This sample has no admitted documentary copy.');
+  return {title:image.creator+' / '+new URL(image.original_url).pathname.split('/').at(-1),asset:image.asset,expectedSha256:image.sha256,
+    alt:image.alt,caption:image.caption,location:image.creator_report.viewpoint,
+    credit:image.creator+'. '+image.rights_basis,source:image.original_url,
+    license:'Item-specific permission: unchanged documentary display',selectionKey:'appearance:'+sample.id};
+}
+
 // One viewer for historical images, with the credit supplied by each source.
 export function mountPhotoViewer() {
   const byId = id => document.getElementById(id);
@@ -140,7 +150,7 @@ export function mountPhotoViewer() {
     close.focus();
     load(selected);
   });
-  return photo => {
+  const open = photo => {
     selected = {...photo};
     byId('photo-title').textContent = photo.title;
     byId('photo-caption').textContent = photo.caption;
@@ -156,4 +166,14 @@ export function mountPhotoViewer() {
     load(selected);
     if (!dialog.open) dialog.showModal();
   };
+  open.dismiss = key => {
+    if(typeof key!=='string'||selected?.selectionKey!==key||!dialog.open)return false;
+    retire();dialog.close();return true;
+  };
+  dialog.ownerDocument?.defaultView?.addEventListener('pagehide',()=>{
+    retire();if(dialog.open)dialog.close();
+    current=null;selected=null;image.hidden=true;image.removeAttribute('src');
+    failure.hidden=true;retry.hidden=true;status.textContent='';
+  });
+  return open;
 }
