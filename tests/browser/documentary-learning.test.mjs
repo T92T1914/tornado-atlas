@@ -11,9 +11,15 @@ for(const width of [320,1280])test('controlled documentary motion and source jou
  await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
  const region=page.locator('#bohac-opening-motion'),video=region.locator('video');
  assert.equal(await video.getAttribute('preload'),'none');assert.equal(await video.getAttribute('autoplay'),null);assert.equal(await video.getAttribute('loop'),null);
- assert.equal(await video.evaluate(v=>v.paused),true);assert.deepEqual(motionRequests,[]);
+ // preload is a browser hint, not a guarantee of zero media requests.
+ assert.equal(await video.evaluate(v=>v.paused),true);assert.equal(await video.evaluate(v=>v.currentTime),0);
+ assert.equal(await page.locator('#published-position').inputValue(),'0');
+ const allowedSources=new Set(['mp4','webm'].map(format=>base+'/assets/el-reno-2013/bohac-opening-source-relative.'+format));
+ assert.ok(motionRequests.every(url=>allowedSources.has(url)),'Any browser-selected preload retains the exact reviewed asset');
+ t.diagnostic('CLIP_BEFORE_PLAY '+JSON.stringify({requests:motionRequests,scope:'Browser preload may occur; playback remains paused at source time zero.'}));
  const play=region.getByRole('button',{name:'Play short clip'});await play.focus();await page.keyboard.press('Enter');
  await page.waitForFunction(()=>{const v=document.querySelector('[data-documentary-clip]');return v.videoWidth===1280&&v.videoHeight===720&&v.currentTime>0.1&&!v.paused;});
+ assert.ok(allowedSources.has(await video.evaluate(v=>v.currentSrc)),'Actual playing source is a reviewed full-frame encode');
  assert.equal(await page.locator('#published-position').inputValue(),'0','Source elapsed playback does not move the historical clock');
  await region.getByRole('button',{name:'Pause short clip'}).click();assert.equal(await video.evaluate(v=>v.paused),true);
  t.diagnostic('CLIP_BEFORE_SEEK '+JSON.stringify(await video.evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,network:v.networkState,seekable:Array.from({length:v.seekable.length},(_,i)=>[v.seekable.start(i),v.seekable.end(i)]),buffered:Array.from({length:v.buffered.length},(_,i)=>[v.buffered.start(i),v.buffered.end(i)]),source:v.currentSrc,error:v.error?.code}))));await video.evaluate(v=>{v.currentTime=2;});await page.waitForFunction(()=>Math.abs(document.querySelector('[data-documentary-clip]').currentTime-2)<0.05);
