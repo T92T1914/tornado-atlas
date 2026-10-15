@@ -1,4 +1,5 @@
 """Museum media additions preserve historical records and their evidence limits."""
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -79,6 +80,7 @@ ADDITIONS = {
         ]
     },
     "blackwell-1955": {
+        "observations": ["nws-parent-storm-separate-tornadoes"],
         "creators": [
             "nara-commons-publication",
             "tulsa-blackwell-enhanced-edition-uploader"
@@ -147,11 +149,20 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                 self.assertEqual(set(current), set(old))
                 for field in old:
                     if field in ADDITIONS[event]:
-                        self.assertEqual(current[field][:len(old[field])], old[field], field)
+                        retained = copy.deepcopy(current[field][:len(old[field])])
+                        if event == 'el-reno-2013' and field == 'sources':
+                            for before, after in zip(old[field], retained):
+                                if before['id'] == 'wakimoto-aerial-2016':
+                                    for key in ('access', 'locator'):
+                                        self.assertTrue(after[key].startswith(before[key]))
+                                        self.assertGreater(len(after[key]), len(before[key]))
+                                        after[key] = before[key]
+                        self.assertEqual(retained, old[field], field)
                         extra = current[field][len(old[field]):]
                         nolte = {'creators':['nick-nolte-three-permitted-exports'], 'sources':['nolte-three-permitted-full-exports'],
                                  'media':['nolte-231037-full-documentary','nolte-231059-full-documentary','nolte-231202-full-documentary']}
-                        expected = ADDITIONS[event][field] + (nolte.get(field, []) if event == 'el-reno-2013' else [])
+                        learning = {'media':['bohac-opening-documentary-motion'], 'observations':['wakimoto-2016-dust-feature-radar-comparison']}
+                        expected = ADDITIONS[event][field] + (nolte.get(field, []) + learning.get(field, []) if event == 'el-reno-2013' else [])
                         self.assertEqual(extra if field == 'routes' else [row['id'] for row in extra], expected, field)
                     elif field == 'provenance':
                         expected_keys = set(old[field]) | ({'source_relationship_2022_increment'}

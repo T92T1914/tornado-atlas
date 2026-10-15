@@ -180,6 +180,9 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         # The new source-generated account labels use their own separators.
         # Keep the original document and shared navigation's exact UTF-8 guard.
         original_document = re.sub(r'<section id="photographs-and-film"[\s\S]*?</section>', '', before + after)
+        worked = re.search(r'<section id="survey-worked-comparison"[\s\S]*?</section>', original_document).group()
+        self.assertEqual(worked.count('·'),3)
+        original_document = original_document.replace(worked,'')
         self.assertEqual(original_document.count('·'), 24)
         self.assertNotIn('\ufffd', self.html)
         for corrupted in ('â—Ž', 'Â·'):

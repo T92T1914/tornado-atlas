@@ -1,6 +1,6 @@
 import copy, hashlib, json, tempfile, unittest
 from pathlib import Path
-from atlas.archive import dossiers
+from atlas.archive import dossiers, dossier_changes
 from atlas.documentary_clip import validate_clip
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,3 +36,16 @@ class DocumentaryClipTests(unittest.TestCase):
         self.assertEqual(len(rows),3)
         self.assertTrue(all(r['kind']=='photograph' and r['time']['alignment'] is None for r in rows))
         self.assertTrue(all(r['transformation']['asset'].endswith('-full.jpg') for r in rows))
+
+    def test_only_named_learning_records_change_the_accepted_dossiers(self):
+        prior=json.loads((ROOT/'web/archive/el-reno-2013-6e0560dbb1650389c0c9.json').read_bytes())
+        self.assertEqual(dossier_changes(prior,self.doc),[
+            {'kind':'sources','id':'bohac-licensed-archive-publication','change':'updated','fields':['access','agent_processing']},
+            {'kind':'sources','id':'wakimoto-aerial-2016','change':'updated','fields':['access','locator']},
+            {'kind':'observations','id':'wakimoto-2016-dust-feature-radar-comparison','change':'added','fields':[]},
+            {'kind':'media','id':'bohac-archived-extended-film','change':'updated','fields':['review']},
+            {'kind':'media','id':'bohac-opening-documentary-motion','change':'added','fields':[]}])
+        old=json.loads((ROOT/'web/archive/blackwell-1955-56f349cf05ee5a567840.json').read_bytes())
+        current=next(d for d in dossiers(ROOT) if d['id']=='blackwell-1955')
+        self.assertEqual(dossier_changes(old,current),[
+            {'kind':'observations','id':'nws-parent-storm-separate-tornadoes','change':'added','fields':[]}])
