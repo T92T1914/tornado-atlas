@@ -22,6 +22,11 @@ for(const [width,appearance,fallback] of [[320,'dark'],[390,'dark'],[1280,'light
     await page.locator('#reading-appearance').selectOption(appearance);
     if(fallback)await page.addStyleTag({content:':root {--interface-font:"Atlas unavailable font",Arial,sans-serif}' +
       '.documentary-intro h1,.documentary-reading h2,.documentary-facts dd {font-family:"Atlas unavailable serif",serif}'});
+    const contents=page.locator('.documentary-contents');
+    if(!await contents.evaluate(node=>node.open)){
+      await contents.locator(':scope > summary').focus();await page.keyboard.press('Enter');
+    }
+    assert.equal(await contents.evaluate(node=>node.open),true,'Native contents open before text enlargement');
     const ratios=await page.evaluate(()=>{
       const paragraph=document.querySelector('.documentary-reading p');
       const before=parseFloat(getComputedStyle(paragraph).fontSize);
