@@ -61,9 +61,23 @@ READING_ROUTES={
   ]
 }
 
+# Freeze this historical release delta. Current evidence additions are checked
+# separately against these exact accepted snapshots in test_independent_evidence.
+ACCEPTED_READING_DOSSIERS={
+    'el-reno-2013':'5dc86857f7025b95bbb847fd7643a1a5182a5dd55302bf44219760032210a3c6',
+    'joplin-2011':'be7c8f4c26ce61c9438ad39cbaaa8d02b7611e2fa85248fcfa2453f5672b4ed2',
+    'blackwell-1955':'b0a7a06cebda8847e12c720af18d2196e168850f2760b9c9ab3af2b7bebed892',
+    'tuscaloosa-birmingham-2011':'63b08e0460f38874aeb9f56825860abb768886cb6eea408e5415e9215bcc4a64',
+}
+def accepted_reading_dossier(event):
+    sha=ACCEPTED_READING_DOSSIERS[event]
+    doc=json.loads((ROOT/'web/archive'/(event+'-'+sha[:20]+'.json')).read_bytes())
+    if digest(doc)!=sha:raise ValueError('Changed accepted reading-release snapshot')
+    return doc
+
 class ArticleReadingPreservationTests(unittest.TestCase):
     def test_routes_are_the_only_content_change_from_the_accepted_dossiers(self):
-        current={d["id"]:d for d in dossiers(ROOT)}
+        current={event:accepted_reading_dossier(event) for event in BASELINES}
         for event,sha in BASELINES.items():
             with self.subTest(event=event):
                 before=json.loads((ROOT/"web/archive"/(event+"-"+sha[:20]+".json")).read_bytes())

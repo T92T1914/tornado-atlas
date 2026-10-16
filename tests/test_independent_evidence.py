@@ -26,3 +26,32 @@ class IndependentEvidence(unittest.TestCase):
   self.assertIsNone(s['shape']);self.assertIsNone(s['extent']);self.assertIsNone(s['timing']['uncertainty_seconds'])
   self.assertTrue(all(value is None for key,value in s['viewpoint'].items() if key not in ('mode','description','basis')))
   self.assertNotIn('hosted_image',s);self.assertNotIn('display_preset',s['partial_form'])
+
+ def test_only_exact_named_additions_change_the_accepted_reading_release(self):
+  import copy
+  from test_article_reading import accepted_reading_dossier,ACCEPTED_READING_DOSSIERS
+  from atlas.archive import dossier_history
+  current={d['id']:d for d in dossiers(ROOT)}
+  additions={
+   'el-reno-2013':{'sources':[],'observations':['wakimoto-2016-early-extension'],'routes':[{'label':'Early partial view and its unresolved outline','href':'index.html#early-downward-extension'}]},
+   'blackwell-1955':{'sources':['interior-blackwell-power-study-fy1955'],'observations':['interior-blackwell-electric-distribution-study'],'routes':[{'label':'Read the power-system damage study','href':'blackwell.html#power-system-assessment'}]},
+   'joplin-2011':{'sources':['nist-joplin-standards-impacts'],'observations':['nist-joplin-school-shelter-code-changes','nist-joplin-existing-refuge-selection'],'routes':[{'label':'Read what changed after the investigation','href':'joplin.html#post-investigation-changes'}]},
+  }
+  for event,expected in additions.items():
+   with self.subTest(event=event):
+    old=accepted_reading_dossier(event);retained=copy.deepcopy(current[event])
+    for field,extra in expected.items():
+     actual=retained[field][len(old[field]):]
+     self.assertEqual(actual if field=='routes' else [row['id'] for row in actual],extra)
+     retained[field]=retained[field][:len(old[field])]
+    if event=='el-reno-2013':
+     before=next(s for s in old['sources'] if s['id']=='wakimoto-aerial-2016')
+     after=next(s for s in retained['sources'] if s['id']==before['id'])
+     for field in ('access','locator','agent_processing'):
+      self.assertTrue(after[field].startswith(before[field]));self.assertGreater(len(after[field]),len(before[field]))
+      after[field]=before[field]
+    old['provenance'].pop('publication_review');retained['provenance'].pop('publication_review')
+    # Canonical JSON preserves number-vs-boolean and integer-vs-float spellings.
+    self.assertEqual(digest(retained),digest(old))
+    self.assertIn(ACCEPTED_READING_DOSSIERS[event],{v['dossier_sha256'] for v in dossier_history(current[event])['versions']})
+  self.assertEqual(digest(current['tuscaloosa-birmingham-2011']),ACCEPTED_READING_DOSSIERS['tuscaloosa-birmingham-2011'])

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import unittest
 from atlas.archive import digest, dossiers, dossier_history, validate_dossier
-from test_article_reading import READING_ROUTES
+from test_article_reading import READING_ROUTES, accepted_reading_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
 PREVIOUS = {
@@ -145,7 +145,7 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
             with self.subTest(event=event):
                 old = json.loads((ROOT / f'web/archive/{event}-{identity[:20]}.json').read_bytes())
                 self.assertEqual(digest(old), identity)
-                current = self.docs[event]
+                current = accepted_reading_dossier(event)
                 self.assertIs(validate_dossier(current), current)
                 self.assertEqual(set(current), set(old))
                 for field in old:
