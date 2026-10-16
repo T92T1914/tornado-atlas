@@ -33,13 +33,13 @@ class EvidenceCoverageTests(unittest.TestCase):
             self.assertTrue(all(item['status']['temporal'] == 'unregistered' for _, item in rows[identifier]['layers']['footage']['items']))
         appearance=rows['el-reno-2013']['layers']['appearance']
         self.assertEqual(appearance['state'],'photo_samples')
-        self.assertEqual(appearance['photo_sample_count'],7)
-        self.assertEqual(appearance['photo_sequence_count'],3)
-        self.assertEqual(appearance['partial_form_sample_count'],3)
+        self.assertEqual(appearance['photo_sample_count'],8)
+        self.assertEqual(appearance['photo_sequence_count'],4)
+        self.assertEqual(appearance['partial_form_sample_count'],4)
         self.assertEqual(appearance['partial_margin_sample_count'],1)
-        self.assertEqual(appearance['partial_condensation_sample_count'],2)
+        self.assertEqual(appearance['partial_condensation_sample_count'],3)
         sequences=appearance['photo_sequences']
-        self.assertEqual([sequence['id'] for sequence in sequences],['nolte-reported-stills','wakimoto-visible-margin','wakimoto-visible-condensation'])
+        self.assertEqual([sequence['id'] for sequence in sequences],['nolte-reported-stills','wakimoto-visible-margin','wakimoto-visible-condensation','wakimoto-early-extension'])
         margins=sequences[1]['samples']
         self.assertEqual([sample['reported_utc'] for sample in margins],['2013-05-31T23:25:01Z','2013-05-31T23:25:09Z'])
         self.assertEqual(margins[0]['partial_form']['kind'],'visible_condensation_region')
@@ -54,6 +54,11 @@ class EvidenceCoverageTests(unittest.TestCase):
         self.assertEqual(condensation[0]['partial_form']['closure'],'display_support_only')
         self.assertEqual(condensation[0]['partial_form']['completeness'],'partial')
         self.assertEqual(len(condensation[0]['partial_form']['points']),8)
+        early=sequences[3]['samples']
+        self.assertEqual(len(early),1)
+        self.assertEqual(early[0]['id'],'wakimoto-2016-230510')
+        self.assertEqual(early[0]['reported_utc'],'2013-05-31T23:05:10Z')
+        self.assertIsNone(early[0]['timing']['uncertainty_seconds'])
         for sequence in sequences:
             for sample in sequence['samples']:
                 self.assertIsNone(sample['shape']);self.assertIsNone(sample['extent'])
@@ -101,7 +106,7 @@ class EvidenceCoverageTests(unittest.TestCase):
                     '&media=' + item['id'] + '#media-' + item['id'])
             self.assertIn(html.escape(href), section)
         self.assertEqual(row['layers']['appearance']['registered_interval_count'], 0)
-        self.assertEqual(row['layers']['appearance']['photo_sample_count'], 7)
+        self.assertEqual(row['layers']['appearance']['photo_sample_count'], 8)
         self.assertEqual(self.docs['el-reno-2013']['reconstruction']['appearance'], 'unregistered')
 
     def test_unanchored_video_fixture_remains_context(self):

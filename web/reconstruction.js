@@ -6,7 +6,7 @@ import {localPoint, sceneProject, replaySeconds, replayURL, funnelGlyph, observe
 import {mountFootage} from './footage-view.mjs';
 import {mountReplayCamera} from './replay-camera-view.mjs';
 import {anchorAt,sourceLink} from './footage-model.mjs';
-import {appearanceAt} from './appearance-timeline-model.mjs';
+import {appearanceAt,photoDisplayForm} from './appearance-timeline-model.mjs';
 import {createFormRenderer} from './form-renderer.mjs';
 import {issuedAt} from './documentary-model.mjs';
 import {replayChapters,chapterAt,adjacentChapter} from './replay-context-model.mjs';
@@ -179,6 +179,13 @@ async function start(){
     mode.append(option);
   }
   if(!appearanceTimeline?.windows.some(window=>window.kind==='illustrative'))mode.querySelector('[value="illustrative"]')?.remove();
+  const earlySequence=photoSequences.find(sequence=>sequence.id==='wakimoto-early-extension');
+  if(event.id==='el-reno-2013'&&earlySequence?.samples.length===1){
+    const sample=earlySequence.samples[0],href=new URL('reconstruction.html',location.href);
+    href.searchParams.set('event',event.id);href.searchParams.set('t',String((Date.parse(sample.reported_utc)-start)/1000));
+    href.searchParams.set('appearance_view','photo');href.searchParams.set('appearance_photo',earlySequence.id);
+    el('replay-appearance-extension').href=href.href;el('replay-appearance-extension').hidden=false;
+  }
   const condensationSequence=photoSequences.find(sequence=>sequence.id==='wakimoto-visible-condensation');
   if(event.id==='el-reno-2013'&&condensationSequence?.samples.length===1){
     const first=condensationSequence.samples[0],href=new URL('reconstruction.html',location.href);
@@ -287,7 +294,7 @@ async function start(){
       field('Display coordinates',condensation?
         'An authored landscape plane. Support points, colors, opacity and soft transitions are presentation choices, not measured dimensions, lighting, optical density or uncertainty.':
         'An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
-      if(condensation)field('Support closure and completeness','Closed for display filling only. The optical outline remains partial. Top and right drawing edges are view cutoffs, not recovered tornado boundaries.');
+      if(condensation)field('Support closure and completeness',photoDisplayForm({state:'photo_observed',partialForm:sample.partial_form,sourceId:source.id,sample})?.display_preset==='dark_downward_region'?'Closed for display filling only. The opposite outline and both continuations remain unassigned. Dark image-left context and top/bottom fades are omission conventions, not recovered optical boundaries.':'Closed for display filling only. The optical outline remains partial. Top and right drawing edges are view cutoffs, not recovered tornado boundaries.');
     }
     details.append(record);
     for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits],
@@ -407,7 +414,7 @@ async function start(){
         statusText=condensation?'Independently authored partial condensation at this reported instant.':
           appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
           'Declared photographic observation at this reported instant.';
-        detailText=(condensation?'An independently authored interpretation of one photograph. Lower appearance is omitted where foreground obscures it. Top and right edges are display cutoffs. The dark northern area is context.':
+        detailText=(photoDisplayForm(appearanceState)?.display_preset==='dark_downward_region'?'An independently authored partial downward extension. The image-left outline and both continuations remain unassigned. Dark left context and top/bottom fades are display conventions.':condensation?'An independently authored interpretation of one photograph. Lower appearance is omitted where foreground obscures it. Top and right edges are display cutoffs. The dark northern area is context.':
           appearanceState.partialForm?'An independently authored interpretation of the visible margin in one photograph. Unseen edges remain unresolved.':'No particle form is drawn.')+
           ' Physical shape, dimensions and camera geometry are unassigned. Ground contact, depth and motion between photographs remain unknown. This still has no duration. Clock accuracy is unverified.';
         linkTarget=appearanceState.source.url;
@@ -448,6 +455,7 @@ async function start(){
     if(formCanvas.dataset.evidenceState!==appearanceState.state)formCanvas.dataset.evidenceState=appearanceState.state;
     formCanvas.dataset.partialForm=String(Boolean(appearanceState.partialForm));
     formCanvas.dataset.partialKind=appearanceState.partialForm?.kind??'';
+    formCanvas.dataset.displayPreset=photoDisplayForm(appearanceState)?.display_preset??'';
     if(appearanceRenderer)formCanvas.style.visibility=photoSelected&&!appearanceState.partialForm?'hidden':'visible';
   }
   function readCamera(center){
@@ -512,7 +520,7 @@ async function start(){
     const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('N',north.x,north.y);}
     context.fillStyle=muted;context.font='11px '+getComputedStyle(canvas).fontFamily;context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
     if(appearanceRenderer)appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,
-      partialForm:appearanceState.state==='photo_observed'?appearanceState.partialForm??null:null,
+      partialForm:photoDisplayForm(appearanceState),
       time:clock.seconds,dust:false});
   };
   refresh=()=>{

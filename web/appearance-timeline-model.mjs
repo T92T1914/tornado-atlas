@@ -367,3 +367,12 @@ export function appearanceAt(timeline,seconds,startUtc,sourceId=null){
     window:window.id,sourceId:window.source_id,basis:window.basis,registration:window.registration,
     videoSeconds,shape:form.shape,extent:form.extent,label:form.label};
 }
+
+// Source-specific presentation is separate from the canonical partial support.
+// This policy supplies no geometry, duration or camera registration.
+export function photoDisplayForm(state){
+  const form=state?.state==='photo_observed'?state.partialForm??null:null;
+  if(form?.kind==='visible_condensation_region'&&state.sourceId==='wakimoto-2016'&&state.sample?.id==='wakimoto-2016-230510')
+    return {...form,display_preset:'dark_downward_region'};
+  return form;
+}

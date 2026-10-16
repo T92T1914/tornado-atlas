@@ -6,6 +6,7 @@ from pathlib import Path
 import unittest
 
 from atlas.archive import dossiers
+from test_article_reading import accepted_reading_dossier
 from atlas.evidence_coverage import coverage_rows
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -63,13 +64,14 @@ class JoplinInstitutionPhotos(unittest.TestCase):
         self.assertIn('generator failure',self.media[EXPECTED[0][0]]['limits'])
 
     def test_old_ordered_values_and_numeric_types_are_preserved(self):
+        publication=accepted_reading_dossier('joplin-2011')
         previous=json.loads((ROOT/'web/archive'/PREVIOUS).read_bytes())
         for field in ('creators','sources','media','routes'):
-            same_types(self,previous[field],self.doc[field][:len(previous[field])])
+            same_types(self,previous[field],publication[field][:len(previous[field])])
         for field in set(previous)-{'creators','sources','media','routes','provenance'}:
-            same_types(self,previous[field],self.doc[field])
-        self.assertEqual(len(self.doc['observations']),20)
-        self.assertEqual(self.doc['reconstruction']['intervals'],[])
+            same_types(self,previous[field],publication[field])
+        self.assertEqual(len(publication['observations']),20)
+        self.assertEqual(publication['reconstruction']['intervals'],[])
 
     def test_article_binds_each_item_once_to_its_own_original_and_source(self):
         parser=Links(); parser.feed((ROOT/'web/joplin.html').read_text(encoding='utf8'))

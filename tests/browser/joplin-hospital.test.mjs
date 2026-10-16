@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture, base} from './harness.mjs';
+import {waitForDossier} from './dossier-readiness.mjs';
+import {inspectDossierHop} from './dossier-navigation-diagnostics.mjs';
 
 const photos = [
   {id: 'nist-west-tower', file: 'nist-west-tower.jpg', width: 901, height: 541,
@@ -12,8 +14,11 @@ const photos = [
     link: 'Open the complete embedded NIST south-side window photograph',
     record: 'Inspect the window comparison and its limits'},
 ];
-async function ready(page) {
-  await page.waitForFunction(() => document.body?.dataset.ready === 'true');
+async function evidenceHop(page, trigger, expected) {
+  await inspectDossierHop(page, async () => {
+    await trigger();
+    await waitForDossier(page, expected, {timeout: 10000});
+  }, {eventId: 'joplin-2011', elementId: expected.elementId, expectedHref: expected.href});
 }
 async function fits(page) {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
@@ -99,16 +104,18 @@ for (const viewport of [{width: 320, height: 740}, {width: 390, height: 844},
       // in the narrow portrait scenario, rather than repeating every transition.
       const inspected = viewport.width === 390 && appearance === 'dark' ? photos : photos.slice(0, 1);
       for (const photo of inspected) {
-        await account.getByRole('link', {name: photo.record, exact: true}).click();
-        await ready(page);
+        const mediaLink = account.getByRole('link', {name: photo.record, exact: true});
+        const mediaTarget = {href: await mediaLink.evaluate(link => link.href), elementId: 'media-' + photo.id};
+        await evidenceHop(page, () => mediaLink.click(), mediaTarget);
         const media = page.locator('#media-' + photo.id);
         assert.match(await media.textContent(), /unregistered/);
         assert.match(await media.textContent(), /permitted hosting/);
         assert.match(await media.textContent(), /Not established in this record/);
         await media.getByText('Clock roles and registration', {exact: true}).click();
         assert.match(await media.locator('details').filter({hasText: 'Clock roles and registration'}).textContent(), /"alignment": null/);
-        await media.getByRole('link', {name: 'Inspect the source card', exact: true}).click();
-        await ready(page);
+        const sourceLink = media.getByRole('link', {name: 'Inspect the source card', exact: true});
+        const sourceTarget = {href: await sourceLink.evaluate(link => link.href), elementId: 'source-nist-hospital-envelope'};
+        await evidenceHop(page, () => sourceLink.click(), sourceTarget);
         const source = page.locator('#source-nist-hospital-envelope');
         assert.match(await source.textContent(), /PDF page 4/);
         assert.match(await source.textContent(), /Curtis Lynn Geise/);
@@ -116,11 +123,9 @@ for (const viewport of [{width: 320, height: 740}, {width: 390, height: 844},
         assert.equal(await source.getByRole('link', {name: 'Read original source', exact: true}).getAttribute('target'), '_blank');
         await fits(page);
         if (viewport.width === 390 && appearance === 'dark') {
-          await page.goBack();
-          await ready(page);
+          await evidenceHop(page, () => page.goBack(), mediaTarget);
           await media.waitFor();
-          await page.goForward();
-          await ready(page);
+          await evidenceHop(page, () => page.goForward(), sourceTarget);
           await source.waitFor();
         }
         await page.getByRole('link', {name: 'Hospital frame, windows and loss of function', exact: true}).click();
@@ -175,8 +180,9 @@ test('failed local photograph retains its account, alt description and exact sou
   await viewer(page, photos[0].id, photos[0].width);
   await page.locator('#photo-close').press('Escape');
   await closed(page, enlargement);
-  await account.getByRole('link', {name: photos[0].record, exact: true}).click();
-  await ready(page);
+  const record = account.getByRole('link', {name: photos[0].record, exact: true});
+  const target = {href: await record.evaluate(link => link.href), elementId: 'media-' + photos[0].id};
+  await evidenceHop(page, () => record.click(), target);
   assert.match(await page.locator('#media-nist-west-tower').textContent(), /not the order of failures/);
   await fits(page);
 });

@@ -131,6 +131,7 @@ uniform int pointCount;
 uniform vec2 cssPerPixel;
 uniform vec4 plane;
 uniform bool lightTaper;
+uniform bool darkExtension;
 out vec4 outputColor;
 void main(){
   vec2 p=(gl_FragCoord.xy*cssPerPixel-plane.xy)/plane.zw;
@@ -149,6 +150,18 @@ void main(){
     nearest=min(nearest,length(p-mix(a,b,t)));
   }
   float signedDistance=inside?-nearest:nearest;
+  if(darkExtension){
+    // Independent partial extension, without the later view's opening or north context.
+    float feather=mix(.12,.055,smoothstep(.40,.60,p.x));
+    float density=(1.0-smoothstep(-feather,feather,signedDistance))*.88;
+    // Dark image-left context leaves the opposite boundary unassigned.
+    vec3 background=mix(vec3(.22,.25,.24),vec3(.67,.68,.65),smoothstep(.42,.75,p.x));
+    vec3 color=mix(background,vec3(.22,.25,.24),density);
+    // Both continuations are unobserved. Fades omit them rather than close a cone.
+    float alpha=smoothstep(.12,.30,p.y)*(1.0-smoothstep(.76,.96,p.y));
+    if(alpha<.002)discard;
+    outputColor=vec4(color,alpha);return;
+  }
   if(lightTaper){
     // Independent bright descending support. Display tones and softness carry no photometry.
     float density=(1.0-smoothstep(-.045,.045,signedDistance))*.92;
@@ -184,8 +197,8 @@ export function buildCondensationGeometry(points,cssWidth,cssHeight,preset=null)
   const packed=validateCondensationSupport(points);
   if(!Number.isFinite(cssWidth)||!Number.isFinite(cssHeight)||cssWidth<=0||cssHeight<=0)throw new TypeError('Invalid display bounds');
   // The complete construction moves together inside a responsive authored frame.
-  if(preset!==null && preset!==undefined && preset!=='light_tapered_region')throw new TypeError('Unknown independent display preset');
-  const layout=preset==='light_tapered_region'?{frameAspect:1.40,planeWidthRatio:1,leftOffsetRatio:0}:condensationDisplayLayout;
+  if(preset!==null && preset!==undefined && !['light_tapered_region','dark_downward_region'].includes(preset))throw new TypeError('Unknown independent display preset');
+  const layout=preset==='light_tapered_region'?{frameAspect:1.40,planeWidthRatio:1,leftOffsetRatio:0}:preset==='dark_downward_region'?{frameAspect:2,planeWidthRatio:1,leftOffsetRatio:0}:condensationDisplayLayout;
   const frameWidth=Math.min(cssWidth-40,(cssHeight-40)*layout.frameAspect),height=frameWidth/layout.frameAspect;
   if(frameWidth<=0)return null;
   const frame=new Float32Array([(cssWidth-frameWidth)/2,(cssHeight-height)/2,frameWidth,height]);
@@ -288,7 +301,7 @@ export function createFormRenderer(canvas, quality) {
     let p=null,a=null;
     try{
       p=program(marginVertex,condensationFragment);a=attribute(p,'position',new Float32Array(12),2);
-      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['points[0]','pointCount','cssPerPixel','plane','lightTaper'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['points[0]','pointCount','cssPerPixel','plane','lightTaper','darkExtension'].map(name=>[name,gl.getUniformLocation(p,name)]))};
       gpu.condensation=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
@@ -308,6 +321,7 @@ export function createFormRenderer(canvas, quality) {
       gl.uniform2fv(body.uniforms['points[0]'],geometry.points);gl.uniform1i(body.uniforms.pointCount,geometry.pointCount);gl.uniform2f(body.uniforms.cssPerPixel,rect.width/width,rect.height/height);
       gl.uniform4fv(body.uniforms.plane,geometry.plane);
       gl.uniform1i(body.uniforms.lightTaper,partialForm.display_preset==='light_tapered_region'?1:0);
+      gl.uniform1i(body.uniforms.darkExtension,partialForm.display_preset==='dark_downward_region'?1:0);
       const [left,bottom,frameWidth,frameHeight]=geometry.frame;
       const x0=Math.floor(left/rect.width*width),y0=Math.floor(bottom/rect.height*height);
       const x1=Math.ceil((left+frameWidth)/rect.width*width),y1=Math.ceil((bottom+frameHeight)/rect.height*height);
