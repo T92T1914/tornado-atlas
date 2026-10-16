@@ -95,6 +95,11 @@ function mediaLabel(item,doc){
   const parent=doc.media.find(row=>row.id===item.parent);
   return item.kind==='photograph'&&parent?.kind==='video'?'Film still':human(item.kind);
 }
+function articleReturn(doc){
+  const reading=element('details');
+  reading.append(element('summary','Continue in the current article'),links(doc.routes));
+  return reading;
+}
 function evidenceCard(item,doc,type,version,comparisonVersion=version){
   const card=element('article',undefined,'archive-card');card.id=`${type}-${item.id}`;
   card.append(element('p',type==='media'?mediaLabel(item,doc):'Observation or attributed claim','eyebrow'),element('h3',item.title),element('p',item.account),element('p',item.limits));
@@ -107,6 +112,7 @@ function evidenceCard(item,doc,type,version,comparisonVersion=version){
   }
   card.append(detail('Clock roles and registration',item.time),detail('Place and its limits',item.place),detail('Inspection coverage',item.review),link('Link to this evidence',revisionRoute(doc,{[type]:item.id},version)+'#'+card.id));
   if(comparisonVersion)card.append(document.createTextNode(' '),link('Compare this evidence',comparisonRoute(doc,comparisonVersion.dossier_sha256,[type+':'+item.id])));
+  if(query.get(type)===item.id)card.append(articleReturn(doc));
   return card;
 }
 function showHistory(doc,history,selected){
@@ -164,7 +170,7 @@ function showDossier(doc,entry,index,history,selected,publicationComparison){
   const version=query.has('revision')?selected:undefined;
   for(const [item,type] of items)host.append(evidenceCard(item,doc,type,version,selected));
   host.append(element('h2','Sources'));
-  for(const s of doc.sources.filter(s=>!sourceId||s.id===sourceId)){const card=element('article',undefined,'archive-card');card.id='source-'+s.id;card.append(element('h3',s.title),link('Read original source',s.url),element('p','Locator: '+s.locator),element('p','Access: '+s.access),element('p','Source revision: '+s.revision),element('p','Rights: '+s.rights),element('p',s.agent_processing),link('Evidence drawn from this source',revisionRoute(doc,{source:s.id},version)),document.createTextNode(' '),link('Link to source card',revisionRoute(doc,{source:s.id},version)+'#'+card.id));host.append(card);}
+  for(const s of doc.sources.filter(s=>!sourceId||s.id===sourceId)){const card=element('article',undefined,'archive-card');card.id='source-'+s.id;card.append(element('h3',s.title),link('Read original source',s.url),element('p','Locator: '+s.locator),element('p','Access: '+s.access),element('p','Source revision: '+s.revision),element('p','Rights: '+s.rights),element('p',s.agent_processing),link('Evidence drawn from this source',revisionRoute(doc,{source:s.id},version)),document.createTextNode(' '),link('Link to source card',revisionRoute(doc,{source:s.id},version)+'#'+card.id));if(sourceId===s.id)card.append(articleReturn(doc));host.append(card);}
   if(history)host.append(showHistory(doc,history,selected));
   host.append(element('h2','Reconstruction coverage'),element('p',doc.reconstruction.limits),element('p','Registered appearance intervals: '+doc.reconstruction.intervals.length),detail('Projection provenance',doc.provenance));
 }

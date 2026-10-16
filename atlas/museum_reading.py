@@ -86,7 +86,8 @@ def documentary_photographs(bundle):
         report = samples[0]['hosted_image']['creator_report']
         content = element('h3', 'Three moments in Nick Nolte’s El Reno account')
         content += p('Creator-attributed discrete documentary observations. These full published GoPro exports retain their complete location, time and copyright marks.')
-        content += p(report['lineage']) + p(report['viewpoint']) + p(report['limits'])
+        content += p(report['limits'])
+        content += element('details', element('summary', 'Camera and publication context') + p(report['lineage']) + p(report['viewpoint']))
         for sample in samples:
             image = sample['hosted_image']
             guide = image['creator_report']
@@ -157,9 +158,10 @@ def regions(bundle):
     result['historical-context'] = ''.join(element('article', element('h3', text(row['title'])) + p(row['text']) + link('Read the account', row['source']), class_='note') for row in history['context'])
     report = element('nav', element('strong', 'In this history') + ''.join(link(row['title'], '#'+row['id']) for row in history['report']), class_='report-contents', aria_label='In this history')
     for row in history['report']:
+        media_route = {'tracked-feature-radar': ('Compare the source-relative motion example', '#bohac-opening-motion'), 'reading-films-and-encyclopedias': ('Inspect the permitted documentary photographs', '#nolte-documentary-photographs')}.get(row['id'])
         report += element('article', element('h3', link(row['title'], '#'+row['id'])) + ''.join(p(value) for value in row['paragraphs'])
                           + element('div', ''.join(link(source['label'], source['url']) for source in row['sources'])
-                              + (link('Inspect the feature-tracking observation and limits', 'dossier.html?event=el-reno-2013&observation=wakimoto-2016-dust-feature-radar-comparison#observation-wakimoto-2016-dust-feature-radar-comparison') if row['id']=='tracked-feature-radar' else ''), class_='report-links'), id=row['id'])
+                              + (link('Inspect the feature-tracking observation and limits', 'dossier.html?event=el-reno-2013&observation=wakimoto-2016-dust-feature-radar-comparison#observation-wakimoto-2016-dust-feature-radar-comparison') if row['id']=='tracked-feature-radar' else ''), class_='report-links') + (element('div', link(*media_route), class_='article-branch') if media_route else ''), id=row['id'])
     result['documentary-report'] = report
     observation = bundle['documentary']['reported_appearance']['observations'][0]
     result['early-condensation'] = (element('h3', 'An earlier photograph by William T. Reid')

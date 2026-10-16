@@ -44,8 +44,10 @@ class DocumentaryClipTests(unittest.TestCase):
             {'kind':'sources','id':'wakimoto-aerial-2016','change':'updated','fields':['access','locator']},
             {'kind':'observations','id':'wakimoto-2016-dust-feature-radar-comparison','change':'added','fields':[]},
             {'kind':'media','id':'bohac-archived-extended-film','change':'updated','fields':['review']},
-            {'kind':'media','id':'bohac-opening-documentary-motion','change':'added','fields':[]}])
+            {'kind':'media','id':'bohac-opening-documentary-motion','change':'added','fields':[]},
+            {'kind':'dossier','id':'el-reno-2013','change':'updated','fields':['routes']}])
         old=json.loads((ROOT/'web/archive/blackwell-1955-56f349cf05ee5a567840.json').read_bytes())
         current=next(d for d in dossiers(ROOT) if d['id']=='blackwell-1955')
         self.assertEqual(dossier_changes(old,current),[
-            {'kind':'observations','id':'nws-parent-storm-separate-tornadoes','change':'added','fields':[]}])
+            {'kind':'observations','id':'nws-parent-storm-separate-tornadoes','change':'added','fields':[]},
+            {'kind':'dossier','id':'blackwell-1955','change':'updated','fields':['routes']}])

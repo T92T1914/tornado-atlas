@@ -23,6 +23,7 @@ test('unenhanced entry pages name the actual system appearance and keep the swit
 for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: purposeful reading route, scripts ${enabled}`,async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:enabled});
   await page.goto(base+'/'+task.file);
+  await page.locator('.reading-options > summary').click();
   const guide=page.locator('.museum-reading-start');
   assert.equal(await guide.count(),1);
   for(const href of await guide.locator('a[href^="#"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))){

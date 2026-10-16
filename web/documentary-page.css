@@ -85,3 +85,14 @@
   .documentary-layout > .documentary-contents a + a {margin-top:3px;}
   .documentary-layout > .documentary-reading {min-width:0;}
 }
+
+/* Native article contents and optional entry routes share one reading convention. */
+.documentary-reading p {font-size:17px;line-height:1.8}
+.documentary-reading section > p,.documentary-reading article > p {max-width:70ch}
+.documentary-reading figcaption p {font-size:14px}
+details.documentary-contents {display:block}
+.documentary-contents > summary,.reading-options > summary {min-height:44px;padding:10px 0;cursor:pointer;font-size:16px;font-weight:600}
+.documentary-contents > nav {display:flex;flex-wrap:wrap;gap:10px 24px}
+.reading-options {max-width:1040px;border-block:1px solid var(--line);margin:18px 0}
+.reading-options .museum-reading-start {border:0}
+@media(min-width:1081px){.documentary-contents > nav{display:block}}
