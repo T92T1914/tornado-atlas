@@ -45,6 +45,15 @@ for (const width of [390, 1280]) for (const appearance of ['dark', 'light']) {
     assert.equal(item.time.alignment, null);
     assert.equal(item.place.coordinates, null);
     assert.equal(exported.reconstruction.intervals.length, 0);
+    const early = exported.observations.find(row => row.id === 'wakimoto-2016-early-extension');
+    assert.equal(early.source_id, sourceId);
+    assert.equal(early.status.assertion, 'source_reported');
+    assert.equal(early.status.temporal, 'source_label');
+    assert.equal(early.status.rights, 'links_only');
+    assert.equal(early.time.capture.reported, '2013-05-31T23:05:10Z');
+    assert.equal(early.time.alignment, null);
+    assert.equal(early.place.coordinates, null);
+    assert.match(early.limits, /No ground contact/);
 
     await navigate(page, () => observation.getByRole('link', {name: 'Inspect the source card'}).click());
     const source = page.locator('#source-' + sourceId);
@@ -59,7 +68,8 @@ for (const width of [390, 1280]) for (const appearance of ['dark', 'light']) {
     assert.equal(new URL(page.url()).searchParams.has('observation'), false);
     assert.deepEqual(await page.locator('[id^="observation-"]').evaluateAll(rows => rows.map(row => row.id).sort()),
       ['observation-' + observationId, 'observation-intake-wakimoto-field-scouring-2312',
-        'observation-wakimoto-2016-dust-feature-radar-comparison'].sort());
+        'observation-wakimoto-2016-dust-feature-radar-comparison',
+        'observation-wakimoto-2016-early-extension'].sort());
     const comparison = page.locator('#observation-wakimoto-2016-dust-feature-radar-comparison');
     assert.match(await comparison.textContent(), /Attributed author results, not Atlas measurements\./);
     assert.match(await source.textContent(), /Wakimoto and colleagues \(2016\)/);
