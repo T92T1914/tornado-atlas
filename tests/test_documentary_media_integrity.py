@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import unittest
 from atlas.archive import digest, dossiers, dossier_history, validate_dossier
+from test_article_reading import READING_ROUTES
 
 ROOT = Path(__file__).resolve().parents[1]
 PREVIOUS = {
@@ -163,6 +164,8 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                                  'media':['nolte-231037-full-documentary','nolte-231059-full-documentary','nolte-231202-full-documentary']}
                         learning = {'media':['bohac-opening-documentary-motion'], 'observations':['wakimoto-2016-dust-feature-radar-comparison']}
                         expected = ADDITIONS[event][field] + (nolte.get(field, []) + learning.get(field, []) if event == 'el-reno-2013' else [])
+                        if field == 'routes':
+                            expected += READING_ROUTES[event]
                         self.assertEqual(extra if field == 'routes' else [row['id'] for row in extra], expected, field)
                     elif field == 'provenance':
                         expected_keys = set(old[field]) | ({'source_relationship_2022_increment'}

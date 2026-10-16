@@ -2,12 +2,15 @@
 // Image links remain useful without JavaScript. No session data is retained.
 import {mountPhotoViewer} from './photo-view.mjs';
 
-const links = new Map([...document.querySelectorAll('a[data-photo-id]')]
-  .map(link => [link.dataset.photoId, link]));
+const photoLinks = [...document.querySelectorAll('a[data-photo-id]')];
+const links = new Map();
+for (const link of photoLinks) if (!links.has(link.dataset.photoId)) links.set(link.dataset.photoId, link);
 const dialog = document.getElementById('photo-dialog');
 const openPhoto = mountPhotoViewer();
 const rights = document.querySelector('#hospital-envelope a[href$="#page=4"]');
 let currentId = null, ownedEntry = null, opener = null;
+const entryOpeners = new Map();
+let entrySequence = 0;
 
 function selectedLink() {
   return links.get(new URL(location.href).searchParams.get('photo'));
@@ -22,8 +25,13 @@ function returnFocus() {
       document.visibilityState !== 'hidden') target.focus({preventScroll: true});
   });
 }
-function showFromLocation() {
-  const link = selectedLink();
+function showFromLocation(preferred = null) {
+  const selected = selectedLink();
+  // Remember the actual article entry point for this document's owned history entry.
+  // A reload has no owned predecessor and keeps the direct-link close behavior.
+  const entryOpener = entryOpeners.get(history.state?.atlasJoplinPhotoEntry);
+  const link = preferred instanceof Element && preferred.dataset.photoId === selected?.dataset.photoId ? preferred :
+    entryOpener?.isConnected && entryOpener.dataset.photoId === selected?.dataset.photoId ? entryOpener : selected;
   if (!link) {
     currentId = null;
     if (dialog.open) dialog.close();
@@ -33,6 +41,7 @@ function showFromLocation() {
   const figure = link.closest('figure');
   const image = link.querySelector('img');
   currentId = link.dataset.photoId;
+  ownedEntry = entryOpener === link ? currentId : null;
   opener = link;
   if (link.dataset.photoKind === 'context-photograph') {
     openPhoto({
@@ -74,16 +83,18 @@ function showFromLocation() {
   document.getElementById('photo-original').textContent = radar ? 'Open the complete radar figure and caption' : annotated ?
     'Open the complete photograph and NIST annotation' : 'Open the complete embedded photograph';
 }
-for (const [id, link] of links) {
+for (const link of photoLinks) {
+  const id = link.dataset.photoId;
   link.addEventListener('click', event => {
     if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey ||
       event.shiftKey || event.altKey) return;
     event.preventDefault();
     const url = new URL(location.href);
     url.searchParams.set('photo', id);
-    history.pushState(null, '', url);
-    ownedEntry = id;
-    showFromLocation();
+    const entry = ++entrySequence;
+    entryOpeners.set(entry, link);
+    history.pushState({atlasJoplinPhotoEntry: entry}, '', url);
+    showFromLocation(link);
   });
 }
 dialog.addEventListener('close', () => {

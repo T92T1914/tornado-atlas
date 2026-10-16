@@ -53,7 +53,9 @@ async function checkSource(page,item,target) {
 }
 
 async function returnToChapter(page) {
-  await page.locator('a[href="'+chapter()+'"]').click();
+  const route=page.locator('#content > nav.archive-links > a[href="'+chapter()+'"]');
+  assert.equal(await route.count(),1,'Existing dossier article return is distinct from selected-card routes');
+  await route.click();
   assert.equal(page.url(),chapter());
   await page.locator('#archive-prints').waitFor({state:'visible'});
 }

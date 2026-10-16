@@ -5,7 +5,7 @@ import {mkdir} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
 
 const chapters=['joplin.html','blackwell.html','tuscaloosa.html'];
-const counts={'joplin.html':16,'blackwell.html':11,'tuscaloosa.html':18};
+const counts={'joplin.html':16,'blackwell.html':12,'tuscaloosa.html':18};
 const fits=page=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
 async function enlarge(page){
   const result=await page.evaluate(()=>{
@@ -47,6 +47,7 @@ async function movingDocument(page){
 }
 async function destinations(page,file){
   const nav=page.locator('.documentary-layout > .documentary-contents');
+  if(await nav.evaluate(node=>node.tagName==='DETAILS'&&!node.open))await nav.locator(':scope > summary').click();
   const hrefs=await nav.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
   assert.equal(hrefs.length,counts[file]);
   assert.equal(new Set(hrefs).size,hrefs.length);
@@ -106,8 +107,8 @@ for(const width of [1081,1280])for(const enabled of [false,true])test('wide chap
     },file)));
     assert.equal(focusSettled,true,'Native focused link fits its rail and viewport within the existing action timeout');
     const visible=await links.last().evaluate(node=>{
-      const link=node.getBoundingClientRect(),rail=node.closest('nav').getBoundingClientRect();
-      return {top:link.top,bottom:link.bottom,railTop:rail.top,railBottom:rail.bottom,scroll:node.closest('nav').scrollTop,outline:getComputedStyle(node).outlineStyle};
+      const link=node.getBoundingClientRect(),rail=node.closest('.documentary-contents').getBoundingClientRect();
+      return {top:link.top,bottom:link.bottom,railTop:rail.top,railBottom:rail.bottom,scroll:node.closest('.documentary-contents').scrollTop,outline:getComputedStyle(node).outlineStyle};
     });
     if(enabled)assert.ok(visible.scroll>0,'Long doubled contents scroll to the final link');
     else{assert.equal(visible.scroll,0,'Ordinary document flow has no nested rail scrolling');assert.ok(await page.evaluate(()=>scrollY>0),'Native keyboard navigation scrolls the document');}

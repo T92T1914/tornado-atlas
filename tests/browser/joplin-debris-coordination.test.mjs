@@ -80,7 +80,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]) {
     await page.goForward();await shown(page);await labels(page);
     await page.goBack();await closed(page);
     // The older original must recover its original-file source and enlargement labels.
-    await page.locator('[data-photo-id="nws-joplin-aftermath"]').click();
+    await page.locator('#damage a[data-photo-id="nws-joplin-aftermath"]').click();
     await decoded(page.locator('#photo-full'),'damage.jpg',1024,768);
     assert.equal(await page.locator('#photo-original').textContent(),'Open the unchanged original photograph');
     assert.equal(await page.locator('#photo-source').textContent(),'Inspect the original file, credit and reuse record');
@@ -117,7 +117,7 @@ test('Joplin debris preview 503 preserves the correct notice and recovers throug
     return route.continue();
   });
   await page.goto(base+'/joplin.html#debris-removal');await ready(page);
-  await page.locator('[data-photo-id="nws-joplin-aftermath"]').click();
+  await page.locator('#damage a[data-photo-id="nws-joplin-aftermath"]').click();
   await decoded(page.locator('#photo-full'),'damage.jpg',1024,768);
   const previous=await page.locator('#photo-full').elementHandle();
   await page.keyboard.press('Escape');await closed(page,'nws-joplin-aftermath');

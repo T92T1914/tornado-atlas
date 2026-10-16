@@ -66,3 +66,13 @@ header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
 #nolte-documentary-photographs img{display:block;width:100%;height:auto;object-fit:contain;}
 #nolte-documentary-photographs a{overflow-wrap:anywhere;}
 .documentary-photo-link{display:block;}
+
+/* Reading links stay in document flow, away from photographs and player controls. */
+.article-return {display:block;width:fit-content;min-height:44px;padding:10px 0;font-size:15px}
+.article-branch {display:flex;flex-wrap:wrap;gap:10px 24px;margin:20px 0}
+.article-branch a {display:inline-block;min-height:44px;padding:8px 0}
+#article-contents {scroll-margin-top:24px}
+.article-return:focus-visible,.article-branch a:focus-visible,#article-contents:focus-visible {outline:2px solid currentColor;outline-offset:4px}
+.documentary-exhibit #documentary-report article > p,.documentary-exhibit #nolte-documentary-photographs > p,.documentary-exhibit #bohac-opening-motion > p {max-width:70ch}
+
+.documentary-exhibit #documentary-report article > p {font-size:17px;line-height:1.8}

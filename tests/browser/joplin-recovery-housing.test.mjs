@@ -93,7 +93,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]) {
     await page.goForward();await shown(page);await labels(page);
     await page.goBack();await closed(page);
     // The original aftermath item must reset the housing derivative label and credit.
-    await page.locator('[data-photo-id="nws-joplin-aftermath"]').click();await shown(page,'damage.jpg',1024,768);
+    await page.locator('#damage a[data-photo-id="nws-joplin-aftermath"]').click();await shown(page,'damage.jpg',1024,768);
     assert.match(await page.locator('#photo-credit').textContent(),/National Weather Service Springfield/);
     assert.equal(await page.locator('#photo-original').textContent(),'Open the unchanged original photograph');
     await page.keyboard.press('Escape');await closed(page,'nws-joplin-aftermath');
@@ -179,7 +179,7 @@ test('Joplin housing failure retains its own source after a different aftermath 
     return route.continue();
   });
   await page.goto(base+'/joplin.html#recovery');await ready(page);
-  await page.locator('[data-photo-id="nws-joplin-aftermath"]').click();await shown(page,'damage.jpg',1024,768);
+  await page.locator('#damage a[data-photo-id="nws-joplin-aftermath"]').click();await shown(page,'damage.jpg',1024,768);
   const previous=await page.locator('#photo-full').elementHandle();
   await page.keyboard.press('Escape');await closed(page,'nws-joplin-aftermath');
   await page.locator(`[data-photo-id="${id}"]`).click();await page.locator('#photo-retry').waitFor({state:'visible'});await labels(page);

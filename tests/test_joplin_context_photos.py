@@ -15,11 +15,13 @@ class PhotoLinks(HTMLParser):
     def __init__(self):
         super().__init__()
         self.links = {}
+        self.openers = {}
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == 'a' and attrs.get('data-photo-kind') == 'context-photograph':
-            self.links[attrs['data-photo-id']] = attrs
+            self.links.setdefault(attrs['data-photo-id'], attrs)
+            self.openers.setdefault(attrs['data-photo-id'], []).append(attrs)
 
 
 class JoplinContextPhotoTests(unittest.TestCase):
@@ -95,10 +97,25 @@ class JoplinContextPhotoTests(unittest.TestCase):
                 # Their own tests bind the later derivative/preview and labels.
                 continue
             row = self.media[identifier]
+            openers = parser.openers[identifier]
+            expected_labels = {
+                'friskey-joplin-storm': {
+                    "Open Daniel Friskey's Joplin photograph at original size",
+                    'View the storm photograph from the collection'},
+                'nws-joplin-aftermath': {
+                    'Open the NWS Joplin damage photograph at original size',
+                    'View the aftermath photograph from the collection'}}[identifier]
+            self.assertEqual(len(openers), 2)
+            self.assertEqual({opener['aria-label'] for opener in openers}, expected_labels)
+            link = next(opener for opener in openers if opener['aria-label'].startswith('Open '))
             self.assertEqual(link['href'], row['transformation']['asset'])
             self.assertEqual(link['data-photo-source'], self.sources[row['source_id']]['url'])
             self.assertIn('unregistered', link['data-photo-location'])
             self.assertIn('photograph at original size', link['aria-label'])
+            for opener in openers:
+                for field in ('href', 'data-photo-source', 'data-photo-title', 'data-photo-location',
+                              'data-photo-credit', 'data-photo-license', 'data-photo-rights'):
+                    self.assertEqual(opener[field], link[field], (identifier, field))
         self.assertEqual(parser.links['friskey-joplin-storm']['data-photo-rights'],
                          'https://creativecommons.org/licenses/by-sa/4.0/')
         self.assertIn('PD-US-NOAA-NWS', parser.links['nws-joplin-aftermath']['data-photo-license'])

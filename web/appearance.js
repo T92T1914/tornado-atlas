@@ -31,6 +31,13 @@
       rail.dataset.focusReveal = 'ready';
       rail.parentElement.dataset.focusReveal = 'ready';
     }
+    // Native contents stay open without enhancement; narrow reading starts compact.
+    const readingWidth = matchMedia('(max-width:1080px)');
+    const adaptContents = () => {
+      for (const rail of document.querySelectorAll('details.documentary-contents')) rail.open = !readingWidth.matches;
+    };
+    adaptContents();
+    readingWidth.addEventListener('change', adaptContents);
     const current = document.activeElement?.closest?.('.documentary-layout > .documentary-contents a');
     if (current) {
       revealContentsLink(current);

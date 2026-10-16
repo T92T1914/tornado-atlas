@@ -18,6 +18,9 @@ const items = [
    rights:'https://commons.wikimedia.org/wiki/File:22_May_2011_Joplin_tornado_damage.jpg#Licensing',
    sourceId:'commons-nws-joplin-aftermath'},
 ];
+// The hero/account openers remain separate from their collection entry points.
+const original = item => (item.id === 'friskey-joplin-storm' ? '.documentary-hero ' : '#damage ') +
+  `a[data-photo-id="${item.id}"]`;
 const ready = page => page.waitForFunction(() => location.pathname.endsWith('/joplin.html') &&
   document.body?.dataset.photoViewer === 'ready' && Boolean(document.getElementById('photo-dialog')));
 async function decoded(image, item) {
@@ -93,7 +96,7 @@ for (const [width,appearance] of [[320,'dark'], [1280,'light']]) {
     await page.locator('#reading-appearance').selectOption(appearance);
     assert.match(await page.locator('#visibility').textContent(), /140 survivor interviews/);
     for (const item of items) {
-      const opener=page.locator(`a[data-photo-id="${item.id}"]`);
+      const opener=page.locator(original(item));
       await opener.scrollIntoViewIfNeeded();
       await decoded(opener.locator('img'), item);
       if(width<600) await opener.tap(); else {await opener.focus();await page.keyboard.press('Enter');}
@@ -144,9 +147,9 @@ test('Joplin failed aftermath image retains its own credit and retries without t
   const page=await fixture(t);let failing=true;
   await page.route('**/damage.jpg',route=>failing?route.fulfill({status:503,body:'Unavailable'}):route.continue());
   await page.goto(base+'/joplin.html');await ready(page);
-  await page.locator('[data-photo-id="friskey-joplin-storm"]').click();await shown(page,items[0]);
+  await page.locator(original(items[0])).click();await shown(page,items[0]);
   await page.keyboard.press('Escape');await closed(page,items[0].id);
-  const item=items[1];await page.locator(`[data-photo-id="${item.id}"]`).click();
+  const item=items[1];await page.locator(original(item)).click();
   await page.locator('#photo-retry').waitFor({state:'visible'});await labels(page,item);
   assert.equal(await page.locator('#photo-full').isVisible(),false);
   assert.match(await page.locator('#photo-full').getAttribute('alt'),/broken timber/i);
@@ -160,12 +163,12 @@ test('Joplin original photographs and visibility account remain useful without J
   await page.goto(base+'/joplin.html#visibility');
   assert.match(await page.locator('#visibility').textContent(),/separate views with different clock evidence/);
   for(const item of items) {
-    const opener=page.locator(`[data-photo-id="${item.id}"]`);
+    const opener=page.locator(original(item));
     assert.ok((await opener.getAttribute('href')).endsWith(item.file));
     assert.match(await opener.locator('..').textContent(),/Inspect its/);
   }
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-  const opener=page.locator(`[data-photo-id="${items[1].id}"]`);
+  const opener=page.locator(original(items[1]));
   await settledFragment(page, 'visibility', items[1].id);
   await opener.scrollIntoViewIfNeeded();
   await noScriptImage(opener.locator('img'), {...items[1],source:base+'/assets/joplin-2011/'+items[1].file},
@@ -179,7 +182,7 @@ test('no-script Joplin photograph rejects a blank bitmap at the correct source a
   await page.route('**/damage.jpg',route=>route.fulfill({contentType:'image/svg+xml',body:
     '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768"><rect width="1024" height="768" fill="white"/></svg>'}));
   await page.goto(base+'/joplin.html#visibility');
-  const image=page.locator('[data-photo-id="nws-joplin-aftermath"] img');
+  const image=page.locator(original(items[1])).locator('img');
   await settledFragment(page,'visibility','nws-joplin-aftermath');
   await image.scrollIntoViewIfNeeded();
   await assert.rejects(()=>noScriptImage(image,{...items[1],source:base+'/assets/joplin-2011/damage.jpg'}),
