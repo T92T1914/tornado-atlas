@@ -4,6 +4,7 @@ from pathlib import Path
 import unittest
 from atlas.archive import dossiers, digest, validate_dossier
 from atlas.evidence_coverage import layer_references
+from test_article_reading import BASELINES, READING_ROUTES
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -15,13 +16,19 @@ class TuscaloosaSourceRelationshipTests(unittest.TestCase):
         cls.old = json.loads((ROOT / 'web/archive/tuscaloosa-birmingham-2011-86b0d953102d962b43c5.json').read_text(encoding='utf8'))
 
     def test_prior_evidence_identity_order_and_source_limits_survive(self):
-        for field in ('records', 'routes', 'creators', 'media', 'reconstruction'):
+        for field in ('records', 'creators', 'media', 'reconstruction'):
             self.assertEqual(digest(self.doc[field]), digest(self.old[field]))
+        self.assertEqual(self.doc['routes'], self.old['routes'] + READING_ROUTES[self.doc['id']])
         for field in ('sources', 'observations'):
             self.assertEqual(digest(self.doc[field][:len(self.old[field])]), digest(self.old[field]))
         self.assertEqual(self.doc['reconstruction']['intervals'], [])
         self.assertEqual(self.doc['coverage'], 'Exhibit')
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], digest(self.old))
+        accepted_sha = BASELINES[self.doc['id']]
+        accepted = json.loads((ROOT / 'web/archive' /
+                               (self.doc['id'] + '-' + accepted_sha[:20] + '.json')).read_bytes())
+        self.assertEqual(digest(accepted), accepted_sha)
+        self.assertEqual(accepted['provenance']['publication_review']['previous_dossier_sha256'], digest(self.old))
+        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], accepted_sha)
 
     def test_source_is_the_inspected_links_only_publication(self):
         s = next(x for x in self.doc['sources'] if x['id'] == 'oliveira-2022-trailing-vortices')

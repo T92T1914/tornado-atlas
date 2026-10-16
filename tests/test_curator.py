@@ -128,13 +128,16 @@ class CuratorTests(unittest.TestCase):
     def test_serialized_size_limit_cannot_poison_saved_store_or_partial_restore(self):
         saved = self.store.save(self.draft, None)
         oversized = copy.deepcopy(self.draft)
-        template = copy.deepcopy(oversized['dossier']['observations'][0])
-        for i in range(1000):
-            item = copy.deepcopy(template)
-            item['id'] = f'bounded-size-{i}'
-            oversized['dossier']['observations'].append(item)
+        # Exercise private draft serialization without first exceeding the
+        # independently bounded public dossier as its accepted content grows.
+        for i in range(2000):
+            oversized['intake'][f'bounded-size-{i}'] = digest({'synthetic_size_fixture': i})
             if len(encoded(oversized)) > MAX_DRAFT:
                 break
+        validate_dossier(oversized['dossier'])
+        self.assertEqual(oversized['dossier'], self.draft['dossier'])
+        self.assertLessEqual(len(oversized['intake']), 2000)
+        self.assertGreater(len(encoded(oversized)), MAX_DRAFT)
         self.assertLess(len(json.dumps(oversized, ensure_ascii=False).encode('utf-8')), MAX_DRAFT)
         with self.assertRaisesRegex(ValueError, 'Draft exceeds'):
             self.store.save(oversized, saved['revision'])

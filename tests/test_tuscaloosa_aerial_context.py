@@ -183,7 +183,7 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         worked = re.search(r'<section id="survey-worked-comparison"[\s\S]*?</section>', original_document).group()
         self.assertEqual(worked.count('·'),3)
         original_document = original_document.replace(worked,'')
-        self.assertEqual(original_document.count('·'), 24)
+        self.assertEqual(original_document.count('·'), 26)
         self.assertNotIn('\ufffd', self.html)
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)
