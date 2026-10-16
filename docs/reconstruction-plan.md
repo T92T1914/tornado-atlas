@@ -34,10 +34,11 @@ These are the full planned event-package parts. Replay manifest version 2
 accepts a bounded appearance subset only when its separate source, clock,
 fixed-view camera, inspection, rights and uncertainty contract passes.
 The existing observation notebook still rejects unsupported historical
-registration. El Reno now has seven sparse photo observations across three
-sequences. Version 3 added two source-linked partial visible margins. Version 4 now
-provides two coarse filled partial condensation views and retains one partial
-margin, each at its own source-reported instant.
+registration. El Reno now has eight sparse photo observations across four
+sequences. Version 3 added two source-linked partial visible margins. Version 4
+introduced two coarse filled partial condensation views and retained one partial
+margin. The current version 5 package also includes the earlier partial dark
+extension. Each interpretation belongs only to its own source-reported instant.
 Its continuous historical appearance timeline remains unregistered.
 
 ## Match the animation to the available evidence
@@ -366,3 +367,27 @@ and viewport comparison covered narrow and wide layouts, doubled text and
 reading fallbacks. Whole visitor-journey review, hosted CI and public acceptance
 remain ahead. This earlier view leaves the continuous appearance interval,
 metric camera registration and historical damage-model requirements open.
+
+## October 16 early partial extension
+
+The retained 2016 paper supplies one separately inspected Figure 6(a) view at
+the reported 23:05:10 UTC label. The original October 10 cone/wedge/rope
+comparison already stopped before numerical fitting. Its visible boundaries did
+not constrain a complete shape. The new step is an independently authored
+partial dark extension, with dark image-left context leaving the opposite outline
+unassigned and fades omitting both unresolved continuations. A specific source
+and output review accepted the refined component after rejecting the first
+version's overly definite paired contour. No figure, crop or tracing is hosted.
+
+The existing player selects this observation only at offset 70. It has no
+duration, and every neighboring instant remains unknown. The source reports
+site 1 near Jensen and Country Club Roads, distinct from the later
+I-40/Banner Road setting. Physical shape, extent, camera calibration and
+inter-source clock error remain unassigned. The source's beam annotations and
+lengths do not calibrate the drawing.
+
+The [original Figure 6](https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=8),
+current article, curated observation and player retain those limits together.
+Nolte's first unique correspondence, frozen +22 comparison and prior +85
+disposition are unchanged. This increment leaves the original continuous
+appearance and historical damage-reconstruction objective unfinished.

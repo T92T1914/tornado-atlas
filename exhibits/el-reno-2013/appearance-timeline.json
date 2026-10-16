@@ -36,6 +36,23 @@
         "rights_holder": "AMS copyright present; individual photographic ownership not independently established.",
         "basis": "Original publication and exact PDF panel links only. No source photograph, figure crop, radar overlay or author annotation is copied, hosted or adapted. No figure-republication grant has been established. The independently authored mathematical factual schematic has its own declared construction and use basis."
       }
+    },
+    {
+      "id": "wakimoto-2016",
+      "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=8",
+      "title": "Wakimoto and colleagues, 2016 early photographic view",
+      "creator": "Wakimoto and colleagues (publication authors; individual photographer unestablished)",
+      "publisher": "American Meteorological Society; retained NOAA institutional copy",
+      "publication_identity": "Monthly Weather Review 144, 1749 to 1776; DOI 10.1175/MWR-D-15-0367.1.",
+      "version_identity": "Retained 28-page PDF edition, 12115215 bytes; complete PDF page 8 inspected separately.",
+      "original_locator": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf",
+      "sha256": "7ce3c5d8dc1d643417fecddbd802aef3869a9e32ec60d892c973599104c7be50",
+      "identity_basis": "Digest identifies the complete retained PDF, not isolated photograph bytes or a camera original. Figure 6(a), printed page 1756 / PDF page 8, is one published photographic observation; the other panels are source analyses.",
+      "rights": {
+        "reuse": "external_links_only",
+        "rights_holder": "AMS copyright 2016; NOAA rights metadata Other.",
+        "basis": "Original publication links only. No photograph, crop, texture, traced edge, source annotation or figure layout is hosted. The independent mathematical factual schematic has a separate specific construction and output review; no figure-republication grant is established."
+      }
     }
   ],
   "photo_sequences": [
@@ -730,6 +747,117 @@
               "The approximately 500 m reference at 2 degrees elevation belongs to the authors' source-defined analysis slice. It does not calibrate this drawing or determine a ground diameter.",
               "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
               "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wakimoto-early-extension",
+      "basis": "One independently inspected photographic observation at the source-reported 23:05:10 UTC label. The partial display has no duration or calibrated camera and does not connect the earlier reported-minute study to later views.",
+      "samples": [
+        {
+          "id": "wakimoto-2016-230510",
+          "source_id": "wakimoto-2016",
+          "exposure_id": "wakimoto-20130531-230510-fig6a",
+          "image": {
+            "original_url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=8",
+            "panel_locator": "Figure 6(a), printed page 1756 / PDF page 8.",
+            "sha256": "7ce3c5d8dc1d643417fecddbd802aef3869a9e32ec60d892c973599104c7be50",
+            "identity_basis": "Complete retained PDF edition digest, not camera-original or isolated photograph bytes. Complete rendered page and embedded composite inspected; author overlays are separate from the photographic component."
+          },
+          "reported_utc": "2013-05-31T23:05:10Z",
+          "timing": {
+            "method": "source_reported",
+            "basis": "Whole-second UTC label printed with Figure 6. Software offset 70 represents that label relative to the existing 23:04:00 replay start; it is not an independently measured clock correction.",
+            "uncertainty_seconds": null,
+            "uncertainty_basis": "Capture-clock and inter-source alignment errors are not independently quantified. Beam widths and source photogrammetric errors are not clock accuracy."
+          },
+          "inspection": {
+            "status": "still_pixels_inspected",
+            "pixels": "Complete retained PDF page 8 / printed page 1756 and embedded Figure 6 composite; photo, analytical panels and annotations inspected separately.",
+            "reviewed_on": "2026-10-16",
+            "basis": "Root and independent agent inspected the complete source and specific refined private outputs at narrow and wide sizes. The earlier October 10 complete-preset comparison remains retained. No camera-original photograph or raw video was acquired."
+          },
+          "viewpoint": {
+            "mode": "qualitative_text",
+            "description": "The publication reports photographs collocated with RaXPol at site 1 near Jensen and Country Club Roads.",
+            "basis": "Source-reported site context in Section 2 and Figure 1; Figure 6 reported early view. This is distinct from the later I-40/Banner Road site. No numeric Atlas camera solution is transferred.",
+            "coordinates": null,
+            "bearing_degrees": null,
+            "pitch_degrees": null,
+            "roll_degrees": null,
+            "position_uncertainty_m": null,
+            "orientation_uncertainty_degrees": null,
+            "lens_calibration": null
+          },
+          "characteristics": [
+            "A darker extension descends roughly upright below broader cloud, with a locally narrowing image-right transition against paler dust or haze.",
+            "The image-left boundary merges into less distinct context; upper continuation and lowest termination are not fully exposed.",
+            "The authors describe one apparent funnel in this photograph. That does not establish only one vortex throughout the broader circulation."
+          ],
+          "boundary_limits": [
+            "The upper connection, opposite outline and lowest termination are unresolved. Dark image-left context leaves that boundary unassigned; it is not a recovered cloud exterior.",
+            "Top and bottom fades omit unsupported continuations. They do not depict cloud dissipation, a complete cone tip, ground contact or measured vertical extent.",
+            "Only the broad downward dark extension and locally tapering image-right transition are interpreted. Pale dust on image-right, foreground objects and fine irregularities are omitted.",
+            "Support points, framing, tones, opacity and softness are authored display choices, not measured edges, photometry or numerical uncertainty.",
+            "Numeric camera pose, lens calibration, depth, physical dimensions and radius profile remain unknown. Shape and extent stay null.",
+            "The 255.5 degree ray, 175 m annotation, beam circles and scales belong to the authors’ analysis. None calibrates this display or supplies its photographic edge.",
+            "The reported whole-second label has no duration. Neighboring instants, motion to later views and continuous geometry remain unknown."
+          ],
+          "shape": null,
+          "extent": null,
+          "partial_form": {
+            "kind": "visible_condensation_region",
+            "authorship": "independently_authored",
+            "coordinate_space": "normalized_schematic_plane",
+            "component": "Partial dark downward extension and its locally tapering image-right transition; opposite boundary and both continuations unassigned.",
+            "points": [
+              [
+                0.46,
+                0.1
+              ],
+              [
+                0.42,
+                0.3
+              ],
+              [
+                0.39,
+                0.65
+              ],
+              [
+                0.4,
+                1
+              ],
+              [
+                0.65,
+                1
+              ],
+              [
+                0.63,
+                0.68
+              ],
+              [
+                0.58,
+                0.32
+              ],
+              [
+                0.55,
+                0.1
+              ]
+            ],
+            "closure": "display_support_only",
+            "completeness": "partial",
+            "basis": "Independent eight-point mathematical display support. The retained October 10 cone/wedge/rope comparison already stopped short of a full fit. A separate October 16 output comparison informed this partial extension, omitted upper/lower continuations and unassigned image-left context. No numerical fit, tracing, source pixel sampling or recovered projection.",
+            "use_basis": "Original mathematical factual schematic with attribution and an exact original panel link. No source raster, crop, texture, traced contour, sampled color, beam graphic, radar overlay or figure layout is copied. This specific output received independent source-use and qualitative correspondence review. AMS copyright and absent figure-republication permission remain separate.",
+            "limits": [
+              "The upper connection, opposite outline and lowest termination are unresolved. Dark image-left context leaves that boundary unassigned; it is not a recovered cloud exterior.",
+              "Top and bottom fades omit unsupported continuations. They do not depict cloud dissipation, a complete cone tip, ground contact or measured vertical extent.",
+              "Only the broad downward dark extension and locally tapering image-right transition are interpreted. Pale dust on image-right, foreground objects and fine irregularities are omitted.",
+              "Support points, framing, tones, opacity and softness are authored display choices, not measured edges, photometry or numerical uncertainty.",
+              "Numeric camera pose, lens calibration, depth, physical dimensions and radius profile remain unknown. Shape and extent stay null.",
+              "The 255.5 degree ray, 175 m annotation, beam circles and scales belong to the authors’ analysis. None calibrates this display or supplies its photographic edge.",
+              "The reported whole-second label has no duration. Neighboring instants, motion to later views and continuous geometry remain unknown."
             ]
           }
         }

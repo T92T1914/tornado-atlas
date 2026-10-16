@@ -372,6 +372,21 @@
           "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=24"
         }
       ]
+    },
+    {
+      "id": "early-downward-extension",
+      "title": "An early view with an unresolved outline",
+      "paragraphs": [
+        "Figure 6(a) in Wakimoto and colleagues’ 2016 paper shows a dark downward extension at the reported 23:05:10 UTC label. Its image-right transition narrows locally against paler dust or haze. The opposite boundary, upper connection and lowest termination are not fully exposed. The authors report the photographer collocated with RaXPol near Jensen and Country Club Roads. This is a different site from the later I-40/Banner Road views.",
+        "The player now offers one independently authored partial interpretation at that reported label. Dark image-left context leaves the opposite edge unassigned, and top and bottom fades omit unsupported continuations. These display choices do not recover a complete silhouette, physical width or camera projection. The source’s beam graphics and scale annotations are not used as photographic geometry. Open the original panel to compare what the display includes and omits.",
+        "This observation is independent of Nolte’s creator account, but its reported clock has unquantified error. It supplies no interval between photographs, no calibrated UTC correction for another camera and no continuous reconstruction. Reid’s earlier reported-minute study remains separate, as do Nolte’s original correspondence criteria."
+      ],
+      "sources": [
+        {
+          "label": "Original Figure 6(a), PDF page 8",
+          "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=8"
+        }
+      ]
     }
   ]
 }
