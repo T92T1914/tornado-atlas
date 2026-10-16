@@ -161,10 +161,16 @@ export async function withNavigationDiagnostics(page,phase,journey){
       if(!row||!['pointerdown','click','atlas:replay-url-change','popstate','hashchange'].includes(row.type)
         ||typeof row.trusted!=='boolean'||typeof row.intended_target!=='boolean'
         ||!small(row.target_id)||!small(row.control_id)||!small(row.time)
+        ||!small(row.target_tag)||!small(row.target_text)||!small(row.control_href)||!small(row.exhibit_ready)
+        ||!Array.isArray(row.client)||row.client.length!==2||!row.client.every(value=>value===null||Number.isFinite(value))
+        ||!Array.isArray(row.intended_rects)||row.intended_rects.length>4
+        ||!row.intended_rects.every(rect=>Array.isArray(rect)&&rect.length===4&&rect.every(Number.isFinite))
         ||!row.route||!small(row.route.path)||!small(row.route.t)||!small(row.route.fragment)
         ||!Number.isFinite(row.document_time_origin)||!Number.isInteger(row.history_length)
         ||!([true,false,null].includes(row.dialog_open)))throw new Error('Unexpected passive observation shape');
       retain({type:row.type,trusted:row.trusted,target_id:row.target_id,control_id:row.control_id,intended_target:row.intended_target,
+        target_tag:row.target_tag,target_text:row.target_text,control_href:row.control_href,client:row.client,
+        intended_rects:row.intended_rects,exhibit_ready:row.exhibit_ready,
         route:{path:row.route.path,t:row.route.t,fragment:row.route.fragment},document_time_origin:row.document_time_origin,
         history_length:row.history_length,time:row.time,dialog_open:row.dialog_open});
     }catch{omitted++;}
@@ -181,8 +187,14 @@ export async function withNavigationDiagnostics(page,phase,journey){
       const observe=event=>{
         if(count++>=16)return;
         const target=event.target instanceof Element?event.target:null,control=target?.closest('a,button,input');
+        const intended=document.querySelector('#partial-condensation-reading a[href*="reconstruction.html"]');
         console.debug('ATLAS_NAVIGATION_OBSERVATION '+JSON.stringify({type:event.type,trusted:event.isTrusted,
           target_id:target?.id.slice(0,96)??null,control_id:control?.id.slice(0,96)??null,
+          target_tag:target?.tagName.slice(0,32)??null,target_text:target?.textContent.slice(0,128)??null,
+          control_href:control?.getAttribute('href')?.slice(0,256)??null,
+          client:[Number.isFinite(event.clientX)?event.clientX:null,Number.isFinite(event.clientY)?event.clientY:null],
+          intended_rects:intended?[...intended.getClientRects()].slice(0,4).map(rect=>[rect.x,rect.y,rect.width,rect.height]):[],
+          exhibit_ready:document.body?.dataset.exhibitReady?.slice(0,256)??null,
           intended_target:Boolean(target?.closest('#next, #partial-condensation-reading a[href*="reconstruction.html"]')),
           ...state()}));
       };
@@ -193,7 +205,7 @@ export async function withNavigationDiagnostics(page,phase,journey){
   }catch(error){
     const record={...observer.freeze(),phase,expected_route:expectedRoute,observed_route:navigationRoute(page.url()),events:[...events],events_omitted:omitted,
       error_name:error.name,error_message:String(error.message).slice(0,256),resource_snapshot_at_original_failure:true};
-    Object.assign(record.limits,{event_rows:16,document_event_rows:16,observation_payload_characters:4096});
+    Object.assign(record.limits,{event_rows:16,document_event_rows:16,observation_payload_characters:4096,intended_client_rects:4});
     observer.stop();page.off('console',consoleListener);page.off('framenavigated',navigationListener);
     try{
       record.dom=await boundedOpenSnapshot(page,()=>{
@@ -202,6 +214,7 @@ export async function withNavigationDiagnostics(page,phase,journey){
             disabled:node.disabled??null,value:node.value?.slice(0,256)??null,open:node.open??null,text:node.textContent.slice(0,256),rect:[rect.x,rect.y,rect.width,rect.height]};};
         return {captured_at_ms:performance.now(),document_ready_state:document.readyState,document_time_origin:performance.timeOrigin,history_length:history.length,
           path:location.pathname.slice(0,256),t:new URL(location.href).searchParams.get('t')?.slice(0,256)??null,title:document.title.slice(0,256),
+          exhibit_ready:document.body?.dataset.exhibitReady??null,
           replay_content:read('replay-content'),replay_time:read('replay-time'),replay_event:read('replay-event'),replay_error:read('replay-error'),timeline:read('timeline'),
           next:read('next'),dialog:read('photo-dialog'),survey_share:document.getElementById('survey-share')?.getAttribute('href')?.slice(0,256)??null};
       });

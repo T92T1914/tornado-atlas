@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,withNavigationDiagnostics} from './harness.mjs';
 const target='https://www.youtube-nocookie.com/embed/EFwJAlg0qWc?autoplay=0&playsinline=1&rel=0';
 async function delayedPage(t,hash='#photos'){
  const page=await fixture(t,{viewport:{width:320,height:900}});let release,requested;
@@ -49,4 +49,41 @@ test('documentary source controls remain independent when exhibit data fails',as
  assert.equal(await page.locator('#storm-photographs [data-storm-photo]').count(),3);await card.getByRole('button',{name:'Load video here'}).click();await card.locator('iframe').waitFor();
  assert.equal(await card.locator('iframe').getAttribute('src'),target);assert.equal(await page.locator('#timeline').isDisabled(),true);
  await card.getByRole('button',{name:'Close video'}).click();assert.equal(await card.locator('iframe').count(),0);
+});
+
+for(const width of [320,1280])for(const method of ['pointer','keyboard'])test('documentary startup keeps the static appearance link usable before reader enhancement '+width+' '+method,async t=>{
+ const page=await fixture(t,{viewport:{width,height:1000},reducedMotion:'reduce'});
+ let release,requested;
+ const gate=new Promise(resolve=>release=resolve),started=new Promise(resolve=>requested=resolve);
+ t.after(release);
+ await page.route(base+'/reader-view.mjs',async route=>{requested();await gate;await route.continue();});
+ const events=[];
+ const observe=message=>{
+  const text=message.text();if(!text.startsWith('ATLAS_NAVIGATION_OBSERVATION ')||text.length>4096)return;
+  try{const event=JSON.parse(text.slice('ATLAS_NAVIGATION_OBSERVATION '.length));
+   if(events.length<4&&event.type==='click')events.push({trusted:event.trusted,intended:event.intended_target,ready:event.exhibit_ready});
+  }catch{}
+ };
+ const retireGate=frame=>{if(frame===page.mainFrame()&&new URL(frame.url()).pathname==='/reconstruction.html')release();};
+ page.on('console',observe);page.on('framenavigated',retireGate);
+ try{
+  await withNavigationDiagnostics(page,'early_static_appearance_link',async mark=>{
+   await page.goto(base+'/index.html#partial-condensation-reading');
+   let timer;try{await Promise.race([started,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Reader gate did not arrive within the existing 10000ms action bound')),10000);})]);}
+   finally{clearTimeout(timer);}
+   assert.notEqual(await page.evaluate(()=>document.body.dataset.exhibitReady),'true');
+   const link=page.locator('#partial-condensation-reading').getByRole('link',{name:'Open its appearance study in the simulator'});
+   const expected=base+'/reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=wakimoto-visible-condensation';
+   assert.equal(new URL(await link.getAttribute('href'),base).href,expected);
+   mark('early_static_native_'+method,expected);
+   if(method==='keyboard'){await link.focus();await page.keyboard.press('Enter');}
+   else await link.click();
+   release();await page.waitForURL(expected);
+   await page.locator('#replay-time:not([disabled])').waitFor();
+   assert.equal(await page.locator('#replay-time').inputValue(),'1241');
+   assert.equal(await page.locator('#replay-appearance-mode').inputValue(),'photo:wakimoto-visible-condensation');
+   assert.ok(events.some(event=>event.trusted&&event.intended&&event.ready!=='true'),'The unchanged static link received a trusted activation before enhancement completed');
+   t.diagnostic('EARLY_STATIC_APPEARANCE_LINK '+JSON.stringify({width,method,events}));
+  });
+ }finally{release();page.off('console',observe);page.off('framenavigated',retireGate);}
 });
