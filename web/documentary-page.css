@@ -1,6 +1,6 @@
 .documentary-intro {max-width:850px;padding:40px 0 30px;border:0}
 .documentary-intro h1 {font-size:clamp(40px,6vw,76px);line-height:1.04;letter-spacing:-2px;margin:22px 0}
-.documentary-intro h1,.documentary-reading h2,.documentary-reading h3 {overflow-wrap:anywhere}
+.documentary-intro h1,.documentary-reading h2,.documentary-reading h3,.documentary-reading h4 {overflow-wrap:anywhere}
 .documentary-deck {font-size:clamp(20px,2vw,25px);font-family:Georgia,serif}
 .documentary-intro>p:last-child {font-size:16px;color:var(--muted)}
 .documentary-hero {margin:0;max-width:1040px}
@@ -29,7 +29,7 @@
 .documentary-reading details {padding:18px 0;border-bottom:1px solid var(--line)}
 .documentary-reading summary {cursor:pointer;font-size:17px;font-weight:600}
 .documentary-source-reading .documentary-source-text {font:inherit;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:1em 0;padding:1em;border-left:3px solid var(--line);background:var(--panel)}
-.documentary-sources {padding-left:24px}.documentary-sources li {padding:15px 0;scroll-margin-top:20px}.documentary-sources p {font-size:14px;color:var(--muted);margin:5px 0}
+.documentary-sources {padding-left:24px}.documentary-sources li {padding:15px 0;scroll-margin-top:20px;overflow-wrap:anywhere}.documentary-sources p {font-size:14px;color:var(--muted);margin:5px 0}
 @media(max-width:650px){.documentary-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.documentary-timeline li{grid-template-columns:1fr;gap:6px}.documentary-intro{padding-top:25px}.documentary-reading section{padding:35px 0}.documentary-reading p{font-size:15px}.documentary-note{padding:16px}}
 
 #hospital-services .hospital-service-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
