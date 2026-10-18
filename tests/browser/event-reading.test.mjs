@@ -85,6 +85,26 @@ for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: pu
       assert.equal(rules,2,'Both spacing rules are present without enabling page scripts');
       phase='spacing reflow assertion';await assertReadingReflow(page,'Tuscaloosa spaced reading, scripts '+enabled);
       phase='worked comparison qualification';assert.match(await page.locator('#survey-worked-comparison').innerText(),/EF3 and EF4/);
+      // Match the retained article sequence, where a fragment return keeps doubled sizes before spacing.
+      phase='combined fresh comparison navigation';await page.goto(base+'/tuscaloosa.html#survey-worked-comparison');
+      phase='combined fresh comparison document';await page.reload();
+      if(enabled){phase='combined enhanced contents readiness';await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');}
+      phase='combined snapshot font doubling';
+      await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')],sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));nodes.forEach((node,index)=>node.style.fontSize=sizes[index]*2+'px');});
+      phase='combined doubled comparison reflow';await assertReadingReflow(page,'Tuscaloosa doubled comparison, scripts '+enabled);
+      phase='combined native contents open';
+      const summary=page.locator('#article-contents');if(!await summary.evaluate(node=>node.parentElement.open))await summary.click();
+      phase='combined native storm navigation';await page.locator('.documentary-contents a[href="#storm"]').focus();await page.keyboard.press('Enter');
+      await page.waitForURL(url=>url.hash==='#storm');
+      phase='combined doubled storm reflow';await assertReadingReflow(page,'Tuscaloosa doubled storm, scripts '+enabled);
+      phase='combined same-document comparison return';await page.goto(base+'/tuscaloosa.html#survey-worked-comparison');
+      if(enabled){phase='combined returned contents readiness';await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');}
+      phase='combined spacing style insertion';
+      const combinedRules=await page.evaluate(content=>{const style=document.createElement('style');style.textContent=content;document.head.appendChild(style);return style.sheet.cssRules.length;},
+        'p{margin-bottom:2em!important}body *{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}');
+      assert.equal(combinedRules,2,'Both spacing rules accompany the retained doubled sizes');
+      phase='combined spacing reflow assertion';await assertReadingReflow(page,'Tuscaloosa doubled and spaced reading, scripts '+enabled);
+      phase='combined worked comparison qualification';assert.match(await page.locator('#survey-worked-comparison').innerText(),/EF3 and EF4/);
     }catch(error){
       console.log('EVENT_SPACING_FAILURE '+JSON.stringify({file:task.file,scripts:enabled,phase,error_name:error.name,error_message:String(error.message).slice(0,256)}));
       throw error;
