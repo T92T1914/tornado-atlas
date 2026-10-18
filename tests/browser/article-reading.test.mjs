@@ -85,6 +85,11 @@ for(const task of tasks)test(task.file+': enlarged text, spacing and 320 CSSpx r
     console.log('SURVEY_SELECT_REFLOW '+JSON.stringify({corrected,previousNative}));
   }
   await reflow(page);assert.match(await page.locator('#'+task.lesson).innerText(),task.qualifier);
+  // Enlarged and spaced prose must stay inside its own reading column as well as the viewport.
+  for(const row of await page.locator('.documentary-intro>p,.article-laboratory>p').evaluateAll(nodes=>nodes.map(node=>({text:node.textContent.slice(0,80),client:node.clientWidth,scroll:node.scrollWidth})))){
+    assert.ok(row.client>0,task.file+' introductory prose is rendered');
+    assert.ok(row.scroll<=row.client+1,task.file+' introductory prose remains within its reading column: '+row.text);
+  }
 });
 for(const task of tasks)test(task.file+': native contents, account and original routes without script',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false,colorScheme:'light'});
