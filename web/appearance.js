@@ -34,7 +34,16 @@
     // Native contents stay open without enhancement; narrow reading starts compact.
     const readingWidth = matchMedia('(max-width:1080px)');
     const adaptContents = () => {
-      for (const rail of document.querySelectorAll('details.documentary-contents')) rail.open = !readingWidth.matches;
+      const open = !readingWidth.matches;
+      for (const rail of document.querySelectorAll('details.documentary-contents')) {
+        const summary = rail.querySelector(':scope > summary');
+        const active = document.activeElement;
+        const hidesFocus = !open && rail.open && summary &&
+          rail.contains(active) && !summary.contains(active);
+        rail.open = open;
+        // Keep the keyboard reading position when compact contents hide a link.
+        if (hidesFocus) summary.focus();
+      }
     };
     adaptContents();
     readingWidth.addEventListener('change', adaptContents);
