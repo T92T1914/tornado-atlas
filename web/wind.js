@@ -21,6 +21,7 @@ function geometry() {
   return {width,height,scale:height/5.5,cx:width/2,cy:height/2};
 }
 function draw(elapsed=0) {
+  if(!ctx)return;
   const s=settings(),{width,height,scale,cx,cy}=geometry();
   ctx.clearRect(0,0,width,height);
   const max=s.peak+s.background;
@@ -39,7 +40,8 @@ function draw(elapsed=0) {
   }
   ctx.globalAlpha=1;ctx.strokeStyle='#d6c5a0';ctx.lineWidth=1;ctx.setLineDash([5,6]);
   ctx.beginPath();ctx.arc(cx,cy,scale,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#b3bbae';ctx.font='11px '+getComputedStyle(canvas).fontFamily;ctx.fillText('N ↑',18,24);ctx.fillText(`R = ${Math.round(s.radius/FOOT)} ft`,cx+scale+7,cy-8);
+  ctx.fillStyle='#b3bbae';ctx.font='11px '+getComputedStyle(canvas).fontFamily;ctx.fillText('N ↑',18,24);
+  ctx.textAlign='right';ctx.fillText(`R = ${Math.round(s.radius/FOOT)} ft`,width-18,24);ctx.textAlign='left';
   if (elapsed) for (const point of particles) {
     const w=windAt(point.x*s.radius,point.y*s.radius,s);
     const mx=point.x+w.u/s.radius*elapsed/2,my=point.y+w.v/s.radius*elapsed/2;
@@ -51,7 +53,8 @@ function draw(elapsed=0) {
   for (const point of particles) {ctx.beginPath();ctx.arc(cx+point.x*scale,cy-point.y*scale,1.15,0,Math.PI*2);ctx.fill();}
   const px=cx+s['probe-x']*scale,py=cy-s['probe-y']*scale;
   ctx.strokeStyle='#fff8ed';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.moveTo(px-14,py);ctx.lineTo(px+14,py);ctx.moveTo(px,py-14);ctx.lineTo(px,py+14);ctx.stroke();
-  ctx.fillStyle='#fff8ed';ctx.fillText('PROBE',Math.min(width-60,px+14),Math.max(14,py-13));
+  // Keep the moving annotation below the fixed north/radius legend and inside the field.
+  ctx.fillStyle='#fff8ed';ctx.fillText('PROBE',Math.max(8,Math.min(width-ctx.measureText('PROBE').width-8,px+14)),Math.max(52,Math.min(height-10,py-13)));
 }
 function update() {
   const s=settings(),wind=windAt(s['probe-x']*s.radius,s['probe-y']*s.radius,s),load=loadAt(wind.speed,s);
@@ -64,7 +67,7 @@ function update() {
   draw();
 }
 function pause(message='Paused. Move the probe to explore.') {
-  running=false;cancelAnimationFrame(raf);last=null;el('wind-motion').textContent='Play tracers';el('wind-status').textContent=message;
+  running=false;cancelAnimationFrame(raf);last=null;el('wind-motion').textContent='Play tracers';el('wind-status').textContent=ctx?message:'Field drawing unavailable. Numeric controls remain usable.';
 }
 function frame(now) {
   if (!running) return;
@@ -74,11 +77,11 @@ el('wind-controls').addEventListener('submit',e=>e.preventDefault());
 for (const id of ids) el(id).addEventListener('input',update);
 el('wind-motion').addEventListener('click',()=>{
   if (running) return pause();
-  if (!visible || document.hidden) return;
+  if (!ctx || !visible || document.hidden) return;
   running=true;last=null;el('wind-motion').textContent='Pause tracers';el('wind-status').textContent='Passive tracers moving through the assumed field.';raf=requestAnimationFrame(frame);
 });
 el('wind-reset').addEventListener('click',()=>{pause();el('wind-controls').reset();resetParticles();update();});
-function probe(x,y) {el('probe-x').value=Math.max(-2.5,Math.min(2.5,x));el('probe-y').value=Math.max(-2.5,Math.min(2.5,y));update();}
+function probe(x,y) {el('probe-x').value=Math.max(-2.5,Math.min(2.5,x));el('probe-y').value=Math.max(-2.5,Math.min(2.5,y));update();el('wind-controls').dispatchEvent(new Event('input',{bubbles:true}));}
 canvas.addEventListener('pointerdown',e=>{
   const box=canvas.getBoundingClientRect(),scale=box.height/5.5;
   probe((e.clientX-box.left-box.width/2)/scale,-(e.clientY-box.top-box.height/2)/scale);
@@ -91,4 +94,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pause('Paus
 new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible)pause('Paused while the field was out of view.');},{threshold:.1}).observe(canvas);
 new ResizeObserver(()=>draw()).observe(canvas);
 document.fonts.ready.then(()=>draw());
+if(!ctx){el('wind-motion').disabled=true;el('wind-field-failure').hidden=false;pause();}
 resetParticles();update();
+
+export {update as refreshWind,pause as pauseWind};

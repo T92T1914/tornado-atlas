@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tornado Atlas | Wind and force laboratory</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css"><link rel="stylesheet" href="wind.css"><link rel="stylesheet" href="passage-values.css"><script type="module" src="wind.js"></script><script type="module" src="passage.js"></script><link rel="stylesheet" href="appearance.css"><script src="appearance.js"></script><link rel="stylesheet" href="museum.css">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tornado Atlas | Wind and force laboratory</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css"><link rel="stylesheet" href="wind.css"><link rel="stylesheet" href="passage-values.css"><script type="module" src="wind-laboratory.mjs"></script><link rel="stylesheet" href="appearance.css"><script src="appearance.js"></script><link rel="stylesheet" href="museum.css">
+<link rel="stylesheet" href="laboratory.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to wind laboratory</a>
@@ -8,10 +9,23 @@
 <main id="main">
 <div class="reading-appearance appearance-bar"><label for="reading-appearance">Appearance</label><select id="reading-appearance" disabled><option value="dark">Obscur · Dark</option><option value="light">Clair · Light</option><option value="system" selected>Use system setting</option></select></div>
 <section class="study-intro"><div><div class="eyebrow">AN IDEALIZED WIND EXPERIMENT</div><h1>Wind becomes force.</h1></div><p>Double the wind speed and the same simple drag model gives four times the force. Move a probe through an idealized vortex to see the relationship. All settings here are assumptions, independent of the historical storms in the atlas.</p></section>
+
+<section id="lab-context" class="lab-context" aria-labelledby="lab-context-title">
+  <h2 id="lab-context-title">Keep the evidence beside the experiment.</h2>
+  <p class="lab-boundary">A documentary reference changes the reading beside this model. It does not assign the storm’s shape, winds or damage to these settings. All model values remain your assumptions.</p>
+  <div id="lab-enhancement" hidden>
+    <div class="lab-context-grid"><div><label for="lab-event">Documentary reference</label><select id="lab-event"><option value="">No assigned storm</option></select></div><div><p id="lab-reference-account"></p><div id="lab-reference-links" class="lab-reference-links"></div></div></div>
+    <div class="lab-actions"><a id="lab-share" href="#lab-context">Link to this assumed experiment</a></div>
+    <p id="lab-state" role="status"></p>
+  </div>
+  <p id="lab-documentary-fallback"><a href="index.html">El Reno documentary</a> · <a href="joplin.html">Joplin documentary</a> · <a href="blackwell.html">Blackwell documentary</a> · <a href="tuscaloosa.html">Tuscaloosa and Birmingham documentary</a></p>
+  <noscript><p>Experiment links need JavaScript to restore settings. These documentary accounts remain readable. The wind table, where present, describes only its printed default assumptions.</p></noscript>
+</section>
 <div class="study-layout">
   <section class="wind-panel" aria-label="Horizontal wind field">
     <div class="scene-bar"><span>PLAN VIEW / COUNTERCLOCKWISE FLOW</span><span>ILLUSTRATIVE MODEL</span></div>
     <canvas id="wind-field" tabindex="0" aria-label="Idealized horizontal wind. Click to move the probe, or use the east and north sliders. Arrow keys move the probe by one tenth of the core radius."></canvas>
+    <p id="wind-field-failure" class="wind-caption" role="status" hidden>The field drawing is unavailable. Numeric probe readings, the passage, sampled values and documentary references remain usable. Reload to retry the drawing.</p>
     <div class="wind-key"><span>Slower</span><i></i><span>Faster</span><small>Colors are relative to the current settings, not EF ratings.</small></div>
     <div class="scene-footer"><button id="wind-motion">Play tracers</button><button id="wind-reset">Reset experiment</button><span id="wind-status" role="status">Paused. Move the probe to explore.</span></div>
     <p class="wind-caption">The dashed circle is the chosen radius of maximum swirl. It is not the condensation funnel, damage width, or a safe-distance boundary. Dots are passive flow tracers, not flying debris.</p>

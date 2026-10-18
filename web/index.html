@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="museum.css">
 <link rel="stylesheet" href="documentary-media.css"><script type="module" src="documentary-media.mjs"></script>
 </head>
-<body class="documentary-exhibit">
+<body class="documentary-exhibit museum-article">
   <a class="skip" href="#main">Skip to exhibit</a>
   <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><!-- museum-navigation --><nav class="museum-nav" aria-label="Museum navigation"><a href="atlas.html">Collection</a><details><summary>Exhibits <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="index.html" aria-current="page">El Reno · 2013</a><a href="joplin.html">Joplin · 2011</a><a href="blackwell.html">Blackwell · 1955</a><a href="tuscaloosa.html">Tuscaloosa and Birmingham · 2011</a></div></details><details><summary>Explore <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="atlas.html#catalogue">Map and catalogue</a><a href="reconstruction.html">El Reno spatial replay</a><a href="study.html">Form study</a><a href="wind.html">Wind laboratory</a></div></details><details><summary>Sources <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="dossier.html">Event dossiers</a><a href="coverage.html">Reconstruction coverage</a><a href="survey.html">Damage survey</a><a href="radar-source.html">Radar source reader</a><a href="japan.html">Japan source records</a></div></details></nav><!-- /museum-navigation --><span class="local">HISTORICAL STUDY / 001</span></header>
   <main id="main">
@@ -155,7 +155,8 @@
     </article>
     </div>
     <p id="error" role="alert" hidden></p>
-  </main>
+  <aside class="documentary-note article-laboratory" aria-labelledby="laboratory-entry-title"><h2 id="laboratory-entry-title">Explore an assumed experiment.</h2><p>Keep this account beside a form or wind experiment. You choose the model settings; selecting this dossier supplies documentary reference, not measured conditions for this tornado.</p><p class="article-branch"><a href="study.html?event=el-reno-2013">Explore the illustrative form study</a><a href="wind.html?event=el-reno-2013">Explore the assumed wind laboratory</a></p></aside>
+</main>
   <dialog id="photo-dialog" aria-labelledby="photo-title"><div class="photo-dialog-bar"><h2 id="photo-title"></h2><button id="photo-close" autofocus>Close viewer</button></div><img id="photo-full" alt=""><p id="photo-failure" role="status" hidden>The image could not be loaded. You can still open its source below.</p><p id="photo-caption"></p><p id="photo-location"></p><p id="photo-credit" class="fineprint"></p><div class="photo-dialog-links"><a id="photo-source" target="_blank" rel="noopener">Source and attribution ↗</a><a id="photo-original" target="_blank" rel="noopener">Open full resolution ↗</a><a id="photo-license" target="_blank" rel="noopener" hidden></a></div></dialog>
   <footer><span>TORNADO ATLAS</span><p>A historical museum in progress. Each source entry records its inspection scope; an exhibit update does not mean every source was reviewed again.</p><a href="data.json">Exhibit data ↗</a></footer>
 </body>

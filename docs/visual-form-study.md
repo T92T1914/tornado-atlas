@@ -1,6 +1,6 @@
 # Interactive visual form study
 
-The museum now has an early visual prototype at `web/study.html`. It lets a visitor rotate a scene and explore three funnel forms. This is original procedural artwork. It has no assigned historical event, physical scale, wind speed or EF rating.
+The museum now has an early visual prototype at `web/study.html`. It lets a visitor rotate a scene and explore three funnel forms. This is original procedural artwork. It has no assigned historical event, physical scale, wind speed or EF rating. An optional documentary reference connects the experiment to one of the four existing dossiers without changing its geometry.
 
 ## How the drawing works
 
@@ -34,3 +34,11 @@ The current El Reno footage notebook and geographic timeline are the start of th
 Model tests check deterministic particles, bounded allocation, geometric and camera validity, refresh-rate-independent normal timing, and suspension handling. They establish software behavior, not meteorological accuracy. Browser inspection checks whether controls and rendered views work; it is not a performance benchmark or validation of a physical tornado model.
 
 The isolated browser suite checks unavailable WebGL and uses the standard `WEBGL_lose_context` extension to exercise context loss and restoration when available. It verifies the failure message, disabled playback, preserved sequence controls and positive rendered pixels after recovery. Environments without that extension report the recovery check as skipped. This controlled browser check does not establish recovery from a physical GPU or driver failure on every device.
+
+## Save an assumed experiment
+
+Choose a documentary reference to keep its photographs and source dossier beside the model. Changing that reference preserves the form, view, extent and authored-sequence settings. It does not fit the drawing to the selected tornado. Each dossier also links directly to the study with its reference selected.
+
+The experiment link retains the complete control settings and reopens paused. The link updates immediately, while rapid control changes update the address at most once per 250 milliseconds to respect browser history limits. An explicit save, reference change or ordinary source visit commits the latest settings. One temporary browser-session record retains the current entry’s pending settings for reload and is removed when the address is committed. Pending same-document Back/Forward settings remain available during that document’s lifetime. An intermediate address that never received its pending update is not guaranteed after a later full reload; save the paused link to retain a specific experiment. Before an ordinary source visit or explicit link save, the study pauses and captures its displayed sequence step. The authored sequence uses the slider's supported steps; manual visual phase remains model time without a historical date or physical interpretation. No link starts motion automatically.
+
+Versioned links reject incomplete, repeated, unknown, nonfinite, out-of-range or off-step fields visibly. A rejected link applies none of its values and identifies the default controls as unrestored. Without scripts, documentary links and the explanation remain available while the model cannot recalculate or restore an experiment.

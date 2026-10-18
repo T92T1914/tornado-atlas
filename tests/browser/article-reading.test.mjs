@@ -4,6 +4,7 @@ import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
+import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
 // Expected passages and qualifications come from the preserved historical accounts.
 const tasks=[
@@ -20,7 +21,7 @@ async function ready(page,task){
   if(task.file==='index.html')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
   else await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');
 }
-async function reflow(page){assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Article has no horizontal document overflow');}
+async function reflow(page){await assertReadingReflow(page,'Article');}
 async function contents(page,task){
   const summary=page.locator('#article-contents');
   if(!await summary.evaluate(n=>n.parentElement.open))await summary.click();
@@ -77,7 +78,18 @@ for(const task of tasks)test(task.file+': enlarged text, spacing and 320 CSSpx r
   await page.waitForURL(u=>u.hash==='#'+task.section);await reflow(page);
   await page.goto(base+'/'+task.file+'#'+task.lesson);await ready(page,task);
   await page.addStyleTag({content:'p{margin-bottom:2em!important}body *{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}'});
+  if(task.file==='tuscaloosa.html'){
+    const geometry=()=>page.locator('#survey-place').evaluate(node=>{const r=node.getBoundingClientRect();return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,select:{left:r.left,right:r.right,width:r.width,appearance:getComputedStyle(node).appearance,value:node.value}};});
+    const corrected=await geometry();await page.locator('#survey-place').evaluate(node=>{node.style.appearance='auto';node.style.webkitAppearance='auto';node.style.boxSizing='content-box';node.style.maxWidth='none';});
+    const previousNative=await geometry();await page.locator('#survey-place').evaluate(node=>{for(const name of ['appearance','-webkit-appearance','box-sizing','max-width'])node.style.removeProperty(name);});
+    console.log('SURVEY_SELECT_REFLOW '+JSON.stringify({corrected,previousNative}));
+  }
   await reflow(page);assert.match(await page.locator('#'+task.lesson).innerText(),task.qualifier);
+  // Enlarged and spaced prose must stay inside its own reading column as well as the viewport.
+  for(const row of await page.locator('.documentary-intro>p,.article-laboratory>p').evaluateAll(nodes=>nodes.map(node=>({text:node.textContent.slice(0,80),client:node.clientWidth,scroll:node.scrollWidth})))){
+    assert.ok(row.client>0,task.file+' introductory prose is rendered');
+    assert.ok(row.scroll<=row.client+1,task.file+' introductory prose remains within its reading column: '+row.text);
+  }
 });
 for(const task of tasks)test(task.file+': native contents, account and original routes without script',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false,colorScheme:'light'});
