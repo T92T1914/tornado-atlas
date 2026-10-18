@@ -1973,7 +1973,7 @@
   "history": {
     "schema": 1,
     "event": "el-reno-2013",
-    "reviewed_at": "2026-09-20",
+    "reviewed_at": "2026-10-18",
     "introduction": "The path is only part of this story. People were caught on the roads, homes and farms were damaged, and the same evening brought deadly flooding elsewhere. This exhibit keeps the human impact beside the meteorology.",
     "context": [
       {
@@ -2357,6 +2357,20 @@
           {
             "label": "Original Figure 6(a), PDF page 8",
             "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=8"
+          }
+        ]
+      },
+      {
+        "id": "lightning-reports-and-video",
+        "title": "Why a lightning report is not always a video match",
+        "paragraphs": [
+          "In a 2015 University of Oklahoma REU final paper, James Coy and Kristin Calhoun compare lightning networks with El Reno video. They report a 22:59:06 UTC strike visible in video and OKLMA but absent from NLDN and ENTLN. A high-current report at 23:13:30 UTC was not confirmed in the video.",
+          "A reported detection and an optical match are different evidence. The paper is not asserted here to be peer reviewed. Its 30 fps rendering does not establish camera accuracy. Atlas has no original rows or film from this study and derives no clock correction."
+        ],
+        "sources": [
+          {
+            "label": "Read the original REU final paper, pages 6 and 7",
+            "url": "https://caps.ou.edu/reu/reu15/finalpapers/Coy-finalpaper.pdf#page=6"
           }
         ]
       }
@@ -9567,7 +9581,7 @@
   "reading": {
     "schema": 1,
     "event": "el-reno-2013",
-    "updated": "2026-10-16",
+    "updated": "2026-10-18",
     "sources": [
       {
         "group": "Original photographs and accounts",
@@ -9834,6 +9848,13 @@
         "title": "Tracked dust/debris feature and radar comparison",
         "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=24",
         "use": "Attributed Figures22and23method example, not a newly registered Atlas observation or permission to reproduce figures."
+      },
+      {
+        "group": "Scientific studies",
+        "publisher": "James J. Coy and Kristin M. Calhoun, 2015 OU REU final paper",
+        "title": "A Comparison of Lightning Flashes Observed by Ground-Based Detection Networks and Video",
+        "url": "https://caps.ou.edu/reu/reu15/finalpapers/Coy-finalpaper.pdf#page=6",
+        "use": "Reported detection and video-confirmation comparison. Selected original pages inspected. Underlying film and rows remain unacquired. No figures reproduced or Atlas clock correction derived."
       }
     ]
   },

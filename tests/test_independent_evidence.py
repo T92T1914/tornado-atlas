@@ -14,7 +14,7 @@ class IndependentEvidence(unittest.TestCase):
     self.assertIn(obs['source_id'],[s['id'] for s in doc['sources']])
   black=next(s for s in docs['blackwell-1955']['sources'] if s['id']=='interior-blackwell-power-study-fy1955')
   self.assertIn('d8c64dc077c7b8ce9a83c0ada5309e6d870d4f52c477b26be7bf7f20241260ed',black['revision'])
-  self.assertIn('not acquired or inspected',black['access'])
+  self.assertIn('printed pages 117 and 118 / PDF pages 165 and 166',black['access'])
   joplin=[o for o in docs['joplin-2011']['observations'] if o['id'] in cases['joplin-2011']]
   self.assertIn('2018',joplin[0]['account']);self.assertIn('2017',joplin[1]['account']);self.assertIn('local adoption',joplin[0]['limits'])
  def test_early_source_is_discrete_and_its_figure_is_not_hosted(self):
@@ -31,7 +31,13 @@ class IndependentEvidence(unittest.TestCase):
   import copy
   from test_article_reading import accepted_reading_dossier,ACCEPTED_READING_DOSSIERS
   from atlas.archive import dossier_history
-  current={d['id']:d for d in dossiers(ROOT)}
+  # Freeze the accepted PR138 delta. Current successor preservation is
+  # checked against these exact originals in test_source_qualification.
+  prior={'el-reno-2013':'19fa9fdc033ea7fd86166db3747c6a6c2556eda86aa0c8e14a714f8a6ce116d4','blackwell-1955':'11debc7ee3155b03ad7bed784b7e5de94b17895aa1d17b4e6727f3461fd9362c','joplin-2011':'68dca24097277ba2afb70a2430ed89cda500cd4e833c804347b2dee2e4ebe326','tuscaloosa-birmingham-2011':ACCEPTED_READING_DOSSIERS['tuscaloosa-birmingham-2011']}
+  current={}
+  for event,sha in prior.items():
+   current[event]=json.loads((ROOT/'web/archive'/(event+'-'+sha[:20]+'.json')).read_bytes())
+   self.assertEqual(digest(current[event]),sha)
   additions={
    'el-reno-2013':{'sources':[],'observations':['wakimoto-2016-early-extension'],'routes':[{'label':'Early partial view and its unresolved outline','href':'index.html#early-downward-extension'}]},
    'blackwell-1955':{'sources':['interior-blackwell-power-study-fy1955'],'observations':['interior-blackwell-electric-distribution-study'],'routes':[{'label':'Read the power-system damage study','href':'blackwell.html#power-system-assessment'}]},
