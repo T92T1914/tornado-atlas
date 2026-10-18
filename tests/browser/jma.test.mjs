@@ -162,12 +162,26 @@ test('retain an F and JEF case while browsing, with source bounds and provenance
    const evidence={node,details:[...node.querySelectorAll('details')],events:[],mutations:[]};
    window.__atlasComparisonReading??=new Map();
    window.__atlasComparisonReading.set(node.dataset.comparisonCase,evidence);
-   node.addEventListener('click',event=>{
+   evidence.clickListener=event=>{
     const summary=event.target.closest('summary');
     if(summary&&evidence.events.length<32)queueMicrotask(()=>evidence.events.push({
      label:summary.textContent,connected:summary.isConnected,
-     open:summary.parentElement?.open,cancelled:event.defaultPrevented}));
-   },{passive:true});
+     open:summary.parentElement?.open,cancelled:event.defaultPrevented,
+     phase:'Click-listener microtask may precede the native disclosure default action'}));
+   };
+   node.addEventListener('click',evidence.clickListener,{passive:true});
+   evidence.inputListener=event=>{
+    const activation=evidence.activation;if(!activation)return;
+    if(activation.inputs.length>=8){activation.omitted++;return;}
+    const identify=target=>target instanceof Element?{tag:target.tagName.slice(0,32),id:target.id.slice(0,96),text:target.textContent.slice(0,96)}:null;
+    const summary=activation.summary,r=summary.getBoundingClientRect(),hit=document.elementFromPoint(event.clientX,event.clientY);
+    activation.inputs.push({type:event.type,trusted:event.isTrusted,capture_default_prevented:event.defaultPrevented,
+     point:[event.clientX,event.clientY],target:identify(event.target),hit:identify(hit),
+     intended_hit:hit===summary||summary.contains(hit),intended_connected:summary.isConnected,
+     intended_bounds:[r.x,r.y,r.width,r.height],intended_rects:[...summary.getClientRects()].slice(0,4).map(r=>[r.x,r.y,r.width,r.height]),
+     document_ms:performance.now(),document_time_origin:performance.timeOrigin,scroll_y:scrollY});
+   };
+   for(const type of ['pointerdown','pointerup','click'])window.addEventListener(type,evidence.inputListener,{capture:true,passive:true});
    evidence.observer=new MutationObserver(records=>{
     for(const record of records)if(evidence.mutations.length<32)evidence.mutations.push({
      type:record.type,attribute:record.attributeName,tag:record.target.tagName,
@@ -175,12 +189,47 @@ test('retain an F and JEF case while browsing, with source bounds and provenance
      open:record.target.open??null});
    });
    evidence.observer.observe(node,{subtree:true,childList:true,attributes:true,attributeFilter:['open']});
+   evidence.cleanup=()=>{
+    node.removeEventListener('click',evidence.clickListener);
+    for(const type of ['pointerdown','pointerup','click'])window.removeEventListener(type,evidence.inputListener,true);
+    evidence.observer.disconnect();
+   };
   });
-  for(const summary of await card.locator('summary').all())await summary.click();
+  for(const summary of await card.locator('summary').all()){
+   await summary.evaluate((summary,id)=>{
+    const evidence=window.__atlasComparisonReading.get(id);
+    evidence.activation={summary,disclosure:summary.parentElement,label:summary.textContent.slice(0,160),inputs:[],omitted:0};
+   },record.id);
+   try{
+    await summary.click();
+    await page.waitForFunction(id=>{
+     const disclosure=window.__atlasComparisonReading?.get(id)?.activation?.disclosure;
+     return disclosure?.isConnected&&disclosure.open;
+    },record.id,{timeout:10000});
+   }catch(error){
+    let diagnosticTimer;
+    try{
+     const diagnostic=await Promise.race([card.evaluate((node,id)=>{
+      const evidence=window.__atlasComparisonReading?.get(id),activation=evidence?.activation,disclosure=activation?.disclosure;
+      const domText=disclosure?.textContent??'';
+      evidence?.cleanup();
+      return {record:id,label:activation?.label??null,connected:disclosure?.isConnected??false,open:disclosure?.open??null,
+       card_state:node.dataset.state,dom_text_presence:{scope:domText.includes('Shared-scope source cell:'),aggregation:domText.includes('Not aggregated.'),length:domText.length},
+       inputs:activation?.inputs??[],inputs_omitted:activation?.omitted??0,
+       limits:{input_rows:8,intended_client_rects:4,diagnostic_ms:500},
+       observation_limit:'Click-listener microtasks may precede native default actions. DOM text presence is diagnostic only, not visible-reading acceptance.',
+       cleanup:'Passive listeners and mutation observer removed. Any unavailable cleanup retires with the owned fixture context'};
+     },record.id),new Promise((_,reject)=>{diagnosticTimer=setTimeout(()=>reject(Error('Disclosure diagnostic exceeded 500 milliseconds')),500);})]);
+     t.diagnostic('JMA_DISCLOSURE_FAILURE '+JSON.stringify(diagnostic));
+    }catch(diagnosticError){t.diagnostic('JMA_DISCLOSURE_FAILURE '+JSON.stringify({record:record.id,diagnostic_error:String(diagnosticError.message).slice(0,256),cleanup:'Document listeners retire with the owned fixture context',original_failure_retained:true}));}
+    finally{clearTimeout(diagnosticTimer);}
+    throw error;
+   }
+  }
   const snapshot=await card.evaluate((node,id)=>{
    const evidence=window.__atlasComparisonReading?.get(id),details=[...node.querySelectorAll('details')];
    const text=node.innerText;
-   evidence?.observer.disconnect();
+   evidence?.cleanup();
    return {text,record:node.dataset.comparisonCase,state:node.dataset.state,connected:node.isConnected,
     sameCard:node===evidence?.node,sameDetails:details.length===evidence?.details.length&&
      details.every((detail,index)=>detail===evidence.details[index]),
