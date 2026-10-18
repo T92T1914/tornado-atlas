@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {setTimeout as delay} from 'node:timers/promises';
 import {fixture,base} from './harness.mjs';
 
 async function probe(page){
@@ -37,7 +38,7 @@ async function paused(page,kind){
  assert.equal(await page.locator(kind==='wind'?'#passage-play':'#motion').textContent(),kind==='wind'?'Play passage':'Play motion');
  if(kind==='wind')assert.equal(await page.locator('#component-play').textContent(),'Play passage');
 }
-test('Controlled 481-sample input burst retains live values and share link with bounded history replacements',async t=>{
+test('Controlled 481-sample input burst retains live values and share link with bounded history replacements',{timeout:30000},async t=>{
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.goto(base+'/wind.html?event=blackwell-1955');await ready(page);
  const measured=await burst(page,'passage-time',480);
@@ -50,7 +51,7 @@ test('Controlled 481-sample input burst retains live values and share link with 
  assert.ok(measured.writes<=Math.floor(measured.elapsed/250)+2,'Input writes coalesce by elapsed time rather than input count');
  t.diagnostic(JSON.stringify({scope:'controlled isolated input burst, not a physical device',inputs:481,measured,total_replacements:record.writes.length}));
 });
-test('Controlled Form input burst retains its final authored position without history flooding',async t=>{
+test('Controlled Form input burst retains its final authored position without history flooding',{timeout:30000},async t=>{
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.goto(base+'/study.html?event=el-reno-2013');await ready(page);
  await page.locator('#sequence-enabled').check();await page.locator('#sequence-coverage').selectOption('bounded');
@@ -61,7 +62,7 @@ test('Controlled Form input burst retains its final authored position without hi
  assert.equal(await page.evaluate(()=>window.labHistoryProbe.quotaHits),0);
  assert.ok(measured.writes<=Math.floor(measured.elapsed/250)+2);
 });
-test('Pending same-document Forward restores its own final sample and retired callbacks cannot overwrite Back',async t=>{
+test('Pending same-document Forward restores its own final sample and retired callbacks cannot overwrite Back',{timeout:30000},async t=>{
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.goto(base+'/wind.html?event=blackwell-1955');await ready(page);
  await input(page,'passage-time',10);await page.locator('#lab-share').click();
@@ -77,7 +78,7 @@ test('Pending same-document Forward restores its own final sample and retired ca
  assert.equal(await page.locator('#passage-sample-201').getAttribute('aria-current'),'true');await paused(page,'wind');
  const committed=page.url();await page.reload();await ready(page);assert.equal(page.url(),committed);assert.equal(await page.locator('#passage-time').inputValue(),'201');
 });
-test('Explicit share, reference and evidence boundaries commit paused Form state before navigation',async t=>{
+test('Explicit share, reference and evidence boundaries commit paused Form state before navigation',{timeout:30000},async t=>{
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.goto(base+'/study.html?event=el-reno-2013');await ready(page);await page.locator('#sequence-enabled').check();
  await page.evaluate(()=>{window.labHistoryProbe.hold=true;});
@@ -93,7 +94,7 @@ test('Explicit share, reference and evidence boundaries commit paused Form state
  await page.goBack();await ready(page);assert.equal(page.url(),exact);assert.equal(await page.locator('#sequence-time').inputValue(),'0.5');await paused(page,'form');
  const delayed=await staleCallbacks(page);assert.equal(delayed.after,delayed.before);
 });
-test('Immediate reload captures pending Wind assumptions before the replacement timer fires',async t=>{
+test('Immediate reload captures pending Wind assumptions before the replacement timer fires',{timeout:30000},async t=>{
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.goto(base+'/wind.html?event=tuscaloosa-birmingham-2011');await ready(page);
  await page.evaluate(()=>{window.labHistoryProbe.hold=true;for(const value of [349,350]){const node=document.getElementById('passage-time');node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));}});
@@ -103,8 +104,8 @@ test('Immediate reload captures pending Wind assumptions before the replacement 
  await page.reload();await ready(page);assert.equal(page.url(),exact);assert.equal(await page.locator('#passage-time').inputValue(),'350');assert.equal(await page.locator('#component-time').inputValue(),'350');await paused(page,'wind');
  assert.equal(await page.evaluate(()=>sessionStorage.getItem('atlasLabPendingV1:wind:'+location.pathname)),null,'Successful URL commit retires its owned transient record');
 });
-test('A controlled native history refusal is preserved without a swallowed error or automatic retry',async t=>{
- const owner=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'}),page=await owner.context().newPage();await probe(page);
+test('A controlled native history refusal is preserved without a swallowed error or automatic retry',{timeout:30000},async t=>{
+ const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto(base+'/wind.html?event=blackwell-1955');await ready(page);
  await page.evaluate(()=>{window.labHistoryProbe.hold=true;for(const value of [99,100]){const node=document.getElementById('passage-time');node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));}});
@@ -114,14 +115,15 @@ test('A controlled native history refusal is preserved without a swallowed error
  assert.ok(state.observed?.includes('Controlled history write refusal'));
  const after=await page.evaluate(()=>({attempts:window.labHistoryProbe.attempts,pending:window.labHistoryProbe.held.size,shared:new URL(document.getElementById('lab-share').href).searchParams.get('sample')}));
  assert.equal(after.pending,0);assert.equal(after.shared,'100');
- await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
- assert.equal(await page.evaluate(()=>window.labHistoryProbe.attempts),after.attempts,'No blind quota retry is scheduled');
+ await delay(350);
+ assert.equal(await page.evaluate(()=>window.labHistoryProbe.attempts),after.attempts,'No blind quota retry was attempted');
+ assert.equal(await page.evaluate(()=>window.labHistoryProbe.held.size),0,'No deferred quota retry was scheduled');
  assert.deepEqual(errors,[],'The controlled callback rejection is inspected directly, without masking an unrelated page error');
- await page.close();
+
 });
 
 for(const mode of ['foreign-entry','stale-base','wrong-kind','external-target','partial-target','malformed','oversized']){
- test('Pending reload record refuses '+mode+' without partial assumptions',async t=>{
+ test('Pending reload record refuses '+mode+' without partial assumptions',{timeout:30000},async t=>{
   const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
   await page.goto(base+'/wind.html?event=tuscaloosa-birmingham-2011');await ready(page);const original=page.url();
   await page.addInitScript(({mode})=>{
@@ -143,7 +145,7 @@ for(const mode of ['foreign-entry','stale-base','wrong-kind','external-target','
   if(mode!=='foreign-entry')assert.match(await page.locator('#lab-state').textContent(),/unavailable|not restored/);
  });
 }
-test('Unavailable pending storage remains visible while the exact experiment anchor can commit and reload',async t=>{
+test('Unavailable pending storage remains visible while the exact experiment anchor can commit and reload',{timeout:30000},async t=>{
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.addInitScript(()=>{
   const original=Storage.prototype.setItem;
