@@ -164,6 +164,8 @@ def regions(bundle):
                               + (link('Inspect the feature-tracking observation and limits', 'dossier.html?event=el-reno-2013&observation=wakimoto-2016-dust-feature-radar-comparison#observation-wakimoto-2016-dust-feature-radar-comparison') if row['id']=='tracked-feature-radar' else ''), class_='report-links') + (element('div', link(*media_route), class_='article-branch') if media_route else ''), id=row['id'])
         if row['id'] == 'early-downward-extension':
             report += element('p', link('Inspect the reported 23:05:10 instant and its limits', 'reconstruction.html?event=el-reno-2013&t=70&appearance_view=photo&appearance_photo=wakimoto-early-extension#replay-appearance') + ' · ' + link('Read the source observation', 'dossier.html?event=el-reno-2013&observation=wakimoto-2016-early-extension#observation-wakimoto-2016-early-extension'), class_='article-branch')
+        if row['id'] == 'lightning-reports-and-video':
+            report += element('p', link('Inspect the reported cases and their limits', 'dossier.html?event=el-reno-2013&observation=coy-calhoun-detection-versus-video#observation-coy-calhoun-detection-versus-video') + ' · ' + link('Read the source inspection record', 'dossier.html?event=el-reno-2013&source=coy-calhoun-lightning-video-2015#source-coy-calhoun-lightning-video-2015'), class_='article-branch')
     result['documentary-report'] = report
     observation = bundle['documentary']['reported_appearance']['observations'][0]
     result['early-condensation'] = (element('h3', 'An earlier photograph by William T. Reid')

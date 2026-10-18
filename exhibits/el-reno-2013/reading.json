@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "event": "el-reno-2013",
-  "updated": "2026-10-16",
+  "updated": "2026-10-18",
   "sources": [
     {
       "group": "Original photographs and accounts",
@@ -268,6 +268,13 @@
       "title": "Tracked dust/debris feature and radar comparison",
       "url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=24",
       "use": "Attributed Figures22and23method example, not a newly registered Atlas observation or permission to reproduce figures."
+    },
+    {
+      "group": "Scientific studies",
+      "publisher": "James J. Coy and Kristin M. Calhoun, 2015 OU REU final paper",
+      "title": "A Comparison of Lightning Flashes Observed by Ground-Based Detection Networks and Video",
+      "url": "https://caps.ou.edu/reu/reu15/finalpapers/Coy-finalpaper.pdf#page=6",
+      "use": "Reported detection and video-confirmation comparison. Selected original pages inspected. Underlying film and rows remain unacquired. No figures reproduced or Atlas clock correction derived."
     }
   ]
 }
