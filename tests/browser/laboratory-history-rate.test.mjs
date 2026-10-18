@@ -122,27 +122,59 @@ test('A controlled native history refusal is preserved without a swallowed error
 
 });
 
-for(const mode of ['foreign-entry','stale-base','wrong-kind','external-target','partial-target','malformed','oversized']){
- test('Pending reload record refuses '+mode+' without partial assumptions',{timeout:30000},async t=>{
+// These defaults are the independently stated Wind laboratory contract, not read from its generated state.
+const refusalDefaults={peak:'100',radius:'500',background:'0','probe-x':'1','probe-y':'0',area:'1',coefficient:'1.2',travel:'30',offset:'1',threshold:'50',capacity:'1'};
+const refusalCases=['foreign-entry','stale-base','wrong-kind','external-target','partial-target','malformed','oversized'].map(mode=>({mode,idle:false}));
+refusalCases.push({mode:'wrong-kind',idle:true});
+for(const {mode,idle} of refusalCases){
+ test('Pending reload record refuses '+mode+' without partial assumptions'+(idle?' after deliberate idle':''),{timeout:30000},async t=>{
   const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
   await page.goto(base+'/wind.html?event=tuscaloosa-birmingham-2011');await ready(page);const original=page.url();
+  const committed349=new URL(original);committed349.search=new URLSearchParams({experiment:'wind-1',event:'tuscaloosa-birmingham-2011',...refusalDefaults,sample:'349'}).toString();
+  const pending350=new URL(committed349);pending350.searchParams.set('sample','350');
   await page.addInitScript(({mode})=>{
-   const key='atlasLabPendingV1:wind:'+location.pathname,raw=sessionStorage.getItem(key);if(!raw)return;
-   const record=JSON.parse(raw);
+   const key='atlasLabPendingV1:wind:'+location.pathname,raw=sessionStorage.getItem(key);
+   window.labPendingMutation={mode,ran:false};if(!raw)return;
+   const record=JSON.parse(raw),before={...record};
    if(mode==='foreign-entry')record.entry='unrelated-history-entry';
    if(mode==='stale-base')record.base+='&unrelated=1';
    if(mode==='wrong-kind')record.kind='form';
    if(mode==='external-target')record.target='https://example.invalid/wind.html?experiment=wind-1';
    if(mode==='partial-target'){const target=new URL(record.target);target.searchParams.delete('capacity');record.target=target.href;}
-   sessionStorage.setItem(key,mode==='malformed'?'{':mode==='oversized'?' '.repeat(8193):JSON.stringify(record));
+   const after=mode==='malformed'?'{':mode==='oversized'?' '.repeat(8193):JSON.stringify(record);
+   sessionStorage.setItem(key,after);window.labPendingMutation={mode,ran:true,before,after};
   },{mode});
-  await page.evaluate(()=>{window.labHistoryProbe.hold=true;for(const value of [349,350]){const node=document.getElementById('passage-time');node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));}});
-  assert.equal(new URL(await page.locator('#lab-share').getAttribute('href')).searchParams.get('sample'),'350');
-  await page.reload();await ready(page);assert.equal(page.url(),original);
-  assert.equal(await page.locator('#passage-time').inputValue(),'0');assert.equal(await page.locator('#component-time').inputValue(),'0');
-  assert.equal(await page.locator('#capacity').inputValue(),'1');await paused(page,'wind');
-  assert.doesNotMatch(await page.locator('#lab-state').textContent(),/^Experiment restored/);
-  if(mode!=='foreign-entry')assert.match(await page.locator('#lab-state').textContent(),/unavailable|not restored/);
+  if(idle)await delay(350);
+  const before=await page.evaluate(()=>{
+   window.labHistoryProbe.hold=true;for(const value of [349,350]){const node=document.getElementById('passage-time');node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));}
+   return {url:location.href,pending:JSON.parse(sessionStorage.getItem('atlasLabPendingV1:wind:'+location.pathname)),held:window.labHistoryProbe.held.size,entry:history.state.atlasLabEntryV1+'|'+location.hash,share:document.getElementById('lab-share').href,sample:document.getElementById('passage-time').value,component:document.getElementById('component-time').value};
+  });
+  assert.ok(before.url===original||before.url===committed349.href,'Only the declared reference/default0 or complete default349 baseline is valid');
+  if(idle)assert.equal(before.url,committed349.href,'The deliberate idle exercises the legitimately committed349 branch');
+  const expectedSample=before.url===committed349.href?'349':'0';
+  assert.ok(before.held>0,'A real pending replacement must be withheld for this refusal control');
+  assert.deepEqual(before.pending,{version:1,kind:'wind',entry:before.entry,base:before.url,target:pending350.href});
+  assert.equal(before.share,pending350.href);assert.equal(before.sample,'350');assert.equal(before.component,'350');
+  await page.reload();await ready(page);
+  const mutation=await page.evaluate(()=>window.labPendingMutation);assert.equal(mutation?.ran,true,'Reload corruption actually ran');assert.equal(mutation.mode,mode);assert.deepEqual(mutation.before,before.pending);
+  const expectedCorruption={...before.pending};
+  if(mode==='foreign-entry')expectedCorruption.entry='unrelated-history-entry';
+  if(mode==='stale-base')expectedCorruption.base+='&unrelated=1';
+  if(mode==='wrong-kind')expectedCorruption.kind='form';
+  if(mode==='external-target')expectedCorruption.target='https://example.invalid/wind.html?experiment=wind-1';
+  if(mode==='partial-target'){const target=new URL(pending350);target.searchParams.delete('capacity');expectedCorruption.target=target.href;}
+  assert.equal(mutation.after,mode==='malformed'?'{':mode==='oversized'?' '.repeat(8193):JSON.stringify(expectedCorruption));
+  assert.equal(await page.evaluate(()=>sessionStorage.getItem('atlasLabPendingV1:wind:'+location.pathname)),mutation.after,'The corrupted record was stored and was not admitted or rewritten');
+  assert.equal(page.url(),before.url,'Refusing pending350 preserves the exact valid committed baseline');
+  assert.equal(await page.locator('#passage-time').inputValue(),expectedSample);assert.equal(await page.locator('#component-time').inputValue(),expectedSample);
+  for(const [id,value] of Object.entries(refusalDefaults))assert.equal(await page.locator('#'+id).inputValue(),value,'Refusal preserves the declared '+id+' assumption');
+  assert.equal(await page.locator('#lab-event').inputValue(),'tuscaloosa-birmingham-2011');
+  assert.equal(await page.locator('#sampled-values-body tr').count(),481);assert.equal(await page.locator('#passage-sample-'+expectedSample).getAttribute('aria-current'),'true');await paused(page,'wind');
+  const message=await page.locator('#lab-state').textContent();
+  assert.equal(await page.locator('#lab-state').getAttribute('data-state'),expectedSample==='349'?'restored':'reference');
+  assert.match(message,expectedSample==='349'?/^Experiment restored and paused/:/^Default experiment, paused/);
+  if(mode!=='foreign-entry')assert.match(message,/Pending reload changes were not restored|Automatic reload retention is unavailable/);
+  t.diagnostic(JSON.stringify({mode,deliberate_idle_ms:idle?350:0,committed_sample:expectedSample,pending_sample:350,held:before.held,corruption_ran:mutation.ran}));
  });
 }
 test('Unavailable pending storage remains visible while the exact experiment anchor can commit and reload',{timeout:30000},async t=>{
