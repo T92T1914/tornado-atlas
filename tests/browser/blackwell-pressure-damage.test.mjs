@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
+import {isDoubledFontReadback} from './css-font-readback.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {waitForSettledTouchTarget} from './touch-target-readiness.mjs';
 
@@ -158,12 +159,15 @@ for(const [width,height,appearance] of [[1280,900,'light'],[1280,900,'dark'],[39
       assert.equal(new URL(page.url()).hash,'#pressure-damage');
     }
     const sizes=await chapter.evaluate(chapter=>{
-      const nodes=[...chapter.querySelectorAll('h2,p')];
-      const before=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));
-      nodes.forEach((node,index)=>node.style.fontSize=before[index]*2+'px');
-      return nodes.map((node,index)=>[before[index],parseFloat(getComputedStyle(node).fontSize)]);
+      const rows=[...chapter.querySelectorAll('h2,p')].map(node=>{
+        const before=parseFloat(getComputedStyle(node).fontSize),requested=before*2;
+        return {node,before,requested,authored:requested+'px'};
+      });
+      for(const row of rows)row.node.style.fontSize=row.authored;
+      return rows.map(({node,before,requested,authored})=>({before,requested,authored,
+        inline:node.style.fontSize,actual:parseFloat(getComputedStyle(node).fontSize)}));
     });
-    for(const [before,after] of sizes)assert.equal(after,before*2);
+    for(const size of sizes)assert.equal(isDoubledFontReadback(size),true,JSON.stringify(size));
     await fits(page);
   });
 }

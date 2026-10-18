@@ -77,6 +77,12 @@ for(const task of tasks)test(task.file+': enlarged text, spacing and 320 CSSpx r
   await page.waitForURL(u=>u.hash==='#'+task.section);await reflow(page);
   await page.goto(base+'/'+task.file+'#'+task.lesson);await ready(page,task);
   await page.addStyleTag({content:'p{margin-bottom:2em!important}body *{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}'});
+  if(task.file==='tuscaloosa.html'){
+    const geometry=()=>page.locator('#survey-place').evaluate(node=>{const r=node.getBoundingClientRect();return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,select:{left:r.left,right:r.right,width:r.width,appearance:getComputedStyle(node).appearance,value:node.value}};});
+    const corrected=await geometry();await page.locator('#survey-place').evaluate(node=>{node.style.appearance='auto';node.style.webkitAppearance='auto';node.style.boxSizing='content-box';node.style.maxWidth='none';});
+    const previousNative=await geometry();await page.locator('#survey-place').evaluate(node=>{for(const name of ['appearance','-webkit-appearance','box-sizing','max-width'])node.style.removeProperty(name);});
+    console.log('SURVEY_SELECT_REFLOW '+JSON.stringify({corrected,previousNative}));
+  }
   await reflow(page);assert.match(await page.locator('#'+task.lesson).innerText(),task.qualifier);
 });
 for(const task of tasks)test(task.file+': native contents, account and original routes without script',async t=>{

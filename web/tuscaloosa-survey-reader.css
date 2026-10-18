@@ -1,7 +1,8 @@
 .survey-reader {border:1px solid var(--line);background:var(--panel);padding:18px;scroll-margin-top:20px}
 .survey-reader[hidden] {display:none}
 .survey-reader label {display:block;font-weight:600;margin-bottom:8px}
-.survey-reader select {width:100%;min-width:0;white-space:normal}
+.survey-reader select {box-sizing:border-box;width:100%;min-width:0;max-width:100%;white-space:normal;appearance:none;-webkit-appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--text) 50%),linear-gradient(135deg,var(--text) 50%,transparent 50%);background-position:calc(100% - 16px) center,calc(100% - 10px) center;background-size:6px 6px;background-repeat:no-repeat}
+@media(forced-colors:active){.survey-reader select{appearance:auto;-webkit-appearance:auto;background-image:none;padding-right:9px}}
 .survey-reader-actions {display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
 .survey-reader button {white-space:normal;min-height:44px}
 .survey-reader p {margin-bottom:0;overflow-wrap:anywhere}

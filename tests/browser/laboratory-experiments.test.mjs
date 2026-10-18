@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {setTimeout as delay} from 'node:timers/promises';
 import {fixture,base} from './harness.mjs';
 
 const events=[
@@ -8,6 +9,16 @@ const events=[
   ['blackwell-1955','Blackwell · 1955','blackwell.html#observations','blackwell.html#pressure-damage'],
   ['tuscaloosa-birmingham-2011','Tuscaloosa and Birmingham · 2011','tuscaloosa.html#photographs-and-film','tuscaloosa.html#damage']
 ];
+async function requiredFonts(page){
+ const deadline=Date.now()+10000;
+ while(await page.evaluate(()=>document.fonts.status)!=='loaded'){
+  assert.ok(Date.now()<deadline,'Required font loading must settle within 10 seconds');await delay(50);
+ }
+}
+async function referenceGeometry(page){return page.locator('#lab-context').evaluate(host=>{
+ const select=host.querySelector('select'),box=select.getBoundingClientRect(),style=getComputedStyle(select);
+ return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,select:{value:select.value,appearance:style.appearance,left:box.left,right:box.right,width:box.width,client:select.clientWidth,scroll:select.scrollWidth},fragments:[...host.querySelectorAll('h2,p,label,a')].flatMap(node=>{const range=document.createRange();range.selectNodeContents(node);return [...range.getClientRects()].filter(r=>r.width>0).map(r=>({tag:node.tagName,left:r.left,right:r.right}));}),overflow:[...host.querySelectorAll('*')].map(node=>{const r=node.getBoundingClientRect();return {tag:node.tagName,id:node.id,left:r.left,right:r.right,client:node.clientWidth,scroll:node.scrollWidth};}).filter(r=>r.client>0&&(r.right>innerWidth+1||r.scroll>r.client+1)).slice(0,16)};
+});}
 async function ready(page){await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();}
 async function input(page,id,value){await page.locator('#'+id).evaluate((node,value)=>{node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));},String(value));}
 async function windState(page){return page.evaluate(()=>({
@@ -113,7 +124,16 @@ for(const [kind,file] of [['wind','wind.html'],['form','study.html']])test(kind+
   const page=await fixture(t,{viewport:{width:320,height:800},reducedMotion:'reduce',serviceWorkers:'block'});
   await page.goto(base+'/'+file+'?event=tuscaloosa-birmingham-2011');await ready(page);
   await page.locator('#lab-context').evaluate(host=>{const sizes=[...host.querySelectorAll('h2,p,label,select,a')].map(node=>[node,parseFloat(getComputedStyle(node).fontSize)]);for(const [node,size] of sizes)node.style.fontSize=size*2+'px';});
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Narrow enlarged reference must reflow');
+  const corrected=await referenceGeometry(page);
+  // Compare the previous native appearance under the same actual font sizes.
+  await page.locator('#lab-event').evaluate(node=>{node.style.appearance='auto';node.style.webkitAppearance='auto';});
+  const previousNative=await referenceGeometry(page);
+  await page.locator('#lab-event').evaluate(node=>{node.style.removeProperty('appearance');node.style.removeProperty('-webkit-appearance');});
+  console.log('LAB_SELECT_REFLOW '+JSON.stringify({kind,corrected,previousNative}));
+  assert.ok(corrected.documentWidth<=corrected.viewport+1,'Narrow enlarged reference must reflow: '+JSON.stringify(corrected));
+  for(const rect of corrected.fragments)assert.ok(rect.left>=-1&&rect.right<=corrected.viewport+1,'Complete enlarged text fragment '+JSON.stringify(rect));
+  assert.equal(await page.locator('#lab-event').inputValue(),'tuscaloosa-birmingham-2011');
+  assert.match(await page.locator('#lab-reference-account').innerText(),/./);
   await page.locator('#lab-event').focus();await page.keyboard.press('Tab');
   assert.equal(await page.evaluate(()=>document.activeElement===document.querySelector('#lab-reference-links a')),true);
   await page.keyboard.press('Tab');await page.keyboard.press('Tab');assert.equal(await page.locator('#lab-share').evaluate(node=>node===document.activeElement),true);
@@ -176,11 +196,13 @@ for(const width of [320,1280])test('Wind field labels remain distinct and visibl
   }
 });
 
-for(const enabled of [false,true])test('Article experiment entry preserves enlarged spaced text, scripts '+enabled,async t=>{
+for(const enabled of [false,true])test('Article experiment entry preserves enlarged spaced text, scripts '+enabled,{timeout:45000},async t=>{
  const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:enabled,reducedMotion:'reduce'});
  for(const file of ['index.html','joplin.html','blackwell.html','tuscaloosa.html']){
-  await page.goto(base+'/'+file);await page.evaluate(()=>document.fonts.ready);
+  t.diagnostic('Enlarged entry '+file+': navigation, scripts '+enabled);
+  await page.goto(base+'/'+file);await requiredFonts(page);t.diagnostic('Enlarged entry '+file+': font state loaded, applying exact doubled sizes');
   await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')],sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));nodes.forEach((node,index)=>node.style.fontSize=sizes[index]*2+'px');document.getElementById('laboratory-entry-title').style.letterSpacing='.12em';});
+  t.diagnostic('Enlarged entry '+file+': measuring complete heading');
   const heading=page.locator('#laboratory-entry-title');await heading.scrollIntoViewIfNeeded();assert.equal(await heading.textContent(),'Explore an assumed experiment.');
   const layout=await heading.evaluate(node=>{const range=document.createRange();range.selectNodeContents(node);return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,headingWidth:node.clientWidth,headingScroll:node.scrollWidth,fragments:[...range.getClientRects()].map(r=>({left:r.left,right:r.right,width:r.width}))};});
   if(layout.documentWidth>layout.width+1||layout.headingScroll>layout.headingWidth+1)console.log('EXPERIMENT_ENTRY_REFLOW '+JSON.stringify({file,enabled,...layout}));

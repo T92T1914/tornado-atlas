@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
+import {isDoubledFontReadback} from './css-font-readback.mjs';
 import {tuscaloosaRequestForbidden} from './tuscaloosa-request-contract.mjs';
 
 for(const [width,appearance,fallback] of [[320,'dark'],[390,'dark'],[1280,'light'],[320,'light',true],[390,'light',true]]) {
@@ -27,21 +28,26 @@ for(const [width,appearance,fallback] of [[320,'dark'],[390,'dark'],[1280,'light
       await contents.locator(':scope > summary').focus();await page.keyboard.press('Enter');
     }
     assert.equal(await contents.evaluate(node=>node.open),true,'Native contents open before text enlargement');
-    const ratios=await page.evaluate(()=>{
+    const sizes=await page.evaluate(()=>{
       const paragraph=document.querySelector('.documentary-reading p');
-      const before=parseFloat(getComputedStyle(paragraph).fontSize);
-      const title=document.querySelector('.documentary-intro h1'),titleBefore=parseFloat(getComputedStyle(title).fontSize);
+      const title=document.querySelector('.documentary-intro h1');
       // Emulate doubled text, including fixed pixel rules. Changing only
       // body's font size would leave much of this article unchanged.
       const rows=[...document.querySelectorAll('main *')].filter(node=>
         [...node.childNodes].some(child=>child.nodeType===Node.TEXT_NODE&&child.textContent.trim()));
-      const baseline=rows.map(node=>({node,font:parseFloat(getComputedStyle(node).fontSize),
-        line:parseFloat(getComputedStyle(node).lineHeight)}));
-      for(const {node,font,line} of baseline){node.style.fontSize=font*2+'px';
+      const baseline=rows.map(node=>{
+        const before=parseFloat(getComputedStyle(node).fontSize),requested=before*2;
+        return {node,before,requested,authored:requested+'px',line:parseFloat(getComputedStyle(node).lineHeight)};
+      });
+      for(const {node,authored,line} of baseline){node.style.fontSize=authored;
         if(Number.isFinite(line))node.style.lineHeight=line*2+'px';}
-      return [parseFloat(getComputedStyle(paragraph).fontSize)/before,parseFloat(getComputedStyle(title).fontSize)/titleBefore];
+      return [paragraph,title].map(node=>{
+        const {before,requested,authored}=baseline.find(row=>row.node===node);
+        return {before,requested,authored,inline:node.style.fontSize,actual:parseFloat(getComputedStyle(node).fontSize)};
+      });
     });
-    assert.deepEqual(ratios,[2,2],'The actual article text and title are doubled');
+    for(const size of sizes)assert.equal(isDoubledFontReadback(size),true,
+      'The actual article text and title are doubled: '+JSON.stringify(size));
     const layout=await page.evaluate(()=>{
       const overflowing=[],walker=document.createTreeWalker(document.querySelector('main'),NodeFilter.SHOW_TEXT);
       while(walker.nextNode()){
@@ -94,20 +100,23 @@ for(const width of [320,390,1280]) {
   test(`Joplin shares the fact grid and headings at doubled text ${width}`,async t=>{
     const page=await fixture(t,{viewport:{width,height:844},isMobile:width<600,hasTouch:width<600});
     await page.goto(base+'/joplin.html');
-    const ratios=await page.evaluate(()=>{
-      const grid=document.querySelector('.documentary-facts');
-      const value=grid.querySelector('dd'),before=parseFloat(getComputedStyle(value).fontSize);
+    const sizes=await page.evaluate(()=>{
+      const grid=document.querySelector('.documentary-facts'),value=grid.querySelector('dd');
       const heading=document.querySelector('.documentary-reading h2');
-      const headingBefore=parseFloat(getComputedStyle(heading).fontSize);
-      const title=document.querySelector('.documentary-intro h1'),titleBefore=parseFloat(getComputedStyle(title).fontSize);
-      const baseline=[...grid.querySelectorAll('dt,dd,small'),...document.querySelectorAll('.documentary-intro h1,.documentary-reading h2,.documentary-reading h3')].map(node=>({node,
-        font:parseFloat(getComputedStyle(node).fontSize),line:parseFloat(getComputedStyle(node).lineHeight)}));
-      for(const {node,font,line} of baseline){node.style.fontSize=font*2+'px';
+      const title=document.querySelector('.documentary-intro h1');
+      const baseline=[...grid.querySelectorAll('dt,dd,small'),...document.querySelectorAll('.documentary-intro h1,.documentary-reading h2,.documentary-reading h3')].map(node=>{
+        const before=parseFloat(getComputedStyle(node).fontSize),requested=before*2;
+        return {node,before,requested,authored:requested+'px',line:parseFloat(getComputedStyle(node).lineHeight)};
+      });
+      for(const {node,authored,line} of baseline){node.style.fontSize=authored;
         if(Number.isFinite(line))node.style.lineHeight=line*2+'px';}
-      return [parseFloat(getComputedStyle(value).fontSize)/before,parseFloat(getComputedStyle(heading).fontSize)/headingBefore,
-        parseFloat(getComputedStyle(title).fontSize)/titleBefore];
+      return [value,heading,title].map(node=>{
+        const {before,requested,authored}=baseline.find(row=>row.node===node);
+        return {before,requested,authored,inline:node.style.fontSize,actual:parseFloat(getComputedStyle(node).fontSize)};
+      });
     });
-    assert.deepEqual(ratios,[2,2,2],'The shared fact values, headings and title are doubled');
+    for(const size of sizes)assert.equal(isDoubledFontReadback(size),true,
+      'The shared fact values, headings and title are doubled: '+JSON.stringify(size));
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
     assert.equal(await page.locator('.documentary-facts>div').count(),4);
     assert.match(await page.locator('.documentary-facts').textContent(),/EF5/);
