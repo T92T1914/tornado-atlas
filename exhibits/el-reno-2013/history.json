@@ -401,6 +401,22 @@
           "url": "https://caps.ou.edu/reu/reu15/finalpapers/Coy-finalpaper.pdf#page=6"
         }
       ]
+    },
+    {
+      "id": "lightning-figure-clock-labels",
+      "title": "One flash, two time labels",
+      "paragraphs": [
+        "A 2014 conference paper by Timothy Lang and colleagues, archived by NASA, gives a concrete example of how these records need to be read. Its Figure 7 labels a positive cloud-to-ground flash at 23:15:19 UTC on May 31, 2013. The radar background carries the shorter label 2315 UTC. The flash label has whole-second precision. The radar label leaves its seconds unknown, so subtracting the two does not establish a 19-second difference. The accuracy of the flash clock is also unknown here.",
+        "The paper reports 121 C km of impulse charge moment change for this event. Its methods describe this electrical quantity over the first two milliseconds of a return stroke. Those two milliseconds are an integration interval, not the flash’s complete duration or a measure of camera-clock accuracy. The value is not a peak-current reading or a scale for photographic brightness.",
+        "The figure combines lightning-network analysis with radar. Its labelled latitude and longitude define vertical cross-sections through the median location of the plotted OKLMA sources. They do not locate a camera or give Atlas an exact ground-strike coordinate.",
+        "Read the original Figure 7 beside these distinctions. Atlas has not identified an independent optical exposure of this particular event or recovered its underlying measurement rows. The reported flash is therefore a documentary reference, with no fitted camera offset, registered appearance or filled gap between photographs."
+      ],
+      "sources": [
+        {
+          "label": "Lang and colleagues: original Figure 7, PDF page 11",
+          "url": "https://ntrs.nasa.gov/api/citations/20140011687/downloads/20140011687.pdf#page=11"
+        }
+      ]
     }
   ]
 }
