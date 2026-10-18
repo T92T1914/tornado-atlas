@@ -149,6 +149,6 @@ header .brand {max-width:100%;white-space:normal;overflow-wrap:anywhere}
 }
 
 .museum-article .article-laboratory {max-width:1040px;margin-block:48px;padding:24px}
-.museum-article .article-laboratory h2 {font:400 clamp(26px,3vw,34px)/1.3 Georgia,serif;margin:0 0 16px}
+.museum-article .article-laboratory h2 {font:400 clamp(26px,3vw,34px)/1.3 Georgia,serif;overflow-wrap:anywhere;margin:0 0 16px}
 .museum-article .article-laboratory>p {max-width:70ch;font-size:17px;line-height:1.8}
 @media(max-width:600px){.museum-article .article-laboratory{padding:18px;margin-block:32px}}

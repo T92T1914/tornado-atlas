@@ -175,3 +175,17 @@ for(const width of [320,1280])test('Wind field labels remain distinct and visibl
     for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){const a=actual.labels[i],b=actual.labels[j];assert.ok(a.right<=b.left||b.right<=a.left||a.bottom<=b.top||b.bottom<=a.top,'Labels overprint: '+a.text+' / '+b.text);}
   }
 });
+
+for(const enabled of [false,true])test('Article experiment entry preserves enlarged spaced text, scripts '+enabled,async t=>{
+ const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:enabled,reducedMotion:'reduce'});
+ for(const file of ['index.html','joplin.html','blackwell.html','tuscaloosa.html']){
+  await page.goto(base+'/'+file);await page.evaluate(()=>document.fonts.ready);
+  await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')],sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));nodes.forEach((node,index)=>node.style.fontSize=sizes[index]*2+'px');document.getElementById('laboratory-entry-title').style.letterSpacing='.12em';});
+  const heading=page.locator('#laboratory-entry-title');await heading.scrollIntoViewIfNeeded();assert.equal(await heading.textContent(),'Explore an assumed experiment.');
+  const layout=await heading.evaluate(node=>{const range=document.createRange();range.selectNodeContents(node);return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,headingWidth:node.clientWidth,headingScroll:node.scrollWidth,fragments:[...range.getClientRects()].map(r=>({left:r.left,right:r.right,width:r.width}))};});
+  if(layout.documentWidth>layout.width+1||layout.headingScroll>layout.headingWidth+1)console.log('EXPERIMENT_ENTRY_REFLOW '+JSON.stringify({file,enabled,...layout}));
+  assert.ok(layout.documentWidth<=layout.width+1,file+' enlarged document');assert.ok(layout.headingScroll<=layout.headingWidth+1,file+' complete heading');
+  for(const fragment of layout.fragments)assert.ok(fragment.left>=-1&&fragment.right<=layout.width+1,file+' visible text fragment');
+  assert.equal(await page.locator('.article-laboratory a').count(),2);
+ }
+});
