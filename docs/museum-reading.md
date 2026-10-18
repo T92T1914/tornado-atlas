@@ -102,3 +102,9 @@ The curator's header opens the public museum in a separate tab with no referrer
 or opener access. Its private server serves the shared navigation stylesheet
 alongside the existing editor assets. It continues to refuse article files and
 private store paths. Curator API requests remain on its private loopback origin.
+
+## Shared article presentation
+
+The four documentary articles use the scoped `museum-article` treatment in `museum.css`. They share reading gutters, title and date hierarchy, caption and source-note scale, and native contents styling while retaining their existing document order and evidence. Media remains full-frame and may be wider than the body text. No image, credit, source link or unknown is removed to make the layouts match.
+
+A final optional experiment entry links each dossier to the Form Study and Wind Lab with that documentary reference selected. These links carry context only. The laboratories keep all model assumptions explicit and independent of the selected tornado. Generated El Reno reading regions and immutable archive/media objects remain under their existing authorities.

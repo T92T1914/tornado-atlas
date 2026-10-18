@@ -1,7 +1,9 @@
 # Wind and force laboratory
 
-This is a separate educational experiment at `web/wind.html`. It has no
-historical event ID and does not inherit El Reno's measurements or rating.
+This is a separate educational experiment at `web/wind.html`. A documentary
+reference can select one of the four dossiers, but it does not assign the
+model to that tornado or populate its assumptions from historical measurements
+or a damage rating.
 
 The horizontal flow uses a Rankine vortex. In SI units, its tangential speed
 is `Vmax * r / R` inside the core and `Vmax * R / r` outside. At the center,
@@ -135,3 +137,13 @@ strict capacity equality and the separation of model time from playback time.
 The actual passage consumer checks that selection and playback leave computed
 cells and row ownership intact. Browser journeys check reading, settings,
 reset, focus and the no-script or unavailable-module fallback separately.
+
+## Keep an experiment beside its source account
+
+Open the laboratory from any of the four dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate.
+
+The experiment link records all eleven controls and one shared sample index from 0 through 480. Reopening, reloading or using Back/Forward restores those settings paused. The field, passage graph, component state and sampled-values table are recomputed from that same state. Before an ordinary same-tab evidence visit, the displayed sample is captured in the experiment URL so native Back can recover it. Reset restores the documented model defaults while retaining the documentary reference.
+
+Changing a control replaces the current URL rather than adding a history entry for every slider step. Selecting a reference or explicitly saving the paused link creates a deliberate history entry. No playback state is serialized and no link starts animation.
+
+The bounded versioned contract refuses unknown references, repeated fields, incomplete snapshots and invalid numbers. A refused snapshot applies none of its values and explains that default controls are shown. With scripts unavailable, the fixed default table and ordinary documentary links remain readable; the URL does not alter that static table. These controls qualify reproducible software experiments, not historical wind or structural reconstruction.

@@ -2,10 +2,11 @@ import { PRESETS, advanceTime } from './vortex-model.mjs';
 import { formAt, boundedFormAt } from './evolution-model.mjs';
 import { PlaybackClock } from './playback-model.mjs';
 import { createFormRenderer } from './form-renderer.mjs';
+import {mountLabContext} from './lab-context.mjs';
 
 const byId = id => document.getElementById(id);
 const canvas = byId('scene');
-let renderer = null;
+let renderer = null, lab = null;
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let frame = 0, time = 0, last = null, running = false, inView = true;
 const sequenceClock=new PlaybackClock(30,1);
@@ -47,7 +48,7 @@ function draw(now) {
   if(evolving && running) {
     byId('sequence-time').value=Math.min(1,time/30);
     sequenceReadout();
-    if(time>=30) stop('Sequence complete');
+    if(time>=30){stop('Sequence complete');lab?.changed();}
   }
   last=now;
   const sequence=evolving?sequenceForm():null;
@@ -61,6 +62,7 @@ function draw(now) {
     elevation:Number(byId('elevation').value),
     distance:Number(byId('distance').value),
   });
+  lab?.preview();
   if(running) requestFrame();
 }
 function syncControls() {
@@ -69,15 +71,15 @@ function syncControls() {
     byId(id+'-value').textContent=(id==='distance'?Number(byId(id).value).toFixed(1):byId(id).value)+suffix;
   }
   byId('scene-form').textContent=byId('sequence-enabled').checked?(sequenceForm()?'AUTHORED FORM SEQUENCE':'GAP / NO ASSIGNED FORM'):PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
-  requestFrame();
+  requestFrame();lab?.changed();
 }
 for (const id of ['shape','condensation','azimuth','elevation','distance','dust']) byId(id).addEventListener('input',syncControls);
 byId('quality').addEventListener('change',() => {
   renderer?.setQuality(Number(byId('quality').value));
-  requestFrame();
+  requestFrame();lab?.changed();
 });
 byId('motion').addEventListener('click',() => {
-  if(running) {stop();return;}
+  if(running) {stop();lab?.changed();return;}
   if(byId('sequence-enabled').checked && time>=30) time=0;
   if(byId('sequence-enabled').checked){sequenceClock.seek(time);sequenceClock.play(performance.now());}
   running=true;last=null;byId('motion').textContent='Pause motion';status('Illustrative motion playing');requestFrame();
@@ -107,12 +109,12 @@ canvas.addEventListener('keydown',event => {
   const directions={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,3],ArrowDown:[0,-3]};
   if(directions[event.key]) {event.preventDefault();orbit(...directions[event.key]);}
 });
-document.addEventListener('visibilitychange',() => {if(document.hidden) stop('Paused while page hidden');else requestFrame();});
-motionPreference.addEventListener('change',event => {if(event.matches) stop('Paused · reduced motion preference');});
+document.addEventListener('visibilitychange',() => {if(document.hidden){const wasRunning=running;stop('Paused while page hidden');if(wasRunning)lab?.changed();}else requestFrame();});
+motionPreference.addEventListener('change',event => {if(event.matches){const wasRunning=running;stop('Paused · reduced motion preference');if(wasRunning)lab?.changed();}});
 new ResizeObserver(requestFrame).observe(canvas);
 new IntersectionObserver(entries => {
   inView=entries[0].isIntersecting && entries[0].intersectionRatio>=.4;
-  if(!inView) stop('Paused while most of the scene is out of view');else requestFrame();
+  if(!inView){const wasRunning=running;stop('Paused while most of the scene is out of view');if(wasRunning)lab?.changed();}else requestFrame();
 }, {threshold:[0,.4]}).observe(canvas);
 canvas.addEventListener('webglcontextlost',event => {event.preventDefault();fail('Graphics context lost; waiting for recovery');});
 canvas.addEventListener('webglcontextrestored',initialize);
@@ -126,9 +128,36 @@ byId('sequence-enabled').addEventListener('change',()=>{
   stop();time=Number(byId('sequence-time').value)*30;sequenceClock.seek(time);
   for(const id of ['shape','condensation']) byId(id).disabled=byId('sequence-enabled').checked;
   byId('sequence-time').disabled=!byId('sequence-enabled').checked;
-  syncControls();sequenceReadout();
+  syncControls();sequenceReadout();lab?.changed();
 });
-byId('sequence-time').addEventListener('input',()=>{const requested=Number(byId('sequence-time').value)*30;stop();time=requested;sequenceClock.seek(time);byId('sequence-time').value=time/30;sequenceReadout();requestFrame();});
-byId('sequence-coverage').addEventListener('change',()=>{stop();byId('sequence-coverage-note').textContent=byId('sequence-coverage').value==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';sequenceReadout();requestFrame();});
-byId('sequence-rate').addEventListener('change',()=>{sequenceClock.setRate(Number(byId('sequence-rate').value),performance.now());});
-sequenceReadout();syncControls();initialize();
+byId('sequence-time').addEventListener('input',()=>{const requested=Number(byId('sequence-time').value)*30;stop();time=requested;sequenceClock.seek(time);byId('sequence-time').value=time/30;sequenceReadout();requestFrame();lab?.changed();});
+byId('sequence-coverage').addEventListener('change',()=>{stop();byId('sequence-coverage-note').textContent=byId('sequence-coverage').value==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';sequenceReadout();requestFrame();lab?.changed();});
+byId('sequence-rate').addEventListener('change',()=>{sequenceClock.setRate(Number(byId('sequence-rate').value),performance.now());lab?.changed();});
+
+function experimentState(){
+  const position=Number(byId('sequence-time').value),sequence=byId('sequence-enabled').checked;
+  return {shape:byId('shape').value,condensation:Number(byId('condensation').value),azimuth:Number(byId('azimuth').value),elevation:Number(byId('elevation').value),distance:Number(byId('distance').value),dust:byId('dust').checked,quality:Number(byId('quality').value),sequence,coverage:byId('sequence-coverage').value,rate:Number(byId('sequence-rate').value),position,phase:sequence?position*30:time};
+}
+function captureExperiment(){
+  stop();
+  // The sequence control exposes thousandth steps. Save the selected step, not an unsupported exposure time.
+  if(byId('sequence-enabled').checked){
+    const position=Math.round(Number(byId('sequence-time').value)*1000)/1000;
+    byId('sequence-time').value=position;time=position*30;sequenceClock.seek(time);sequenceReadout();requestFrame();
+  }
+  return experimentState();
+}
+function restoreExperiment(state){
+  stop();
+  for(const key of ['shape','condensation','azimuth','elevation','distance','quality'])byId(key).value=state[key];
+  byId('dust').checked=state.dust;byId('sequence-enabled').checked=state.sequence;
+  byId('sequence-coverage').value=state.coverage;byId('sequence-rate').value=state.rate;byId('sequence-time').value=state.position;
+  time=state.phase;sequenceClock.seek(state.position*30);sequenceClock.setRate(state.rate);
+  for(const id of ['shape','condensation'])byId(id).disabled=state.sequence;
+  byId('sequence-time').disabled=!state.sequence;
+  byId('sequence-coverage-note').textContent=state.coverage==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';
+  renderer?.setQuality(state.quality);sequenceReadout();syncControls();
+}
+sequenceReadout();syncControls();
+lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment});
+initialize();

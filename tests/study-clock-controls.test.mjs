@@ -20,7 +20,7 @@ test('active study controls and scheduled frames use the same wall clock',async(
     if(name.toUpperCase()===name)return 1;
     return ()=>{};
   }});
-  globalThis.document={hidden:false,getElementById:id=>{if(!ids.has(id))ids.set(id,new Element(id));return ids.get(id);},addEventListener:()=>{}};
+  globalThis.document={hidden:false,getElementById:id=>{if(id==='lab-context')return null;if(!ids.has(id))ids.set(id,new Element(id));return ids.get(id);},addEventListener:()=>{}};
   globalThis.window={devicePixelRatio:1,matchMedia:()=>({matches:false,addEventListener:()=>{}})};
   globalThis.performance={now:()=>wall};
   globalThis.requestAnimationFrame=callback=>{const id=++next;frames.set(id,callback);return id;};

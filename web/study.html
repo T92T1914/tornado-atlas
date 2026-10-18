@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css">
   <script type="module" src="study.js"></script>
 <link rel="stylesheet" href="appearance.css"><script src="appearance.js"></script><link rel="stylesheet" href="museum.css">
+<link rel="stylesheet" href="laboratory.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to form study</a>
@@ -13,6 +14,18 @@
   <main id="main">
 <div class="reading-appearance appearance-bar"><label for="reading-appearance">Appearance</label><select id="reading-appearance" disabled><option value="dark">Obscur · Dark</option><option value="light">Clair · Light</option><option value="system" selected>Use system setting</option></select></div>
     <section class="study-intro"><div><div class="eyebrow">AN INTERACTIVE FORM STUDY</div><h1>Inside the shape.</h1></div><p>Turn the view. Change the form. Watch the cloud move. This is the first visual prototype for the museum, an illustration in three dimensions with no assigned storm, date or physical scale.</p></section>
+
+<section id="lab-context" class="lab-context" aria-labelledby="lab-context-title">
+  <h2 id="lab-context-title">Keep the evidence beside the experiment.</h2>
+  <p class="lab-boundary">A documentary reference changes the reading beside this model. It does not assign the storm’s shape, winds or damage to these settings. All model values remain your assumptions.</p>
+  <div id="lab-enhancement" hidden>
+    <div class="lab-context-grid"><div><label for="lab-event">Documentary reference</label><select id="lab-event"><option value="">No assigned storm</option></select></div><div><p id="lab-reference-account"></p><div id="lab-reference-links" class="lab-reference-links"></div></div></div>
+    <div class="lab-actions"><a id="lab-share" href="#lab-context">Link to this assumed experiment</a></div>
+    <p id="lab-state" role="status"></p>
+  </div>
+  <p id="lab-documentary-fallback"><a href="index.html">El Reno documentary</a> · <a href="joplin.html">Joplin documentary</a> · <a href="blackwell.html">Blackwell documentary</a> · <a href="tuscaloosa.html">Tuscaloosa and Birmingham documentary</a></p>
+  <noscript><p>Experiment links need JavaScript to restore settings. These documentary accounts remain readable. The wind table, where present, describes only its printed default assumptions.</p></noscript>
+</section>
     <div class="study-layout">
       <div class="scene-shell">
         <div class="scene-bar"><span>PROCEDURAL ILLUSTRATION</span><span id="scene-form">CONE FORM</span></div>

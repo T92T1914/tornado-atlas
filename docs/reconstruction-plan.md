@@ -391,3 +391,11 @@ current article, curated observation and player retain those limits together.
 Nolte's first unique correspondence, frozen +22 comparison and prior +85
 disposition are unchanged. This increment leaves the original continuous
 appearance and historical damage-reconstruction objective unfinished.
+
+## Documentary references and repeatable laboratory experiments
+
+The four dossiers now provide direct entries to the existing Form Study and Wind Lab with their documentary reference selected. The reference keeps a relevant account and source dossier beside visitor-chosen assumptions. Changing the reference does not derive a funnel, wind field, component capacity or failure sequence from the event.
+
+Versioned experiment links preserve the complete manual configuration and reopen paused. Native reload, history and source return can recover that experiment. Wind passage and component views retain one shared selected sample and the same numerical table. This improves comparison and reproducibility without creating another clock, renderer or physics model.
+
+El Reno's geographic replay and Joplin's warning chronology retain their separate coverage. Blackwell's unresolved clocks and Tuscaloosa's untimed survey outcomes are not converted into moving paths by the laboratory reference. The first bounded historical appearance reconstruction remains unfinished under the criteria above.
