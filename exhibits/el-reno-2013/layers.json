@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "el-reno-2013",
-  "dossier_sha256": "a1f75223cbe5f4d86d659e9f22b6b1bb10690789ebb8764e0fb1616ae1d80f99",
+  "dossier_sha256": "854b56dffaf8720e27beab95bf091450f3de80ba8d0f8f678ee21986b6fa410c",
   "survey": {
     "sha256": "8148ac4b2e4b837ce3d8b75997e0fd59921db04d4a19a9264a76eaaadb6550d1",
     "basis": "The existing source-checked NWS survey selection retains 336 outcomes inside or on the published outline. Its storm and survey dates do not establish individual impact times."
@@ -42,12 +42,13 @@
       ]
     },
     "gaps": {
-      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits. The field example keeps radar time, approximate passage and later aerial collection distinct. The roadside opening and creator’s later description remain external documentary context with unregistered timing and viewpoint.",
+      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits. The field example keeps radar time, approximate passage and later aerial collection distinct. The roadside opening and creator’s later description remain external documentary context with unregistered timing and viewpoint. The Figure 7 lightning event retains separate flash and radar clock precision, with no identified independent optical exposure or calibrated camera correspondence.",
       "observations": [
         "photogrammetry-figure-samples",
         "intake-wakimoto-aerial-envelope-2016",
         "intake-wakimoto-field-scouring-2312",
-        "conrady-later-description"
+        "conrady-later-description",
+        "ntrs-2014-reported-lightning-event"
       ],
       "media": [
         "ER13-HARK-PHOTO-604",

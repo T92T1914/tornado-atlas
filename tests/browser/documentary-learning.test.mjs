@@ -28,6 +28,8 @@ for(const width of [320,1280])test('controlled documentary motion and source jou
  if(process.env.ATLAS_LEARNING_CAPTURE){await mkdir(process.env.ATLAS_LEARNING_CAPTURE,{recursive:true});await region.screenshot({path:path.join(process.env.ATLAS_LEARNING_CAPTURE,'bohac-motion-'+width+'.png')});}
  await play.click();await page.waitForFunction(()=>document.querySelector('[data-documentary-clip]').currentTime>2.1);
  await video.evaluate(v=>{v.currentTime=3.7;});await page.waitForFunction(()=>document.querySelector('[data-documentary-clip]').ended);
+ // Native ended can become true before the queued ended handler updates the reader.
+ await page.waitForFunction(()=>{const clip=document.querySelector('[data-documentary-clip]');return clip.ended&&/Passage ended/.test(clip.closest('section').querySelector('[role=status]').textContent);});
  assert.match(await region.locator('[role=status]').textContent(),/Passage ended/);
  await play.click();await page.waitForFunction(()=>!document.querySelector('[data-documentary-clip]').paused);
  await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pagehide')));assert.equal(await video.evaluate(v=>v.paused),true,'Leaving retires playback');

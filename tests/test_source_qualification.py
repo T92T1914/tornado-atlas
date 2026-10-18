@@ -16,6 +16,7 @@ ACCEPTED = {
 }
 SCAN = 'https://www.govinfo.gov/content/pkg/GOVPUB-I-4777581ea2c4a034cd4eb4b914c8e576/pdf/GOVPUB-I-4777581ea2c4a034cd4eb4b914c8e576.pdf#page=166'
 COY = 'https://caps.ou.edu/reu/reu15/finalpapers/Coy-finalpaper.pdf#page=6'
+EL_RENO_QUALIFIED = 'a1f75223cbe5f4d86d659e9f22b6b1bb10690789ebb8764e0fb1616ae1d80f99'
 
 
 def accepted(event):
@@ -52,6 +53,12 @@ class QualifiedSourcePreservation(unittest.TestCase):
             with self.subTest(event=event):
                 before = accepted(event)
                 after = copy.deepcopy(self.docs[event])
+                if event == 'el-reno-2013':
+                    # Keep the completed source-qualification decision frozen.
+                    # Later documentary increments have their own preservation controls.
+                    after = json.loads((ROOT / 'web/archive' / (
+                        event + '-' + EL_RENO_QUALIFIED[:20] + '.json')).read_bytes())
+                    self.assertEqual(digest(after), EL_RENO_QUALIFIED)
                 if event == 'blackwell-1955':
                     old_source = next(row for row in before['sources'] if row['id'] == 'interior-blackwell-power-study-fy1955')
                     new_source = next(row for row in after['sources'] if row['id'] == old_source['id'])

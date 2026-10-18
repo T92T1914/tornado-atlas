@@ -1,7 +1,88 @@
 import {createHash} from 'node:crypto';
 
+// Start before the first document so Back restoration and non-anchor inputs
+// remain observable. These listeners neither perform input nor await readiness.
+export async function beginBohacSourceDiagnostics(page,t){
+ const rows=[],inputs=new Map();let omitted=0,stopped=false,setupError=null;
+ const prefix='ATLAS_DOSSIER_NATIVE ';
+ const message=message=>{
+  if(stopped||!message.text().startsWith(prefix))return;
+  const text=message.text().slice(prefix.length);if(text.length>6144){omitted++;return;}
+  try{
+   const row=JSON.parse(text);
+   if(!row||!['input','after_dispatch','lifecycle','geometry'].includes(row.kind)||!Number.isInteger(row.sequence)||row.sequence<0
+    ||!Number.isFinite(row.document_time_origin)||!Number.isFinite(row.document_ms)||typeof row.route!=='string'||row.route.length>256
+    ||!Number.isFinite(row.scroll_y)||(row.exhibit_ready!==null&&(typeof row.exhibit_ready!=='string'||row.exhibit_ready.length>256)))throw Error('Unexpected native diagnostic shape');
+   const key=row.document_time_origin+':'+row.sequence;
+   if(row.kind==='after_dispatch'){
+    const input=inputs.get(key);if(input)input.post_dispatch={...row,status:'observed'};else omitted++;
+    return;
+   }
+   if(rows.length>=64){const [old]=rows.splice(32,1);if(old.kind==='input')inputs.delete(old.document_time_origin+':'+old.sequence);omitted++;}
+   if(row.kind==='input'){row.post_dispatch={status:'unobserved'};inputs.set(key,row);}
+   rows.push(row);
+  }catch{omitted++;}
+ };
+ const dispose=()=>{if(stopped)return;stopped=true;page.off('console',message);page.off('close',dispose);};
+ page.on('console',message);page.once('close',dispose);t.after(dispose);
+ try{await page.addInitScript(()=>{
+  const prefix='ATLAS_DOSSIER_NATIVE ',small=value=>String(value??'').slice(0,256);
+  const identify=node=>node instanceof Element?{tag:node.tagName.slice(0,32),id:node.id.slice(0,96)}:null;
+  const state=()=>({document_time_origin:performance.timeOrigin,document_ms:performance.now(),
+   route:small(location.pathname+location.search+location.hash),scroll_y:scrollY,
+   ready_state:document.readyState,exhibit_ready:document.body?.dataset.exhibitReady?.slice(0,256)??null});
+  let sequence=0,inputLifecycleRows=0,geometryRows=0,lastReady=null;
+  const emit=row=>console.debug(prefix+JSON.stringify(row));
+  const lifecycle=(type,event=null)=>{
+   if(inputLifecycleRows>=16)return;inputLifecycleRows++;
+   emit({kind:'lifecycle',sequence:sequence++,type,trusted:event?.isTrusted??null,
+    persisted:typeof event?.persisted==='boolean'?event.persisted:null,...state()});
+  };
+  const geometry=(type,inputSequence,x=null,y=null)=>{
+   if(geometryRows>=8)return;geometryRows++;
+   const intended=document.querySelector('#bohac-film-reading .source-record-link'),r=intended?.getBoundingClientRect();
+   const hit=Number.isFinite(x)&&Number.isFinite(y)?document.elementFromPoint(x,y):null;
+   const center=r?document.elementFromPoint(r.x+r.width/2,r.y+r.height/2):null;
+   emit({kind:'geometry',sequence:sequence++,type,input_sequence:inputSequence,
+    intended_href:intended?.getAttribute('href')?.slice(0,256)??null,
+    intended_rects:intended?[...intended.getClientRects()].slice(0,4).map(r=>[r.x,r.y,r.width,r.height]):[],
+    intended_bounds:r?[r.x,r.y,r.width,r.height]:null,
+    point:[x,y],hit:identify(hit),hit_is_intended:Boolean(intended&&(hit===intended||intended.contains(hit))),
+    center_hit:identify(center),center_is_intended:Boolean(intended&&(center===intended||intended.contains(center))),...state()});
+  };
+  const input=event=>{
+   if(inputLifecycleRows>=16)return;inputLifecycleRows++;
+   const id=sequence++,target=event.target instanceof Element?event.target:null,anchor=target?.closest('a');
+   emit({kind:'input',sequence:id,type:event.type,trusted:event.isTrusted,
+    point:[event.clientX,event.clientY],target:identify(target),anchor_href:anchor?.getAttribute('href')?.slice(0,256)??null,
+    capture_default_prevented:event.defaultPrevented,...state()});
+   geometry(event.type,id,event.clientX,event.clientY);
+   // A separate task reads cancellation after propagation. Navigation may
+   // retire it first, leaving the capture row's after-state unobserved.
+   setTimeout(()=>emit({kind:'after_dispatch',sequence:id,type:event.type,
+    default_prevented:event.defaultPrevented,...state()}),0);
+  };
+  for(const type of ['pointerdown','pointerup','click'])window.addEventListener(type,input,{capture:true,passive:true});
+  for(const type of ['pageshow','pagehide','hashchange','popstate'])window.addEventListener(type,event=>lifecycle(type,event),{capture:true,passive:true});
+  document.addEventListener('DOMContentLoaded',event=>lifecycle(event.type,event),{capture:true,passive:true,once:true});
+  const ready=new MutationObserver(()=>{
+   const value=document.body?.dataset.exhibitReady??null;
+   if(value!==lastReady){lastReady=value;lifecycle('exhibit_ready_transition');}
+   if(inputLifecycleRows>=16)ready.disconnect();
+  });
+  const body=new MutationObserver(()=>{if(document.body){body.disconnect();ready.observe(document.body,{attributes:true,attributeFilter:['data-exhibit-ready']});}});
+  if(document.body)ready.observe(document.body,{attributes:true,attributeFilter:['data-exhibit-ready']});
+  else body.observe(document,{childList:true,subtree:true});
+  lifecycle('observer_initialized');
+ });}catch(error){setupError=String(error.message).slice(0,256);}
+ return {dispose,snapshot:()=>({rows:JSON.parse(JSON.stringify(rows)),omitted,setup_error:setupError,
+  limits:{node_history_rows:64,document_input_lifecycle_rows:16,document_geometry_rows:8,intended_client_rects:4,payload_characters:6144},
+  cleanup:'Node listeners retire on fixture page closure; passive document listeners and diagnostic tasks retire with the owned context',
+  unobserved:'An absent after-state or scroll record does not establish that cancellation or scrolling did not occur'})};
+}
+
 // Observe the original native hop without changing its click or wait deadline.
-export async function inspectDossierHop(page,journey,{eventId='el-reno-2013',elementId='media-bohac-opening-film-still',expectedHref=null}={}){
+export async function inspectDossierHop(page,journey,{eventId='el-reno-2013',elementId='media-bohac-opening-film-still',expectedHref=null,navigationObserver=null}={}){
  if(!['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011'].includes(eventId)||!/^[-a-z0-9]+$/.test(elementId))throw Error('Unknown owned diagnostic target');
  const archivePath=new RegExp('^/archive/(index\\.json|'+eventId+'-(?:history-)?[a-f0-9]+\\.json)$');
  const resources=[],events=[],tasks=new Set(),states=new WeakMap(),diagnosticErrors=[];
@@ -44,7 +125,7 @@ export async function inspectDossierHop(page,journey,{eventId='el-reno-2013',ele
  }finally{
   stopped=true;page.off('request',request);page.off('requestfailed',failed);page.off('requestfinished',finished);page.off('response',response);page.off('framenavigated',navigation);page.off('console',message);
  }
- const diagnostic={expected:{event:eventId,element_id:elementId,route:expectedHref?route(expectedHref):null},original_error:original?{name:original.name,message:small(original.message)}:null,journey_ended_ms:journeyEndedMs,resources_at_journey_end:resourcesAtJourneyEnd,resources_after_diagnostic_settle:resources,events,omitted,pending_body_reads:tasks.size,dom,diagnostic_finished_ms:elapsed(),diagnostic_errors:diagnosticErrors,
+ const diagnostic={expected:{event:eventId,element_id:elementId,route:expectedHref?route(expectedHref):null},original_error:original?{name:original.name,message:small(original.message)}:null,journey_ended_ms:journeyEndedMs,resources_at_journey_end:resourcesAtJourneyEnd,resources_after_diagnostic_settle:resources,events,native_history:navigationObserver?.snapshot()??null,omitted,pending_body_reads:tasks.size,dom,diagnostic_finished_ms:elapsed(),diagnostic_errors:diagnosticErrors,
   limits:{resource_rows:8,event_rows:12,body_hash_bytes:262144,diagnostic_operation_ms:500},body_limit_kind:'post-buffer diagnostic hash bound',cleanup:'Node listeners removed; document observer and pending reads retire with the owned fixture context'};
  console.log('ATLAS_DOSSIER_HOP '+JSON.stringify(diagnostic));
  if(original){
