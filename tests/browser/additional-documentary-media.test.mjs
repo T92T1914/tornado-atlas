@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
-import {inspectDossierHop} from './dossier-navigation-diagnostics.mjs';
+import {beginBohacSourceDiagnostics,inspectDossierHop} from './dossier-navigation-diagnostics.mjs';
 const still='assets/el-reno-2013/bohac-opening-film-still.png';
 const archive='https://commons.wikimedia.org/wiki/File:May_31_El_Reno_EF5_Extended_Version_filmed_up_close_in_the_TVN_Dominator_1.ogv';
 for(const width of [320,1280])test('derived film still, parent source and additional creator player '+width,async t=>{
  const page=await fixture(t,{viewport:{width,height:900}}),providers=[];
+ const navigationObserver=await beginBohacSourceDiagnostics(page,t);
  page.on('request',r=>{if(/youtube|googlevideo|ytimg/.test(r.url()))providers.push(r.url());});
  await page.goto(base+'/index.html?t=0#photos');
  const region=page.locator('#bohac-film-reading'),img=region.locator('img');
@@ -42,7 +43,7 @@ for(const width of [320,1280])test('derived film still, parent source and additi
  await inspectDossierHop(page,async()=>{
   await region.getByRole('link',{name:'Inspect this still, its parent film and reuse record'}).click();
   await card.waitFor();
- });
+ },{navigationObserver});
  assert.equal(await card.locator(':scope > .eyebrow').textContent(),'Film still');
  assert.match(await card.textContent(),/not a separately taken photograph/);
  assert.match(await card.textContent(),/bohac-archived-extended-film/);
