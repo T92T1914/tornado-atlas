@@ -4,6 +4,7 @@ import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
+import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
 // Expected passages and qualifications come from the preserved historical accounts.
 const tasks=[
@@ -20,7 +21,7 @@ async function ready(page,task){
   if(task.file==='index.html')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
   else await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');
 }
-async function reflow(page){assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Article has no horizontal document overflow');}
+async function reflow(page){await assertReadingReflow(page,'Article');}
 async function contents(page,task){
   const summary=page.locator('#article-contents');
   if(!await summary.evaluate(n=>n.parentElement.open))await summary.click();

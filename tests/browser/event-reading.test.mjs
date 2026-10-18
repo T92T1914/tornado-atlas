@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
+import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
 const tasks=[
   {file:'joplin.html',first:'#warning-context',source:'#source-nws-assessment',media:'#visibility',wording:/first siren/i},
@@ -20,7 +21,7 @@ test('unenhanced entry pages name the actual system appearance and keep the swit
     }
   }
 });
-for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: purposeful reading route, scripts ${enabled}`,async t=>{
+for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: purposeful reading route, scripts ${enabled}`,{timeout:60000},async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:enabled});
   await page.goto(base+'/'+task.file);
   await page.locator('.reading-options > summary').click();
@@ -69,6 +70,26 @@ for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: pu
   }
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
   if(process.env.ATLAS_EVENT_READING_CAPTURE){await mkdir(process.env.ATLAS_EVENT_READING_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_EVENT_READING_CAPTURE,task.file.replace('.html',`-320-${enabled?'enhanced':'nojs'}-enlarged.png`))});}
+  if(task.file==='tuscaloosa.html'){
+    // Test spacing on a fresh document, separately from the doubled-text phase.
+    let phase='comparison navigation';
+    try{
+      await page.goto(base+'/tuscaloosa.html#survey-worked-comparison');
+      // A fragment goto can retain the prior document and its inline doubled sizes.
+      phase='fresh comparison document';await page.reload();
+      if(enabled){phase='enhanced contents readiness';await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');}
+      phase='spacing style insertion';
+      // Insert synchronously: addStyleTag awaits a style load callback, including when scripts are disabled.
+      const rules=await page.evaluate(content=>{const style=document.createElement('style');style.textContent=content;document.head.appendChild(style);return style.sheet.cssRules.length;},
+        'p{margin-bottom:2em!important}body *{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}');
+      assert.equal(rules,2,'Both spacing rules are present without enabling page scripts');
+      phase='spacing reflow assertion';await assertReadingReflow(page,'Tuscaloosa spaced reading, scripts '+enabled);
+      phase='worked comparison qualification';assert.match(await page.locator('#survey-worked-comparison').innerText(),/EF3 and EF4/);
+    }catch(error){
+      console.log('EVENT_SPACING_FAILURE '+JSON.stringify({file:task.file,scripts:enabled,phase,error_name:error.name,error_message:String(error.message).slice(0,256)}));
+      throw error;
+    }
+  }
 });
 
 test('three event entrances keep the full account and media reachable on a wide light page',async t=>{
