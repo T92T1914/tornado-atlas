@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,withNavigationDiagnostics} from './harness.mjs';
 const timeline=JSON.parse(await readFile(new URL('../../exhibits/el-reno-2013/appearance-timeline.json',import.meta.url)));
 const samples=timeline.photo_sequences[0].samples;
 const names=['231037','231059','231202'];
@@ -29,14 +29,19 @@ async function capture(page,name,locator){
 for(const width of [320,1280])test('Nolte full documentary story, checked images, item source and player '+width,async t=>{
  const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
  const external=[];page.on('request',r=>{if(/nnwx.us|youtube.com/.test(r.url()))external.push(r.url());});
+ await withNavigationDiagnostics(page,'nolte_article_initial',async mark=>{
+ mark('nolte_article_initial',base+'/index.html#nolte-documentary-photographs');
  await page.goto(base+'/index.html#nolte-documentary-photographs');
+ mark('nolte_article_viewer_ready');
  await page.waitForFunction(()=>Boolean(document.querySelector('#photo-retry')));
  const group=page.locator('#nolte-documentary-photographs');assert.equal(await group.locator('[data-documentary-photo]').count(),3);
  for(let index=0;index<3;index++){
   const card=page.locator('#documentary-nolte-'+names[index]),opener=card.locator('[data-documentary-photo]');
+  mark('nolte_viewer_open_'+names[index]);
   await opener.focus();await page.keyboard.press('Enter');await shown(page,index);
   await capture(page,'nolte-dialog-'+names[index]+'-'+width,page.locator('#photo-full'));
   if(index===1)await capture(page,'nolte-dialog-context-'+width);
+  mark('nolte_viewer_close_'+names[index]);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
   assert.equal(await page.locator('#photo-full').getAttribute('src'),null);
   assert.equal(await opener.evaluate(a=>document.activeElement===a),true);
@@ -46,14 +51,23 @@ for(const width of [320,1280])test('Nolte full documentary story, checked images
  assert.deepEqual(external,[],'No automatic creator or movie acquisition');
  await capture(page,'nolte-story-'+width,page.locator('#documentary-nolte-231037 img'));
  await page.locator('#nolte-documentary-photographs h3').scrollIntoViewIfNeeded();await capture(page,'nolte-story-context-'+width);
+ const articleURL=page.url();
  const link=page.locator('#documentary-nolte-231059 a').filter({hasText:'Source and item permission'});
- const destination=await link.getAttribute('href');await Promise.all([page.waitForURL(base+'/'+destination),link.click()]);
+ const destination=await link.getAttribute('href');mark('nolte_item_source',base+'/'+destination);
+ await Promise.all([page.waitForURL(base+'/'+destination),link.click()]);
  const source=page.locator('#media-nolte-231059-full-documentary');await source.waitFor();
  assert.match(await source.textContent(),/Hosting basis recorded|permitted hosting|permitted_hosting/);
  assert.match(await source.textContent(),/21:02|1262/);assert.equal(await source.locator('a').filter({hasText:'Open original media at its source'}).getAttribute('href'),samples[1].hosted_image.original_url);
- await page.goBack();await group.waitFor();
+ mark('nolte_article_back',articleURL);
+ await page.goBack();await group.waitFor();await page.waitForURL(articleURL);
+ mark('nolte_returned_article_ready',articleURL);
+ await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
  const play=page.locator('#documentary-nolte-231059 a').filter({hasText:'Read this reported instant'});
- await Promise.all([page.waitForURL(/reconstruction.html/),play.click()]);await ready(page);
+ mark('nolte_player_input',player(419));
+ assert.equal(new URL(await play.getAttribute('href'),base+'/').href,player(419));
+ await Promise.all([page.waitForURL(/reconstruction.html/),play.click()]);
+ mark('nolte_player_ready',player(419));await ready(page);
+ mark('nolte_player_assertions',player(419));
  assert.equal(await page.locator('#replay-time').inputValue(),'419');assert.equal(await page.locator('#replay-photo-creator-guide').getAttribute('href'),'https://www.youtube.com/watch?v=jsBDFA6_81M&t=1262s');
  const full=page.locator('#replay-photo-full');await full.focus();await page.keyboard.press('Enter');await shown(page,1);
  assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
@@ -63,6 +77,7 @@ for(const width of [320,1280])test('Nolte full documentary story, checked images
  assert.match(await page.locator('#replay-photo-record').textContent(),/No photograph is loaded or copied/);
  assert.equal(await page.locator('#replay-appearance img,#replay-appearance iframe').count(),0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+ });
 });
 test('Nolte no-script full frame reading retains all marks and native original links',async t=>{
  const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900}});
