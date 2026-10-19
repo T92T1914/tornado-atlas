@@ -36,10 +36,21 @@ class ArchiveHistoryTests(unittest.TestCase):
             for key in ('file', 'dossier_sha256', 'file_sha256'):
                 self.assertEqual(history['versions'][0][key], entry[key])
             if entry['id'] == 'moore-2013':
-                self.assertEqual(len(history['versions']), 1, 'Moore starts with its initial retained publication')
-                self.assertIsNone(history['versions'][0]['review'])
-                self.assertFalse(history['versions'][0]['predecessor_available'])
-                self.assertIsNone(history['versions'][0]['changes'])
+                initial_id = 'f7af137da6b5a06f0f8ef1bcaf677f43991afd1988a275fdca485cbf2e0b21e3'
+                initial = next(v for v in history['versions'] if v['dossier_sha256'] == initial_id)
+                self.assertIsNone(initial['review'])
+                self.assertFalse(initial['predecessor_available'])
+                self.assertIsNone(initial['changes'])
+                school = next(v for v in history['versions'] if v['dossier_sha256'] ==
+                              'b871ef828cd8a1c475bc73722264a178d63deb9266d9ecb4d699eb5c636c9b7c')
+                self.assertEqual(school['review']['previous_dossier_sha256'], initial_id)
+                self.assertTrue(school['predecessor_available'])
+                self.assertEqual(school['changes'], [
+                    {'kind': 'sources', 'id': 'nist-sp1164', 'change': 'updated', 'fields': ['locator']},
+                    {'kind': 'observations', 'id': 'briarwood-400-refuge-envelope', 'change': 'added', 'fields': []},
+                    {'kind': 'observations', 'id': 'plaza-reported-refuge-change', 'change': 'added', 'fields': []},
+                    {'kind': 'observations', 'id': 'plaza-roof-wall-performance', 'change': 'added', 'fields': []},
+                    {'kind': 'dossier', 'id': 'moore-2013', 'change': 'updated', 'fields': ['routes']}])
             if entry['id'] == 'el-reno-2013':
                 current = next(version for version in history['versions']
                                if version['dossier_sha256'] ==
