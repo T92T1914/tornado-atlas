@@ -148,7 +148,8 @@ function navigationRoute(value){
 // Inputs, history, clock state and the original assertion deadlines stay intact.
 export async function withNavigationDiagnostics(page,phase,journey){
   const critical=new Set(['/app.js','/reconstruction.html','/reconstruction.js','/event-package-model.mjs',
-    '/playback-model.mjs','/footage-view.mjs','/data.json','/events.json','/events/el-reno-2013.json']);
+    '/playback-model.mjs','/footage-view.mjs','/data.json','/events.json','/events/el-reno-2013.json',
+    '/documentary-media.mjs','/assets/el-reno-2013/bohac-opening-source-relative.mp4','/assets/el-reno-2013/bohac-opening-source-relative.webm']);
   const observer=observeOpenResources(page,critical),events=[];
   let omitted=0,expectedRoute=null;
   const mark=(stage,destination=null)=>{phase=String(stage).slice(0,96);if(destination)expectedRoute=navigationRoute(new URL(destination,page.url()).href);};
@@ -212,7 +213,16 @@ export async function withNavigationDiagnostics(page,phase,journey){
         const read=id=>{const node=document.getElementById(id);if(!node)return {present:false};const style=getComputedStyle(node),rect=node.getBoundingClientRect();
           return {present:true,hidden:node.hidden,visible:!node.hidden&&style.display!=='none'&&style.visibility!=='hidden'&&node.getClientRects().length>0,
             disabled:node.disabled??null,value:node.value?.slice(0,256)??null,open:node.open??null,text:node.textContent.slice(0,256),rect:[rect.x,rect.y,rect.width,rect.height]};};
+        const clip=document.querySelector('[data-documentary-clip]'),clipRegion=clip?.closest('section');
         return {captured_at_ms:performance.now(),document_ready_state:document.readyState,document_time_origin:performance.timeOrigin,history_length:history.length,
+          visibility_state:document.visibilityState,document_hidden:document.hidden,
+          documentary_clip:clip?{current_source:clip.currentSrc?new URL(clip.currentSrc,location.href).pathname.slice(0,256):'',
+            current_time:clip.currentTime,duration:Number.isFinite(clip.duration)?clip.duration:null,paused:clip.paused,ended:clip.ended,
+            ready_state:clip.readyState,network_state:clip.networkState,video_width:clip.videoWidth,video_height:clip.videoHeight,
+            error:clip.error?{code:clip.error.code,message:String(clip.error.message).slice(0,256)}:null,
+            action:clipRegion?.querySelector('[data-clip-action]')?.textContent.slice(0,256)??null,
+            status:clipRegion?.querySelector('[data-clip-status]')?.textContent.slice(0,256)??null,
+            sources:[...clip.querySelectorAll('source')].slice(0,2).map(source=>({path:source.getAttribute('src')?.slice(0,256)??null,type:source.getAttribute('type')?.slice(0,64)??null}))}:null,
           path:location.pathname.slice(0,256),t:new URL(location.href).searchParams.get('t')?.slice(0,256)??null,title:document.title.slice(0,256),
           exhibit_ready:document.body?.dataset.exhibitReady??null,
           replay_content:read('replay-content'),replay_time:read('replay-time'),replay_event:read('replay-event'),replay_error:read('replay-error'),timeline:read('timeline'),

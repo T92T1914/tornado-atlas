@@ -267,13 +267,16 @@ test('Udall evidence failure keeps its current chapter and retries the same sour
   let failed=0;
   await page.route('**/archive/index.json',route=>{failed++;return route.abort();});
   await citation.focus();await citation.press('Enter');
-  await page.waitForFunction(()=>document.body.dataset.ready==='error');
+  await page.waitForFunction(()=>document.body?.dataset.ready==='error');
   assert.ok(failed>=1);
   assert.equal(await page.getByRole('heading',{name:'Evidence unavailable',exact:true}).count(),1);
   const retry=page.getByRole('link',{name:'Retry this view',exact:true});assert.equal(await retry.count(),1);
   const fallback=page.locator('#documentary-chapters a[href="udall.html"]');assert.equal(await fallback.count(),1);
   await fallback.focus();await fallback.press('Enter');await page.waitForURL('**/udall.html');
   await page.goBack();await page.waitForURL(href);
+  await page.waitForFunction(()=>document.body?.dataset.ready==='error');
+  assert.equal(await page.getByRole('heading',{name:'Evidence unavailable',exact:true}).count(),1);
+  assert.equal(await page.getByRole('link',{name:'Retry this view',exact:true}).count(),1);
   await page.unroute('**/archive/index.json');
   await page.getByRole('link',{name:'Retry this view',exact:true}).focus();
   await page.keyboard.press('Enter');await waitForDossier(page,{href,elementId:'source-'+source});
