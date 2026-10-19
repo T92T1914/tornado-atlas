@@ -9,6 +9,7 @@ const chapters=[
   ['Joplin, 2011','joplin.html'],
   ['Blackwell, 1955','blackwell.html'],
   ['Tuscaloosa and Birmingham, 2011','tuscaloosa.html'],
+  ['Newcastle and Moore, 2013','moore.html'],
 ];
 const index=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
 const entry=index.events.find(row=>row.id==='tuscaloosa-birmingham-2011');

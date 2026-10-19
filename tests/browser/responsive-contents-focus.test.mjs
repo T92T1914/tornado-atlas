@@ -35,7 +35,12 @@ for(const file of chapters)for(const enlarged of [false,true])test(file+': respo
   const first=await links.first().getAttribute('href');
   await summary.focus();
   for(let index=0;index<count;index++)await page.keyboard.press('Tab');
-  assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),'#sources');
+  assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),'#assumed-experiments');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),'#sources','Sources remains the explicit preceding native focus destination');
+  assert.equal(await visibleFocus(page),true,'Sources focus remains visible');
+  await page.keyboard.press('Tab');
+  assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),'#assumed-experiments');
   await page.setViewportSize({width:1080,height:900});await settle(page);
   assert.equal(await rail.evaluate(node=>node.open),false);
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'article-contents',
@@ -58,6 +63,11 @@ for(const file of chapters)for(const enlarged of [false,true])test(file+': respo
   await page.setViewportSize({width:1081,height:900});await settle(page);
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'article-contents',
     'Expansion also preserves summary focus');
+  const sources=rail.locator('a[href="#sources"]');await sources.focus();
+  assert.equal(await sources.evaluate(node=>node===document.activeElement),true);
+  assert.equal(await visibleFocus(page),true,'Explicit Sources focus remains visible after expansion');
+  await Promise.all([page.waitForURL(url=>url.hash==='#sources'),page.keyboard.press('Enter')]);
+  assert.equal(await page.locator('#sources').isVisible(),true,'Native Sources activation retains the source destination');
 });
 
 test('El Reno retains its separate contents focus across the documentary breakpoint',async t=>{

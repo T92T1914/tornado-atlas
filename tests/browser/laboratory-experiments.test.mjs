@@ -105,7 +105,10 @@ for(const [kind,file] of [['wind','wind.html'],['form','study.html']])test('Refu
 for(const file of ['wind.html','study.html'])test(file+' retains native documentary reading without scripts and does not claim URL restoration',async t=>{
   const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:800},serviceWorkers:'block'});
   await page.goto(base+'/'+file+'?event=joplin-2011&experiment=wind-1&peak=200');
-  assert.equal(await page.locator('#lab-enhancement').isVisible(),false);assert.equal(await page.locator('#lab-documentary-fallback a').count(),4);
+  assert.equal(await page.locator('#lab-enhancement').isVisible(),false);
+  assert.deepEqual(await page.locator('#lab-documentary-fallback a').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('href'),node.textContent])),[
+    ['index.html','El Reno documentary'],['joplin.html','Joplin documentary'],['blackwell.html','Blackwell documentary'],['tuscaloosa.html','Tuscaloosa and Birmingham documentary'],['moore.html','Newcastle and Moore documentary']
+  ]);
   assert.match(await page.locator('#lab-context noscript').textContent(),/need JavaScript to restore settings/);
   if(file==='wind.html'){assert.equal(await page.locator('#sampled-values-body tr').count(),481);assert.match(await page.locator('#sampled-values-static').textContent(),/default experiment/);}
 });

@@ -2,6 +2,16 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 
+async function allEvents(page){
+  assert.deepEqual(await page.locator('.coverage-event:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.event)),[
+    'el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013'
+  ]);
+}
+async function geographyLayers(page){
+  assert.deepEqual(await page.locator('.coverage-layer:visible').evaluateAll(nodes=>nodes.map(node=>[node.closest('.coverage-event').dataset.event,node.dataset.layer])),[
+    ['el-reno-2013','geography'],['joplin-2011','geography'],['blackwell-1955','geography'],['tuscaloosa-birmingham-2011','geography'],['moore-2013','geography']
+  ]);
+}
 async function filter(page,event,layer){
   await page.getByLabel('Event',{exact:true}).selectOption(event);
   await page.getByLabel('Evidence layer',{exact:true}).selectOption(layer);
@@ -15,9 +25,9 @@ for(const [width,appearance] of [[320,'dark'],[390,'dark'],[1280,'light']]){
     await page.goto(base+'/coverage.html');
     await page.locator('#reading-appearance:not([disabled])').waitFor();
     await page.locator('#reading-appearance').selectOption(appearance);
-    assert.equal(await page.locator('.coverage-event:visible').count(),4);
+    await allEvents(page);
     await filter(page,'','geography');
-    assert.equal(await page.locator('.coverage-layer:visible').count(),4);
+    await geographyLayers(page);
     assert.equal(await page.locator('[data-event="el-reno-2013"] [data-layer="geography"]').getAttribute('data-state'),'replay');
     assert.equal(await page.locator('[data-event="joplin-2011"] [data-layer="geography"]').getAttribute('data-state'),'context');
     const geographyURL=page.url();
@@ -40,7 +50,7 @@ for(const [width,appearance] of [[320,'dark'],[390,'dark'],[1280,'light']]){
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
     const appearanceURL=page.url();
     await page.goBack();assert.equal(page.url(),geographyURL);
-    assert.equal(await page.locator('.coverage-layer:visible').count(),4);
+    await geographyLayers(page);
     await page.goForward();assert.equal(page.url(),appearanceURL);
     await page.reload();
     await page.waitForFunction(()=>document.querySelector('#coverage-layer').value==='appearance');
@@ -59,14 +69,14 @@ test('invalid coverage filters have an explicit error and a clear recovery',asyn
   assert.match(await page.getByRole('alert').textContent(),/not in this publication/);
   assert.equal(await page.locator('.coverage-event:visible').count(),0);
   await page.getByRole('link',{name:'Clear filters',exact:true}).click();
-  await page.waitForFunction(()=>document.querySelector('#coverage-status')?.textContent.includes('4 events'));
-  assert.equal(await page.locator('.coverage-event:visible').count(),4);
+  await page.waitForFunction(()=>document.querySelector('#coverage-status')?.textContent.includes('5 events'));
+  await allEvents(page);
 });
 
 test('without JavaScript all event coverage and original sources remain readable',async t=>{
   const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:390,height:900}});
   await page.goto(base+'/coverage.html?event=joplin-2011&layer=appearance');
-  assert.equal(await page.locator('.coverage-event:visible').count(),4);
+  await allEvents(page);
   assert.match(await page.locator('noscript').textContent(),/All published coverage is available/);
   const layer=page.locator('[data-event="blackwell-1955"] [data-layer="damage"]');
   await layer.locator(':scope > details > summary').click();
@@ -80,7 +90,7 @@ test('coverage discovery retains access from the existing dossier index',async t
   await page.goto(base+'/dossier.html');
   await page.getByRole('link',{name:'Compare evidence coverage across events',exact:true}).first().click();
   await page.getByRole('heading',{name:'Evidence coverage',exact:true}).waitFor();
-  assert.equal(await page.locator('.coverage-event:visible').count(),4);
+  await allEvents(page);
 });
 
 test('enlarged reading text retains narrow source access and keyboard disclosure',async t=>{

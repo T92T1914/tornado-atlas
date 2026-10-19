@@ -399,3 +399,11 @@ The four dossiers now provide direct entries to the existing Form Study and Wind
 Versioned experiment links preserve the complete manual configuration and reopen paused. Native reload, history and source return can recover that experiment. Wind passage and component views retain one shared selected sample and the same numerical table. This improves comparison and reproducibility without creating another clock, renderer or physics model.
 
 El Reno's geographic replay and Joplin's warning chronology retain their separate coverage. Blackwell's unresolved clocks and Tuscaloosa's untimed survey outcomes are not converted into moving paths by the laboratory reference. The first bounded historical appearance reconstruction remains unfinished under the criteria above.
+
+## Moore documentary and numerical comparison
+
+The Moore 2013 documentary follows one source-supported tornado through its separately retained McClain and Cleveland county records. It preserves a later Briarwood rating revision beside older official material and provides agency survey photographs with their source annotations and edition limits. This extends the documentary collection without assigning a moving path, camera solution or historical appearance interval to Moore.
+
+The Wind Lab's continuous zero-background comparison addresses a different gap: a finite sample sequence can miss a brief peak in its own assumed field. Independent annulus geometry now exposes that discrepancy beside the unchanged sampled graph, component and table. The comparison improves numerical interpretation. It does not validate the Rankine idealization against observed tornado winds or calibrate structural response.
+
+The original reconstruction requirements remain open. Documentary depth, a repeatable manual experiment and an analytical reference are useful capabilities with separate acceptance. They do not complete evolving historical appearance, independent optical synchronization, registered camera geometry or a historically supported damage model. Nolte's first-match requirement, frozen +22 and already attempted +85 disposition remain unchanged.

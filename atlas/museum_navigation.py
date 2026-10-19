@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from .museum_reading import element, link, text
 
-ROUTES = ('atlas', 'index', 'joplin', 'blackwell', 'tuscaloosa', 'dossier', 'coverage',
+ROUTES = ('atlas', 'index', 'joplin', 'blackwell', 'tuscaloosa', 'moore', 'dossier', 'coverage',
           'reconstruction', 'survey', 'radar-source', 'study', 'wind', 'japan', 'curator')
 PUBLIC_MUSEUM = 'https://t92t1914.github.io/tornado-atlas/'
 
@@ -16,9 +16,12 @@ def navigation(root, route):
             return link(label, PUBLIC_MUSEUM + destination, target='_blank', rel='noopener noreferrer')
         return link(label, destination, **({'aria_current':'page'} if destination == route+'.html' else {}))
     exhibits = ''.join(entry(event['title'], event['documentary']) for event in events)
+    current = next((event for event in events if event['documentary'] == route+'.html'), None)
+    def laboratory(destination):
+        return destination + ('?event='+current['id'] if current else '')
     explore = ''.join(entry(label, destination) for label, destination in [
         ('Map and catalogue', 'atlas.html#catalogue'), ('El Reno spatial replay', 'reconstruction.html'),
-        ('Form study', 'study.html'), ('Wind laboratory', 'wind.html')])
+        ('Form study', laboratory('study.html')), ('Wind laboratory', laboratory('wind.html'))])
     evidence = ''.join(entry(label, destination) for label, destination in [
         ('Event dossiers', 'dossier.html'), ('Reconstruction coverage', 'coverage.html'),
         ('Damage survey', 'survey.html'), ('Radar source reader', 'radar-source.html'),

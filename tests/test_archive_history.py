@@ -19,7 +19,7 @@ class ArchiveHistoryTests(unittest.TestCase):
         artifacts = publication()
         index = artifacts['archive/index.json']
         events = {'el-reno-2013', 'joplin-2011', 'blackwell-1955',
-                  'tuscaloosa-birmingham-2011'}
+                  'tuscaloosa-birmingham-2011', 'moore-2013'}
         self.assertEqual({e['id'] for e in index['events']}, events)
         for entry in index['events']:
             history = artifacts[entry['history_file']]
@@ -35,6 +35,11 @@ class ArchiveHistoryTests(unittest.TestCase):
             self.assertEqual(set(files), retained, 'Every retained dossier has a history route')
             for key in ('file', 'dossier_sha256', 'file_sha256'):
                 self.assertEqual(history['versions'][0][key], entry[key])
+            if entry['id'] == 'moore-2013':
+                self.assertEqual(len(history['versions']), 1, 'Moore starts with its initial retained publication')
+                self.assertIsNone(history['versions'][0]['review'])
+                self.assertFalse(history['versions'][0]['predecessor_available'])
+                self.assertIsNone(history['versions'][0]['changes'])
             if entry['id'] == 'el-reno-2013':
                 current = next(version for version in history['versions']
                                if version['dossier_sha256'] ==

@@ -177,13 +177,30 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         self.assertEqual(self.html.count(end), 1)
         before, generated = self.html.split(start)
         _, after = generated.split(end)
-        # The new source-generated account labels use their own separators.
-        # Keep the original document and shared navigation's exact UTF-8 guard.
+        # Source-generated account labels and added navigation have their own separators.
+        # Check the actual UTF-8 label scopes rather than a whole-document punctuation total.
         original_document = re.sub(r'<section id="photographs-and-film"[\s\S]*?</section>', '', before + after)
         worked = re.search(r'<section id="survey-worked-comparison"[\s\S]*?</section>', original_document).group()
         self.assertEqual(worked.count('·'),3)
         original_document = original_document.replace(worked,'')
-        self.assertEqual(original_document.count('·'), 26)
+        self.assertEqual(re.findall(r'<a\b[^>]*class="brand"[^>]*>([^<]+)</a>', original_document),
+                         ['◎ TORNADO ATLAS'])
+        appearance = re.search(r'<select\b[^>]*id="reading-appearance"[^>]*>([\s\S]*?)</select>', original_document)
+        self.assertIsNotNone(appearance)
+        self.assertEqual(re.findall(r'<option\b[^>]*value="([^"]+)"[^>]*>([^<]+)</option>', appearance.group(1)),
+                         [('dark', 'Obscur · Dark'), ('light', 'Clair · Light'),
+                          ('system', 'Use system setting')])
+        self.assertIn('<div class="eyebrow">APRIL 27, 2011 · CENTRAL ALABAMA</div>', original_document)
+        navigation = re.search(r'<!-- museum-navigation -->([\s\S]*?)<!-- /museum-navigation -->', original_document)
+        self.assertIsNotNone(navigation)
+        exhibits = re.search(r'<div class="museum-menu">([\s\S]*?)</div>', navigation.group(1))
+        self.assertIsNotNone(exhibits)
+        self.assertEqual(re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>([^<]+)</a>', exhibits.group(1)), [
+            ('index.html', 'El Reno · 2013'),
+            ('joplin.html', 'Joplin · 2011'),
+            ('blackwell.html', 'Blackwell · 1955'),
+            ('tuscaloosa.html', 'Tuscaloosa and Birmingham · 2011'),
+            ('moore.html', 'Newcastle and Moore · 2013')])
         self.assertNotIn('\ufffd', self.html)
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)

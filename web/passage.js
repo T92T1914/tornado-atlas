@@ -4,10 +4,12 @@ import {PlaybackClock} from './playback-model.mjs';
 import {attachPassageValues} from './passage-values.mjs';
 import {mountLabContext} from './lab-context.mjs';
 import {EXPERIMENT_FIELDS} from './experiment-state.mjs';
+import {attachContinuousReference} from './wind-reference-view.mjs';
 const el=id=>document.getElementById(id);
 const controls=['travel','offset','threshold','capacity'];
 const clock=new PlaybackClock(24,1);
 const sampledValues=attachPassageValues(document);
+const continuousReference=attachContinuousReference(document);
 let result,field,component,raf=0,visible=true,lab=null;
 let refreshField=()=>{},pauseField=()=>{};
 const x=i=>52+i/480*636;
@@ -40,6 +42,7 @@ function rebuild() {
   pause();field=settings();const threshold=Number(el('threshold').value)*MPH;
   result=samplePassage(field,{threshold});
   component=componentHistory(result.samples,{...field,capacity:Number(el('capacity').value)*1000});
+  continuousReference.update({field,result,component,threshold,capacity:Number(el('capacity').value)*1000});
   sampledValues.rebuild({field,result,component,threshold,capacity:Number(el('capacity').value)*1000});
   el('capacity-value').textContent=`${Number(el('capacity').value).toFixed(1)} kN`;
   el('component-peak').textContent=`${(component.peak/1000).toFixed(2)} kN`;
@@ -84,6 +87,12 @@ for(const id of ['passage-play','component-play'])el(id).addEventListener('click
 el('passage-time').addEventListener('input',()=>seek(el('passage-time').value));
 el('component-time').addEventListener('input',()=>seek(el('component-time').value));
 controls.forEach(id=>el(id).addEventListener('input',()=>{rebuild();lab?.changed();}));
+el('wind-reference-example').hidden=false;
+el('wind-reference-example').addEventListener('click',()=>{
+  const example={peak:105,radius:500,background:0,'probe-x':1,'probe-y':0,area:1,coefficient:1.2,travel:30,offset:.7,threshold:100,capacity:1.6};
+  for(const [id,value] of Object.entries(example))el(id).value=value;
+  clock.seek(0);refreshField();rebuild();lab?.changed();
+});
 el('wind-controls').addEventListener('input',()=>{rebuild();lab?.changed();});
 el('wind-reset').addEventListener('click',()=>queueMicrotask(()=>{
   for(const id of controls) el(id).value=el(id).defaultValue;

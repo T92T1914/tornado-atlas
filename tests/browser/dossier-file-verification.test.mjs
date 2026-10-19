@@ -24,7 +24,9 @@ async function rejected(page,message){
   assert.equal(await page.locator('#content .archive-card, #evidence-comparison').count(),0);
   assert.equal(await page.locator('#content img, #content video, #content audio, #content iframe').count(),0);
   assert.equal(await page.getByRole('link',{name:'Retry this view',exact:true}).count(),1);
-  assert.equal(await page.getByRole('navigation',{name:'Current documentary chapters'}).getByRole('link').count(),4);
+  assert.deepEqual(await page.getByRole('navigation',{name:'Current documentary chapters'}).getByRole('link').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('href'),node.textContent])),[
+    ['index.html','El Reno, 2013'],['joplin.html','Joplin, 2011'],['blackwell.html','Blackwell, 1955'],['tuscaloosa.html','Tuscaloosa and Birmingham, 2011'],['moore.html','Newcastle and Moore, 2013']
+  ]);
 }
 async function fulfillJSON(page,file,value){
   await page.route('**/'+file,route=>route.fulfill({contentType:'application/json',body:JSON.stringify(value)}));

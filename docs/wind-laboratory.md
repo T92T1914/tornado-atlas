@@ -1,7 +1,7 @@
 # Wind and force laboratory
 
 This is a separate educational experiment at `web/wind.html`. A documentary
-reference can select one of the four dossiers, but it does not assign the
+reference can select one of the five dossiers, but it does not assign the
 model to that tornado or populate its assumptions from historical measurements
 or a damage rating.
 
@@ -140,10 +140,22 @@ reset, focus and the no-script or unavailable-module fallback separately.
 
 ## Keep an experiment beside its source account
 
-Open the laboratory from any of the four dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate.
+Open the laboratory from any of the five dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate.
 
 The experiment link records all eleven controls and one shared sample index from 0 through 480. Reopening, reloading or using Back/Forward restores those settings paused. The field, passage graph, component state and sampled-values table are recomputed from that same state. Before an ordinary same-tab evidence visit, the displayed sample is captured in the experiment URL so native Back can recover it. Reset restores the documented model defaults while retaining the documentary reference.
 
 Changing a control updates the experiment link immediately. During rapid input, updates to the address are grouped at most once per 250 milliseconds so browser history limits do not interrupt the controls. An explicit link save, reference change or ordinary source visit commits the latest settings. One temporary browser-session record retains the current entry’s pending settings for reload and is removed when the address is committed. Selecting a reference or explicitly saving the paused link creates a deliberate history entry. Pending settings from same-document Back/Forward navigation remain available during that document’s lifetime. An intermediate address that never received its pending update is not guaranteed after a later full reload. Save the paused link when retaining a specific experiment. No playback state is serialized and no link starts animation.
 
 The bounded versioned contract refuses unknown references, repeated fields, incomplete snapshots and invalid numbers. A refused snapshot applies none of its values and explains that default controls are shown. With scripts unavailable, the fixed default table and ordinary documentary links remain readable; the URL does not alter that static table. These controls qualify reproducible software experiments, not historical wind or structural reconstruction.
+
+## Continuous reference beside the sample grid
+
+The [continuous comparison](https://t92t1914.github.io/tornado-atlas/wind.html#continuous-reference) exposes the independent geometry of the same zero-background Rankine assumption. It calculates the maximum speed and drag within the finite window, the duration at or above the chosen wind comparison, and the duration strictly above the assumed capacity. A separate module derives those values from the probe path through an annulus. It does not read the sampled velocities or integrate the displayed graph.
+
+The example button loads the documented 105 mph, 500 ft, 30 mph, 0.7 R and 1.6 kN case, with zero background, area 1 m² and coefficient 1.2. The continuous maximum is 1619.417 N, while the 481-point component sequence stays below 1600 N. The comparison calls out that missed exceedance without changing the graph, table or sampled failure state. Both results describe their stated calculations. Neither supplies a real connection strength or a historical failure time.
+
+For positive comparison speed no greater than peak swirl, the qualifying radial interval lies between R times comparison/peak and R times peak/comparison. Intersecting the straight path with those boundaries, clipping to the finite window and dividing by travel speed gives the model duration. The maximum considers whether the window reaches the radius of maximum swirl. Zero wind, zero comparison, zero drag coefficient, tangency and strict capacity equality retain separate controls.
+
+Adding background flow changes the annulus geometry. The independent comparison then becomes unavailable and clears its old numerical values, while the existing sampled experiment remains usable. It resumes when background returns to zero. This is a mathematical cross-check within floating-point arithmetic, not a general sampling-error bound or evidence that finer grids always converge monotonically. The 481 rows, model equations, shared selected sample and paused experiment-link contract remain unchanged.
+
+Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all five documentary references.
