@@ -74,9 +74,15 @@ test('unavailable WebGL keeps its diagnosis through view and motion controls',as
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   await assertUnavailable(page,message);
   const link=page.locator('#scene-failure a');
-  assert.equal(await link.getAttribute('href'),'index.html');
+  assert.equal(await page.locator('#lab-event').inputValue(),'','No documentary reference is selected');
+  assert.equal(await page.locator('#lab-reference-account').textContent(),'No documentary reference selected. These settings describe your assumed experiment.');
+  assert.equal(await link.getAttribute('href'),'atlas.html');
+  assert.equal(await link.textContent(),'Explore the documentary collection');
   await link.click();
-  assert.equal(new URL(page.url()).pathname,'/index.html');
+  await page.waitForURL(base+'/atlas.html');
+  assert.equal(new URL(page.url()).pathname,'/atlas.html');
+  await page.locator('#museum-title').waitFor({state:'visible'});
+  assert.equal(await page.locator('#museum-title').textContent(),'Tornado history, through the surviving record.');
 });
 
 test('a real WebGL context can recover without resuming motion or losing controls',async t=>{

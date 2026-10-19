@@ -25,16 +25,19 @@ for(const width of [320,1280])test('Documentary contents and laboratory entry ke
   for(const lab of ['study','wind']){
     const entry=page.locator('#assumed-experiments a[href=\"'+lab+'.html?event=moore-2013\"]');
     await entry.focus();await page.keyboard.press('Enter');
-    await page.waitForFunction(()=>document.querySelector('#lab-context').dataset.experimentReady==='true');
+    await page.waitForURL(base+'/'+lab+'.html?event=moore-2013');
+    await page.waitForFunction(()=>document.querySelector('#lab-context')?.dataset.experimentReady==='true');
     assert.equal(new URL(page.url()).pathname,new URL(base+'/'+lab+'.html').pathname);
     assert.equal(await page.locator('#lab-event').inputValue(),'moore-2013');
     assert.equal(await page.locator(lab==='wind'?'#peak':'#shape').inputValue(),lab==='wind'?'100':'cone','Documentary reference does not assign model assumptions');
     assert.match(await page.locator('#lab-state').textContent(),/paused/);
+    const laboratoryURL=await page.locator('#lab-share').getAttribute('href');
     const account=page.locator('#lab-reference-links a').first();
     assert.match(await account.textContent(),/Moore/);await account.focus();await page.keyboard.press('Enter');
     await page.waitForURL(u=>u.pathname.endsWith('/moore.html'));
     assert.equal(new URL(page.url()).hash,lab==='wind'?'#damage-and-buildings':'#survey-photographs');
-    await page.goBack();await page.waitForFunction(()=>document.querySelector('#lab-context').dataset.experimentReady==='true');
+    await page.goBack();await page.waitForURL(laboratoryURL);
+    await page.waitForFunction(()=>document.querySelector('#lab-context')?.dataset.experimentReady==='true');
     assert.equal(await page.locator('#lab-event').inputValue(),'moore-2013');
     await page.goBack();await page.waitForURL(u=>u.pathname.endsWith('/moore.html')&&u.hash==='#assumed-experiments');
   }
@@ -54,10 +57,12 @@ for(const width of [320,1280])test('Unavailable Form Study returns to its actual
     assert.equal(await page.locator('#motion').isDisabled(),true);
   }
   const failureReturn=page.locator('#scene-failure-return');
+  const laboratoryURL=page.url();
   assert.match(await failureReturn.textContent(),/Moore.*documentary evidence/);
   await failureReturn.focus();await page.keyboard.press('Enter');
   await page.waitForURL(u=>u.pathname.endsWith('/moore.html')&&u.hash==='#survey-photographs');
-  await page.goBack();await page.waitForFunction(()=>document.querySelector('#lab-context').dataset.experimentReady==='true');
+  await page.goBack();await page.waitForURL(laboratoryURL);
+  await page.waitForFunction(()=>document.querySelector('#lab-context')?.dataset.experimentReady==='true');
   assert.equal(await page.locator('#lab-event').inputValue(),'moore-2013');
   assert.equal(await page.locator('#scene-failure').isVisible(),true);
   await page.locator('#lab-event').selectOption('');

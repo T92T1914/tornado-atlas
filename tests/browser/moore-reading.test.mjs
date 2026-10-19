@@ -7,9 +7,15 @@ import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
 async function capture(page,name){if(process.env.ATLAS_REALISM_CAPTURE){await mkdir(process.env.ATLAS_REALISM_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_REALISM_CAPTURE,name+'.png')});}}
-async function checkImage(page,id,dimensions){
+async function checkImage(page,id,source,dimensions){
   const image=page.locator('#'+id+' img');await image.scrollIntoViewIfNeeded();
+  await page.waitForFunction(({id,source})=>{
+    const image=document.querySelector('#'+id+' img');
+    return image?.getAttribute('src')===source&&image.currentSrc===new URL(source,location.href).href&&image.complete&&image.naturalWidth>0;
+  },{id,source},{timeout:10000});
   await image.evaluate(async n=>{await n.decode();});
+  assert.equal(await image.getAttribute('src'),source);
+  assert.equal(await image.evaluate(n=>n.currentSrc),new URL(source,base+'/').href);
   assert.deepEqual(await image.evaluate(n=>[n.naturalWidth,n.naturalHeight]),dimensions);
   const shape=await image.evaluate(n=>{const b=n.getBoundingClientRect();return [b.width,b.height,getComputedStyle(n).objectFit];});
   assert.ok(Math.abs(shape[0]/shape[1]-dimensions[0]/dimensions[1])<.01,'The complete image aspect ratio survives layout');
@@ -25,10 +31,10 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])test('Moore story,
   assert.match(await page.locator('#one-track-two-records').textContent(),/451537/);
   assert.match(await page.locator('#one-track-two-records').textContent(),/451572/);
   assert.equal(await page.locator('#moore-medical-center-survey').evaluate(n=>Boolean(n.compareDocumentPosition(document.getElementById('article-contents'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'Purposeful agency image precedes the long account');
-  await checkImage(page,'moore-medical-center-survey',[800,533]);
+  await checkImage(page,'moore-medical-center-survey','assets/moore-2013/IMG_9287-800.jpg',[800,533]);
   await page.locator('#moore-medical-center-survey').scrollIntoViewIfNeeded();
   await capture(page,'moore-medical-survey-'+width+'-'+appearance);
-  await checkImage(page,'moore-briarwood-survey',[800,600]);
+  await checkImage(page,'moore-briarwood-survey','assets/moore-2013/IMG_2314-800.jpg',[800,600]);
   assert.match(await page.locator('#schools').textContent(),/EF4/);
   assert.match(await page.locator('#schools').textContent(),/initial EF5/);
   assert.match(await page.locator('#moore-briarwood-survey figcaption').textContent(),/source annotations/);
