@@ -87,6 +87,23 @@ async function museum(page){
   assert.deepEqual(await disclosure.locator('a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),registry.events.map(row=>row.documentary));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
 }
+async function collection(page){
+  assert.deepEqual(await page.locator('#museum article h2>a').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('href'),node.textContent])),[
+    ['index.html','El Reno'],['joplin.html','Joplin'],['tuscaloosa.html','Tuscaloosa and Birmingham'],['blackwell.html','Blackwell'],['moore.html','Newcastle and Moore']
+  ]);
+}
+async function mooreEntrance(page){
+  const returnURL=page.url(),card=page.locator('#museum article').filter({has:page.locator('h2>a[href="moore.html"]')});
+  assert.deepEqual(await card.locator('a').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('href'),node.textContent])),[
+    ['moore.html','Newcastle and Moore'],['moore.html','Read the exhibit'],['moore.html#schools','Compare the school accounts'],['dossier.html?event=moore-2013','Inspect the evidence']
+  ]);
+  const title=card.locator('h2>a');await title.focus();assert.equal(await title.evaluate(node=>node===document.activeElement),true);
+  await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/moore.html')),page.keyboard.press('Enter')]);
+  assert.match(await page.locator('h1').textContent(),/^Newcastle and Moore\s*May 20, 2013$/);
+  assert.equal(await page.locator('#schools').isVisible(),true);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  await page.goBack();assert.equal(page.url(),returnURL);await collection(page);
+}
 async function capture(page,name){
   if(!process.env.ATLAS_MUSEUM_CAPTURE_DIR)return;
   await mkdir(process.env.ATLAS_MUSEUM_CAPTURE_DIR,{recursive:true});
@@ -99,9 +116,10 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     await page.goto(base+'/atlas.html?layer=local');
     await page.waitForFunction(()=>document.body?.dataset.ready==='true');
     await page.locator('#reading-appearance').selectOption(appearance);
-    assert.equal(await page.locator('#museum article h2>a').count(),4);
+    await collection(page);
     assert.ok((await page.locator('#museum').boundingBox()).y<(await page.locator('#catalogue').boundingBox()).y);
     await capture(page,`collection-${width}-${appearance}`);
+    await mooreEntrance(page);
     await museum(page);
     await page.locator('.museum-nav details').first().locator('a[href="index.html"]').click();
     await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
@@ -127,8 +145,8 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     await reading(page);
   });
 }
-for(const route of ['atlas.html','index.html','joplin.html','tuscaloosa.html','blackwell.html']){
-  test(`four-exhibit entrance and historical reading without scripts: ${route}`,async t=>{
+for(const route of ['atlas.html','index.html','joplin.html','tuscaloosa.html','blackwell.html','moore.html']){
+  test(`five-exhibit entrance and historical reading without scripts: ${route}`,async t=>{
     const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});
     await page.goto(base+'/'+route,{waitUntil:'load'});
     await museum(page);
@@ -138,7 +156,7 @@ for(const route of ['atlas.html','index.html','joplin.html','tuscaloosa.html','b
       assert.equal(await page.locator('#storm-photographs [data-storm-photo]').first().getAttribute('href'),bundle.storm_photos[0].file);
       await page.goto(base+'/index.html#changing-circulation');
       assert.ok((await page.locator('#changing-circulation').boundingBox()).y<100);
-    } else if(route==='atlas.html') assert.equal(await page.locator('#museum article h2>a').count(),4);
+    } else if(route==='atlas.html'){await collection(page);await mooreEntrance(page);}
     else assert.ok((await page.locator('.documentary-reading').innerText()).length>4000);
     await capture(page,'nojs-'+route.replace('.html',''));
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
