@@ -35,13 +35,6 @@ for(const width of [320,1280])test('Form learning path retains its unassigned ga
  assert.equal(await page.locator('.lab-contents a').count(),formTargets.length);for(const target of formTargets){await localLink(page,target);assert.deepEqual(await formState(page),expected);await paused(page,'form');}
  await page.locator('.lab-return a').last().click();await noOverflow(page);await capture(page,'form-learning-'+width);const retained=page.url();await page.locator('#lab-reference-links a').first().click();await page.waitForURL('**/blackwell.html#observations');await page.goBack();await ready(page);assert.equal(page.url(),retained);assert.deepEqual(await formState(page),expected);await page.reload();await ready(page);assert.deepEqual(await formState(page),expected);await paused(page,'form');
 });
-for(const kind of ['wind','study'])test('Complete laboratory notes and controls remain readable with doubled text '+kind,{timeout:30000},async t=>{
- const page=await fixture(t,{viewport:{width:320,height:900},isMobile:true,reducedMotion:'reduce'});await page.goto(base+'/'+kind+'.html');await ready(page);
- const enlarged=await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')].filter(n=>n instanceof HTMLElement),sizes=nodes.map(n=>parseFloat(getComputedStyle(n).fontSize));nodes.forEach((n,i)=>n.style.fontSize=sizes[i]*2+'px');return nodes.every((n,i)=>parseFloat(getComputedStyle(n).fontSize)===sizes[i]*2);});assert.equal(enlarged,true,'Every declared HTML font is exactly twice its measured baseline');
- await page.addStyleTag({content:'main p,main label,main legend,main select,main button,main li,main a,main h1,main h2,main h3,main dt,main dd {line-height:1.5 !important;letter-spacing:.06em;word-spacing:.12em}'});
- await localLink(page,kind==='wind'?'wind-model-limits':'form-model-limits');await noOverflow(page);await capture(page,kind+'-learning-enlarged');
- const boxes=await page.locator('.study-controls input[type="range"]').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().height));assert.ok(boxes.length>0&&boxes.every(height=>height>=44));
-});
 for(const kind of ['wind','study'])test('Native laboratory contents work without scripts '+kind,{timeout:30000},async t=>{
  const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});await page.goto(base+'/'+kind+'.html?event=moore-2013');
  const targets=kind==='wind'?windTargets:formTargets;for(const target of targets)await localLink(page,target);await noOverflow(page);assert.equal(await page.locator('#lab-documentary-fallback a').count(),5);

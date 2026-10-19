@@ -1,0 +1,32 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import path from 'node:path';
+import {fixture,base} from './harness.mjs';
+import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
+
+// Register in the existing focused reading category as well as full discovery.
+// The complete pre-mutation HTML font snapshot and every original assertion stay.
+export function laboratoryEnlargedReadingCases(){
+ for(const kind of ['wind','study'])test('purposeful reading route through complete laboratory notes and controls with doubled text '+kind,{timeout:30000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900},isMobile:true,reducedMotion:'reduce'});await page.goto(base+'/'+kind+'.html');await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  const enlarged=await page.evaluate(()=>{
+   const nodes=[document.body,...document.body.querySelectorAll('*')].filter(n=>n instanceof HTMLElement),sizes=nodes.map(n=>parseFloat(getComputedStyle(n).fontSize));
+   nodes.forEach((n,i)=>n.style.fontSize=sizes[i]*2+'px');
+   let mismatches=0;const rows=[];
+   nodes.forEach((n,i)=>{
+    const computed=getComputedStyle(n).fontSize,requested=sizes[i]*2;if(parseFloat(computed)===requested)return;mismatches++;
+    if(rows.length<24)try{const r=n.getBoundingClientRect(),s=getComputedStyle(n);rows.push({index:i,tag:n.tagName,id:n.id,type:n.getAttribute('type'),baseline:sizes[i],requested,inline:n.style.fontSize,computed,display:s.display,appearance:s.appearance,font_family:s.fontFamily,left:r.left,right:r.right,width:r.width,height:r.height,preview:n.textContent.slice(0,64)});}catch(error){rows.push({index:i,diagnostic_unavailable:String(error.message).slice(0,128)});}
+   });
+   return {exact:mismatches===0,elements:nodes.length,mismatches,rows};
+  });
+  if(!enlarged.exact){const record={kind,...enlarged,json_byte_limit:8192,rows_removed:0};while(Buffer.byteLength(JSON.stringify(record),'utf8')>8192&&record.rows.length){record.rows.pop();record.rows_removed++;}console.log('LABORATORY_FONT_ENLARGEMENT '+JSON.stringify(record));}
+  assert.equal(enlarged.exact,true,'Every declared HTML font is exactly twice its measured baseline');
+  await page.addStyleTag({content:'main p,main label,main legend,main select,main button,main li,main a,main h1,main h2,main h3,main dt,main dd {line-height:1.5 !important;letter-spacing:.06em;word-spacing:.12em}'});
+  const target=kind==='wind'?'wind-model-limits':'form-model-limits',link=page.locator('.lab-contents a[href="#'+target+'"]');await link.focus();await link.press('Enter');await page.waitForURL(url=>url.hash==='#'+target);await page.locator('#'+target).waitFor({state:'visible'});
+  await assertReadingReflow(page,'Doubled and spaced '+kind+' laboratory reading');
+  const result=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('.lab-contents a,.study-controls label,.control-note,.wind-caption,.study-explanation p,.lab-return a,.lab-step-title')].flatMap(node=>{const r=document.createRange();r.selectNodeContents(node);return [...r.getClientRects()].filter(b=>b.width>0&&(b.left< -1||b.right>innerWidth+1)).map(b=>({text:node.textContent.slice(0,100),left:b.left,right:b.right}));})}));assert.ok(result.document<=result.viewport+1,JSON.stringify(result));assert.deepEqual(result.overflow,[],JSON.stringify(result));
+  if(process.env.ATLAS_LEARNING_CAPTURE){await mkdir(process.env.ATLAS_LEARNING_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_LEARNING_CAPTURE,kind+'-learning-enlarged.png')});}
+  const boxes=await page.locator('.study-controls input[type="range"]').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().height));assert.ok(boxes.length>0&&boxes.every(height=>height>=44));
+ });
+}
