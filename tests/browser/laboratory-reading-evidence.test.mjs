@@ -231,21 +231,49 @@ for(const width of [320,1280]){
 for(const [width,scheme]of [[320,'light'],[1280,'dark']]){
  test('Form appearance and documentary selection preserve the bounded gap '+width+' '+scheme,{timeout:45000},async t=>{
   const page=await fixture(t,{viewport:{width,height:900},isMobile:width<600,colorScheme:scheme,reducedMotion:'reduce',serviceWorkers:'block'});
+  // Observe the renderer's own request, without allocating a second context or changing its result.
+  await page.addInitScript(()=>{
+   const original=HTMLCanvasElement.prototype.getContext;
+   window.__atlasFormContextObservation={attempted:false,available:null};
+   HTMLCanvasElement.prototype.getContext=function(type,...args){
+    const value=Reflect.apply(original,this,[type,...args]);
+    if(type==='webgl2'&&this.id==='scene'&&!window.__atlasFormContextObservation.attempted)
+     window.__atlasFormContextObservation={attempted:true,available:value!==null};
+    return value;
+   };
+  });
   await page.goto(base+'/study.html?event=el-reno-2013');await ready(page);await choose(page,ref('el-reno-2013'));
+  const capability=await page.evaluate(()=>window.__atlasFormContextObservation);
+  assert.equal(capability.attempted,true);assert.equal(typeof capability.available,'boolean');
+  t.diagnostic('FORM_CONTEXT_CAPABILITY '+JSON.stringify({width,scheme,webgl2_context_available:capability.available,scope:capability.available?'Actual gap drawing remains required; any optional image needs separate pixel review':'Unavailable-view controls/reference acceptance only; no drawn-form or theme-pixel acceptance'}));
+  const formView=async()=>{
+   if(capability.available){
+    // A non-null context with a shader/link/initialization failure is still a failure.
+    assert.equal(await page.locator('#scene-failure').isHidden(),true);
+    await page.waitForFunction(()=>document.getElementById('scene').dataset.appearanceCoverage==='gap');
+   }else{
+    assert.equal(await page.locator('#scene-failure').isVisible(),true);
+    assert.match(await page.locator('#scene-failure').innerText(),/This view needs WebGL 2/);
+    assert.equal(await page.locator('#motion-status').textContent(),'WebGL 2 is unavailable');
+    assert.equal(await page.locator('#motion').isDisabled(),true);
+    assert.equal(await page.locator('#scene').getAttribute('data-appearance-coverage'),null);
+   }
+  };
   await page.locator('#shape').selectOption('rope');await input(page,'condensation',65);await input(page,'azimuth',-35);
   await page.locator('#quality').selectOption('3600');await page.locator('#sequence-coverage').selectOption('bounded');await page.locator('#sequence-enabled').check();await input(page,'sequence-time',.5);
   const expected=await formState(page);
   assert.equal(expected.controls['sequence-time'],'0.5');assert.equal(expected.controls.condensation,'65');
   assert.equal(expected.controls.azimuth,'-35');assert.match(expected.stage,/No assigned form between 10 and 22 seconds/);
-  await page.locator('#scene').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.getElementById('scene').dataset.appearanceCoverage==='gap');
-  await appearance(page,scheme);assert.deepEqual(await formState(page),expected);await paused(page,'form');
-  await appearance(page,scheme==='dark'?'light':'dark');assert.deepEqual(await formState(page),expected);await paused(page,'form');
-  await choose(page,ref('moore-2013'));await referenceIdentity(page,ref('moore-2013'));assert.deepEqual(await formState(page),expected);
-  await choose(page,ref('blackwell-1955'));await referenceIdentity(page,ref('blackwell-1955'));assert.deepEqual(await formState(page),expected);await paused(page,'form');
+  await page.locator('#scene').scrollIntoViewIfNeeded();await formView();
+  await appearance(page,scheme);assert.deepEqual(await formState(page),expected);await paused(page,'form');await formView();
+  await appearance(page,scheme==='dark'?'light':'dark');assert.deepEqual(await formState(page),expected);await paused(page,'form');await formView();
+  await choose(page,ref('moore-2013'));await referenceIdentity(page,ref('moore-2013'));assert.deepEqual(await formState(page),expected);await formView();
+  await choose(page,ref('blackwell-1955'));await referenceIdentity(page,ref('blackwell-1955'));assert.deepEqual(await formState(page),expected);await paused(page,'form');await formView();
   await readable(page,['.scene-overlay span','.lab-reference-caption','.lab-reference-rights']);
   const overlay=await page.locator('.scene-overlay').evaluate(node=>({position:getComputedStyle(node).position,inside:!!node.closest('.scene-wrap'),hidden:node.getAttribute('aria-hidden'),text:node.textContent}));
   assert.equal(overlay.position,'static');assert.equal(overlay.inside,false);assert.notEqual(overlay.hidden,'true');assert.match(overlay.text,/No historical time or physical scale/);
-  await reflow(page);await page.locator('#scene').scrollIntoViewIfNeeded();await capture(page,'form-gap-'+width+'-'+scheme);
+  await reflow(page);await page.locator('#scene').scrollIntoViewIfNeeded();await formView();
+  await capture(page,(capability.available?'form-gap-':'form-unavailable-')+width+'-'+scheme);
  });
 }
 
