@@ -70,9 +70,9 @@ async function reading(page){
   const layout=await page.evaluate(()=>({innerWidth,rootScrollWidth:document.documentElement.scrollWidth,rootClientWidth:document.documentElement.clientWidth,bodyScrollWidth:document.body.scrollWidth,bodyClientWidth:document.body.clientWidth,scrollX,scrollY}));
   assert.ok(layout.rootScrollWidth<=layout.innerWidth+1,'Reading document fits: '+JSON.stringify(layout));
 }
-test('principal routes expose the same four-exhibit navigation at narrow width',async t=>{
+test('principal routes expose the same six-account navigation at narrow width',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});
-  for(const route of ['atlas.html','index.html','joplin.html','blackwell.html','tuscaloosa.html','dossier.html','coverage.html','reconstruction.html','survey.html','radar-source.html','study.html','wind.html','japan.html','curator.html']){
+  for(const route of ['atlas.html','index.html','joplin.html','blackwell.html','tuscaloosa.html','moore.html','udall.html','dossier.html','coverage.html','reconstruction.html','survey.html','radar-source.html','study.html','wind.html','japan.html','curator.html']){
     await page.goto(base+'/'+route,{waitUntil:'load'});
     const summary=page.locator('.museum-nav details').first().locator('summary');
     await summary.focus();await page.keyboard.press('Enter');
@@ -89,7 +89,7 @@ async function museum(page){
 }
 async function collection(page){
   assert.deepEqual(await page.locator('#museum article h2>a').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('href'),node.textContent])),[
-    ['index.html','El Reno'],['joplin.html','Joplin'],['tuscaloosa.html','Tuscaloosa and Birmingham'],['blackwell.html','Blackwell'],['moore.html','Newcastle and Moore']
+    ['index.html','El Reno'],['joplin.html','Joplin'],['tuscaloosa.html','Tuscaloosa and Birmingham'],['blackwell.html','Blackwell'],['moore.html','Newcastle and Moore'],['udall.html','Udall']
   ]);
 }
 async function mooreEntrance(page){
@@ -145,8 +145,8 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
     await reading(page);
   });
 }
-for(const route of ['atlas.html','index.html','joplin.html','tuscaloosa.html','blackwell.html','moore.html']){
-  test(`five-exhibit entrance and historical reading without scripts: ${route}`,async t=>{
+for(const route of ['atlas.html','index.html','joplin.html','tuscaloosa.html','blackwell.html','moore.html','udall.html']){
+  test(`six-account entrance and historical reading without scripts: ${route}`,async t=>{
     const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});
     await page.goto(base+'/'+route,{waitUntil:'load'});
     await museum(page);

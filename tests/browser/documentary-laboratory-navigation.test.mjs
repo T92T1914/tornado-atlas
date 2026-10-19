@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 
 // Literal story routes are independent of the generated navigation and reference list.
-const stories=[['index.html','el-reno-2013','index.html#photos'],['joplin.html','joplin-2011','joplin.html#photographs-and-film'],['blackwell.html','blackwell-1955','blackwell.html#observations'],['tuscaloosa.html','tuscaloosa-birmingham-2011','tuscaloosa.html#photographs-and-film'],['moore.html','moore-2013','moore.html#survey-photographs']];
+const stories=[['index.html','el-reno-2013','index.html#photos'],['joplin.html','joplin-2011','joplin.html#photographs-and-film'],['blackwell.html','blackwell-1955','blackwell.html#observations'],['tuscaloosa.html','tuscaloosa-birmingham-2011','tuscaloosa.html#photographs-and-film'],['moore.html','moore-2013','moore.html#survey-photographs'],['udall.html','udall-1955','udall.html#original-images']];
 
 for(const width of [320,1280])test('Documentary contents and laboratory entry keep their reference '+width,{timeout:60000},async t=>{
   const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
@@ -22,6 +22,8 @@ for(const width of [320,1280])test('Documentary contents and laboratory entry ke
     }
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,file);
   }
+  // Seed this separate Moore journey explicitly rather than using the last list item.
+  await page.goto(base+'/moore.html#assumed-experiments');
   for(const lab of ['study','wind']){
     const entry=page.locator('#assumed-experiments a[href=\"'+lab+'.html?event=moore-2013\"]');
     await entry.focus();await page.keyboard.press('Enter');
@@ -56,6 +58,7 @@ for(const width of [320,1280])test('Unavailable Form Study returns to its actual
     assert.equal(await page.locator('#scene-failure').isVisible(),true,'Reference selection preserves original renderer failure');
     assert.equal(await page.locator('#motion').isDisabled(),true);
   }
+  await page.locator('#lab-event').selectOption('moore-2013');
   const failureReturn=page.locator('#scene-failure-return');
   const laboratoryURL=page.url();
   assert.match(await failureReturn.textContent(),/Moore.*documentary evidence/);

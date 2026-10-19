@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "event_id": "udall-1955",
+  "dossier_sha256": "f9611c08821bb3e8852e612615fe75704fa647a4256e92c82094c0030150ae61",
+  "survey": null,
+  "layers": {
+    "geography": {
+      "basis": "The five retained county records have no surveyed continuous track here. An unmatched Kay-Sumner boundary and ambiguous shared endpoints remain documentary comparisons, not a geographic replay.",
+      "observations": [],
+      "media": []
+    },
+    "appearance": {
+      "basis": "No historical appearance interval, registered camera, synchronized optical source or continuous footage is admitted. The regional forecast document and uninspected photograph-page captions do not establish a tornado silhouette.",
+      "observations": [],
+      "media": []
+    },
+    "damage": {
+      "basis": "Attributed historical damage account and the report authors’ Phillips survey/radar continuity interpretation. These are reviewed report text, without a fresh site survey, scene-image inspection, calibrated local winds, exact collapse time or measured failure sequence. Skipped damage sections and coordinate disagreements remain explicit.",
+      "observations": [
+        "udall-damage-account",
+        "phillips-survey-continuity"
+      ],
+      "media": []
+    },
+    "gaps": {
+      "basis": "The unmatched county boundary, intended and rejected endpoint comparisons, reported clock and injury differences, and unqualified image leads remain unresolved together. Null UTC and camera coordinates are retained. This classification links evidence already in the dossier; it adds no new measurement or permission.",
+      "observations": [
+        "kay-sumner-boundary",
+        "endpoint-ambiguity-control",
+        "source-clock-disagreement",
+        "injury-count-disagreement",
+        "original-image-limits"
+      ],
+      "media": []
+    }
+  }
+}

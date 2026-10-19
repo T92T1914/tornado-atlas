@@ -415,3 +415,9 @@ The Wind Lab’s passive markers now use the circular solution of the existing z
 The Moore school account adds three source-specific observations from NIST’s preliminary reconnaissance. Reported refuge changes, observed building damage and the report’s proposed structural explanation retain their different evidence kinds. Native learning paths connect the laboratory controls to their limits and the existing documentary reference. The records provide no measured settings for the generic component experiment.
 
 This increment leaves the original El Reno appearance interval, independent synchronization, camera geometry and historically supported damage reconstruction unfinished. Nolte’s first unique match, frozen +22 comparison and prior +85 disposition remain unchanged.
+
+## Udall documentary foundation
+
+The six documentary accounts now include Udall, a separate tornado later in the Blackwell evening. Its reviewed association retains five county records and two separate Blackwell comparison controls. Source continuity interpretations, an unmatched county boundary, conflicting clock labels and injury totals remain available together. The existing regional forecast image is reused unchanged with its complete archive caption and item-specific use basis. Other image routes remain original-source links.
+
+This is a documentary addition under the newer request to expand the collection. It preserves the original reconstruction sequence and its unfinished acceptance requirements. Udall supplies neither a continuously surveyed path nor calibrated camera, historical wind or appearance intervals. Its optional laboratory reference does not change manual assumptions. Nolte's first unique match, frozen +22 comparison and prior +85 disposition remain unchanged.

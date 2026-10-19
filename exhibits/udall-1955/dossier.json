@@ -1,0 +1,542 @@
+{
+  "schema_version": 1,
+  "id": "udall-1955",
+  "title": "Udall, Kansas · May 25, 1955",
+  "coverage": "Exhibit",
+  "summary": "A source-backed account of Udall's destruction, a regional forecast document and five separate historical records, with reported clocks, count differences and an unmatched county boundary kept visible.",
+  "records": [
+    {
+      "id": "ncei:10096418",
+      "basis": "Kay County row at 22:00 CST, 8 miles and zero direct deaths or injuries. The separately named NWS Udall account and the five retained rows agree in county progression, F5 classification, aggregate 80 direct deaths and 273 direct injuries, and a maximum reported width of 1,320 yards. Their length fields total 56.4 miles versus 56 miles in the named account. The sources may share historical material. Each raw ID stays separate; no UTC, automatic join or surveyed track is inferred. Its ending [-97.15,37] does not match the next Sumner beginning [-97.25,37]; retain the discrepancy.",
+      "status": "reviewed_association",
+      "alternatives": []
+    },
+    {
+      "id": "ncei:10027629",
+      "basis": "Sumner County row at 22:15 CST, 24.7 miles, 5 direct deaths and 3 direct injuries. The separately named NWS Udall account and the five retained rows agree in county progression, F5 classification, aggregate 80 direct deaths and 273 direct injuries, and a maximum reported width of 1,320 yards. Their length fields total 56.4 miles versus 56 miles in the named account. The sources may share historical material. Each raw ID stays separate; no UTC, automatic join or surveyed track is inferred. The unmatched Kay boundary remains unresolved. A coordinate match to the separate Blackwell control 10096417 is explicitly rejected.",
+      "status": "reviewed_association",
+      "alternatives": [
+        "Rejected cross-event endpoint match to ncei:10096417, the separate Blackwell Kay control."
+      ]
+    },
+    {
+      "id": "ncei:10027630",
+      "basis": "Cowley County row at 22:45 CST, 2.3 miles, 1,320 yards, 75 direct deaths and 270 direct injuries. The separately named NWS Udall account and the five retained rows agree in county progression, F5 classification, aggregate 80 direct deaths and 273 direct injuries, and a maximum reported width of 1,320 yards. Their length fields total 56.4 miles versus 56 miles in the named account. The sources may share historical material. Each raw ID stays separate; no UTC, automatic join or surveyed track is inferred. This is a county allocation, not a new town-only count. The report's approximate 2235 CST stays distinct.",
+      "status": "reviewed_association",
+      "alternatives": []
+    },
+    {
+      "id": "ncei:10027631",
+      "basis": "Later Cowley row at 23:00 CST, 7.8 miles, 33 yards and zero direct deaths or injuries. The separately named NWS Udall account and the five retained rows agree in county progression, F5 classification, aggregate 80 direct deaths and 273 direct injuries, and a maximum reported width of 1,320 yards. Their length fields total 56.4 miles versus 56 miles in the named account. The sources may share historical material. Each raw ID stays separate; no UTC, automatic join or surveyed track is inferred. Matching neighboring endpoints support consistency only; continuation and narrative fields are blank.",
+      "status": "reviewed_association",
+      "alternatives": []
+    },
+    {
+      "id": "ncei:10027632",
+      "basis": "Later Cowley row at 23:15 CST, 13.6 miles, 33 yards and zero direct deaths or injuries. The separately named NWS Udall account and the five retained rows agree in county progression, F5 classification, aggregate 80 direct deaths and 273 direct injuries, and a maximum reported width of 1,320 yards. Their length fields total 56.4 miles versus 56 miles in the named account. The sources may share historical material. Each raw ID stays separate; no UTC, automatic join or surveyed track is inferred. Equal beginning and ending labels do not establish duration or a final continuous position.",
+      "status": "reviewed_association",
+      "alternatives": []
+    }
+  ],
+  "routes": [
+    {
+      "label": "Read the documentary account",
+      "href": "udall.html"
+    },
+    {
+      "label": "The town in the damage account",
+      "href": "udall.html#damage-and-aftermath"
+    },
+    {
+      "label": "The regional forecast and its limits",
+      "href": "udall.html#regional-forecast"
+    },
+    {
+      "label": "Open the complete forecast document",
+      "href": "udall.html#udall-regional-forecast"
+    },
+    {
+      "label": "Read the five separate source records",
+      "href": "udall.html#records"
+    },
+    {
+      "label": "Check the boundary and rejected join",
+      "href": "udall.html#boundary-and-identity"
+    },
+    {
+      "label": "Compare reported clocks and counts",
+      "href": "udall.html#clocks-and-counts"
+    },
+    {
+      "label": "Visit the original image archive",
+      "href": "udall.html#original-images"
+    },
+    {
+      "label": "Read the remembrance scope",
+      "href": "udall.html#remembrance"
+    },
+    {
+      "label": "Inspect source editions and limits",
+      "href": "udall.html#sources"
+    },
+    {
+      "label": "Keep the documentary beside an assumed experiment",
+      "href": "udall.html#assumed-experiments"
+    }
+  ],
+  "creators": [
+    {
+      "id": "nws-wichita",
+      "name": "National Weather Service Wichita",
+      "basis": "Publisher and custodian of the Udall historical archive and hosted report transcription. Custody does not identify the unknown original photographer, issuing office, typist or scan creator."
+    },
+    {
+      "id": "nws-norman",
+      "name": "National Weather Service Norman",
+      "basis": "Publisher of the maintained named tornado account and distinct Blackwell/Udall table rows. Its account may share underlying historical material with NCEI."
+    },
+    {
+      "id": "noaa-ncei",
+      "name": "NOAA National Centers for Environmental Information",
+      "basis": "Publisher and custodian of the retained Storm Events source rows. Source-record identity and documentary event association remain separate."
+    }
+  ],
+  "sources": [
+    {
+      "id": "nws-wichita-storm-report",
+      "title": "NWS Wichita: historical report of the Blackwell and Udall tornadoes",
+      "url": "https://www.weather.gov/ict/udall_stormreport",
+      "locator": "Report introduction; UDALL, KANSAS section, descriptive paragraphs, Wheeler Martin passage and final paragraph attributing the Phillips damage survey and the authors' continuity interpretation.",
+      "access": "Original maintained HTML transcription text inspected. No original printed report or survey sheet was compared.",
+      "revision": "Maintained hosted transcription accessed October 19, 2026. Its historical report and attributed witness/survey accounts are separate from the current webpage edition.",
+      "rights": "Attributed paraphrase and source link only. No source figure or separately credited historical photograph is hosted.",
+      "agent_processing": "Agent-authored source assessment. Source interpretation is distinct from independent candidate review and executed visitor acceptance."
+    },
+    {
+      "id": "nws-norman-1955-outbreak",
+      "title": "NWS Norman: the tornado outbreak of May 25, 1955",
+      "url": "https://www.weather.gov/oun/events-19550525",
+      "locator": "Summary distinguishing the Blackwell and later Udall tornadoes; Oklahoma Tornado Table rows 9 and 10, including county progression, damage classification, whole-track dimensions and impact totals.",
+      "access": "Original maintained primary HTML text inspected in the stated sections.",
+      "revision": "Maintained event account accessed October 19, 2026. This is not a recovered 1955 page edition.",
+      "rights": "Attributed paraphrase and source link only. Agency hosting does not grant reuse of third-party photographs.",
+      "agent_processing": "Agent-authored source assessment. Source interpretation is distinct from independent candidate review and executed visitor acceptance."
+    },
+    {
+      "id": "ncei-1955-records",
+      "title": "NCEI Storm Events: five Udall-associated records and two separate Blackwell controls",
+      "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1955_c20260323.csv.gz",
+      "locator": "Snapshot ncei:1955:20260323. Udall-associated IDs 10096418, 10027629, 10027630, 10027631, 10027632; CSV logical records 146, 1365, 1366, 1367, 1368. Separate Blackwell controls 10096417 and 10027628; CSV logical records 145 and 1364. All seven retained records inspected in full.",
+      "access": "Retained catalogue detail fields, blank narratives/continuations, coordinate endpoints, local clock labels, null UTC, quality notes and provenance were inspected. The original gzip was not reacquired or rehashed.",
+      "revision": "1955 CSV release c20260323, retrieved September 20, 2026 at 12:22:09.343333 UTC. Reported original source SHA256 c503aadb9ca02fe8f9de0fa67e91218b02b4b8489af4f95c7cdc40d34c72c9cc. These related rows are one retained source stream, not independent cameras.",
+      "rights": "Public source fields, attributed interpretation and original-source links. No photograph or video hosting permission is inferred.",
+      "agent_processing": "Agent-authored source assessment. Source interpretation is distinct from independent candidate review and executed visitor acceptance."
+    },
+    {
+      "id": "nws-wichita-udall-archive",
+      "title": "NWS Wichita: the Udall tornado archive",
+      "url": "https://www.weather.gov/ict/udall",
+      "locator": "Original archive contents and report, regional forecast, map, radar and photograph-page routes.",
+      "access": "Index and linked source-page text inspected. No readable map or radar pixels/legend were established; refreshed radar access was unavailable.",
+      "revision": "Maintained archive page accessed October 19, 2026. Link presence establishes a locator, not successful visual inspection.",
+      "rights": "Links only, apart from the separately identified and unchanged nws-blackwell-warning2 document. No archive-wide image clearance.",
+      "agent_processing": "Agent-authored source assessment. Source interpretation is distinct from independent candidate review and executed visitor acceptance."
+    },
+    {
+      "id": "nws-wichita-udall-photos-1",
+      "title": "NWS Wichita: Udall aftermath photograph captions, page 1",
+      "url": "https://www.weather.gov/ict/udall_pics1",
+      "locator": "Original photograph-page captions and links, including school damage and a refuge entrance.",
+      "access": "Caption and route text inspected. Complete image pixels, original photographer identities and item-specific reuse rights were not qualified.",
+      "revision": "Maintained photograph page accessed October 19, 2026. No original image object or byte identity was acquired for this source record.",
+      "rights": "Original-source links only. Government webpage hosting is not proof of federal photography or item-specific permission.",
+      "agent_processing": "Agent-authored source assessment. Source interpretation is distinct from independent candidate review and executed visitor acceptance."
+    },
+    {
+      "id": "nws-wichita-udall-photos-2",
+      "title": "NWS Wichita: Udall aftermath photograph captions, page 2",
+      "url": "https://www.weather.gov/ict/udall_pics2",
+      "locator": "Original photograph-page captions and links, including aid facilities and the water tower.",
+      "access": "Caption and route text inspected. Complete image pixels, original photographer identities and item-specific reuse rights were not qualified.",
+      "revision": "Maintained photograph page accessed October 19, 2026. No original image object or byte identity was acquired for this source record.",
+      "rights": "Original-source links only. No third-party photograph is hosted or cleared by this page inspection.",
+      "agent_processing": "Agent-authored source assessment. Source interpretation is distinct from independent candidate review and executed visitor acceptance."
+    },
+    {
+      "id": "nws-blackwell-warning2",
+      "title": "A broad severe-weather forecast and its later caption",
+      "url": "https://www.weather.gov/images/ict/wxstory/udall/warning2.jpg",
+      "locator": "NWS Wichita archive, Second Warning Issued link; complete 608 by 436 pixel image including the typewritten forecast and later archive caption. Issue, valid-period and caption broadcast labels are kept distinct.",
+      "access": "The complete available original JPEG was retained once and visually inspected at its original pixels by an agent on October 4, 2026 UTC. Its archive link context and NWS use policy were inspected. No original issuing office or receipt record was established.",
+      "revision": "Original JPEG SHA256 8de7b776fc25c87834a9277c77c2a6b10939b4618984dbefe450e621584304a5; 76308 bytes. Retained October 4, 2026 UTC. A server modification date is not a historical issue or capture clock.",
+      "rights": "Reproduced under the NWS default public-domain use policy at https://www.weather.gov/disclaimer. Neither the inspected original image, its archive link label nor its metadata identifies a separate third-party credit or contrary rights notice. Original issuing office, typist and scan creator are unknown. This item-specific basis does not clear unrelated newspaper scans. If a contrary holder or restriction is found, hosting needs a separate assessment. Source attribution is retained and no endorsement is implied.",
+      "agent_processing": "Agent projection of retained evidence. No new human review is claimed."
+    }
+  ],
+  "observations": [
+    {
+      "id": "udall-damage-account",
+      "title": "Udall in the historical damage account",
+      "source_id": "nws-wichita-storm-report",
+      "locator": "UDALL, KANSAS section, opening descriptive paragraphs.",
+      "account": "The report describes destruction from southwest to northeast across Udall, including its water tower, railway cars and buildings.",
+      "limits": "Attributed historical aftermath account, without a new survey, image-pixel inspection or measured local wind field.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "reported_damage_context",
+        "reported": "Udall, Kansas",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "phillips-survey-continuity",
+      "title": "An attributed historical continuity interpretation",
+      "source_id": "nws-wichita-storm-report",
+      "locator": "Final UDALL, KANSAS paragraph, Phillips survey and authors' survey/radar interpretation.",
+      "account": "The report credits Phillips's damage survey. Its authors interpret continuity from U.S. Highway 166 through Udall, with skips up to about 3.5 miles and a broader path exceeding 50 miles.",
+      "limits": "Positive historical continuity evidence remains attributed. It does not bridge the exact retained Kay-Sumner endpoint discrepancy, establish UTC or prove continuous observation of one funnel.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "historical_survey_interpretation",
+        "reported": "U.S. Highway 166 through Udall, as described by the report",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "five-record-association",
+      "title": "One documentary event, five distinct retained records",
+      "source_id": "nws-norman-1955-outbreak",
+      "locator": "Summary and Oklahoma Tornado Table row 10; retained records 10096418,10027629,10027630,10027631,10027632.",
+      "account": "The separately named Udall account progresses through Kay, Sumner and Cowley Counties. The five retained F5 rows total 80 direct deaths and 273 direct injuries, with 1,320 yards maximum width. Their length fields sum to 56.4 miles, compared with the account's 56 miles.",
+      "limits": "Manual documentary association with five distinct IDs. NWS/NCEI may share underlying material. Agreement is not independent optical evidence, a newly surveyed length, an established rounding protocol or an automatic join.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "event_association",
+        "reported": "Kay County, Oklahoma, then Sumner and Cowley Counties, Kansas",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "kay-sumner-boundary",
+      "title": "An unmatched Kay-Sumner coordinate boundary",
+      "source_id": "ncei-1955-records",
+      "locator": "10096418 spatial.end_point and 10027629 spatial.begin_point; both original retained longitude/latitude pairs.",
+      "account": "The Kay record ends at [-97.15,37]. The following Sumner record begins at [-97.25,37], a 0.1 degree longitude difference. Both values remain unchanged.",
+      "limits": "No snapping, inferred connecting line or coordinate repair. All five candidate continuation fields and narratives are blank; later matching endpoints do not establish a surveyed moving track.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "record_boundary_comparison",
+        "reported": "Reported Kay-Sumner boundary coordinates, not a registered location",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "endpoint-ambiguity-control",
+      "title": "One endpoint, an intended comparison and a rejected join",
+      "source_id": "ncei-1955-records",
+      "locator": "10096417 spatial.end_point; 10027628 and 10027629 spatial.begin_point; separate NWS Blackwell and Udall table rows.",
+      "account": "Blackwell control 10096417 ends at [-97.25,37]. That equals the start of its intended Sumner comparison 10027628 and the start of Udall-associated 10027629. The second pairing would cross the separate tornado accounts.",
+      "limits": "10096417 to 10027628 is the intended within-Blackwell comparison. The cross-event 10096417 to 10027629 join is rejected. Neither Blackwell control is associated with Udall; coordinate equality alone cannot decide identity.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "association_control",
+        "reported": "Separate Blackwell and Udall source-record groups",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "source-clock-disagreement",
+      "title": "Reported 2235 and 2245 CST labels remain distinct",
+      "source_id": "nws-wichita-storm-report",
+      "locator": "Wheeler Martin passage; retained Cowley record 10027630 time, quality and provenance fields.",
+      "account": "The report attributes a roar, hail, rain and house collapse to Wheeler Martin at approximately 2235 CST. Cowley record 10027630 labels its beginning and ending 2245 CST.",
+      "limits": "These are different reported clocks, not a calibrated arrival. Catalogue UTC stays null with unresolved time-zone notes. Repeated begin/end labels do not prove zero duration. No time offset, conversion, building location or exact duration is inferred.",
+      "status": {
+        "intake": "published",
+        "assertion": "disputed",
+        "temporal": "source_label",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "historical_clock_comparison",
+        "reported": "Udall account and Cowley County record, without a surveyed witness position",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "injury-count-disagreement",
+      "title": "The injury totals belong to different accounts",
+      "source_id": "nws-wichita-storm-report",
+      "locator": "Report introduction; NWS Norman Oklahoma Tornado Table row 10; direct-impact fields of the five retained Udall-associated records.",
+      "account": "The reproduced report gives 250 injuries. The later NWS account and five retained rows give 273.",
+      "limits": "Keep both attributed totals and their source scopes. No date or definition explaining the difference was established, and the values are not averaged or silently reconciled. NWS/NCEI agreement may share upstream material.",
+      "status": {
+        "intake": "published",
+        "assertion": "disputed",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "source_count_comparison",
+        "reported": "Udall tornado account and whole-track comparison",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "county-loss-scope",
+      "title": "A county field is not a new town-only count",
+      "source_id": "ncei-1955-records",
+      "locator": "Direct deaths and injuries in records 10096418,10027629,10027630,10027631,10027632; compare NWS Norman table row 10.",
+      "account": "The records allocate 5 direct deaths and 3 direct injuries to Sumner 10027629, and 75 direct deaths and 270 direct injuries to Cowley 10027630. The other three rows report zero for both fields; the combined death count is 80.",
+      "limits": "75 is the Cowley source-record allocation, not an independently established Udall town-only count. The whole-track total does not identify individual fatality places, provide a complete memorial or justify new personal map points.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "impact_count_scope",
+        "reported": "Separate county source fields within the reviewed whole-track documentary association",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    },
+    {
+      "id": "original-image-limits",
+      "title": "Original image routes retain their inspection limits",
+      "source_id": "nws-wichita-udall-archive",
+      "locator": "Archive links to photograph pages 1 and 2, map.jpg and radar.jpg; linked caption-page readings.",
+      "account": "The original archive provides aftermath photograph pages and separate map and radar routes. The photograph-page captions remain useful source links.",
+      "limits": "No complete aftermath photo pixels, photographer identities, item-specific hosting rights, map legend or radar timing were qualified. The refreshed radar request was unavailable. These links supply no camera, surface-wind field or historical appearance registration.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "links_only"
+      },
+      "time": {
+        "event": "May 25, 1955",
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-19",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "source_access_context",
+        "reported": "NWS Wichita archive routes, not registered scene locations",
+        "coordinates": null,
+        "basis": "Attributed documentary wording only. No camera location, geographic replay or registered historical position."
+      },
+      "review": "Agent source assessment of the cited original HTML text or retained records on October 19, 2026 UTC. No new human interview, historical survey, synchronized camera or appearance registration is claimed."
+    }
+  ],
+  "media": [
+    {
+      "id": "nws-blackwell-warning2",
+      "title": "A broad severe-weather forecast and its later caption",
+      "source_id": "nws-blackwell-warning2",
+      "locator": "NWS Wichita archive, Second Warning Issued link; complete 608 by 436 pixel image including the typewritten forecast and later archive caption. Issue, valid-period and caption broadcast labels are kept distinct.",
+      "account": "The typewritten forecast describes possible tornadoes across a large city-defined region and requests immediate broadcast. Its heading has May 25 and an overtyped 4.36 PM issue label; the forecast period is 4.30 PM to 10 PM. The later archive caption supplies May 25, 1955, gives 4:36 P.M. and reports a broadcast by local media on the 5:00 news.",
+      "limits": "The year and broadcast assertion belong to the later caption, not the typewritten body. No independent station record was obtained. Neither layer identifies a time zone, Blackwell broadcaster or resident who received it. The city-defined area is not converted into a polygon or explicit Blackwell warning. No tornado lead time or absolute event clock is derived.",
+      "status": {
+        "intake": "published",
+        "assertion": "source_reported",
+        "temporal": "unregistered",
+        "spatial": "unregistered",
+        "availability": "reviewed_available",
+        "rights": "permitted_hosting"
+      },
+      "time": {
+        "event": null,
+        "capture": null,
+        "publication": null,
+        "retrieval": "2026-10-04T16:54:02.524217+00:00",
+        "video": null,
+        "alignment": null
+      },
+      "place": {
+        "role": "historical_weather_document",
+        "reported": "A broad region described through Dodge City, Amarillo, Wichita Falls, Ardmore and Wichita. This is attributed area wording, not a plotted warning polygon or explicit Blackwell receipt.",
+        "coordinates": null,
+        "basis": "Attributed document wording only; no registered location, warning polygon or camera point."
+      },
+      "review": "Agent visual inspection of the complete available original JPEG and its archive context on October 4, 2026 UTC. Typewritten text is distinguished from later caption additions. No human warning-receipt study, time calibration or spatial registration is claimed.",
+      "kind": "photograph",
+      "url": "https://www.weather.gov/images/ict/wxstory/udall/warning2.jpg",
+      "roles": {
+        "creator": null,
+        "uploader": "nws-wichita",
+        "rights_holder": null
+      },
+      "parent": null,
+      "transformation": {
+        "recipe": "Exact original JPEG of an archival document preserved without crop, recoloring, resampling or caption removal. The existing photograph kind describes the document image, not storm footage.",
+        "asset": "assets/blackwell-1955/nws-warning2.jpg",
+        "sha256": "8de7b776fc25c87834a9277c77c2a6b10939b4618984dbefe450e621584304a5",
+        "width": 608,
+        "height": 436,
+        "alt": "Typewritten severe-weather forecast with an overtyped issue time and immediate-broadcast request, above a later caption dated May 25, 1955."
+      }
+    }
+  ],
+  "reconstruction": {
+    "appearance": "unregistered",
+    "intervals": [],
+    "limits": "No registered camera, independently synchronized optical observation, calibrated UTC, geographic replay, historical wind field or continuous appearance interval is published. Source damage ratings, widths, endpoints and historical continuity interpretations do not supply those missing constraints."
+  },
+  "provenance": {
+    "input_kind": "Standalone schema 1 source dossier using the existing Atlas archive processor.",
+    "source_basis_revision": "fef178c45581ad03d11b7fc2e5e86570c1cb7709",
+    "research_record": "research/udall-foundation-2026-10-19.md",
+    "reviewed_on": "2026-10-19",
+    "review_scope": "Selected original NWS HTML text, existing exact regional forecast document assessment and seven retained source-record controls. Five records are manually associated; two remain separate Blackwell controls. Authoring and source assessment do not claim independent candidate approval or executed visitor acceptance.",
+    "retained_catalogue_snapshot": "ncei:1955:20260323",
+    "inherited_source_identities": {
+      "ncei_snapshot_reported_sha256": "c503aadb9ca02fe8f9de0fa67e91218b02b4b8489af4f95c7cdc40d34c72c9cc",
+      "ncei_csv_records": {
+        "ncei:10096418": 146,
+        "ncei:10027629": 1365,
+        "ncei:10027630": 1366,
+        "ncei:10027631": 1367,
+        "ncei:10027632": 1368
+      },
+      "separate_blackwell_controls": {
+        "ncei:10096417": 145,
+        "ncei:10027628": 1364
+      }
+    },
+    "inputs": {
+      "research/udall-foundation-2026-10-19.md": "ab27d8241ddefe8b1d3a11e005278f06b2398601997903a63ac5fd02e71d7936",
+      "web/assets/blackwell-1955/nws-warning2.jpg": "8de7b776fc25c87834a9277c77c2a6b10939b4618984dbefe450e621584304a5"
+    },
+    "regional_document_reuse": {
+      "item_id": "nws-blackwell-warning2",
+      "scope": "Exact existing complete JPEG and unchanged source/media metadata, item-specific rights assessment and attribution roles. Regional forecast document only; no other image hosting grant.",
+      "visual_review": "The complete existing JPEG was inspected by another agent on October 19, 2026, including typewritten forecast and lower archive caption. This dossier author did not repeat pixel inspection. Layout and media-failure behavior remain a separate acceptance question."
+    }
+  }
+}

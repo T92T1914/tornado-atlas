@@ -292,6 +292,8 @@ first sampled exceedance, persistent failure state, and rewind behavior. These
 are model foundations. They do not reconstruct El Reno's visible evolution or
 predict a specific building's damage.
 
+The [Udall account](https://t92t1914.github.io/tornado-atlas/udall.html) follows the separate later tornado of May 25, 1955. Five county records, a historical damage account and the complete regional forecast document remain individually inspectable. The unmatched boundary, conflicting clock labels and different injury totals stay visible. Udall can serve as a documentary reference beside the labs, with no measured model presets or historical replay.
+
 Both labs provide native contents for their controls, source context and model limits. The Wind Lab’s zero-background tracers follow the circular paths of its stated field, while mixed background flow retains an approximate integrator. The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#schools) distinguishes reported refuge decisions, surveyed building damage and NIST’s interpretation. Those observations do not set the lab’s winds or component capacity.
 
 The [source and model notes](research/timeline-and-simulation-2026-09-20.md)

@@ -4,12 +4,12 @@ import {fixture,base} from './harness.mjs';
 
 async function allEvents(page){
   assert.deepEqual(await page.locator('.coverage-event:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.event)),[
-    'el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013'
+    'el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955'
   ]);
 }
 async function geographyLayers(page){
   assert.deepEqual(await page.locator('.coverage-layer:visible').evaluateAll(nodes=>nodes.map(node=>[node.closest('.coverage-event').dataset.event,node.dataset.layer])),[
-    ['el-reno-2013','geography'],['joplin-2011','geography'],['blackwell-1955','geography'],['tuscaloosa-birmingham-2011','geography'],['moore-2013','geography']
+    ['el-reno-2013','geography'],['joplin-2011','geography'],['blackwell-1955','geography'],['tuscaloosa-birmingham-2011','geography'],['moore-2013','geography'],['udall-1955','geography']
   ]);
 }
 async function filter(page,event,layer){
@@ -69,7 +69,7 @@ test('invalid coverage filters have an explicit error and a clear recovery',asyn
   assert.match(await page.getByRole('alert').textContent(),/not in this publication/);
   assert.equal(await page.locator('.coverage-event:visible').count(),0);
   await page.getByRole('link',{name:'Clear filters',exact:true}).click();
-  await page.waitForFunction(()=>document.querySelector('#coverage-status')?.textContent.includes('5 events'));
+  await page.waitForFunction(()=>document.querySelector('#coverage-status')?.textContent.includes('6 events'));
   await allEvents(page);
 });
 

@@ -200,7 +200,8 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
             ('joplin.html', 'Joplin · 2011'),
             ('blackwell.html', 'Blackwell · 1955'),
             ('tuscaloosa.html', 'Tuscaloosa and Birmingham · 2011'),
-            ('moore.html', 'Newcastle and Moore · 2013')])
+            ('moore.html', 'Newcastle and Moore · 2013'),
+            ('udall.html', 'Udall · 1955')])
         self.assertNotIn('\ufffd', self.html)
         for corrupted in ('â—Ž', 'Â·'):
             self.assertNotIn(corrupted, self.html)
