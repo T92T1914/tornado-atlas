@@ -143,6 +143,9 @@ test('Nolte page retirement closes its dialog before document history restoratio
  await page.addInitScript(()=>{window.noltePageShows=[];addEventListener('pageshow',event=>window.noltePageShows.push({persisted:event.persisted}));});
  mark('nolte-retirement-article-entry',base+'/index.html#documentary-nolte-231037');
  await page.goto(base+'/index.html#documentary-nolte-231037');
+ // Retirement begins with the enhanced article; separate held-startup tests
+ // retain the native link contract while reader initialization is in flight.
+ await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
  mark('nolte-retirement-native-player-entry',player());
  await page.locator('#documentary-nolte-231037 a').filter({hasText:'Read this reported instant'}).click();await ready(page);
  await page.locator('#replay-photo-full').click();await shown(page,0);
