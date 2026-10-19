@@ -42,6 +42,15 @@ export function laboratoryEnlargedReadingCases(){
   const skip=page.locator('.skip'),skipBox=()=>skip.evaluate(node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,viewport:innerWidth,focused:document.activeElement===node};});
   const hiddenSkip=await skipBox();assert.equal(hiddenSkip.focused,false);assert.ok(hiddenSkip.bottom<=0,JSON.stringify(hiddenSkip));
   await page.keyboard.press('Tab');const focusedSkip=await skipBox();assert.equal(focusedSkip.focused,true,'The first keyboard stop exposes the native skip link');assert.ok(focusedSkip.top>=0&&focusedSkip.left>=0&&focusedSkip.right<=focusedSkip.viewport&&focusedSkip.height>0,JSON.stringify(focusedSkip));
+  const appearance=page.locator('#reading-appearance'),originalAppearance=await appearance.inputValue();
+  for(const scheme of ['light','dark']){
+   await appearance.selectOption(scheme);await skip.focus();
+   const paint=await skip.evaluate(node=>{const r=node.getBoundingClientRect(),s=getComputedStyle(node);return {appearance:document.documentElement.getAttribute('data-appearance'),color:s.color,background:s.backgroundColor,unobstructed:[.2,.5,.8].every(x=>[.2,.5,.8].every(y=>{const top=document.elementFromPoint(r.left+r.width*x,r.top+r.height*y);return top===node||node.contains(top);}))};});
+   assert.equal(paint.appearance,scheme);assert.equal(paint.unobstructed,true,JSON.stringify(paint));
+   const luminance=color=>{const channels=color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);assert.ok(channels,'Opaque computed RGB for focused text and background');return channels.slice(1).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);};
+   const values=[luminance(paint.color),luminance(paint.background)].sort((a,b)=>a-b);assert.ok((values[1]+.05)/(values[0]+.05)>=4.5,'Focused skip text remains readable in '+scheme+': '+JSON.stringify(paint));
+  }
+  await appearance.selectOption(originalAppearance);await skip.focus();
   await skip.press('Enter');await page.waitForURL(url=>url.hash==='#main');assert.equal(await skip.getAttribute('href'),'#main','Keep the original native main target');
   const target=kind==='wind'?'wind-model-limits':'form-model-limits',link=page.locator('.lab-contents a[href="#'+target+'"]');await link.focus();await link.press('Enter');await page.waitForURL(url=>url.hash==='#'+target);await page.locator('#'+target).waitFor({state:'visible'});
   await assertReadingReflow(page,'Doubled and spaced '+kind+' laboratory reading');
