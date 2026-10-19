@@ -10,7 +10,7 @@ from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 from atlas.archive import digest, dossiers
-from atlas.evidence_coverage import ROOT, coverage_rows, layer_references, publication, render_page, reviewed
+from atlas.evidence_coverage import ROOT, coverage_rows, layer_references, publication, published_disputes, render_page, reviewed
 from atlas.event_package import build_event_packages, replay_inputs, reviewed_index, utc, validate_appearance_timeline
 
 
@@ -239,6 +239,142 @@ class EvidenceCoverageTests(unittest.TestCase):
             candidate = copy.deepcopy(item)
             candidate['status'].update(change)
             self.assertEqual(reviewed([candidate]),[])
+
+    def test_published_disagreement_selection_is_separate_from_positive_admission(self):
+        item = next(item for item in self.docs['moore-2013']['observations']
+                    if item['id'] == 'preliminary-precursor-difference')
+        self.assertEqual(item['status']['intake'], 'published')
+        self.assertEqual(item['status']['assertion'], 'disputed')
+        self.assertEqual(item['status']['availability'], 'disputed')
+        self.assertEqual(published_disputes([item]), [item])
+        self.assertEqual(reviewed([item]), [])
+        available = copy.deepcopy(item)
+        available['status']['availability'] = 'reviewed_available'
+        self.assertEqual(published_disputes([available]), [available])
+        for change in ({'intake': 'candidate'}, {'availability': 'unavailable'},
+                       {'availability': 'documented_no_result'},
+                       {'assertion': 'not_researched'}, {'assertion': 'source_reported'}):
+            candidate = copy.deepcopy(item)
+            candidate['status'].update(change)
+            with self.subTest(change=change):
+                self.assertEqual(published_disputes([candidate]), [])
+        # Disputed availability alone cannot admit an ordinary claim or media item.
+        for kind in ('observations', 'media'):
+            candidate = copy.deepcopy(self.docs['moore-2013'][kind][0])
+            candidate['status']['availability'] = 'disputed'
+            candidate['status']['assertion'] = 'source_reported'
+            with self.subTest(kind=kind):
+                self.assertEqual(published_disputes([candidate]), [])
+                self.assertEqual(reviewed([candidate]), [])
+
+    def test_moore_coverage_links_existing_outcomes_and_unresolved_source_roles(self):
+        doc = self.docs['moore-2013']
+        identity = 'b871ef828cd8a1c475bc73722264a178d63deb9266d9ecb4d699eb5c636c9b7c'
+        self.assertEqual(digest(doc), identity)
+        self.assertEqual(len(doc['observations']), 14)
+        raw = (ROOT/'web/archive/moore-2013-b871ef828cd8a1c475bc.json').read_bytes()
+        self.assertEqual((len(raw), hashlib.sha256(raw).hexdigest()),
+                         (39046, 'c15c3c827585eec744ef91fb760d6b4a989e39cbc9e77c3b35b61049764aa7e8'))
+        refs = layer_references(ROOT, doc)
+        self.assertIsNone(refs['survey'])
+        for layer in ('geography', 'appearance'):
+            self.assertEqual(refs[layer]['observations'], [])
+            self.assertEqual(refs[layer]['media'], [])
+        expected_damage = {
+            'facility-reconnaissance-scope', 'medical-center-function',
+            'plaza-reported-refuge-change', 'plaza-roof-wall-performance',
+            'briarwood-400-refuge-envelope',
+        }
+        expected_media = {'moore-briarwood-survey', 'moore-medical-center-survey'}
+        expected_gaps = {'reported-siren-clock', 'briarwood-rating-revision',
+                         'preliminary-precursor-difference', 'survey-photo-source-group'}
+        self.assertEqual(set(refs['damage']['observations']), expected_damage)
+        self.assertEqual(set(refs['damage']['media']), expected_media)
+        self.assertEqual(set(refs['gaps']['observations']), expected_gaps)
+        self.assertEqual(refs['gaps']['media'], [])
+        row = next(row for row in coverage_rows() if row['event']['id'] == 'moore-2013')
+        self.assertEqual(row['layers']['damage']['state'], 'context')
+        self.assertEqual(row['layers']['gaps']['state'], 'disputed')
+        self.assertEqual(row['layers']['geography']['state'], 'not_classified')
+        self.assertEqual(row['layers']['appearance']['state'], 'not_admitted')
+        self.assertEqual(row['layers']['appearance']['items'], [])
+        self.assertEqual(row['layers']['chronology']['state'], 'not_admitted')
+        self.assertEqual({item['id'] for kind, item in row['layers']['damage']['items']
+                          if kind == 'observations'}, expected_damage)
+        self.assertEqual({item['id'] for kind, item in row['layers']['damage']['items']
+                          if kind == 'media'}, expected_media)
+        self.assertEqual({item['id'] for kind, item in row['layers']['gaps']['items']}, expected_gaps)
+        for layer in ('damage', 'gaps'):
+            for kind, item in row['layers'][layer]['items']:
+                original = next(value for value in doc[kind] if value['id'] == item['id'])
+                self.assertEqual(item, original)
+                self.assertIsNone(item['time']['alignment'])
+                self.assertIsNone(item['place']['coordinates'])
+        text = render_page([row]).decode('utf-8')
+        for identifier in expected_damage | expected_gaps | expected_media:
+            kind = 'media' if identifier in expected_media else 'observation'
+            href = ('dossier.html?event=moore-2013&revision=' + identity + '&' + kind +
+                    '=' + identifier + '#' + kind + '-' + identifier)
+            self.assertIn(html.escape(href), text)
+        for locator in ('printed page 29 / PDF page 53', 'printed page 31 / PDF page 55',
+                        'printed page 36 / PDF page 60', 'printed page 38 / PDF page 62'):
+            self.assertIn(locator, text)
+        for statement in ('thunderstorm wind', 'earlier short-lived EF0 tornado',
+                          'not synchronized with the weather clock',
+                          'not registered to Building 400', 'whole-track maximum'):
+            self.assertIn(statement, text)
+        for identifier, asset, size, sha in (
+                ('moore-briarwood-survey', 'assets/moore-2013/IMG_2314-800.jpg', 410330,
+                 'd53b38069c63ec7508cece9e4a70b11fabf45aad090fa072bc7f115efd2ac7e6'),
+                ('moore-medical-center-survey', 'assets/moore-2013/IMG_9287-800.jpg', 339582,
+                 'f10b6b33fbcecd2c228632d2d681bbef47e58876246b753a04721dda3a58c6bb')):
+            item = next(item for item in doc['media'] if item['id'] == identifier)
+            self.assertEqual(item['transformation']['asset'], asset)
+            self.assertEqual(item['transformation']['sha256'], sha)
+            content = (ROOT/'web'/asset).read_bytes()
+            self.assertEqual((len(content), hashlib.sha256(content).hexdigest()), (size, sha))
+            self.assertEqual(item['status']['temporal'], 'source_label')
+            self.assertEqual(item['status']['spatial'], 'unregistered')
+        self.assertNotIn('<img', text)
+        self.assertNotIn('<iframe', text)
+        self.assertNotIn('<canvas', text)
+
+    def test_disputed_availability_does_not_promote_a_selected_damage_claim(self):
+        docs = copy.deepcopy(list(self.docs.values()))
+        doc = next(doc for doc in docs if doc['id'] == 'moore-2013')
+        claim = next(item for item in doc['observations'] if item['id'] == 'medical-center-function')
+        claim['status']['availability'] = 'disputed'
+        claim['status']['assertion'] = 'disputed'
+        def existing_references(root, candidate):
+            return layer_references(root, self.docs[candidate['id']])
+        with patch('atlas.evidence_coverage.dossiers', return_value=docs), \
+                patch('atlas.evidence_coverage.layer_references', side_effect=existing_references):
+            row = next(row for row in coverage_rows() if row['event']['id'] == 'moore-2013')
+        self.assertNotIn('medical-center-function',
+                         {item['id'] for _, item in row['layers']['damage']['items']})
+        self.assertIn('medical-center-function',
+                      {item['id'] for _, item in row['layers']['gaps']['items']})
+        self.assertEqual(row['layers']['geography']['state'], 'not_classified')
+        self.assertEqual(row['layers']['appearance']['state'], 'not_admitted')
+        self.assertEqual(row['layers']['appearance']['items'], [])
+        self.assertEqual(row['layers']['chronology']['state'], 'not_admitted')
+
+    def test_moore_membership_rejects_foreign_missing_and_stale_references(self):
+        doc = self.docs['moore-2013']
+        original = json.loads((ROOT/'exhibits/moore-2013/layers.json').read_text())
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            target = root/'exhibits/moore-2013/layers.json'
+            target.parent.mkdir(parents=True)
+            for case in ('foreign-event', 'foreign-item', 'missing-item', 'changed-dossier'):
+                data = copy.deepcopy(original)
+                if case == 'foreign-event': data['event_id'] = 'udall-1955'
+                elif case == 'foreign-item': data['layers']['damage']['media'].append('nws-blackwell-smoothed-map')
+                elif case == 'missing-item': data['layers']['gaps']['observations'].append('absent-moore-evidence')
+                else: data['dossier_sha256'] = '0'*64
+                target.write_text(json.dumps(data))
+                with self.subTest(case=case), self.assertRaises(ValueError):
+                    layer_references(root, doc)
 
     def test_generated_view_is_exact_and_contains_source_and_no_script_routes(self):
         raw = publication()['coverage.html']

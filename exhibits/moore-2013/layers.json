@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "event_id": "moore-2013",
+  "dossier_sha256": "b871ef828cd8a1c475bc73722264a178d63deb9266d9ecb4d699eb5c636c9b7c",
+  "survey": null,
+  "layers": {
+    "geography": {
+      "basis": "The retained county records support a documentary association, not a surveyed continuous route, registered camera or geographic replay. No geographic layer is classified by this record.",
+      "observations": [],
+      "media": []
+    },
+    "appearance": {
+      "basis": "The two inspected photographs show the following-day aftermath. They do not establish storm-time appearance, a registered camera or a historical appearance interval. No appearance layer is classified by this record.",
+      "observations": [],
+      "media": []
+    },
+    "damage": {
+      "basis": "The limited NIST reconnaissance keeps teacher interviews, surveyed building outcomes and proposed structural explanations distinct. The two agency survey photographs retain their following-day context and item-specific inspection and rights records. The Briarwood photograph is not registered to Building 400 or its refuge spaces. These records supply no measured local wind, calibrated failure sequence, exact collapse time or shelter certification.",
+      "observations": [
+        "facility-reconnaissance-scope",
+        "medical-center-function",
+        "plaza-reported-refuge-change",
+        "plaza-roof-wall-performance",
+        "briarwood-400-refuge-envelope"
+      ],
+      "media": [
+        "moore-briarwood-survey",
+        "moore-medical-center-survey"
+      ]
+    },
+    "gaps": {
+      "basis": "The unsynchronized siren computer, Briarwood's site-rating revision, differing classifications of the earlier Newcastle damage and following-day survey-photo provenance retain their separate source scopes. No clock offset, additional tornado, revised whole-track maximum, camera calibration or transferred image permission is inferred. The current pinned dossier preserves all other recorded limits.",
+      "observations": [
+        "reported-siren-clock",
+        "briarwood-rating-revision",
+        "preliminary-precursor-difference",
+        "survey-photo-source-group"
+      ],
+      "media": []
+    }
+  }
+}
