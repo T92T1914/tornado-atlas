@@ -8,15 +8,16 @@
 <link rel="stylesheet" href="appearance.css"><script src="appearance.js"></script><link rel="stylesheet" href="museum.css">
 <link rel="stylesheet" href="laboratory.css">
 </head>
-<body>
+<body class="laboratory-page">
   <a class="skip" href="#main">Skip to form study</a>
   <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><!-- museum-navigation --><nav class="museum-nav" aria-label="Museum navigation"><a href="atlas.html">Collection</a><details><summary>Exhibits <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="index.html">El Reno · 2013</a><a href="joplin.html">Joplin · 2011</a><a href="blackwell.html">Blackwell · 1955</a><a href="tuscaloosa.html">Tuscaloosa and Birmingham · 2011</a><a href="moore.html">Newcastle and Moore · 2013</a></div></details><details><summary>Explore <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="atlas.html#catalogue">Map and catalogue</a><a href="reconstruction.html">El Reno spatial replay</a><a href="study.html" aria-current="page">Form study</a><a href="wind.html">Wind laboratory</a></div></details><details><summary>Sources <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="dossier.html">Event dossiers</a><a href="coverage.html">Reconstruction coverage</a><a href="survey.html">Damage survey</a><a href="radar-source.html">Radar source reader</a><a href="japan.html">Japan source records</a></div></details></nav><!-- /museum-navigation --><span class="local">VISUAL LAB / 001</span></header>
   <main id="main">
 <div class="reading-appearance appearance-bar"><label for="reading-appearance">Appearance</label><select id="reading-appearance" disabled><option value="dark">Obscur · Dark</option><option value="light">Clair · Light</option><option value="system" selected>Use system setting</option></select></div>
     <section class="study-intro"><div><div class="eyebrow">AN INTERACTIVE FORM STUDY</div><h1>Inside the shape.</h1></div><p>Turn the view. Change the form. Watch the cloud move. This is the first visual prototype for the museum, an illustration in three dimensions with no assigned storm, date or physical scale.</p></section>
 
+<nav class="lab-contents" aria-labelledby="lab-contents-title"><h2 id="lab-contents-title" tabindex="-1">On this experiment</h2><p>Start with a still form, then inspect an authored sequence. A change in the drawing is not a measured change in a historical tornado.</p><ol><li><a href="#lab-context">Documentary reference</a></li><li><a href="#form-experiment">1. Turn and change the illustration</a></li><li><a href="#form-sequence">2. Explore the authored sequence and gap</a></li><li><a href="#form-model-limits">Illustration limits and original sources</a></li></ol></nav>
 <section id="lab-context" class="lab-context" aria-labelledby="lab-context-title">
-  <h2 id="lab-context-title">Keep the evidence beside the experiment.</h2>
+  <h2 id="lab-context-title" tabindex="-1">Keep the evidence beside the experiment.</h2>
   <p class="lab-boundary">A documentary reference changes the reading beside this model. It does not assign the storm’s shape, winds or damage to these settings. All model values remain your assumptions.</p>
   <div id="lab-enhancement" hidden>
     <div class="lab-context-grid"><div><label for="lab-event">Documentary reference</label><select id="lab-event"><option value="">No assigned storm</option></select></div><div><p id="lab-reference-account"></p><div id="lab-reference-links" class="lab-reference-links"></div></div></div>
@@ -26,6 +27,7 @@
   <p id="lab-documentary-fallback"><a href="index.html">El Reno documentary</a> · <a href="joplin.html">Joplin documentary</a> · <a href="blackwell.html">Blackwell documentary</a> · <a href="tuscaloosa.html">Tuscaloosa and Birmingham documentary</a> · <a href="moore.html">Newcastle and Moore documentary</a></p>
   <noscript><p>Experiment links need JavaScript to restore settings. These documentary accounts remain readable. The wind table, where present, describes only its printed default assumptions.</p></noscript>
 </section>
+    <h2 class="lab-step-title" id="form-experiment" tabindex="-1">Turn and change the illustration.</h2>
     <div class="study-layout">
       <div class="scene-shell">
         <div class="scene-bar"><span>PROCEDURAL ILLUSTRATION</span><span id="scene-form">CONE FORM</span></div>
@@ -33,7 +35,7 @@
         <div class="scene-footer"><button id="motion" disabled>Play motion</button><button id="reset-view">Reset view</button><span id="motion-status" role="status">Loading the scene</span></div>
       </div>
       <form class="study-controls" onsubmit="return false" aria-label="Illustration controls">
-        <fieldset class="form-sequence"><legend>Explore an evolving form</legend>
+        <fieldset id="form-sequence" class="form-sequence" tabindex="-1"><legend>Explore an evolving form</legend>
           <label class="check-control"><input id="sequence-enabled" type="checkbox"> Use the authored example sequence</label>
           <label for="sequence-coverage">Example coverage</label><select id="sequence-coverage"><option value="continuous">Original continuous example</option><option value="bounded">Two windows with an unassigned gap</option></select>
           <label for="sequence-rate">Sequence playback rate</label><select id="sequence-rate"><option value="1">1 second per second</option><option value="15">15 seconds per second</option></select>
@@ -52,7 +54,10 @@
         <p class="control-note">Motion starts paused. Drag the scene or use its arrow keys to rotate. Animation pauses when you leave the page or most of the scene scrolls out of view.</p>
       </form>
     </div>
+    <p class="lab-return"><a href="#lab-contents-title">On this experiment</a></p>
+    <h2 class="lab-step-title" id="form-model-limits" tabindex="-1">Read the illustration’s limits.</h2>
     <section class="study-explanation"><article><div class="eyebrow">WHAT YOU ARE SEEING</div><h2>A visible form is only part of the storm.</h2><p>The condensation funnel, dust and debris help make a tornado visible. Its appearance alone does not establish its wind speed or damage rating. The same illustrated form here can be shown with a shorter visible funnel.</p><p><a href="https://www.nssl.noaa.gov/education/svrwx101/tornadoes/" target="_blank" rel="noopener">NSSL tornado basics ↗</a> · <a href="https://forecast.weather.gov/glossary.php?word=wedge" target="_blank" rel="noopener">NWS on appearance and intensity ↗</a></p></article><article><div class="eyebrow">WHERE THIS FITS</div><h2>From a form study to a historical view.</h2><p>This drawing uses repeatable particle patterns and adjustable geometry. It does not solve the air flow or estimate damage. The rotation rate, cloud shape and ground grid are artistic choices.</p><p>A reconstruction of a particular tornado will need registered camera views, dates, positions and measured constraints. The <a href="index.html#research">El Reno research notebook</a> tracks that work separately. The <a href="index.html#damage">survey gallery</a> shows real documented damage.</p></article></section>
+    <p class="lab-return"><a href="#lab-contents-title">On this experiment</a></p>
   </main>
   <footer><span>TORNADO ATLAS</span><p>Illustrative visual study · Original procedural graphics · September 2026.</p><a href="atlas.html">Return to atlas ↗</a></footer>
 </body>

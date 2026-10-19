@@ -292,6 +292,8 @@ first sampled exceedance, persistent failure state, and rewind behavior. These
 are model foundations. They do not reconstruct El Reno's visible evolution or
 predict a specific building's damage.
 
+Both labs provide native contents for their controls, source context and model limits. The Wind Lab’s zero-background tracers follow the circular paths of its stated field, while mixed background flow retains an approximate integrator. The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#schools) distinguishes reported refuge decisions, surveyed building damage and NIST’s interpretation. Those observations do not set the lab’s winds or component capacity.
+
 The [source and model notes](research/timeline-and-simulation-2026-09-20.md)
 record what was inspected, the unavailable synchronized-video leads, the
 assumptions, and what remains before a historical reconstruction.

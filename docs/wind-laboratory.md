@@ -28,8 +28,7 @@ damage-rating output. The
 [NWS EF-scale explanation](https://www.weather.gov/oun/efscale) describes why
 damage indicators and degrees of damage are part of an actual rating.
 
-The visible dots are passive markers. Their motion uses midpoint integration
-with a bounded animation time step; it does not solve fluid dynamics. Colors
+The visible dots are passive markers. With zero background, their paths use the exact circular solution of this stated field. Positive background retains the existing midpoint approximation. The animation step is bounded to 0.04 seconds and does not catch up a longer frame gap. This does not solve fluid dynamics. Colors
 are normalized to the current velocity settings and therefore do not form
 a fixed wind-speed scale across different experiments. Motion starts paused,
 stops when hidden, and does not catch up a hidden-tab time gap.
@@ -159,3 +158,11 @@ For positive comparison speed no greater than peak swirl, the qualifying radial 
 Adding background flow changes the annulus geometry. The independent comparison then becomes unavailable and clears its old numerical values, while the existing sampled experiment remains usable. It resumes when background returns to zero. This is a mathematical cross-check within floating-point arithmetic, not a general sampling-error bound or evidence that finer grids always converge monotonically. The 481 rows, model equations, shared selected sample and paused experiment-link contract remain unchanged.
 
 Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all five documentary references.
+
+## Follow the experiment as a reading path
+
+The Wind Lab now has native local contents for its probe, passage, assumed component, continuous reference, full sampled table and model limits. The Form Study follows the same convention for its illustration, authored sequence and limits. These links use the existing paused experiment capture and native browser history. They add no clock or state controller. Control explanations have a larger reading size and range controls have a 44-pixel hit region. These changes need their own desktop and narrow-viewport acceptance, without implying physical-phone or comprehension-study results.
+
+The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#schools-and-model-limits) gives the comparison a specific documentary question. Its NIST source distinguishes interviewed refuge decisions, observed roof and wall damage, and an attributed structural explanation. Those records cannot populate the generic wind or capacity controls.
+
+A controlled execution of the previous drawing consumer found artificial radial drift in zero-background swirl. At 250 mph, 50 ft and a starting radius of 0.1 R, 600 steps of 0.04 seconds moved the tracer to about 0.174 R. The exact stated field keeps that radius at 0.1 R. The zero-background path now uses circular rotation at the appropriate angular speed inside or outside the core. Mixed positive-background flow retains the earlier midpoint method and its approximation error. The unchanged frame-time cap, offscreen recycling and visual marker count remain display choices. This repairs motion within the mathematical assumption. It does not validate a historical tornado, add radial inflow or change the force, passage, capacity or continuous-reference calculations.
