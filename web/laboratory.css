@@ -40,6 +40,6 @@
 .laboratory-page .study-controls select {font-size:16px;min-height:44px;max-width:100%}
 .laboratory-page .study-controls input[type=range],.laboratory-page .passage input[type=range] {min-height:44px;box-sizing:border-box}
 .laboratory-page .form-sequence legend {font-size:16px;line-height:1.5}
-.laboratory-page .study-layout>*,.laboratory-page .study-explanation>* {min-width:0;overflow-wrap:anywhere}
+.laboratory-page .study-intro>*,.laboratory-page .study-layout>*,.laboratory-page .study-explanation>*,.laboratory-page .wind-readings>*,.laboratory-page .passage-layout>* {min-width:0;overflow-wrap:anywhere}
 .laboratory-page .scene-bar {gap:16px;flex-wrap:wrap;line-height:1.5}
 @media(max-width:780px){.laboratory-page .lab-contents{padding:20px 0}.laboratory-page .lab-contents ol{grid-template-columns:minmax(0,1fr)}.laboratory-page .study-explanation{gap:28px}}
