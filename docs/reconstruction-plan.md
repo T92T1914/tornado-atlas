@@ -407,3 +407,11 @@ The Moore 2013 documentary follows one source-supported tornado through its sepa
 The Wind Lab's continuous zero-background comparison addresses a different gap: a finite sample sequence can miss a brief peak in its own assumed field. Independent annulus geometry now exposes that discrepancy beside the unchanged sampled graph, component and table. The comparison improves numerical interpretation. It does not validate the Rankine idealization against observed tornado winds or calibrate structural response.
 
 The original reconstruction requirements remain open. Documentary depth, a repeatable manual experiment and an analytical reference are useful capabilities with separate acceptance. They do not complete evolving historical appearance, independent optical synchronization, registered camera geometry or a historically supported damage model. Nolte's first-match requirement, frozen +22 and already attempted +85 disposition remain unchanged.
+
+## Laboratory motion and school evidence
+
+The Wind Lab’s passive markers now use the circular solution of the existing zero-background field. A controlled execution of the old drawing consumer reproduced artificial outward drift at supported control limits. Removing that numerical distortion improves the illustration of its chosen assumptions. Mixed background flow remains approximate, and no radial inflow, three-dimensional weather solution or historical wind is added. The force, passage, sampled failure and continuous-reference rules are unchanged.
+
+The Moore school account adds three source-specific observations from NIST’s preliminary reconnaissance. Reported refuge changes, observed building damage and the report’s proposed structural explanation retain their different evidence kinds. Native learning paths connect the laboratory controls to their limits and the existing documentary reference. The records provide no measured settings for the generic component experiment.
+
+This increment leaves the original El Reno appearance interval, independent synchronization, camera geometry and historically supported damage reconstruction unfinished. Nolte’s first unique match, frozen +22 comparison and prior +85 disposition remain unchanged.

@@ -1,4 +1,5 @@
 import {MPH,FOOT,windAt,loadAt} from './wind-model.mjs';
+import {advanceWindTracer} from './wind-tracer.mjs';
 const el=id=>document.getElementById(id),canvas=el('wind-field'),ctx=canvas.getContext('2d');
 const ids=['peak','radius','background','probe-x','probe-y','area','coefficient'];
 let running=false,last=null,raf=0,visible=true,particles=[];
@@ -43,10 +44,7 @@ function draw(elapsed=0) {
   ctx.fillStyle='#b3bbae';ctx.font='11px '+getComputedStyle(canvas).fontFamily;ctx.fillText('N ↑',18,24);
   ctx.textAlign='right';ctx.fillText(`R = ${Math.round(s.radius/FOOT)} ft`,width-18,24);ctx.textAlign='left';
   if (elapsed) for (const point of particles) {
-    const w=windAt(point.x*s.radius,point.y*s.radius,s);
-    const mx=point.x+w.u/s.radius*elapsed/2,my=point.y+w.v/s.radius*elapsed/2;
-    const mid=windAt(mx*s.radius,my*s.radius,s);
-    point.x+=mid.u/s.radius*elapsed;point.y+=mid.v/s.radius*elapsed;
+    advanceWindTracer(point,s,elapsed);
     if (Math.abs(point.x)>3.6 || Math.abs(point.y)>2.7) {point.x=-3.5;point.y=((point.y+2.7)%5.4+5.4)%5.4-2.7;}
   }
   ctx.fillStyle='#f8ead0';

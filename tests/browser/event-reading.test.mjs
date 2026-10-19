@@ -4,6 +4,9 @@ import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
+import {laboratoryEnlargedReadingCases} from './laboratory-enlarged-reading-cases.mjs';
+
+laboratoryEnlargedReadingCases();
 
 const tasks=[
   {file:'joplin.html',first:'#warning-context',source:'#source-nws-assessment',media:'#visibility',wording:/first siren/i},

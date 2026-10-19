@@ -1,3 +1,5 @@
+// Keep tracer controls in the configured wind suite without changing CI workflows.
+import './wind-tracer.test.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {windAt,loadAt,passageAt,samplePassage,MPH,FOOT} from '../web/wind-model.mjs';

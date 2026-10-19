@@ -3,15 +3,16 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tornado Atlas | Wind and force laboratory</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="study.css"><link rel="stylesheet" href="wind.css"><link rel="stylesheet" href="passage-values.css"><script type="module" src="wind-laboratory.mjs"></script><link rel="stylesheet" href="appearance.css"><script src="appearance.js"></script><link rel="stylesheet" href="museum.css">
 <link rel="stylesheet" href="laboratory.css">
 </head>
-<body>
+<body class="laboratory-page">
 <a class="skip" href="#main">Skip to wind laboratory</a>
 <header><a class="brand" href="atlas.html"><span class="brand-icon" aria-hidden="true">◎</span> TORNADO ATLAS</a><!-- museum-navigation --><nav class="museum-nav" aria-label="Museum navigation"><a href="atlas.html">Collection</a><details><summary>Exhibits <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="index.html">El Reno · 2013</a><a href="joplin.html">Joplin · 2011</a><a href="blackwell.html">Blackwell · 1955</a><a href="tuscaloosa.html">Tuscaloosa and Birmingham · 2011</a><a href="moore.html">Newcastle and Moore · 2013</a></div></details><details><summary>Explore <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="atlas.html#catalogue">Map and catalogue</a><a href="reconstruction.html">El Reno spatial replay</a><a href="study.html">Form study</a><a href="wind.html" aria-current="page">Wind laboratory</a></div></details><details><summary>Sources <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="dossier.html">Event dossiers</a><a href="coverage.html">Reconstruction coverage</a><a href="survey.html">Damage survey</a><a href="radar-source.html">Radar source reader</a><a href="japan.html">Japan source records</a></div></details></nav><!-- /museum-navigation --><span class="local">EXPERIMENT / 002</span></header>
 <main id="main">
 <div class="reading-appearance appearance-bar"><label for="reading-appearance">Appearance</label><select id="reading-appearance" disabled><option value="dark">Obscur · Dark</option><option value="light">Clair · Light</option><option value="system" selected>Use system setting</option></select></div>
 <section class="study-intro"><div><div class="eyebrow">AN IDEALIZED WIND EXPERIMENT</div><h1>Wind becomes force.</h1></div><p>Double the wind speed and the same simple drag model gives four times the force. Move a probe through an idealized vortex to see the relationship. All settings here are assumptions, independent of the historical storms in the atlas.</p></section>
 
+<nav class="lab-contents" aria-labelledby="lab-contents-title"><h2 id="lab-contents-title" tabindex="-1">On this experiment</h2><p>Start with one point in the field, then follow the same assumptions through a passage and a component rule. Compare the numerical evidence before interpreting the result.</p><ol><li><a href="#lab-context">Documentary reference</a></li><li><a href="#wind-field-experiment">1. Inspect wind at one point</a></li><li><a href="#passage">2. Follow a passing field</a></li><li><a href="#component-experiment">3. Examine the capacity rule</a></li><li><a href="#continuous-reference">4. Check what samples miss</a></li><li><a href="#sampled-values">5. Read all 481 samples</a></li><li><a href="#wind-model-limits">Model limits and original sources</a></li></ol></nav>
 <section id="lab-context" class="lab-context" aria-labelledby="lab-context-title">
-  <h2 id="lab-context-title">Keep the evidence beside the experiment.</h2>
+  <h2 id="lab-context-title" tabindex="-1">Keep the evidence beside the experiment.</h2>
   <p class="lab-boundary">A documentary reference changes the reading beside this model. It does not assign the storm’s shape, winds or damage to these settings. All model values remain your assumptions.</p>
   <div id="lab-enhancement" hidden>
     <div class="lab-context-grid"><div><label for="lab-event">Documentary reference</label><select id="lab-event"><option value="">No assigned storm</option></select></div><div><p id="lab-reference-account"></p><div id="lab-reference-links" class="lab-reference-links"></div></div></div>
@@ -21,6 +22,7 @@
   <p id="lab-documentary-fallback"><a href="index.html">El Reno documentary</a> · <a href="joplin.html">Joplin documentary</a> · <a href="blackwell.html">Blackwell documentary</a> · <a href="tuscaloosa.html">Tuscaloosa and Birmingham documentary</a> · <a href="moore.html">Newcastle and Moore documentary</a></p>
   <noscript><p>Experiment links need JavaScript to restore settings. These documentary accounts remain readable. The wind table, where present, describes only its printed default assumptions.</p></noscript>
 </section>
+<h2 class="lab-step-title" id="wind-field-experiment" tabindex="-1">Inspect wind at one point.</h2>
 <div class="study-layout">
   <section class="wind-panel" aria-label="Horizontal wind field">
     <div class="scene-bar"><span>PLAN VIEW / COUNTERCLOCKWISE FLOW</span><span>ILLUSTRATIVE MODEL</span></div>
@@ -49,7 +51,8 @@
   <div><span>IDEALIZED DRAG</span><strong id="probe-force"></strong><small>Pressure × area × drag coefficient</small></div>
   <div><span>IF LOCAL SPEED DOUBLED</span><strong>4 × force</strong><small>With density, area and coefficient fixed</small></div>
 </section>
-<section id="passage" class="passage">
+<p class="lab-return"><a href="#lab-contents-title">On this experiment</a></p>
+<section id="passage" class="passage" tabindex="-1">
   <div class="eyebrow">A VORTEX PASSES ONE LOCATION</div><h2>What changes as it moves past?</h2>
   <p>The same assumed wind field now travels east past a fixed probe. Change its travel speed or move the probe to either side of the track. Peak swirl, core radius, background wind, area and drag coefficient come from the controls above.</p>
   <p><a href="#sampled-values">Inspect the complete sampled values and stated assumptions</a>, including a fixed default table when scripts are unavailable.</p>
@@ -83,8 +86,9 @@
     </div>
   </div>
   <p class="wind-caption">This is prescribed translation of an unchanged analytic field, not a fluid simulation. Travel speed is independent of the uniform background wind. The 481 samples cover the center moving from −6 R to +6 R; wind outside that window is omitted. Duration uses interpolation between samples.</p>
-  <section class="component-experiment" aria-labelledby="component-title">
-    <div class="eyebrow">DAMAGE MODEL FOUNDATION / ONE ASSUMED COMPONENT</div><h3 id="component-title">What if its connection has a limited strength?</h3>
+  <p class="lab-return"><a href="#lab-contents-title">On this experiment</a></p>
+  <section id="component-experiment" tabindex="-1" class="component-experiment" aria-labelledby="component-title">
+    <div class="eyebrow">DAMAGE MODEL FOUNDATION / ONE ASSUMED COMPONENT</div><h3 id="component-title" tabindex="-1">What if its connection has a limited strength?</h3>
     <p>Choose a load capacity for one generic component. The rule declares failure at the first sampled drag force above that capacity, then keeps it failed even after the wind falls. Move the passage slider above to inspect the sequence or rewind it.</p>
     <p>Try the checked opposite-side case: keep peak swirl at 100 mph, radius at 500 ft and travel at 30 mph. Set eastward background to 20 mph and capacity to 1.6 kN. Keep area at 1 m² and drag coefficient at 1.2. Compare offsets of -0.7 and +0.7. The sampled rule fails south of the track and stays below capacity north of it. These chosen values check the model, without claiming a real building or historical tornado. The duration above the separate chosen wind speed is a different quantity.</p>
     <div class="passage-layout">
@@ -102,7 +106,7 @@
     </div>
     <p class="wind-caption">This rule assumes an intact component before evaluating the sequence. It can declare failure at the first sample. It has no fatigue, deformation, changing area, pressure coupling or impact loads. Sampling can miss brief peaks. Rewinding recomputes the prior state; changing a setting creates a new hypothetical experiment. The diagram indicates the state and does not calculate how debris flies.</p>
   </section>
-<section id="continuous-reference" class="lab-context continuous-reference" aria-labelledby="continuous-reference-title">
+<section id="continuous-reference" tabindex="-1" class="lab-context continuous-reference" aria-labelledby="continuous-reference-title">
   <h3 id="continuous-reference-title">Can the samples miss a peak?</h3>
   <p>The graph evaluates 481 instants. With zero background wind, a separate geometric calculation finds the continuous maximum and durations for this same idealized Rankine passage. It can reveal an exceedance between those instants. It does not replace the sampled component rule or validate historical winds.</p>
   <button id="wind-reference-example" type="button" hidden>Try a peak between samples</button>
@@ -611,9 +615,12 @@
 </tbody></table></div></details></section>
 <!-- END GENERATED WIND SAMPLES -->
 </section>
+<p class="lab-return"><a href="#lab-contents-title">On this experiment</a></p>
+<h2 class="lab-step-title" id="wind-model-limits" tabindex="-1">Read the model before interpreting its result.</h2>
 <section class="study-explanation">
 <article><div class="eyebrow">THE MODEL</div><h2>A useful shape, with deliberate limits.</h2><p>Inside the core, swirl speed rises linearly from zero. Outside, it falls as the inverse of distance. This is a Rankine vortex: a simple analytic velocity field. It has no inflow, updraft, terrain, gusts, multiple vortices, or evolving storm structure.</p><p>Arrow direction shows the horizontal flow. The pressure readout is dynamic pressure, not the atmospheric pressure deficit inside a tornado. Tracers start paused and pause again when the page is hidden.</p><p><a href="https://glossary.ametsoc.org/wiki/rankine-vortex/" target="_blank" rel="noopener">AMS: the Rankine vortex ↗</a></p></article>
 <article><div class="eyebrow">FROM WIND TO DAMAGE</div><h2>Force is only one part of failure.</h2><p>The component experiment adds one explicit capacity rule to the drag calculation. A real damage model also needs building geometry, connections, materials, internal pressure and debris impacts. This experiment cannot assign an EF rating, reconstruct a building failure or establish structural safety.</p><p>Explore the <a href="index.html#damage">El Reno survey photographs</a> for documented damage. NIST's tornado design research uses much more extensive load and resistance modeling; this simple experiment has not been validated against it.</p><p><a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/" target="_blank" rel="noopener">NASA: the drag equation ↗</a> · <a href="https://www.nist.gov/publications/tornado-wind-speed-maps-building-design-research-and-development-tornado-risk" target="_blank" rel="noopener">NIST: tornado load and resistance research ↗</a> · <a href="https://www.weather.gov/oun/efscale" target="_blank" rel="noopener">NWS: damage indicators and the EF scale ↗</a></p></article>
 </section>
+<p class="lab-return"><a href="#lab-contents-title">On this experiment</a></p>
 </main><footer><span>TORNADO ATLAS</span><p>Educational experiment · No historical calibration or structural validation.</p><a href="study.html">Explore the visible form ↗</a></footer>
 </body></html>
