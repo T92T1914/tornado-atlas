@@ -25,6 +25,8 @@
 @media(forced-colors:active){.lab-context{border-color:CanvasText}.lab-context select{appearance:auto;-webkit-appearance:auto;background-image:none;padding-right:10px}}
 
 /* Native learning paths use the existing experiment capture and browser history. */
+.laboratory-page .skip {top:0;max-width:calc(100% - 40px);box-sizing:border-box;transform:translateY(-100%)}
+.laboratory-page .skip:focus {top:10px;transform:none}
 .laboratory-page .lab-contents {margin:0 0 32px;padding:24px;border-block:1px solid var(--line);min-width:0}
 .laboratory-page .lab-contents h2,.laboratory-page .lab-step-title {font:clamp(24px,2.8vw,34px)/1.25 Georgia,serif;letter-spacing:-.3px;overflow-wrap:anywhere}
 .laboratory-page .lab-contents h2 {margin:0 0 12px}
