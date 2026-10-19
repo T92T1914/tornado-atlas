@@ -6,11 +6,13 @@ export function attachContinuousReference(document){
   const get=id=>document.getElementById(id),panel=get('wind-reference-values');
   const fields=['maximum-wind','maximum-drag','comparison-duration','capacity-duration'];
   return {update({field,result,component,threshold,capacity}){
-    const reference=continuousRankineReference(field,{threshold,capacity});
+    let reference;
+    try{reference=continuousRankineReference(field,{threshold,capacity});}
+    catch(error){if(!(error instanceof RangeError))throw error;reference={status:'unavailable'};}
     const available=reference.status==='available';panel.hidden=!available;
     if(!available){
       for(const id of fields)get('reference-'+id).textContent='';
-      get('wind-reference-status').textContent='Continuous comparison unavailable for nonzero background wind. The sampled field, component and table still describe your chosen assumptions. Set background wind to zero to use the independent annulus reference.';
+      get('wind-reference-status').textContent='Continuous comparison unavailable: these inputs do not have a representable reference result. The sampled field, component and table retain their separate assumptions and limits.';
       get('wind-reference-status').dataset.state='unavailable';return;
     }
     get('reference-maximum-wind').textContent=(reference.maximumSpeed/MPH).toFixed(3)+' mph';

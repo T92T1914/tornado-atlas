@@ -1,7 +1,7 @@
 .wind-panel {border:1px solid var(--line);background:#13211e;border-radius:5px;overflow:hidden}
 #wind-field {width:100%;aspect-ratio:1.4;display:block;touch-action:none;cursor:crosshair;background:#0c191b}
 .wind-key {display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:11px;color:var(--muted);flex-wrap:wrap}
-.wind-key i {width:160px;height:6px;border-radius:4px;background:linear-gradient(90deg,#417f8b,#bad1b4,#e7b679)}
+.wind-key i {width:160px;height:8px;border-radius:4px;background:linear-gradient(90deg,#417f8b,#e7b679)}
 .wind-key small {flex-basis:100%;font-size:10px}
 .wind-caption {padding:0 18px;font-size:11px;color:var(--muted)}
 .wind-readings {display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin:26px 0;background:var(--line);border:1px solid var(--line)}

@@ -45,3 +45,27 @@
 .laboratory-page .study-intro>*,.laboratory-page .study-layout>*,.laboratory-page .study-explanation>*,.laboratory-page .wind-readings>*,.laboratory-page .passage-layout>* {min-width:0;overflow-wrap:anywhere}
 .laboratory-page .scene-bar {gap:16px;flex-wrap:wrap;line-height:1.5}
 @media(max-width:780px){.laboratory-page .lab-contents{padding:20px 0}.laboratory-page .lab-contents ol{grid-template-columns:minmax(0,1fr)}.laboratory-page .study-explanation{gap:28px}}
+
+/* Reading furniture follows Clair/Obscur; evidence pixels and scientific keys
+   retain their own colors. Essential plot explanations also exist as HTML. */
+.laboratory-page .scene-wrap {background:radial-gradient(ellipse at 50% 32%,#3c3c3c,#1b1b1b 58%,#101010)}
+:root[data-appearance=light] .laboratory-page .scene-wrap {background:radial-gradient(ellipse at 50% 32%,#faf9f5,#dfddd5 58%,#c7c4ba)}
+@media(prefers-color-scheme:light){:root:not([data-appearance]) .laboratory-page .scene-wrap{background:radial-gradient(ellipse at 50% 32%,#faf9f5,#dfddd5 58%,#c7c4ba)}}
+.laboratory-page .scene-overlay {position:static;inset:auto;padding:14px 18px;background:var(--panel);color:var(--muted);font-size:14px;line-height:1.6;letter-spacing:0;text-shadow:none;flex-wrap:wrap;pointer-events:auto}
+.laboratory-page .scene-bar {font-size:12px;letter-spacing:.08em}
+.laboratory-page .wind-key {font-size:15px;gap:10px;padding:16px 18px}
+.laboratory-page .wind-key i {flex:1;min-width:56px;max-width:200px}
+.laboratory-page .wind-key small {font-size:14px;line-height:1.6}
+.laboratory-page .wind-readings span,.laboratory-page .wind-readings small,.laboratory-page .passage-readings dt {font-size:14px;line-height:1.6;letter-spacing:0}
+.laboratory-page .figure-reading {font-size:15px;line-height:1.7;color:var(--muted);margin:12px 0 20px;max-width:70ch}
+.laboratory-page .figure-reading strong {color:var(--text)}
+.laboratory-page #lab-reference-evidence {margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}
+.laboratory-page #lab-reference-evidence h3 {font:clamp(22px,2.4vw,28px)/1.3 Georgia,serif;margin:0 0 12px}
+.laboratory-page .lab-reference-figure {margin:18px 0;max-width:760px}
+.laboratory-page .lab-reference-image-link {display:block;width:100%;min-height:0}
+.laboratory-page #lab-reference-image {display:block;width:100%;height:auto;object-fit:contain;background:var(--bg)}
+.laboratory-page #lab-reference-image[hidden] {display:none}
+.laboratory-page .lab-reference-figure figcaption {font-size:15px;line-height:1.75;margin-top:14px;max-width:70ch;color:var(--muted)}
+.laboratory-page .lab-reference-actions {display:flex;flex-wrap:wrap;gap:4px 24px}
+.laboratory-page .lab-reference-actions a {font-size:15px;line-height:1.6;text-decoration:underline}
+.laboratory-page #lab-reference-retry {margin-top:12px}

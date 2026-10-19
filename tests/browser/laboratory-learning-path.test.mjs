@@ -22,7 +22,7 @@ for(const width of [320,1280])test('Wind learning path preserves independently c
  const expected=await windState(page);assert.deepEqual(expected.controls,chosen);assert.equal(expected.sample,'349');assert.equal(expected.paired,'349');assert.deepEqual(expected.current,['passage-sample-349']);
  assert.equal(await page.locator('.lab-contents a').count(),windTargets.length);
  for(const target of windTargets){await localLink(page,target);assert.deepEqual(await windState(page),expected);await paused(page,'wind');assert.equal(await page.locator('#lab-event').inputValue(),'moore-2013');}
- assert.equal(await page.locator('#wind-reference-values').isHidden(),true);assert.equal(await page.locator('#reference-maximum-drag').textContent(),'');
+ assert.equal(await page.locator('#wind-reference-values').isVisible(),true);assert.ok(parseFloat(await page.locator('#reference-maximum-drag').textContent())>1.6);assert.ok(parseFloat(await page.locator('#reference-capacity-duration').textContent())>0);
  await page.locator('.lab-return a').last().focus();await page.locator('.lab-return a').last().press('Enter');await page.waitForURL(url=>url.hash==='#lab-contents-title');assert.equal(await page.evaluate(()=>document.activeElement.id),'lab-contents-title');
  await noOverflow(page);await capture(page,'wind-learning-'+width);
  const retained=page.url();await page.locator('#lab-reference-links a').first().click();await page.waitForURL('**/moore.html#damage-and-buildings');await page.goBack();await ready(page);assert.equal(page.url(),retained);assert.deepEqual(await windState(page),expected);await paused(page,'wind');

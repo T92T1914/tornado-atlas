@@ -126,6 +126,7 @@ test('Form snapshot remains readable and restorable when WebGL is unavailable',a
 for(const [kind,file] of [['wind','wind.html'],['form','study.html']])test(kind+' reference and share controls retain enlarged narrow keyboard reading',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:800},reducedMotion:'reduce',serviceWorkers:'block'});
   await page.goto(base+'/'+file+'?event=tuscaloosa-birmingham-2011');await ready(page);
+  await page.locator('#lab-reference-evidence[data-state="ready"]').waitFor();
   await page.locator('#lab-context').evaluate(host=>{const sizes=[...host.querySelectorAll('h2,p,label,select,a')].map(node=>[node,parseFloat(getComputedStyle(node).fontSize)]);for(const [node,size] of sizes)node.style.fontSize=size*2+'px';});
   const corrected=await referenceGeometry(page);
   // Compare the previous native appearance under the same actual font sizes.
@@ -139,7 +140,13 @@ for(const [kind,file] of [['wind','wind.html'],['form','study.html']])test(kind+
   assert.match(await page.locator('#lab-reference-account').innerText(),/./);
   await page.locator('#lab-event').focus();await page.keyboard.press('Tab');
   assert.equal(await page.evaluate(()=>document.activeElement===document.querySelector('#lab-reference-links a')),true);
-  await page.keyboard.press('Tab');await page.keyboard.press('Tab');assert.equal(await page.locator('#lab-share').evaluate(node=>node===document.activeElement),true);
+  const orderedLinks=page.locator('#lab-reference-links a,#lab-reference-evidence a,#lab-share');
+  assert.ok(await orderedLinks.count()>=9,'Current evidence and source routes precede Share');
+  for(let i=1;i<await orderedLinks.count();i++){
+    await page.keyboard.press('Tab');
+    assert.equal(await orderedLinks.nth(i).evaluate(node=>node===document.activeElement),true,'Native tab order at documentary link '+i);
+  }
+  assert.equal(await page.locator('#lab-share').evaluate(node=>node===document.activeElement),true);
   await page.keyboard.press('Enter');await paused(page,kind);assert.equal(new URL(page.url()).searchParams.get('event'),'tuscaloosa-birmingham-2011');
 });
 

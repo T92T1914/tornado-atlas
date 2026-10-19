@@ -34,9 +34,10 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])test('Wind continu
   await page.waitForFunction(()=>document.querySelector('#wind-reference-status').dataset.state==='missed-exceedance');
   assert.equal(await page.locator('#passage-play').textContent(),'Play passage');
   await page.locator('#background').evaluate(n=>{n.value=5;n.dispatchEvent(new Event('input',{bubbles:true}));});
-  assert.equal(await page.locator('#wind-reference-status').getAttribute('data-state'),'unavailable');
-  assert.equal(await page.locator('#wind-reference-values').isVisible(),false);
-  for(const id of ['maximum-wind','maximum-drag','comparison-duration','capacity-duration'])assert.equal(await page.locator('#reference-'+id).textContent(),'');
+  assert.equal(await page.locator('#wind-reference-status').getAttribute('data-state'),'available');
+  assert.equal(await page.locator('#wind-reference-values').isVisible(),true);
+  assert.equal(await page.locator('#reference-capacity-duration').textContent(),'0.000 model s strictly above capacity');
+  assert.match(await page.locator('#wind-reference-status').textContent(),/does not strictly exceed capacity/);
   assert.equal(await page.locator('#capacity').inputValue(),'1.6');
   await page.locator('#background').evaluate(n=>{n.value=0;n.dispatchEvent(new Event('input',{bubbles:true}));});
   assert.equal(await page.locator('#wind-reference-status').getAttribute('data-state'),'missed-exceedance');

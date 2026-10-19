@@ -58,13 +58,14 @@
   <p><a href="#sampled-values">Inspect the complete sampled values and stated assumptions</a>, including a fixed default table when scripts are unavailable.</p>
   <div class="passage-layout">
     <div>
-      <svg id="passage-plan" viewBox="0 0 720 420" role="img" aria-label="Plan view of a prescribed vortex moving east along a straight path past a fixed probe.">
+      <svg aria-describedby="passage-plan-reading" id="passage-plan" viewBox="0 0 720 420" role="img" aria-label="Plan view of a prescribed vortex moving east along a straight path past a fixed probe.">
         <path d="M60 210H660" stroke="#748477" stroke-dasharray="5 6"/><text x="62" y="193">TRAVEL EAST →</text>
         <circle id="passage-center" cx="60" cy="210" r="50" fill="#72bcb724" stroke="#a6cbc5" stroke-width="2"/>
         <circle id="passage-probe" cx="360" cy="160" r="6" fill="#f2dab6"/><text x="374" y="38">FIXED PROBE: GOLD DOT</text>
         <text x="62" y="394">CIRCLE: CORE RADIUS R</text><text x="490" y="394">PATH SHOWN: 12 R</text>
       </svg>
-      <svg id="passage-chart" viewBox="0 0 720 245" role="img" aria-label="Sampled wind speed at the fixed probe over model time. The dashed line is the chosen comparison speed.">
+      <p class="figure-reading" id="passage-plan-reading"><strong>Plan view.</strong> The center travels east along the dashed line for 12 core radii. The circle marks core radius R. The gold dot is the fixed probe, north or south of the path according to your chosen offset.</p>
+      <svg aria-describedby="passage-chart-reading" id="passage-chart" viewBox="0 0 720 245" role="img" aria-label="Sampled wind speed at the fixed probe over model time. The dashed line is the chosen comparison speed.">
         <path d="M52 25V200H688" fill="none" stroke="#748477"/>
         <line id="passage-threshold" x1="52" x2="688" stroke="#b69a73" stroke-dasharray="4 5"/>
         <path id="passage-line" fill="none" stroke="#a6cbc5" stroke-width="2"/>
@@ -73,6 +74,7 @@
         <text id="passage-top" x="52" y="17"></text><text x="30" y="204">0</text>
         <text id="passage-start" x="52" y="225"></text><text x="340" y="225">0 s</text><text id="passage-end" x="688" y="225" text-anchor="end"></text>
       </svg>
+      <p class="figure-reading" id="passage-chart-reading"><strong>Wind over model time.</strong> The solid curve joins 481 wind samples. The dashed line is your comparison speed. <span id="passage-axis-range">The finite time range follows the chosen core radius and travel speed.</span> The cursor follows the selected sample, whose exact values remain available in the table.</p>
       <label for="passage-time">Explore the passage <output id="passage-time-value"></output></label><input id="passage-time" type="range" min="0" max="480" step="1" value="0">
       <button id="passage-play" type="button">Play passage</button><p class="control-note">Playback takes 24 seconds. The time axis shows model seconds, which can cover a longer or shorter interval. Drag the slider for individual samples.</p>
     </div>
@@ -92,12 +94,12 @@
     <p>Choose a load capacity for one generic component. The rule declares failure at the first sampled drag force above that capacity, then keeps it failed even after the wind falls. Move the passage slider above to inspect the sequence or rewind it.</p>
     <p>Try the checked opposite-side case: keep peak swirl at 100 mph, radius at 500 ft and travel at 30 mph. Set eastward background to 20 mph and capacity to 1.6 kN. Keep area at 1 m² and drag coefficient at 1.2. Compare offsets of -0.7 and +0.7. The sampled rule fails south of the track and stays below capacity north of it. These chosen values check the model, without claiming a real building or historical tornado. The duration above the separate chosen wind speed is a different quantity.</p>
     <div class="passage-layout">
-      <div><svg id="component-diagram" viewBox="0 0 450 180" role="img" aria-label="Schematic test component and its connections.">
+      <div><svg aria-describedby="component-diagram-reading" id="component-diagram" viewBox="0 0 450 180" role="img" aria-label="Schematic test component and its connections.">
         <path d="M85 145H320M120 145V30M280 145V30" fill="none" stroke="#778879" stroke-width="6"/>
         <rect id="component-panel" x="100" y="40" width="200" height="80" rx="5" fill="#5b847b" stroke="#bed0bf" stroke-width="2"/>
         <g id="component-connections" fill="#f2dab6"><circle cx="120" cy="55" r="5"/><circle cx="280" cy="55" r="5"/><circle cx="120" cy="105" r="5"/><circle cx="280" cy="105" r="5"/></g>
         <text x="15" y="170">SCHEMATIC ONLY / NO DEBRIS TRAJECTORY</text>
-      </svg><p id="component-state" class="component-state"></p>
+      </svg><p class="figure-reading" id="component-diagram-reading"><strong>Schematic component.</strong> The panel and its four connections indicate the sampled capacity rule. This drawing has no physical dimensions and does not predict a debris trajectory.</p><p id="component-state" class="component-state"></p>
       <label for="component-time">Explore the same passage <output id="component-time-value"></output></label><input id="component-time" type="range" min="0" max="480" step="1" value="0"><button id="component-play">Play passage</button></div>
       <div class="study-controls"><label for="capacity">Assumed total load capacity <output id="capacity-value"></output></label><input id="capacity" type="range" min=".1" max="20" step=".1" value="1">
         <p class="control-note">A chosen experiment value, not a measured rating for a roof, wall or other real building part. The reference area and drag coefficient are set above.</p>
@@ -108,7 +110,7 @@
   </section>
 <section id="continuous-reference" tabindex="-1" class="lab-context continuous-reference" aria-labelledby="continuous-reference-title">
   <h3 id="continuous-reference-title">Can the samples miss a peak?</h3>
-  <p>The graph evaluates 481 instants. With zero background wind, a separate geometric calculation finds the continuous maximum and durations for this same idealized Rankine passage. It can reveal an exceedance between those instants. It does not replace the sampled component rule or validate historical winds.</p>
+  <p>The graph evaluates 481 instants. A separate geometric calculation finds the continuous maximum and durations for this same idealized Rankine passage. It can reveal an exceedance between those instants. It does not replace the sampled component rule or validate historical winds.</p>
   <button id="wind-reference-example" type="button" hidden>Try a peak between samples</button>
   <p class="control-note">The example replaces the controls with an assumed 105 mph swirl, 500 ft core, zero background, 30 mph travel, 0.7 R offset, 1 m² area, 1.2 drag coefficient and 1.6 kN capacity. It opens paused at the first sample.</p>
   <div id="wind-reference-values" hidden><dl class="passage-readings">
@@ -118,7 +120,7 @@
     <dt>Time strictly above assumed capacity</dt><dd id="reference-capacity-duration"></dd>
   </dl></div>
   <p id="wind-reference-status" role="status">The continuous comparison requires JavaScript. The complete default sample table remains readable below.</p>
-  <details><summary>How the independent comparison works</summary><p>With no background flow, speed depends only on distance from the prescribed center. A positive comparison speed no greater than peak swirl defines an annulus between radii R × comparison / peak and R × peak / comparison. The straight probe path intersects that annulus within the finite -6 R to +6 R window. Path lengths divided by travel speed give model durations. Maximum drag uses the same stated density, area and coefficient. Zero wind and strict capacity equality are handled separately.</p><p>This is a mathematical reference within the stated assumptions and floating-point arithmetic, not an error bound for arbitrary wind fields, a convergence claim, a physical failure time or a structural safety assessment. Background flow changes the geometry; this reference does not cover it. <a href="https://glossary.ametsoc.org/wiki/rankine-vortex/">AMS: Rankine vortex</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/">NASA: drag equation</a>.</p></details>
+  <details><summary>How the independent comparison works</summary><p>With no background flow, speed depends only on distance from the prescribed center. A positive comparison speed no greater than peak swirl defines an annulus between radii R × comparison / peak and R × peak / comparison. The straight probe path intersects that annulus within the finite -6 R to +6 R window. Path lengths divided by travel speed give model durations. Maximum drag uses the same stated density, area and coefficient. Zero wind and strict capacity equality are handled separately.</p><p>This is a mathematical reference within the stated assumptions and floating-point arithmetic, not an error bound for arbitrary wind fields, a convergence claim, a physical failure time or a structural safety assessment. With eastward background wind, the north and south sides differ. Inside the core, squared speed is linear in squared along-track distance; outside, it is a constant plus an inverse-distance term. The reference splits those pieces at the core and clips them to the same finite path. Constant branches and strict capacity equality are handled explicitly. Unrepresentable intermediate arithmetic is refused rather than displayed as a valid result. <a href="https://glossary.ametsoc.org/wiki/rankine-vortex/">AMS: Rankine vortex</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/">NASA: drag equation</a>.</p></details>
 </section>
 <!-- BEGIN GENERATED WIND SAMPLES -->
 <section id="sampled-values" class="sampled-values" aria-labelledby="sampled-values-title">

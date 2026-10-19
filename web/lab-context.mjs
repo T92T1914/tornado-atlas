@@ -1,10 +1,14 @@
 import {LAB_EVENTS,DEFAULT_EXPERIMENTS,readExperiment,experimentURL} from './experiment-state.mjs';
+import {mountLabReference} from './lab-reference-view.mjs';
 
 // A small page adapter. Evidence navigation and model inputs remain separate.
 export function mountLabContext({kind,read,capture,apply}){
   const get=id=>document.getElementById(id),host=get('lab-context');
   if(!host)return {changed(){},preview(){}};
   const picker=get('lab-event'),share=get('lab-share'),message=get('lab-state'),account=get('lab-reference-account'),links=get('lab-reference-links');
+  const evidence=document.createElement('section');evidence.id='lab-reference-evidence';
+  links.closest('.lab-context-grid').after(evidence);
+  const referenceView=mountLabReference(evidence,()=>commit(capture(),'Experiment paused before opening the evidence.'));
   const replaceInterval=250;
   let event=null,restoring=false,pending=null,timer=null,generation=0,lastReplace=-Infinity,currentEntry=null;
   const entryField='atlasLabEntryV1',departed=new Map();
@@ -76,6 +80,7 @@ export function mountLabContext({kind,read,capture,apply}){
   function reference(){
     picker.value=event??'';account.replaceChildren();links.replaceChildren();
     const row=LAB_EVENTS.find(item=>item.id===event);
+    referenceView.show(row?.id??null);
     const failureReturn=get('scene-failure-return');
     if(failureReturn){failureReturn.href=row?row.form:'atlas.html';failureReturn.textContent=row?'Read the '+row.title+' documentary evidence':'Explore the documentary collection';}
     if(!row){account.textContent='No documentary reference selected. These settings describe your assumed experiment.';return;}

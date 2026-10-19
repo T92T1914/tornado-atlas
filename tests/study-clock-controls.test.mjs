@@ -22,6 +22,7 @@ test('active study controls and scheduled frames use the same wall clock',async(
   }});
   globalThis.document={hidden:false,getElementById:id=>{if(id==='lab-context')return null;if(!ids.has(id))ids.set(id,new Element(id));return ids.get(id);},addEventListener:()=>{}};
   globalThis.window={devicePixelRatio:1,matchMedia:()=>({matches:false,addEventListener:()=>{}})};
+  let appearance='dark';globalThis.getComputedStyle=()=>({colorScheme:appearance});
   globalThis.performance={now:()=>wall};
   globalThis.requestAnimationFrame=callback=>{const id=++next;frames.set(id,callback);return id;};
   globalThis.cancelAnimationFrame=id=>frames.delete(id);
@@ -42,4 +43,10 @@ test('active study controls and scheduled frames use the same wall clock',async(
   const paused=ids.get('sequence-time').value;
   wall=200;draw(199);
   assert.equal(ids.get('sequence-time').value,paused);
+  for(appearance of ['light','dark']){
+    ids.get('reading-appearance').handlers.get('change')();
+    wall+=20;draw(wall-1);
+    assert.equal(ids.get('sequence-time').value,paused,'Appearance redraw retains the paused sequence position');
+    assert.equal(ids.get('motion').textContent,'Play motion');
+  }
 });

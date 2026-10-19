@@ -13,6 +13,7 @@ uniform float extent;
 uniform float viewportHeight;
 uniform float maxPoint;
 uniform bool dust;
+uniform int readingPalette;
 out vec4 color;
 void main() {
   float h = seed.x;
@@ -38,6 +39,12 @@ void main() {
     size = .23 + seed.z*.18;
     tint = vec3(.52,.45,.32);
   }
+  // Optional neutral laboratory palette. Source-informed replay colors retain
+  // their separate existing contract when this option is not selected.
+  if(readingPalette > 0) {
+    float value = readingPalette == 1 ? .27 : .72;
+    tint = vec3(value) * (.76 + .24*cos(angle-.8));
+  }
   gl_Position = camera * vec4(position,1.0);
   gl_PointSize = clamp(viewportHeight * size / max(.2,gl_Position.w),1.0,maxPoint);
   color = vec4(tint, opacity);
@@ -60,8 +67,9 @@ void main() {gl_Position=camera*vec4(position,1.0);fade=1.0-min(1.0,length(posit
 const gridFragment = `#version 300 es
 precision mediump float;
 in float fade;
+uniform int readingPalette;
 out vec4 outputColor;
-void main(){outputColor=vec4(.47,.58,.47,.22*fade);}`;
+void main(){vec3 tint=readingPalette==0?vec3(.47,.58,.47):vec3(readingPalette==1?.32:.72);outputColor=vec4(tint,.22*fade);}`;
 
 // Authored planar display geometry. It carries no camera or physical units.
 const marginVertex = `#version 300 es
@@ -271,8 +279,8 @@ export function createFormRenderer(canvas, quality) {
       pending.gridAttribute=attribute(pending.grid,'position',new Float32Array(lines),3);
       Object.assign(pending,{count:values.length/4,
         gridCount:lines.length/3,maxPoint:gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1],
-        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
-        gridCamera:gl.getUniformLocation(pending.grid,'camera')});
+        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','readingPalette'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
+        gridCamera:gl.getUniformLocation(pending.grid,'camera'),gridPalette:gl.getUniformLocation(pending.grid,'readingPalette')});
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
       gl.disable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);
@@ -305,7 +313,7 @@ export function createFormRenderer(canvas, quality) {
       gpu.condensation=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
-  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7}={}){
+  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null}={}){
     if(!gpu)return;
     const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
     const width=Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
@@ -344,13 +352,16 @@ export function createFormRenderer(canvas, quality) {
     }
     if(!shape)return;
     const camera=cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
+    const palette=readingAppearance==='light'?1:readingAppearance==='dark'?2:0;
     gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
+    gl.uniform1i(gpu.gridPalette,palette);
     gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);
     gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
     const u=gpu.uniforms;
     gl.uniformMatrix4fv(u.camera,false,camera);gl.uniform3f(u.shape,shape.base,shape.flare,shape.bend);
     gl.uniform1f(u.time,time);gl.uniform1f(u.extent,extent);
     gl.uniform1f(u.viewportHeight,height);gl.uniform1f(u.maxPoint,gpu.maxPoint);
+    gl.uniform1i(u.readingPalette,palette);
     gl.uniform1i(u.dust,dust?1:0);gl.drawArrays(gl.POINTS,0,gpu.count);
   }
   initialize();
