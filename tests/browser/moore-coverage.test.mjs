@@ -177,3 +177,71 @@ test('Moore damage and disputed sources remain linked without JavaScript',async 
   assert.equal(await damage.locator('a[href="https://www.weather.gov/oun/events-20130520"]').count(),2);
   await assertReadingReflow(page,'Moore static coverage');
 });
+
+// Controlled archive unavailability, not an observation of a public outage.
+for(const width of [320,1280])for(const [kind,id,layerName] of [
+  ['observation','preliminary-precursor-difference','gaps'],
+  ['media','moore-briarwood-survey','damage'],
+])test('Moore coverage retries the exact unavailable '+kind+' reader '+width,{timeout:30000},async t=>{
+  const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
+  const archive=base+'/archive/moore-2013-b871ef828cd8a1c475bc.json';
+  let unavailable=true,blocked=0,recovered=0;
+  await page.route(archive,route=>{
+    assert.equal(route.request().url(),archive);
+    if(unavailable){blocked++;return route.fulfill({status:503,contentType:'text/plain',body:'Controlled archive unavailability'});}
+    recovered++;return route.continue();
+  });
+  await page.goto(base+'/coverage.html?event=moore-2013&layer='+layerName);
+  await selected(page,layerName);const section=layer(page,layerName);await openEvidence(section);
+  const entry=section.locator('h4 > a[href*="'+kind+'='+id+'"]');
+  assert.equal(await entry.count(),1);const href=await entry.evaluate(node=>node.href);evidenceRoute(href,kind,id);
+  await entry.focus();await page.keyboard.press('Enter');
+  const unavailableView=async()=>{
+    await page.waitForFunction(href=>location.href===href&&document.body?.dataset.ready==='error',href);
+    assert.equal(await page.locator('#content h1').textContent(),'Evidence unavailable');
+    assert.equal(await page.locator('#content .archive-card').count(),0);
+    assert.ok(blocked>0);assert.equal(recovered,0);
+    assert.equal(await page.getByRole('link',{name:'Retry this view',exact:true}).getAttribute('href'),href);
+    assert.match(await page.locator('#documentary-chapters > p').innerText(),/current documentary chapters, not a retained dossier revision/);
+    await assertReadingReflow(page,'Moore unavailable '+kind+' '+width);
+  };
+  await unavailableView();
+  const fallback=page.locator('#documentary-chapters').getByRole('link',{name:'Newcastle and Moore, 2013',exact:true});
+  assert.equal(await fallback.getAttribute('href'),'moore.html');
+  await fallback.focus();await page.keyboard.press('Enter');await page.waitForURL(base+'/moore.html');
+  await page.locator('#source-editions').waitFor({state:'attached'});
+  await page.goBack();await unavailableView();
+  unavailable=false;
+  await page.getByRole('link',{name:'Retry this view',exact:true}).focus();await page.keyboard.press('Enter');
+  await waitForDossier(page,{href,elementId:kind+'-'+id});assert.ok(recovered>0);
+  evidenceRoute(page.url(),kind,id);
+  const card=page.locator('#'+kind+'-'+id);
+  const fields=await card.locator('dl').first().evaluate(node=>Object.fromEntries([...node.querySelectorAll('dt')]
+    .map(term=>[term.textContent,term.nextElementSibling.textContent])));
+  assert.equal(fields.assertion,kind==='observation'?'disputed':'observed sample');
+  assert.equal(fields.availability,kind==='observation'?'disputed':'reviewed available');
+  if(kind==='observation')assert.match(await card.innerText(),/thunderstorm wind/);
+  else assert.match(await card.innerText(),/following.day/i);
+  await assertReadingReflow(page,'Moore recovered '+kind+' '+width);
+  const sourceId=kind==='observation'?'nws-storm-data-201305':'nws-event-hub';
+  const source=card.getByRole('link',{name:'Inspect the source card',exact:true});
+  const sourceHref=await source.evaluate(node=>node.href);evidenceRoute(sourceHref,'source',sourceId);
+  await source.focus();await page.keyboard.press('Enter');
+  await waitForDossier(page,{href:sourceHref,elementId:'source-'+sourceId});
+  const sourceCard=page.locator('#source-'+sourceId);
+  assert.equal(await sourceCard.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),
+    kind==='observation'?'https://www.weather.gov/media/oun/stormdata/oun201305.pdf':'https://www.weather.gov/oun/events-20130520');
+  const reading=sourceCard.getByText('Continue in the current article',{exact:true});
+  await reading.focus();await page.keyboard.press('Enter');
+  const anchor=kind==='observation'?'source-editions':'survey-photographs';
+  const article=sourceCard.locator('a[href="'+base+'/moore.html#'+anchor+'"]');
+  assert.equal(await article.count(),1);await article.focus();await page.keyboard.press('Enter');
+  await page.waitForURL(base+'/moore.html#'+anchor);
+  await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');
+  await page.locator('#'+anchor).waitFor({state:'visible'});
+  if(kind==='observation'){
+    const disclosure=page.locator('#source-editions details > summary');await disclosure.focus();await page.keyboard.press('Enter');
+    assert.match(await page.locator('#source-editions').innerText(),/thunderstorm wind/);
+  }else assert.equal(await page.locator('#moore-briarwood-survey img').getAttribute('src'),'assets/moore-2013/IMG_2314-800.jpg');
+  await assertReadingReflow(page,'Moore recovered source and article '+kind+' '+width);
+});
