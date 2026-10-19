@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "udall-1955",
-  "dossier_sha256": "f9611c08821bb3e8852e612615fe75704fa647a4256e92c82094c0030150ae61",
+  "dossier_sha256": "9e17a19743779426b29248a0685472a4c747f3409e707ae4964d7d526ddc47ec",
   "survey": null,
   "layers": {
     "geography": {
@@ -15,7 +15,7 @@
       "media": []
     },
     "damage": {
-      "basis": "Attributed historical damage account and the report authors’ Phillips survey/radar continuity interpretation. These are reviewed report text, without a fresh site survey, scene-image inspection, calibrated local winds, exact collapse time or measured failure sequence. Skipped damage sections and coordinate disagreements remain explicit.",
+      "basis": "Attributed historical damage account and the report authors\u2019 Phillips survey/radar continuity interpretation. These are reviewed report text, without a fresh site survey, scene-image inspection, calibrated local winds, exact collapse time or measured failure sequence. Skipped damage sections and coordinate disagreements remain explicit.",
       "observations": [
         "udall-damage-account",
         "phillips-survey-continuity"

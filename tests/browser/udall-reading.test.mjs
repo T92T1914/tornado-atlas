@@ -152,7 +152,20 @@ for(const {width,scheme} of contexts)test('Udall account, exact document and sou
   for(const id of sections)assert.equal(await page.locator('#'+id).count(),1);
   assert.equal(await page.locator('video[autoplay],audio[autoplay],iframe,img[src$=".gif"]').count(),0);
   assert.equal(await page.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches),true);
-  await checkRecords(page);await rawRecordReturn(page);await sourceReturn(page);await coverageReturn(page);
+  await checkRecords(page);await rawRecordReturn(page);await sourceReturn(page);
+  await fragment(page,'clocks-and-counts');
+  const clockLink=page.locator('#clocks-and-counts a[href*="observation=source-clock-disagreement"]');
+  const clockHref=await clockLink.evaluate(n=>n.href);await clockLink.focus();await clockLink.press('Enter');
+  await waitForDossier(page,{href:clockHref,elementId:'observation-source-clock-disagreement'});
+  const clockCard=page.locator('#observation-source-clock-disagreement');
+  assert.match(await clockCard.innerText(),/reported roar around 2220 CST/);
+  assert.match(await clockCard.innerText(),/collapse at 2235 CST/);
+  assert.match(await clockCard.innerText(),/2245 CST/);
+  assert.match(await clockCard.innerText(),/not calibrated arrivals or a measured elapsed duration/);
+  await clockCard.getByText('Continue in the current article',{exact:true}).click();
+  const clockBack=clockCard.locator('a[href="'+base+'/udall.html#clocks-and-counts"]');await clockBack.focus();await clockBack.press('Enter');
+  await page.waitForURL(u=>u.pathname.endsWith('/udall.html')&&u.hash==='#clocks-and-counts');
+  await coverageReturn(page);
   await fragment(page,'regional-forecast');await warning(page);
   await capture(page,'udall-document-'+width+'-'+scheme);
   // Documentary reference may select context, never historical model presets.
@@ -223,6 +236,8 @@ for(const {width,scheme} of contexts)test('Udall no-script article and honest ev
   await fragment(page,'records');await checkRecords(page);
   await fragment(page,'regional-forecast');await warning(page);
   assert.match(await page.locator('#damage-and-aftermath').innerText(),/Phillips/);
+  assert.match(await page.locator('#damage-and-aftermath').innerText(),/roar at about 2220 CST/);
+  assert.match(await page.locator('#damage-and-aftermath').innerText(),/collapse at 2235 CST/);
   assert.match(await page.locator('#clocks-and-counts').innerText(),/2235/);
   assert.match(await page.locator('#clocks-and-counts').innerText(),/2245/);
   await capture(page,'udall-nojs-document-'+width+'-'+scheme);

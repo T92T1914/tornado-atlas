@@ -119,12 +119,16 @@ class UdallDocumentaryTests(unittest.TestCase):
         damage = observations['udall-damage-account']
         self.assertEqual(damage['source_id'], 'nws-wichita-storm-report')
         self.assertRegex(damage['account'].lower(), r'tower|rail|building')
-        for item, values in [('source-clock-disagreement', ('2235', '2245')),
+        for item, values in [('source-clock-disagreement', ('2220', '2235', '2245')),
                              ('injury-count-disagreement', ('250', '273'))]:
             row = observations[item]
             self.assertEqual(row['status']['assertion'], 'disputed')
             for value in values:
                 self.assertIn(value, row['account'])
+        clock = observations['source-clock-disagreement']
+        self.assertIn('reported roar around 2220 CST', clock['account'])
+        self.assertIn("house's collapse at 2235 CST", clock['account'])
+        self.assertIsNone(clock['time']['alignment'])
         for row in observations.values():
             self.assertEqual(row['status']['spatial'], 'unregistered')
             self.assertIsNone(row['time']['alignment'])
@@ -175,6 +179,19 @@ class UdallDocumentaryTests(unittest.TestCase):
         fallback = Article((ROOT / 'web/dossier.html').read_text(encoding='utf-8'))
         self.assertTrue(any(tag == 'a' and attrs.get('href') == 'udall.html'
                             for tag, attrs in fallback.elements))
+
+    def test_clock_clarification_retains_the_first_candidate_and_exact_change(self):
+        entry = next(row for row in self.index['events'] if row['id'] == 'udall-1955')
+        initial = 'f9611c08821bb3e8852e612615fe75704fa647a4256e92c82094c0030150ae61'
+        path = ROOT / 'web/archive/udall-1955-f9611c08821bb3e8852e.json'
+        self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), 'a304c5cc3013cc17aa23497f70d79321ae523af62a22631a3baf937504f6e094')
+        history = json.loads((ROOT / 'web' / entry['history_file']).read_bytes())
+        current = next(row for row in history['versions'] if row['dossier_sha256'] == entry['dossier_sha256'])
+        self.assertEqual(current['review']['previous_dossier_sha256'], initial)
+        self.assertTrue(current['predecessor_available'])
+        self.assertEqual(current['changes'], [{'kind': 'observations', 'id': 'source-clock-disagreement',
+                         'change': 'updated', 'fields': ['account', 'limits']}])
+        self.assertEqual(len(history['versions']), 2)
 
     def test_damage_coverage_links_report_context_without_geometry_admission(self):
         from atlas.archive import digest
