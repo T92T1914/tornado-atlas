@@ -67,6 +67,13 @@ def reviewed(items):
             and item['status']['assertion'] != 'not_researched']
 
 
+def published_disputes(items):
+    """Keep a qualified disagreement visible without admitting it to other layers."""
+    return [item for item in items if item['status']['intake'] == 'published'
+            and item['status']['assertion'] == 'disputed'
+            and item['status']['availability'] in ('reviewed_available', 'disputed')]
+
+
 def validate_source_comparison_joins(doc, timeline):
     """Join declared photo context to its reviewed documentary point record."""
     sources = {row['id']: row for row in doc['sources']}
@@ -167,7 +174,6 @@ def coverage_rows(root=ROOT):
             raise ValueError('Coverage requires the selected event dossier, without borrowing another event')
         refs = layer_references(root, doc)
         media = reviewed(doc['media'])
-        observations = reviewed(doc['observations'])
         config = packages.get(event['replay']) if event['replay'] else None
         bundle = json.loads(packages[config['bundle']]) if config else None
         if bundle:
@@ -310,7 +316,7 @@ def coverage_rows(root=ROOT):
         radar = [('media', item) for item in media if item['kind'] == 'radar']
         add('radar','context' if radar else 'not_linked','Source radar context' if radar else 'No reviewed radar linked',
             'Source radar images and their clocks remain separate from optical appearance, ground-level wind and surveyed outcomes.',items=radar)
-        disputed = [('observations', item) for item in observations if item['status']['assertion'] == 'disputed']
+        disputed = [('observations', item) for item in published_disputes(doc['observations'])]
         uncertainties = list(disputed)
         if refs:
             for kind in ('observations','media'):

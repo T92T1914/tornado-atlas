@@ -1,4 +1,4 @@
-.coverage-main{max-width:1100px;margin:0 auto;padding:2rem 1rem}
+.coverage-main{max-width:1100px;margin:0 auto;padding:2rem 1rem;overflow-wrap:anywhere}
 .coverage-main>p{max-width:75ch}
 #coverage-filters{display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr) auto auto;gap:.75rem;align-items:center;margin:1.5rem 0}
 #coverage-filters select,#coverage-filters button{min-height:44px;max-width:100%;font:inherit}

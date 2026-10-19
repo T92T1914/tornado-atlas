@@ -43,8 +43,13 @@ original source during page generation. Each dossier link pins the dossier
 revision and selected item. Original source links remain available. The page
 loads no source media and grants no additional redistribution rights.
 
-The gaps layer includes disputed observations and selected records with
-documented uncertainties, while preserving each record's assertion status.
+The gaps layer includes published disputed observations whose availability is
+`reviewed_available` or `disputed`, plus selected records with documented
+uncertainties. Their assertion and availability fields remain unchanged. This
+separate disagreement selection does not broaden the ordinary reviewed-item
+filter for damage, media, geography or replay. Research leads, unavailable
+records and non-disputed records with disputed availability gain no admission
+through it.
 Its pinned dossier route also exposes limits outside the selected memberships.
 Layer wording follows the admitted package and reviewed memberships. It does
 not republish an older reconstruction summary as a fresh review of newer media.
