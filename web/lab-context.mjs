@@ -76,6 +76,8 @@ export function mountLabContext({kind,read,capture,apply}){
   function reference(){
     picker.value=event??'';account.replaceChildren();links.replaceChildren();
     const row=LAB_EVENTS.find(item=>item.id===event);
+    const failureReturn=get('scene-failure-return');
+    if(failureReturn){failureReturn.href=row?row.form:'atlas.html';failureReturn.textContent=row?'Read the '+row.title+' documentary evidence':'Explore the documentary collection';}
     if(!row){account.textContent='No documentary reference selected. These settings describe your assumed experiment.';return;}
     account.textContent=row[kind+'Account'];
     for(const [label,href] of [['Read the '+row.title+' account',row[kind]],['Inspect its evidence dossier',row.source]]){

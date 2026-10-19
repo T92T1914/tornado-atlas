@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {windAt,loadAt,passageAt,samplePassage,MPH,FOOT} from '../web/wind-model.mjs';
+import {continuousRankineReference} from '../web/wind-continuous-reference.mjs';
+import {componentHistory} from '../web/component-model.mjs';
 const settings={peak:50,radius:100};
 // Independent finite-annulus geometry for zero background only.
 // Expected duration does not use the sampled speeds or production model.
@@ -113,4 +115,117 @@ test('a near-peak off-grid interval exposes the finite sampling limit',()=>{
   assert.ok(finer.aboveSeconds>0);
   // This tolerance qualifies this case, not every field or sampling grid.
   assert.ok(Math.abs(finer.aboveSeconds-exact)<2e-4);
+});
+
+const field={peak:50,radius:100,background:0,travel:10,offset:0,area:1,coefficient:1.2};
+const options={threshold:25,capacity:1000};
+const near=(actual,expected,tolerance=1e-10)=>assert.ok(Math.abs(actual-expected)<=tolerance,actual+' versus '+expected);
+
+test('continuous central passage has an independently known peak, annulus duration and SI load',()=>{
+ const result=continuousRankineReference(field,options);
+ assert.equal(result.status,'available');assert.equal(result.halfTime,60);
+ assert.equal(result.maximumSpeed,50);assert.equal(result.maximumDrag,1837.5);
+ assert.equal(result.comparisonDuration,30);assert.equal(result.capacityExceeded,true);
+ assert.ok(result.capacityExceedanceDuration>0&&result.capacityExceedanceDuration<120);
+});
+test('annulus reference preserves zero field, zero comparison and whole finite window',()=>{
+ const calm=continuousRankineReference({...field,peak:0},{...options,threshold:0});
+ assert.equal(calm.maximumSpeed,0);assert.equal(calm.maximumDrag,0);assert.equal(calm.comparisonDuration,120);
+ assert.equal(calm.capacityExceeded,false);assert.equal(calm.capacityExceedanceDuration,0);
+ assert.equal(continuousRankineReference({...field,peak:0},options).comparisonDuration,0);
+ assert.equal(continuousRankineReference({...field,offset:3},{...options,threshold:0}).comparisonDuration,120);
+});
+test('comparison boundaries distinguish a missed outer intersection, tangency and isolated peak equality',()=>{
+ assert.equal(continuousRankineReference({...field,offset:3},options).comparisonDuration,0);
+ assert.equal(continuousRankineReference({...field,offset:2},options).comparisonDuration,0);
+ assert.equal(continuousRankineReference({...field,offset:.7},{...options,threshold:50}).comparisonDuration,0);
+ assert.equal(continuousRankineReference(field,{...options,threshold:51}).comparisonDuration,0);
+ near(continuousRankineReference({...field,offset:1},options).comparisonDuration,20*Math.sqrt(3));
+});
+test('finite window clipping controls both maximum and duration',()=>{
+ const inner=continuousRankineReference(field,{threshold:5,capacity:100,extent:.25});
+ assert.equal(inner.halfTime,2.5);assert.equal(inner.maximumSpeed,12.5);assert.equal(inner.maximumDrag,114.84375);
+ assert.equal(inner.comparisonDuration,3);assert.equal(inner.capacityExceeded,true);
+ assert.equal(continuousRankineReference(field,{...options,extent:.25}).comparisonDuration,0);
+ assert.equal(continuousRankineReference(field,{...options,extent:1}).comparisonDuration,10);
+});
+test('a path outside the core has its maximum at closest approach',()=>{
+ const result=continuousRankineReference({...field,offset:2},options);
+ assert.equal(result.maximumSpeed,25);assert.equal(result.maximumDrag,459.375);
+ assert.equal(result.comparisonDuration,0);assert.equal(result.capacityExceeded,false);
+ const all=continuousRankineReference({...field,offset:2},{...options,capacity:1});
+ assert.equal(all.capacityExceeded,true);assert.equal(all.capacityExceedanceDuration,120,'The whole finite window may exceed capacity, including its first instant');
+});
+test('signed offset symmetry, time scaling and unchanged maxima are independent invariants',()=>{
+ const first=continuousRankineReference({...field,offset:.7},options);
+ assert.deepEqual(continuousRankineReference({...field,offset:-.7},options),first);
+ const faster=continuousRankineReference({...field,offset:.7,travel:20},options);
+ assert.equal(first.halfTime,2*faster.halfTime);assert.equal(first.comparisonDuration,2*faster.comparisonDuration);
+ assert.equal(first.capacityExceedanceDuration,2*faster.capacityExceedanceDuration);
+ assert.equal(first.maximumSpeed,faster.maximumSpeed);assert.equal(first.maximumDrag,faster.maximumDrag);
+ const larger=continuousRankineReference({...field,offset:.7,radius:200},options);
+ assert.equal(larger.comparisonDuration,2*first.comparisonDuration);assert.equal(larger.maximumDrag,first.maximumDrag);
+});
+test('strict capacity equality and adjacent capacities do not become rounded failure claims',()=>{
+ const exact={...field,peak:4,density:1,coefficient:2};
+ const equal=continuousRankineReference(exact,{threshold:2,capacity:16});
+ assert.equal(equal.maximumDrag,16);assert.equal(equal.capacityExceeded,false);assert.equal(equal.capacityExceedanceDuration,0);
+ const below=continuousRankineReference(exact,{threshold:2,capacity:16-2**-49});
+ assert.equal(below.capacityExceeded,true);assert.ok(below.capacityExceedanceDuration>0);
+ const above=continuousRankineReference(exact,{threshold:2,capacity:16+2**-48});
+ assert.equal(above.capacityExceeded,false);assert.equal(above.capacityExceedanceDuration,0);
+});
+test('zero drag coefficient preserves wind duration while refusing capacity exceedance',()=>{
+ const result=continuousRankineReference({...field,coefficient:0},options);
+ assert.equal(result.maximumSpeed,50);assert.equal(result.comparisonDuration,30);assert.equal(result.maximumDrag,0);
+ assert.equal(result.capacityExceeded,false);assert.equal(result.capacityExceedanceDuration,0);
+});
+test('a narrow off-grid comparison interval is positive independently of the 481 samples',()=>{
+ const settings={...field,offset:.7},threshold=49.75;
+ const reference=continuousRankineReference(settings,{threshold,capacity:1000});
+ near(reference.comparisonDuration,.28076293136721553);
+ const coarse=samplePassage(settings,{threshold});
+ assert.equal(coarse.samples.length,481);assert.equal(coarse.aboveSeconds,0);assert.ok(coarse.peak<threshold);
+ assert.ok(reference.maximumSpeed>coarse.peak);assert.ok(reference.comparisonDuration>0);
+});
+test('the documented 105 mph case exposes missed sampled capacity without rewriting the sampled result',()=>{
+ const mph=.44704,foot=.3048,settings={peak:105*mph,radius:500*foot,background:0,travel:30*mph,offset:.7,area:1,coefficient:1.2};
+ const reference=continuousRankineReference(settings,{threshold:100*mph,capacity:1600});
+ near(reference.maximumDrag,1619.4170450304,1e-9);assert.equal(reference.capacityExceeded,true);assert.ok(reference.capacityExceedanceDuration>0);
+ const coarse=samplePassage(settings,{threshold:100*mph}),component=componentHistory(coarse.samples,{...settings,capacity:1600});
+ assert.equal(coarse.samples.length,481);assert.ok(component.peak<1600);assert.equal(component.firstFailureIndex,null);
+ const finer=samplePassage(settings,{steps:960,threshold:100*mph}),fineComponent=componentHistory(finer.samples,{...settings,capacity:1600});
+ assert.ok(fineComponent.peak>1600);assert.notEqual(fineComponent.firstFailureIndex,null);
+ // Two retained grids illustrate this case. They do not prove general convergence.
+});
+test('nonzero background is explicitly unavailable rather than treated as symmetric',()=>{
+ assert.deepEqual(continuousRankineReference({...field,background:1},options),{status:'unavailable',reason:'nonzero-background'});
+ assert.throws(()=>continuousRankineReference({...field,background:1},{...options,capacity:0}),RangeError);
+});
+test('invalid and unrepresentable inputs fail rather than emit plausible reference numbers',()=>{
+ for(const key of ['peak','radius','background','travel','offset','area','coefficient']){
+  for(const value of [NaN,Infinity,-Infinity,'1',undefined])assert.throws(()=>continuousRankineReference({...field,[key]:value},options),RangeError,key);
+ }
+ for(const value of [NaN,Infinity,-Infinity,'1',0])assert.throws(()=>continuousRankineReference({...field,density:value},options),RangeError);
+ assert.deepEqual(continuousRankineReference({...field,density:undefined},options),continuousRankineReference(field,options),'Omitted density uses the stated1.225kg/m³ assumption');
+ for(const [key,value] of [['peak',-1],['radius',0],['background',-1],['travel',0],['area',0],['coefficient',-1],['density',0]])assert.throws(()=>continuousRankineReference({...field,[key]:value},options),RangeError);
+ for(const key of ['threshold','capacity','extent'])for(const value of [NaN,Infinity,-Infinity,'1'])assert.throws(()=>continuousRankineReference(field,{...options,[key]:value}),RangeError,key);
+ for(const [key,value] of [['threshold',-1],['capacity',0],['extent',0]])assert.throws(()=>continuousRankineReference(field,{...options,[key]:value}),RangeError);
+ assert.throws(()=>continuousRankineReference(null,options),RangeError);
+ assert.throws(()=>continuousRankineReference(field),RangeError);
+ assert.throws(()=>continuousRankineReference({...field,peak:1e200},options),RangeError);
+ assert.throws(()=>continuousRankineReference({...field,radius:1e308,travel:1e-308},options),RangeError);
+});
+
+test('scaled circle intersection retains the independently known 1.5 s duration at extreme finite radii',()=>{
+ const reference=continuousRankineReference({peak:2**500,radius:1,travel:2**1023,offset:2**1023,density:1,area:1,coefficient:1,background:0},{threshold:.8*2**-523,capacity:1,extent:2**1023});
+ assert.equal(reference.status,'available');assert.equal(reference.halfTime,1);
+ // The outer radius is 1.25b, giving a 0.75b half width and 1.5 s in a 2 s window.
+ near(reference.comparisonDuration,1.5,1e-14);assert.notEqual(reference.comparisonDuration,2);
+ assert.equal(reference.capacityExceeded,false);assert.equal(reference.capacityExceedanceDuration,0);
+});
+test('underflowed positive ratios are refused instead of becoming a false full-window duration',()=>{
+ const extreme={...field,peak:2**500,density:1,coefficient:1};
+ assert.throws(()=>continuousRankineReference(extreme,{threshold:0,capacity:Number.MIN_VALUE}),{name:'RangeError',message:/capacity ratio is below representable range/});
+ assert.throws(()=>continuousRankineReference(extreme,{threshold:Number.MIN_VALUE,capacity:1}),{name:'RangeError',message:/comparison ratio is below representable range/});
 });
