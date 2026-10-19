@@ -35,7 +35,7 @@ export function laboratoryEnlargedReadingCases(){
   });
   if(!enlarged.exact){const record={kind,...enlarged,json_byte_limit:8192,rows_removed:0};while(Buffer.byteLength(JSON.stringify(record),'utf8')>8192&&record.rows.length){record.rows.pop();record.rows_removed++;}console.log('LABORATORY_FONT_ENLARGEMENT '+JSON.stringify(record));}
   assert.equal(enlarged.exact,true,'Every declared HTML font is exactly twice its measured baseline');
-  assert.equal(enlarged.fallbackLinks.length,5);assert.ok(enlarged.fallbackLinks.every(link=>link.width>0&&link.height>0),'All five documentary fallback links were rendered during font measurement');
+  assert.equal(enlarged.fallbackLinks.length,6);assert.ok(enlarged.fallbackLinks.every(link=>link.width>0&&link.height>0),'All six documentary fallback links were rendered during font measurement');
   assert.equal(enlarged.fallback_hidden_after,enlarged.fallback_hidden_before,'Restore the exact fallback hidden attribute before layout checks');assert.equal(enlarged.enhancement_hidden_after,enlarged.enhancement_hidden_before,'Preserve original enhancement visibility');
   assert.equal(enlarged.restored_visible_font_mismatches,0,'Visible HTML remains exactly doubled after restoring the enhanced reading');
   await page.addStyleTag({content:'main p,main label,main legend,main select,main button,main li,main a,main h1,main h2,main h3,main dt,main dd {line-height:1.5 !important;letter-spacing:.06em;word-spacing:.12em}'});

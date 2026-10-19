@@ -87,3 +87,73 @@ for(const width of [320,1280])for(const method of ['pointer','keyboard'])test('d
   });
  }finally{release();page.off('console',observe);page.off('framenavigated',retireGate);}
 });
+
+for(const width of [390,1280])test('documentary startup keeps Nolte native entry during a held reader gesture '+width,async t=>{
+ const page=await fixture(t,{viewport:{width,height:900}});
+ const label='Read this reported instant in the player',prefix='NOLTE_HELD_GESTURE ';
+ const expected=base+'/reconstruction.html?event=el-reno-2013&t=397&appearance_view=photo&appearance_photo=nolte-reported-stills#replay-appearance';
+ const observed={width,expected_player:expected,events:[],snapshots:{}};let release,requested,held=false;
+ const gate=new Promise(resolve=>release=resolve),started=new Promise(resolve=>requested=resolve);
+ t.after(()=>release());
+ await page.route(base+'/reader-view.mjs',async route=>{requested();await gate;await route.continue();});
+ const listen=message=>{
+  const text=message.text();if(!text.startsWith(prefix)||text.length>2048)return;
+  try{const row=JSON.parse(text.slice(prefix.length));if(observed.events.length<3)observed.events.push(row);}catch{}
+ };
+ page.on('console',listen);t.after(()=>page.off('console',listen));
+ await page.addInitScript(({label,prefix})=>{
+  const small=value=>value==null?null:String(value).slice(0,256);
+  const box=r=>({x:r.x,y:r.y,width:r.width,height:r.height});
+  window.__nolteHeldGestureState=()=>{
+   const a=[...document.querySelectorAll('#documentary-nolte-231037 a')].find(n=>n.textContent.trim()===label);
+   const range=document.createRange();if(a)range.selectNodeContents(a);
+   return {url:small(location.href),exhibit_ready:small(document.body?.dataset.exhibitReady),
+    document_time_origin:performance.timeOrigin,scroll_y:scrollY,contents_open:document.getElementById('exhibit-contents')?.open??null,
+    anchor:a?{present:true,tag:a.tagName,href:small(a.href),rects:[...a.getClientRects()].slice(0,4).map(box),
+     text_rects:[...range.getClientRects()].slice(0,4).map(box)}:{present:false}};
+  };
+  let count=0;
+  for(const type of ['pointerdown','pointerup','click'])addEventListener(type,event=>{
+   if(!event.isTrusted||count++>=3)return;
+   const node=event.target instanceof Element?event.target:null,a=node?.closest('a');
+   console.info(prefix+JSON.stringify({type:event.type,trusted:event.isTrusted,target_tag:small(node?.tagName),target_id:small(node?.id),
+    anchor_tag:small(a?.tagName),anchor_href:small(a?.href),x:event.clientX,y:event.clientY,
+    exhibit_ready:small(document.body?.dataset.exhibitReady),document_time_origin:performance.timeOrigin,scroll_y:scrollY}));
+  },{capture:true,passive:true});
+ },{label,prefix});
+ const state=()=>page.evaluate(()=>window.__nolteHeldGestureState());
+ try{
+  await page.goto(base+'/index.html#documentary-nolte-231037');
+  let timer;try{await Promise.race([started,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Actual reader module route did not arrive within10000ms')),10000);})]);}
+  finally{clearTimeout(timer);}
+  assert.notEqual(await page.evaluate(()=>document.body?.dataset.exhibitReady),'true');
+  const link=page.locator('#documentary-nolte-231037').getByRole('link',{name:label,exact:true});
+  assert.equal(new URL(await link.getAttribute('href'),base+'/').href,expected);
+  await link.scrollIntoViewIfNeeded();
+  const point=await link.evaluate(a=>{
+   const range=document.createRange();range.selectNodeContents(a);
+   for(const r of range.getClientRects()){
+    const x=r.x+r.width/2,y=r.y+r.height/2;
+    if(r.width>0&&r.height>0&&x>=0&&x<innerWidth&&y>=0&&y<innerHeight&&document.elementFromPoint(x,y)?.closest('a')===a)return {x,y};
+   }
+   return null;
+  });
+  assert.ok(point,'A visible actual Nolte text rectangle supplies the trusted pointer location');observed.saved_pointer=point;
+  await page.mouse.move(point.x,point.y);observed.snapshots.before_down=await state();
+  await page.mouse.down();held=true;observed.snapshots.after_down_before_release=await state();
+  assert.ok(observed.events.some(e=>e.type==='pointerdown'&&e.trusted&&e.target_tag==='A'&&e.anchor_href===expected&&e.exhibit_ready!=='true'));
+  release();await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
+  observed.snapshots.after_ready_before_up=await state();
+  await page.mouse.up();held=false;
+  await page.waitForURL(expected);await page.locator('#replay-time:not([disabled])').waitFor();
+  assert.equal(await page.locator('#replay-time').inputValue(),'397');
+  for(const type of ['pointerdown','pointerup','click'])assert.ok(observed.events.some(e=>e.type===type&&e.trusted&&e.target_tag==='A'&&e.anchor_tag==='A'&&e.anchor_href===expected),'Actual trusted '+type+' reaches the exact Nolte anchor');
+  assert.ok(observed.events.some(e=>e.type==='click'&&e.exhibit_ready==='true'));
+ }catch(error){observed.error={name:error.name,message:String(error.message).slice(0,512)};throw error;}
+ finally{
+  release();if(held&&!page.isClosed())await page.mouse.up().catch(()=>{});
+  page.off('console',listen);observed.actual_final_url=page.url().slice(0,256);
+  const diagnostic=JSON.stringify(observed);t.diagnostic('NOLTE_HELD_GESTURE '+diagnostic);
+  assert.ok(Buffer.byteLength(diagnostic,'utf8')<=16384,'Three bounded pointer events and geometry snapshots stay within16KiB');
+ }
+});

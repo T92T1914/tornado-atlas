@@ -37,7 +37,11 @@ for(const width of [320,1280])test('Form learning path retains its unassigned ga
 });
 for(const kind of ['wind','study'])test('Native laboratory contents work without scripts '+kind,{timeout:30000},async t=>{
  const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});await page.goto(base+'/'+kind+'.html?event=moore-2013');
- const targets=kind==='wind'?windTargets:formTargets;for(const target of targets)await localLink(page,target);await noOverflow(page);assert.equal(await page.locator('#lab-documentary-fallback a').count(),5);
+ const targets=kind==='wind'?windTargets:formTargets;for(const target of targets)await localLink(page,target);await noOverflow(page);
+ assert.deepEqual(await page.locator('#lab-documentary-fallback a').evaluateAll(links=>links.map(link=>[link.getAttribute('href'),link.textContent.trim()])),[
+  ['index.html','El Reno documentary'],['joplin.html','Joplin documentary'],['blackwell.html','Blackwell documentary'],
+  ['tuscaloosa.html','Tuscaloosa and Birmingham documentary'],['moore.html','Newcastle and Moore documentary'],['udall.html','Udall documentary'],
+ ]);
  if(kind==='wind'){assert.equal(await page.locator('#sampled-values-body tr').count(),481);assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Peak swirl 100.0 mph/);assert.equal(await page.locator('#wind-reference-values').isHidden(),true);}
 });
 for(const kind of ['wind','study'])test('Unavailable laboratory drawing retains learning path and documentary return '+kind,{timeout:30000},async t=>{

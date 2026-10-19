@@ -9,8 +9,8 @@ const form='experiment=form-1&event=blackwell-1955&shape=rope&condensation=65&az
 test('empty laboratories have no assigned historical storm',()=>{
   for(const kind of ['wind','form'])assert.deepEqual(readExperiment('',kind),{status:'empty',event:null,state:null,message:''});
 });
-test('all four documentary-only routes are valid without an experiment',()=>{
-  for(const id of ['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011']){
+test('all six documentary-only routes are valid without an experiment',()=>{
+  for(const id of ['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955']){
     for(const kind of ['wind','form'])assert.deepEqual(readExperiment('?event='+id,kind),{status:'reference',event:id,state:null,message:''});
   }
 });

@@ -129,7 +129,7 @@ test('a missing retained dossier fails before comparison and no-script retains r
   await page.waitForFunction(()=>document.body?.dataset.ready==='error');
   assert.equal(await page.locator('.comparison-card').count(),0);
   const documentaryChapters=[
-    ['index.html','El Reno, 2013'],['joplin.html','Joplin, 2011'],['blackwell.html','Blackwell, 1955'],['tuscaloosa.html','Tuscaloosa and Birmingham, 2011'],['moore.html','Newcastle and Moore, 2013']
+    ['index.html','El Reno, 2013'],['joplin.html','Joplin, 2011'],['blackwell.html','Blackwell, 1955'],['tuscaloosa.html','Tuscaloosa and Birmingham, 2011'],['moore.html','Newcastle and Moore, 2013'],['udall.html','Udall, 1955']
   ];
   assert.deepEqual(await page.locator('#documentary-chapters nav a').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('href'),node.textContent])),documentaryChapters);
   const staticPage=await fixture(t,{javaScriptEnabled:false,viewport:{width:390,height:900}});

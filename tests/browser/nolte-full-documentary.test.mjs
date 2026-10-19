@@ -139,10 +139,18 @@ test('Nolte enlarged reading and dialog retain full image and reachable source l
 
 test('Nolte page retirement closes its dialog before document history restoration',async t=>{
  const page=await fixture(t,{viewport:{width:390,height:900}});
+ await withNavigationDiagnostics(page,'nolte-page-retirement',async mark=>{
  await page.addInitScript(()=>{window.noltePageShows=[];addEventListener('pageshow',event=>window.noltePageShows.push({persisted:event.persisted}));});
- await page.goto(base+'/index.html#documentary-nolte-231037');await page.locator('#documentary-nolte-231037 a').filter({hasText:'Read this reported instant'}).click();await ready(page);
+ mark('nolte-retirement-article-entry',base+'/index.html#documentary-nolte-231037');
+ await page.goto(base+'/index.html#documentary-nolte-231037');
+ // Retirement begins with the enhanced article; separate held-startup tests
+ // retain the native link contract while reader initialization is in flight.
+ await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
+ mark('nolte-retirement-native-player-entry',player());
+ await page.locator('#documentary-nolte-231037 a').filter({hasText:'Read this reported instant'}).click();await ready(page);
  await page.locator('#replay-photo-full').click();await shown(page,0);
- await page.goBack();await page.locator('#nolte-documentary-photographs').waitFor();await page.goForward();await ready(page);
+ mark('nolte-retirement-back',base+'/index.html#documentary-nolte-231037');await page.goBack();await page.locator('#nolte-documentary-photographs').waitFor();
+ mark('nolte-retirement-forward',player());await page.goForward();await ready(page);
  assert.equal(await page.locator('#photo-dialog').evaluate(d=>d.open),false);
  assert.equal(await page.locator('#photo-full').getAttribute('src'),null);
  // A freshly loaded player mounts this viewer lazily; a restored one may
@@ -157,4 +165,5 @@ test('Nolte page retirement closes its dialog before document history restoratio
  assert.equal(await page.locator('#photo-dialog').evaluate(d=>d.open),false);
  assert.equal(await page.locator('#photo-full').getAttribute('src'),null);assert.equal(await page.locator('#photo-status').textContent(),'');
  await page.locator('#replay-photo-full').click();await shown(page,0);
+ });
 });

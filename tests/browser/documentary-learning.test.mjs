@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,withNavigationDiagnostics} from './harness.mjs';
 
 for(const width of [320,1280])test('controlled documentary motion and source journey '+width,async t=>{
  const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'}),motionRequests=[];
@@ -38,12 +38,16 @@ for(const width of [320,1280])test('controlled documentary motion and source jou
  await page.goBack();await region.waitFor();assert.equal(await video.evaluate(v=>v.paused),true);
 });
 test('failed documentary media retains originals and can retry',async t=>{
- const page=await fixture(t);await page.route('**/bohac-opening-source-relative.*',r=>r.fulfill({status:404,body:'Controlled unavailable media'}));
+ const page=await fixture(t);await withNavigationDiagnostics(page,'documentary-media-retry',async mark=>{
+ await page.route('**/bohac-opening-source-relative.*',r=>r.fulfill({status:404,body:'Controlled unavailable media'}));
+ mark('documentary-media-failed-entry',base+'/index.html#bohac-opening-motion');
  await page.goto(base+'/index.html#bohac-opening-motion');const region=page.locator('#bohac-opening-motion');
  await region.getByRole('button',{name:'Play short clip'}).click();await page.waitForFunction(()=>document.querySelector('[data-clip-action]').textContent==='Retry short clip');
  assert.equal(await region.getByRole('link',{name:'Archived extended film'}).count(),1);
+ mark('documentary-media-retry-playback');
  await page.unroute('**/bohac-opening-source-relative.*');await region.getByRole('button',{name:/Play short clip|Retry short clip/}).click();
  await page.waitForFunction(()=>{const v=document.querySelector('[data-documentary-clip]');return v.videoWidth===1280&&v.currentTime>0.1&&!v.paused;});
+ });
 });
 test('documentary motion keeps native controls and reading without scripts',async t=>{
  const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900}});
