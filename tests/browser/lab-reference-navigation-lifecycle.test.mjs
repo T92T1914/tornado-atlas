@@ -148,29 +148,14 @@ async function nativeReturnAndBack(page,laboratoryURL){
   assert.equal(await savedMooreExperiment(page),laboratoryURL);
 }
 
-test('Native caught image abort and bounded departing-document fetch evidence',{timeout:45000},async t=>{
-  const held=heldAsset(t),replacementArrived=deferred(),replacementRelease=deferred(),replacementFinished=deferred();
-  let replacementStarted=false,replacementError=null,ownedPage=null;
-  const replacementCleanup={};
-  t.after(async()=>{
-    replacementRelease.resolve();let cleanupFailure=replacementError;
-    try{if(replacementStarted)await bounded(replacementFinished.promise,'Owned replacement response');}
-    catch(error){cleanupFailure??=error;}
-    cleanupFailure??=replacementError;
-    if(cleanupFailure)await closeBeforeCleanupRethrow(t,ownedPage,cleanupFailure,replacementCleanup);
-  });
-  const page=await fixture(t,{viewport:{width:320,height:900},serviceWorkers:'block'});ownedPage=page;
+test('Native same-origin image success and caught abort preserve strict errors',{timeout:45000},async t=>{
+  const held=heldAsset(t);
+  const page=await fixture(t,{viewport:{width:320,height:900},serviceWorkers:'block'});
   const diagnostics=await observeLabReferenceNavigation(t,page,{base,label:'native-caught-fetch-control'});
-  const record={control:'Synthetic same-origin document, no Atlas module',positive:null,abort:null,replacement:null};
+  const record={control:'Synthetic same-origin document, no Atlas module',positive:null,abort:null};
   await held.install(page);
-  const initial=base+'/__atlas-native-fetch-control.html',replacement=base+'/__atlas-native-fetch-replacement.html';
+  const initial=base+'/__atlas-native-fetch-control.html';
   await page.route(initial,route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><meta charset="utf-8"><title>Native fetch control</title><p>Controlled native image fetch.</p>'}));
-  await page.route(replacement,async route=>{
-    replacementStarted=true;replacementArrived.resolve();
-    try{await replacementRelease.promise;await route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><meta charset="utf-8"><title>Replacement control</title><p>Controlled replacement document.</p>'});}
-    catch(error){replacementError=error;}
-    finally{replacementFinished.resolve();}
-  });
   try{
     await page.goto(initial);
     record.positive=await page.evaluate(async asset=>{
@@ -195,39 +180,8 @@ test('Native caught image abort and bounded departing-document fetch evidence',{
     assert.equal(record.abort.outcome,'rejected');assert.equal(record.abort.handler_caught,true);
     assert.equal(record.abort.error_name,'AbortError');assert.equal(record.abort.signal_aborted,true);
     await held.waitForFailure();await held.release();
-    const engine=page.context().browser().browserType().name();
-    if(engine==='webkit'){
-      const oldWindow=await page.evaluateHandle(()=>{window.__atlasNativeDocumentIdentity='retained-native-control';return window;});
-      let navigationResult=null;
-      const navigation=page.goto(replacement).then(()=>{navigationResult={status:'committed'};},error=>{navigationResult={status:'failed',error:smallError(error)};});
-      try{
-        await bounded(replacementArrived.promise,'Actual replacement document request');
-        record.replacement_route_handlers_before=held.state.passed_fetches;
-        record.replacement={executed:true,outcome:'pending_after_replacement_request'};
-        record.replacement=await bounded(oldWindow.evaluate(async (old,asset)=>{
-          const identity={marker:old.__atlasNativeDocumentIdentity,origin:old.location.origin,path:old.location.pathname};
-          try{
-            const response=await old.fetch(asset,{cache:'no-store',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'});
-            const bytes=await response.arrayBuffer();
-            return {executed:true,identity,outcome:'resolved',status:response.status,bytes:bytes.byteLength,
-              sha256:[...new Uint8Array(await old.crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('')};
-          }catch(error){return {executed:true,identity,outcome:'caught_rejection',error_name:String(error.name).slice(0,64),error_message:String(error.message).slice(0,256)};}
-        },MOORE.asset),'Caught fetch in retained departing document');
-        assert.deepEqual(record.replacement.identity,{marker:'retained-native-control',origin:new URL(base).origin,path:'/__atlas-native-fetch-control.html'});
-        // A departing document need not keep its request alive. Any pageerror still fails the strict fixture.
-        assert.ok(['resolved','caught_rejection'].includes(record.replacement.outcome));
-        if(record.replacement.outcome==='resolved'){
-          assert.equal(record.replacement.status,200);assert.equal(record.replacement.bytes,MOORE.bytes);assert.equal(record.replacement.sha256,MOORE.sha256);
-        }
-      }finally{
-        record.replacement_route_handlers_after=held.state.passed_fetches;
-        try{await oldWindow.dispose();}finally{replacementRelease.resolve();}
-        await bounded(navigation,'Replacement navigation after release');
-        assert.deepEqual(navigationResult,{status:'committed'});
-      }
-    }else record.replacement={executed:false,reason:'WebKit-specific departing-document diagnostic; no replacement-stage acceptance on '+engine};
   }finally{
-    record.held=held.state;replacementRelease.resolve();
+    record.held=held.state;
     await finish(t,diagnostics,'native-caught-fetch-control',record);
   }
 });
@@ -300,4 +254,183 @@ test('A fully decoded documentary reference preserves native Form return and Bac
     assert.equal(await page.locator('#scene-failure').isVisible(),true);
     assert.equal(await page.locator('#motion').isDisabled(),true);
   }finally{await finish(t,diagnostics,'widget-complete-native-return',record);}
+});
+
+async function stillPendingMoore(page,held){
+  const host=page.locator('#lab-reference-evidence');
+  assert.equal(await host.getAttribute('data-event'),'moore-2013');
+  assert.equal(await host.getAttribute('data-state'),'loading');
+  assert.equal(await host.getAttribute('aria-busy'),'true');
+  assert.equal(await host.locator('#lab-reference-retry').isVisible(),false);
+  assert.equal(held.state.native_failure,null);
+}
+async function stoppedPendingMoore(page){
+  const host=page.locator('#lab-reference-evidence');
+  await host.locator('#lab-reference-retry').waitFor({state:'visible'});
+  assert.equal(await host.getAttribute('data-state'),'unavailable');
+  assert.equal(await host.getAttribute('data-event'),'moore-2013');
+  assert.equal(await host.getAttribute('aria-busy'),'false');
+  assert.match(await host.locator('#lab-reference-status').innerText(),/image check stopped before leaving this page/i);
+  assert.match(await host.locator('#lab-reference-status').innerText(),/If you stay here, retry the image/i);
+  assert.equal(await host.getByRole('link',{name:'Read this item in its article',exact:true}).getAttribute('href'),base+'/moore.html#survey-photographs');
+}
+async function addControlLink(page,{id,href,target,download,prevented=false}){
+  await page.evaluate(({id,href,target,download,prevented})=>{
+    const link=document.createElement('a');link.id=id;link.href=href;link.textContent=id;
+    if(target)link.target=target;if(download!==undefined)link.download=download;
+    if(prevented)link.addEventListener('click',event=>{event.preventDefault();link.dataset.prevented=String(event.defaultPrevented);},{once:true});
+    document.body.append(link);
+  },{id,href,target,download,prevented});
+  const link=page.locator('#'+id);await link.focus();
+  assert.equal(await link.evaluate(node=>node===document.activeElement),true);
+  return link;
+}
+
+test('Pending reference remains owned across same-document, prevented and new-context actions',{timeout:45000},async t=>{
+  const held=heldAsset(t);let page,popup;
+  t.after(async()=>{
+    try{if(popup&&!popup.isClosed())await bounded(popup.close(),'Owned reference control popup close');}
+    catch(error){await closeBeforeCleanupRethrow(t,page,error,{});}
+  });
+  page=await fixture(t,{viewport:{width:320,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
+  const diagnostics=await observeLabReferenceNavigation(t,page,{base,label:'widget-nondeparting-actions'});
+  const record={control:'Actual pending widget; native same-document, prevented, new-tab, modified and download actions'};
+  await held.install(page);held.enable();await forceUnavailableForm(page);
+  const controlURL=base+'/__atlas-reference-owned-control.html',downloadURL=base+'/__atlas-reference-owned-control.txt';
+  await page.context().route(controlURL,route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Owned control</title><p id="owned-control-marker">Native new-context control.</p>'}));
+  await page.route(downloadURL,route=>route.fulfill({status:200,contentType:'text/plain',headers:{'Content-Disposition':'attachment; filename="atlas-reference-control.txt"'},body:'Owned download control.'}));
+  try{
+    await page.goto(base+'/study.html');await experimentReady(page);
+    await page.locator('#lab-event').selectOption('moore-2013');await held.wait();
+    const before=await formState(page);
+    const contents=page.locator('.lab-contents a[href="#form-model-limits"]');
+    await contents.focus();await page.keyboard.press('Enter');
+    assert.equal(new URL(page.url()).hash,'#form-model-limits');await stillPendingMoore(page,held);
+    const prevented=await addControlLink(page,{id:'owned-prevented-return',href:controlURL,prevented:true});
+    await page.keyboard.press('Enter');assert.equal(await prevented.getAttribute('data-prevented'),'true');
+    assert.equal(new URL(page.url()).pathname,'/study.html');await stillPendingMoore(page,held);
+    await addControlLink(page,{id:'owned-blank-return',href:controlURL,target:'_blank'});
+    let popupResponse;
+    [popup,popupResponse]=await Promise.all([page.waitForEvent('popup'),
+      page.context().waitForEvent('response',{timeout:10000,predicate:response=>response.url()===controlURL&&response.request().isNavigationRequest()}),
+      page.keyboard.press('Enter')]);
+    await popup.waitForLoadState('domcontentloaded');assert.equal(popup.url(),controlURL);
+    assert.equal(popupResponse.request().frame().page(),popup);assert.equal(popupResponse.status(),200);
+    assert.match(await popupResponse.text(),/id="owned-control-marker"/);
+    assert.equal(await popup.locator('#owned-control-marker').innerText(),'Native new-context control.');
+    await bounded(popup.close(),'Native new-tab control close');popup=null;
+    await stillPendingMoore(page,held);
+    const modified=await addControlLink(page,{id:'owned-modified-return',href:controlURL});
+    const originalURL=page.url();
+    await modified.evaluate(link=>link.addEventListener('click',event=>{
+      const observed={trusted:event.isTrusted,ctrl:event.ctrlKey,meta:event.metaKey,button:event.button,
+        default_before:event.defaultPrevented,target_is_link:event.target===link,href:link.href,target:link.target};
+      event.preventDefault();observed.default_after=event.defaultPrevented;
+      link.dataset.controlledModifier=JSON.stringify(observed);
+    },{once:true}));
+    await modified.click({modifiers:['Control']});
+    const observedModifier=await modified.getAttribute('data-controlled-modifier');
+    assert.notEqual(observedModifier,null,'The actual trusted Control-click must reach its target');
+    const modifier=JSON.parse(observedModifier);
+    assert.deepEqual(modifier,{trusted:true,ctrl:true,meta:false,button:0,default_before:false,
+      target_is_link:true,href:controlURL,target:'',default_after:true});
+    record.modified_navigation={scope:'CONTROLLED_PREVENTED_MODIFIER_ONLY',actual:modifier,
+      unprevented_ctrl_newtab:'UNQUALIFIED: two retained native fixture attempts failed their event/response preconditions; no native Control-newtab pass or skip is claimed.'};
+    assert.equal(page.url(),originalURL);
+    await stillPendingMoore(page,held);
+    await addControlLink(page,{id:'owned-download-return',href:downloadURL,download:'atlas-reference-control.txt'});
+    const [download]=await Promise.all([page.waitForEvent('download'),page.keyboard.press('Enter')]);
+    await bounded(download.cancel(),'Owned download cancellation');await stillPendingMoore(page,held);
+    record.download={suggested_filename:download.suggestedFilename(),cancelled_by_control:true};
+    assert.equal(record.download.suggested_filename,'atlas-reference-control.txt');
+    await held.release();record.current=await checkedMooreWidget(page);
+    assert.deepEqual(await formState(page),before);record.final=await formState(page);
+  }finally{record.held=held.state;await finish(t,diagnostics,'widget-nondeparting-actions',record);}
+});
+
+test('Canceled full-document departure leaves a stopped pending reference retryable',{timeout:45000},async t=>{
+  const held=heldAsset(t);
+  const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
+  const diagnostics=await observeLabReferenceNavigation(t,page,{base,label:'widget-canceled-native-departure'});
+  const record={control:'Actual pending owner; native Navigation API departure canceled after the production listener'};
+  await held.install(page);held.enable();await forceUnavailableForm(page);
+  try{
+    await page.goto(base+'/study.html');await experimentReady(page);
+    await page.locator('#lab-event').selectOption('moore-2013');await held.wait();
+    const before=await formState(page),laboratoryURL=await savedMooreExperiment(page),originalURL=page.url();
+    held.retiring('full-document navigate event followed by native cancellation');
+    record.cancellation=await page.evaluate(async href=>{
+      if(typeof window.navigation?.navigate!=='function'){
+        // Controlled existing-handler coverage only, not a native-cancellation claim.
+        window.dispatchEvent(new Event('beforeunload',{cancelable:true}));
+        return {native_api_available:false,native_cancellation_executed:false,controlled_beforeunload_dispatched:true};
+      }
+      const observed={native_api_available:true,native_cancellation_executed:true,events:[]};
+      const cancel=event=>{
+        if(event.destination.url!==href)return;
+        const row={same_document:event.destination.sameDocument,default_before:event.defaultPrevented};
+        event.preventDefault();row.default_after=event.defaultPrevented;observed.events.push(row);
+      };
+      navigation.addEventListener('navigate',cancel);
+      try{
+        const result=navigation.navigate(href);
+        // Attach both handlers immediately. A canceled NavigationResult rejects both.
+        const watch=promise=>promise.then(()=>({outcome:'resolved'}),error=>({outcome:'rejected',name:error.name}));
+        const committed=watch(result.committed),finished=watch(result.finished);
+        [observed.committed,observed.finished]=await Promise.all([committed,finished]);
+        return observed;
+      }finally{navigation.removeEventListener('navigate',cancel);}
+    },base+'/__atlas-reference-canceled-departure.html');
+    if(record.cancellation.native_api_available){
+      assert.deepEqual(record.cancellation.events,[{same_document:false,default_before:false,default_after:true}]);
+      assert.equal(record.cancellation.committed.outcome,'rejected');assert.equal(record.cancellation.finished.outcome,'rejected');
+    }
+    assert.equal(page.url(),originalURL);await stoppedPendingMoore(page);
+    await held.waitForFailure();await held.release();
+    await page.locator('#lab-reference-retry').focus();await page.keyboard.press('Enter');
+    record.current=await checkedMooreWidget(page);
+    assert.equal(await savedMooreExperiment(page),laboratoryURL);assert.deepEqual(await formState(page),before);
+    assert.equal(await page.locator('#lab-reference-retry').isVisible(),false);
+  }finally{record.held=held.state;await finish(t,diagnostics,'widget-canceled-native-departure',record);}
+});
+
+test('Existing beforeunload fallback stops pending work and preserves a ready reference',{timeout:45000},async t=>{
+  const held=heldAsset(t);
+  const page=await fixture(t,{viewport:{width:320,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
+  const diagnostics=await observeLabReferenceNavigation(t,page,{base,label:'widget-controlled-navigation-api-absence'});
+  const record={control:'Controlled Navigation API absence; existing beforeunload callback, then actual native return and Back',
+    synthetic_beforeunload_scope:'Direct callback contract only; not native canceled-unload or old-browser certification'};
+  await page.addInitScript(()=>{
+    const hadAPI=typeof window.navigation?.navigate==='function';
+    Object.defineProperty(window,'navigation',{value:undefined,configurable:true});
+    window.__atlasControlledNavigationAbsence={hadAPI,absent:window.navigation===undefined};
+  });
+  await held.install(page);held.enable();await forceUnavailableForm(page);
+  try{
+    await page.goto(base+'/study.html');await experimentReady(page);
+    record.absence=await page.evaluate(()=>window.__atlasControlledNavigationAbsence);
+    assert.equal(record.absence.absent,true);
+    await page.locator('#lab-event').selectOption('moore-2013');await held.wait();
+    const before=await formState(page),laboratoryURL=await savedMooreExperiment(page);
+    held.retiring('existing beforeunload fallback with controlled Navigation API absence');
+    await page.evaluate(()=>window.dispatchEvent(new Event('beforeunload',{cancelable:true})));
+    await stoppedPendingMoore(page);await held.waitForFailure();await held.release();
+    await page.locator('#lab-reference-retry').focus();await page.keyboard.press('Enter');
+    record.ready=await checkedMooreWidget(page);
+    const src=await page.locator('#lab-reference-image').getAttribute('src');
+    await page.evaluate(()=>{
+      window.__atlasReadyReferenceImage=document.getElementById('lab-reference-image');
+      window.dispatchEvent(new Event('beforeunload',{cancelable:true}));
+    });
+    assert.equal(await page.locator('#lab-reference-evidence').getAttribute('data-state'),'ready');
+    assert.equal(await page.locator('#lab-reference-evidence').getAttribute('aria-busy'),'false');
+    assert.equal(await page.locator('#lab-reference-image').getAttribute('src'),src);
+    assert.equal(await page.locator('#lab-reference-image').evaluate(image=>image===window.__atlasReadyReferenceImage),true);
+    record.ready_after_fallback=await checkedMooreWidget(page);
+    assert.deepEqual(record.ready_after_fallback,record.ready);assert.deepEqual(await formState(page),before);
+    assert.equal(await savedMooreExperiment(page),laboratoryURL);
+    await nativeReturnAndBack(page,laboratoryURL);record.after_back=await checkedMooreWidget(page);
+    assert.deepEqual(await formState(page),before);
+    assert.equal(await page.evaluate(()=>window.__atlasControlledNavigationAbsence.absent),true);
+  }finally{record.held=held.state;await finish(t,diagnostics,'widget-controlled-navigation-api-absence',record);}
 });

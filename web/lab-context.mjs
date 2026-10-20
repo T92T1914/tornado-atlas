@@ -133,6 +133,7 @@ export function mountLabContext({kind,read,capture,apply}){
     if(!click.defaultPrevented&&link&&link!==share&&message.dataset.state!=='invalid')commit(capture());
   });
   window.addEventListener('beforeunload',()=>{
+    referenceView.beforeDeparture();
     if(message.dataset.state==='invalid')return;
     // Reload can capture its destination before beforeunload. Retain this one pending
     // paused snapshot instead of promising that a late replaceState changes that target.

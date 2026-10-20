@@ -44,6 +44,15 @@ export function mountLabReference(host,beforeNavigate){
     if(attempt.url)URL.revokeObjectURL(attempt.url);
     attempt=null;
   }
+  function beforeDeparture(){
+    // A cancelled departure keeps the selected source and an explicit retry.
+    // An already checked image stays visible until ordinary pagehide cleanup.
+    if(!attempt?.active||host.dataset.state!=='loading')return;
+    const status=host.querySelector('#lab-reference-status'),retry=host.querySelector('#lab-reference-retry');
+    retire();host.dataset.state='unavailable';host.setAttribute('aria-busy','false');
+    status.textContent='The image check stopped before leaving this page. If you stay here, retry the image or use its article and source links.';
+    retry.hidden=false;
+  }
   function show(event,{retry=false}={}){
     if(event===selected&&!retry&&attempt?.active)return;
     retire();selected=event;host.replaceChildren();host.dataset.event=event??'';delete host.dataset.mediaId;
@@ -115,7 +124,11 @@ export function mountLabReference(host,beforeNavigate){
     })().catch(failed);
   }
   host.addEventListener('click',event=>{if(event.target.closest?.('a'))beforeNavigate();});
+  window.navigation?.addEventListener('navigate',event=>{
+    if(event.defaultPrevented||event.signal?.aborted||event.destination?.sameDocument!==false||event.downloadRequest!=null)return;
+    beforeDeparture();
+  });
   window.addEventListener('pagehide',()=>{retire();host.dataset.state='retired';host.setAttribute('aria-busy','false');});
   window.addEventListener('pageshow',event=>{if(event.persisted&&selected)show(selected,{retry:true});});
-  return {show};
+  return {show,beforeDeparture};
 }
