@@ -19,7 +19,7 @@ impacts, remembrance and a usable source list. A persistent contents list should
 support returning to a particular passage. El Reno now implements this first
 reading template; the archive still needs deeper event-by-event research.
 
-The working title is Tornado Atlas. It is a local folder name, not a final brand.
+The working title is Tornado Atlas. The public museum and repository use that title.
 
 ## Visitor experience to build
 
@@ -50,7 +50,7 @@ the entire application. See the [reconstruction plan](reconstruction-plan.md).
 * Apply the same pipeline to the next well-documented infamous storms, then expand coverage.
 * Add international adapters and deliberate source-record grouping alongside exhibit work. A county segment is not automatically a separate tornado reconstruction.
 
-El Reno 2013 is the first implemented geographic exhibit study, with an initial footage notebook. Joplin 2011 has two reviewed search aliases but remains a future exhibit candidate. Blackwell 1955 is the next source comparison candidate because two selected creators cover it. A weaker event and an international event should also exercise the design.
+El Reno 2013 is the first implemented geographic exhibit study, with an initial footage notebook. The collection now also has documentary exhibits for Joplin 2011, Blackwell 1955, Tuscaloosa and Birmingham 2011, Newcastle and Moore 2013, and Udall 1955. Their [current event registry](../exhibits/events.json) keeps documentary, chronology and replay availability separate. A documentary exhibit does not establish a reconstructed historical appearance. A weaker event and an international event should also exercise the design.
 
 The initial creator collection is Pecos Hank, TornadoTRX and Swegle Studios, selected by the project owner. Reviews are organized around tornadoes and observations. Channel inclusion is not a claim that every upload has been reviewed or that each video's claims are established facts.
 

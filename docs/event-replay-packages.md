@@ -105,8 +105,8 @@ and [display-clock API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/
 
 Replay manifest version 2 admits an `appearance_timeline` in the exact
 integrity-checked bundle. Version 1 still rejects that field, including
-`null`, and keeps its illustrative map symbol. The El Reno source package
-opts into version 2 for four separately inspected creator-published stills.
+`null`, and keeps its illustrative map symbol. The initial El Reno source package
+opted into version 2 for four separately inspected creator-published stills.
 Its appearance windows remain empty. No historical appearance interval has
 been admitted. A built source package does not establish public deployment.
 
@@ -492,7 +492,7 @@ Selecting the other sequence at an unsupported time therefore shows unknown
 appearance. Motion between the two stills is unknown, and the 23:25:09 UTC
 margin remains separate from the two filled views.
 
-Current coverage reports seven optical instants in three sequences, three
+Version 4 coverage reports seven optical instants in three sequences, three
 partial forms comprising two filled condensation views and one open margin,
 and zero registered continuous intervals. The dossier appearance classification
 remains unregistered. The [specific source/output comparison](../research/el-reno-partial-condensation-2026-10-11.md)
