@@ -12,7 +12,9 @@ packages, so the collection can grow without rebuilding the application for
 every tornado. The [reconstruction plan](docs/reconstruction-plan.md)
 explains the approach and what still needs to be built.
 
-The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, 45 photographs linked to damage survey locations, a separate nine-photo comparison gallery, two credited storm photographs, a sourced remembrance section, and a footage notebook. A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field, generic drag force, and a moving passage past a fixed probe. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
+The atlas contains 80,318 NOAA source records covering US years 1950 through 2025. The first detailed exhibit is **El Reno, Oklahoma, on May 31, 2013**, with an interactive geographic timeline, the published NWS outline and center path, 45 photographs linked to damage survey locations, a separate comparison gallery with nine photographs, two credited storm photographs, a sourced remembrance section, and a footage notebook.
+
+A separate interactive 3D form study starts the visual work, and a wind laboratory explores an idealized rotating field, generic drag force, and a moving passage past a fixed probe. The longer term goal is worldwide coverage with detailed exhibits that grow one storm at a time.
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [El Reno spatial replay](https://T92T1914.github.io/tornado-atlas/reconstruction.html) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
 
@@ -25,7 +27,7 @@ chronology, radar and unresolved source disagreements. A media item with an
 unknown camera position is not advertised as registered imagery. The
 [archive contract](docs/archive-dossiers.md) explains the model and loading path.
 
-The [inspected-source directory](https://t92t1914.github.io/tornado-atlas/dossier.html?view=sources)
+The [directory of inspected sources](https://t92t1914.github.io/tornado-atlas/dossier.html?view=sources)
 searches source titles, locators, revision records and inspection scope across
 the current dossiers. Each result opens its exact dossier revision and retains
 the source's access and rights limits. Linked counts describe metadata entries,
@@ -45,7 +47,7 @@ unresolved, and the viewer preserves that distinction.
 
 The atlas entrance now brings the documentary, spatial replay and wind laboratory
 together before the searchable collection. The spatial replay places El Reno's
-39 published minute positions on a three-dimensional stage, with orbit controls,
+39 published minute positions on a stage in three dimensions, with orbit controls,
 a following camera, a shared clock, available radar and optional recorded observer
 context. The route comes from
 the source record. The funnel is a drawing symbol, and the ground is flat.
@@ -58,10 +60,10 @@ history. Back and Forward restore the clock paused. Scrubbing or pausing updates
 the current address, so reloading does not return to an earlier footage choice.
 These links preserve navigation time, not new historical timing accuracy.
 
-The documentary and spatial replay now share source-version selection and clock
+The documentary and spatial replay now share selection of the source version and clock
 restoration. Switching a source closes its player and leaves gaps unassigned.
 The form study also has two bounded authored windows separated by an empty gap,
-using the same wall-clock model as geographic playback. The published historical
+using the same wall clock model as geographic playback. The published historical
 register remains one source and seven paused samples. See the
 [shared playback acceptance record](docs/shared-playback-acceptance.md) for
 the software checks and the evidence still needed for historical appearance.
@@ -79,7 +81,7 @@ sets out the admission requirements and rendering limits.
 The same replay clock now opens the El Reno event account at its documented
 chapters and shows the latest reviewed warning bulletin issued by the selected
 time. Chapter buttons, Previous and Next use published map minutes and stay in
-browser history. The source's event-time wording remains beside the map seek
+browser history. The source's wording of the event time remains beside the map seek
 time where they differ. Bulletin issue time is identified separately from any
 earlier observation described in its text. The original account and bulletin
 remain one click away; the new panel does not turn their prose into additional
@@ -96,14 +98,14 @@ unavailable photographs keep the original record and source routes.
 
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
-also shows Joplin's research-readiness page, with a link to its documentary;
+also shows Joplin's research readiness page, with a link to its documentary;
 Joplin does not yet have a reviewed replay. The [package contract](docs/event-replay-packages.md)
 explains this first reusable boundary and the evidence still required for another
 storm. A package mismatch leaves a visible error instead of mixing revisions.
 
 The El Reno page is both a historical account and a reference. Read it in order,
 or use the contents list to jump to the path, photographs, damage, remembrance
-or sources. The seven-entry chronology links directly to the published map
+or sources. The chronology with seven entries links directly to the published map
 positions. Named sources explain what each contributes. The page opens
 with a photograph of the actual tornado, and all storm and damage photographs
 can be enlarged with their credits. The [documentary design notes](research/documentary-design-2026-09-20.md)
@@ -143,7 +145,7 @@ shows what has actually been checked.
 The [Tuscaloosa and Birmingham account](https://t92t1914.github.io/tornado-atlas/tuscaloosa.html) follows the NWS survey through rural Greene County, Tuscaloosa and the western Birmingham suburbs. Three retained county records remain separately inspectable. The account explains warning management, damage estimates and unresolved fatality and clock differences. Two original NWS radar images and five contextual aftermath photographs can be enlarged with their captions, credits and source links. The photographs show a damaged neighborhood, an apartment complex, a railway bridge, scattered rail cars and a wider view of the aftermath, without assigning camera locations or verified capture times. Photograph coverage is still incomplete, and the account does not claim a registered camera, inspected footage or historical appearance reconstruction.
 
 The Joplin chapter now includes a dated NASA Terra/ASTER aftermath display,
-with its false-color interpretation and cloud obstruction explained beside
+with its false color interpretation and cloud obstruction explained beside
 the NWS survey figure. Tuscaloosa adds a separate USGS Landsat scar rendering.
 Its missing acquisition date, legend, scale and registration remain visible.
 Both images use the existing enlargement and source routes, with local image
@@ -172,7 +174,7 @@ selected record. Reopening the link restores the search, and Back and Forward
 move between selected records. Temporary map groups and zoom are not saved in
 the link. [Try a filtered El Reno search](https://t92t1914.github.io/tornado-atlas/atlas.html?q=El+Reno&year=2013&rating=EF3&state=OKLAHOMA&exhibits=1#record=ncei%3A453682).
 
-Use the shared second-level clock to scrub or play the path at 1×, 15×, 60× or 120×. Previous and next still select the 39 published minute positions; movement between them is explicitly labeled interpolation. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
+Use the shared clock with second resolution to scrub or play the path at 1×, 15×, 60× or 120×. Previous and next still select the 39 published minute positions; movement between them is explicitly labeled interpolation. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
 
 Compare two survey photographs, enlarge either one, or filter the collection by subject and the rating in the original NWS caption. The files are unchanged government survey photographs. Locations remain descriptive because exact camera positions and capture times have not been established.
 
@@ -183,12 +185,12 @@ Filter by rating or description, zoom around the selection, and use the observat
 link to share the same filters and record. Turn off the photo filter to inspect
 all 336 records. Each photograph is joined by its exact parent object and global
 ID. Blank event identifiers still prevent a direct event join for the underlying
-regional survey, so the map retains its geographic-selection caveat. No capture
+regional survey, so the map retains its caveat about geographic selection. No capture
 times, camera positions or photographer names are invented.
 
 The museum pages offer Clair, Obscur and System appearances. Clair pairs warm
 ivory with charcoal text. Obscur uses black, white and gray for the interface.
-Fatality records have their own rose diamond and written death count. Forced-color support and text alternatives
+Fatality records have their own rose diamond and written death count. Support for forced colors and text alternatives
 remain available for map markers. Photographs and radar
 colors are not recolored. Community entries link back to the relevant map or
 gallery. The [design and research review](research/linked-evidence-design-2026-09-20.md)
@@ -240,7 +242,7 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Part | What you can inspect |
 | --- | --- |
 | Searchable atlas | World outline, 80,318 US source records, combined filters, grouped map markers, paginated results and linked source details |
-| El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes, two original-photo notebook entries and unresolved evidence questions |
+| El Reno exhibit | Seven path chapters, 39 timed positions, two credited storm photographs, five footage notes, two notebook entries for original photographs and unresolved evidence questions |
 | Recorded camera samples | Tim Marshall's published locations and directions, 17 samples inside the playback window, explicit sample ages and gaps |
 | History and remembrance | Eleven historical sections, sources for eight names, one approximate vehicle recovery location and five unresolved location accounts |
 | Forecast and evidence clock | Seven original NWS bulletins, issue and observation times, optional archived warning polygons, radar and camera sample availability |
@@ -250,9 +252,9 @@ In the form study, choose a cone, wedge or rope, drag to orbit, change the visib
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
 | Survey location explorer | 336 preserved DAT records, 45 original linked photographs, combined filters, zoom, image enlargement and shareable observations |
 | Interactive form study | Native WebGL 2 particle rendering, three forms, camera orbit, visibility controls and motion that begins paused |
-| Wind and force laboratory | Adjustable Rankine vortex, passive tracers, a movable probe, time-series passage experiment and generic drag calculations |
+| Wind and force laboratory | Adjustable Rankine vortex, passive tracers, a movable probe, passage experiment over time and generic drag calculations |
 | Source catalogue | NOAA NCEI imports, SQLite search, original records, source revisions and SHA-256 checks |
-| Browser publication | A compressed static search index and 256 content-addressed detail files, loaded as needed without a database server |
+| Browser publication | A compressed static search index and 256 detail files addressed by their content, loaded as needed without a database server |
 | Geographic adapter | A bounded NWS KMZ to GeoJSON conversion that preserves coordinate order and sorts time labels |
 | Video research collection | Pecos Hank, TornadoTRX and Swegle Studios, with ten initial leads grouped by event |
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
@@ -265,7 +267,7 @@ This is an early working project. Complete international coverage, documentary e
 El Reno now has an image panel controlled by the same clock as its path. Twelve
 reviewed frames from the published NWS radar animation cover all 39 map
 positions, using the latest preceding frame within four minutes. The actual
-frame age and the filename-clock interpretation stay visible. The two storm
+frame age and the interpretation of the filename clock stay visible. The two storm
 photographs can be viewed beside the timeline, but remain explicitly untimed.
 
 The documentary map and spatial replay share Tim Marshall's published camera
@@ -281,7 +283,7 @@ explain the source, gaps and display assumptions.
 The observer's source time, bearing and age remain readable when orbiting the
 scene. Whole path restores the overview without changing the selected historical
 time. This is context from Marshall's metadata, separate from Robinson's footage.
-It does not place that video at Marshall's camera or turn the free-orbit scene
+It does not place that video at Marshall's camera or turn the scene with free orbit controls
 into a recorded viewpoint.
 
 The [form study](https://t92t1914.github.io/tornado-atlas/study.html) can play and
@@ -294,10 +296,10 @@ predict a specific building's damage.
 
 The [Udall account](https://t92t1914.github.io/tornado-atlas/udall.html) follows the separate later tornado of May 25, 1955. Five county records, a historical damage account and the complete regional forecast document remain individually inspectable. The unmatched boundary, conflicting clock labels and different injury totals stay visible. Udall can serve as a documentary reference beside the labs, with no measured model presets or historical replay.
 
-Both labs provide native contents for their controls, source context and model limits. The Wind Lab’s zero-background tracers follow the circular paths of its stated field, while mixed background flow retains an approximate integrator. The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#schools) distinguishes reported refuge decisions, surveyed building damage and NIST’s interpretation. Those observations do not set the lab’s winds or component capacity.
+Both labs provide native contents for their controls, source context and model limits. The Wind Lab’s tracers with zero background flow follow the circular paths of its stated field, while mixed background flow retains an approximate integrator. The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#schools) distinguishes reported refuge decisions, surveyed building damage and NIST’s interpretation. Those observations do not set the lab’s winds or component capacity.
 
 The [source and model notes](research/timeline-and-simulation-2026-09-20.md)
-record what was inspected, the unavailable synchronized-video leads, the
+record what was inspected, the unavailable leads for synchronized video, the
 assumptions, and what remains before a historical reconstruction.
 
 The [community section](https://t92t1914.github.io/tornado-atlas/#community)
@@ -319,7 +321,7 @@ py -3.11 -X utf8 -m atlas.publication
 
 The first import requires a network connection. It discovers the latest publisher revision for each requested year. Raw downloads and the local database live in `data/`, which is excluded from Git. The CLI export goes into `outputs/`. `atlas.publication` builds the browser files in `web/catalogue/` and retrieves the Natural Earth map if it is not cached. Its index is published only after every referenced detail file exists. Old detail filenames remain valid across rebuilds.
 
-The [Japan source-record browser](https://t92t1914.github.io/tornado-atlas/japan.html) presents 2,912 retained JMA cases, of which 1,576 are explicitly classified as tornadoes. Its default view shows those tornado records. Other gusts and uncertain phenomena remain available through the phenomenon filter. Japanese place names, F/JEF intervals, missing states and shared-count scope remain distinct. Search, selected records and the phone's results/record view can be bookmarked. Coordinates remain source fields without an assumed map datum or reconstructed track. These are source-record counts, not unique physical storms or complete national coverage.
+The [Japan source record browser](https://t92t1914.github.io/tornado-atlas/japan.html) presents 2,912 retained JMA cases, of which 1,576 are explicitly classified as tornadoes. Its default view shows those tornado records. Other gusts and uncertain phenomena remain available through the phenomenon filter. Japanese place names, F/JEF intervals, missing states and scope of shared counts remain distinct. Search, selected records and the phone's results/record view can be bookmarked. Coordinates remain source fields without an assumed map datum or reconstructed track. These are counts of source records, not unique physical storms or complete national coverage.
 
 Retain a record with **Add record to comparison**, then browse and add a second case. Their full source fields and provenance stay available together, including the separate F/JEF scales, reported bounds and uncertainties. The pair stays in the view link while filters or selected records change. The comparison does not combine shared casualty counts or derive wind speeds from damage ratings. On a phone, the two source cards stack vertically.
 
@@ -327,7 +329,7 @@ The [JMA adapter and publication contract](docs/jma-adapter.md) explain the loca
 
 The September 20, 2026 import includes all 76 annual source files from 1950 through 2025, totaling 80,318 source records. Of those, 79,142 have a usable reported start or end coordinate; 1,176 remain searchable without a map point. A row can describe one county's segment of a longer tornado. This is not a count of unique tornadoes or a guarantee that every historical event was recorded. Reporting practices and source completeness vary over time.
 
-Browsers with native gzip decompression load a 3.5 MB compressed index. A readable JSON fallback is included. Spatial grouping bounds the SVG marker count while preserving individual records in the result list. Detail responses use 256 smaller buckets; old content-addressed filenames remain valid across rebuilds.
+Browsers with native gzip decompression load a 3.5 MB compressed index. A readable JSON fallback is included. Spatial grouping bounds the SVG marker count while preserving individual records in the result list. Detail responses use 256 smaller buckets; old filenames addressed by their content remain valid across rebuilds.
 
 Rebuild the exhibit from the preserved NWS source:
 
@@ -335,7 +337,7 @@ Rebuild the exhibit from the preserved NWS source:
 py -3.11 -X utf8 -m atlas.exhibit
 ```
 
-This reuses an integrity-checked local source or downloads it if absent. Add `--refresh` to retrieve the mutable source URL again. If the geometry structure changes, the adapter stops for review. The small exhibit JSON and GeoJSON are included in Git so visitors can run the preview without downloading the research archive.
+This reuses a local source after checking its integrity, or downloads it if absent. Add `--refresh` to retrieve the mutable source URL again. If the geometry structure changes, the adapter stops for review. The small exhibit JSON and GeoJSON are included in Git so visitors can run the preview without downloading the research archive.
 
 The nine survey photographs are also included. `py -3.11 -m atlas.damage` verifies them and can restore a missing asset from the recorded source. Changed remote bytes or a corrupt existing asset stop the operation for review. It does not silently replace reviewed images.
 
@@ -398,9 +400,9 @@ fixed page links, not all 80,318 catalogue records.
 * [Research claim ledger](research/claim-ledger.csv)
 * [Roadmap](docs/roadmap.md)
 * [Verification record](docs/verification.md)
-* [Source attribution and third-party material](THIRD_PARTY.md)
+* [Source attribution and third party material](THIRD_PARTY.md)
 
-Original software and documentation use the [MIT License](LICENSE). Source data and third-party material are handled separately in the attribution record. This is an independent historical project and is not an operational warning service.
+Original software and documentation use the [MIT License](LICENSE). Source data and third party material are handled separately in the attribution record. This is an independent historical project and is not an operational warning service.
 
 ## Working with the evidence
 
@@ -428,7 +430,7 @@ phone as well as a desktop.
 
 These are transferable skills for data engineering and software roles. This
 project does not establish meteorological forecasting skill or operational
-emergency-response readiness. The [responsive design research](research/responsive-evidence-2026-09-21.md)
+emergency response readiness. The [responsive design research](research/responsive-evidence-2026-09-21.md)
 records the design choices and the validation limits.
 
 See [sharing previews](docs/sharing-preview.md) for the maintained link image and its source.
