@@ -14,7 +14,7 @@ playback approach, evidence levels and event selection process.
 2. Locate original footage and research that can establish camera position, direction and historical time.
 3. Establish exact survey locations for the nine included NOAA/NWS photographs. Captions currently supply roads and landmarks only. Do not infer precise failure times or wind fields from a rating.
 4. Build shared event playback around the existing El Reno timeline, then add one limited appearance reconstruction from registered observations. Identify the view and time range it represents.
-5. Prepare Joplin 2011 as the next modern exhibit candidate and complete the contrasting Blackwell 1955 source dossier. Confirm reconstruction order after their usable path, timing and appearance coverage is reviewed. Historical testimony and later explanations need separate labels.
+5. Deepen the existing historical exhibits and evidence dossiers. Joplin and Blackwell are already part of the collection, alongside El Reno, Tuscaloosa and Birmingham, Newcastle and Moore, and Udall. Confirm reconstruction order after usable path, timing and appearance coverage is reviewed. Historical testimony and later explanations need separate labels.
 
 The [September 20 audience review](../research/audience-notes-2026-09-20.md)
 supports prioritizing registered camera views, understandable map legends,
@@ -25,7 +25,7 @@ photographs and rights records; a catalogue record alone does not supply them.
 ## Catalogue work
 
 * US imports now cover every year from 1950 through 2025. Next, review historical naming and source anomalies while preserving record-versus-event distinctions.
-* The local JMA adapter retains classifications, sentinel values, ordered source rows and F/JEF intervals. Continue with a reviewed browser export and presentation of those uncertainties. Keep ambiguous and non-tornado gust cases separate from confirmed tornado counts.
+* The local JMA adapter and separate source browser retain classifications, sentinel values, ordered source rows and F/JEF intervals. Review source revisions and remaining interpretation limits without merging ambiguous and other gust cases into confirmed tornado counts. The [JMA guide](jma-adapter.md#separate-source-record-browser) explains the existing browser export.
 * Investigate international research datasets and reuse terms before adding further adapters.
 * Group county segments only with supporting identifiers or reviewed reasoning.
 

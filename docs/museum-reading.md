@@ -1,6 +1,6 @@
 # Reading the historical collection
 
-The collection opens with four historical exhibits. The map and source catalogue
+The collection opens with six historical exhibits. The map and source catalogue
 remain below them, at `atlas.html#catalogue`. Existing record URLs, filters and
 history routes continue to use the same catalogue. The museum header separates
 the exhibit collection, exploration tools and source readers from each article's
