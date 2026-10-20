@@ -32,6 +32,7 @@ async function fixture(t,href) {
     hasAttribute(name) {return this.attributes.has(name);}
     removeAttribute(name) {this.attributes.delete(name);}
     append(...children) {for(const child of children){child.remove();child.parentElement=this;this.children.push(child);}}
+    after(child) {const parent=this.parentElement;if(!parent||child===this)return;child.remove();child.parentElement=parent;parent.children.splice(parent.children.indexOf(this)+1,0,child);}
     replaceChildren(...children) {for(const child of this.children)child.parentElement=null;this._text='';this.children=[];this.append(...children);}
     remove() {if(this.parentElement){const siblings=this.parentElement.children;siblings.splice(siblings.indexOf(this),1);this.parentElement=null;}}
     querySelector(selector) {
@@ -51,6 +52,14 @@ async function fixture(t,href) {
     querySelectorAll:()=>[],addEventListener:()=>{}};
   document.getElementById('replay-error').hidden=true;
   document.getElementById('replay-time').disabled=true;
+  const photoPanel=document.getElementById('replay-appearance-photo');
+  const photoSamples=document.getElementById('replay-photo-samples'),photoRecord=document.getElementById('replay-photo-record');
+  photoPanel.append(photoSamples,photoRecord);
+  const insertionControl=document.createElement('div');
+  photoSamples.after(insertionControl);
+  assert.deepEqual(photoPanel.children,[photoSamples,insertionControl,photoRecord],'Insertion preserves the real photo panel sibling order');
+  assert.equal(insertionControl.parentElement,photoPanel);
+  insertionControl.remove();
   const mode=document.createElement('select');mode.id='replay-appearance-mode';mode.value='source';
   const sourceOption=document.createElement('option');sourceOption.value='source';sourceOption.textContent='Selected original video source';
   const illustrativeOption=document.createElement('option');illustrativeOption.value='illustrative';illustrativeOption.textContent='Illustrative study';
@@ -87,6 +96,7 @@ async function fixture(t,href) {
   assert.equal(document.getElementById('replay-time').disabled,false);
   assert.equal(mode.querySelector('[value="illustrative"]'),null,'Real startup removes the unsupported illustrative option');
   assert.ok(mode.children.includes(sourceOption),'Real startup retains the selected original source option');
+  assert.deepEqual(photoPanel.children,[photoSamples,ids.get('replay-documentary-image'),photoRecord],'Real startup inserts the documentary image between sample controls and their record');
   return {ids,location,historyWrites,dispose,
     share:()=>new URL(ids.get('replay-link').href),
     unloaded(){assert.deepEqual(requests,['events.json','events/el-reno-2013.json','data.json']);assert.equal(created.some(element=>['SCRIPT','IFRAME'].includes(element.tagName)),false,'Sharing never loads the video provider');},
