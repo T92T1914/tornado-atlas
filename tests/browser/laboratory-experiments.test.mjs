@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 import {fixture,base} from './harness.mjs';
+import {observeLabReferenceNavigation} from './lab-reference-navigation-diagnostics.mjs';
 
 const events=[
   ['el-reno-2013','El Reno · 2013','index.html#photos','index.html#damage'],
@@ -174,6 +175,8 @@ test('Unavailable Wind 2D drawing preserves restored numeric and complete sample
 const articleEntries=[['index.html','el-reno-2013','study.html'],['joplin.html','joplin-2011','wind.html'],['blackwell.html','blackwell-1955','study.html'],['tuscaloosa.html','tuscaloosa-birmingham-2011','wind.html']];
 for(const width of [320,1280])test('Every article opens its documentary reference in an assumed laboratory by keyboard '+width,{timeout:60000},async t=>{
  const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
+ const diagnostics=width===1280?await observeLabReferenceNavigation(t,page,{base,label:'keyboard-article-entry-'+width}):null;
+ try{
  for(const [file,event,labFile] of articleEntries){
   await page.goto(base+'/'+file);const entry=page.locator('.article-laboratory');await entry.waitFor();
   for(const target of ['study.html','wind.html'])assert.equal(await entry.locator('a[href="'+target+'?event='+event+'"]').count(),1);
@@ -182,6 +185,7 @@ for(const width of [320,1280])test('Every article opens its documentary referenc
   assert.equal(await page.locator(labFile==='study.html'?'#motion':'#passage-play').innerText(),labFile==='study.html'?'Play motion':'Play passage');
   await page.goBack();await entry.waitFor();assert.equal(new URL(page.url()).pathname.endsWith('/'+file),true);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
  }
+ }finally{diagnostics?.report('body_finished');}
 });
 
 for(const width of [320,1280])test('Wind field labels remain distinct and visible as the probe moves '+width,{timeout:30000},async t=>{
