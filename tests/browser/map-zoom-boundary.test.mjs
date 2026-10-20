@@ -15,7 +15,22 @@ async function boundary(page){
  assert.ok(256*2**s.view[2]>=s.width&&worldHeight*2**s.view[2]>=s.height);
  return s;
 }
-async function minimum(page){for(let i=0;i<8;i++)await page.locator('#zoom-out').click();return boundary(page);}
+async function minimum(page){
+ const button=page.locator('#zoom-out');
+ const probe=await button.evaluateHandle(node=>{
+  const rows=[],observe=event=>rows.push({trusted:event.isTrusted,button:event.button,detail:event.detail,zoom:Number(new URL(location.href).searchParams.get('view').split(',')[2])});
+  node.addEventListener('click',observe,{passive:true});
+  return {rows,stop:()=>node.removeEventListener('click',observe)};
+ });
+ try{
+  // Preserve eight native pointer activations with one actionability check.
+  await button.click({clickCount:8});
+  const events=await probe.evaluate(value=>value.rows),result=await boundary(page);
+  assert.equal(events.length,8);assert.ok(events.every(event=>event.trusted&&event.button===0));
+  assert.ok(events.every(event=>event.zoom>=result.view[2]),'Every activation respects the independently checked minimum');
+  return result;
+ }finally{await probe.evaluate(value=>value.stop());await probe.dispose();}
+}
 async function ready(page,query='layer=local&view=0,0,0'){
  await page.goto(base+'/atlas.html?'+query);await page.locator('body[data-ready="true"]').waitFor();
 }
