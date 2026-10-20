@@ -65,6 +65,8 @@ jobs:
           node --test tests/replay-context.test.mjs
           node --test tests/reconstruction-model.test.mjs tests/reconstruction-share-consumer.test.mjs
           node --check web/wind.js
+          node --check web/wind-tracer.mjs
+          node --test tests/wind-tracer.test.mjs
           node --check web/passage.js
           node --test tests/passage-clock-controls.test.mjs
           node --test tests/passage-values.test.mjs
