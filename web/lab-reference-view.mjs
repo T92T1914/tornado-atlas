@@ -126,6 +126,11 @@ export function mountLabReference(host,beforeNavigate){
   host.addEventListener('click',event=>{if(event.target.closest?.('a'))beforeNavigate();});
   window.navigation?.addEventListener('navigate',event=>{
     if(event.defaultPrevented||event.signal?.aborted||event.destination?.sameDocument!==false||event.downloadRequest!=null)return;
+    // A same-origin download anchor does not relinquish this document's image.
+    // Match this event's source and destination, without remembering a prior URL.
+    const source=event.sourceElement;
+    if(source instanceof HTMLAnchorElement&&source.ownerDocument===document&&source.hasAttribute('download')&&
+      source.origin===location.origin&&source.href===event.destination.url)return;
     beforeDeparture();
   });
   window.addEventListener('pagehide',()=>{retire();host.dataset.state='retired';host.setAttribute('aria-busy','false');});

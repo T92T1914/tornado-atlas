@@ -287,7 +287,7 @@ async function addControlLink(page,{id,href,target,download,prevented=false}){
 }
 
 test('Pending reference remains owned across same-document, prevented and new-context actions',{timeout:45000},async t=>{
-  const held=heldAsset(t);let page,popup;
+  const held=heldAsset(t),ordinaryHeld=heldAsset(t),ordinaryAbort=deferred();let page,popup;
   t.after(async()=>{
     try{if(popup&&!popup.isClosed())await bounded(popup.close(),'Owned reference control popup close');}
     catch(error){await closeBeforeCleanupRethrow(t,page,error,{});}
@@ -297,10 +297,47 @@ test('Pending reference remains owned across same-document, prevented and new-co
   const record={control:'Actual pending widget; native same-document, prevented, new-tab, modified and download actions'};
   await held.install(page);held.enable();await forceUnavailableForm(page);
   const controlURL=base+'/__atlas-reference-owned-control.html',downloadURL=base+'/__atlas-reference-owned-control.txt';
+  const eventPrefix='ATLAS_OWNED_DOWNLOAD_PHASE ',abortPrefix='ATLAS_OWNED_ORDINARY_IMAGE_ABORT ';
+  const observed={columns:['phase','native','same_document','download_request','default_prevented','signal_aborted',
+    'tag','id','source_href_is_owned','download','connected','owner_document_is_current','destination_is_owned','state','busy'],
+    count:0,omitted:0,invalid:0,rows:[]};
+  const observeConsole=message=>{
+    const text=message.text();
+    if(text.startsWith(eventPrefix)){
+      observed.count++;
+      try{
+        const row=JSON.parse(text.slice(eventPrefix.length));
+        if(!Array.isArray(row)||row.length!==observed.columns.length){observed.invalid++;return;}
+        if(observed.rows.length<6)observed.rows.push(row);else observed.omitted++;
+      }catch{observed.invalid++;}
+    }else if(text.startsWith(abortPrefix)){
+      try{ordinaryAbort.resolve(JSON.parse(text.slice(abortPrefix.length)));}
+      catch{observed.invalid++;}
+    }
+  };
+  page.on('console',observeConsole);t.after(()=>page.off('console',observeConsole));
+  await page.addInitScript(({owned,prefix})=>{
+    const observe=phase=>event=>{
+      if(event.destination?.url!==owned)return;
+      const source=event.sourceElement,attribute=source?.getAttribute?.('download');
+      const host=document.getElementById('lab-reference-evidence');
+      console.log(prefix+JSON.stringify([phase,event.isTrusted,event.destination.sameDocument,
+        event.downloadRequest==null?null:true,event.defaultPrevented,event.signal?.aborted??null,
+        source?.tagName?.slice(0,12)??null,source?.id?.slice(0,32)??null,source?.href===owned,
+        attribute==null?null:String(attribute).slice(0,40),source?.isConnected??null,
+        source?source.ownerDocument===document:null,true,host?.dataset.state??null,host?.getAttribute('aria-busy')??null]));
+    };
+    window.navigation?.addEventListener('navigate',observe('capture'),{capture:true});
+    window.__atlasObserveOwnedDownloadLate=()=>{
+      if(!window.navigation?.addEventListener)return false;
+      window.navigation.addEventListener('navigate',observe('late'));return true;
+    };
+  },{owned:downloadURL,prefix:eventPrefix});
   await page.context().route(controlURL,route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Owned control</title><p id="owned-control-marker">Native new-context control.</p>'}));
   await page.route(downloadURL,route=>route.fulfill({status:200,contentType:'text/plain',headers:{'Content-Disposition':'attachment; filename="atlas-reference-control.txt"'},body:'Owned download control.'}));
   try{
     await page.goto(base+'/study.html');await experimentReady(page);
+    record.download_event_api=await page.evaluate(()=>window.__atlasObserveOwnedDownloadLate());
     await page.locator('#lab-event').selectOption('moore-2013');await held.wait();
     const before=await formState(page);
     const contents=page.locator('.lab-contents a[href="#form-model-limits"]');
@@ -340,12 +377,69 @@ test('Pending reference remains owned across same-document, prevented and new-co
     await stillPendingMoore(page,held);
     await addControlLink(page,{id:'owned-download-return',href:downloadURL,download:'atlas-reference-control.txt'});
     const [download]=await Promise.all([page.waitForEvent('download'),page.keyboard.press('Enter')]);
-    await bounded(download.cancel(),'Owned download cancellation');await stillPendingMoore(page,held);
-    record.download={suggested_filename:download.suggestedFilename(),cancelled_by_control:true};
+    await bounded(download.cancel(),'Owned download cancellation');
+    record.download={path:new URL(downloadURL).pathname,suggested_filename:download.suggestedFilename(),
+      cancelled_by_control:true,event_count_before_assert:observed.count};
+    record.download_events=observed;
+    await stillPendingMoore(page,held);
     assert.equal(record.download.suggested_filename,'atlas-reference-control.txt');
     await held.release();record.current=await checkedMooreWidget(page);
     assert.deepEqual(await formState(page),before);record.final=await formState(page);
-  }finally{record.held=held.state;await finish(t,diagnostics,'widget-nondeparting-actions',record);}
+    // The same URL must still retire a new owner when the activation is no longer
+    // a download. A remembered URL exemption would fail this positive control.
+    await ordinaryHeld.install(page);ordinaryHeld.enable();
+    await page.evaluate(({asset,prefix})=>{
+      const original=window.fetch;
+      window.fetch=function(...args){
+        const result=Reflect.apply(original,this,args);
+        try{
+          const input=args[0],href=typeof input==='string'||input instanceof URL?String(input):input?.url;
+          if(new URL(href,location.href).href===new URL(asset,location.href).href){
+            const signal=args[1]?.signal;
+            signal?.addEventListener('abort',()=>console.log(prefix+JSON.stringify({aborted:signal.aborted,
+              event:document.getElementById('lab-reference-evidence')?.dataset.event??null})),{once:true});
+          }
+        }catch{console.log(prefix+JSON.stringify({observer_invalid:true}));}
+        return result;
+      };
+    },{asset:MOORE.asset,prefix:abortPrefix});
+    await page.locator('#lab-event').selectOption('');await page.locator('#lab-event').selectOption('moore-2013');
+    await ordinaryHeld.wait();await stillPendingMoore(page,ordinaryHeld);
+    const laboratoryURL=page.url(),saved=new URL(await page.locator('#lab-share').getAttribute('href'));
+    assert.equal(saved.href,laboratoryURL);assert.equal(saved.origin,new URL(base).origin);assert.equal(saved.pathname,'/study.html');
+    assert.equal(saved.hash,'#form-model-limits');assert.equal([...saved.searchParams].length,Object.keys(SAVED_FORM_PARAMETERS).length);
+    assert.deepEqual(Object.fromEntries(saved.searchParams),SAVED_FORM_PARAMETERS);
+    const oldTimeOrigin=await page.evaluate(()=>performance.timeOrigin);
+    await page.locator('#owned-download-return').evaluate(link=>link.removeAttribute('download'));
+    await page.unroute(downloadURL);
+    await page.route(downloadURL,route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Ordinary same URL</title><p id="ordinary-same-url-marker">A normal document replaced the laboratory.</p>'}));
+    await page.locator('#owned-download-return').focus();
+    assert.equal(await page.locator('#owned-download-return').evaluate(link=>link===document.activeElement&&!link.hasAttribute('download')),true);
+    ordinaryHeld.retiring('ordinary same-URL native activation after removing the download attribute');
+    const [ordinaryResponse]=await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded',timeout:10000}),page.keyboard.press('Enter')]);
+    assert.equal(page.url(),downloadURL);assert.equal(ordinaryResponse.status(),200);
+    assert.match(await ordinaryResponse.text(),/id="ordinary-same-url-marker"/);
+    assert.equal(await page.locator('#ordinary-same-url-marker').innerText(),'A normal document replaced the laboratory.');
+    const actualAbort=await bounded(ordinaryAbort.promise,'Actual ordinary navigation image abort');
+    assert.deepEqual(actualAbort,{aborted:true,event:'moore-2013'});
+    const newTimeOrigin=await page.evaluate(()=>performance.timeOrigin);
+    record.ordinary_same_url={pending_before:true,response_status:ordinaryResponse.status(),
+      old_time_origin:oldTimeOrigin,new_time_origin:newTimeOrigin,new_document:newTimeOrigin!==oldTimeOrigin,signal_abort:actualAbort.aborted};
+    assert.equal(record.ordinary_same_url.new_document,true);
+    if(record.download_event_api){
+      const lateOrdinary=observed.rows.filter(row=>row[0]==='late'&&row[9]===null).at(-1);
+      record.ordinary_same_url.stopped_at_late_event=Boolean(lateOrdinary&&lateOrdinary[13]==='unavailable'&&lateOrdinary[14]==='false');
+      assert.equal(record.ordinary_same_url.stopped_at_late_event,true);
+    }
+    await page.goBack();await experimentReady(page);await page.waitForURL(laboratoryURL);
+    record.after_same_url_back=await checkedMooreWidget(page);
+    assert.equal(await page.locator('#lab-share').getAttribute('href'),laboratoryURL);
+    assert.deepEqual(await formState(page),before);
+    await ordinaryHeld.release();
+    assert.deepEqual(await checkedMooreWidget(page),record.after_same_url_back);
+    assert.equal(observed.invalid,0);
+  }finally{record.download_events=observed;record.held=held.state;record.ordinary_held=ordinaryHeld.state;
+    await finish(t,diagnostics,'widget-nondeparting-actions',record);}
 });
 
 test('Canceled full-document departure leaves a stopped pending reference retryable',{timeout:45000},async t=>{
@@ -358,12 +452,24 @@ test('Canceled full-document departure leaves a stopped pending reference retrya
     await page.goto(base+'/study.html');await experimentReady(page);
     await page.locator('#lab-event').selectOption('moore-2013');await held.wait();
     const before=await formState(page),laboratoryURL=await savedMooreExperiment(page),originalURL=page.url();
+    record.original_document=await page.evaluate(()=>({time_origin:performance.timeOrigin,path:location.pathname}));
     held.retiring('full-document navigate event followed by native cancellation');
     record.cancellation=await page.evaluate(async href=>{
+      const stoppedDocument=()=>{
+        const host=document.getElementById('lab-reference-evidence'),button=document.getElementById('lab-reference-retry');
+        const style=getComputedStyle(button),rect=button.getBoundingClientRect();
+        return {time_origin:performance.timeOrigin,path:location.pathname,event:host.dataset.event,
+          media:host.dataset.mediaId,state:host.dataset.state,busy:host.getAttribute('aria-busy'),hidden:host.hidden,
+          status:document.getElementById('lab-reference-status').textContent,
+          article:host.querySelector('.lab-reference-actions a').href,
+          retry:{id:button.id,text:button.textContent,hidden:button.hidden,disabled:button.disabled,
+            display:style.display,visibility:style.visibility,opacity:Number(style.opacity),width:rect.width,height:rect.height}};
+      };
       if(typeof window.navigation?.navigate!=='function'){
         // Controlled existing-handler coverage only, not a native-cancellation claim.
         window.dispatchEvent(new Event('beforeunload',{cancelable:true}));
-        return {native_api_available:false,native_cancellation_executed:false,controlled_beforeunload_dispatched:true};
+        return {native_api_available:false,native_cancellation_executed:false,controlled_beforeunload_dispatched:true,
+          stopped_document:stoppedDocument()};
       }
       const observed={native_api_available:true,native_cancellation_executed:true,events:[]};
       const cancel=event=>{
@@ -378,6 +484,7 @@ test('Canceled full-document departure leaves a stopped pending reference retrya
         const watch=promise=>promise.then(()=>({outcome:'resolved'}),error=>({outcome:'rejected',name:error.name}));
         const committed=watch(result.committed),finished=watch(result.finished);
         [observed.committed,observed.finished]=await Promise.all([committed,finished]);
+        observed.stopped_document=stoppedDocument();
         return observed;
       }finally{navigation.removeEventListener('navigate',cancel);}
     },base+'/__atlas-reference-canceled-departure.html');
@@ -385,12 +492,55 @@ test('Canceled full-document departure leaves a stopped pending reference retrya
       assert.deepEqual(record.cancellation.events,[{same_document:false,default_before:false,default_after:true}]);
       assert.equal(record.cancellation.committed.outcome,'rejected');assert.equal(record.cancellation.finished.outcome,'rejected');
     }
-    assert.equal(page.url(),originalURL);await stoppedPendingMoore(page);
+    assert.equal(page.url(),originalURL);
+    // Read the actual surviving document without locator action prechecks that
+    // can remain blocked on the canceled WebKit navigation. No navigation is reset.
+    const stopped=record.cancellation.stopped_document;
+    assert.equal(stopped.time_origin,record.original_document.time_origin);assert.equal(stopped.path,'/study.html');
+    assert.deepEqual({event:stopped.event,media:stopped.media,state:stopped.state,busy:stopped.busy,hidden:stopped.hidden},
+      {event:'moore-2013',media:'moore-medical-center-survey',state:'unavailable',busy:'false',hidden:false});
+    assert.equal(stopped.status,'The image check stopped before leaving this page. If you stay here, retry the image or use its article and source links.');
+    assert.equal(stopped.article,base+'/moore.html#survey-photographs');
+    assert.deepEqual({id:stopped.retry.id,text:stopped.retry.text,hidden:stopped.retry.hidden,disabled:stopped.retry.disabled},
+      {id:'lab-reference-retry',text:'Retry documentary image',hidden:false,disabled:false});
+    assert.notEqual(stopped.retry.display,'none');assert.equal(stopped.retry.visibility,'visible');
+    assert.ok(stopped.retry.opacity>0&&stopped.retry.width>0&&stopped.retry.height>0);
     await held.waitForFailure();await held.release();
-    await page.locator('#lab-reference-retry').focus();await page.keyboard.press('Enter');
-    record.current=await checkedMooreWidget(page);
-    assert.equal(await savedMooreExperiment(page),laboratoryURL);assert.deepEqual(await formState(page),before);
-    assert.equal(await page.locator('#lab-reference-retry').isVisible(),false);
+    record.retry_focus=await page.evaluate(()=>{
+      const button=document.getElementById('lab-reference-retry');button.focus();
+      return {id:document.activeElement?.id,exact_button:document.activeElement===button,
+        hidden:button.hidden,disabled:button.disabled,time_origin:performance.timeOrigin};
+    });
+    assert.deepEqual(record.retry_focus,{id:'lab-reference-retry',exact_button:true,hidden:false,disabled:false,
+      time_origin:record.original_document.time_origin});
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(()=>document.getElementById('lab-reference-evidence')?.dataset.state==='ready',null,{timeout:10000});
+    record.current=await page.evaluate(async()=>{
+      const host=document.getElementById('lab-reference-evidence'),image=document.getElementById('lab-reference-image');
+      await image.decode();const bytes=await(await fetch(image.currentSrc)).arrayBuffer();
+      const source=new URL([...host.querySelectorAll('.lab-reference-actions a')].find(link=>link.textContent==='Read the item source and permission').href);
+      return {image:{bytes:bytes.byteLength,sha256:[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))]
+        .map(value=>value.toString(16).padStart(2,'0')).join(''),width:image.naturalWidth,height:image.naturalHeight,hidden:image.hidden},
+        time_origin:performance.timeOrigin,event:host.dataset.event,media:host.dataset.mediaId,state:host.dataset.state,
+        image_href:host.querySelector('.lab-reference-image-link').href,rights:host.querySelector('.lab-reference-rights').textContent,
+        source:{origin:source.origin,path:source.pathname,query:Object.fromEntries(source.searchParams),hash:source.hash},
+        saved:document.getElementById('lab-share').href,retry_hidden:document.getElementById('lab-reference-retry').hidden,
+        controls:{selected:document.getElementById('lab-event').value,shape:document.getElementById('shape').value,
+          condensation:document.getElementById('condensation').value,azimuth:document.getElementById('azimuth').value,
+          quality:document.getElementById('quality').value,coverage:document.getElementById('sequence-coverage').value,
+          position:document.getElementById('sequence-time').value,enabled:document.getElementById('sequence-enabled').checked,
+          motion:document.getElementById('motion').textContent,motionDisabled:document.getElementById('motion').disabled,
+          status:document.getElementById('motion-status').textContent}};
+    });
+    assert.deepEqual(record.current.image,{bytes:MOORE.bytes,sha256:MOORE.sha256,width:MOORE.width,height:MOORE.height,hidden:false});
+    assert.equal(record.current.time_origin,record.original_document.time_origin);
+    assert.equal(record.current.event,'moore-2013');assert.equal(record.current.media,'moore-medical-center-survey');
+    assert.equal(record.current.state,'ready');assert.equal(record.current.image_href,base+'/'+MOORE.asset);
+    assert.ok(record.current.rights.includes('NWS employee Doug Speheger'));
+    assert.deepEqual(record.current.source,{origin:new URL(base).origin,path:'/dossier.html',
+      query:{event:'moore-2013',source:'nws-event-hub',revision:MOORE.revision},hash:'#source-nws-event-hub'});
+    assert.equal(record.current.saved,laboratoryURL);assert.deepEqual(record.current.controls,before);
+    assert.equal(record.current.retry_hidden,true);
   }finally{record.held=held.state;await finish(t,diagnostics,'widget-canceled-native-departure',record);}
 });
 
