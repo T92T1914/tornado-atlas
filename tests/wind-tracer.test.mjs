@@ -34,19 +34,91 @@ test('uniform eastward flow without swirl has an independently known straight tr
   near(point.x,-1+10/50*24);assert.equal(point.y,.3);
 });
 
-test('positive-background mixed flow preserves the existing midpoint approximation',()=>{
-  for(const background of [5,20,50])for(const start of [{x:.1,y:.2},{x:1,y:0},{x:-1.5,y:1}]){
+test('positive-background paths without a wholly core-contained orbit preserve midpoint behavior',()=>{
+  for(const background of [5,20,50])for(const start of [{x:1,y:0},{x:-1.5,y:1}]){
     const field={peak:250*MPH,radius:50*FOOT,background:background*MPH},expected={...start},actual={...start};
-    for(let i=0;i<60;i++){
+    for(let i=0;i<1;i++){
       const dt=.04,wind=windAt(expected.x*field.radius,expected.y*field.radius,field);
       const mx=expected.x+wind.u/field.radius*dt/2,my=expected.y+wind.v/field.radius*dt/2;
       const midpoint=windAt(mx*field.radius,my*field.radius,field);
       expected.x+=midpoint.u/field.radius*dt;expected.y+=midpoint.v/field.radius*dt;
       advanceWindTracer(actual,field,dt);
     }
-    // This is preservation of the old approximation, not an accuracy reference.
+    // The outer/crossing approximation is preserved, not used as an oracle.
     assert.deepEqual(actual,expected);
   }
+  // When B>V, no whole shifted circle fits, so all 60 advances are fallback.
+  for(const background of [20,50]){
+    const field={peak:10*MPH,radius:50*FOOT,background:background*MPH},expected={x:.1,y:.2},actual={...expected};
+    for(let i=0;i<60;i++){
+      const dt=.04,first=windAt(expected.x*field.radius,expected.y*field.radius,field);
+      const mx=expected.x+first.u/field.radius*dt/2,my=expected.y+first.v/field.radius*dt/2;
+      const middle=windAt(mx*field.radius,my*field.radius,field);
+      expected.x+=middle.u/field.radius*dt;expected.y+=middle.v/field.radius*dt;
+      advanceWindTracer(actual,field,dt);
+    }
+    assert.deepEqual(actual,expected);
+  }
+});
+
+test('positive-background core tracers follow an independently derived shifted-circle trajectory',()=>{
+  // Frozen before the repair: four supported fields, two shifted radii,
+  // four phases and three admitted frame steps, each over 24 model seconds.
+  for(const [mph,feet,background] of [[100,500,20],[250,50,20],[250,50,50],[10,2000,5]])for(const rho of [.1,.3])for(const phase of [0,Math.PI/2,Math.PI,3*Math.PI/2])for(const dt of [1/60,1/30,.04]){
+    const center=background/mph,start={x:rho*Math.cos(phase),y:center+rho*Math.sin(phase)},point={...start};
+    assert.ok(center+rho<1,'the entire reference circle must remain inside the linear core');
+    const field={peak:mph*.44704,radius:feet*.3048,background:background*.44704},steps=Math.round(24/dt);
+    for(let i=0;i<steps;i++){
+      assert.equal(advanceWindTracer(point,field,dt),point);
+      const angle=mph*.44704/(feet*.3048)*(i+1)*dt;
+      near(point.x,rho*Math.cos(phase+angle));near(point.y,center+rho*Math.sin(phase+angle));
+      near(Math.hypot(point.x,point.y-center),rho);
+    }
+  }
+});
+
+test('the frozen mixed-flow witness keeps its radius and phase over 24 admitted seconds',()=>{
+  const point={x:.1,y:.2},field={peak:250*.44704,radius:50*.3048,background:20*.44704};
+  for(let i=0;i<600;i++)advanceWindTracer(point,field,.04);
+  const angle=250*.44704/(50*.3048)*24,center=20/250;
+  near(point.x,.1*Math.cos(angle)-(.2-center)*Math.sin(angle));
+  near(point.y,center+.1*Math.sin(angle)+(.2-center)*Math.cos(angle));
+  near(Math.hypot(point.x,point.y-center),Math.hypot(.1,.2-center));
+});
+
+test('shifted equilibrium, very small swirl and nonrepresentable rotation have explicit controls',()=>{
+  const point={x:0,y:.2},field={peak:50,radius:100,background:10};
+  for(let i=0;i<600;i++)advanceWindTracer(point,field,.04);
+  assert.deepEqual(point,{x:0,y:.2});
+  const tiny={x:.1,y:.2};advanceWindTracer(tiny,{peak:1e-300,radius:1,background:2e-301},.04);
+  near(tiny.x,.1);near(tiny.y,.2);
+  const underflow={x:.1,y:1e-20},unchanged={...underflow};
+  advanceWindTracer(underflow,{peak:1e-300,radius:1,background:2e-301},1e-100);
+  assert.deepEqual(underflow,unchanged,'An underflowed angle must not erase the tiny north coordinate');
+  const ratioOverflow={x:.1,y:.2};advanceWindTracer(ratioOverflow,{peak:Number.MIN_VALUE,radius:1,background:1},.04);
+  near(ratioOverflow.x,.14);assert.equal(ratioOverflow.y,.2);
+  const overflow={x:.1,y:.2};assert.throws(()=>advanceWindTracer(overflow,{peak:1e300,radius:1e-300,background:1e299},.04),RangeError);
+  assert.deepEqual(overflow,{x:.1,y:.2});
+});
+
+test('touching and intervening-crossing orbits cannot take the exact all-core branch',()=>{
+  // At (0,.6), B/V=.8 gives maximum r=1: the strict boundary is excluded.
+  const field={peak:100,radius:1,background:80},point={x:0,y:.6},expected={...point},dt=.04;
+  const first=windAt(expected.x,expected.y,field),mx=expected.x+first.u*dt/2,my=expected.y+first.v*dt/2;
+  const middle=windAt(mx,my,field);expected.x+=middle.u*dt;expected.y+=middle.v*dt;
+  advanceWindTracer(point,field,dt);assert.deepEqual(point,expected);
+  // Both exact endpoints are interior, but the intervening arc leaves the core.
+  const mixed={peak:100*.44704,radius:50*.3048,background:50*.44704},angle=mixed.peak/mixed.radius*.04,rho=.5001;
+  const crossing={x:rho*Math.sin(angle/2),y:.5+rho*Math.cos(angle/2)},before={...crossing};
+  const exact={x:-before.x,y:before.y};
+  assert.ok(Math.hypot(before.x,before.y)<1&&Math.hypot(exact.x,exact.y)<1);
+  assert.ok(.5+rho>1,'the intermediate peak is outside despite both interior endpoints');
+  const a=windAt(before.x*mixed.radius,before.y*mixed.radius,mixed);
+  const mx2=before.x+a.u/mixed.radius*.04/2,my2=before.y+a.v/mixed.radius*.04/2;
+  const b=windAt(mx2*mixed.radius,my2*mixed.radius,mixed);
+  const expectedCrossing={x:before.x+b.u/mixed.radius*.04,y:before.y+b.v/mixed.radius*.04};
+  advanceWindTracer(crossing,mixed,.04);assert.deepEqual(crossing,expectedCrossing);
+  assert.ok(Math.hypot(crossing.x-exact.x,crossing.y-exact.y)>1e-6);
 });
 
 test('invalid steps fail before changing the existing marker',()=>{
@@ -79,6 +151,14 @@ test('actual wind consumer retains the core tracer radius at the supported extre
   near(Math.hypot(point.x,point.y),.1);
   const angle=(250*.44704)/(50*.3048)*24;
   near(point.x,.1*Math.cos(angle));near(point.y,.1*Math.sin(angle));
+});
+
+test('actual drawing consumer repairs the frozen mixed-flow witness without recycling',async()=>{
+  const {probe,get}=await actualConsumer();get('background').value='20';
+  const point=probe.advance({x:.1,y:.2},600,.04),angle=250*.44704/(50*.3048)*24,center=20/250;
+  near(point.x,.1*Math.cos(angle)-(.2-center)*Math.sin(angle));
+  near(point.y,center+.1*Math.sin(angle)+(.2-center)*Math.cos(angle));
+  near(Math.hypot(point.x,point.y-center),Math.hypot(.1,.2-center));
 });
 
 test('actual wind consumer retains positive-background motion and its existing boundary recycling',async()=>{
