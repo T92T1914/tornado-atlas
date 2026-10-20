@@ -15,9 +15,10 @@ function harness(t) {
   const evented=()=>({events:{},on(name,fn){this.events[name]=fn;return this;},emit(name){this.events[name]?.();}});
   const map={...evented(),dragging:{enabled:true,enable(){this.enabled=true;},disable(){this.enabled=false;}},
     attributionControl:{setPrefix(){},addAttribution(){}},createPane(){},getPane(){return {style:{}};},
-    getPixelBounds(){return {min:{x:-180,y:-90},max:{x:180,y:90}};},getZoom(){return 4;},
-    project(point){return {x:point[1],y:point[0]};},unproject(point){return point;},
-    setView(){return this;},panBy(offset,options){pans.push({offset,options});return this;},invalidateSize(options){invalidations.push(options);}};
+    getPixelBounds(){return {min:{x:-180,y:-90},max:{x:180,y:90}};},zoom:4,getZoom(){return this.zoom;},
+    project(point,zoom){if(zoom===0){const sin=Math.sin(point[0]*Math.PI/180);return {x:256*(point[1]+180)/360,y:128-64*Math.log((1+sin)/(1-sin))/Math.PI};}return {x:point[1],y:point[0]};},unproject(point){return point;},
+    getScaleZoom(scale,from){return from+Math.log2(scale);},setMinZoom(value){this.minimum=value;this.zoom=Math.max(this.zoom,value);},
+    setView(point,zoom){this.zoom=Math.max(this.minimum,zoom);return this;},panBy(offset,options){pans.push({offset,options});return this;},invalidateSize(options){invalidations.push(options);}};
   const element=()=>({dataset:{},setAttribute(){}});
   const marker=()=>({addTo(group){group.layers.push(this);return this;},on(){return this;},bindTooltip(){return this;},getElement:element});
   const L={map:()=>map,control:{scale:()=>({addTo(){}})},
@@ -63,4 +64,24 @@ test('a later stalled tile load falls back and a retry can succeed',t=>{
   h.tiles[0].emit('loading');assert.equal(h.timers.size,1);[...h.timers.values()][0]();
   assert.equal(h.tiles[0].removed,true);assert.match(h.statuses.at(-1),/Local geography and the record list still work/);
   h.ui.retry();h.tiles[1].emit('load');assert.match(h.statuses.at(-1),/^Modern USGS/);assert.equal(h.timers.size,0);
+});
+
+test('finite world minimum covers both visible dimensions and relaxes after shrink',t=>{
+  const h=harness(t);
+  const worldHeight=256/Math.PI*Math.log(Math.tan(Math.PI/4+85*Math.PI/360));
+  for(const [width,height] of [[3160,1048],[280,477],[900,1400],[800,500]]){
+    h.host.clientWidth=width;h.host.clientHeight=height;h.resize();
+    const z=h.map.minimum,scale=2**z;
+    assert.ok(256*scale>=width&&worldHeight*scale>=height);
+    assert.ok(z===0||256*2**(z-.25)<width||worldHeight*2**(z-.25)<height,'The next lower quarter step cannot cover both dimensions');
+    assert.equal(z% .25,0);
+  }
+  assert.equal(h.map.minimum,1.75,'The wide expanded minimum must not become sticky');
+});
+
+test('hidden map keeps its floor and valid close views survive visible resize',t=>{
+  const h=harness(t);h.ui.setView([35.485,-98.096,12]);const floor=h.map.minimum;
+  h.host.clientWidth=0;h.host.clientHeight=0;h.resize();assert.equal(h.map.minimum,floor);assert.equal(h.map.getZoom(),12);
+  h.host.clientWidth=3160;h.host.clientHeight=1048;h.resize();assert.equal(h.map.getZoom(),12);
+  h.ui.setView([0,0,0]);assert.equal(h.map.getZoom(),h.map.minimum);
 });

@@ -3,8 +3,9 @@ import {screenGroups,compactCount,usablePoints,positionStatus} from './explorer-
 export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}) {
   const L=window.L;
   if(!L) throw new Error('Map controls could not load. Use the record list.');
-  const map=L.map(host,{minZoom:0,maxZoom:16,zoomControl:false,zoomSnap:.25,
-    worldCopyJump:false,maxBounds:[[-85,-180],[85,180]],maxBoundsViscosity:1,
+  const worldBounds=[[-85,-180],[85,180]],zoomSnap=.25,maxZoom=16;
+  const map=L.map(host,{minZoom:0,maxZoom,zoomControl:false,zoomSnap,
+    worldCopyJump:false,maxBounds:worldBounds,maxBoundsViscosity:1,
     zoomAnimation:false,fadeAnimation:false,markerZoomAnimation:false,inertia:false,
     scrollWheelZoom:!matchMedia('(pointer:coarse)').matches,
     dragging:!matchMedia('(max-width:760px)').matches});
@@ -88,9 +89,20 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
     tiles=current;current.addTo(map);
     onStatus('Loading modern USGS reference geography...');
   }
-  // Hidden mobile panels have zero dimensions. Preserve the last useful map
-  // size until the panel returns, then keep its geographic center fixed.
-  function resizeMap(){if(host.clientWidth&&host.clientHeight)map.invalidateSize({animate:false});}
+  // One finite, unwrapped world must cover the visible map. Compute from the
+  // projection at zoom zero, independently of the previous minimum, so the
+  // boundary can relax after an expanded map shrinks again.
+  function fitWorldMinimum(){
+    if(!host.clientWidth||!host.clientHeight)return;
+    const a=map.project(worldBounds[0],0),b=map.project(worldBounds[1],0);
+    const scale=Math.max(host.clientWidth/Math.abs(b.x-a.x),host.clientHeight/Math.abs(b.y-a.y));
+    const zoom=map.getScaleZoom(scale,0);
+    map.setMinZoom(Math.min(maxZoom,Math.max(0,Math.ceil(zoom/zoomSnap)*zoomSnap)));
+  }
+  // Hidden mobile panels retain their last useful size and zoom boundary.
+  // Growth clamps an invalid view. Shrink allows a wider view without forcing it.
+  function resizeMap(){if(host.clientWidth&&host.clientHeight){map.invalidateSize({animate:false});fitWorldMinimum();}}
+  fitWorldMinimum();
   const resize=new ResizeObserver(resizeMap);resize.observe(host);
   return {
     // Optional static source geometry. This adds no playback or event clock.

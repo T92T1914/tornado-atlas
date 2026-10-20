@@ -78,6 +78,12 @@ illustrative states have separate labels; the published El Reno package has
 no such interval. The [appearance package contract](docs/event-replay-packages.md#optional-appearance-timeline)
 sets out the admission requirements and rendering limits.
 
+At three creator-reported Nolte instants, the replay displays the complete
+permitted JPEG with its caption, credit and item permission. Each selected copy
+is checked before display and can be enlarged through the existing source viewer.
+The fourth still and movie remain external links. Photographs are not held across
+gaps, and these discrete observations do not supply calibrated tornado geometry.
+
 The same replay clock now opens the El Reno event account at its documented
 chapters and shows the latest reviewed warning bulletin issued by the selected
 time. Chapter buttons, Previous and Next use published map minutes and stay in

@@ -27,7 +27,7 @@ def navigation(root, route):
         ('Damage survey', 'survey.html'), ('Radar source reader', 'radar-source.html'),
         ('Japan source records', 'japan.html')])
     def menu(label, content):
-        return element('details', element('summary', text(label)+' '+element('span', '▾', aria_hidden='true')) + element('div', content, class_='museum-menu'))
+        return element('details', element('summary', text(label)+' '+element('span', '▾', aria_hidden='true')) + element('div', content, class_='museum-menu'), name='museum-navigation')
     return element('nav', entry('Collection', 'atlas.html') + menu('Exhibits', exhibits)
                    + menu('Explore', explore) + menu('Sources', evidence),
                    class_='museum-nav', aria_label='Museum navigation')

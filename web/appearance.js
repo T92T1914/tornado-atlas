@@ -13,6 +13,38 @@
   };
   apply(choice);
   document.addEventListener('DOMContentLoaded', () => {
+    for (const navigation of document.querySelectorAll('.museum-nav')) {
+      const groups = [...navigation.querySelectorAll(':scope > details')];
+      const close = except => {
+        for (const group of groups) if (group !== except) group.open = false;
+      };
+      // Native named disclosures also work without scripts. Keep ordinary
+      // summary activation exclusive where that grouping is unavailable.
+      navigation.addEventListener('click', event => {
+        const summary = event.target.closest?.('summary');
+        const group = summary?.parentElement;
+        if (!event.defaultPrevented && event.button === 0 && groups.includes(group) && !group.open) close(group);
+      });
+      navigation.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || event.defaultPrevented) return;
+        const open = groups.find(group => group.open);
+        if (!open) return;
+        const returnFocus = open.contains(document.activeElement);
+        close();
+        if (returnFocus) open.querySelector(':scope > summary')?.focus({preventScroll: true});
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      // On narrow pages closing a disclosure moves the document. Wait until
+      // the outside click has its target, rather than moving it before pointerup.
+      let outsidePointer = false;
+      document.addEventListener('pointerdown', event => { outsidePointer = !navigation.contains(event.target); }, true);
+      const releasePointer = () => { outsidePointer = false; };
+      document.addEventListener('pointercancel', releasePointer, true);
+      document.addEventListener('keydown', releasePointer, true);
+      document.addEventListener('click', event => { outsidePointer = false; if (!navigation.contains(event.target)) close(); }, true);
+      document.addEventListener('focusin', event => { if (!outsidePointer && !navigation.contains(event.target)) close(); }, true);
+    }
     // Keep the whole focused contents label visible in its sticky reading rail.
     const revealContentsLink = link => {
       const rail = link.closest('.documentary-contents');

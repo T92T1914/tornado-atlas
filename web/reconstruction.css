@@ -57,6 +57,17 @@
 .replay-photo-record h4 {font:inherit;font-weight:650;margin:18px 0 8px}
 .replay-photo-record ul {padding-left:20px}
 .replay-photo-record a {display:inline-block;max-width:100%;min-height:44px;overflow-wrap:anywhere}
+#replay-documentary-image {margin-top:20px;min-width:0;max-width:100%;overflow-wrap:anywhere}
+#replay-documentary-image[hidden] {display:none}
+#replay-documentary-image h3 {font-size:18px;margin:0 0 12px}
+#replay-documentary-image figure {margin:0}
+#replay-documentary-image figure>a {display:block}
+#replay-documentary-photo {display:block;box-sizing:border-box;width:100%;height:auto;object-fit:contain;border:1px solid var(--line)}
+#replay-documentary-photo[hidden] {display:none}
+#replay-documentary-image figcaption {font-size:13px;line-height:1.6}
+#replay-documentary-image figcaption p {margin:10px 0}
+#replay-documentary-status {font-size:13px;line-height:1.6}
+#replay-documentary-retry {min-height:44px;font:inherit}
 .replay-radar {border-top:1px solid var(--line);margin-top:22px;padding-top:10px}
 .replay-radar h3 {font-size:15px}
 .replay-radar img {width:100%;height:auto;display:block}
