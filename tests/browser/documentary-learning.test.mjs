@@ -7,9 +7,16 @@ import {fixture,base,withNavigationDiagnostics} from './harness.mjs';
 for(const width of [320,1280])test('controlled documentary motion and source journey '+width,async t=>{
  const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'}),motionRequests=[];
  page.on('request',r=>{if(/bohac-opening-source-relative\.(mp4|webm)/.test(r.url()))motionRequests.push(r.url());});
- await page.goto(base+'/index.html?t=0#bohac-opening-motion');
+ await page.goto(base+'/index.html?t=0#article-contents');
  await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
+ const contents=page.locator('#exhibit-contents');
+ if(!await contents.evaluate(n=>n.open))await page.locator('#article-contents').click();
+ const motionLink=contents.getByRole('link',{name:'Watch the four-second passage',exact:true});
+ await motionLink.focus();await page.keyboard.press('Enter');
+ await page.waitForURL(u=>u.hash==='#bohac-opening-motion');
  const region=page.locator('#bohac-opening-motion'),video=region.locator('video');
+ assert.equal(await region.evaluate(n=>n.parentElement.id),'photos');
+ assert.equal(await region.evaluate(n=>Boolean(n.compareDocumentPosition(document.querySelector('#storm-photographs'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'The source passage is available before the long still gallery');
  assert.equal(await video.getAttribute('preload'),'none');assert.equal(await video.getAttribute('autoplay'),null);assert.equal(await video.getAttribute('loop'),null);
  // preload is a browser hint, not a guarantee of zero media requests.
  assert.equal(await video.evaluate(v=>v.paused),true);assert.equal(await video.evaluate(v=>v.currentTime),0);
@@ -25,6 +32,15 @@ for(const width of [320,1280])test('controlled documentary motion and source jou
  t.diagnostic('CLIP_BEFORE_SEEK '+JSON.stringify(await video.evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,network:v.networkState,seekable:Array.from({length:v.seekable.length},(_,i)=>[v.seekable.start(i),v.seekable.end(i)]),buffered:Array.from({length:v.buffered.length},(_,i)=>[v.buffered.start(i),v.buffered.end(i)]),source:v.currentSrc,error:v.error?.code}))));await video.evaluate(v=>{v.currentTime=2;});await page.waitForFunction(()=>Math.abs(document.querySelector('[data-documentary-clip]').currentTime-2)<0.05);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
  assert.equal(await video.evaluate(v=>{const r=v.getBoundingClientRect();return Math.abs(r.width/r.height-1280/720)<0.03;}),true,'Full frame is retained without a fixed crop');
+ if(width===320){
+  const originalSizes=await region.locator('h3,p,button,summary,a').evaluateAll(nodes=>nodes.map(n=>({style:n.style.fontSize,pixels:parseFloat(getComputedStyle(n).fontSize)})));
+  await region.locator('h3,p,button,summary,a').evaluateAll((nodes,sizes)=>nodes.forEach((n,i)=>n.style.fontSize=sizes[i].pixels*2+'px'),originalSizes);
+  assert.equal(await region.locator('h3').evaluate(n=>parseFloat(getComputedStyle(n).fontSize)),originalSizes[0].pixels*2,'Actual clip heading text doubles despite fixed-pixel exhibit typography');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Enlarged clip reading reflows');
+  assert.equal(await video.evaluate(v=>v.paused),true,'Text enlargement does not start playback');
+  if(process.env.ATLAS_LEARNING_CAPTURE){await mkdir(process.env.ATLAS_LEARNING_CAPTURE,{recursive:true});await region.screenshot({path:path.join(process.env.ATLAS_LEARNING_CAPTURE,'bohac-motion-320-enlarged.png')});}
+  await region.locator('h3,p,button,summary,a').evaluateAll((nodes,sizes)=>nodes.forEach((n,i)=>n.style.fontSize=sizes[i].style),originalSizes);
+ }
  if(process.env.ATLAS_LEARNING_CAPTURE){await mkdir(process.env.ATLAS_LEARNING_CAPTURE,{recursive:true});await region.screenshot({path:path.join(process.env.ATLAS_LEARNING_CAPTURE,'bohac-motion-'+width+'.png')});}
  await play.click();await page.waitForFunction(()=>document.querySelector('[data-documentary-clip]').currentTime>2.1);
  await video.evaluate(v=>{v.currentTime=3.7;});await page.waitForFunction(()=>document.querySelector('[data-documentary-clip]').ended);
