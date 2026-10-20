@@ -4,6 +4,8 @@ The four dossiers now offer worked comparisons with their actual source records.
 
 ## El Reno: a moving viewpoint
 
+The article contents names the four-second passage directly. In the photographs and film section, the player comes before the still gallery, with its foreground explanation, source credit and clock limits together. Its existing `#bohac-opening-motion` link remains stable.
+
 The Bohac passage contains the first 120 consecutive presentations selected by source PTS in [0,4). At 30000/1001 presentations per second, the encoded duration is 4.004 seconds. Both full-frame 1280 × 720 versions are lossy conversions, with no crop, interpolation, stabilization or generated detail. The MP4 is 965,874 bytes; the WebM is 905,286 bytes. The reader requests no preloading with `preload="none"`, but the browser may still fetch metadata or video bytes before Play. The [HTML preload attribute is a hint](https://html.spec.whatwg.org/multipage/media.html#attr-media-preload). Playback remains paused until selection, with native pause and seek controls, original links and a descriptive account available without scripts. Motion does not advance the shared historical clock.
 
 The tree, pole and vehicle edge change their relationship to the dark lowering. That is useful evidence of changing viewpoint and obstruction. It does not separate perspective, camera motion and storm evolution, or measure physical tornado size. The passage adds no UTC anchor, calibrated camera or registered historical appearance interval.
