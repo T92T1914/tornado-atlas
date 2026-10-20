@@ -1,6 +1,6 @@
 # Following a record into its evidence
 
-The [archive entrance](https://t92t1914.github.io/tornado-atlas/dossier.html) connects the existing source catalogue to small event dossiers. El Reno, Joplin and Blackwell share one renderer. The Wybark example uses the same record route with a short official account and no reviewed event association.
+The [archive entrance](https://t92t1914.github.io/tornado-atlas/dossier.html) connects the existing source catalogue to small event dossiers. El Reno, Joplin, Blackwell, Tuscaloosa and Birmingham, Newcastle and Moore, and Udall share one renderer. The Wybark example uses the same record route with a short official account and no reviewed event association.
 
 A source record is not a canonical event. The imported NOAA ID, episode ID, county segment and reviewed event association remain separate. Association rows retain the reviewed basis from `research/record-aliases.json`. An association can be revised without changing the underlying source record. Alternatives remain an explicit list, empty only where none have been recorded. The application does not infer joins from nearby coordinates.
 

@@ -69,7 +69,10 @@ to choose the next reconstruction. Consider path quality, time anchors, original
 footage, identifiable camera locations and media reuse rights. Do not turn a
 popularity ranking into a claim about scientific importance or victim impact.
 
-The initial working queue is:
+The initial working queue below records the earlier reconstruction priorities.
+The [current collection](../exhibits/events.json) also includes documentary
+exhibits for Newcastle and Moore, and Udall. These additions do not establish
+a historical appearance reconstruction.
 
 1. **El Reno 2013:** finish the first bounded reconstruction using the geographic
    exhibit and source collection already assembled. Establish a supported time
@@ -83,8 +86,8 @@ The initial working queue is:
    satellite account. Qualify original storm imagery and footage independently
    of the aftermath photographs and written survey progression.
 
-The current priority is depth across these four existing main dossiers before
-another main event is added. El Reno supplies the visitor standard: a substantial
+That plan prioritized depth across the four main dossiers before expanding the
+collection. El Reno supplies the visitor standard: a substantial
 account, purposeful media, usable source routes, chronological or geographic
 context where supported, and clear uncertainty. Each event should approach that
 useful depth through its own surviving evidence. Equal numbers of photographs
@@ -394,7 +397,7 @@ appearance and historical damage-reconstruction objective unfinished.
 
 ## Documentary references and repeatable laboratory experiments
 
-The four dossiers now provide direct entries to the existing Form Study and Wind Lab with their documentary reference selected. The reference keeps a relevant account and source dossier beside visitor-chosen assumptions. Changing the reference does not derive a funnel, wind field, component capacity or failure sequence from the event.
+The dossiers provide direct entries to the existing Form Study and Wind Lab with their documentary reference selected. The reference keeps a relevant account and source dossier beside visitor chosen assumptions. Changing the reference does not derive a funnel, wind field, component capacity or failure sequence from the event.
 
 Versioned experiment links preserve the complete manual configuration and reopen paused. Native reload, history and source return can recover that experiment. Wind passage and component views retain one shared selected sample and the same numerical table. This improves comparison and reproducibility without creating another clock, renderer or physics model.
 
@@ -410,7 +413,7 @@ The original reconstruction requirements remain open. Documentary depth, a repea
 
 ## Laboratory motion and school evidence
 
-The Wind Lab’s passive markers now use the circular solution of the existing zero-background field. A controlled execution of the old drawing consumer reproduced artificial outward drift at supported control limits. Removing that numerical distortion improves the illustration of its chosen assumptions. Mixed background flow remains approximate, and no radial inflow, three-dimensional weather solution or historical wind is added. The force, passage, sampled failure and continuous-reference rules are unchanged.
+The Wind Lab’s passive markers use the circular solution of the existing field with no background flow. A controlled execution of the old drawing consumer reproduced artificial outward drift at supported control limits. Removing that numerical distortion improves the illustration of its chosen assumptions. A later bounded correction also supplies the exact shifted circle when positive background flow keeps the entire orbit strictly inside the core. Other mixed paths remain approximate. No radial inflow, weather solution in three dimensions or historical wind is added. The force, passage, sampled failure and continuous reference rules are unchanged. The [wind guide](wind-laboratory.md#follow-the-experiment-as-a-reading-path) records both corrections and their limits.
 
 The Moore school account adds three source-specific observations from NIST’s preliminary reconnaissance. Reported refuge changes, observed building damage and the report’s proposed structural explanation retain their different evidence kinds. Native learning paths connect the laboratory controls to their limits and the existing documentary reference. The records provide no measured settings for the generic component experiment.
 
