@@ -18,7 +18,7 @@ async function openActual(page,seconds){
   await page.locator('#replay-time:not([disabled])').waitFor();
 }
 
-test('retained Nolte observations expose four originals without copying media or drawing a historical form',async t=>{
+test('retained Nolte observations keep four original links and only three permitted documentary copies',async t=>{
   const page=await fixture(t,{viewport:{width:390,height:900}});
   const requests=[];
   page.context().on('request',request=>{if(new URL(request.url()).hostname==='nnwx.us')requests.push(request.url());});
@@ -42,7 +42,13 @@ test('retained Nolte observations expose four originals without copying media or
     assert.match(text,/Timing uncertaintyUnquantified/);
     assert.match(text,/Unknown: coordinates, bearing, pitch, roll/);
     assert.ok(text.includes(source.rights.basis),'Retains the exact limited use basis');
-    assert.equal(await page.locator('#replay-appearance img,#replay-appearance iframe').count(),0);
+    if(sample.hosted_image){
+      await page.locator('#replay-documentary-image[data-state="ready"]').waitFor();
+      assert.equal(await page.locator('#replay-documentary-image').getAttribute('data-sample-id'),sample.id);
+      assert.equal(await page.locator('#replay-appearance img').count(),1);
+      assert.equal(await page.locator('#replay-documentary-photo').getAttribute('alt'),sample.hosted_image.alt);
+    }else assert.equal(await page.locator('#replay-appearance img').count(),0);
+    assert.equal(await page.locator('#replay-appearance iframe').count(),0);
   }
   assert.deepEqual(requests,[],'Source text and links acquire no Nolte resources');
 });

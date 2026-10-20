@@ -14,6 +14,7 @@ import {mountSurvey} from './survey-view.mjs';
 import {mountPhotoViewer,documentaryPhoto} from './photo-view.mjs';
 import {mountReplayScaleImpact} from './replay-scale-impact-view.mjs';
 import {mountDocumentaryAppearance} from './documentary-appearance.mjs';
+import {mountReplayDocumentaryImage} from './replay-documentary-image.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
@@ -171,6 +172,9 @@ async function start(){
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
   let appearanceRenderer=null,appearanceState={state:'unknown'};
   let unavailablePhotoId=null,shownPhotoSequence=null,shownPhotoSample=null;
+  const photoImageHost=document.createElement('div');photoImageHost.id='replay-documentary-image';
+  el('replay-photo-samples').after(photoImageHost);
+  const documentaryImage=mountReplayDocumentaryImage(photoImageHost,photo=>{pause();openReplayPhoto(photo);});
   for(const sequence of photoSequences){
     const option=document.createElement('option');option.value=`photo:${sequence.id}`;
     const creators=[...new Set(sequence.samples.map(sample=>sample.source_id))]
@@ -355,7 +359,7 @@ async function start(){
       field('Movie comparison limits',comparison.limits.join(' '));
     }
     const boundary=document.createElement('p');
-    boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. '+(sample.hosted_image?'The complete permitted documentary copy opens on request; it supplies no calibrated registration.':'No photograph is loaded or copied by this player.');
+    boundary.textContent='This panel retains separately declared still inspection and independently worded characteristics. Schema validation does not repeat inspection or authenticate the source. '+(sample.hosted_image?'The permitted documentary copy is displayed above only after its bytes are checked, and it can be enlarged on request. It supplies no calibrated registration.':'No photograph is loaded or copied by this player.');
     details.append(boundary);host.append(details);
   }
   function updatePhotoPanel(sequence){
@@ -381,6 +385,7 @@ async function start(){
       }
     }
     const sample=sequence&&appearanceState.state==='photo_observed'?appearanceState.sample:null;
+    documentaryImage.show(sample?.hosted_image?sample:null);
     for(const button of list.children){
       const pressed=String(button.dataset.photoSample===sample?.id);
       if(button.getAttribute('aria-pressed')!==pressed)button.setAttribute('aria-pressed',pressed);
@@ -456,7 +461,9 @@ async function start(){
     formCanvas.dataset.partialForm=String(Boolean(appearanceState.partialForm));
     formCanvas.dataset.partialKind=appearanceState.partialForm?.kind??'';
     formCanvas.dataset.displayPreset=photoDisplayForm(appearanceState)?.display_preset??'';
-    if(appearanceRenderer)formCanvas.style.visibility=photoSelected&&!appearanceState.partialForm?'hidden':'visible';
+    // Unknown or documentary-only states retain their controls and source text
+    // without reserving an empty drawing area. Supported partial forms remain.
+    formCanvas.hidden=!appearanceRenderer||!Boolean(appearanceState.partialForm||appearanceState.shape);
   }
   function readCamera(center){
     const camera={focus:el('replay-follow').checked?center:[0,0,0]};
