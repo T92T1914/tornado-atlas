@@ -1,7 +1,7 @@
 # Wind and force laboratory
 
 This is a separate educational experiment at `web/wind.html`. A documentary
-reference can select one of the five dossiers, but it does not assign the
+reference can select one of the six dossiers, but it does not assign the
 model to that tornado or populate its assumptions from historical measurements
 or a damage rating.
 
@@ -121,13 +121,16 @@ the paired sliders, shared clock, pause, rewind, settings, reset and visibility
 transitions. These verify the stated software rules, without validating a real
 component or building.
 
-For zero background only, an independent finite-annulus reference derives the
+For zero background, an independent finite-annulus reference derives the
 continuous comparison duration from the probe's straight path through the
 threshold region, clipped to the finite window. It does not integrate production
 samples. Its controls cover zero wind/comparison, missing intersections,
 tangency and clipped intervals. An off-grid near-peak case preserves the coarse
 sampler's missed interval alongside the independent duration. This checks those
-stated mathematical cases, not a general error bound or historical wind.
+stated mathematical cases, not a general error bound or historical wind. The
+positive-background extension uses independently derived piecewise intervals;
+its controls add both offset signs, constant fields, strict equality and
+representability refusals.
 
 The default-table generator reads the actual HTML defaults and uses the same
 wind and component functions. `node tools/build_wind_sample_table.mjs --check`
@@ -139,7 +142,7 @@ reset, focus and the no-script or unavailable-module fallback separately.
 
 ## Keep an experiment beside its source account
 
-Open the laboratory from any of the five dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate.
+Open the laboratory from any of the six dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier, plus one checked existing documentary image with its source, rights and limits. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate. See the [laboratory reading notes](laboratory-reading.md) for the selected items, full-image presentation and Clair/Obscur behavior.
 
 The experiment link records all eleven controls and one shared sample index from 0 through 480. Reopening, reloading or using Back/Forward restores those settings paused. The field, passage graph, component state and sampled-values table are recomputed from that same state. Before an ordinary same-tab evidence visit, the displayed sample is captured in the experiment URL so native Back can recover it. Reset restores the documented model defaults while retaining the documentary reference.
 
@@ -149,15 +152,15 @@ The bounded versioned contract refuses unknown references, repeated fields, inco
 
 ## Continuous reference beside the sample grid
 
-The [continuous comparison](https://t92t1914.github.io/tornado-atlas/wind.html#continuous-reference) exposes the independent geometry of the same zero-background Rankine assumption. It calculates the maximum speed and drag within the finite window, the duration at or above the chosen wind comparison, and the duration strictly above the assumed capacity. A separate module derives those values from the probe path through an annulus. It does not read the sampled velocities or integrate the displayed graph.
+The [continuous comparison](https://t92t1914.github.io/tornado-atlas/wind.html#continuous-reference) exposes the independent geometry of the same Rankine assumption, with or without eastward background wind. It calculates the maximum speed and drag within the finite window, the duration at or above the chosen wind comparison, and the duration strictly above the assumed capacity. A separate module derives those values from the probe path through an annulus at zero background, or from piecewise squared-speed intervals with positive background. It does not read the sampled velocities or integrate the displayed graph.
 
 The example button loads the documented 105 mph, 500 ft, 30 mph, 0.7 R and 1.6 kN case, with zero background, area 1 m² and coefficient 1.2. The continuous maximum is 1619.417 N, while the 481-point component sequence stays below 1600 N. The comparison calls out that missed exceedance without changing the graph, table or sampled failure state. Both results describe their stated calculations. Neither supplies a real connection strength or a historical failure time.
 
-For positive comparison speed no greater than peak swirl, the qualifying radial interval lies between R times comparison/peak and R times peak/comparison. Intersecting the straight path with those boundaries, clipping to the finite window and dividing by travel speed gives the model duration. The maximum considers whether the window reaches the radius of maximum swirl. Zero wind, zero comparison, zero drag coefficient, tangency and strict capacity equality retain separate controls.
+With zero background and positive comparison speed no greater than peak swirl, the qualifying radial interval lies between R times comparison/peak and R times peak/comparison. Intersecting the straight path with those boundaries, clipping to the finite window and dividing by travel speed gives the model duration. The maximum considers whether the window reaches the radius of maximum swirl. Zero wind, zero comparison, zero drag coefficient, tangency and strict capacity equality retain separate controls.
 
-Adding background flow changes the annulus geometry. The independent comparison then becomes unavailable and clears its old numerical values, while the existing sampled experiment remains usable. It resumes when background returns to zero. This is a mathematical cross-check within floating-point arithmetic, not a general sampling-error bound or evidence that finer grids always converge monotonically. The 481 rows, model equations, shared selected sample and paused experiment-link contract remain unchanged.
+Adding eastward background flow changes the annulus geometry and distinguishes the north and south sides of the track. The reference instead splits squared speed into its inside-core and outside-core expressions and solves the clipped intervals. Constant branches, tangencies and strict capacity equality have separate controls. Unrepresentable reference inputs clear its values and explain the refusal while retaining the separate sampled consumers. This is a mathematical cross-check within floating-point arithmetic, not a general sampling-error bound or evidence that finer grids always converge monotonically. The 481 rows, model equations, shared selected sample and paused experiment-link contract remain unchanged.
 
-Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all five documentary references.
+Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all six documentary references.
 
 ## Follow the experiment as a reading path
 

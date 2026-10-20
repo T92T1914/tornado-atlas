@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
+import {observeLabReferenceNavigation} from './lab-reference-navigation-diagnostics.mjs';
 
 // Literal story routes are independent of the generated navigation and reference list.
 const stories=[['index.html','el-reno-2013','index.html#photos'],['joplin.html','joplin-2011','joplin.html#photographs-and-film'],['blackwell.html','blackwell-1955','blackwell.html#observations'],['tuscaloosa.html','tuscaloosa-birmingham-2011','tuscaloosa.html#photographs-and-film'],['moore.html','moore-2013','moore.html#survey-photographs'],['udall.html','udall-1955','udall.html#original-images']];
@@ -47,6 +48,8 @@ for(const width of [320,1280])test('Documentary contents and laboratory entry ke
 
 for(const width of [320,1280])test('Unavailable Form Study returns to its actual documentary '+width,{timeout:45000},async t=>{
   const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
+  const diagnostics=await observeLabReferenceNavigation(t,page,{base,label:'unavailable-form-'+width});
+  try{
   await page.addInitScript(()=>{const native=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...rest){return kind==='webgl2'?null:native.call(this,kind,...rest);};});
   await page.goto(base+'/study.html?event=joplin-2011');
   await page.waitForFunction(()=>document.querySelector('#lab-event').value==='joplin-2011');
@@ -74,4 +77,5 @@ for(const width of [320,1280])test('Unavailable Form Study returns to its actual
   await page.waitForFunction(()=>document.querySelector('#lab-state').dataset.state==='invalid');
   assert.equal(await page.locator('#scene-failure-return').getAttribute('href'),'atlas.html');
   assert.equal(await page.locator('#lab-event').inputValue(),'');
+  }finally{diagnostics.report('body_finished');}
 });

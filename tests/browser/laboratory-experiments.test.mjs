@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 import {fixture,base} from './harness.mjs';
+import {observeLabReferenceNavigation} from './lab-reference-navigation-diagnostics.mjs';
 
 const events=[
   ['el-reno-2013','El Reno · 2013','index.html#photos','index.html#damage'],
@@ -126,6 +127,7 @@ test('Form snapshot remains readable and restorable when WebGL is unavailable',a
 for(const [kind,file] of [['wind','wind.html'],['form','study.html']])test(kind+' reference and share controls retain enlarged narrow keyboard reading',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:800},reducedMotion:'reduce',serviceWorkers:'block'});
   await page.goto(base+'/'+file+'?event=tuscaloosa-birmingham-2011');await ready(page);
+  await page.locator('#lab-reference-evidence[data-state="ready"]').waitFor();
   await page.locator('#lab-context').evaluate(host=>{const sizes=[...host.querySelectorAll('h2,p,label,select,a')].map(node=>[node,parseFloat(getComputedStyle(node).fontSize)]);for(const [node,size] of sizes)node.style.fontSize=size*2+'px';});
   const corrected=await referenceGeometry(page);
   // Compare the previous native appearance under the same actual font sizes.
@@ -139,7 +141,13 @@ for(const [kind,file] of [['wind','wind.html'],['form','study.html']])test(kind+
   assert.match(await page.locator('#lab-reference-account').innerText(),/./);
   await page.locator('#lab-event').focus();await page.keyboard.press('Tab');
   assert.equal(await page.evaluate(()=>document.activeElement===document.querySelector('#lab-reference-links a')),true);
-  await page.keyboard.press('Tab');await page.keyboard.press('Tab');assert.equal(await page.locator('#lab-share').evaluate(node=>node===document.activeElement),true);
+  const orderedLinks=page.locator('#lab-reference-links a,#lab-reference-evidence a,#lab-share');
+  assert.ok(await orderedLinks.count()>=9,'Current evidence and source routes precede Share');
+  for(let i=1;i<await orderedLinks.count();i++){
+    await page.keyboard.press('Tab');
+    assert.equal(await orderedLinks.nth(i).evaluate(node=>node===document.activeElement),true,'Native tab order at documentary link '+i);
+  }
+  assert.equal(await page.locator('#lab-share').evaluate(node=>node===document.activeElement),true);
   await page.keyboard.press('Enter');await paused(page,kind);assert.equal(new URL(page.url()).searchParams.get('event'),'tuscaloosa-birmingham-2011');
 });
 
@@ -167,6 +175,8 @@ test('Unavailable Wind 2D drawing preserves restored numeric and complete sample
 const articleEntries=[['index.html','el-reno-2013','study.html'],['joplin.html','joplin-2011','wind.html'],['blackwell.html','blackwell-1955','study.html'],['tuscaloosa.html','tuscaloosa-birmingham-2011','wind.html']];
 for(const width of [320,1280])test('Every article opens its documentary reference in an assumed laboratory by keyboard '+width,{timeout:60000},async t=>{
  const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
+ const diagnostics=width===1280?await observeLabReferenceNavigation(t,page,{base,label:'keyboard-article-entry-'+width}):null;
+ try{
  for(const [file,event,labFile] of articleEntries){
   await page.goto(base+'/'+file);const entry=page.locator('.article-laboratory');await entry.waitFor();
   for(const target of ['study.html','wind.html'])assert.equal(await entry.locator('a[href="'+target+'?event='+event+'"]').count(),1);
@@ -175,6 +185,7 @@ for(const width of [320,1280])test('Every article opens its documentary referenc
   assert.equal(await page.locator(labFile==='study.html'?'#motion':'#passage-play').innerText(),labFile==='study.html'?'Play motion':'Play passage');
   await page.goBack();await entry.waitFor();assert.equal(new URL(page.url()).pathname.endsWith('/'+file),true);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
  }
+ }finally{diagnostics?.report('body_finished');}
 });
 
 for(const width of [320,1280])test('Wind field labels remain distinct and visible as the probe moves '+width,{timeout:30000},async t=>{

@@ -200,8 +200,8 @@ test('the documented 105 mph case exposes missed sampled capacity without rewrit
  assert.ok(fineComponent.peak>1600);assert.notEqual(fineComponent.firstFailureIndex,null);
  // Two retained grids illustrate this case. They do not prove general convergence.
 });
-test('nonzero background is explicitly unavailable rather than treated as symmetric',()=>{
- assert.deepEqual(continuousRankineReference({...field,background:1},options),{status:'unavailable',reason:'nonzero-background'});
+test('positive background preserves validation before its independent comparison',()=>{
+ assert.equal(continuousRankineReference({...field,background:1},options).status,'available');
  assert.throws(()=>continuousRankineReference({...field,background:1},{...options,capacity:0}),RangeError);
 });
 test('invalid and unrepresentable inputs fail rather than emit plausible reference numbers',()=>{
@@ -230,4 +230,119 @@ test('underflowed positive ratios are refused instead of becoming a false full-w
  const extreme={...field,peak:2**500,density:1,coefficient:1};
  assert.throws(()=>continuousRankineReference(extreme,{threshold:0,capacity:Number.MIN_VALUE}),{name:'RangeError',message:/capacity ratio is below representable range/});
  assert.throws(()=>continuousRankineReference(extreme,{threshold:Number.MIN_VALUE,capacity:1}),{name:'RangeError',message:/comparison ratio is below representable range/});
+});
+
+
+// Fixed closed-form cases were derived before this implementation. Their
+// expected values do not call windAt, samplePassage or componentHistory.
+const backgroundField={peak:2,radius:1,background:1,travel:1,offset:0,
+  area:1,coefficient:1,density:2};
+const backgroundOptions={threshold:2,capacity:4,extent:2};
+const backgroundCases=[
+ ['cross-core interval',{},{},Math.sqrt(5),5,1/Math.sqrt(3),1/Math.sqrt(3),true],
+ ['inside-only cancellation',{offset:.5},{threshold:.5,capacity:.25,extent:.5},1,1,.5,.5,true],
+ ['outside decreasing branch',{peak:1,background:2,offset:-2},{threshold:Math.sqrt(6),capacity:6},2.5,6.25,Math.sqrt(2),Math.sqrt(2),true],
+ ['outside increasing branch',{peak:1,background:2,offset:2},{threshold:Math.sqrt(3),capacity:3},5/(2*Math.sqrt(2)),25/8,4-2*Math.sqrt(3),4-2*Math.sqrt(3),true],
+ ['outside constant equality',{peak:4,offset:2},{threshold:1,capacity:1},1,1,4,0,false],
+ ['core-touch constant equality',{offset:1},{threshold:1,capacity:1},1,1,4,0,false],
+ ['core-touch cancellation',{peak:1,offset:1},{threshold:1/Math.sqrt(2),capacity:.5},2/Math.sqrt(5),4/5,2,2,true],
+ ['uniform background equality',{peak:0,background:3},{threshold:3,capacity:9},3,9,4,0,false],
+ ['zero drag',{coefficient:0},{capacity:1},Math.sqrt(5),0,1/Math.sqrt(3),0,false],
+ ['clipped window',{},{extent:.25},Math.sqrt(5)/2,5/4,0,0,false]
+];
+for(const [label,changes,limits,speed,drag,comparison,exposure,exceeded] of backgroundCases)
+ test('positive-background continuous reference: '+label,()=>{
+  const result=continuousRankineReference({...backgroundField,...changes},{...backgroundOptions,...limits});
+  assert.equal(result.status,'available');
+  // Irrational thresholds and square roots use this fixed absolute allowance.
+  // Strict capacity flags and all literal equality decisions remain exact.
+  near(result.maximumSpeed,speed,1e-12);near(result.maximumDrag,drag,1e-12);
+  near(result.comparisonDuration,comparison,1e-12);near(result.capacityExceedanceDuration,exposure,1e-12);
+  assert.equal(result.capacityExceeded,exceeded);
+ });
+
+test('constant fields distinguish inclusive comparison from strict capacity over the whole window',()=>{
+ const constant={...backgroundField,peak:4,offset:2};
+ for(const [capacity,exceeded,duration] of [[.5,true,4],[1,false,0],[2,false,0]]){
+  const result=continuousRankineReference(constant,{...backgroundOptions,threshold:1,capacity});
+  assert.equal(result.maximumDrag,1);assert.equal(result.capacityExceeded,exceeded);
+  assert.equal(result.capacityExceedanceDuration,duration);assert.equal(result.comparisonDuration,4);
+ }
+ for(const [threshold,duration] of [[0,4],[1,4],[2,0]])
+  assert.equal(continuousRankineReference(constant,{...backgroundOptions,threshold,capacity:1}).comparisonDuration,duration);
+ for(const [capacity,exceeded,duration] of [[8,true,4],[9,false,0],[10,false,0]]){
+  const result=continuousRankineReference({...backgroundField,peak:0,background:3},{...backgroundOptions,threshold:3,capacity});
+  assert.equal(result.maximumDrag,9);assert.equal(result.capacityExceeded,exceeded);
+  assert.equal(result.capacityExceedanceDuration,duration);assert.equal(result.comparisonDuration,4);
+ }
+});
+
+test('a core-edge maximum and adjacent capacities retain unrounded strict decisions',()=>{
+ const equal=continuousRankineReference(backgroundField,{...backgroundOptions,threshold:Math.sqrt(5),capacity:5});
+ assert.equal(equal.maximumDrag,5);assert.equal(equal.capacityExceeded,false);
+ assert.equal(equal.capacityExceedanceDuration,0);assert.equal(equal.comparisonDuration,0);
+ const below=continuousRankineReference(backgroundField,{...backgroundOptions,capacity:5-2**-40});
+ assert.equal(below.capacityExceeded,true);assert.ok(below.capacityExceedanceDuration>0);
+ const above=continuousRankineReference(backgroundField,{...backgroundOptions,capacity:5+2**-40});
+ assert.equal(above.capacityExceeded,false);assert.equal(above.capacityExceedanceDuration,0);
+});
+
+test('the outer derivative sign is not replaced by a tolerance around zero',()=>{
+ const delta=2**-20,limits={...backgroundOptions,threshold:1,capacity:1};
+ const positive=continuousRankineReference({...backgroundField,offset:1-delta},limits);
+ near(positive.maximumDrag,1+2**-18,1e-12);assert.equal(positive.capacityExceeded,true);
+ near(positive.capacityExceedanceDuration,2*(2-Math.sqrt(2**-20-2**-40)),1e-12);
+ const constant=continuousRankineReference({...backgroundField,offset:1},limits);
+ assert.equal(constant.maximumDrag,1);assert.equal(constant.capacityExceeded,false);
+ assert.equal(constant.comparisonDuration,4);assert.equal(constant.capacityExceedanceDuration,0);
+ const negative=continuousRankineReference({...backgroundField,offset:1+delta},limits);
+ near(negative.maximumDrag,1-2**-18/(4+(1+delta)**2),1e-12);
+ assert.equal(negative.capacityExceeded,false);assert.equal(negative.capacityExceedanceDuration,0);
+ assert.equal(negative.comparisonDuration,0);
+});
+
+test('background reference scale changes preserve independent maxima and duration relations',()=>{
+ const base=continuousRankineReference(backgroundField,backgroundOptions);
+ const larger=continuousRankineReference({...backgroundField,radius:2},backgroundOptions);
+ const faster=continuousRankineReference({...backgroundField,travel:2},backgroundOptions);
+ for(const result of [larger,faster]){
+  assert.equal(result.maximumSpeed,base.maximumSpeed);assert.equal(result.maximumDrag,base.maximumDrag);
+ }
+ assert.equal(larger.halfTime,2*base.halfTime);assert.equal(faster.halfTime,base.halfTime/2);
+ assert.equal(larger.comparisonDuration,2*base.comparisonDuration);
+ assert.equal(faster.comparisonDuration,base.comparisonDuration/2);
+ assert.equal(larger.capacityExceedanceDuration,2*base.capacityExceedanceDuration);
+ assert.equal(faster.capacityExceedanceDuration,base.capacityExceedanceDuration/2);
+ const loaded=continuousRankineReference({...backgroundField,density:4},{...backgroundOptions,capacity:8});
+ assert.equal(loaded.maximumDrag,10);assert.equal(loaded.maximumSpeed,base.maximumSpeed);
+ assert.equal(loaded.comparisonDuration,base.comparisonDuration);
+ assert.equal(loaded.capacityExceedanceDuration,base.capacityExceedanceDuration);
+});
+
+test('the retained signed 0.7 R benchmark has independent background maxima and strict exposure',()=>{
+ const mph=.44704,foot=.3048,settings={peak:100*mph,radius:500*foot,background:20*mph,
+  travel:30*mph,offset:-.7,area:1,coefficient:1.2};
+ const limits={threshold:50*mph,capacity:1600,extent:6};
+ const south=continuousRankineReference(settings,limits);
+ near(south.maximumDrag,1938.8938770432,1e-9);near(south.capacityExceedanceDuration,7.4059467579,1e-9);
+ assert.equal(south.capacityExceeded,true);
+ const north=continuousRankineReference({...settings,offset:.7},limits);
+ near(north.maximumDrag,1116.3328382976,1e-9);
+ assert.equal(north.capacityExceeded,false);assert.equal(north.capacityExceedanceDuration,0);
+});
+
+test('positive background rejects malformed and unrepresentable arithmetic explicitly',()=>{
+ for(const key of ['peak','radius','background','travel','offset','area','coefficient','density'])
+  for(const value of [NaN,Infinity,-Infinity,'1'])
+   assert.throws(()=>continuousRankineReference({...backgroundField,[key]:value},backgroundOptions),RangeError,key);
+ for(const key of ['threshold','capacity','extent'])for(const value of [NaN,Infinity,-Infinity,'1'])
+  assert.throws(()=>continuousRankineReference(backgroundField,{...backgroundOptions,[key]:value}),RangeError,key);
+ for(const changes of [{peak:1e200},{radius:1e308,travel:1e-308},{peak:1e308,background:1e308,offset:-1},
+  {offset:1e200},{density:Number.MIN_VALUE,area:Number.MIN_VALUE}])
+  assert.throws(()=>continuousRankineReference({...backgroundField,...changes},backgroundOptions),RangeError);
+ assert.throws(()=>continuousRankineReference(backgroundField,{...backgroundOptions,extent:1e200}),RangeError);
+ assert.throws(()=>continuousRankineReference(backgroundField,{...backgroundOptions,threshold:Number.MIN_VALUE}),RangeError);
+ assert.throws(()=>continuousRankineReference({...backgroundField,density:4},{...backgroundOptions,capacity:Number.MIN_VALUE}),RangeError);
+ const tinyCapacity=continuousRankineReference(backgroundField,{...backgroundOptions,capacity:Number.MIN_VALUE});
+ assert.equal(tinyCapacity.capacityExceeded,true);assert.equal(tinyCapacity.capacityExceedanceDuration,4);
 });

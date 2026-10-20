@@ -54,6 +54,7 @@ function draw(now) {
   const sequence=evolving?sequenceForm():null;
   canvas.dataset.appearanceCoverage=evolving?(sequence?'assigned':'gap'):'manual';
   renderer.render({
+    readingAppearance:getComputedStyle(canvas).colorScheme==='light'?'light':'dark',
     shape:evolving?sequence?.shape || null:PRESETS[byId('shape').value],
     extent:evolving?sequence?.extent ?? 0:Number(byId('condensation').value)/100,
     time,
@@ -65,6 +66,9 @@ function draw(now) {
   lab?.preview();
   if(running) requestFrame();
 }
+// Redraw a paused illustration without seeking, playing or rewriting history.
+byId('reading-appearance').addEventListener('change',requestFrame);
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',requestFrame);
 function syncControls() {
   for (const id of ['condensation','azimuth','elevation','distance']) {
     const suffix=id==='condensation'?'%':id==='distance'?'':'°';

@@ -54,6 +54,7 @@ function rebuild() {
   el('passage-top').textContent=`${Math.round(top/MPH)} mph`;
   el('passage-start').textContent=`−${result.halfTime.toFixed(1)} s`;
   el('passage-end').textContent=`+${result.halfTime.toFixed(1)} s`;
+  el('passage-axis-range').textContent=`Horizontal axis: −${result.halfTime.toFixed(1)} to +${result.halfTime.toFixed(1)} model seconds. Vertical axis: 0 to ${Math.round(top/MPH)} mph.`;
   el('passage-peak').textContent=`${(result.peak/MPH).toFixed(1)} mph`;
   el('passage-duration').textContent=`≈ ${result.aboveSeconds.toFixed(1)} s`;
   el('travel-value').textContent=`${el('travel').value} mph`;
