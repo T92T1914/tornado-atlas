@@ -112,7 +112,7 @@ async function coverageReturn(page){
   assert.equal(await card.getAttribute('data-state'),'context','Reviewed report text is damage context, not a calibrated survey/replay');
   await card.locator(':scope > details > summary').click();
   const targets=await card.locator('h4 > a').evaluateAll(nodes=>nodes.map(n=>new URL(n.href).searchParams.get('observation')));
-  assert.deepEqual(targets,['udall-damage-account','phillips-survey-continuity']);
+  assert.deepEqual(targets,['udall-damage-account','phillips-survey-continuity','eastward-aftermath-scene']);
   assert.match(await card.innerText(),/Time: Unregistered/);
   assert.match(await card.innerText(),/Place: Unregistered/);
   assert.equal(await page.locator('[data-event="udall-1955"] [data-layer="appearance"]').getAttribute('data-state'),'not_admitted');

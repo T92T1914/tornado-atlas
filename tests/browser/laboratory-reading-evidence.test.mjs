@@ -4,8 +4,9 @@ import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
 
-// Literal identities retained in accepted pre-candidate archive/source records.
-// These expectations do not import the new reference adapter or its generated map.
+// Literal item identities retained in accepted archive/source records. Routes
+// use the current dossier revision, including the source-linked Udall update.
+// These expectations do not import the reference adapter or its generated map.
 const references=[
  {event:'el-reno-2013',media:'nolte-231037-full-documentary',source:'nolte-three-permitted-full-exports',
   revision:'854b56dffaf8720e27beab95bf091450f3de80ba8d0f8f678ee21986b6fa410c',
@@ -44,7 +45,7 @@ const references=[
   limits:['ENE remains a qualitative caption direction','No surveyed camera location','following-day aftermath'],
   version:'Removed EXIF and XMP APP1 plus Photoshop IPTC APP13 metadata only'},
  {event:'udall-1955',media:'nws-blackwell-warning2',source:'nws-blackwell-warning2',
-  revision:'9e17a19743779426b29248a0685472a4c747f3409e707ae4964d7d526ddc47ec',
+  revision:'ea29259561776155de0dce541ee11642c175258d8b6af476c5b143f1fed47bcf',
   asset:'assets/blackwell-1955/nws-warning2.jpg',sha:'8de7b776fc25c87834a9277c77c2a6b10939b4618984dbefe450e621584304a5',width:608,height:436,
   original:'https://www.weather.gov/images/ict/wxstory/udall/warning2.jpg',
   story:'udall.html#udall-regional-forecast',role:/forecast document, not a photograph of the tornado/,credit:'creator: not established',
