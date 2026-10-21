@@ -18,10 +18,21 @@ async function stylesReady(page){
   await page.evaluate(()=>document.fonts.ready.then(()=>true));
 }
 async function nativeFocus(page,locator){
-  await locator.focus();
   const target=await locator.elementHandle();
-  try{await page.waitForFunction(node=>{const r=node?.getBoundingClientRect();
+  const state=()=>target.evaluate(node=>{
+    const rect=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height});
+    const active=document.activeElement;
+    return {href:node.href,text:node.textContent,connected:node.isConnected,focused:node===active,
+      active:{tag:active?.tagName,id:active?.id,href:active?.href},box:rect(node.getBoundingClientRect()),
+      fragments:[...node.getClientRects()].map(rect),viewport:{width:innerWidth,height:innerHeight},
+      visual:visualViewport?{width:visualViewport.width,height:visualViewport.height,offsetTop:visualViewport.offsetTop,scale:visualViewport.scale}:null,
+      scroll:{x:scrollX,y:scrollY},ready:document.readyState,
+      appearance:document.documentElement.dataset.appearance,scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior};
+  });
+  const before=await state();
+  try{await locator.focus();await page.waitForFunction(node=>{const r=node?.getBoundingClientRect();
     return node===document.activeElement&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;},target);}
+  catch(error){console.log('UDALL_NATIVE_FOCUS_FAILURE '+JSON.stringify({before,after:await state()}));throw error;}
   finally{await target?.dispose();}
 }
 async function sourceAndArticle(page,kind){
