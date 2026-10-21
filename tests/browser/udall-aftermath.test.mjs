@@ -32,7 +32,12 @@ async function nativeFocus(page,locator){
   const before=await state();
   try{await locator.focus();await page.waitForFunction(node=>{const r=node?.getBoundingClientRect();
     return node===document.activeElement&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;},target);}
-  catch(error){console.log('UDALL_NATIVE_FOCUS_FAILURE '+JSON.stringify({before,after:await state()}));throw error;}
+  catch(error){
+    let after,diagnosticError;
+    try{after=await state();}catch(failure){diagnosticError=String(failure);}
+    console.log('UDALL_NATIVE_FOCUS_FAILURE '+JSON.stringify({before,after,diagnosticError}));
+    throw error;
+  }
   finally{await target?.dispose();}
 }
 async function sourceAndArticle(page,kind){
