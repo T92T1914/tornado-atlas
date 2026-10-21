@@ -12,14 +12,21 @@ const caption='https://www.weather.gov/ict/udall_pics1';
 const source='nws-wichita-udall-east',observation='eastward-aftermath-scene';
 const anchor='eastward-aftermath';
 async function fontsReady(page,phase){
-  console.log('UDALL_FONT_READINESS '+JSON.stringify({phase,route:page.url(),stage:'started'}));
-  let timer;
-  const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Native font readiness promise did not settle: '+phase)),10000);});
-  try{await Promise.race([(async()=>{
-    console.log('UDALL_FONT_READINESS '+JSON.stringify({phase,stage:'native-status',status:await page.evaluate(()=>document.fonts.status)}));
-    await page.evaluate(()=>document.fonts.ready.then(()=>true));
-  })(),deadline]);}
-  finally{clearTimeout(timer);}
+  let timer,retired=false;
+  const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Native font status did not become loaded: '+phase)),10000);});
+  try{return await Promise.race([(async()=>{
+    while(!retired){
+      const state=await page.evaluate(()=>{
+        // Flush the newly applied styles and text sizes before checking used fonts.
+        const box=document.body.getBoundingClientRect();
+        return {status:document.fonts.status,loading:[...document.fonts].filter(face=>face.status==='loading').length,
+          body:{width:box.width,height:box.height}};
+      });
+      if(state.status==='loaded'&&state.loading===0){console.log('UDALL_NATIVE_FONT_READY '+JSON.stringify({phase,route:page.url(),...state}));return state;}
+      await new Promise(resolve=>setTimeout(resolve,25));
+    }
+    throw Error('Native font status wait retired');
+  })(),deadline]);}finally{retired=true;clearTimeout(timer);}
 }
 async function stylesReady(page){
   await page.waitForLoadState('load');
@@ -28,40 +35,41 @@ async function stylesReady(page){
     [...document.querySelectorAll('link[rel="stylesheet"]')].every(node=>node.sheet?.cssRules.length>0));
   await fontsReady(page,'styles-ready');
 }
-async function nativeFocus(page,locator){
+async function keyboardArrival(page,locator){
   const target=await locator.elementHandle();
-  const state=()=>target.evaluate(node=>{
-    const rect=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height});
-    const active=document.activeElement;
-    return {href:node.href,text:node.textContent,connected:node.isConnected,focused:node===active,
-      active:{tag:active?.tagName,id:active?.id,href:active?.href},box:rect(node.getBoundingClientRect()),
-      fragments:[...node.getClientRects()].map(rect),viewport:{width:innerWidth,height:innerHeight},
-      visual:visualViewport?{width:visualViewport.width,height:visualViewport.height,offsetTop:visualViewport.offsetTop,scale:visualViewport.scale}:null,
-      scroll:{x:scrollX,y:scrollY},ready:document.readyState,
-      appearance:document.documentElement.dataset.appearance,scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior};
-  });
-  const before=await state();
-  try{await locator.focus();await page.waitForFunction(node=>{const r=node?.getBoundingClientRect();
-    return node===document.activeElement&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;},target);}
-  catch(error){
-    let after,diagnosticError,keyboardProbe,keyboardProbeError;
-    try{after=await state();}catch(failure){diagnosticError=String(failure);}
-    // A separate two-key comparison preserves the original failed assertion.
-    // It never scrolls directly and cannot turn this failure into a pass.
-    try{
-      await page.keyboard.press('Shift+Tab');const previous=await state();
-      await page.keyboard.press('Tab');keyboardProbe={previous,returned:await state()};
-    }catch(failure){keyboardProbeError=String(failure);}
-    console.log('UDALL_NATIVE_FOCUS_FAILURE '+JSON.stringify({before,after,diagnosticError,keyboardProbe,keyboardProbeError}));
-    throw error;
-  }
-  finally{await target?.dispose();}
+  const route=page.url(),historyLength=await page.evaluate(()=>history.length);
+  const articleHref=await target.evaluate(node=>node.closest('#eastward-aftermath')?node.href:null);
+  const observationHref=base+'/dossier.html?event=udall-1955&observation='+observation+'#observation-'+observation;
+  const sourceHref=base+'/dossier.html?event=udall-1955&source='+source+'#source-'+source;
+  const predecessors=new Map([[original,observationHref],[caption,original],[sourceHref,caption],
+    [observationHref,base+'/udall.html#damage-and-aftermath']]);
+  let previous;
+  try{
+    // Seed a known sequential position. Visibility is accepted only after keys.
+    await locator.focus();assert.equal(await target.evaluate(node=>node.isConnected&&node===document.activeElement),true);
+    await page.keyboard.press('Shift+Tab');
+    previous=await target.evaluate(node=>({different:node!==document.activeElement,
+      tag:document.activeElement?.tagName,href:document.activeElement?.href}));
+    assert.equal(previous.different,true,'Shift+Tab leaves the intended control');
+    if(predecessors.has(articleHref))assert.equal(previous.href,predecessors.get(articleHref),'The exact article predecessor is retained');
+    await page.keyboard.press('Tab');
+    await page.waitForFunction(node=>{const r=node?.getBoundingClientRect();
+      return node===document.activeElement&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;},target);
+    assert.equal(page.url(),route,'Sequential keys do not navigate');
+    assert.equal(await page.evaluate(()=>history.length),historyLength,'Sequential keys do not change history');
+  }catch(error){
+    let state;
+    try{state=await target.evaluate(node=>{const r=node.getBoundingClientRect();return {text:node.textContent,href:node.href,
+      connected:node.isConnected,focused:node===document.activeElement,box:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},
+      viewport:{width:innerWidth,height:innerHeight},scroll:{x:scrollX,y:scrollY}};});}catch(failure){state={diagnostic_error:String(failure)};}
+    console.log('UDALL_KEYBOARD_ARRIVAL_FAILURE '+JSON.stringify({route,historyLength,previous,state}));throw error;
+  }finally{await target?.dispose();}
 }
 async function sourceAndArticle(page,kind){
   const key=kind==='source'?source:observation,id=kind+'-'+key;
   const citation=page.locator('#'+anchor+' a[href*="'+kind+'='+key+'"]');
   const href=await citation.evaluate(node=>node.href);
-  await nativeFocus(page,citation);await citation.press('Enter');
+  await keyboardArrival(page,citation);await citation.press('Enter');
   await waitForDossier(page,{href,elementId:id});
   const card=page.locator('#'+id);
   if(kind==='source'){
@@ -76,10 +84,10 @@ async function sourceAndArticle(page,kind){
     assert.match(await card.innerText(),/source links only/i);
   }
   const returnGroup=card.locator('details').filter({has:page.getByText('Continue in the current article',{exact:true})});
-  await nativeFocus(page,returnGroup.locator('summary'));await returnGroup.locator('summary').press('Enter');
+  await keyboardArrival(page,returnGroup.locator('summary'));await returnGroup.locator('summary').press('Enter');
   const back=returnGroup.locator('a[href="'+base+'/udall.html#'+anchor+'"]');
   assert.equal(await back.count(),1);
-  await nativeFocus(page,back);await back.press('Enter');
+  await keyboardArrival(page,back);await back.press('Enter');
   await page.waitForURL(url=>url.pathname.endsWith('/udall.html')&&url.hash==='#'+anchor);
   await stylesReady(page);
   await page.goBack();await waitForDossier(page,{href,elementId:id});
@@ -98,15 +106,16 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
       await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');
     }else{
       assert.equal(await page.locator('#reading-appearance').isDisabled(),true);
-      // This qualifies existing CSS themes, not an enabled no-script selector.
-      await page.locator('html').evaluate((node,value)=>node.dataset.appearance=value,scheme);
+      assert.equal(await page.locator('#reading-appearance').inputValue(),'system');
+      assert.equal(await page.locator('html').getAttribute('data-appearance'),null);
     }
-    assert.equal(await page.locator('html').getAttribute('data-appearance'),scheme);
+    if(scripts)assert.equal(await page.locator('html').getAttribute('data-appearance'),scheme);
+    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),scheme,'The actual theme reflects the selected or native system preference');
     assert.equal(await page.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches),true);
     const contents=page.locator('.documentary-contents'),summary=contents.locator(':scope > summary');
-    if(!await contents.evaluate(node=>node.open)){await nativeFocus(page,summary);await summary.press('Enter');}
+    if(!await contents.evaluate(node=>node.open)){await keyboardArrival(page,summary);await summary.press('Enter');}
     const entry=contents.locator('a[href="#'+anchor+'"]');assert.equal(await entry.count(),1);
-    if(width===320)await entry.tap();else{await nativeFocus(page,entry);await entry.press('Enter');}
+    if(width===320)await entry.tap();else{await keyboardArrival(page,entry);await entry.press('Enter');}
     await page.waitForURL(url=>url.hash==='#'+anchor);
     const scene=page.locator('#'+anchor);assert.equal(await scene.count(),1);
     assert.match(await scene.innerText(),/people, temporary canvas structures and vehicles/);
@@ -119,12 +128,12 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
       assert.match(await external.getAttribute('rel'),/\bnoreferrer\b/);
       assert.equal(await external.getAttribute('referrerpolicy'),'no-referrer');
       assert.equal(await external.getAttribute('download'),null);
-      await nativeFocus(page,external);
+      await keyboardArrival(page,external);
     }
     if(scripts){await sourceAndArticle(page,'observation');await sourceAndArticle(page,'source');}
     else{
       const link=scene.locator('a[href*="source='+source+'"]');
-      await nativeFocus(page,link);await link.press('Enter');await page.waitForURL('**/dossier.html?**');
+      await keyboardArrival(page,link);await link.press('Enter');await page.waitForURL('**/dossier.html?**');
       assert.equal(await page.locator('#documentary-js-required').isVisible(),true);
       assert.equal(await page.locator('#documentary-chapters a[href="udall.html"]').count(),1);
       await page.goBack();await page.waitForURL(url=>url.pathname.endsWith('/udall.html')&&url.hash==='#'+anchor);
@@ -132,7 +141,7 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
     }
     assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),scheme,'Computed theme survives the source-return journey');
     await assertReadingReflow(page,'Udall source-only reading '+width+' '+scheme);
-    if(!await contents.evaluate(node=>node.open)){await nativeFocus(page,summary);await summary.press('Enter');}
+    if(!await contents.evaluate(node=>node.open)){await keyboardArrival(page,summary);await summary.press('Enter');}
     const roles=['#'+anchor+' > p','#'+anchor+' > h3','.documentary-contents a[href="#'+anchor+'"]'];
     const baseline=await page.evaluate(selectors=>selectors.map(selector=>{
       const node=document.querySelector(selector),r=node.getBoundingClientRect();
@@ -146,7 +155,7 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
     const actual=await page.evaluate(selectors=>selectors.map(selector=>parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)),roles);
     assert.deepEqual(actual,baseline.map(row=>row.font*2),'Actual reading text, heading and contents double');
     await assertReadingReflow(page,'Udall enlarged source-only reading '+width+' '+scheme);
-    await nativeFocus(page,page.locator('#'+anchor+' a[href="'+original+'"]'));
+    await keyboardArrival(page,page.locator('#'+anchor+' a[href="'+original+'"]'));
     const paragraphs=await scene.locator('p').evaluateAll(nodes=>nodes.flatMap(node=>{
       const range=document.createRange();range.selectNodeContents(node);
       return [...range.getClientRects()].filter(r=>r.width>0).map(r=>({left:r.left,right:r.right}));
@@ -171,7 +180,7 @@ for(const width of [320,1280])test('Udall aftermath failed evidence keeps native
   await page.goto(base+'/udall.html#'+anchor);await stylesReady(page);
   let blocked=0;await page.route('**/archive/index.json',route=>{blocked++;return route.abort();});
   const citation=page.locator('#'+anchor+' a[href*="source='+source+'"]'),href=await citation.evaluate(node=>node.href);
-  await nativeFocus(page,citation);await citation.press('Enter');
+  await keyboardArrival(page,citation);await citation.press('Enter');
   await page.waitForFunction(()=>document.body?.dataset.ready==='error');
   assert.ok(blocked>0,'Failure reaches the real evidence loader');
   assert.equal(await page.getByRole('heading',{name:'Evidence unavailable',exact:true}).count(),1);
@@ -180,6 +189,6 @@ for(const width of [320,1280])test('Udall aftermath failed evidence keeps native
   assert.match(await page.locator('#'+anchor).innerText(),/photographer and item-specific reuse rights remain unresolved/);
   assert.equal(await page.locator('#'+anchor+' a[href="'+original+'"]').count(),1);
   await page.unroute('**/archive/index.json');
-  await citation.focus();await citation.press('Enter');await waitForDossier(page,{href,elementId:'source-'+source});
+  await keyboardArrival(page,citation);await citation.press('Enter');await waitForDossier(page,{href,elementId:'source-'+source});
   assert.match(await page.locator('#source-'+source).innerText(),/No image or derivative is hosted/);
 });
