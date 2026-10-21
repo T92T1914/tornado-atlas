@@ -11,11 +11,22 @@ const original='https://www.weather.gov/images/ict/wxstory/udall/east.jpg';
 const caption='https://www.weather.gov/ict/udall_pics1';
 const source='nws-wichita-udall-east',observation='eastward-aftermath-scene';
 const anchor='eastward-aftermath';
+async function fontsReady(page,phase){
+  console.log('UDALL_FONT_READINESS '+JSON.stringify({phase,route:page.url(),stage:'started'}));
+  let timer;
+  const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Native font readiness promise did not settle: '+phase)),10000);});
+  try{await Promise.race([(async()=>{
+    console.log('UDALL_FONT_READINESS '+JSON.stringify({phase,stage:'native-status',status:await page.evaluate(()=>document.fonts.status)}));
+    await page.evaluate(()=>document.fonts.ready.then(()=>true));
+  })(),deadline]);}
+  finally{clearTimeout(timer);}
+}
 async function stylesReady(page){
   await page.waitForLoadState('load');
+  console.log('UDALL_STYLES_READINESS '+JSON.stringify({phase:'loaded',route:page.url()}));
   await page.waitForFunction(()=>document.readyState==='complete'&&
     [...document.querySelectorAll('link[rel="stylesheet"]')].every(node=>node.sheet?.cssRules.length>0));
-  await page.evaluate(()=>document.fonts.ready.then(()=>true));
+  await fontsReady(page,'styles-ready');
 }
 async function nativeFocus(page,locator){
   const target=await locator.elementHandle();
@@ -33,9 +44,15 @@ async function nativeFocus(page,locator){
   try{await locator.focus();await page.waitForFunction(node=>{const r=node?.getBoundingClientRect();
     return node===document.activeElement&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;},target);}
   catch(error){
-    let after,diagnosticError;
+    let after,diagnosticError,keyboardProbe,keyboardProbeError;
     try{after=await state();}catch(failure){diagnosticError=String(failure);}
-    console.log('UDALL_NATIVE_FOCUS_FAILURE '+JSON.stringify({before,after,diagnosticError}));
+    // A separate two-key comparison preserves the original failed assertion.
+    // It never scrolls directly and cannot turn this failure into a pass.
+    try{
+      await page.keyboard.press('Shift+Tab');const previous=await state();
+      await page.keyboard.press('Tab');keyboardProbe={previous,returned:await state()};
+    }catch(failure){keyboardProbeError=String(failure);}
+    console.log('UDALL_NATIVE_FOCUS_FAILURE '+JSON.stringify({before,after,diagnosticError,keyboardProbe,keyboardProbeError}));
     throw error;
   }
   finally{await target?.dispose();}
@@ -125,7 +142,7 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
     await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')],
       sizes=nodes.map(node=>parseFloat(getComputedStyle(node).fontSize));
       nodes.forEach((node,index)=>node.style.fontSize=sizes[index]*2+'px');});
-    await page.evaluate(()=>document.fonts.ready.then(()=>true));
+    await fontsReady(page,'enlarged-text');
     const actual=await page.evaluate(selectors=>selectors.map(selector=>parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)),roles);
     assert.deepEqual(actual,baseline.map(row=>row.font*2),'Actual reading text, heading and contents double');
     await assertReadingReflow(page,'Udall enlarged source-only reading '+width+' '+scheme);
