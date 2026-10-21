@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "udall-1955",
-  "dossier_sha256": "9e17a19743779426b29248a0685472a4c747f3409e707ae4964d7d526ddc47ec",
+  "dossier_sha256": "ea29259561776155de0dce541ee11642c175258d8b6af476c5b143f1fed47bcf",
   "survey": null,
   "layers": {
     "geography": {
@@ -10,20 +10,21 @@
       "media": []
     },
     "appearance": {
-      "basis": "No historical appearance interval, registered camera, synchronized optical source or continuous footage is admitted. The regional forecast document and uninspected photograph-page captions do not establish a tornado silhouette.",
+      "basis": "No historical appearance interval, registered camera, synchronized optical source or continuous footage is admitted. The regional forecast document, inspected aftermath scene and remaining caption-only photograph leads do not establish a tornado silhouette.",
       "observations": [],
       "media": []
     },
     "damage": {
-      "basis": "Attributed historical damage account and the report authors\u2019 Phillips survey/radar continuity interpretation. These are reviewed report text, without a fresh site survey, scene-image inspection, calibrated local winds, exact collapse time or measured failure sequence. Skipped damage sections and coordinate disagreements remain explicit.",
+      "basis": "Attributed historical damage account, the report authors Phillips survey/radar continuity interpretation, and one completely inspected aftermath scene. The photograph documents visible activity and wreckage without identifying a named report building or aid function. No fresh site survey, calibrated wind, exact collapse or exposure time, or measured failure sequence. Skipped damage sections and coordinate disagreements remain explicit.",
       "observations": [
         "udall-damage-account",
-        "phillips-survey-continuity"
+        "phillips-survey-continuity",
+        "eastward-aftermath-scene"
       ],
       "media": []
     },
     "gaps": {
-      "basis": "The unmatched county boundary, intended and rejected endpoint comparisons, reported clock and injury differences, and unqualified image leads remain unresolved together. Null UTC and camera coordinates are retained. This classification links evidence already in the dossier; it adds no new measurement or permission.",
+      "basis": "The unmatched county boundary, intended and rejected endpoint comparisons, reported clock and injury differences, the inspected photograph unknowns, and remaining unqualified image leads stay explicit. Null UTC and camera coordinates remain. Classification links existing evidence without a new measurement or hosting grant.",
       "observations": [
         "kay-sumner-boundary",
         "endpoint-ambiguity-control",

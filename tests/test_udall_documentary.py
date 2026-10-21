@@ -15,7 +15,7 @@ WARNING_SHA = '8de7b776fc25c87834a9277c77c2a6b10939b4618984dbefe450e621584304a5'
 SOURCE_SHA = 'c503aadb9ca02fe8f9de0fa67e91218b02b4b8489af4f95c7cdc40d34c72c9cc'
 ANCHORS = ['damage-and-aftermath', 'regional-forecast', 'udall-regional-forecast', 'records',
            'boundary-and-identity', 'clocks-and-counts', 'original-images', 'remembrance',
-           'sources', 'assumed-experiments']
+           'sources', 'assumed-experiments', 'eastward-aftermath']
 # Frozen from the accepted five dossiers before adding Udall, not new generator output.
 PRESERVED_DOSSIERS = {
     'el-reno-2013': ('archive/el-reno-2013-854b56dffaf8720e27be.json', '7033875ffc69f083f131ddfb31136afab6d5af418e4d0bb9dbfa3d69b5c5b131'),
@@ -186,19 +186,24 @@ class UdallDocumentaryTests(unittest.TestCase):
         path = ROOT / 'web/archive/udall-1955-f9611c08821bb3e8852e.json'
         self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), 'a304c5cc3013cc17aa23497f70d79321ae523af62a22631a3baf937504f6e094')
         history = json.loads((ROOT / 'web' / entry['history_file']).read_bytes())
+        clarification = next(row for row in history['versions'] if row['dossier_sha256'] == '9e17a19743779426b29248a0685472a4c747f3409e707ae4964d7d526ddc47ec')
         current = next(row for row in history['versions'] if row['dossier_sha256'] == entry['dossier_sha256'])
-        self.assertEqual(current['review']['previous_dossier_sha256'], initial)
+        self.assertEqual(clarification['review']['previous_dossier_sha256'], initial)
+        self.assertEqual(current['review']['previous_dossier_sha256'], clarification['dossier_sha256'])
+        self.assertTrue(clarification['predecessor_available'])
         self.assertTrue(current['predecessor_available'])
-        self.assertEqual(current['changes'], [{'kind': 'observations', 'id': 'source-clock-disagreement',
+        self.assertEqual(clarification['changes'], [{'kind': 'observations', 'id': 'source-clock-disagreement',
                          'change': 'updated', 'fields': ['account', 'limits']}])
-        self.assertEqual(len(history['versions']), 2)
+        self.assertEqual(len(history['versions']), 3)
+        self.assertIn({'kind': 'sources', 'id': 'nws-wichita-udall-east', 'change': 'added', 'fields': []}, current['changes'])
+        self.assertIn({'kind': 'observations', 'id': 'eastward-aftermath-scene', 'change': 'added', 'fields': []}, current['changes'])
 
     def test_damage_coverage_links_report_context_without_geometry_admission(self):
         from atlas.archive import digest
         from atlas.evidence_coverage import layer_references
         refs = layer_references(ROOT, self.doc)
         self.assertIsNone(refs['survey'])
-        self.assertEqual(refs['damage']['observations'], ['udall-damage-account', 'phillips-survey-continuity'])
+        self.assertEqual(refs['damage']['observations'], ['udall-damage-account', 'phillips-survey-continuity', 'eastward-aftermath-scene'])
         self.assertEqual(refs['damage']['media'], [])
         self.assertEqual(refs['gaps']['observations'], ['kay-sumner-boundary', 'endpoint-ambiguity-control',
                          'source-clock-disagreement', 'injury-count-disagreement', 'original-image-limits'])
@@ -215,6 +220,43 @@ class UdallDocumentaryTests(unittest.TestCase):
                 self.assertEqual(entries[event_id]['file'], file)
                 self.assertEqual(entries[event_id]['file_sha256'], sha)
                 self.assertEqual(hashlib.sha256((ROOT / 'web' / file).read_bytes()).hexdigest(), sha)
+
+
+    def test_one_inspected_aftermath_view_keeps_links_rights_and_unknowns_separate(self):
+        source = next(row for row in self.doc['sources'] if row['id'] == 'nws-wichita-udall-east')
+        observation = next(row for row in self.doc['observations'] if row['id'] == 'eastward-aftermath-scene')
+        original = 'https://www.weather.gov/images/ict/wxstory/udall/east.jpg'
+        self.assertEqual(source['url'], original)
+        for literal in ['46541', '506 by 348', '7a06cb031bd0eb8d75f4d30f0d07ba969202ede2c2d840c1ff27a1ada29fb172']:
+            self.assertIn(literal, json.dumps(source))
+        self.assertEqual(observation['source_id'], source['id'])
+        self.assertEqual(observation['status']['assertion'], 'observed_sample')
+        self.assertEqual(observation['status']['rights'], 'links_only')
+        self.assertEqual(observation['status']['temporal'], 'unregistered')
+        self.assertEqual(observation['status']['spatial'], 'unregistered')
+        for role in ['capture', 'publication', 'video', 'alignment']:
+            self.assertIsNone(observation['time'][role])
+        self.assertIsNone(observation['place']['coordinates'])
+        self.assertIn('No person, aid organization, medical function or named report building', observation['limits'])
+        self.assertIn('No image or derivative is hosted', source['rights'])
+        self.assertIn('dead.jpg', source['locator'])
+        self.assertEqual(self.doc['provenance']['inputs']['research/udall-foundation-2026-10-19.md'],
+                         hashlib.sha256((ROOT / 'research/udall-foundation-2026-10-19.md').read_bytes()).hexdigest())
+        self.assertEqual(self.doc['provenance']['reviewed_on'], '2026-10-21')
+        self.assertEqual(self.doc['provenance']['foundation_reviewed_on'], '2026-10-19')
+        links = [attrs for tag, attrs in self.article.elements if tag == 'a' and attrs.get('href') == original]
+        self.assertEqual(len(links), 1)
+        self.assertIn('noreferrer', links[0]['rel'].split())
+        self.assertEqual(links[0]['referrerpolicy'], 'no-referrer')
+        self.assertNotIn('download', links[0])
+        self.assertFalse(any(tag in ['iframe', 'video', 'object', 'embed'] for tag, _ in self.article.elements))
+        # Accepted predecessor is independent evidence of the retained contracts.
+        previous = json.loads((ROOT / 'web/archive/udall-1955-9e17a19743779426b292.json').read_bytes())
+        for key in ['records', 'creators', 'media', 'reconstruction']:
+            self.assertEqual(self.doc[key], previous[key], key + ' remains unchanged')
+        self.assertNotIn('nws-wichita-udall-east', {row['id'] for row in previous['sources']})
+        self.assertIn('No complete aftermath photo pixels', next(row for row in previous['observations']
+                                                               if row['id'] == 'original-image-limits')['limits'])
 
 
 if __name__ == '__main__':
