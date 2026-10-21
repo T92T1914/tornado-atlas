@@ -19,7 +19,55 @@ function svgNode(tag, attributes, text) {
   if (text) element.textContent = text;
   return element;
 }
+function startupReaderPosition() {
+  let anchor = null;
+  const clear = () => { anchor = null; };
+  const sameRoute = () => location.pathname + location.hash;
+  const choose = event => {
+    if (!event.isTrusted) return;
+    const button = event.target.closest?.('[data-clip-action]');
+    if (event.type === 'pointerdown') {
+      anchor = event.isPrimary && event.button === 0 && button ? {button,route:sameRoute()} : null;
+    } else if (event.type === 'keydown') {
+      if (button && ['Enter',' '].includes(event.key)) anchor = {button,route:sameRoute()};
+      else clear();
+    }
+  };
+  const focusChanged = () => { if (anchor && document.activeElement !== anchor.button) clear(); };
+  const hidden = () => { if (document.hidden) clear(); };
+  const events = [
+    ['pointerdown',choose],['keydown',choose],['wheel',clear],['touchmove',clear],
+    ['pointercancel',clear],['focusin',focusChanged],['hashchange',clear],
+    ['popstate',clear],['resize',clear],['pagehide',clear],['visibilitychange',hidden],
+  ];
+  for (const [type,handler] of events) window.addEventListener(type,handler,{capture:true,passive:true});
+  return {
+    update(change) {
+      const owner = anchor;
+      const before = owner?.button.isConnected && owner.route === sameRoute()
+        ? owner.button.getBoundingClientRect() : null;
+      let failed = false;
+      try { return change(); }
+      catch (error) { failed = true; throw error; }
+      finally {
+        try {
+        // Late enhancements can grow above an independently usable clip.
+        // Correct only the residual movement after native scroll anchoring.
+        if (owner && anchor === owner && owner.button.isConnected && owner.route === sameRoute() && before?.width > 0 && before.height > 0 && before.bottom > 0 && before.top < innerHeight) {
+          const after = owner.button.getBoundingClientRect();
+          if (after.width > 0 && after.height > 0 && after.top !== before.top) window.scrollBy({top:after.top-before.top,behavior:'instant'});
+        }
+        } catch (error) { if (!failed) throw error; }
+      }
+    },
+    retire() {
+      clear();
+      for (const [type,handler] of events) window.removeEventListener(type,handler,true);
+    },
+  };
+}
 async function main() {
+  const layout = startupReaderPosition();
   const initialHash = location.hash;
   let ownsInitialFragment = true;
   const inputs = ['pointerdown','keydown','wheel','touchstart','hashchange','popstate','pagehide'];
@@ -36,12 +84,15 @@ async function main() {
   if (!response.ok) throw new Error('Interactive exploration is unavailable. The historical account, photographs and sources remain readable below. Reload to try the interactive tools again.');
   const data = await response.json();
   const { mountPhotoViewer, documentaryPhoto } = await import('./photo-view.mjs');
-  const openPhoto = mountPhotoViewer();
+  const openPhoto = layout.update(() => mountPhotoViewer());
   const exhibit = data.exhibit;
   const history = data.history;
-  const { mountCommunity } = await import('./community-view.mjs');
-  mountCommunity(data.community);
+  const creators = new Map(data.creators.map(c => [c.id, c]));
+  const notebook = data.notebook;
   const memorial = history.remembrance;
+  const { mountCommunity } = await import('./community-view.mjs');
+  layout.update(() => {
+  mountCommunity(data.community);
   // Reading is published from these same records. Enhance its original links
   // only after the viewer is available; otherwise ordinary navigation works.
   for (const anchor of document.querySelectorAll('[data-storm-photo]')) {
@@ -71,8 +122,6 @@ async function main() {
       event.preventDefault();openPhoto(documentaryPhoto(sample));
     });
   }
-  const creators = new Map(data.creators.map(c => [c.id, c]));
-  const notebook = data.notebook;
   byId('footage-title').textContent = notebook.title;
   byId('footage-introduction').textContent = notebook.introduction;
   byId('footage-timing').textContent = notebook.timing_note;
@@ -93,7 +142,9 @@ async function main() {
     card.append(details);
     byId('observations').append(card);
   }
+  });
   const { mountNotebookPhotographs } = await import('./notebook-view.mjs');
+  layout.update(() => {
   mountNotebookPhotographs(notebook, byId('observations'));
   for (const creator of data.creators) {
     const anchor = link(creator.name + ' ↗', creator.url);
@@ -118,28 +169,34 @@ async function main() {
   }
   byId('search').addEventListener('input', showVideos);
   showVideos();
+  });
   const { mountTimelineMedia } = await import('./timeline-media.mjs');
-  const updateMedia = mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto);
+  const updateMedia = layout.update(() => mountTimelineMedia(data.timeline_media, data.storm_photos, openPhoto));
   const {mountComparison,mountResearchLog} = await import('./documentary-view.mjs');
-  mountComparison(data.documentary.comparison);
+  layout.update(() => mountComparison(data.documentary.comparison));
   const { mountReader, mountReaderLayout } = await import('./reader-view.mjs');
   // Resolve the upstream responsive layout before playback becomes interactive.
-  mountReaderLayout();
-  const replay = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage, {points:data.survey.points,media:data.survey_media,openPhoto,lazy:true});
+  layout.update(() => mountReaderLayout());
+  const replay = await drawMap(data.geometry, history.chapters, updateMedia, data.cameras, memorial.places, data.documentary, data.timeline_media, data.footage, {points:data.survey.points,media:data.survey_media,openPhoto,lazy:true}, layout.update);
   const selectMinute = replay.selectMinute;
+  layout.update(() => {
   const mapTimes = new Map(data.geometry.features.filter(f => f.geometry.type === 'Point')
     .map(f => [Number(f.properties.source_name.split(':')[1]), f.properties.display_time]));
   mountReader(data.reading, history.chapters.map(chapter => ({...chapter, map_time:mapTimes.get(chapter.minute)})), selectMinute);
+  });
   const { mountDamage } = await import('./damage-view.mjs');
-  mountDamage(data.damage, openPhoto);
+  layout.update(() => mountDamage(data.damage, openPhoto));
   const { mountSurvey } = await import('./survey-view.mjs');
+  layout.update(() => {
   mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places,
     {beforeHistoryChange:replay.prepareSurveyHistory});
   mountResearchLog(data.documentary);
+  });
   const {mountReadingTools}=await import('./footage-view.mjs');
-  mountReadingTools(data.footage);
+  layout.update(() => mountReadingTools(data.footage));
   // A shared section link can arrive before the asynchronous exhibit is laid out.
   requestAnimationFrame(() => {
+    layout.update(() => {
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); }
     catch { id = null; }
@@ -148,13 +205,21 @@ async function main() {
     retireInitialFragment();
     document.body.dataset.exhibitReady = 'true';
     byId('enhancement-status').hidden = true;
+    });
+    layout.retire();
   });
   } catch (error) {
     retireInitialFragment();
-    throw error;
+    layout.update(() => {
+      document.body.dataset.exhibitReady = 'error';
+      byId('error').hidden = false;
+      byId('error').textContent = error.message;
+      byId('enhancement-status').textContent = 'Interactive exploration could not finish loading. The historical account, photographs and source links remain available. Reload to try again.';
+    });
+    layout.retire();
   }
 }
-async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage, photoContext) {
+async function drawMap(geojson, chapters, updateMedia, cameras, places, documentary, media, footage, photoContext, updateLayout) {
   // Resolve dependencies before exposing controls or focusable map positions.
   // The remaining setup is synchronous, so a slow module cannot leave a
   // usable-looking control whose handler still depends on uninitialized state.
@@ -167,6 +232,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     import('./documentary-view.mjs'), import('./footage-view.mjs'),
     import('./reconstruction-model.mjs'),
   ]);
+  return updateLayout(() => {
   const svg = byId('map');
   const features = geojson.features;
   const positions = features.filter(f => f.geometry.type === 'Point');
@@ -324,5 +390,6 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     stop(false);update();syncLocation();
   }
   return {selectMinute,prepareSurveyHistory};
+  });
 }
-main().catch(error => {document.body.dataset.exhibitReady='error';byId('error').hidden=false;byId('error').textContent=error.message;byId('enhancement-status').textContent='Interactive exploration could not finish loading. The historical account, photographs and source links remain available. Reload to try again.';});
+main();
