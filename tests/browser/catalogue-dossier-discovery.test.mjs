@@ -93,16 +93,48 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
     const museum=document.getElementById('museum'),grid=museum.querySelector('.museum-routes');
     const cards=[...grid.querySelectorAll(':scope > article')];
     const targets=[museum.querySelector('h1'),museum.querySelector('p'),...cards.map(n=>n.querySelector('h2'))];
-    const sizes=()=>targets.map(n=>({text:n.textContent.trim(),size:parseFloat(getComputedStyle(n).fontSize)}));
-    const before=sizes(),text=museum.textContent;
+    const sizes=()=>targets.map(n=>({text:n.textContent.trim(),size:parseFloat(getComputedStyle(n).fontSize),family:getComputedStyle(n).fontFamily}));
+    const before=sizes(),text=museum.textContent,fontsBefore=document.fonts.status;
     // Reproduce the failed acceptance operation: every body's descendant gets
     // twice its previously computed font size. No widths or overflow are altered.
     const nodes=[document.body,...document.body.querySelectorAll('*')];
     const original=nodes.map(n=>parseFloat(getComputedStyle(n).fontSize));
     nodes.forEach((n,i)=>n.style.fontSize=original[i]*2+'px');
     const box=n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return {left:r.left,right:r.right,width:r.width,client:n.clientWidth,scroll:n.scrollWidth,overflow:s.overflowX};};
+    const describe=n=>{
+      const r=n.getBoundingClientRect(),s=getComputedStyle(n);
+      return {node:(n.tagName+(n.id?'#'+n.id:'')+(n.className?'.'+String(n.className).replace(/\s+/g,'.'):'' )).slice(0,96),
+        bounds:[r.left,r.top,r.right,r.bottom],width:r.width,client:n.clientWidth,scroll:n.scrollWidth,
+        font_size:s.fontSize,font_family:s.fontFamily,font_weight:s.fontWeight,
+        min_width:s.minWidth,max_width:s.maxWidth,display:s.display,grid:s.gridTemplateColumns,
+        flex_wrap:s.flexWrap,white_space:s.whiteSpace,overflow:s.overflowX,overflow_wrap:s.overflowWrap,word_break:s.wordBreak};
+    };
+    const ancestors=n=>{const rows=[];for(let parent=n.parentElement;parent&&rows.length<2;parent=parent.parentElement)rows.push(describe(parent));return rows;};
+    const boxes=[],textRanges=[];let totalBoxes=0,totalTextRanges=0;
+    for(const node of nodes){
+      const r=node.getBoundingClientRect(),s=getComputedStyle(node);
+      if(r.width<=0||r.height<=0||s.display==='none'||s.visibility==='hidden')continue;
+      if(r.left< -1||r.right>innerWidth+1||node.scrollWidth>node.clientWidth+1){
+        totalBoxes++;if(boxes.length<16)boxes.push({element:describe(node),text:node.textContent.trim().slice(0,96),ancestors:ancestors(node)});
+      }
+    }
+    const textWalker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+    let textNode;while((textNode=textWalker.nextNode()))if(textNode.textContent.trim()){
+      const parent=textNode.parentElement,s=getComputedStyle(parent);if(s.display==='none'||s.visibility==='hidden')continue;
+      const range=document.createRange();range.selectNodeContents(textNode);
+      for(const r of range.getClientRects())if(r.width>0&&r.height>0&&(r.left< -1||r.right>innerWidth+1)){
+        totalTextRanges++;if(textRanges.length<16)textRanges.push({text:textNode.textContent.trim().slice(0,96),
+          bounds:[r.left,r.top,r.right,r.bottom],parent:describe(parent),ancestors:ancestors(parent)});
+      }
+    }
+    const overflowDiagnostic={scope:'All body DOM horizontal boxes and text fragments; computed family is not proof of a resolved native glyph font',
+      fonts:{ready_awaited_before_enlargement:true,before:fontsBefore,after:document.fonts.status,
+        faces:[...document.fonts].slice(0,16).map(face=>({family:face.family,status:face.status,weight:face.weight,style:face.style}))},
+      body:describe(document.body),museum:describe(museum),grid:describe(grid),
+      total_boxes:totalBoxes,box_records_omitted:Math.max(0,totalBoxes-boxes.length),boxes,
+      total_text_fragments:totalTextRanges,text_records_omitted:Math.max(0,totalTextRanges-textRanges.length),text_fragments:textRanges};
     return {viewport:innerWidth,document_width:document.documentElement.scrollWidth,
-      before,after:sizes(),text_preserved:museum.textContent===text,grid:box(grid),
+      before,after:sizes(),text_preserved:museum.textContent===text,grid:box(grid),overflow_diagnostic:overflowDiagnostic,
       cards:cards.map(card=>{
         const r=card.getBoundingClientRect(),s=getComputedStyle(card);
         const content={left:r.left+parseFloat(s.borderLeftWidth)+parseFloat(s.paddingLeft),
@@ -116,6 +148,17 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
         return {title:card.querySelector('h2').textContent.trim(),box:box(card),content,fragments};
       })};
   });
+  // Keep the deciding geometry even when an assertion below fails. The record
+  // covers the whole page because the enlargement changes the whole body.
+  const diagnostic={viewport:result.viewport,theme,document_width:result.document_width,
+    measured_fonts:result.after,cards:result.cards.map(card=>({title:card.title,box:card.box,content:card.content})),
+    ...result.overflow_diagnostic,max_json_bytes:49152};
+  while(Buffer.byteLength(JSON.stringify(diagnostic),'utf8')>diagnostic.max_json_bytes){
+    if(diagnostic.text_fragments.length){diagnostic.text_fragments.pop();diagnostic.text_records_omitted++;}
+    else if(diagnostic.boxes.length){diagnostic.boxes.pop();diagnostic.box_records_omitted++;}
+    else break;
+  }
+  t.diagnostic('CATALOGUE_STATIC_REFLOW_DIAGNOSTIC '+JSON.stringify(diagnostic));
   assert.equal(result.cards.length,5,'All five additional documentary account cards remain');
   assert.equal(result.text_preserved,true,'No documentary text was removed for reflow');
   result.before.forEach((before,i)=>{
@@ -133,8 +176,6 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
     assert.ok(card.fragments.length>0);
     for(const fragment of card.fragments)assert.ok(fragment.left>=card.content.left-1&&fragment.right<=card.content.right+1,JSON.stringify({title:card.title,content:card.content,fragment}));
   }
-  t.diagnostic(JSON.stringify({viewport:result.viewport,theme,document_width:result.document_width,
-    measured_fonts:result.after,cards:result.cards.map(card=>({title:card.title,width:card.box.width,text_fragments:card.fragments.length}))}));
 });
 
 const previewPhotos=JSON.parse(await readFile(new URL('../../exhibits/el-reno-2013/storm-photos.json',import.meta.url),'utf8'))
