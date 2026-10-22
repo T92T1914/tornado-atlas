@@ -12,6 +12,19 @@ automatically. `Search this area` stores the current rectangle as a filter until
 the reader replaces or removes it. Shared links preserve the rectangle without
 rounding its edges.
 
+Known-tornado names and the reviewed-exhibit filter connect the separately
+retained source rows to their accepted documentary accounts. This includes
+Blackwell's Dossier account without changing its coverage classification. A link
+to an article does not register a camera, merge county records or create a replay.
+
+The publisher checks `research/catalogue-dossier-links.json` against the accepted
+dossier memberships and `exhibits/events.json` before opening the catalogue or
+writing outputs. Unknown, conflicting or ambiguous article associations are
+refused. The older `research/record-aliases.json` remains byte-for-byte intact
+because the historical archive adapters bind that file's hash. Its existing names
+and association text remain in the effective catalogue annotations. Photograph
+associations keep their separate existing builder and permission scope.
+
 ## Map and list contract
 
 `explorer-model.mjs` contains position classification, area filtering, URL state

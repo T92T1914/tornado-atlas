@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import hashlib
+import copy
+import re
 import gzip
 import json
 import os
@@ -16,7 +18,12 @@ LAND_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/maste
 
 def json_bytes(data) -> bytes:
     """Plan the same UTF8 and terminating LF bytes used by publication writes."""
-    return (json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False) + '\n').encode('utf-8')
+    content = bytearray()
+    encoder = json.JSONEncoder(ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+    for chunk in encoder.iterencode(data):
+        content.extend(chunk.encode('utf-8'))
+    content.extend(b'\n')
+    return bytes(content)
 
 
 def write_json(path: Path, data) -> bytes:
@@ -50,6 +57,101 @@ def location_review(record: dict, reviews: dict) -> dict | None:
             or not review.get('reason')):
         raise ValueError(f"Location review is stale or incomplete: {record['id']}")
     return review
+
+
+def reviewed_catalogue_aliases(aliases: dict, links: dict, event_index: dict,
+                               reviewed_dossiers: list[dict]) -> dict:
+    """Reconcile catalogue reading routes without changing historical inputs."""
+    if (not isinstance(aliases, dict) or not isinstance(links, dict)
+            or set(links) != {'schema_version', 'associations'}
+            or type(links['schema_version']) is not int or links['schema_version'] != 1
+            or not isinstance(links['associations'], list)):
+        raise ValueError('Malformed catalogue dossier annotations')
+    routes = {}
+    destinations = set()
+    for event in event_index.get('events', []):
+        identifier, route = event.get('id'), event.get('documentary')
+        if (not isinstance(identifier, str) or not identifier or identifier in routes
+                or not isinstance(route, str)
+                or re.fullmatch(r'[a-z0-9][a-z0-9-]*\.html', route) is None
+                or route in destinations):
+            raise ValueError('Missing, duplicate or unsafe reviewed article route')
+        routes[identifier] = route
+        destinations.add(route)
+    accepted = {}
+    events = set()
+    for dossier in reviewed_dossiers:
+        event_id = dossier['id']
+        if event_id in events or event_id not in routes:
+            raise ValueError('Reviewed dossier has no unique article route')
+        events.add(event_id)
+        for record in dossier['records']:
+            if record['status'] != 'reviewed_association':
+                continue
+            identifier = record['id']
+            if identifier in accepted:
+                raise ValueError('Ambiguous or duplicate reviewed source association: ' + identifier)
+            if not isinstance(record['basis'], str) or not record['basis'].strip():
+                raise ValueError('Reviewed source association requires its retained basis')
+            accepted[identifier] = (event_id, routes[event_id], record['basis'])
+    result = copy.deepcopy(aliases)
+    assigned = set()
+    linked_events = set()
+    for association in links['associations']:
+        if (not isinstance(association, dict)
+                or set(association) != {'event_id', 'records', 'names'}):
+            raise ValueError('Malformed catalogue dossier association')
+        event_id = association['event_id']
+        identifiers, names = association['records'], association['names']
+        if (event_id not in events or event_id in linked_events
+                or not isinstance(identifiers, list) or not identifiers
+                or not isinstance(names, list) or not names
+                or any(not isinstance(name, str) or not name.strip() for name in names)):
+            raise ValueError('Catalogue association needs one reviewed event and literal names')
+        linked_events.add(event_id)
+        for identifier in identifiers:
+            if not isinstance(identifier, str) or identifier not in accepted:
+                raise ValueError('Catalogue annotation references an unreviewed source record')
+            if identifier in assigned or accepted[identifier][0] != event_id:
+                raise ValueError('Conflicting catalogue source association: ' + identifier)
+            assigned.add(identifier)
+            _, route, basis = accepted[identifier]
+            annotation = result.get(identifier, {})
+            if not isinstance(annotation, dict):
+                raise ValueError('Malformed retained catalogue annotation')
+            previous_names = annotation.get('names', [])
+            if (not isinstance(previous_names, list)
+                    or any(not isinstance(name, str) or not name.strip() for name in previous_names)):
+                raise ValueError('Retained catalogue names must be literal text')
+            if annotation.get('exhibit') not in (None, route):
+                raise ValueError('Conflicting retained article route: ' + identifier)
+            result[identifier] = {
+                **annotation, 'names': list(dict.fromkeys(previous_names + names)),
+                'exhibit': route, 'basis': annotation.get('basis', basis),
+            }
+    if assigned != set(accepted):
+        raise ValueError('Catalogue annotations do not cover every reviewed source association')
+    for identifier, annotation in result.items():
+        route = annotation.get('exhibit') if isinstance(annotation, dict) else None
+        if route is not None and (identifier not in accepted or route != accepted[identifier][1]):
+            raise ValueError('Article route has no accepted source association: ' + identifier)
+    return result
+
+
+def load_catalogue_aliases(root: Path = ROOT) -> dict:
+    # The legacy alias file is a hashed historical adapter input. Keep its bytes
+    # intact and apply catalogue-only annotations after checking accepted joins.
+    # Import locally because archive also imports publication's write helpers.
+    from .archive import dossiers
+    aliases = json.loads((root / 'research/record-aliases.json').read_text(encoding='utf-8'))
+    links = json.loads((root / 'research/catalogue-dossier-links.json').read_text(encoding='utf-8'))
+    event_index = json.loads((root / 'exhibits/events.json').read_text(encoding='utf-8'))
+    result = reviewed_catalogue_aliases(aliases, links, event_index, dossiers(root))
+    for annotation in result.values():
+        route = annotation.get('exhibit')
+        if route is not None and not (root / 'web' / route).is_file():
+            raise ValueError('Reviewed article file is unavailable: ' + route)
+    return result
 
 
 def select_index(record: dict, aliases: dict, detail_file: str, reviews: dict | None = None) -> dict:
@@ -114,11 +216,14 @@ def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict
         'spatial_scope': 'A marker is a reported start position, or explicitly labeled end fallback. No interpolated tracks.',
         'unmatched_aliases': unmatched, 'records': index,
     }
+    detail_count = len(groups)
+    # Narratives and detail payloads are no longer needed when encoding the index.
+    del records, groups, lookup, identifiers, group, encoded
     # Publish the index last, after all its immutable detail files exist.
-    index_bytes=(json.dumps(payload,ensure_ascii=False,separators=(',', ':'),allow_nan=False)+'\n').encode()
+    index_bytes = json_bytes(payload)
     write_bytes(destination/'index.json.gz',gzip.compress(index_bytes,mtime=0))
     write_bytes(destination/'index.json',index_bytes)
-    return {'records': count, 'detail_files': len(groups), 'unmatched_aliases': unmatched,
+    return {'records': count, 'detail_files': detail_count, 'unmatched_aliases': unmatched,
             'located': sum(record['point'] is not None for record in index)}
 
 
@@ -141,7 +246,7 @@ def export_land(destination: Path) -> dict:
 
 
 def build() -> dict:
-    aliases = json.loads((ROOT / 'research/record-aliases.json').read_text(encoding='utf-8'))
+    aliases = load_catalogue_aliases(ROOT)
     connection = connect()
     try:
         reviews = json.loads((ROOT / 'research/location-reviews.json').read_text(encoding='utf-8'))

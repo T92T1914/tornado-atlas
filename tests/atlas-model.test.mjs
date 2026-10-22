@@ -121,3 +121,6 @@ test('coverage never joins missing years into an apparent continuous range',()=>
   assert.equal(yearCoverage(['1950','2011','2013']),'1950, 2011, 2013');
   assert.equal(yearCoverage([1950,1952,1951,1955]),'1950–1952, 1955');
 });
+
+// Exercise the published fourteen-record contract in the existing CI entry.
+import './catalogue-dossier-discovery.test.mjs';
