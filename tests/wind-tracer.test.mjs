@@ -34,31 +34,46 @@ test('uniform eastward flow without swirl has an independently known straight tr
   near(point.x,-1+10/50*24);assert.equal(point.y,.3);
 });
 
-test('positive-background paths without a wholly core-contained orbit preserve midpoint behavior',()=>{
-  for(const background of [5,20,50])for(const start of [{x:1,y:0},{x:-1.5,y:1}]){
-    const field={peak:250*MPH,radius:50*FOOT,background:background*MPH},expected={...start},actual={...start};
-    for(let i=0;i<1;i++){
-      const dt=.04,wind=windAt(expected.x*field.radius,expected.y*field.radius,field);
-      const mx=expected.x+wind.u/field.radius*dt/2,my=expected.y+wind.v/field.radius*dt/2;
-      const midpoint=windAt(mx*field.radius,my*field.radius,field);
-      expected.x+=midpoint.u/field.radius*dt;expected.y+=midpoint.v/field.radius*dt;
-      advanceWindTracer(actual,field,dt);
-    }
-    // The outer/crossing approximation is preserved, not used as an oracle.
-    assert.deepEqual(actual,expected);
+// Independent normalized equations, without calling the production wind field.
+// Fixed fine RK4 steps are a numerical reference, not an exact historical path.
+function referencePath(start,field,elapsed,maxStep=.0001){
+  const a=field.peak/field.radius,b=field.background/field.peak;
+  const velocity=(x,y)=>{const r2=x*x+y*y,k=r2<=1?1:1/r2;return [a*(b-y*k),a*x*k];};
+  const n=Math.ceil(elapsed/maxStep),h=elapsed/n;let {x,y}=start;
+  for(let i=0;i<n;i++){
+    const p=velocity(x,y),q=velocity(x+h*p[0]/2,y+h*p[1]/2),r=velocity(x+h*q[0]/2,y+h*q[1]/2),s=velocity(x+h*r[0],y+h*r[1]);
+    x+=h*(p[0]+2*q[0]+2*r[0]+s[0])/6;y+=h*(p[1]+2*q[1]+2*r[1]+s[1])/6;
   }
-  // When B>V, no whole shifted circle fits, so all 60 advances are fallback.
-  for(const background of [20,50]){
-    const field={peak:10*MPH,radius:50*FOOT,background:background*MPH},expected={x:.1,y:.2},actual={...expected};
-    for(let i=0;i<60;i++){
-      const dt=.04,first=windAt(expected.x*field.radius,expected.y*field.radius,field);
-      const mx=expected.x+first.u/field.radius*dt/2,my=expected.y+first.v/field.radius*dt/2;
-      const middle=windAt(mx*field.radius,my*field.radius,field);
-      expected.x+=middle.u/field.radius*dt;expected.y+=middle.v/field.radius*dt;
-      advanceWindTracer(actual,field,dt);
-    }
-    assert.deepEqual(actual,expected);
+  return {x,y};
+}
+
+test('outer and core-crossing paths stay within one CSS pixel of independent refined positions',()=>{
+  const fields=[
+    [250,50,20,{x:-1.23,y:-.49}], [250,50,50,{x:.14,y:1.62}],
+    [250,50,20,{x:-.69,y:.70}], [250,50,50,{x:-.8,y:.6}],
+    [250,50,50,{x:-.8,y:-.6}], [250,50,5,{x:1.5,y:-.5}],
+    [10,50,50,{x:-.8,y:.6}], [100,2000,50,{x:1.2,y:-.4}]
+  ];
+  const scale=1320/7.7; // Conservative width bound, not a measured phone layout.
+  for(const [mph,feet,background,start] of fields)for(const dt of [1/60,1/30,.04]){
+    const field={peak:mph*.44704,radius:feet*.3048,background:background*.44704};
+    const steps=Math.round(24/dt),elapsed=steps*dt,point={...start};
+    for(let i=0;i<steps;i++)assert.equal(advanceWindTracer(point,field,dt),point);
+    const coarse=referencePath(start,field,elapsed,.0002),fine=referencePath(start,field,elapsed);
+    assert.ok(Math.hypot(coarse.x-fine.x,coarse.y-fine.y)*scale<.01,'Reference refinement must be smaller than the display criterion');
+    assert.ok(Math.hypot(point.x-fine.x,point.y-fine.y)*scale<=1,'Frozen mixed-flow position must remain within one CSS pixel at the width bound');
   }
+});
+
+test('the retained crossing witness rejects the old midpoint trajectory at a matched time',()=>{
+  const field={peak:250*.44704,radius:50*.3048,background:20*.44704},point={x:-.69,y:.70};
+  for(let i=0;i<542;i++)advanceWindTracer(point,field,.04);
+  // Pre-repair independent fine/coarse references agreed within3.23e-8 R.
+  // Original midpoint was (0.7576186405245422,0.8708428854418737).
+  const expected={x:-.5619046725811881,y:-.6580807130205372};
+  assert.ok(Math.hypot(point.x-expected.x,point.y-expected.y)*1320/7.7<=1);
+  const independent=referencePath({x:-.69,y:.70},field,21.68);
+  assert.ok(Math.hypot(independent.x-expected.x,independent.y-expected.y)*1320/7.7<.01);
 });
 
 test('positive-background core tracers follow an independently derived shifted-circle trajectory',()=>{
@@ -101,24 +116,24 @@ test('shifted equilibrium, very small swirl and nonrepresentable rotation have e
   assert.deepEqual(overflow,{x:.1,y:.2});
 });
 
-test('touching and intervening-crossing orbits cannot take the exact all-core branch',()=>{
-  // At (0,.6), B/V=.8 gives maximum r=1: the strict boundary is excluded.
-  const field={peak:100,radius:1,background:80},point={x:0,y:.6},expected={...point},dt=.04;
-  const first=windAt(expected.x,expected.y,field),mx=expected.x+first.u*dt/2,my=expected.y+first.v*dt/2;
-  const middle=windAt(mx,my,field);expected.x+=middle.u*dt;expected.y+=middle.v*dt;
-  advanceWindTracer(point,field,dt);assert.deepEqual(point,expected);
-  // Both exact endpoints are interior, but the intervening arc leaves the core.
+test('touching and intervening-crossing paths retain independent numerical controls',()=>{
+  // Preserve admission of the old, much faster API-only control. Its four
+  // radians per frame are outside the visitor controls and accuracy contract.
+  const wide={x:0,y:.6};assert.equal(advanceWindTracer(wide,{peak:100,radius:1,background:80},.04),wide);
+  assert.ok(Number.isFinite(wide.x)&&Number.isFinite(wide.y));
+  const field={peak:100*.44704,radius:50*.3048,background:50*.44704},start={x:0,y:1},point={...start};
+  advanceWindTracer(point,field,.04);
+  const reference=referencePath(start,field,.04,.00001);
+  assert.ok(Math.hypot(point.x-reference.x,point.y-reference.y)*1320/7.7<=1,'Supported touching path meets the same one CSS pixel criterion');
   const mixed={peak:100*.44704,radius:50*.3048,background:50*.44704},angle=mixed.peak/mixed.radius*.04,rho=.5001;
   const crossing={x:rho*Math.sin(angle/2),y:.5+rho*Math.cos(angle/2)},before={...crossing};
-  const exact={x:-before.x,y:before.y};
-  assert.ok(Math.hypot(before.x,before.y)<1&&Math.hypot(exact.x,exact.y)<1);
-  assert.ok(.5+rho>1,'the intermediate peak is outside despite both interior endpoints');
-  const a=windAt(before.x*mixed.radius,before.y*mixed.radius,mixed);
-  const mx2=before.x+a.u/mixed.radius*.04/2,my2=before.y+a.v/mixed.radius*.04/2;
-  const b=windAt(mx2*mixed.radius,my2*mixed.radius,mixed);
-  const expectedCrossing={x:before.x+b.u/mixed.radius*.04,y:before.y+b.v/mixed.radius*.04};
-  advanceWindTracer(crossing,mixed,.04);assert.deepEqual(crossing,expectedCrossing);
-  assert.ok(Math.hypot(crossing.x-exact.x,crossing.y-exact.y)>1e-6);
+  const invalidCircle={x:-before.x,y:before.y};
+  assert.ok(Math.hypot(before.x,before.y)<1&&Math.hypot(invalidCircle.x,invalidCircle.y)<1);
+  assert.ok(.5+rho>1,'The intervening circle would leave the core despite both interior endpoints');
+  advanceWindTracer(crossing,mixed,.04);
+  const actualReference=referencePath(before,mixed,.04,.00001);
+  assert.ok(Math.hypot(crossing.x-actualReference.x,crossing.y-actualReference.y)<1e-6);
+  assert.ok(Math.hypot(crossing.x-invalidCircle.x,crossing.y-invalidCircle.y)>1e-6,'An unqualified all-core circle must not replace the crossing field');
 });
 
 test('invalid steps fail before changing the existing marker',()=>{

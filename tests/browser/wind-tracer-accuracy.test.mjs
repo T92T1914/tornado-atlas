@@ -94,8 +94,24 @@ for(const width of [320,1280])for(const appearance of ['light','dark'])test('Win
   const start=await drawing(page);assert.equal(start.points.length,260,'The native canvas drew every passive marker');
   await page.locator('#wind-motion').focus();await page.keyboard.press('Enter');
   assert.equal(await page.locator('#wind-motion').textContent(),'Pause tracers');
-  const longWitness=width===320&&appearance==='dark',steps=longWitness?600:2;
-  await page.evaluate(steps=>{window.windAccuracyTest.step(0);for(let i=1;i<=steps;i++)window.windAccuracyTest.step(i*40);},steps);
+  const longWitness=width===320&&appearance==='dark',steps=600;
+  const mixedWitness=await page.evaluate(steps=>{
+    let witness;window.windAccuracyTest.step(0);
+    for(let i=1;i<=steps;i++){
+      window.windAccuracyTest.step(i*40);
+      if(i===542){
+        const canvas=document.getElementById('wind-field'),width=canvas.clientWidth,height=width/1.4,scale=height/5.5;
+        const [x,y]=window.windAccuracyTest.observed.points[9];
+        witness={x:(x-width/2)/scale,y:-(y-height/2)/scale,scale};
+      }
+    }
+    return witness;
+  },steps);
+  // Frozen before the repair: independently refined marker9 at21.68model seconds.
+  // Both reference and original paths stay within the recycle bounds for24s.
+  const mixedExpected={x:-.5619046725811881,y:-.6580807130205372};
+  const mixedError=Math.hypot(mixedWitness.x-mixedExpected.x,mixedWitness.y-mixedExpected.y)*mixedWitness.scale;
+  assert.ok(mixedError<=1,'Actual mixed-flow marker stays within one CSS pixel at the measured canvas scale: '+mixedError);
   const advanced=await drawing(page);assert.equal(advanced.points.length,260);
   assert.ok(advanced.frames>start.frames);assert.notDeepEqual(advanced.points,start.points);
   if(longWitness){
