@@ -25,19 +25,25 @@ function startupReaderPosition() {
   const sameRoute = () => location.pathname + location.hash;
   const choose = event => {
     if (!event.isTrusted) return;
-    const button = event.target.closest?.('[data-clip-action]');
+    const button = event.target.closest?.('[data-clip-action],a[href]');
     if (event.type === 'pointerdown') {
       anchor = event.isPrimary && event.button === 0 && button ? {button,route:sameRoute()} : null;
     } else if (event.type === 'keydown') {
-      if (button && ['Enter',' '].includes(event.key)) anchor = {button,route:sameRoute()};
+      if (button && (event.key === 'Enter' || event.key === ' ' && button.matches('[data-clip-action]'))) anchor = {button,route:sameRoute()};
       else clear();
     }
   };
+  const nativeLink = () => anchor?.button.matches('a[href]');
+  const sourceMoved = event => {
+    if (nativeLink() && document.elementFromPoint(event.clientX,event.clientY)?.closest('a[href]') !== anchor.button) clear();
+  };
+  const sourceActivated = () => { if (nativeLink()) clear(); };
   const focusChanged = () => { if (anchor && document.activeElement !== anchor.button) clear(); };
   const hidden = () => { if (document.hidden) clear(); };
   const events = [
     ['pointerdown',choose],['keydown',choose],['wheel',clear],['touchmove',clear],
-    ['pointercancel',clear],['focusin',focusChanged],['hashchange',clear],
+    ['pointercancel',clear],['pointermove',sourceMoved],['click',sourceActivated],
+    ['focusin',focusChanged],['hashchange',clear],
     ['popstate',clear],['resize',clear],['pagehide',clear],['visibilitychange',hidden],
   ];
   for (const [type,handler] of events) window.addEventListener(type,handler,{capture:true,passive:true});
@@ -51,7 +57,7 @@ function startupReaderPosition() {
       catch (error) { failed = true; throw error; }
       finally {
         try {
-        // Late enhancements can grow above an independently usable clip.
+        // Late enhancements can grow above an independently usable source.
         // Correct only the residual movement after native scroll anchoring.
         if (owner && anchor === owner && owner.button.isConnected && owner.route === sameRoute() && before?.width > 0 && before.height > 0 && before.bottom > 0 && before.top < innerHeight) {
           const after = owner.button.getBoundingClientRect();
