@@ -7,7 +7,19 @@ for(const width of [320,1280])for(const scheme of ['light','dark'])test('Illustr
  const page=await fixture(t,{viewport:{width,height:900},colorScheme:scheme,reducedMotion:'reduce',serviceWorkers:'block'});
  await page.addInitScript(()=>localStorage.setItem('tornado-atlas-appearance','system'));
  await page.goto(base+'/study.html?event=el-reno-2013');
- await page.locator('#motion:not([disabled])').waitFor();await page.locator('#scene').scrollIntoViewIfNeeded();await page.evaluate(()=>document.fonts.ready);
+ await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden);
+ const available=await page.locator('#scene').evaluate(canvas=>Boolean(canvas.getContext('webgl2')));
+ if(!available){
+  assert.equal(await page.locator('#motion').isDisabled(),true);
+  assert.equal(await page.locator('#scene-failure').isVisible(),true);
+  assert.equal(await page.locator('#motion-status').textContent(),'WebGL 2 is unavailable');
+  assert.equal(await page.locator('#scene-failure-return').getAttribute('href'),'atlas.html');
+  assert.equal(await page.locator('#scene-failure-return').isVisible(),true);
+  t.skip('Actual WebGL2 material is unverified in this engine. Exact unavailable diagnosis and documentary return remain available.');return;
+ }
+ assert.equal(await page.locator('#motion').isEnabled(),true);
+ assert.equal(await page.locator('#scene-failure').isVisible(),false);
+ await page.locator('#scene').scrollIntoViewIfNeeded();await page.evaluate(()=>document.fonts.ready);
  const initial=await page.evaluate(()=>({event:new URL(location.href).searchParams.get('event'),history:history.length,time:document.getElementById('sequence-time').value,coverage:document.getElementById('scene').dataset.appearanceCoverage}));
  await page.locator('#scene').evaluate(canvas=>{
   const gl=canvas.getContext('webgl2');if(!gl)throw Error('Actual WebGL2 required');
