@@ -28,7 +28,7 @@ damage-rating output. The
 [NWS EF-scale explanation](https://www.weather.gov/oun/efscale) describes why
 damage indicators and degrees of damage are part of an actual rating.
 
-The visible dots are passive markers. With zero background, their paths use the exact circular solution of this stated field. With positive background, a marker follows an exact shifted circle when that entire circle lies strictly inside the core. Other paths retain the midpoint approximation, including any orbit that can cross the core boundary. The animation step is bounded to 0.04 seconds and does not catch up a longer frame gap. This does not solve fluid dynamics. Colors
+The visible dots are passive markers. With zero background, their paths use the exact circular solution of this stated field. With positive background, a marker follows an exact shifted circle when that entire circle lies strictly inside the core. Other paths use fourth-order Runge-Kutta with bounded substeps, including paths that can cross the core boundary. A frame is divided at a nominal swirl angle of 0.04 radians, up to eight substeps at the supported slider limits. The wider helper input range has the same fixed work cap, without an accuracy guarantee outside those controls. The animation step is bounded to 0.04 seconds and does not catch up a longer frame gap. This does not solve fluid dynamics. Colors
 are normalized to the current velocity settings and therefore do not form
 a fixed wind-speed scale across different experiments. Motion starts paused,
 stops when hidden, and does not catch up a hidden-tab time gap.
