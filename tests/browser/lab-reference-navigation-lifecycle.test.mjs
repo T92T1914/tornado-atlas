@@ -7,7 +7,7 @@ import {observeLabReferenceNavigation} from './lab-reference-navigation-diagnost
 // Existing published copy, independently pinned before this diagnostic increment.
 const MOORE={asset:'assets/moore-2013/IMG_9287-800.jpg',bytes:339582,
   sha256:'f10b6b33fbcecd2c228632d2d681bbef47e58876246b753a04721dda3a58c6bb',
-  width:800,height:533,revision:'b871ef828cd8a1c475bc73722264a178d63deb9266d9ecb4d699eb5c636c9b7c'};
+  width:800,height:533,revision:'5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85'};
 const CANCELLED_FULFILL=/Target page, context or browser has been closed|Request with the provided ID does not exist|Invalid InterceptionId|No resource with given identifier|interception.*(?:not found|cancelled|canceled)|request.*(?:cancelled|canceled|aborted)|Route is already handled/i;
 const smallError=error=>({name:String(error.name).slice(0,64),message:String(error.message).slice(0,256)});
 function deferred(){let resolve;const promise=new Promise(value=>{resolve=value;});return {promise,resolve};}

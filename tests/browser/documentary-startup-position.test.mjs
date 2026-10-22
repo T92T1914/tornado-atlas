@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {writeFile} from 'node:fs/promises';
+import {readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
 
@@ -66,11 +66,26 @@ for(const mode of ['settled-pointer','early-held-pointer','early-keyboard','earl
  }
 });
 
-for (const choice of ['wheel','keyboard-focus','pagehide']) test('documentary startup yields to newer '+choice, {timeout:22000}, async t => {
+// Force a declared late layout change inside the real startup update. The
+// opening film no longer depends on large upstream content being inserted.
+const readerSource=await readFile(new URL('../../web/reader-view.mjs',import.meta.url),'utf8');
+const readerLayout='export function mountReaderLayout() {';
+assert.equal(readerSource.split(readerLayout).length,2);
+const expandedReaderSource=readerSource.replace(readerLayout,readerLayout+`
+ const clip=document.getElementById('bohac-opening-motion');
+ const spacer=document.createElement('div');
+ spacer.id='controlled-late-reader-expansion';
+ spacer.setAttribute('aria-hidden','true');
+ spacer.style.height='1200px';
+ const before=clip.getBoundingClientRect().top;
+ clip.before(spacer);
+ window.__atlasLateLayoutControl={declared_height:1200,actual_height:spacer.getBoundingClientRect().height,shift:clip.getBoundingClientRect().top-before};
+`);
+for (const choice of ['keep-reader','wheel','keyboard-focus','pagehide']) test('documentary startup '+(choice==='keep-reader'?'preserves its current reader':'yields to newer '+choice), {timeout:22000}, async t => {
  const page = await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});
  let release, markHeld;
  const held = new Promise(resolve => markHeld = resolve), gate = new Promise(resolve => release = resolve);
- await page.route('**/reader-view.mjs',async route => {markHeld();await gate;await route.continue();});
+ await page.route('**/reader-view.mjs',async route => {markHeld();await gate;await route.fulfill({status:200,contentType:'text/javascript',body:expandedReaderSource});});
  try {
   await page.goto(base+'/index.html#bohac-opening-motion');await held;
   await page.addStyleTag({content:'html,body{overflow-anchor:none!important}'});
@@ -86,9 +101,16 @@ for (const choice of ['wheel','keyboard-focus','pagehide']) test('documentary st
   const before=await button.evaluate(n=>({top:n.getBoundingClientRect().top,scroll:scrollY}));
   release();await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
   const after=await button.evaluate(n=>({top:n.getBoundingClientRect().top,scroll:scrollY}));
-  t.diagnostic(JSON.stringify({choice,before,after,scope:choice==='pagehide'?'Synthetic lifecycle retirement control, not a real BFCache restoration':'Trusted input and actual startup layout'}));
-  assert.ok(after.top-before.top>1000,'The retired reading anchor does not override the newer choice');
-  assert.equal(after.scroll,before.scroll,'Startup adds no scroll after ownership is retired');
+  const growth=await page.evaluate(()=>window.__atlasLateLayoutControl);
+  assert.equal(growth.declared_height,1200);assert.equal(growth.actual_height,1200);assert.equal(growth.shift,1200);
+  t.diagnostic(JSON.stringify({choice,before,after,growth,scope:'Controlled 1200 pixel late reader expansion inside the real startup update. Native input except the explicitly synthetic pagehide lifecycle control.'}));
+  if(choice==='keep-reader'){
+   assert.ok(Math.abs(after.top-before.top)<=1,'The current reader retains its visible control through the declared late growth');
+   assert.ok(after.scroll-before.scroll>1000,'The positive control exercises actual startup scroll compensation');
+  }else{
+   assert.ok(after.top-before.top>1000,'The retired reading anchor does not override the newer choice');
+   assert.equal(after.scroll,before.scroll,'Startup adds no scroll after ownership is retired');
+  }
   assert.equal(await page.locator('[data-documentary-clip]').evaluate(v=>v.currentTime),0);
  } finally {release?.();}
 });

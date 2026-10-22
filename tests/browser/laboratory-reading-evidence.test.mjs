@@ -37,7 +37,7 @@ const references=[
   rights:['CC BY4.0','Mike Wilhelm','John Brown','does not license the complete original recordings'],
   limits:['estimated','two credited films','not verified capture UTC'],version:'All panels, printed letters, arrows and time labels preserved'},
  {event:'moore-2013',media:'moore-medical-center-survey',source:'nws-event-hub',
-  revision:'b871ef828cd8a1c475bc73722264a178d63deb9266d9ecb4d699eb5c636c9b7c',
+  revision:'5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85',
   asset:'assets/moore-2013/IMG_9287-800.jpg',sha:'f10b6b33fbcecd2c228632d2d681bbef47e58876246b753a04721dda3a58c6bb',width:800,height:533,
   original:'https://www.weather.gov/oun/events-20130520',item:'https://www.weather.gov/images/oun/wxevents/20130520/photos/damage/IMG_9287-800.jpg',
   story:'moore.html#survey-photographs',role:/Following-day survey photograph, not a storm-time view/,credit:'creator: Doug Speheger',
@@ -163,7 +163,10 @@ async function capture(page,name){
 async function figureKeys(page){
  const gradient=await page.locator('.wind-key i').evaluate(node=>getComputedStyle(node).backgroundImage);
  const stops=gradient.match(/rgb\(\d+,\s*\d+,\s*\d+\)/g)?.map(s=>s.replace(/\s/g,''))??[];
- assert.deepEqual(stops,['rgb(65,127,139)','rgb(231,182,121)'],'The relative field key has the literal renderer endpoints and no unrelated pale midpoint');
+ const scheme=await page.locator('html').evaluate(node=>getComputedStyle(node).colorScheme);
+ assert.ok(['dark','light'].includes(scheme));
+ const expected=scheme==='dark'?['rgb(164,164,164)','rgb(244,244,244)']:['rgb(100,98,92)','rgb(36,36,36)'];
+ assert.deepEqual(stops,expected,'The relative field key has the reviewed appearance endpoints and no unrelated midpoint');
  assert.match(await page.locator('.wind-key small').innerText(),/relative.*not EF ratings/);
  for(const [figure,explanation,terms] of [
   ['passage-plan','passage-plan-reading',['center travels east','12 core radii','fixed probe']],

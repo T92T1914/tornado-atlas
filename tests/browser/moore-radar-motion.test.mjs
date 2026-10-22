@@ -152,6 +152,17 @@ for(const [width,scheme]of [[320,'dark'],[1280,'light']])test('Moore retired ani
  const page=await fixture(t,{viewport:{width,height:900},colorScheme:scheme,reducedMotion:'reduce',serviceWorkers:'block'}),item=items[0];
  await page.addInitScript(()=>{
   const descriptor=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');window.retiredRadarAttempts=[];
+  const cloneNode=HTMLImageElement.prototype.cloneNode;window.retiredRadarClones=[];
+  HTMLImageElement.prototype.cloneNode=function(deep){
+   if(this.getAttribute('src')?.endsWith('/newcastle-moore-ref-poster.png')){
+    // A controlled pending image must have no native poster load in flight.
+    // WebKit can otherwise deliver the cloned poster's cached load event.
+    const image=document.createElement('img');
+    for(const {name,value} of this.attributes)if(name!=='src'&&name!=='srcset')image.setAttribute(name,value);
+    window.retiredRadarClones.push(image);return image;
+   }
+   return cloneNode.call(this,deep);
+  };
   Object.defineProperty(HTMLImageElement.prototype,'src',{...descriptor,set(value){
    if(new URL(String(value),location.href).pathname.endsWith('/newcastle-moore-ref.gif')){
     window.retiredRadarAttempts.push({image:this,load:this.onload,error:this.onerror});return;
@@ -164,6 +175,8 @@ for(const [width,scheme]of [[320,'dark'],[1280,'light']])test('Moore retired ani
  await button.click();assert.equal(await page.evaluate(()=>window.retiredRadarAttempts.length),1);
  await button.click();await stopped(page,item);
  await button.click();assert.equal(await page.evaluate(()=>window.retiredRadarAttempts.length),2);
+ assert.equal(await page.evaluate(()=>window.retiredRadarClones.length),2);
+ assert.equal(await page.evaluate(()=>window.retiredRadarAttempts.every(row=>row.image.getAttribute('src')===null)),true,'Controlled pending images cannot receive native poster completion');
  const pending=await status(page,item).textContent();assert.match(pending,/Loading/);
  await page.evaluate(()=>{const old=window.retiredRadarAttempts[0];old.load.call(old.image);old.error.call(old.image);});
  assert.equal(await status(page,item).textContent(),pending);assert.equal(await button.getAttribute('aria-pressed'),'true');
