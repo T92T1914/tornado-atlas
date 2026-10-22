@@ -7,7 +7,7 @@ import {mountExplorerMap} from '../web/explorer-map.mjs';
 function harness(t) {
   const saved=new Map(), replace=(key,value)=>{saved.set(key,globalThis[key]);globalThis[key]=value;};
   t.after(()=>{for(const [key,value] of saved)if(value===undefined)delete globalThis[key];else globalThis[key]=value;});
-  const groups=[],tiles=[],statuses=[],invalidations=[],pans=[],timers=new Map();
+  const groups=[],tiles=[],statuses=[],invalidations=[],pans=[],views=[],timers=new Map();
   const reduced={matches:false};
   let resizeCallback,mediaCallback,nextTimer=0;
   const narrow={matches:false,addEventListener(_,callback){mediaCallback=callback;}};
@@ -15,10 +15,10 @@ function harness(t) {
   const evented=()=>({events:{},on(name,fn){this.events[name]=fn;return this;},emit(name){this.events[name]?.();}});
   const map={...evented(),dragging:{enabled:true,enable(){this.enabled=true;},disable(){this.enabled=false;}},
     attributionControl:{setPrefix(){},addAttribution(){}},createPane(){},getPane(){return {style:{}};},
-    getPixelBounds(){return {min:{x:-180,y:-90},max:{x:180,y:90}};},zoom:4,getZoom(){return this.zoom;},
+    getPixelBounds(){return {min:{x:-180,y:-90},max:{x:180,y:90}};},zoom:4,center:{lat:38,lng:-97},size:{x:800,y:500},getZoom(){return this.zoom;},getCenter(){return {...this.center};},getSize(){return {...this.size};},
     project(point,zoom){if(zoom===0){const sin=Math.sin(point[0]*Math.PI/180);return {x:256*(point[1]+180)/360,y:128-64*Math.log((1+sin)/(1-sin))/Math.PI};}return {x:point[1],y:point[0]};},unproject(point){return point;},
     getScaleZoom(scale,from){return from+Math.log2(scale);},setMinZoom(value){this.minimum=value;this.zoom=Math.max(this.zoom,value);},
-    setView(point,zoom){this.zoom=Math.max(this.minimum,zoom);return this;},panBy(offset,options){pans.push({offset,options});return this;},invalidateSize(options){invalidations.push(options);}};
+    setView(point,zoom){this.center=Array.isArray(point)?{lat:point[0],lng:point[1]}:{...point};this.zoom=Math.max(this.minimum,zoom);this.emit('moveend');return this;},panBy(offset,options){pans.push({offset,options});return this;},invalidateSize(options){invalidations.push(options);this.size={x:host.clientWidth,y:host.clientHeight};this.emit('moveend');}};
   const element=()=>({dataset:{},setAttribute(){}});
   const marker=()=>({addTo(group){group.layers.push(this);return this;},on(){return this;},bindTooltip(){return this;},getElement:element});
   const L={map:()=>map,control:{scale:()=>({addTo(){}})},
@@ -29,14 +29,16 @@ function harness(t) {
   replace('ResizeObserver',class{constructor(callback){resizeCallback=callback;}observe(){}});
   replace('fetch',async()=>({ok:true,json:async()=>({type:'FeatureCollection',features:[]})}));
   replace('setTimeout',fn=>{timers.set(++nextTimer,fn);return nextTimer;});replace('clearTimeout',id=>timers.delete(id));
-  const ui=mountExplorerMap(host,{onSelect(){},onGroup(){},onView(){},onCount(){},onStatus:text=>statuses.push(text)});
-  return {ui,map,groups,tiles,statuses,host,invalidations,pans,reduced,timers,resize:()=>resizeCallback(),narrow:matches=>{narrow.matches=matches;mediaCallback();}};
+  const ui=mountExplorerMap(host,{onSelect(){},onGroup(){},onView(){views.push([map.getCenter().lat,map.getCenter().lng,map.getZoom()]);},onCount(){},onStatus:text=>statuses.push(text)});
+  return {ui,map,groups,tiles,statuses,host,invalidations,pans,views,reduced,timers,resize:()=>resizeCallback(),narrow:matches=>{narrow.matches=matches;mediaCallback();}};
 }
 
 test('hidden panels do not invalidate a useful map size and reopening preserves its center',t=>{
   const h=harness(t);h.host.clientWidth=0;h.resize();h.ui.resize();assert.equal(h.invalidations.length,0);
+  h.ui.setView([36.72004,-97.28016,12]);h.views.length=0;
   h.host.clientWidth=390;h.resize();assert.equal(h.invalidations.length,1);
-  assert.notEqual(h.invalidations[0].pan,false);
+  assert.deepEqual(h.ui.view(),[36.72004,-97.28016,12]);
+  assert.deepEqual(h.views,[[36.72004,-97.28016,12]],'Only the final retained view is published');
 });
 test('narrow screens disable implicit dragging while an explicit choice survives resizing',t=>{
   const h=harness(t);h.narrow(true);assert.equal(h.map.dragging.enabled,false);
@@ -84,4 +86,15 @@ test('hidden map keeps its floor and valid close views survive visible resize',t
   h.host.clientWidth=0;h.host.clientHeight=0;h.resize();assert.equal(h.map.minimum,floor);assert.equal(h.map.getZoom(),12);
   h.host.clientWidth=3160;h.host.clientHeight=1048;h.resize();assert.equal(h.map.getZoom(),12);
   h.ui.setView([0,0,0]);assert.equal(h.map.getZoom(),h.map.minimum);
+});
+
+test('unchanged size retains the exact current view without publishing a resize',t=>{
+  const h=harness(t);h.ui.setView([36.72004,-97.28016,12]);h.views.length=0;h.resize();h.ui.resize();
+  assert.equal(h.invalidations.length,0);assert.deepEqual(h.views,[]);assert.deepEqual(h.ui.view(),[36.72004,-97.28016,12]);
+});
+test('a failed resize preserves the original error and releases publication ownership',t=>{
+  const h=harness(t),original=h.map.invalidateSize,error=new Error('controlled resize failure');h.host.clientHeight=511;
+  h.map.invalidateSize=()=>{throw error;};assert.throws(()=>h.resize(),actual=>actual===error);
+  h.map.invalidateSize=original;h.views.length=0;h.ui.setView([35,-98,10]);
+  assert.deepEqual(h.views,[[35,-98,10]]);
 });
