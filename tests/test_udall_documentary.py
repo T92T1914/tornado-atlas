@@ -217,9 +217,27 @@ class UdallDocumentaryTests(unittest.TestCase):
         entries = {row['id']: row for row in self.index['events']}
         for event_id, (file, sha) in PRESERVED_DOSSIERS.items():
             with self.subTest(event=event_id):
-                self.assertEqual(entries[event_id]['file'], file)
-                self.assertEqual(entries[event_id]['file_sha256'], sha)
                 self.assertEqual(hashlib.sha256((ROOT / 'web' / file).read_bytes()).hexdigest(), sha)
+                if event_id != 'moore-2013':
+                    self.assertEqual(entries[event_id]['file'], file)
+                    self.assertEqual(entries[event_id]['file_sha256'], sha)
+                    continue
+                entry = entries[event_id]
+                self.assertEqual(entry['file'], 'archive/moore-2013-5ed36647a0e6141f8dde.json')
+                self.assertEqual(entry['file_sha256'], '0716a3b07a3b171686e9cf9b14f780327efc64b7074fcaddc379d59d1ba9a889')
+                self.assertEqual(hashlib.sha256((ROOT / 'web' / entry['file']).read_bytes()).hexdigest(), entry['file_sha256'])
+                history = json.loads((ROOT / 'web' / entry['history_file']).read_bytes())
+                versions = {row['dossier_sha256']: row for row in history['versions']}
+                original = 'b871ef828cd8a1c475bc73722264a178d63deb9266d9ecb4d699eb5c636c9b7c'
+                radar = '236d024c20e2f9a3ce709b22d828c6c3039d51575941d00ee700571e3dbda5fd'
+                current = '5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85'
+                self.assertEqual(entry['dossier_sha256'], current)
+                self.assertEqual(versions[original]['file'], file)
+                self.assertEqual(versions[original]['file_sha256'], sha)
+                self.assertEqual(versions[radar]['review']['previous_dossier_sha256'], original)
+                self.assertEqual(versions[current]['review']['previous_dossier_sha256'], radar)
+                self.assertTrue(versions[radar]['predecessor_available'])
+                self.assertTrue(versions[current]['predecessor_available'])
 
 
     def test_one_inspected_aftermath_view_keeps_links_rights_and_unknowns_separate(self):
