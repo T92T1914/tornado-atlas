@@ -13,7 +13,7 @@ for(const width of [320,1280])for(const scheme of ['light','dark'])test('Illustr
   assert.equal(await page.locator('#motion').isDisabled(),true);
   assert.equal(await page.locator('#scene-failure').isVisible(),true);
   assert.equal(await page.locator('#motion-status').textContent(),'WebGL 2 is unavailable');
-  assert.equal(await page.locator('#scene-failure-return').getAttribute('href'),'atlas.html');
+  assert.equal(await page.locator('#scene-failure-return').getAttribute('href'),'index.html#photos');
   assert.equal(await page.locator('#scene-failure-return').isVisible(),true);
   t.skip('Actual WebGL2 material is unverified in this engine. Exact unavailable diagnosis and documentary return remain available.');return;
  }
