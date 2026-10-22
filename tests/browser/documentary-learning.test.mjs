@@ -11,11 +11,12 @@ for(const width of [320,1280])test('controlled documentary motion and source jou
  await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
  const contents=page.locator('#exhibit-contents');
  if(!await contents.evaluate(n=>n.open))await page.locator('#article-contents').click();
- const motionLink=contents.getByRole('link',{name:'Watch the four-second passage',exact:true});
+ const motionLink=contents.getByRole('link',{name:'Watch four seconds of the original film',exact:true});
  await motionLink.focus();await page.keyboard.press('Enter');
  await page.waitForURL(u=>u.hash==='#bohac-opening-motion');
  const region=page.locator('#bohac-opening-motion'),video=region.locator('video');
- assert.equal(await region.evaluate(n=>n.parentElement.id),'photos');
+ assert.equal(await region.evaluate(n=>n.parentElement.id),'main');
+ assert.equal(await region.evaluate(n=>Boolean(n.previousElementSibling?.id==='overview'&&(n.compareDocumentPosition(document.getElementById('history'))&Node.DOCUMENT_POSITION_FOLLOWING))),true,'The complete motion passage opens after the introduction and before the history');
  assert.equal(await region.evaluate(n=>Boolean(n.compareDocumentPosition(document.querySelector('#storm-photographs'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'The source passage is available before the long still gallery');
  assert.equal(await video.getAttribute('preload'),'none');assert.equal(await video.getAttribute('autoplay'),null);assert.equal(await video.getAttribute('loop'),null);
  // preload is a browser hint, not a guarantee of zero media requests.
@@ -33,13 +34,13 @@ for(const width of [320,1280])test('controlled documentary motion and source jou
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
  assert.equal(await video.evaluate(v=>{const r=v.getBoundingClientRect();return Math.abs(r.width/r.height-1280/720)<0.03;}),true,'Full frame is retained without a fixed crop');
  if(width===320){
-  const originalSizes=await region.locator('h3,p,button,summary,a').evaluateAll(nodes=>nodes.map(n=>({style:n.style.fontSize,pixels:parseFloat(getComputedStyle(n).fontSize)})));
-  await region.locator('h3,p,button,summary,a').evaluateAll((nodes,sizes)=>nodes.forEach((n,i)=>n.style.fontSize=sizes[i].pixels*2+'px'),originalSizes);
-  assert.equal(await region.locator('h3').evaluate(n=>parseFloat(getComputedStyle(n).fontSize)),originalSizes[0].pixels*2,'Actual clip heading text doubles despite fixed-pixel exhibit typography');
+  const originalSizes=await region.locator('h2,p,button,summary,a').evaluateAll(nodes=>nodes.map(n=>({style:n.style.fontSize,pixels:parseFloat(getComputedStyle(n).fontSize)})));
+  await region.locator('h2,p,button,summary,a').evaluateAll((nodes,sizes)=>nodes.forEach((n,i)=>n.style.fontSize=sizes[i].pixels*2+'px'),originalSizes);
+  assert.equal(await region.locator('h2').evaluate(n=>parseFloat(getComputedStyle(n).fontSize)),originalSizes[0].pixels*2,'Actual clip heading text doubles despite fixed-pixel exhibit typography');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Enlarged clip reading reflows');
   assert.equal(await video.evaluate(v=>v.paused),true,'Text enlargement does not start playback');
   if(process.env.ATLAS_LEARNING_CAPTURE){await mkdir(process.env.ATLAS_LEARNING_CAPTURE,{recursive:true});await region.screenshot({path:path.join(process.env.ATLAS_LEARNING_CAPTURE,'bohac-motion-320-enlarged.png')});}
-  await region.locator('h3,p,button,summary,a').evaluateAll((nodes,sizes)=>nodes.forEach((n,i)=>n.style.fontSize=sizes[i].style),originalSizes);
+  await region.locator('h2,p,button,summary,a').evaluateAll((nodes,sizes)=>nodes.forEach((n,i)=>n.style.fontSize=sizes[i].style),originalSizes);
  }
  if(process.env.ATLAS_LEARNING_CAPTURE){await mkdir(process.env.ATLAS_LEARNING_CAPTURE,{recursive:true});await region.screenshot({path:path.join(process.env.ATLAS_LEARNING_CAPTURE,'bohac-motion-'+width+'.png')});}
  await play.click();await page.waitForFunction(()=>document.querySelector('[data-documentary-clip]').currentTime>2.1);

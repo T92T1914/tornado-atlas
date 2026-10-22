@@ -33,15 +33,15 @@ class MooreDocumentaryTests(unittest.TestCase):
         self.assertEqual(siren['status']['temporal'], 'source_label')
         self.assertIsNone(siren['time']['alignment'])
 
-    def test_only_two_qualified_agency_image_versions_are_published(self):
+    def test_two_qualified_agency_photograph_versions_remain_exact(self):
         expected = {
             'assets/moore-2013/IMG_2314-800.jpg': (410330, 'd53b38069c63ec7508cece9e4a70b11fabf45aad090fa072bc7f115efd2ac7e6', 800, 600),
             'assets/moore-2013/IMG_9287-800.jpg': (339582, 'f10b6b33fbcecd2c228632d2d681bbef47e58876246b753a04721dda3a58c6bb', 800, 533),
         }
-        self.assertEqual(len(self.doc['media']), 2)
-        self.assertEqual({r['transformation']['asset'] for r in self.doc['media']}, set(expected))
-        self.assertEqual({p.name for p in (ROOT / 'web/assets/moore-2013').iterdir()}, {Path(p).name for p in expected})
-        for row in self.doc['media']:
+        photos = [row for row in self.doc['media'] if row['kind'] == 'photograph']
+        self.assertEqual(len(photos), 2)
+        self.assertEqual({r['transformation']['asset'] for r in photos}, set(expected))
+        for row in photos:
             asset = row['transformation']
             size, sha, width, height = expected[asset['asset']]
             raw = (ROOT / 'web' / asset['asset']).read_bytes()
@@ -53,6 +53,51 @@ class MooreDocumentaryTests(unittest.TestCase):
             self.assertIsNone(row['time']['alignment'])
             self.assertNotEqual(asset['parent_sha256'], sha)
 
+
+
+    def test_original_radar_sequences_and_static_posters_have_separate_identities(self):
+        expected = {
+            'moore-ktlx-reflectivity-loop': ('ref', 4621244, 'ad49be3837ff98d9082d6c6e7525d546b12e4342b43a09fad7281c7ed43b2a41', 512786, '62293ccff370acd1cdc2ffbd2f6823b7d42c704981f16e07dc912dc37911adb8'),
+            'moore-ktlx-storm-relative-velocity-loop': ('srv', 4256310, '82f45919ef9752dcc009dd4c4ba31141776cb67606d357fbea172ad02eba576c', 588824, 'e4a6a61bdd0d2467307e84f6431855fedcfb8d6ad782268e4b585a6cc6719cb9'),
+        }
+        radar = {row['id']: row for row in self.doc['media'] if row['kind'] == 'radar'}
+        self.assertEqual(set(radar), set(expected))
+        names = {'IMG_2314-800.jpg', 'IMG_9287-800.jpg'}
+        for item, (product, size, digest, poster_size, poster_digest) in expected.items():
+            row = radar[item]
+            transform = row['transformation']
+            animation = transform['animation']
+            stem = 'newcastle-moore-' + product
+            for filename, actual, wanted_size, wanted_digest in (
+                (stem + '.gif', animation, size, digest),
+                (stem + '-poster.png', transform, poster_size, poster_digest),
+            ):
+                names.add(filename)
+                self.assertEqual(actual['asset'], 'assets/moore-2013/' + filename)
+                raw = (ROOT / 'web' / actual['asset']).read_bytes()
+                self.assertEqual(len(raw), wanted_size)
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), wanted_digest)
+                self.assertEqual((actual['width'], actual['height']), (800, 558))
+                self.assertEqual(actual['sha256'], wanted_digest)
+            self.assertEqual((animation['presentations'], animation['stored_delay_ms']), (24, 350))
+            self.assertEqual(animation['poster_presentation'], 0)
+            self.assertIsNone(animation['clock_alignment'])
+            self.assertEqual(row['status']['rights'], 'permitted_hosting')
+            self.assertEqual(row['status']['temporal'], 'source_label')
+            self.assertIsNone(row['time']['alignment'])
+            self.assertIsNone(row['place']['coordinates'])
+            self.assertIn('one hour', row['limits'])
+            self.assertIn('VST and Prod remain separate', row['time']['capture']['disposition'])
+        self.assertEqual({p.name for p in (ROOT / 'web/assets/moore-2013').iterdir()}, names)
+
+    def test_accepted_moore_evidence_is_preserved_when_radar_is_added(self):
+        previous = json.loads((ROOT / 'web/archive/moore-2013-b871ef828cd8a1c475bc.json').read_bytes())
+        self.assertEqual(len(previous['observations']), 14)
+        for field in ('records', 'creators', 'observations', 'reconstruction'):
+            self.assertEqual(self.doc[field], previous[field])
+        for field in ('sources', 'media', 'routes'):
+            for row in previous[field]:
+                self.assertIn(row, self.doc[field])
 
     def test_school_accounts_preserve_source_kind_and_unknown_registration(self):
         # These expectations come from the selected NIST report passages,

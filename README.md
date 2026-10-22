@@ -118,6 +118,10 @@ can be enlarged with their credits. The [documentary design notes](research/docu
 and [audience research notes](research/audience-notes-2026-09-20.md) explain the
 choices and the limits of the research.
 
+Four seconds of Ray Bohac’s original film now follow the El Reno introduction. The silent passage plays on request and retains its native video controls, original source and reuse record. Blackwell opens with its complete aerial aftermath photograph, while Tuscaloosa opens with the complete published composite from two credited films. The captions keep tornado views, aftermath photographs and forecast documents distinct.
+
+The [Moore radar section](https://t92t1914.github.io/tornado-atlas/moore.html#radar-motion) presents two original NWS KTLX GIF sequences. Each begins with a complete still image and plays on request. Stopping restores the first image. The page’s reported time range differs by one hour from the inspected radar labels, so neither loop is aligned with the Atlas clock. The [source review](research/moore-radar-animation-2026-10-22.md) records the exact objects and unresolved clock conflict.
+
 The path and survey maps now include optional modern USGS roads, towns and
 terrain. The shared clock connects the tornado position with the latest
 reviewed warning, available radar and published camera samples. Seven preserved
@@ -198,7 +202,7 @@ The museum pages offer Clair, Obscur and System appearances. Clair pairs warm
 ivory with charcoal text. Obscur uses black, white and gray for the interface.
 Fatality records have their own rose diamond and written death count. Support for forced colors and text alternatives
 remain available for map markers. Photographs and radar
-colors are not recolored. Community entries link back to the relevant map or
+colors are not recolored. The wind field and its speed legend use the selected appearance together. Changing appearance redraws a paused field without advancing its tracers or changing the sampled values. Community entries link back to the relevant map or
 gallery. The [design and research review](research/linked-evidence-design-2026-09-20.md)
 explains the ArcGIS reference, the evidence model and the remaining work.
 

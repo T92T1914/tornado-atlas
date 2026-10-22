@@ -9,7 +9,8 @@ for(const width of [320,1280])for(const event of events)test('real documentary m
  page.on('request',r=>{if(/youtube|googlevideo|ytimg/.test(r.url()))providers.push(r.url());});
  await page.goto(base+'/'+event.file+(event.file==='index.html'?'?t=0':'')+'#'+event.section);
  if(event.file==='index.html')await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
- const section=page.locator('#'+event.section),image=section.locator('img[src="'+event.photo+'"]');
+ const section=page.locator('#'+event.section),photoRoot=event.file==='blackwell.html'?page.locator('figure.documentary-hero'):section,image=photoRoot.locator('img[src="'+event.photo+'"]');
+ if(event.file==='blackwell.html')assert.equal(await photoRoot.evaluate(n=>n.previousElementSibling?.classList.contains('documentary-intro')),true,'The full archival photograph follows the introduction');
  await image.scrollIntoViewIfNeeded();await page.waitForFunction(src=>{const image=document.querySelector('img[src="'+src+'"]');return image?.complete&&image.naturalWidth>0;},event.photo);
  assert.equal(await section.locator('canvas').count(),0,'Museum photographs never include an authored reconstruction canvas');
  assert.equal(await section.locator('iframe').count(),0);assert.deepEqual(providers,[],'No external video or poster loads before selection');
@@ -41,7 +42,9 @@ test('documentary media source links and photographs remain readable without scr
   const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900}});
   await page.goto(base+'/'+event.file+'#'+event.section);
   const section=page.locator('#'+event.section);
-  assert.equal(await section.locator('img[src="'+event.photo+'"]').isVisible(),true);
+  const photoRoot=event.file==='blackwell.html'?page.locator('figure.documentary-hero'):section;
+  assert.equal(await photoRoot.locator('img[src="'+event.photo+'"]').isVisible(),true);
+  if(event.file==='blackwell.html')assert.equal(await photoRoot.evaluate(n=>n.previousElementSibling?.classList.contains('documentary-intro')),true);
   assert.equal(await section.locator('canvas,iframe').count(),0);
   assert.equal(await section.getByRole('button',{name:'Load video here'}).count(),0);
   assert.equal(await section.locator('[data-documentary-video=\"'+event.video+'\"]').getByRole('link',{name:'Watch the original publication on YouTube'}).getAttribute('href'),'https://www.youtube.com/watch?v='+event.video);

@@ -156,7 +156,7 @@ async function actualConsumer(){
   const defaults={peak:250,radius:50,background:0,'probe-x':1,'probe-y':0,area:1,coefficient:1.2},nodes=new Map();
   const ctx=new Proxy({measureText(){return {width:35};}},{get(target,key){return key in target?target[key]:(()=>{});}});
   function get(id){if(!nodes.has(id))nodes.set(id,{value:String(defaults[id]??''),clientWidth:700,width:0,height:0,addEventListener(){},dispatchEvent(){},getContext(){return ctx;}});return nodes.get(id);}
-  const realm={MPH,FOOT,windAt,loadAt,advanceWindTracer,Math,Number,Array,Object,RangeError,devicePixelRatio:1,getComputedStyle(){return {fontFamily:'Arial'};},requestAnimationFrame(){return 1;},cancelAnimationFrame(){},IntersectionObserver:class{observe(){}},ResizeObserver:class{observe(){}},document:{hidden:false,getElementById:get,addEventListener(){},fonts:{ready:Promise.resolve()}}};
+  const realm={MPH,FOOT,windAt,loadAt,advanceWindTracer,Math,Number,Array,Object,RangeError,devicePixelRatio:1,getComputedStyle(){return {fontFamily:'Arial',color:'#ddd',getPropertyValue(name){return {'--wind-slow-rgb':'164,164,164','--wind-fast-rgb':'244,244,244','--muted':'#aaa'}[name]||'';}};},MutationObserver:class{observe(){}},matchMedia(){return {matches:false,addEventListener(){}};},requestAnimationFrame(){return 1;},cancelAnimationFrame(){},IntersectionObserver:class{observe(){}},ResizeObserver:class{observe(){}},document:{hidden:false,documentElement:{hasAttribute(){return false;}},getElementById:get,addEventListener(){},fonts:{ready:Promise.resolve()}}};
   vm.runInNewContext(program,realm,{timeout:1000,filename:'wind-tracer-consumer.js'});
   return {probe:realm.probe,get};
 }

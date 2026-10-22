@@ -18,7 +18,7 @@ export function mountDocumentaryAppearance(root=document){
     try{
       renderer.render({partialForm:observation.partial_form,shape:null,extent:null,time:0,dust:false});
       canvas.style.visibility='visible';canvas.dataset.documentaryState='reported_minute';
-      status.textContent='Source-linked schematic. Reported minute only, with no physical scale or inferred motion.';
+      status.textContent='Schematic based on the cited photograph. The reported minute supplies no physical scale or inferred motion.';
     }catch{unavailable();}
   }
   function schedule(){if(active&&frame===null)frame=requestAnimationFrame(draw);}

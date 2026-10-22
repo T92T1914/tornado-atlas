@@ -45,7 +45,7 @@ def photo_figure(photo, index, hero=False):
     caption = p('El Reno, photographed on May 31, 2013. Select to enlarge.' if hero else photo['caption'])
     caption += link(photo['credit'], photo['source']) + ' · ' + link(photo['license'], photo['license_url'])
     if photo.get('creator_url'):
-        caption += p('Original creator title: '+photo['creator_title']+'. The historical title uses EF5; the final NWS damage rating is EF3.', class_='fineprint')
+        caption += p('Original creator title: '+photo['creator_title']+'. The historical title uses EF5. The final NWS damage rating is EF3.', class_='fineprint')
         caption += link('Original creator page and caption', photo['creator_url'])
     presentation = ('Original photograph preserved and displayed in full frame. '
         if len(versions) == 1 and versions[0]['file'] == photo['file']
@@ -119,7 +119,7 @@ def documentary_motion(clip):
     video = ('<video controls playsinline preload="none" width="1280" height="720" poster="'+text(clip['poster'])+'" '
              'aria-label="Ray Bohac: four seconds of changing viewpoint" aria-describedby="bohac-motion-description bohac-motion-limits" data-documentary-clip>'
              +sources+'Your browser cannot play these formats. Use the clip or archived source links below.</video>')
-    content = element('h3', 'Watch the foreground before judging the shape')
+    content = element('h2', 'Watch the foreground before judging the shape')
     content += p('Play this short, silent passage, then pause and move through it with the video controls. It stays still until you choose to play.')
     content += '<button type="button" hidden data-clip-action>Play short clip</button><p data-clip-status role="status">The silent clip plays only when selected. Native video controls and original links remain available.</p>'
     content += element('figure', video + element('figcaption',
