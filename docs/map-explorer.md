@@ -101,9 +101,15 @@ hashes and keeps source, creator, license and registration limits. These are
 event-level photograph associations. They do not identify the reported start
 position, a particular county segment, or an inferred camera location.
 
-Full photographs load on selection through the existing museum photo viewer.
-Previous/next photograph and previous/next source record are separate controls.
-A failed image retains the caption, credit and source links with a retry.
+The catalogue strip uses the accepted 640-pixel full-frame reading versions of
+Daniel Rodriguez’s two El Reno photographs. Opening either photograph still loads
+its unchanged full-size original through the existing museum photo viewer. A
+failed reading preview tries its original once, then removes only the failed
+image while keeping the photograph button. A retired selection cannot start
+that fallback or alter the current image. Other catalogue photographs keep
+their existing assets. Previous/next photograph and previous/next source record
+are separate controls. A failed viewer image retains the caption, credit and
+source links with a retry.
 Source-only records say that no reviewed photograph is linked.
 
 ## Verification boundaries

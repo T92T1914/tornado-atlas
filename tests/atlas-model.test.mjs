@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage, readSearchLink, writeSearchLink} from '../web/atlas-model.mjs';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {filterRecords, project, fitBounds, clampBounds, color, mapGroups, yearCoverage, readSearchLink, writeSearchLink, cataloguePreviewAsset} from '../web/atlas-model.mjs';
 
 const records = [
   {id:'ncei:1',title:'A, Oklahoma',state:'OKLAHOMA',area:'CANADIAN',aliases:['El Reno'],rating:'EF3',year:2013,date:'2013-05-31',point:[-98,35],exhibit:'index.html'},
@@ -124,3 +126,40 @@ test('coverage never joins missing years into an apparent continuous range',()=>
 
 // Exercise the published fourteen-record contract in the existing CI entry.
 import './catalogue-dossier-discovery.test.mjs';
+
+
+test('catalogue previews use only accepted full-frame reading versions of exact originals',async()=>{
+  const photos=JSON.parse(await readFile(new URL('../exhibits/el-reno-2013/storm-photos.json',import.meta.url),'utf8'));
+  const expected=[
+    ['storm-1','assets/el-reno-2013/storm01.jpg','assets/el-reno-2013/storm01-640.jpg',32967,'6f5c7b7cef4923cdce231c13aa7e18544a2adc20716f656e5b1d46fbc658315f'],
+    ['storm-2','assets/el-reno-2013/storm02.jpg','assets/el-reno-2013/storm02-640.jpg',33340,'df83a1047f0db6a0b3c78fb7e8fdbce8540f9556afabdecfd64ec87dd446ae57'],
+  ];
+  for(const [id,asset,preview,bytes,sha256] of expected){
+    const original=photos.find(photo=>photo.id===id),version=original.reading_versions.find(item=>item.width===640);
+    assert.equal(original.file,asset);assert.equal(version.file,preview);
+    assert.equal(version.original_sha256,original.sha256);assert.equal(version.sha256,sha256);assert.equal(version.bytes,bytes);
+    assert.match(version.changes,/Full frame.*No crop or generated image content/);
+    const full=await readFile(new URL('../web/'+asset,import.meta.url));
+    const reading=await readFile(new URL('../web/'+preview,import.meta.url));
+    assert.equal(createHash('sha256').update(full).digest('hex'),original.sha256);
+    assert.equal(reading.length,bytes);assert.equal(createHash('sha256').update(reading).digest('hex'),sha256);
+    const photo=Object.freeze({asset,sha256:original.sha256,source:original.source,credit:original.credit});
+    assert.equal(cataloguePreviewAsset(photo),preview);
+    assert.equal(cataloguePreviewAsset({...photo,sha256:'0'.repeat(64)}),asset);
+    assert.equal(cataloguePreviewAsset({...photo,asset:preview}),preview);
+  }
+});
+
+test('unrecognized media and every source/rights object retain their original identity',async()=>{
+  const raw=await readFile(new URL('../web/catalogue/media.json',import.meta.url));
+  assert.equal(createHash('sha256').update(raw).digest('hex'),'51c7e9e491ed430cb6a23dd995b8f28636ecf0fdd64f34396ef27c0883335621');
+  const media=JSON.parse(raw),before=structuredClone(media);
+  for(const collection of Object.values(media.records))for(const photo of collection.photos){
+    const preview=cataloguePreviewAsset(photo);
+    if(!['storm-1','storm-2'].includes(photo.id))assert.equal(preview,photo.asset);
+  }
+  for(const asset of ['assets/el-reno-2013/nolte-231037-full.jpg','assets/el-reno-2013/nolte-231059-full.jpg',
+    'assets/el-reno-2013/nolte-231202-full.jpg','assets/el-reno-2013/231255.jpg','assets/example/unknown.jpg'])
+    assert.equal(cataloguePreviewAsset({asset,sha256:'0'.repeat(64)}),asset);
+  assert.deepEqual(media,before);
+});

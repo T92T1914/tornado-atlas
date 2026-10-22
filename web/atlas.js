@@ -1,4 +1,4 @@
-import {filterRecords,yearCoverage} from './atlas-model.mjs';
+import {filterRecords,yearCoverage,cataloguePreviewAsset} from './atlas-model.mjs';
 import {readExplorerLink,writeExplorerLink,positionStatus,usablePoints,inside} from './explorer-model.mjs';
 import {mountExplorerMap} from './explorer-map.mjs';
 import {mountPhotoViewer} from './photo-view.mjs';
@@ -73,7 +73,20 @@ function mediaPanel(record){
   const collection=media.records[record.id];if(!collection)return make('p','No reviewed photographs are linked to this source record. Its original source remains available below.');
   const section=make('section');section.append(make('h3','Event photographs'),make('p',collection.scope));
   const strip=make('div',undefined,'photo-strip');
-  collection.photos.forEach((photo,index)=>{const node=button(`${index+1}. ${photo.title}`,()=>showMedia(photo));node.dataset.photo=photo.id;const image=make('img');image.alt=photo.alt;image.loading='lazy';image.src=photo.asset;image.addEventListener('error',()=>{image.remove();},{once:true});node.prepend(image);strip.append(node);});
+  collection.photos.forEach((photo,index)=>{
+    const node=button(`${index+1}. ${photo.title}`,()=>showMedia(photo));node.dataset.photo=photo.id;
+    const image=make('img'),preview=cataloguePreviewAsset(photo);image.alt=photo.alt;image.loading='lazy';
+    const owns=()=>node.isConnected&&image.parentNode===node;
+    image.addEventListener('error',()=>{
+      if(!owns())return;
+      if(preview===photo.asset){image.remove();return;}
+      // One original fallback belongs only to this preview element. A retired
+      // record cannot start it or alter the current record's image or credit.
+      image.addEventListener('error',()=>{if(owns())image.remove();},{once:true});
+      image.src=photo.asset;
+    },{once:true});
+    image.src=preview;node.prepend(image);strip.append(node);
+  });
   section.append(strip);return section;
 }
 async function selectRecord(record,{center=false,push=true,focus=true}={}){
