@@ -83,18 +83,27 @@ for(const width of [320,1280])test('published dossier links preserve catalogue r
   await listView(page);await search(page,frozen.unrelated_record);await results(page,[]);
 });
 
-for(const width of [320,1280])for(const theme of ['dark','light'])test('static museum cards retain doubled text within '+width+' '+theme,async t=>{
+for(const width of [320,1280])for(const theme of ['dark','light'])test('static museum cards retain doubled text within '+width+' '+theme,{timeout:20000},async t=>{
+  const started=Date.now();
+  const phase=(name,state,extra={})=>console.log('CATALOGUE_STATIC_PHASE '+JSON.stringify({width,theme,phase:name,state,elapsed_ms:Date.now()-started,...extra}));
+  phase('fixture','before');
   const page=await fixture(t,{viewport:{width,height:1000},javaScriptEnabled:false,colorScheme:theme,reducedMotion:'reduce'});
-  await page.goto(base+'/atlas.html',{waitUntil:'load'});
-  await page.evaluate(()=>document.fonts.ready);
+  phase('fixture','after');
+  phase('goto','before');
+  await page.goto(base+'/atlas.html',{waitUntil:'load',timeout:10000});
+  phase('goto','after');
+  phase('font_status_loaded','before',{timeout_ms:5000});
+  await page.waitForFunction(()=>document.fonts.status==='loaded',null,{timeout:5000});
+  phase('font_status_loaded','after',{required_status:'loaded'});
   assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),theme);
   assert.match(await page.locator('noscript').innerText(),/accounts and their source links are available/);
+  phase('measurement','before');
   const result=await page.evaluate(()=>{
     const museum=document.getElementById('museum'),grid=museum.querySelector('.museum-routes');
-    const cards=[...grid.querySelectorAll(':scope > article')];
-    const targets=[museum.querySelector('h1'),museum.querySelector('p'),...cards.map(n=>n.querySelector('h2'))];
+    const cards=[...grid.querySelectorAll(':scope > article')],heading=document.querySelector('#catalogue h2');
+    const targets=[museum.querySelector('h1'),museum.querySelector('p'),...cards.map(n=>n.querySelector('h2')),heading];
     const sizes=()=>targets.map(n=>({text:n.textContent.trim(),size:parseFloat(getComputedStyle(n).fontSize),family:getComputedStyle(n).fontFamily}));
-    const before=sizes(),text=museum.textContent,fontsBefore=document.fonts.status;
+    const before=sizes(),text=museum.textContent,headingText=heading.textContent,fontsBefore=document.fonts.status;
     // Reproduce the failed acceptance operation: every body's descendant gets
     // twice its previously computed font size. No widths or overflow are altered.
     const nodes=[document.body,...document.body.querySelectorAll('*')];
@@ -127,14 +136,18 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
           bounds:[r.left,r.top,r.right,r.bottom],parent:describe(parent),ancestors:ancestors(parent)});
       }
     }
+    const headingRange=document.createRange();headingRange.selectNodeContents(heading);
+    const catalogueHeading={text:heading.textContent.trim(),text_preserved:heading.textContent===headingText,
+      box:box(heading),parent:box(heading.parentElement),
+      fragments:[...headingRange.getClientRects()].filter(r=>r.width>0&&r.height>0).map(r=>({left:r.left,right:r.right}))};
     const overflowDiagnostic={scope:'All body DOM horizontal boxes and text fragments; computed family is not proof of a resolved native glyph font',
-      fonts:{ready_awaited_before_enlargement:true,before:fontsBefore,after:document.fonts.status,
+      fonts:{readiness_required_before_enlargement:'FontFaceSet.status loaded through bounded polling',poll_timeout_ms:5000,before:fontsBefore,after:document.fonts.status,
         faces:[...document.fonts].slice(0,16).map(face=>({family:face.family,status:face.status,weight:face.weight,style:face.style}))},
       body:describe(document.body),museum:describe(museum),grid:describe(grid),
       total_boxes:totalBoxes,box_records_omitted:Math.max(0,totalBoxes-boxes.length),boxes,
       total_text_fragments:totalTextRanges,text_records_omitted:Math.max(0,totalTextRanges-textRanges.length),text_fragments:textRanges};
     return {viewport:innerWidth,document_width:document.documentElement.scrollWidth,
-      before,after:sizes(),text_preserved:museum.textContent===text,grid:box(grid),overflow_diagnostic:overflowDiagnostic,
+      before,after:sizes(),text_preserved:museum.textContent===text,grid:box(grid),heading:catalogueHeading,overflow_diagnostic:overflowDiagnostic,
       cards:cards.map(card=>{
         const r=card.getBoundingClientRect(),s=getComputedStyle(card);
         const content={left:r.left+parseFloat(s.borderLeftWidth)+parseFloat(s.paddingLeft),
@@ -148,10 +161,11 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
         return {title:card.querySelector('h2').textContent.trim(),box:box(card),content,fragments};
       })};
   });
+  phase('measurement','after',{font_status:result.overflow_diagnostic.fonts.before,document_width:result.document_width});
   // Keep the deciding geometry even when an assertion below fails. The record
   // covers the whole page because the enlargement changes the whole body.
   const diagnostic={viewport:result.viewport,theme,document_width:result.document_width,
-    measured_fonts:result.after,cards:result.cards.map(card=>({title:card.title,box:card.box,content:card.content})),
+    measured_fonts:result.after,heading:result.heading,cards:result.cards.map(card=>({title:card.title,box:card.box,content:card.content})),
     ...result.overflow_diagnostic,max_json_bytes:49152};
   while(Buffer.byteLength(JSON.stringify(diagnostic),'utf8')>diagnostic.max_json_bytes){
     if(diagnostic.text_fragments.length){diagnostic.text_fragments.pop();diagnostic.text_records_omitted++;}
@@ -166,6 +180,15 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
     assert.equal(result.after[i].size,before.size*2,'Actual computed font size is doubled');
   });
   assert.ok(result.document_width<=result.viewport+1,JSON.stringify({document:result.document_width,viewport:result.viewport}));
+  assert.equal(result.heading.text,'Search the source catalogue.');
+  assert.equal(result.heading.text_preserved,true,'Catalogue heading text is retained');
+  assert.ok(result.heading.box.width>0);
+  assert.ok(result.heading.box.left>=result.heading.parent.left-1&&result.heading.box.right<=result.heading.parent.right+1,JSON.stringify(result.heading));
+  assert.ok(result.heading.box.scroll<=result.heading.box.client+1,'Heading text fits rather than being clipped');
+  assert.ok(!['hidden','clip'].includes(result.heading.box.overflow)&&!['hidden','clip'].includes(result.heading.parent.overflow));
+  assert.ok(result.heading.fragments.length>0);
+  for(const fragment of result.heading.fragments)assert.ok(fragment.left>=result.heading.box.left-1&&fragment.right<=result.heading.box.right+1
+    &&fragment.left>=-1&&fragment.right<=result.viewport+1,JSON.stringify({heading:result.heading.box,fragment}));
   assert.ok(result.grid.left>=-1&&result.grid.right<=result.viewport+1);
   assert.ok(!['hidden','clip'].includes(result.grid.overflow),'Grid overflow is not hidden');
   for(const card of result.cards){

@@ -28,6 +28,7 @@
 .atlas-explorer button:disabled {opacity:.5;cursor:default}
 .explore-heading {display:flex;align-items:baseline;gap:25px;flex-wrap:wrap;padding-top:12px}
 .explore-heading h1 {font:32px Georgia,serif;letter-spacing:-.6px;margin:0}
+.atlas-explorer .explore-heading h2 {min-width:0;overflow-wrap:anywhere}
 .explore-heading p {font-size:13px;color:var(--muted);margin:6px 0}
 .search-row {display:flex;gap:8px;align-items:end;margin:12px 0 8px;flex-wrap:wrap}
 .wide-filter {flex:1;min-width:220px}
