@@ -15,6 +15,7 @@ uniform float maxPoint;
 uniform bool dust;
 uniform int readingPalette;
 out vec4 color;
+out vec2 cloudSeed;
 void main() {
   float h = seed.x;
   float angle = seed.y * 6.2831853 + time * (0.5 + 0.9 * (1.0-h));
@@ -48,16 +49,23 @@ void main() {
   gl_Position = camera * vec4(position,1.0);
   gl_PointSize = clamp(viewportHeight * size / max(.2,gl_Position.w),1.0,maxPoint);
   color = vec4(tint, opacity);
+  cloudSeed = seed.xy*vec2(17.3,23.7)+seed.z*11.1;
 }`;
 const particleFragment = `#version 300 es
 precision mediump float;
 in vec4 color;
+in vec2 cloudSeed;
 out vec4 outputColor;
 void main() {
-  float d = length(gl_PointCoord*2.0-1.0);
-  float alpha = color.a * pow(max(0.0,1.0-d*d),2.0);
+  vec2 p = gl_PointCoord*2.0-1.0;
+  float radius2 = dot(p,p), d = sqrt(radius2);
+  // Fixed cloud texture and lighting are artistic display choices.
+  float edge = 1.0-smoothstep(.70,1.0,d);
+  float texture = .93 + .07*sin(p.x*2.1+cloudSeed.x)*cos(p.y*2.4+cloudSeed.y);
+  float alpha = color.a * exp(-1.8*radius2) * edge * texture;
   if(alpha < .002) discard;
-  outputColor = vec4(color.rgb,alpha);
+  float light = .88 + .12*clamp(.5+.5*p.y-.2*p.x,0.0,1.0);
+  outputColor = vec4(color.rgb*light,alpha);
 }`;
 const gridVertex = `#version 300 es
 in vec3 position;

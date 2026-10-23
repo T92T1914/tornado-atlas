@@ -59,7 +59,7 @@ export function mountComparison(pair) {
   host.append(label,slider,output,dates,el('p',pair.limits,'fineprint'),el('p',pair.credit,'fineprint'),link('Space Science and Engineering Center','https://www.ssec.wisc.edu/'),document.createTextNode(' · '),link('Original comparison and explanation',pair.source),document.createTextNode(' · '),link('Image use terms',pair.rights));
   for(const image of [before,after])image.addEventListener('error',()=>{frame.hidden=true;slider.disabled=true;output.textContent='Image unavailable. Open the original comparison below.';},{once:true});
 }
-export function mountResearchLog(data) {
+export function mountResearchLog(data,{active=true}={}) {
   const host=document.getElementById('research-log');
   for(const record of data.log) {const article=el('article');article.append(el('p',record.date+' · '+record.status,'eyebrow'),el('h3',record.title),el('p',record.finding));record.sources.forEach(s=>article.append(link(s.label,s.url)));host.append(article);}
   const missing=document.getElementById('unmapped-fatalities');
@@ -79,10 +79,40 @@ export function mountResearchLog(data) {
     const list=el('ul');for(const item of data.unmapped_fatalities){const row=el('li'),a=el('a',item.people.join(' and '));a.href='#'+item.id;row.append(a);list.append(row);}details.append(list);host.append(details);
   }
   const audit=document.getElementById('link-audit-summary');
-  fetch('source-audit.json').then(response=>{if(!response.ok)throw new Error('Audit unavailable');return response.json();}).then(report=>{
-    audit.append(el('p',`Link access checked ${report.checked_at.slice(0,10)} UTC: ${report.results.length} distinct URLs, ${report.counts.reachable||0} reachable, ${report.counts.access_unresolved||0} with unresolved access, ${report.counts.missing||0} returned missing pages. These results cover the curated exhibit and museum pages, not every catalogue record.`));
-    const unresolved=report.results.filter(row=>row.access!=='reachable');
-    if(unresolved.length){const details=el('details'),list=el('ul');details.append(el('summary','Sources whose access could not be confirmed'));
-      for(const row of unresolved){const item=el('li');item.append(link(new URL(row.url).hostname,row.url),document.createTextNode(` · ${row.http_status?'HTTP '+row.http_status:row.error} · ${row.url}`));list.append(item);}details.append(list);audit.append(details);}
-  }).catch(()=>audit.append(el('p','The link audit could not be loaded. Its preserved file is linked below.')));
+  let disposed=false,settled=false,pending=null,version=0;
+  function retire(){
+    active=false;version++;
+    const controller=pending;pending=null;
+    controller?.abort();
+  }
+  function start(){
+    if(disposed||!active||settled||pending)return;
+    const controller=new AbortController(),token=++version;
+    pending=controller;
+    const owns=()=>!disposed&&active&&version===token&&pending===controller;
+    // Fetch creation itself belongs to this error boundary. The optional audit
+    // never delays the reader's ready state or owns native source navigation.
+    void (async()=>{
+      try{
+        const response=await fetch('source-audit.json',{signal:controller.signal});
+        if(!owns())return;
+        if(!response.ok)throw new Error('Audit unavailable');
+        const report=await response.json();
+        if(!owns())return;
+        const content=document.createDocumentFragment();
+        content.append(el('p',`Link access checked ${report.checked_at.slice(0,10)} UTC: ${report.results.length} distinct URLs, ${report.counts.reachable||0} reachable, ${report.counts.access_unresolved||0} with unresolved access, ${report.counts.missing||0} returned missing pages. These results cover the curated exhibit and museum pages, not every catalogue record.`));
+        const unresolved=report.results.filter(row=>row.access!=='reachable');
+        if(unresolved.length){const details=el('details'),list=el('ul');details.append(el('summary','Sources whose access could not be confirmed'));
+          for(const row of unresolved){const item=el('li');item.append(link(new URL(row.url).hostname,row.url),document.createTextNode(` · ${row.http_status?'HTTP '+row.http_status:row.error} · ${row.url}`));list.append(item);}details.append(list);content.append(details);}
+        if(owns()){audit.replaceChildren(content);settled=true;}
+      }catch(error){
+        if(owns()){audit.replaceChildren(el('p','The link audit could not be loaded. Its preserved file is linked below.'));settled=true;}
+      }finally{if(pending===controller)pending=null;}
+    })();
+  }
+  const returned=event=>{if(event.persisted&&!disposed){active=true;if(!settled)start();}};
+  window.addEventListener('pagehide',retire);
+  window.addEventListener('pageshow',returned);
+  start();
+  return {dispose(){disposed=true;retire();window.removeEventListener('pagehide',retire);window.removeEventListener('pageshow',returned);}};
 }

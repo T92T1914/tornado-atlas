@@ -69,3 +69,10 @@
 .laboratory-page .lab-reference-actions {display:flex;flex-wrap:wrap;gap:4px 24px}
 .laboratory-page .lab-reference-actions a {font-size:15px;line-height:1.6;text-decoration:underline}
 .laboratory-page #lab-reference-retry {margin-top:12px}
+
+/* The illustrative field and its key use the same reading palette. */
+.laboratory-page {--wind-slow-rgb:164,164,164;--wind-fast-rgb:244,244,244}
+:root[data-appearance=light] .laboratory-page {--wind-slow-rgb:100,98,92;--wind-fast-rgb:36,36,36}
+@media(prefers-color-scheme:light){:root:not([data-appearance]) .laboratory-page{--wind-slow-rgb:100,98,92;--wind-fast-rgb:36,36,36}}
+.laboratory-page #wind-field {background:var(--bg);color:var(--text)}
+.laboratory-page .wind-key i {background:linear-gradient(90deg,rgb(var(--wind-slow-rgb)),rgb(var(--wind-fast-rgb)))}

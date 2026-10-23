@@ -269,7 +269,7 @@ class EvidenceCoverageTests(unittest.TestCase):
 
     def test_moore_coverage_links_existing_outcomes_and_unresolved_source_roles(self):
         doc = self.docs['moore-2013']
-        identity = 'b871ef828cd8a1c475bc73722264a178d63deb9266d9ecb4d699eb5c636c9b7c'
+        identity = '5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85'
         self.assertEqual(digest(doc), identity)
         self.assertEqual(len(doc['observations']), 14)
         raw = (ROOT/'web/archive/moore-2013-b871ef828cd8a1c475bc.json').read_bytes()
@@ -286,6 +286,16 @@ class EvidenceCoverageTests(unittest.TestCase):
             'briarwood-400-refuge-envelope',
         }
         expected_media = {'moore-briarwood-survey', 'moore-medical-center-survey'}
+        expected_radar = {'moore-ktlx-reflectivity-loop', 'moore-ktlx-storm-relative-velocity-loop'}
+        radar_row = next(value for value in coverage_rows() if value['event']['id'] == 'moore-2013')
+        self.assertEqual(radar_row['layers']['radar']['state'], 'context')
+        self.assertEqual({item['id'] for kind, item in radar_row['layers']['radar']['items']}, expected_radar)
+        for kind, item in radar_row['layers']['radar']['items']:
+            self.assertEqual(kind, 'media')
+            self.assertEqual(item['kind'], 'radar')
+            self.assertIsNone(item['time']['alignment'])
+            self.assertIsNone(item['place']['coordinates'])
+            self.assertEqual(item['status']['spatial'], 'unregistered')
         expected_gaps = {'reported-siren-clock', 'briarwood-rating-revision',
                          'preliminary-precursor-difference', 'survey-photo-source-group'}
         self.assertEqual(set(refs['damage']['observations']), expected_damage)

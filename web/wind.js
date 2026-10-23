@@ -7,8 +7,8 @@ function settings() {
   const s=Object.fromEntries(ids.map(id=>[id,Number(el(id).value)]));
   return {...s,peak:s.peak*MPH,radius:s.radius*FOOT,background:s.background*MPH};
 }
-function palette(value) {
-  const a=[65,127,139],b=[231,182,121],p=Math.min(1,Math.max(0,value));
+function palette(value,colors) {
+  const {slow:a,fast:b}=colors,p=Math.min(1,Math.max(0,value));
   return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*p)).join(',')})`;
 }
 function resetParticles() {
@@ -25,34 +25,36 @@ function draw(elapsed=0) {
   if(!ctx)return;
   const s=settings(),{width,height,scale,cx,cy}=geometry();
   ctx.clearRect(0,0,width,height);
-  const max=s.peak+s.background;
+  const max=s.peak+s.background,reading=getComputedStyle(canvas);
+  const channels=name=>reading.getPropertyValue(name).trim().split(',').map(Number);
+  const colors={slow:channels('--wind-slow-rgb'),fast:channels('--wind-fast-rgb'),text:reading.color,muted:reading.getPropertyValue('--muted').trim()};
   // Field is in core-radius units. Y increases northward, opposite canvas Y.
   for (let y=-2.5;y<=2.5;y+=.25) for (let x=-3.5;x<=3.5;x+=.25) {
-    const w=windAt(x*s.radius,y*s.radius,s),p=w.speed/max;
-    ctx.fillStyle=palette(p);ctx.globalAlpha=.055+.09*p;
+    const w=windAt(x*s.radius,y*s.radius,s),p=max>0?w.speed/max:0;
+    ctx.fillStyle=palette(p,colors);ctx.globalAlpha=.055+.09*p;
     ctx.fillRect(cx+x*scale-scale*.125,cy-y*scale-scale*.125,scale*.25+1,scale*.25+1);
     ctx.globalAlpha=.85;
     if (w.speed<1e-6) continue;
     const len=scale*(.07+.08*p),dx=w.u/w.speed*len,dy=-w.v/w.speed*len;
     const px=cx+x*scale,py=cy-y*scale;
-    ctx.strokeStyle=palette(p);ctx.lineWidth=1;
+    ctx.strokeStyle=palette(p,colors);ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(px-dx/2,py-dy/2);ctx.lineTo(px+dx/2,py+dy/2);
     ctx.moveTo(px+dx/2-dx*.35-dy*.23,py+dy/2-dy*.35+dx*.23);ctx.lineTo(px+dx/2,py+dy/2);ctx.lineTo(px+dx/2-dx*.35+dy*.23,py+dy/2-dy*.35-dx*.23);ctx.stroke();
   }
-  ctx.globalAlpha=1;ctx.strokeStyle='#d6c5a0';ctx.lineWidth=1;ctx.setLineDash([5,6]);
+  ctx.globalAlpha=1;ctx.strokeStyle=colors.muted;ctx.lineWidth=1;ctx.setLineDash([5,6]);
   ctx.beginPath();ctx.arc(cx,cy,scale,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#b3bbae';ctx.font='11px '+getComputedStyle(canvas).fontFamily;ctx.fillText('N ↑',18,24);
+  ctx.fillStyle=colors.muted;ctx.font='11px '+reading.fontFamily;ctx.fillText('N ↑',18,24);
   ctx.textAlign='right';ctx.fillText(`R = ${Math.round(s.radius/FOOT)} ft`,width-18,24);ctx.textAlign='left';
   if (elapsed) for (const point of particles) {
     advanceWindTracer(point,s,elapsed);
     if (Math.abs(point.x)>3.6 || Math.abs(point.y)>2.7) {point.x=-3.5;point.y=((point.y+2.7)%5.4+5.4)%5.4-2.7;}
   }
-  ctx.fillStyle='#f8ead0';
+  ctx.fillStyle=colors.text;
   for (const point of particles) {ctx.beginPath();ctx.arc(cx+point.x*scale,cy-point.y*scale,1.15,0,Math.PI*2);ctx.fill();}
   const px=cx+s['probe-x']*scale,py=cy-s['probe-y']*scale;
-  ctx.strokeStyle='#fff8ed';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.moveTo(px-14,py);ctx.lineTo(px+14,py);ctx.moveTo(px,py-14);ctx.lineTo(px,py+14);ctx.stroke();
+  ctx.strokeStyle=colors.text;ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.moveTo(px-14,py);ctx.lineTo(px+14,py);ctx.moveTo(px,py-14);ctx.lineTo(px,py+14);ctx.stroke();
   // Keep the moving annotation below the fixed north/radius legend and inside the field.
-  ctx.fillStyle='#fff8ed';ctx.fillText('PROBE',Math.max(8,Math.min(width-ctx.measureText('PROBE').width-8,px+14)),Math.max(52,Math.min(height-10,py-13)));
+  ctx.fillStyle=colors.text;ctx.fillText('PROBE',Math.max(8,Math.min(width-ctx.measureText('PROBE').width-8,px+14)),Math.max(52,Math.min(height-10,py-13)));
 }
 function update() {
   const s=settings(),wind=windAt(s['probe-x']*s.radius,s['probe-y']*s.radius,s),load=loadAt(wind.speed,s);
@@ -93,6 +95,9 @@ new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible
 new ResizeObserver(()=>draw()).observe(canvas);
 document.fonts.ready.then(()=>draw());
 if(!ctx){el('wind-motion').disabled=true;el('wind-field-failure').hidden=false;pause();}
+// Redrawing a paused field changes its colors without advancing the tracers.
+new MutationObserver(()=>draw()).observe(document.documentElement,{attributes:true,attributeFilter:['data-appearance']});
+matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{if(!document.documentElement.hasAttribute('data-appearance'))draw();});
 resetParticles();update();
 
 export {update as refreshWind,pause as pauseWind};
