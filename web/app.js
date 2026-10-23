@@ -231,7 +231,7 @@ async function main() {
     if (ownsInitialFragment && location.hash === initialHash && id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
     retireInitialFragment();
     document.body.dataset.exhibitReady = 'true';
-    byId('enhancement-status').hidden = true;
+    // Keep the reading guidance in flow when startup finishes.
     });
     layout.retire();
   });
