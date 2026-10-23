@@ -12,15 +12,15 @@ automatically. `Search this area` stores the current rectangle as a filter until
 the reader replaces or removes it. Shared links preserve the rectangle without
 rounding its edges.
 
-Known-tornado names and the reviewed-exhibit filter connect the separately
-retained source rows to their accepted documentary accounts. This includes
+Searching by a known tornado name or using the `Has a reviewed exhibit` filter
+connects separately retained source rows to their accepted documentary accounts. This includes
 Blackwell's Dossier account without changing its coverage classification. A link
 to an article does not register a camera, merge county records or create a replay.
 
 The publisher checks `research/catalogue-dossier-links.json` against the accepted
 dossier memberships and `exhibits/events.json` before opening the catalogue or
 writing outputs. Unknown, conflicting or ambiguous article associations are
-refused. The older `research/record-aliases.json` remains byte-for-byte intact
+refused. The older `research/record-aliases.json` retains its exact bytes
 because the historical archive adapters bind that file's hash. Its existing names
 and association text remain in the effective catalogue annotations. Photograph
 associations keep their separate existing builder and permission scope.
@@ -101,9 +101,10 @@ hashes and keeps source, creator, license and registration limits. These are
 event-level photograph associations. They do not identify the reported start
 position, a particular county segment, or an inferred camera location.
 
-The catalogue strip uses the accepted 640-pixel full-frame reading versions of
-Daniel Rodriguez’s two El Reno photographs. Opening either photograph still loads
-its unchanged full-size original through the existing museum photo viewer. A
+The catalogue strip uses the accepted reading versions of Daniel Rodriguez’s two
+El Reno photographs. Each is 640 pixels wide and preserves the complete image.
+Opening either photograph loads its unchanged original at full resolution through
+the existing museum photo viewer. A
 failed reading preview tries its original once, then removes only the failed
 image while keeping the photograph button. A retired selection cannot start
 that fallback or alter the current image. Other catalogue photographs keep

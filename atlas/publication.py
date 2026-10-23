@@ -140,7 +140,7 @@ def reviewed_catalogue_aliases(aliases: dict, links: dict, event_index: dict,
 
 def load_catalogue_aliases(root: Path = ROOT) -> dict:
     # The legacy alias file is a hashed historical adapter input. Keep its bytes
-    # intact and apply catalogue-only annotations after checking accepted joins.
+    # intact and apply the catalogue annotations after checking accepted joins.
     # Import locally because archive also imports publication's write helpers.
     from .archive import dossiers
     aliases = json.loads((root / 'research/record-aliases.json').read_text(encoding='utf-8'))

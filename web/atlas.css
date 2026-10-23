@@ -110,7 +110,7 @@
  .explore-heading h1{font-size:27px}.explore-heading{gap:0}.explore-heading p{font-size:12px}
  .wide-filter{flex-basis:100%}.search-row{gap:6px}.search-row>button{flex:1}#advanced{flex:1}#advanced summary{text-align:center}
  .filter-grid{position:absolute;top:50px;left:auto;right:0;width:calc(100vw - 20px);max-height:60dvh;overflow:auto;grid-template-columns:1fr}
- .mobile-views{display:flex;gap:6px;margin:8px 0}.mobile-views button{flex:1;font-size:13px}.atlas-explorer .mobile-views button[aria-pressed=true]{background:var(--text);color:var(--bg)}
+ .mobile-views{display:flex;gap:6px;margin:8px 0}.mobile-views button{flex:1;font-size:13px;overflow-wrap:anywhere}.atlas-explorer .mobile-views button[aria-pressed=true]{background:var(--text);color:var(--bg)}
  .atlas-layout{display:block}.browse-panel{max-height:none}.atlas-layout[data-mobile-view=map] .browse-panel{display:none}.atlas-layout:not([data-mobile-view=map]) #map-panel{display:none}
  .map-tools{padding:6px}.map-tools>select{max-width:145px}
  #world-map{height:max(330px,calc(100svh - 400px));min-height:330px;touch-action:pan-y}

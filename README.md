@@ -18,6 +18,8 @@ A separate interactive 3D form study starts the visual work, and a wind laborato
 
 [Explore the atlas](https://T92T1914.github.io/tornado-atlas/atlas.html) · [El Reno exhibit](https://T92T1914.github.io/tornado-atlas/) · [El Reno spatial replay](https://T92T1914.github.io/tornado-atlas/reconstruction.html) · [3D form study](https://T92T1914.github.io/tornado-atlas/study.html) · [Wind laboratory](https://T92T1914.github.io/tornado-atlas/wind.html)
 
+[Read in another language](https://github.com/T92T1914/T92T1914/blob/main/TRANSLATION.md).
+
 The [evidence dossiers](https://t92t1914.github.io/tornado-atlas/dossier.html)
 connect source records, attributed observations, credited creators and original
 media links. El Reno, Joplin, Blackwell and Tuscaloosa share a dossier view, while any
