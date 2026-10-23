@@ -9,10 +9,10 @@ const end = source.indexOf('async function main()',start);
 assert.ok(start >= 0 && end > start,'Exercise the actual startup owner from the application');
 const implementation = source.slice(start,end) + '\nstartupReaderPosition';
 
-function model(initial = [],kind = 'source') {
+function model(initial = [],kind = 'source',{primeOnRead = false} = {}) {
  const values = new Map(initial.map(([name,value,priority = ''])=>[name,{value,priority}]));
  const writes = [],listeners = new Map();
- let position = 200,scroll = 0,queued = 0,measureError = null,restoreError = null,scrollCalls = 0;
+ let position = 200,scroll = 0,queued = 0,measureError = null,restoreError = null,scrollCalls = 0,firstRead = true,nativePrimed = false,onMeasure = null;
  const style = {
   getPropertyValue: name=>values.get(name)?.value || '',
   getPropertyPriority: name=>values.get(name)?.priority || '',
@@ -25,6 +25,8 @@ function model(initial = [],kind = 'source') {
  const button = {isConnected:true,matches: selector=>selector === 'a[href]' ? kind === 'source' : kind === 'clip',
   getBoundingClientRect() {
    if (measureError) throw measureError;
+   if (firstRead) {firstRead = false;nativePrimed = primeOnRead && style.getPropertyValue('overflow-anchor') !== 'none';}
+   onMeasure?.();
    return {top:position-scroll,bottom:position-scroll+20,width:100,height:20};
   },
  };
@@ -40,8 +42,9 @@ function model(initial = [],kind = 'source') {
  return {owner,style,writes,listeners,button,location,emit,
   press:()=>emit('pointerdown'),top:()=>position-scroll,scrollCalls:()=>scrollCalls,
   move(delta) {position += delta;},
-  queueNative(delta) {position += delta;if (style.getPropertyValue('overflow-anchor') !== 'none') queued += delta;},
+  queueNative(delta) {position += delta;if (nativePrimed || style.getPropertyValue('overflow-anchor') !== 'none') queued += delta;},
   finishNative() {scroll += queued;queued = 0;},
+  observeMeasure(callback) {onMeasure = callback;},
   failMeasure(error) {measureError = error;},failRestore(error) {restoreError = error;},
  };
 }
@@ -74,8 +77,8 @@ test('an update without an owner does not alter anchoring or scroll',()=>{
  assert.deepEqual(m.writes,[]);assert.equal(m.scrollCalls(),0);assert.equal(m.top(),260);
 });
 
-test('detached offscreen and changed route owners do not take the property',()=>{
- for (const invalidate of [m=>m.button.isConnected=false,m=>m.move(1000),m=>m.location.hash='#new']) {
+test('detached and changed route owners do not take the property',()=>{
+ for (const invalidate of [m=>m.button.isConnected=false,m=>m.location.hash='#new']) {
   const m = model();m.press();invalidate(m);m.owner.update(()=>m.move(50));
   assert.deepEqual(m.writes,[]);assert.equal(m.scrollCalls(),0);
  }
@@ -110,4 +113,42 @@ test('the original mutation error survives a later restoration error',()=>{
 test('an existing clip owner retains manual correction without source opt out',()=>{
  const m = model([['overflow-anchor','auto','important']],'clip');m.press();m.owner.update(()=>m.move(30));
  assert.deepEqual(m.writes,[]);assert.equal(m.top(),200);
+});
+
+test('a geometry read cannot prime a later native adjustment model',()=>{
+ for (const delta of [-141,480]) {
+  const m = model([['overflow-anchor','auto','important']],'source',{primeOnRead:true});m.press();
+  m.owner.update(()=>m.queueNative(delta));m.finishNative();
+  assert.equal(m.top(),200,'Exclusion covers the first geometry read as well as the mutation');
+  assert.equal(m.style.getPropertyValue('overflow-anchor'),'auto');
+  assert.equal(m.style.getPropertyPriority('overflow-anchor'),'important');
+ }
+});
+
+test('an offscreen owner restores the measured policy before mutation',()=>{
+ const m = model([['overflow-anchor','auto','important']]);m.press();m.move(1000);
+ m.owner.update(()=>{
+  assert.equal(m.style.getPropertyValue('overflow-anchor'),'auto');
+  assert.equal(m.style.getPropertyPriority('overflow-anchor'),'important');m.move(50);
+ });
+ assert.equal(m.style.getPropertyValue('overflow-anchor'),'auto');assert.equal(m.scrollCalls(),0);assert.equal(m.top(),1250);
+});
+
+test('ownership retired during measurement is restored before mutation',()=>{
+ const m = model([['overflow-anchor','auto','important']]);m.press();m.observeMeasure(()=>m.emit('pointermove',{clientX:2,clientY:2}));
+ m.owner.update(()=>{
+  assert.equal(m.style.getPropertyValue('overflow-anchor'),'auto');
+  assert.equal(m.style.getPropertyPriority('overflow-anchor'),'important');m.move(50);
+ });
+ assert.equal(m.scrollCalls(),0);assert.equal(m.top(),250);
+});
+
+test('the first measurement error survives restoration and prevents mutation',()=>{
+ for (const restorationFails of [false,true]) {
+  const m = model([['overflow-anchor','auto','important']]),original = new Error('first measurement'),secondary = new Error('restoration');let called = false;m.press();m.failMeasure(original);
+  if (restorationFails) m.failRestore(secondary);
+  assert.throws(()=>m.owner.update(()=>{called = true;}),error=>error === original);
+  assert.equal(called,false);assert.equal(m.scrollCalls(),0);
+  if (!restorationFails) {assert.equal(m.style.getPropertyValue('overflow-anchor'),'auto');assert.equal(m.style.getPropertyPriority('overflow-anchor'),'important');}
+ }
 });

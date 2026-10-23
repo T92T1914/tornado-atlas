@@ -50,34 +50,40 @@ function startupReaderPosition() {
   return {
     update(change) {
       const owner = anchor;
-      const before = owner?.button.isConnected && owner.route === sameRoute()
-        ? owner.button.getBoundingClientRect() : null;
-      const scrollStyle = owner?.button.matches('a[href]') && before?.width > 0 && before.height > 0
-        && before.bottom > 0 && before.top < innerHeight ? document.scrollingElement?.style : null;
+      const current = () => owner && anchor === owner && owner.button.isConnected && owner.route === sameRoute();
+      const visible = rect => rect?.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight;
+      let scrollStyle = current() && owner.button.matches('a[href]') ? document.scrollingElement?.style : null;
       const previousAnchoring = scrollStyle ? [scrollStyle.getPropertyValue('overflow-anchor'),scrollStyle.getPropertyPriority('overflow-anchor')] : null;
-      let failed = false;
+      const restoreAnchoring = () => {
+        if (scrollStyle?.getPropertyValue('overflow-anchor') === 'none' && scrollStyle.getPropertyPriority('overflow-anchor') === 'important') {
+          if (previousAnchoring[0]) scrollStyle.setProperty('overflow-anchor',...previousAnchoring);
+          else scrollStyle.removeProperty('overflow-anchor');
+        }
+      };
+      let before = null,failed = false;
       try {
-        // Keep browser anchoring out of this owned correction.
+        // Exclude browser anchoring before the first geometry read.
         scrollStyle?.setProperty('overflow-anchor','none','important');
+        before = current() ? owner.button.getBoundingClientRect() : null;
+        if (scrollStyle && (!current() || !visible(before))) {
+          restoreAnchoring();
+          scrollStyle = null;
+        }
         return change();
       }
       catch (error) { failed = true; throw error; }
       finally {
         try {
-        // Late enhancements can grow above an independently usable source.
-        // Keep the active reader choice at its original viewport position.
-        if (owner && anchor === owner && owner.button.isConnected && owner.route === sameRoute() && before?.width > 0 && before.height > 0 && before.bottom > 0 && before.top < innerHeight) {
-          const after = owner.button.getBoundingClientRect();
-          if (after.width > 0 && after.height > 0 && after.top !== before.top) window.scrollBy({top:after.top-before.top,behavior:'instant'});
-        }
+          // Late enhancements can grow above an independently usable source.
+          // Keep the active reader choice at its original viewport position.
+          if (current() && visible(before)) {
+            const after = owner.button.getBoundingClientRect();
+            if (after.width > 0 && after.height > 0 && after.top !== before.top) window.scrollBy({top:after.top-before.top,behavior:'instant'});
+          }
         } catch (error) { if (!failed) { failed = true; throw error; } }
         finally {
-          try {
-            if (scrollStyle?.getPropertyValue('overflow-anchor') === 'none' && scrollStyle.getPropertyPriority('overflow-anchor') === 'important') {
-              if (previousAnchoring[0]) scrollStyle.setProperty('overflow-anchor',...previousAnchoring);
-              else scrollStyle.removeProperty('overflow-anchor');
-            }
-          } catch (error) { if (!failed) throw error; }
+          try { restoreAnchoring(); }
+          catch (error) { if (!failed) throw error; }
         }
       }
     },
