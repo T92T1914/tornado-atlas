@@ -133,7 +133,7 @@ jobs:
             exit 1
           fi
   verify-browser:
-    name: Verify full browser journeys (${{ matrix.engine }})
+    name: Verify full browser journeys (${{ matrix.engine }}, ${{ matrix.part }}/${{ matrix.total }})
     needs: verify-source
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -144,12 +144,22 @@ jobs:
         include:
           - engine: chromium
             channel: chrome
+            part: 1
+            total: 1
           - engine: webkit
             channel: ''
+            part: 1
+            total: 2
+          - engine: webkit
+            channel: ''
+            part: 2
+            total: 2
           - engine: firefox
             channel: ''
+            part: 1
+            total: 1
     concurrency:
-      group: atlas-verify-browser-${{ matrix.engine }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+      group: atlas-verify-browser-${{ matrix.engine }}-${{ matrix.part }}-of-${{ matrix.total }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v4
@@ -221,18 +231,19 @@ jobs:
         env:
           ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
           ATLAS_BROWSER_CHANNEL: ${{ matrix.channel }}
+          ATLAS_TEST_SHARD: ${{ matrix.part }}/${{ matrix.total }}
         run: |
           case "$ATLAS_BROWSER_ENGINE" in
             chromium)
-              python tools/run_browser_checks.py chromium -- npm run test:browser
+              python tools/run_browser_checks.py chromium -- node --test --test-concurrency=1 --test-reporter=tap --test-shard="$ATLAS_TEST_SHARD" tests/browser/*.test.mjs
               ;;
             webkit)
               npx playwright install --with-deps webkit
-              python tools/run_browser_checks.py webkit -- npm run test:browser
+              python tools/run_browser_checks.py webkit -- node --test --test-concurrency=1 --test-reporter=tap --test-shard="$ATLAS_TEST_SHARD" tests/browser/*.test.mjs
               ;;
             firefox)
               npx playwright install --with-deps firefox
-              python tools/run_browser_checks.py firefox -- npm run test:browser
+              python tools/run_browser_checks.py firefox -- node --test --test-concurrency=1 --test-reporter=tap --test-shard="$ATLAS_TEST_SHARD" tests/browser/*.test.mjs
               ;;
             *)
               echo "Unknown full browser engine." >&2
@@ -243,7 +254,7 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4
         with:
-          name: browser-failure-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}-${{ matrix.engine }}
+          name: browser-failure-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}-${{ matrix.engine }}-${{ matrix.part }}-of-${{ matrix.total }}
           path: ci-diagnostics/
           retention-days: 7
           if-no-files-found: warn
