@@ -167,6 +167,51 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Select existing HTTPS Ubuntu archive fallback
+        if: ${{ runner.environment == 'github-hosted' && matrix.engine != 'chromium' }}
+        run: |
+          sudo python3 - <<'ATLAS_APT_MIRROR_PY'
+          from pathlib import Path
+          import os
+          import stat
+
+          mirror = Path('/etc/apt/apt-mirrors.txt')
+          azure_uri = b'http://azure.archive.ubuntu.com/ubuntu/'
+          archive_uri = b'https://archive.ubuntu.com/ubuntu/'
+          identity = lambda item: (item.st_dev, item.st_ino, item.st_size, item.st_mtime_ns)
+          initial = mirror.lstat()
+          if not stat.S_ISREG(initial.st_mode) or initial.st_size > 4096:
+              raise SystemExit('Expected a regular Ubuntu mirror file of at most 4096 bytes.')
+          flags = os.O_RDWR | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+          descriptor = os.open(mirror, flags)
+          try:
+              opened = os.fstat(descriptor)
+              if not stat.S_ISREG(opened.st_mode) or identity(opened) != identity(initial):
+                  raise SystemExit('Ubuntu mirror file changed before validation.')
+              mirror_bytes = os.read(descriptor, 4097)
+              if len(mirror_bytes) > 4096 or len(mirror_bytes) != opened.st_size:
+                  raise SystemExit('Ubuntu mirror file is oversized or changed while reading.')
+              lines = mirror_bytes.splitlines(keepends=True)
+              first_token = lambda line: line.split()[0] if line.split() else None
+              if not any(first_token(line) == archive_uri for line in lines):
+                  raise SystemExit('The existing exact HTTPS Ubuntu archive fallback is missing.')
+              revised = b''.join(line for line in lines if first_token(line) != azure_uri)
+              if revised != mirror_bytes:
+                  current = mirror.lstat()
+                  if not stat.S_ISREG(current.st_mode) or identity(current) != identity(opened) or identity(os.fstat(descriptor)) != identity(opened):
+                      raise SystemExit('Ubuntu mirror file changed before the bounded update.')
+                  os.lseek(descriptor, 0, os.SEEK_SET)
+                  written = 0
+                  while written < len(revised):
+                      amount = os.write(descriptor, revised[written:])
+                      if amount <= 0:
+                          raise OSError('Ubuntu mirror write made no progress.')
+                      written += amount
+                  os.ftruncate(descriptor, len(revised))
+              print(f'Removed {len(lines) - len(revised.splitlines(keepends=True))} exact Azure HTTP mirror entries. Retained existing HTTPS fallbacks.')
+          finally:
+              os.close(descriptor)
+          ATLAS_APT_MIRROR_PY
       - name: Install browser test dependencies
         id: browser_dependencies
         run: npm ci --ignore-scripts --no-fund
@@ -249,6 +294,51 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Select existing HTTPS Ubuntu archive fallback
+        if: ${{ runner.environment == 'github-hosted' }}
+        run: |
+          sudo python3 - <<'ATLAS_APT_MIRROR_PY'
+          from pathlib import Path
+          import os
+          import stat
+
+          mirror = Path('/etc/apt/apt-mirrors.txt')
+          azure_uri = b'http://azure.archive.ubuntu.com/ubuntu/'
+          archive_uri = b'https://archive.ubuntu.com/ubuntu/'
+          identity = lambda item: (item.st_dev, item.st_ino, item.st_size, item.st_mtime_ns)
+          initial = mirror.lstat()
+          if not stat.S_ISREG(initial.st_mode) or initial.st_size > 4096:
+              raise SystemExit('Expected a regular Ubuntu mirror file of at most 4096 bytes.')
+          flags = os.O_RDWR | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+          descriptor = os.open(mirror, flags)
+          try:
+              opened = os.fstat(descriptor)
+              if not stat.S_ISREG(opened.st_mode) or identity(opened) != identity(initial):
+                  raise SystemExit('Ubuntu mirror file changed before validation.')
+              mirror_bytes = os.read(descriptor, 4097)
+              if len(mirror_bytes) > 4096 or len(mirror_bytes) != opened.st_size:
+                  raise SystemExit('Ubuntu mirror file is oversized or changed while reading.')
+              lines = mirror_bytes.splitlines(keepends=True)
+              first_token = lambda line: line.split()[0] if line.split() else None
+              if not any(first_token(line) == archive_uri for line in lines):
+                  raise SystemExit('The existing exact HTTPS Ubuntu archive fallback is missing.')
+              revised = b''.join(line for line in lines if first_token(line) != azure_uri)
+              if revised != mirror_bytes:
+                  current = mirror.lstat()
+                  if not stat.S_ISREG(current.st_mode) or identity(current) != identity(opened) or identity(os.fstat(descriptor)) != identity(opened):
+                      raise SystemExit('Ubuntu mirror file changed before the bounded update.')
+                  os.lseek(descriptor, 0, os.SEEK_SET)
+                  written = 0
+                  while written < len(revised):
+                      amount = os.write(descriptor, revised[written:])
+                      if amount <= 0:
+                          raise OSError('Ubuntu mirror write made no progress.')
+                      written += amount
+                  os.ftruncate(descriptor, len(revised))
+              print(f'Removed {len(lines) - len(revised.splitlines(keepends=True))} exact Azure HTTP mirror entries. Retained existing HTTPS fallbacks.')
+          finally:
+              os.close(descriptor)
+          ATLAS_APT_MIRROR_PY
       - name: Install focused WebKit dependencies
         id: focused_browser_dependencies
         run: |

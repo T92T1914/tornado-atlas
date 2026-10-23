@@ -5,7 +5,7 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
   if(!L) throw new Error('Map controls could not load. Use the record list.');
   const worldBounds=[[-85,-180],[85,180]],zoomSnap=.25,maxZoom=16;
   const map=L.map(host,{minZoom:0,maxZoom,zoomControl:false,zoomSnap,
-    worldCopyJump:false,maxBounds:worldBounds,maxBoundsViscosity:1,
+    worldCopyJump:false,maxBounds:worldBounds,maxBoundsViscosity:1,trackResize:false,
     zoomAnimation:false,fadeAnimation:false,markerZoomAnimation:false,inertia:false,
     scrollWheelZoom:!matchMedia('(pointer:coarse)').matches,
     dragging:!matchMedia('(max-width:760px)').matches});
@@ -18,7 +18,7 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
   map.attributionControl.setPrefix('Leaflet');
   map.attributionControl.addAttribution('<a href="https://www.naturalearthdata.com/about/terms-of-use/">Natural Earth</a> | NOAA records');
   const markers=L.layerGroup().addTo(map),selection=L.layerGroup().addTo(map);
-  let footprint=null;
+  let footprint=null,resizing=false;
   let records=[],selected=null,revealDisputed=false,tiles=null,layer='local',tileGeneration=0,cancelTileWait=()=>{};
   const narrow=matchMedia('(max-width:760px)');
   let explicitDragging=null;
@@ -63,7 +63,7 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
     }
     onCount(summary);renderSelection();
   }
-  map.on('moveend',()=>{render();onView();});
+  map.on('moveend',()=>{if(!resizing){render();onView();}});
   function setLayer(mode) {
     tileGeneration++;const token=tileGeneration;cancelTileWait();
     if(tiles){tiles.remove();tiles=null;}
@@ -101,7 +101,22 @@ export function mountExplorerMap(host,{onSelect,onGroup,onView,onCount,onStatus}
   }
   // Hidden mobile panels retain their last useful size and zoom boundary.
   // Growth clamps an invalid view. Shrink allows a wider view without forcing it.
-  function resizeMap(){if(host.clientWidth&&host.clientHeight){map.invalidateSize({animate:false});fitWorldMinimum();}}
+  function resizeMap(){
+    const width=host.clientWidth,height=host.clientHeight;
+    if(!width||!height)return;
+    const size=map.getSize();
+    if(size.x===width&&size.y===height)return;
+    const center=map.getCenter(),zoom=map.getZoom();
+    resizing=true;
+    try{
+      // Rebuild the pixel origin from the retained view. Rounded half pixels
+      // during resize must not change the reader's saved view.
+      map.invalidateSize({animate:false,pan:false});
+      map.setView(center,zoom,{animate:false,reset:true});
+      fitWorldMinimum();
+    }finally{resizing=false;}
+    render();onView();
+  }
   fitWorldMinimum();
   const resize=new ResizeObserver(resizeMap);resize.observe(host);
   return {

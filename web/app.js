@@ -25,39 +25,66 @@ function startupReaderPosition() {
   const sameRoute = () => location.pathname + location.hash;
   const choose = event => {
     if (!event.isTrusted) return;
-    const button = event.target.closest?.('[data-clip-action]');
+    const button = event.target.closest?.('[data-clip-action],a[href]');
     if (event.type === 'pointerdown') {
       anchor = event.isPrimary && event.button === 0 && button ? {button,route:sameRoute()} : null;
     } else if (event.type === 'keydown') {
-      if (button && ['Enter',' '].includes(event.key)) anchor = {button,route:sameRoute()};
+      if (button && (event.key === 'Enter' || event.key === ' ' && button.matches('[data-clip-action]'))) anchor = {button,route:sameRoute()};
       else clear();
     }
   };
+  const nativeLink = () => anchor?.button.matches('a[href]');
+  const sourceMoved = event => {
+    if (nativeLink() && document.elementFromPoint(event.clientX,event.clientY)?.closest('a[href]') !== anchor.button) clear();
+  };
+  const sourceActivated = () => { if (nativeLink()) clear(); };
   const focusChanged = () => { if (anchor && document.activeElement !== anchor.button) clear(); };
   const hidden = () => { if (document.hidden) clear(); };
   const events = [
     ['pointerdown',choose],['keydown',choose],['wheel',clear],['touchmove',clear],
-    ['pointercancel',clear],['focusin',focusChanged],['hashchange',clear],
+    ['pointercancel',clear],['pointermove',sourceMoved],['click',sourceActivated],
+    ['focusin',focusChanged],['hashchange',clear],
     ['popstate',clear],['resize',clear],['pagehide',clear],['visibilitychange',hidden],
   ];
   for (const [type,handler] of events) window.addEventListener(type,handler,{capture:true,passive:true});
   return {
     update(change) {
       const owner = anchor;
-      const before = owner?.button.isConnected && owner.route === sameRoute()
-        ? owner.button.getBoundingClientRect() : null;
-      let failed = false;
-      try { return change(); }
+      const current = () => owner && anchor === owner && owner.button.isConnected && owner.route === sameRoute();
+      const visible = rect => rect?.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight;
+      let scrollStyle = current() && owner.button.matches('a[href]') ? document.scrollingElement?.style : null;
+      const previousAnchoring = scrollStyle ? [scrollStyle.getPropertyValue('overflow-anchor'),scrollStyle.getPropertyPriority('overflow-anchor')] : null;
+      const restoreAnchoring = () => {
+        if (scrollStyle?.getPropertyValue('overflow-anchor') === 'none' && scrollStyle.getPropertyPriority('overflow-anchor') === 'important') {
+          if (previousAnchoring[0]) scrollStyle.setProperty('overflow-anchor',...previousAnchoring);
+          else scrollStyle.removeProperty('overflow-anchor');
+        }
+      };
+      let before = null,failed = false;
+      try {
+        // Exclude browser anchoring before the first geometry read.
+        scrollStyle?.setProperty('overflow-anchor','none','important');
+        before = current() ? owner.button.getBoundingClientRect() : null;
+        if (scrollStyle && (!current() || !visible(before))) {
+          restoreAnchoring();
+          scrollStyle = null;
+        }
+        return change();
+      }
       catch (error) { failed = true; throw error; }
       finally {
         try {
-        // Late enhancements can grow above an independently usable clip.
-        // Correct only the residual movement after native scroll anchoring.
-        if (owner && anchor === owner && owner.button.isConnected && owner.route === sameRoute() && before?.width > 0 && before.height > 0 && before.bottom > 0 && before.top < innerHeight) {
-          const after = owner.button.getBoundingClientRect();
-          if (after.width > 0 && after.height > 0 && after.top !== before.top) window.scrollBy({top:after.top-before.top,behavior:'instant'});
+          // Late enhancements can grow above an independently usable source.
+          // Keep the active reader choice at its original viewport position.
+          if (current() && visible(before)) {
+            const after = owner.button.getBoundingClientRect();
+            if (after.width > 0 && after.height > 0 && after.top !== before.top) window.scrollBy({top:after.top-before.top,behavior:'instant'});
+          }
+        } catch (error) { if (!failed) { failed = true; throw error; } }
+        finally {
+          try { restoreAnchoring(); }
+          catch (error) { if (!failed) throw error; }
         }
-        } catch (error) { if (!failed) throw error; }
       }
     },
     retire() {
@@ -204,7 +231,7 @@ async function main() {
     if (ownsInitialFragment && location.hash === initialHash && id) document.getElementById(id)?.scrollIntoView({behavior:'instant',block:'start'});
     retireInitialFragment();
     document.body.dataset.exhibitReady = 'true';
-    byId('enhancement-status').hidden = true;
+    // Keep the reading guidance in flow when startup finishes.
     });
     layout.retire();
   });

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "accepted_main": "2693e7e5af71070e1a2695b555478710821abbfe",
+  "basis": "Independent fourteen-record expectation frozen from the accepted dossier associations and documentary registry before the catalogue repair.",
+  "legacy_alias_sha256": "7068c7947896afa179a0d221798075421dbe638fc1fe0f81bfad307e1678125d",
+  "groups": [
+    {
+      "event_id": "el-reno-2013",
+      "query": "El Reno 2013",
+      "route": "index.html",
+      "records": [
+        "ncei:453682"
+      ]
+    },
+    {
+      "event_id": "joplin-2011",
+      "query": "Joplin 2011",
+      "route": "joplin.html",
+      "records": [
+        "ncei:296617",
+        "ncei:296620"
+      ]
+    },
+    {
+      "event_id": "blackwell-1955",
+      "query": "Blackwell 1955",
+      "route": "blackwell.html",
+      "records": [
+        "ncei:10096417"
+      ]
+    },
+    {
+      "event_id": "moore-2013",
+      "query": "Newcastle Moore 2013",
+      "route": "moore.html",
+      "records": [
+        "ncei:451537",
+        "ncei:451572"
+      ]
+    },
+    {
+      "event_id": "tuscaloosa-birmingham-2011",
+      "query": "Tuscaloosa Birmingham 2011",
+      "route": "tuscaloosa.html",
+      "records": [
+        "ncei:314625",
+        "ncei:314662",
+        "ncei:314663"
+      ]
+    },
+    {
+      "event_id": "udall-1955",
+      "query": "Udall 1955",
+      "route": "udall.html",
+      "records": [
+        "ncei:10096418",
+        "ncei:10027629",
+        "ncei:10027630",
+        "ncei:10027631",
+        "ncei:10027632"
+      ]
+    }
+  ],
+  "unrelated_record": "ncei:1222429"
+}

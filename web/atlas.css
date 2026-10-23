@@ -9,7 +9,7 @@
 .museum-feature-copy p {font-size:15px;color:var(--muted)}
 .museum-feature-copy .museum-credit {font-size:11px;margin:26px 0 0}
 .museum-routes {display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:22px}
-.museum-routes article {padding:26px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.museum-routes article {min-width:0;overflow-wrap:anywhere;padding:26px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .museum-routes h2 {font:27px Georgia,serif;margin:15px 0}
 .museum-routes p {font-size:14px;color:var(--muted)}
 .museum-routes a {font-size:14px}
@@ -28,6 +28,7 @@
 .atlas-explorer button:disabled {opacity:.5;cursor:default}
 .explore-heading {display:flex;align-items:baseline;gap:25px;flex-wrap:wrap;padding-top:12px}
 .explore-heading h1 {font:32px Georgia,serif;letter-spacing:-.6px;margin:0}
+.atlas-explorer .explore-heading h2 {min-width:0;overflow-wrap:anywhere}
 .explore-heading p {font-size:13px;color:var(--muted);margin:6px 0}
 .search-row {display:flex;gap:8px;align-items:end;margin:12px 0 8px;flex-wrap:wrap}
 .wide-filter {flex:1;min-width:220px}
@@ -109,7 +110,7 @@
  .explore-heading h1{font-size:27px}.explore-heading{gap:0}.explore-heading p{font-size:12px}
  .wide-filter{flex-basis:100%}.search-row{gap:6px}.search-row>button{flex:1}#advanced{flex:1}#advanced summary{text-align:center}
  .filter-grid{position:absolute;top:50px;left:auto;right:0;width:calc(100vw - 20px);max-height:60dvh;overflow:auto;grid-template-columns:1fr}
- .mobile-views{display:flex;gap:6px;margin:8px 0}.mobile-views button{flex:1;font-size:13px}.atlas-explorer .mobile-views button[aria-pressed=true]{background:var(--text);color:var(--bg)}
+ .mobile-views{display:flex;gap:6px;margin:8px 0}.mobile-views button{flex:1;font-size:13px;overflow-wrap:anywhere}.atlas-explorer .mobile-views button[aria-pressed=true]{background:var(--text);color:var(--bg)}
  .atlas-layout{display:block}.browse-panel{max-height:none}.atlas-layout[data-mobile-view=map] .browse-panel{display:none}.atlas-layout:not([data-mobile-view=map]) #map-panel{display:none}
  .map-tools{padding:6px}.map-tools>select{max-width:145px}
  #world-map{height:max(330px,calc(100svh - 400px));min-height:330px;touch-action:pan-y}

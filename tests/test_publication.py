@@ -4,9 +4,57 @@ import unittest
 
 from atlas.catalogue import import_ncei
 from atlas.ncei import normalize
-from atlas.publication import export_catalogue, select_index, location_review
+from atlas.publication import export_catalogue, select_index, location_review, json_bytes
 import test_catalogue as fixtures
 from test_catalogue import sample
+
+
+class CanonicalEncodingTests(unittest.TestCase):
+    def test_incremental_encoding_preserves_existing_canonical_bytes(self):
+        # The established serializer is independent of the incremental producer.
+        values = [
+            None, True, False, [], {}, 0, -7, 2 ** 63, -0.0, 1.25, 1e-12, 1e100,
+            'Unicode: café, 東京, 🌪, e\u0301; escaped: \" \\ \n \t',
+            {'z': [None, False, {'a': -0.0}], 'a': {'3': 'last', '1': 'first'}},
+            {None: 'null key', 4: 'integer key', False: 'boolean key'},
+            [{'id': f'ncei:{i}', 'title': '東京 tornado', 'point': [-97.5, 35.5]}
+             for i in range(512)],
+        ]
+        for value in values:
+            with self.subTest(type=type(value).__name__):
+                expected = (json.dumps(value, ensure_ascii=False, separators=(',', ':'),
+                                       allow_nan=False) + '\n').encode('utf-8')
+                self.assertEqual(json_bytes(value), expected)
+
+    def test_nonfinite_circular_and_unsupported_values_remain_refused(self):
+        circular = []
+        circular.append(circular)
+        for value in [circular, float('nan'), float('inf'), -float('inf'),
+                      {'records': [{'point': [float('nan'), 0]}]}]:
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+                with self.assertRaises(ValueError):
+                    json_bytes(value)
+        for value in [object(), {'unsupported': {1, 2}}, {('tuple',): 'unsupported key'}]:
+            with self.subTest(type=type(value).__name__):
+                with self.assertRaises(TypeError):
+                    json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+                with self.assertRaises(TypeError):
+                    json_bytes(value)
+
+    def test_invalid_encoding_cannot_replace_an_existing_publication(self):
+        import tempfile
+        from pathlib import Path
+        from atlas.publication import write_json
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / 'index.json'
+            target.write_bytes(b'previous publication\n')
+            for value in [{'records': [float('inf')]}, {'unsupported': object()}]:
+                with self.subTest(value=value), self.assertRaises((ValueError, TypeError)):
+                    write_json(target, value)
+                self.assertEqual(target.read_bytes(), b'previous publication\n')
+                self.assertEqual(list(target.parent.iterdir()), [target])
 
 
 class BrowserIndexTests(unittest.TestCase):

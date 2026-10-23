@@ -7,8 +7,9 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
-from atlas.publication import location_review
+from atlas.publication import location_review, load_catalogue_aliases
 
+annotations = load_catalogue_aliases(root)
 reviews = json.loads((root/'research/location-reviews.json').read_text(encoding='utf-8'))
 folder = root / 'web/catalogue'
 index = json.loads((folder/'index.json').read_text(encoding='utf-8'))
@@ -27,6 +28,10 @@ for row in records:
         content = json.dumps(cache[target],ensure_ascii=False,separators=(',', ':'),allow_nan=False).encode()
         assert hashlib.sha256(content).hexdigest()[:20] in target.name, 'Detail content differs from its filename'
     detail = cache[target][row['id']]
+    annotation = annotations.get(row['id'])
+    assert row['aliases'] == (annotation or {}).get('names', []), 'Published catalogue names differ from reviewed annotations'
+    assert row['exhibit'] == (annotation or {}).get('exhibit'), 'Published article route differs from reviewed association'
+    assert detail.get('curation') == annotation, 'Published detail curation differs from reviewed annotation'
     assert detail.get('location_review') == location_review(detail, reviews), 'Published location review is stale or missing'
     assert row['rating'] == detail['rating']['reported']
     assert row['source_snapshot'] == detail['provenance']['snapshot_id']

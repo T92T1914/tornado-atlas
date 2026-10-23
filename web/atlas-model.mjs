@@ -103,3 +103,15 @@ export function color(rating) {
   const match = /^(?:EF|F)([0-5])$/.exec(rating || '');
   return match ? colors[Number(match[1])] : '#a9b8c0';
 }
+
+// These accepted full-frame reading copies are previews of two exact originals.
+// The original photo object still supplies the viewer, credit and source links.
+export function cataloguePreviewAsset(photo) {
+  if (photo.asset === 'assets/el-reno-2013/storm01.jpg'
+      && photo.sha256 === '0f345ef666729bd9b86d723772f371f0dde7acf9e7b7016896dfdd8c8db2c494')
+    return 'assets/el-reno-2013/storm01-640.jpg';
+  if (photo.asset === 'assets/el-reno-2013/storm02.jpg'
+      && photo.sha256 === '161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6')
+    return 'assets/el-reno-2013/storm02-640.jpg';
+  return photo.asset;
+}

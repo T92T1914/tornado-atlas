@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "associations": [
+    {
+      "event_id": "el-reno-2013",
+      "records": [
+        "ncei:453682"
+      ],
+      "names": [
+        "El Reno 2013"
+      ]
+    },
+    {
+      "event_id": "joplin-2011",
+      "records": [
+        "ncei:296617",
+        "ncei:296620"
+      ],
+      "names": [
+        "Joplin 2011"
+      ]
+    },
+    {
+      "event_id": "blackwell-1955",
+      "records": [
+        "ncei:10096417"
+      ],
+      "names": [
+        "Blackwell 1955"
+      ]
+    },
+    {
+      "event_id": "tuscaloosa-birmingham-2011",
+      "records": [
+        "ncei:314625",
+        "ncei:314662",
+        "ncei:314663"
+      ],
+      "names": [
+        "Tuscaloosa and Birmingham 2011",
+        "Tuscaloosa-Birmingham 2011"
+      ]
+    },
+    {
+      "event_id": "moore-2013",
+      "records": [
+        "ncei:451537",
+        "ncei:451572"
+      ],
+      "names": [
+        "Newcastle and Moore 2013",
+        "Newcastle-Moore 2013"
+      ]
+    },
+    {
+      "event_id": "udall-1955",
+      "records": [
+        "ncei:10096418",
+        "ncei:10027629",
+        "ncei:10027630",
+        "ncei:10027631",
+        "ncei:10027632"
+      ],
+      "names": [
+        "Udall 1955"
+      ]
+    }
+  ]
+}
