@@ -53,6 +53,10 @@ jobs:
           node --check web/explorer-map.mjs
           node --test tests/explorer-model.test.mjs tests/explorer-map.test.mjs
           node --check web/study.js
+          node --check web/lab-viewport.mjs
+          node --check web/lab-context.mjs
+          node --check web/lab-reference-view.mjs
+          node --test tests/lab-viewport.test.mjs
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
