@@ -1,5 +1,6 @@
 import {LAB_EVENTS,DEFAULT_EXPERIMENTS,readExperiment,experimentURL} from './experiment-state.mjs';
 import {mountLabReference} from './lab-reference-view.mjs';
+import {createLabViewportOwner} from './lab-viewport.mjs';
 
 // A small page adapter. Evidence navigation and model inputs remain separate.
 export function mountLabContext({kind,read,capture,apply}){
@@ -8,7 +9,8 @@ export function mountLabContext({kind,read,capture,apply}){
   const picker=get('lab-event'),share=get('lab-share'),message=get('lab-state'),account=get('lab-reference-account'),links=get('lab-reference-links');
   const evidence=document.createElement('section');evidence.id='lab-reference-evidence';
   links.closest('.lab-context-grid').after(evidence);
-  const referenceView=mountLabReference(evidence,()=>commit(capture(),'Experiment paused before opening the evidence.'));
+  const viewport=createLabViewportOwner();
+  const referenceView=mountLabReference(evidence,()=>{viewport.clear();return commit(capture(),'Experiment paused before opening the evidence.');},change=>viewport.update(change),()=>viewport.clear());
   const replaceInterval=250;
   let event=null,restoring=false,pending=null,timer=null,generation=0,lastReplace=-Infinity,currentEntry=null;
   const entryField='atlasLabEntryV1',departed=new Map();
@@ -78,6 +80,7 @@ export function mountLabContext({kind,read,capture,apply}){
     cancelPending();const url=experimentURL(location.href,kind,event,state);replace(url);departed.delete(currentEntry);showCurrent(url,notice);return url;
   }
   function reference(){
+    viewport.clear();
     picker.value=event??'';account.replaceChildren();links.replaceChildren();
     const row=LAB_EVENTS.find(item=>item.id===event);
     referenceView.show(row?.id??null);
