@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fixture,base,withNavigationDiagnostics} from './harness.mjs';
-import {beginSurveyActivation,finishSurveyActivation} from './survey-activation-diagnostics.mjs';
+import {beginSurveyActivation,finishSurveyActivation,withPlaybackStartDiagnostics} from './survey-activation-diagnostics.mjs';
 import {waitForSettledTouchTarget} from './touch-target-readiness.mjs';
 
 const data=JSON.parse(readFileSync(new URL('../../web/data.json',import.meta.url)));
@@ -147,8 +147,10 @@ test('survey choice during playback stores the current replay time before pausin
       ready:document.body.dataset.exhibitReady??null,visibility:document.visibilityState};
   });
   const initial=await readReplaySurvey();
-  await page.locator('#play').click();
-  await page.waitForFunction(()=>Number(document.getElementById('timeline').value)>780);
+  await withPlaybackStartDiagnostics(t,page,async()=>{
+    await page.locator('#play').click();
+    await page.waitForFunction(()=>Number(document.getElementById('timeline').value)>780);
+  });
   const beforeSelection=await readReplaySurvey();
   const next=page.locator('#survey-next');
   await next.scrollIntoViewIfNeeded();
@@ -182,8 +184,10 @@ test('survey choice during playback stores the current replay time before pausin
   await page.goForward();
   assert.equal(await page.locator('#survey-observation').inputValue(),'270275');
   assert.equal(Math.floor(savedTime),Number(await page.locator('#timeline').inputValue()));
-  await page.locator('#play').click();
-  await page.waitForFunction(time=>Number(document.getElementById('timeline').value)>Math.floor(time),savedTime);
+  await withPlaybackStartDiagnostics(t,page,async()=>{
+    await page.locator('#play').click();
+    await page.waitForFunction(time=>Number(document.getElementById('timeline').value)>Math.floor(time),savedTime);
+  });
   await page.locator('#survey-observation').selectOption('fatality:'+fatality.id);
   const protocolFatalityUrlAfterSelection=page.url(),completedFatality=await readReplaySurvey();
   t.diagnostic('SURVEY_REPLAY_FATALITY '+JSON.stringify({savedTime,
@@ -208,8 +212,10 @@ test('filtering during replay playback refreshes the current observation share t
   await page.goto(base+'/index.html?t=780&survey=270271&surveyPhotos=0#survey-explorer');
   await page.locator('#survey-observation').waitFor();
   await page.locator('#timeline:not([disabled])').waitFor();
-  await page.locator('#play').click();
-  await page.waitForFunction(()=>Number(document.getElementById('timeline').value)>780);
+  await withPlaybackStartDiagnostics(t,page,async()=>{
+    await page.locator('#play').click();
+    await page.waitForFunction(()=>Number(document.getElementById('timeline').value)>780);
+  });
   await page.locator('#survey-rating').selectOption('EF2');
   const saved=new URL(page.url()),time=Number(saved.searchParams.get('t'));
   assert.ok(time>780);

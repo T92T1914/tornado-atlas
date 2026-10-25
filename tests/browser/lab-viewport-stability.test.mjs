@@ -323,13 +323,87 @@ test('Keyboard focus outside the Wind model retires the previous position',{time
   assert.equal((await position(page,spec.kind)).scrollCalls,current.scrollCalls,'Arrival must not restore the abandoned model position');
  });
 });
-test('A new pointer orbit owns the current Form inspection',{timeout:25000},async t=>{
+async function withPointerInspection(page,scope,journey){
+ // Observe actual browser input. The observer neither changes its default
+ // action nor restores focus, and it retires with this isolated document.
+ await page.evaluate(()=>{
+  const rows=[],types=['pointerdown','pointerup','focusin','focusout','blur','input','change'];let omitted=0;
+  const describe=node=>({id:String(node?.id??'').slice(0,64),tag:String(node?.tagName??'').slice(0,16),notice:!!node?.closest?.('#scene-failure'),modelControl:!!node?.closest?.('#scene,#wind-field,.study-controls,.scene-footer,.passage')});
+  const observe=event=>{
+   const target=event.target;if(!['scene','condensation'].includes(target?.id)&&!target?.closest?.('#scene-failure'))return;
+   if(rows.length>=20){omitted++;return;}
+   const pointer=event.type.startsWith('pointer');
+   rows.push({type:event.type,trusted:event.isTrusted,target:describe(target),focus:describe(document.activeElement),
+    pointerType:pointer?event.pointerType:null,primary:pointer?event.isPrimary:null,button:pointer?event.button:null,
+    hit:pointer?describe(document.elementFromPoint(event.clientX,event.clientY)):null,value:typeof target?.value==='string'?target.value.slice(0,32):null});
+  };
+  const read=()=>({rows,omitted,focus:describe(document.activeElement),insideModel:!!document.activeElement?.closest?.('#scene,#wind-field,.study-controls,.scene-footer,.passage')});
+  for(const type of types)document.addEventListener(type,observe,{capture:true,passive:true});
+  window.__atlasPointerInspection={read,stop(){for(const type of types)document.removeEventListener(type,observe,true);return read();}};
+ });
+ let original=null;
+ try{return await journey(()=>page.evaluate(()=>window.__atlasPointerInspection.read()));}
+ catch(error){original=error;throw error;}
+ finally{
+  try{scope.record.nativePointer=await page.evaluate(()=>window.__atlasPointerInspection.stop());}
+  catch(error){scope.record.pointerObservationError=small(error);if(!original)throw error;}
+ }
+}
+function nativePointer(observed,{id=null,notice=false}={}){
+ assert.equal(observed.omitted,0,'Every admitted pointer observation is retained');
+ for(const type of ['pointerdown','pointerup'])assert.ok(observed.rows.some(row=>row.type===type&&row.trusted&&row.primary===true&&row.button===0&&row.pointerType==='mouse'&&
+  (notice?row.target.notice&&row.hit?.notice&&!row.target.modelControl&&!row.hit?.modelControl:row.target.id===id&&row.hit?.id===id)),
+  'Actual trusted '+type+' reaches '+(notice?'the visible failure notice':id)+': '+JSON.stringify(observed));
+}
+
+test('A new pointer interaction owns the current Form inspection',{timeout:25000},async t=>{
  const spec={kind:'form',width:320,scheme:'light',event:'blackwell-1955'};await run(t,spec,async(page,scope)=>{
-  const held=await scope.hold(spec.event,'dossier');await open(page,spec,held);await interact(page,spec.kind);const first=await model(page,spec.kind),box=await page.locator('#scene').boundingBox();assert.ok(box);
-  await page.mouse.move(box.x+box.width*.45,box.y+box.height*.5);await page.mouse.down();await page.mouse.move(box.x+box.width*.55,box.y+box.height*.52,{steps:3});await page.mouse.up();await settle(page);
-  const available=await page.locator('#scene-failure').isHidden();scope.record.rendering={available};const expected=await model(page,spec.kind);if(available)assert.notEqual(expected.values.azimuth,first.values.azimuth);
-  const before=await position(page,spec.kind);await watch(page,spec.kind);await held.release();await reference(page,spec.event);await frames(page);
-  const after=await position(page,spec.kind),observed=await stopWatch(page);stable(before,after,observed,spec.kind);assert.deepEqual(await model(page,spec.kind),expected);scope.record.geometry={before,after,observed};
+  const held=await scope.hold(spec.event,'dossier');await open(page,spec,held);await interact(page,spec.kind);const first=await model(page,spec.kind);
+  const available=await page.locator('#scene-failure').isHidden();scope.record.rendering={available};
+  await withPointerInspection(page,scope,async read=>{
+   let targetId='scene';
+   if(available){
+    const box=await page.locator('#scene').boundingBox();assert.ok(box);
+    await page.mouse.move(box.x+box.width*.45,box.y+box.height*.5);await page.mouse.down();await page.mouse.move(box.x+box.width*.55,box.y+box.height*.52,{steps:3});await page.mouse.up();await settle(page);
+    nativePointer(await read(),{id:'scene'});assert.notEqual((await model(page,spec.kind)).values.azimuth,first.values.azimuth,'The actual canvas drag changes the available orbit');
+    scope.record.pointerCapability='Native canvas orbit with available drawing';
+   }else{
+    // The notice covers an unavailable canvas. Exercise a visible native model
+    // control rather than calling a click on that notice a completed orbit.
+    targetId='condensation';const control=page.locator('#condensation');await control.scrollIntoViewIfNeeded();
+    const box=await control.boundingBox();assert.ok(box);
+    await page.mouse.click(box.x+box.width*.25,box.y+box.height*.5);await settle(page);
+    const input=await read(),value=await control.inputValue();nativePointer(input,{id:targetId});
+    assert.notEqual(value,first.values.condensation,'The actual range click changes the chosen model value');assert.ok(Number(value)>=35&&Number(value)<=100);
+    assert.ok(input.rows.some(row=>row.type==='input'&&row.trusted&&row.target.id===targetId&&row.value===value),'The browser supplies the changed native range input');
+    assert.equal(input.focus.id,targetId,'The native range interaction keeps its actual focus');
+    scope.record.pointerCapability='Native range interaction while drawing is unavailable; no orbit claim';
+   }
+   const expected=await model(page,spec.kind),before=await position(page,spec.kind,targetId);await watch(page,spec.kind,targetId);await held.release();await reference(page,spec.event);await frames(page);
+   const after=await position(page,spec.kind,targetId),observed=await stopWatch(page);stable(before,after,observed,spec.kind);assert.deepEqual(await model(page,spec.kind),expected);scope.record.geometry={before,after,observed};
+  });
+ });
+});
+
+test('An unavailable Form notice click releases the previous model inspection',{timeout:25000},async t=>{
+ const spec={kind:'form',width:320,scheme:'light',event:'blackwell-1955'};await run(t,spec,async(page,scope)=>{
+  await page.addInitScript(()=>{
+   const original=HTMLCanvasElement.prototype.getContext;
+   HTMLCanvasElement.prototype.getContext=function(type,...args){return type==='webgl2'?null:Reflect.apply(original,this,[type,...args]);};
+  });
+  const held=await scope.hold(spec.event,'dossier');await open(page,spec,held);await page.locator('#scene-failure').waitFor({state:'visible'});await interact(page,spec.kind);
+  scope.record.rendering={available:false,control:'Declared WebGL2 absence; no native allocation or graphics failure measurement'};
+  const expected=await model(page,spec.kind);
+  await withPointerInspection(page,scope,async read=>{
+   const notice=page.locator('#scene-failure p');await notice.scrollIntoViewIfNeeded();const box=await notice.boundingBox();assert.ok(box);
+   await page.mouse.click(box.x+box.width*.5,box.y+box.height*.5);await frames(page);
+   const input=await read();nativePointer(input,{notice:true});scope.record.noticeFocus={focus:input.focus,insideModel:input.insideModel};
+   assert.deepEqual(await model(page,spec.kind),expected);const current=await position(page,spec.kind);
+   await held.release();await reference(page,spec.event);await frames(page);
+   const after=await position(page,spec.kind);assert.equal(after.scrollCalls,current.scrollCalls,'Source arrival does not correct the relinquished viewport');
+   assert.equal(after.focus,current.focus);assert.equal(after.url,current.url);assert.equal(after.history,current.history);assert.deepEqual(await model(page,spec.kind),expected);
+   assert.equal(await page.locator('#scene-failure').isVisible(),true);scope.record.relinquishedInspection={before:current,after};
+  });
  });
 });
 test('Native departure and Back retire old Wind viewport work',{timeout:25000},async t=>{
