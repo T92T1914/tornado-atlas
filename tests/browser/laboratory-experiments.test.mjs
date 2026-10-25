@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 import {fixture,base} from './harness.mjs';
 import {observeLabReferenceNavigation} from './lab-reference-navigation-diagnostics.mjs';
+import {observeFormResetPassively} from './form-reset-diagnostics.mjs';
 
 const events=[
   ['el-reno-2013','El Reno · 2013','index.html#photos','index.html#damage'],
@@ -67,6 +68,9 @@ for(const width of [320,1280])test('Wind experiment restores the same assumption
 });
 for(const width of [320,1280])test('Form experiment retains its authored gap and controls across four documentary references '+width,{timeout:60000},async t=>{
   const page=await fixture(t,{viewport:{width,height:900},isMobile:width<600,reducedMotion:'reduce',serviceWorkers:'block'});
+  const resetDiagnostic=await observeFormResetPassively(t,page,{width});
+  let originalFailed=false,originalError;
+  try{
   await page.goto(base+'/study.html?event=el-reno-2013');await ready(page);
   await page.locator('#shape').selectOption('rope');
   for(const [id,value] of Object.entries({condensation:65,azimuth:-35,elevation:24,distance:8.2}))await input(page,id,value);
@@ -89,6 +93,8 @@ for(const width of [320,1280])test('Form experiment retains its authored gap and
   await page.locator('#reset-view').click();assert.equal(await page.locator('#azimuth').inputValue(),'25');assert.equal(await page.locator('#sequence-time').inputValue(),'0');
   assert.equal(await page.locator('#shape').inputValue(),'rope','Reset view retains the chosen form');
   assert.equal(await page.locator('#lab-event').inputValue(),'tuscaloosa-birmingham-2011');
+  }catch(error){originalFailed=true;originalError=error;throw error;}
+  finally{await resetDiagnostic.report(originalFailed,originalError);}
 });
 for(const [kind,file] of [['wind','wind.html'],['form','study.html']])test('Refused '+kind+' links apply no partial event or assumptions and remain refused through layout callbacks',{timeout:30000},async t=>{
   const page=await fixture(t,{viewport:{width:320,height:700},reducedMotion:'reduce',serviceWorkers:'block'});
