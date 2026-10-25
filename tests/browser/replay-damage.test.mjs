@@ -215,8 +215,14 @@ test('unavailable survey photograph and fatality selection retain their distinct
   const point=data.survey.points.find(row=>data.survey_media.photos[String(row.id)]?.length);
   await page.goto(base+`/reconstruction.html?t=900&survey=${point.id}&surveyPhotos=0`);
   await page.locator('#survey-observation').waitFor();
-  await page.locator('.survey-photo-open:disabled').first().waitFor();
-  assert.match(await page.locator('.survey-photo-open:disabled').first().textContent(),/Photograph unavailable from the source/);
+  const unavailable=page.locator('.survey-photo-open').first();
+  await unavailable.getByText('Preview unavailable.',{exact:false}).waitFor();
+  assert.equal(await unavailable.isEnabled(),true);
+  await unavailable.focus();await page.keyboard.press('Enter');
+  await page.locator('#photo-retry').waitFor({state:'visible'});
+  assert.equal(await page.locator('#photo-source').getAttribute('href'),point.source_url);
+  assert.equal(await page.locator('#photo-original').getAttribute('href'),data.survey_media.photos[String(point.id)][0].url);
+  await page.locator('#photo-close').click();
   assert.equal(await page.locator('#survey-detail a').filter({hasText:'Open this NWS record'}).getAttribute('href'),point.source_url);
   assert.equal(await page.locator('#replay-time').inputValue(),'900');
   const fatality=data.history.remembrance.places[0];

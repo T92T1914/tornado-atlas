@@ -367,11 +367,11 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-fund
           npx playwright install --with-deps webkit
-      - name: Verify Udall source-only reading and laboratory references in WebKit
+      - name: Verify survey recovery, Udall reading and laboratory references in WebKit
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_ENGINE: webkit
-        run: python tools/run_browser_checks.py --output ci-diagnostics/udall-focused webkit -- node --test --test-concurrency=1 tests/browser/udall-aftermath.test.mjs tests/browser/laboratory-reading-evidence.test.mjs
+        run: python tools/run_browser_checks.py --output ci-diagnostics/udall-focused webkit -- node --test --test-concurrency=1 tests/browser/survey-photo-recovery.test.mjs tests/browser/udall-aftermath.test.mjs tests/browser/laboratory-reading-evidence.test.mjs
       - name: Verify museum reading and map sizes in WebKit
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:

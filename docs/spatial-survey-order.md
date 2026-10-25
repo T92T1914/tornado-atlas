@@ -15,6 +15,12 @@ its nearest-line annotation. On the full report, a survey change pauses the
 running historical clock and saves that moment before adding a survey entry.
 Fatality records remain separate from survey ratings and photograph filters.
 
+A failed photograph preview keeps its viewer button available. Open it to read the
+photograph details and original source links, or use Retry image to request the
+selected attachment again. The assessment, surveyed feature location and unknown
+camera position remain attached to that selection. Nearby photographs in a
+fatality record retain their separate warning about location and identification.
+
 Spatial order assigns each feature to its nearest segment on the retained line.
 The inspector reports approximate distance along the stored vertices and offset
 from the line. It uses a local planar conversion at the line's mean latitude.
