@@ -8,8 +8,9 @@ export function surveyPhotos(point, media, openPhoto, {context = '', lazy = fals
     img.alt=`Photograph attached to NWS survey record ${point.id}, rated ${point.rating}.`;
     img.referrerPolicy='no-referrer';img.decoding='async';if(lazy)img.loading='lazy';
     img.addEventListener('error',()=>{
-      button.disabled=true;const message=document.createElement('span');
-      message.textContent='Photograph unavailable from the source. Use the original survey record link.';
+      const message=document.createElement('span');
+      message.textContent='Preview unavailable. Open the photograph viewer to try again or inspect its source.';
+      button.setAttribute('aria-label',`Open photograph ${i+1} and source details for survey record ${point.id}. Preview unavailable.`);
       button.replaceChildren(message);
     },{once:true});
     button.append(img);button.addEventListener('click',()=>openPhoto({
