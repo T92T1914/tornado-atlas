@@ -549,8 +549,11 @@ async function start(){
       (photoView()?'Published source minute position. The geographic scene shows only the center marker.':'Published source minute position. The funnel remains an illustrative symbol.'):
       `Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. ${photoView()?'Only the center marker is shown; no photographic appearance is assigned by the path.':'Funnel appearance is not registered.'}`;
     const media=data.timeline_media;
+    const reader=el('replay-radar-reader');
+    reader.hidden=media.event!=='el-reno-2013';
     const match=frameAt(media.frames,current.utc,media.max_age_seconds);
     const image=el('replay-radar-image');image.hidden=!match||failedRadar.has(match?.frame.file);
+    reader.href='radar-source.html'+(match?'?frame='+encodeURIComponent(match.frame.frame_index):'');
     if(match){if(radarFile!==match.frame.file){radarFile=match.frame.file;image.src=radarFile;image.alt=match.frame.alt;}el('replay-radar-note').textContent=`${media.credit}. Frame: ${localStamp(match.frame.utc)}. ${Math.floor(match.ageSeconds)} seconds before the selected time. Times use the source filename interpreted as UTC. This regional frame is not a geographic overlay.`;}
     else el('replay-radar-note').textContent='No reviewed radar frame within the permitted age of this time.';
     if(match&&failedRadar.has(match.frame.file))el('replay-radar-note').textContent='This radar image could not load. The historical clock and source map remain available.';

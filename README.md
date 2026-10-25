@@ -46,6 +46,10 @@ checks the complete NWRT source frames. The abrupt echo edge is present in the
 published original. All 12 retained PNGs matched their decoded source pixels,
 including the legend and printed label. The exact sampled footprint remains
 unresolved, and the viewer preserves that distinction.
+The reader can step through those twelve observations or play a controlled
+display sequence. Their irregular printed time gaps remain separate from the
+display pace and the Atlas clock. The [reader record](research/el-reno-radar-reader-2026-10-25.md)
+describes image checks, source return and the remaining limits.
 
 The atlas entrance now brings the documentary, spatial replay and wind laboratory
 together before the searchable collection. The spatial replay places El Reno's
