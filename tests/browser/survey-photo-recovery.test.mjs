@@ -33,6 +33,10 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])for(const surface 
     await opener.locator('span').waitFor();
     assert.equal(await opener.isEnabled(),true,'A failed preview must retain its viewer entry');
     assert.match(await opener.textContent(),/Preview unavailable/);
+    const paint=await opener.evaluate(button=>{const style=getComputedStyle(button);return{color:style.color,background:style.backgroundColor};});
+    const luminance=color=>{const channels=color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);assert.ok(channels,'Opaque preview text and background');return channels.slice(1).map(Number).map(value=>value/255).map(value=>value<=.04045?value/12.92:((value+.055)/1.055)**2.4).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);};
+    const light=[luminance(paint.color),luminance(paint.background)].sort((a,b)=>a-b);
+    assert.ok((light[1]+.05)/(light[0]+.05)>=4.5,'Failed preview text remains readable: '+JSON.stringify(paint));
     assert.match(await opener.getAttribute('aria-label'),new RegExp(`photograph 1 and source details for survey record ${surface.record}`));
     const initialUrl=page.url(),initialHistory=await page.evaluate(()=>history.length);
     const initialAttempts=attempts;
