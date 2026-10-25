@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fixture,base} from './harness.mjs';
+import {captureReflow} from './reflow-diagnostics.mjs';
 
 const data=JSON.parse(readFileSync(new URL('../../web/data.json',import.meta.url)));
 const tinyPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNwaDjwHwAFBAKAPJ4DgAAAAABJRU5ErkJggg==','base64');
@@ -36,9 +37,11 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])for(const surface 
     const initialUrl=page.url(),initialHistory=await page.evaluate(()=>history.length);
     const initialAttempts=attempts;
     assert.equal(initialAttempts,1,'A failed preview does not retry automatically');
+    if(surface.name==='replay'&&width===320)await captureReflow(t,page,'before-opener');
     await opener.focus();
     await page.keyboard.press('Enter');
     await page.locator('#photo-retry').waitFor({state:'visible'});
+    if(surface.name==='replay'&&width===320)await captureReflow(t,page,'failed-modal');
     assert.equal(attempts,initialAttempts+1,'Opening explicitly requests the same attachment');
     assert.equal(await page.locator('#photo-dialog').evaluate(dialog=>dialog.open),true);
     assert.equal(await page.locator('#photo-title').textContent(),`${point.rating} · NWS survey ${point.id}`);
@@ -58,6 +61,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])for(const surface 
     assert.equal(await page.locator('#photo-source').getAttribute('href'),point.source_url);
     await page.locator('#photo-close').focus();await page.keyboard.press('Enter');
     await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
+    if(surface.name==='replay'&&width===320)await captureReflow(t,page,'after-close');
     assert.equal(await opener.evaluate(button=>document.activeElement===button&&button.isConnected),true);
     assert.equal(await page.locator('#survey-observation').inputValue(),surface.selection);
     assert.equal(page.url(),initialUrl);
