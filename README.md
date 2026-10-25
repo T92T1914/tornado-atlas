@@ -249,6 +249,8 @@ or place a camera on the map, and the copyrighted images remain on their source 
 
 In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
 
+Documentary references load independently of the model. Their updates keep the chosen laboratory control or canvas in place, while scrolling or moving focus releases that position. The [laboratory reading guide](docs/laboratory-reading.md) explains the source and model limits.
+
 ## What is implemented
 
 | Part | What you can inspect |

@@ -53,6 +53,10 @@ jobs:
           node --check web/explorer-map.mjs
           node --test tests/explorer-model.test.mjs tests/explorer-map.test.mjs
           node --check web/study.js
+          node --check web/lab-viewport.mjs
+          node --check web/lab-context.mjs
+          node --check web/lab-reference-view.mjs
+          node --test tests/lab-viewport.test.mjs
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
@@ -157,7 +161,11 @@ jobs:
           - engine: firefox
             channel: ''
             part: 1
-            total: 1
+            total: 2
+          - engine: firefox
+            channel: ''
+            part: 2
+            total: 2
     concurrency:
       group: atlas-verify-browser-${{ matrix.engine }}-${{ matrix.part }}-of-${{ matrix.total }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}

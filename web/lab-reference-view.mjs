@@ -34,7 +34,7 @@ function dossierRoute(event,field,id,revision){
   return 'dossier.html?'+new URLSearchParams({event,[field]:id,...(revision?{revision}:{})})+'#'+field+'-'+id;
 }
 
-export function mountLabReference(host,beforeNavigate){
+export function mountLabReference(host,beforeNavigate,layoutChange=change=>change(),retireViewport=()=>{}){
   let selected=null,attempt=null;
   host.hidden=true;host.dataset.state='empty';
   function retire(){
@@ -45,13 +45,16 @@ export function mountLabReference(host,beforeNavigate){
     attempt=null;
   }
   function beforeDeparture(){
+    retireViewport();
     // A cancelled departure keeps the selected source and an explicit retry.
     // An already checked image stays visible until ordinary pagehide cleanup.
     if(!attempt?.active||host.dataset.state!=='loading')return;
     const status=host.querySelector('#lab-reference-status'),retry=host.querySelector('#lab-reference-retry');
-    retire();host.dataset.state='unavailable';host.setAttribute('aria-busy','false');
-    status.textContent='The image check stopped before leaving this page. If you stay here, retry the image or use its article and source links.';
-    retry.hidden=false;
+    layoutChange(()=>{
+      retire();host.dataset.state='unavailable';host.setAttribute('aria-busy','false');
+      status.textContent='The image check stopped before leaving this page. If you stay here, retry the image or use its article and source links.';
+      retry.hidden=false;
+    });
   }
   function show(event,{retry=false}={}){
     if(event===selected&&!retry&&attempt?.active)return;
@@ -76,8 +79,10 @@ export function mountLabReference(host,beforeNavigate){
     const owns=()=>attempt===owned&&owned.active&&selected===event&&host.isConnected;
     function failed(error){
       if(!owns())return;
-      retire();host.dataset.state='unavailable';host.setAttribute('aria-busy','false');
-      status.textContent='The documentary image could not be checked or displayed. '+error.message+' The article and source records remain available.';retryButton.hidden=false;
+      layoutChange(()=>{
+        retire();host.dataset.state='unavailable';host.setAttribute('aria-busy','false');
+        status.textContent='The documentary image could not be checked or displayed. '+error.message+' The article and source records remain available.';retryButton.hidden=false;
+      });
     }
     function live(){
       if(!owns())return false;
@@ -96,7 +101,6 @@ export function mountLabReference(host,beforeNavigate){
         item.status.availability!=='reviewed_available'||item.status.rights!=='permitted_hosting'||version?.asset!==reference.asset||
         !Number.isSafeInteger(version.width)||version.width<=0||!Number.isSafeInteger(version.height)||version.height<=0||
         typeof version.alt!=='string'||!version.alt||typeof version.recipe!=='string')throw Error('The selected item no longer has its expected documentary publication and hosting basis.');
-      title.textContent=item.title;sourceLinks(checked.reference.dossier_sha256);
       const figure=element('figure',undefined,'lab-reference-figure'),imageLink=link('Open the complete published image file',version.asset);imageLink.className='lab-reference-image-link';
       const image=element('img');image.id='lab-reference-image';image.alt=version.alt;image.width=version.width;image.height=version.height;image.hidden=true;image.referrerPolicy='no-referrer';owned.image=image;
       imageLink.replaceChildren(image);imageLink.setAttribute('aria-label','Open the complete published image: '+item.title);
@@ -105,17 +109,22 @@ export function mountLabReference(host,beforeNavigate){
       caption.append(element('p',visibleCaption,'lab-reference-caption'),element('p',item.limits,'lab-reference-limits'));
       const names=Object.entries(item.roles).map(([role,id])=>role.replaceAll('_',' ')+': '+(id?doc.creators.find(row=>row.id===id).name:'not established'));
       caption.append(element('p',names.join('. ')+'.','lab-reference-credit'),element('p',source.rights,'lab-reference-rights'),element('p','Image version: '+version.recipe,'lab-reference-version'));
-      figure.append(imageLink,caption);status.before(figure);
-      actions.append(link('Open the original source',source.url));if(item.url!==source.url)actions.append(link('Open the original item',item.url));
-      if(reference.license)actions.append(link('Read the item use terms',reference.license));
+      figure.append(imageLink,caption);
+      layoutChange(()=>{
+        title.textContent=item.title;sourceLinks(checked.reference.dossier_sha256);status.before(figure);
+        actions.append(link('Open the original source',source.url));if(item.url!==source.url)actions.append(link('Open the original item',item.url));
+        if(reference.license)actions.append(link('Read the item use terms',reference.license));
+      });
       image.addEventListener('load',async()=>{
         if(!live())return;
         try{if(typeof image.decode!=='function')throw Error('Image decoding is unavailable.');await image.decode();}
         catch{failed(Error('The checked image could not finish decoding.'));return;}
         if(!live())return;
         if(image.naturalWidth!==version.width||image.naturalHeight!==version.height){failed(Error('The checked image dimensions do not match the selected record.'));return;}
-        clearTimeout(owned.timer);image.hidden=false;host.dataset.state='ready';host.setAttribute('aria-busy','false');
-        status.textContent='The complete displayed image matches the reviewed public file. Its documentary role does not calibrate the assumed experiment.';
+        layoutChange(()=>{
+          clearTimeout(owned.timer);image.hidden=false;host.dataset.state='ready';host.setAttribute('aria-busy','false');
+          status.textContent='The complete displayed image matches the reviewed public file. Its documentary role does not calibrate the assumed experiment.';
+        });
       },{once:true});
       image.addEventListener('error',()=>failed(Error('The checked image could not be displayed.')),{once:true});
       const result=await checkedPhotoBytes({asset:version.asset,expectedSha256:version.sha256},{signal:owned.controller.signal,deadline:owned.deadline,fetcher});if(!live())return;
