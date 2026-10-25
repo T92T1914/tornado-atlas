@@ -27,7 +27,7 @@ export function mountTimelineMedia(manifest, photos, openPhoto) {
       add('p','Source filename time interpreted as UTC. Clock details below.');
       ageLabel=add('p','');updateAge();
       add('p',manifest.interpretation);
-      const method=add('a','Read the source and frame comparison');method.href='radar-source.html';
+      const method=add('a','Browse the retained radar observations and source');method.href='radar-source.html?frame='+encodeURIComponent(frame.frame_index);
       asset={title:'Historical NWRT reflectivity / dBZ',asset:frame.file,alt:frame.alt,caption:frame.source_label,
         location:manifest.clock_basis+' '+manifest.interpretation,credit:manifest.credit+'. '+manifest.changes,source:manifest.source,license:manifest.license,licenseUrl:manifest.license_url};
     } else {

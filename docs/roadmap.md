@@ -10,6 +10,12 @@ playback approach, evidence levels and event selection process.
 
 ## Next exhibit work
 
+The [NWRT source reader](../web/radar-source.html) now exposes the twelve retained
+complete observations with selection, stepping and controlled display playback.
+It preserves their irregular labels and the existing clock interpretation.
+This is a documentary reading increment. The bounded historical appearance
+reconstruction below remains unfinished.
+
 1. Expand the initial five-note El Reno register into continuous shot coverage for both source videos, including cuts, reuse credits and caption corrections.
 2. Locate original footage and research that can establish camera position, direction and historical time.
 3. Establish exact survey locations for the nine included NOAA/NWS photographs. Captions currently supply roads and landmarks only. Do not infer precise failure times or wind fields from a rating.

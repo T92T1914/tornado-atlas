@@ -57,6 +57,9 @@ jobs:
           node --check web/lab-context.mjs
           node --check web/lab-reference-view.mjs
           node --test tests/lab-viewport.test.mjs
+          node --check web/radar-source-model.mjs
+          node --check web/radar-source-reader.mjs
+          node --test tests/radar-source-model.test.mjs
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
