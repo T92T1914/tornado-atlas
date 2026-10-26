@@ -61,6 +61,15 @@ It is a starting point for the historical reconstruction, not a claim to have
 recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
 record the tested behavior and remaining gaps.
 
+The replay also has an explicitly selected
+[synthetic ground-view comparison](https://t92t1914.github.io/tornado-atlas/reconstruction.html?event=el-reno-2013&appearance_view=ground&ground_view=synthetic-front&t=120#replay-appearance).
+Two declared cameras project the same authored changing form through an explicit
+pinhole lens. The existing clock drives it, with complete analytic reference
+images at three comparison instants. This exercises camera lock, source framing
+and comparison. It is not recorded El Reno appearance or a physical simulation.
+The [camera contract](docs/ground-view-reconstruction.md) explains the geometry,
+independent reference construction and historical inputs still missing.
+
 The spatial replay keeps selected footage moments and observer times in browser
 history. Back and Forward restore the clock paused. Scrubbing or pausing updates
 the current address, so reloading does not return to an earlier footage choice.

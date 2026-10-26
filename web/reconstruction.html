@@ -30,6 +30,7 @@
           <a id="replay-appearance-source" target="_blank" rel="noopener" hidden>Open the original source at this moment</a>
           <p class="replay-appearance-actions"><a id="replay-appearance-extension" hidden>Early partial extension · reported 23:05:10 UTC</a><a id="replay-appearance-start" hidden>Earlier partial view · reported 23:24:41 UTC</a><a id="replay-appearance-later" hidden>Later partial view · reported 23:25:01 UTC</a><a id="replay-appearance-early" href="#replay-reported-appearance">Earlier appearance study · reported 6:04 PM CDT minute</a><a href="#replay-path-stage">Geographic position and path</a><a href="#registered-footage">Compare the checked source moments</a></p>
           <p id="replay-appearance-comparison-note" class="replay-help" hidden>These are separate interpreted stills. Motion between them is unknown.</p>
+          <p><a id="replay-ground-link" href="reconstruction.html?event=el-reno-2013&amp;appearance_view=ground&amp;ground_view=synthetic-front&amp;t=120#replay-appearance" hidden>Try the synthetic ground-view comparison</a></p>
         <div class="replay-bar"><strong id="replay-clock">Loading historical positions</strong><span id="replay-stage-kind">DOCUMENTED PATH / ILLUSTRATIVE FUNNEL</span></div>
         <div class="replay-buttons"><button id="replay-play" disabled>Play timeline</button><button id="replay-reset">Whole path</button><label for="replay-rate">Playback <select id="replay-rate"><option value="1">1×</option><option value="15">15×</option><option value="60" selected>60×</option><option value="120">120×</option></select></label><a id="replay-link" href="reconstruction.html">Link to this moment</a><a id="replay-scale-jump" href="#replay-scale-impact" hidden>Size and recorded damage</a></div>
         <label class="replay-time-label" for="replay-time">Historical time</label><input id="replay-time" type="range" min="0" max="2280" value="0" step="1" disabled>
@@ -38,7 +39,11 @@
               <label for="replay-appearance-mode">Appearance view</label>
               <select id="replay-appearance-mode"><option value="source">Selected original video source</option><option value="illustrative">Illustrative study</option></select>
             </div>
-            <canvas id="replay-appearance-canvas" role="img" aria-describedby="replay-appearance-state replay-appearance-detail" aria-label="Normalized appearance form for the selected evidence state"></canvas>
+            <div id="replay-ground-controls" hidden></div>
+            <div id="replay-ground-comparison">
+              <figure class="ground-render"><figcaption id="ground-render-caption" hidden>Synthetic camera render</figcaption><canvas id="replay-appearance-canvas" role="img" aria-describedby="replay-appearance-state replay-appearance-detail" aria-label="Normalized appearance form for the selected evidence state"></canvas></figure>
+              <figure id="replay-ground-reference" hidden></figure>
+            </div>
             <p id="replay-appearance-renderer-status" class="replay-help"></p>
             <p class="replay-help">The form uses normalized artistic units. It does not show measured funnel width, wind or a calibrated geographic camera.</p>
           </div>
