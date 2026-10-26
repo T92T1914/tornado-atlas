@@ -62,6 +62,10 @@ jobs:
           node --test tests/radar-source-model.test.mjs
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
+          node --check web/source-camera-model.mjs
+          node --check web/ground-view-model.mjs
+          node --check web/ground-view.mjs
+          node --test tests/source-camera-model.test.mjs tests/ground-view-probe.test.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
           node --check web/documentary-appearance.mjs
           node --check web/documentary-media.mjs
@@ -371,7 +375,7 @@ jobs:
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:
           ATLAS_BROWSER_ENGINE: webkit
-        run: python tools/run_browser_checks.py --output ci-diagnostics/udall-focused webkit -- node --test --test-concurrency=1 tests/browser/survey-photo-recovery.test.mjs tests/browser/udall-aftermath.test.mjs tests/browser/laboratory-reading-evidence.test.mjs
+        run: python tools/run_browser_checks.py --output ci-diagnostics/udall-focused webkit -- node --test --test-concurrency=1 tests/browser/ground-view.test.mjs tests/browser/survey-photo-recovery.test.mjs tests/browser/udall-aftermath.test.mjs tests/browser/laboratory-reading-evidence.test.mjs
       - name: Verify museum reading and map sizes in WebKit
         if: ${{ !cancelled() && steps.focused_browser_dependencies.outcome == 'success' }}
         env:

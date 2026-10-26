@@ -13,6 +13,13 @@ have a completed historical 3D reconstruction of the storm's appearance.
 
 ## One playback system, many event packages
 
+The October 26 camera milestone adds an explicitly selected synthetic
+ground-view comparison to the existing replay. It supplies declared pinhole
+cameras, complete source framing and independent analytic references through
+the shared clock and renderer. The [camera contract](ground-view-reconstruction.md)
+separates that software capability from the original historical reconstruction.
+No continuous El Reno appearance window is admitted by this milestone.
+
 Build the controls, camera system and rendering once. Give each storm a reviewed
 event package that the player can load. Event-specific work should primarily be
 research, registration and parameter curation, rather than another copy of the

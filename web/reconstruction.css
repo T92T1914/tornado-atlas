@@ -43,6 +43,28 @@
 #replay-appearance-mode {display:block;box-sizing:border-box;min-width:0;max-width:100%;width:100%;min-height:44px;margin:8px 0 12px;font:inherit;overflow:hidden;text-overflow:ellipsis}
 #replay-appearance-canvas {display:block;width:100%;height:clamp(260px,38vw,430px);background:var(--bg);border:1px solid var(--line);border-radius:6px}
 #replay-appearance-canvas[hidden] {display:none}
+.ground-render {margin:0;min-width:0}
+#replay-ground-controls {font-size:14px;line-height:1.65}
+#replay-ground-controls[hidden],#replay-ground-reference[hidden],#ground-render-caption[hidden] {display:none}
+.ground-boundary {padding:12px;border-left:3px solid var(--text);background:var(--bg)}
+.ground-options {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ground-options label {display:grid;grid-template-columns:minmax(0,1fr);box-sizing:border-box;min-width:0;max-width:100%;overflow:hidden;overflow-wrap:anywhere;padding:6px}
+.ground-options select {display:block;box-sizing:border-box;min-width:0;width:100%;max-width:100%;min-height:44px;font:inherit;margin:6px 0;overflow:hidden;text-overflow:ellipsis}
+.ground-keyframes {display:flex;flex-wrap:wrap;gap:10px}
+.ground-keyframes button,#ground-reference-retry {box-sizing:border-box;font:inherit;min-height:44px;max-width:100%;white-space:normal}
+.ground-keyframes button[aria-pressed=true] {outline:2px solid var(--text);outline-offset:2px}
+#replay-ground-controls summary {min-height:44px;cursor:pointer}
+#replay-ground-comparison {font-size:14px}
+#replay-ground-comparison.ground-active {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+#replay-ground-reference {margin:0;min-width:0;max-width:100%;overflow-wrap:anywhere}
+#replay-ground-comparison figcaption {font-weight:600;font-size:inherit;margin:0 0 8px}
+#ground-reference-image {display:block;box-sizing:border-box;width:100%;height:clamp(260px,38vw,430px);object-fit:contain;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+#ground-reference-image[hidden] {display:none}
+#ground-reference-status,#ground-reference-original {font-size:inherit;line-height:1.6}
+#ground-reference-original {display:inline-block;min-height:44px;max-width:100%;overflow-wrap:anywhere}
+#replay-ground-controls :is(button,select,summary):focus-visible,#replay-ground-reference :is(a,button):focus-visible {outline:3px solid var(--text);outline-offset:2px}
+@media(max-width:1100px){#replay-ground-comparison.ground-active {grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.ground-options {grid-template-columns:minmax(0,1fr)}}
 #replay-appearance-photo {min-width:0;max-width:100%;margin-top:16px;overflow-wrap:anywhere}
 #replay-appearance-photo[hidden] {display:none}
 .replay-photo-samples {display:flex;flex-wrap:wrap;gap:10px;min-width:0;max-width:100%}

@@ -1,0 +1,608 @@
+{
+  "scope": "Independent scalar pinhole controls and contain geometry. Authored scene units; no historical calibration.",
+  "cameras": {
+    "level": {
+      "id": "independent-level",
+      "coordinate_space": "right_handed_y_up",
+      "units": "authored_scene_units",
+      "origin": "model-ground-origin",
+      "position": [
+        0,
+        2,
+        10
+      ],
+      "target": [
+        0,
+        2,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "image": {
+        "width": 640,
+        "height": 480
+      },
+      "intrinsics": {
+        "fx": 500,
+        "fy": 500,
+        "cx": 320,
+        "cy": 240
+      },
+      "clip": {
+        "near": 1,
+        "far": 100
+      },
+      "distortion": {
+        "model": "none"
+      },
+      "provenance": {
+        "position": "illustrative",
+        "orientation": "illustrative",
+        "intrinsics": "illustrative",
+        "distortion": "illustrative"
+      }
+    },
+    "yaw": {
+      "id": "independent-yaw",
+      "coordinate_space": "right_handed_y_up",
+      "units": "authored_scene_units",
+      "origin": "model-ground-origin",
+      "position": [
+        10,
+        2,
+        0
+      ],
+      "target": [
+        0,
+        2,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "image": {
+        "width": 640,
+        "height": 480
+      },
+      "intrinsics": {
+        "fx": 500,
+        "fy": 500,
+        "cx": 320,
+        "cy": 240
+      },
+      "clip": {
+        "near": 1,
+        "far": 100
+      },
+      "distortion": {
+        "model": "none"
+      },
+      "provenance": {
+        "position": "illustrative",
+        "orientation": "illustrative",
+        "intrinsics": "illustrative",
+        "distortion": "illustrative"
+      }
+    },
+    "roll": {
+      "id": "independent-roll",
+      "coordinate_space": "right_handed_y_up",
+      "units": "authored_scene_units",
+      "origin": "model-ground-origin",
+      "position": [
+        0,
+        2,
+        10
+      ],
+      "target": [
+        0,
+        2,
+        0
+      ],
+      "up": [
+        1,
+        0,
+        0
+      ],
+      "image": {
+        "width": 640,
+        "height": 480
+      },
+      "intrinsics": {
+        "fx": 500,
+        "fy": 500,
+        "cx": 320,
+        "cy": 240
+      },
+      "clip": {
+        "near": 1,
+        "far": 100
+      },
+      "distortion": {
+        "model": "none"
+      },
+      "provenance": {
+        "position": "illustrative",
+        "orientation": "illustrative",
+        "intrinsics": "illustrative",
+        "distortion": "illustrative"
+      }
+    },
+    "pitch": {
+      "id": "independent-pitch",
+      "coordinate_space": "right_handed_y_up",
+      "units": "authored_scene_units",
+      "origin": "model-ground-origin",
+      "position": [
+        0,
+        0,
+        10
+      ],
+      "target": [
+        0,
+        10,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "image": {
+        "width": 640,
+        "height": 480
+      },
+      "intrinsics": {
+        "fx": 500,
+        "fy": 500,
+        "cx": 320,
+        "cy": 240
+      },
+      "clip": {
+        "near": 1,
+        "far": 100
+      },
+      "distortion": {
+        "model": "none"
+      },
+      "provenance": {
+        "position": "illustrative",
+        "orientation": "illustrative",
+        "intrinsics": "illustrative",
+        "distortion": "illustrative"
+      }
+    },
+    "asymmetric": {
+      "id": "independent-asymmetric",
+      "coordinate_space": "right_handed_y_up",
+      "units": "authored_scene_units",
+      "origin": "model-ground-origin",
+      "position": [
+        0,
+        2,
+        10
+      ],
+      "target": [
+        0,
+        2,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "image": {
+        "width": 800,
+        "height": 400
+      },
+      "intrinsics": {
+        "fx": 400,
+        "fy": 200,
+        "cx": 300,
+        "cy": 150
+      },
+      "clip": {
+        "near": 1,
+        "far": 100
+      },
+      "distortion": {
+        "model": "none"
+      },
+      "provenance": {
+        "position": "illustrative",
+        "orientation": "illustrative",
+        "intrinsics": "illustrative",
+        "distortion": "illustrative"
+      }
+    }
+  },
+  "points": [
+    {
+      "camera": "level",
+      "point": [
+        0,
+        2,
+        0
+      ],
+      "expected": {
+        "x": 320,
+        "y": 240,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "level",
+      "point": [
+        2,
+        2,
+        0
+      ],
+      "expected": {
+        "x": 420,
+        "y": 240,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "level",
+      "point": [
+        -2,
+        2,
+        0
+      ],
+      "expected": {
+        "x": 220,
+        "y": 240,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "level",
+      "point": [
+        0,
+        4,
+        0
+      ],
+      "expected": {
+        "x": 320,
+        "y": 140,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "level",
+      "point": [
+        0,
+        0,
+        0
+      ],
+      "expected": {
+        "x": 320,
+        "y": 340,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "level",
+      "point": [
+        1,
+        2,
+        5
+      ],
+      "expected": {
+        "x": 420,
+        "y": 240,
+        "depth": 5
+      }
+    },
+    {
+      "camera": "level",
+      "point": [
+        2,
+        2,
+        -10
+      ],
+      "expected": {
+        "x": 370,
+        "y": 240,
+        "depth": 20
+      }
+    },
+    {
+      "camera": "level",
+      "point": [
+        8,
+        2,
+        0
+      ],
+      "expected": {
+        "x": 720,
+        "y": 240,
+        "depth": 10
+      },
+      "meaning": "Outside source image, finite projection must not be silently clamped"
+    },
+    {
+      "camera": "level",
+      "point": [
+        0,
+        2,
+        9
+      ],
+      "expected": {
+        "x": 320,
+        "y": 240,
+        "depth": 1
+      },
+      "meaning": "Inclusive near-plane boundary"
+    },
+    {
+      "camera": "level",
+      "point": [
+        0,
+        2,
+        -90
+      ],
+      "expected": {
+        "x": 320,
+        "y": 240,
+        "depth": 100
+      },
+      "meaning": "Inclusive far-plane boundary"
+    },
+    {
+      "camera": "level",
+      "point": [
+        0,
+        2,
+        9.5
+      ],
+      "expected": null
+    },
+    {
+      "camera": "level",
+      "point": [
+        0,
+        2,
+        -91
+      ],
+      "expected": null
+    },
+    {
+      "camera": "level",
+      "point": [
+        0,
+        2,
+        11
+      ],
+      "expected": null
+    },
+    {
+      "camera": "yaw",
+      "point": [
+        0,
+        2,
+        2
+      ],
+      "expected": {
+        "x": 220,
+        "y": 240,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "yaw",
+      "point": [
+        0,
+        2,
+        -2
+      ],
+      "expected": {
+        "x": 420,
+        "y": 240,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "roll",
+      "point": [
+        2,
+        2,
+        0
+      ],
+      "expected": {
+        "x": 320,
+        "y": 140,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "roll",
+      "point": [
+        0,
+        4,
+        0
+      ],
+      "expected": {
+        "x": 220,
+        "y": 240,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "pitch",
+      "point": [
+        0,
+        10,
+        0
+      ],
+      "expected": {
+        "x": 320,
+        "y": 240,
+        "depth": 14.142135623730951
+      }
+    },
+    {
+      "camera": "pitch",
+      "point": [
+        2,
+        10,
+        0
+      ],
+      "expected": {
+        "x": 390.71067811865476,
+        "y": 240,
+        "depth": 14.142135623730951
+      }
+    },
+    {
+      "camera": "pitch",
+      "point": [
+        0,
+        0,
+        0
+      ],
+      "expected": {
+        "x": 320,
+        "y": 740,
+        "depth": 7.0710678118654755
+      }
+    },
+    {
+      "camera": "asymmetric",
+      "point": [
+        0,
+        2,
+        0
+      ],
+      "expected": {
+        "x": 300,
+        "y": 150,
+        "depth": 10
+      }
+    },
+    {
+      "camera": "asymmetric",
+      "point": [
+        2,
+        4,
+        0
+      ],
+      "expected": {
+        "x": 380,
+        "y": 110,
+        "depth": 10
+      }
+    }
+  ],
+  "contain": [
+    {
+      "camera": "level",
+      "viewport": [
+        320,
+        320
+      ],
+      "frame": {
+        "left": 0,
+        "top": 40,
+        "width": 320,
+        "height": 240,
+        "scale": 0.5
+      },
+      "center": [
+        160,
+        160
+      ],
+      "right_point": [
+        210,
+        160
+      ],
+      "up_point": [
+        160,
+        110
+      ]
+    },
+    {
+      "camera": "level",
+      "viewport": [
+        960,
+        480
+      ],
+      "frame": {
+        "left": 160,
+        "top": 0,
+        "width": 640,
+        "height": 480,
+        "scale": 1
+      },
+      "center": [
+        480,
+        240
+      ],
+      "right_point": [
+        580,
+        240
+      ],
+      "up_point": [
+        480,
+        140
+      ]
+    },
+    {
+      "camera": "level",
+      "viewport": [
+        320,
+        180
+      ],
+      "frame": {
+        "left": 40,
+        "top": 0,
+        "width": 240,
+        "height": 180,
+        "scale": 0.375
+      },
+      "center": [
+        160,
+        90
+      ],
+      "right_point": [
+        197.5,
+        90
+      ],
+      "up_point": [
+        160,
+        52.5
+      ]
+    },
+    {
+      "camera": "asymmetric",
+      "viewport": [
+        400,
+        400
+      ],
+      "frame": {
+        "left": 0,
+        "top": 100,
+        "width": 400,
+        "height": 200,
+        "scale": 0.5
+      },
+      "test_point_2_4_0": [
+        190,
+        155
+      ]
+    }
+  ],
+  "tolerances": {
+    "pure_arithmetic_pixels": 1e-9,
+    "float32_matrix_pixels": 0.01,
+    "raster_rounding_css_pixels": 1,
+    "meaning": "Software numeric/raster tolerances, not historical camera uncertainty or likeness accuracy"
+  }
+}

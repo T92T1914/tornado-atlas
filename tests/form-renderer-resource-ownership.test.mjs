@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createFormRenderer} from '../web/form-renderer.mjs';
+import {GROUND_CAMERAS,GROUND_MARKS} from '../web/ground-view-model.mjs';
 
 // Controlled explicit GL calls. This ledger does not measure native GPU memory.
 function accountingGraphics() {
@@ -42,7 +43,7 @@ function accountingGraphics() {
   for(const name of ['shaderSource','compileShader','attachShader','linkProgram','bindVertexArray','bindBuffer','bufferData','enableVertexAttribArray','vertexAttribPointer','enable','blendFuncSeparate','disable','clearColor','viewport','clear','useProgram','bufferSubData','uniform2fv','uniform1i','uniform2f','uniform4fv','scissor','uniform3fv','uniform1f','uniform3f','uniformMatrix4fv'])gl[name]=invoke(name,()=>{});
   return {
     gl,created,deleted,foreign,duplicates,draws,
-    canvas:{width:0,height:0,getContext:(kind)=>{if(kind!=='webgl2')throw new Error('Unexpected graphics context');return gl;},getBoundingClientRect:()=>({width:320,height:480})},
+    canvas:{width:0,height:0,clientWidth:320,clientHeight:480,getContext:(kind)=>{if(kind!=='webgl2')throw new Error('Unexpected graphics context');return gl;},getBoundingClientRect:()=>({width:320,height:480})},
     counts:()=>Object.fromEntries([...live].map(([kind,handles])=>[kind,handles.size])),
     failCompile:ordinal=>{compileFailure=ordinal;},
     failLink:ordinal=>{linkFailure=ordinal;},
@@ -105,6 +106,25 @@ test('success renders, disposes exactly once and ignores drawing after disposal'
   renderer.dispose();owned(f,none);const retired=f.deleted.length,drawn=f.draws.length;
   renderer.dispose();renderer.render({shape:{base:.4,flare:.2,bend:0},extent:1});
   assert.equal(f.deleted.length,retired);assert.equal(f.draws.length,drawn);
+});
+test('explicit source camera owns lazy marks, preserves its errors and can retry',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  const input={sourceCamera:GROUND_CAMERAS[0].camera,referencePoints:GROUND_MARKS,
+    shape:{base:.5,flare:.4,bend:0},extent:1,time:130,azimuth:NaN};
+  const original=new Error('controlled camera mark buffer failure');f.failNext('bufferData',original);
+  assert.throws(()=>renderer.render(input),error=>error===original);owned(f,base);
+  f.clearFailure();renderer.render(input);owned(f,{program:2,shader:0,vao:3,buffer:3});
+  assert.deepEqual(f.draws.slice(-3).map(draw=>draw.mode),[f.gl.LINES,f.gl.LINES,f.gl.POINTS]);
+  renderer.dispose();owned(f,none);
+});
+test('invalid source camera and incompatible schematic clear rather than reuse an old image',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  renderer.render({shape:{base:.5,flare:.4,bend:0},extent:1});
+  const drawn=f.draws.length,clears=f.callCount('clear');
+  assert.throws(()=>renderer.render({sourceCamera:{id:'incomplete'},shape:{base:.5,flare:.4,bend:0}}));
+  assert.equal(f.draws.length,drawn);assert.equal(f.callCount('clear'),clears+1);
+  assert.throws(()=>renderer.render({sourceCamera:GROUND_CAMERAS[0].camera,partialForm:margin}),/schematic/);
+  assert.equal(f.draws.length,drawn);renderer.dispose();owned(f,none);
 });
 test('successful reinitialize retires the previous bundle and preserves drawing',t=>{
   renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);

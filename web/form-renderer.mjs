@@ -1,5 +1,6 @@
 import {particles, cameraMatrix} from './vortex-model.mjs';
 import {validateCondensationSupport} from './partial-form-geometry.mjs';
+import {sourceCameraProjection,sourceBackingSize} from './source-camera-model.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
@@ -14,8 +15,10 @@ uniform float viewportHeight;
 uniform float maxPoint;
 uniform bool dust;
 uniform int readingPalette;
+uniform vec2 spriteAspect;
 out vec4 color;
 out vec2 cloudSeed;
+out vec2 particleAspect;
 void main() {
   float h = seed.x;
   float angle = seed.y * 6.2831853 + time * (0.5 + 0.9 * (1.0-h));
@@ -50,14 +53,16 @@ void main() {
   gl_PointSize = clamp(viewportHeight * size / max(.2,gl_Position.w),1.0,maxPoint);
   color = vec4(tint, opacity);
   cloudSeed = seed.xy*vec2(17.3,23.7)+seed.z*11.1;
+  particleAspect = spriteAspect;
 }`;
 const particleFragment = `#version 300 es
 precision mediump float;
 in vec4 color;
 in vec2 cloudSeed;
+in vec2 particleAspect;
 out vec4 outputColor;
 void main() {
-  vec2 p = gl_PointCoord*2.0-1.0;
+  vec2 p = (gl_PointCoord*2.0-1.0)/particleAspect;
   float radius2 = dot(p,p), d = sqrt(radius2);
   // Fixed cloud texture and lighting are artistic display choices.
   float edge = 1.0-smoothstep(.70,1.0,d);
@@ -76,8 +81,9 @@ const gridFragment = `#version 300 es
 precision mediump float;
 in float fade;
 uniform int readingPalette;
+uniform bool referenceMarks;
 out vec4 outputColor;
-void main(){vec3 tint=readingPalette==0?vec3(.47,.58,.47):vec3(readingPalette==1?.32:.72);outputColor=vec4(tint,.22*fade);}`;
+void main(){vec3 tint=readingPalette==0?vec3(.47,.58,.47):vec3(readingPalette==1?.32:.72);outputColor=vec4(tint,(referenceMarks ? .95 : .22)*fade);}`;
 
 // Authored planar display geometry. It carries no camera or physical units.
 const marginVertex = `#version 300 es
@@ -262,7 +268,7 @@ export function createFormRenderer(canvas, quality) {
   }
   function retire(resources){
     if(!resources)return;
-    for(const key of ['cloudAttribute','gridAttribute']){
+    for(const key of ['cloudAttribute','gridAttribute','referenceAttribute']){
       const item=resources[key];
       if(item){gl.deleteVertexArray(item.vao);gl.deleteBuffer(item.buffer);}
     }
@@ -287,8 +293,9 @@ export function createFormRenderer(canvas, quality) {
       pending.gridAttribute=attribute(pending.grid,'position',new Float32Array(lines),3);
       Object.assign(pending,{count:values.length/4,
         gridCount:lines.length/3,maxPoint:gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1],
-        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','readingPalette'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
-        gridCamera:gl.getUniformLocation(pending.grid,'camera'),gridPalette:gl.getUniformLocation(pending.grid,'readingPalette')});
+        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','readingPalette','spriteAspect'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
+        gridCamera:gl.getUniformLocation(pending.grid,'camera'),gridPalette:gl.getUniformLocation(pending.grid,'readingPalette'),
+        gridMarks:gl.getUniformLocation(pending.grid,'referenceMarks')});
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
       gl.disable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);
@@ -321,14 +328,33 @@ export function createFormRenderer(canvas, quality) {
       gpu.condensation=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
-  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null}={}){
+  function referenceResources(points){
+    const lines=[];
+    for(const [x,y,z] of points)lines.push(x-.08,y,z,x+.08,y,z,x,y-.08,z,x,y+.08,z);
+    if(gpu.referenceAttribute){
+      gl.bindBuffer(gl.ARRAY_BUFFER,gpu.referenceAttribute.buffer);
+      gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(lines),gl.STATIC_DRAW);
+      return gpu.referenceAttribute;
+    }
+    // attribute() retains partial ownership until it can commit the pair.
+    gpu.referenceAttribute=attribute(gpu.grid,'position',new Float32Array(lines),3);
+    return gpu.referenceAttribute;
+  }
+  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null,sourceCamera=null,referencePoints=null}={}){
     if(!gpu)return;
     const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
-    const width=Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
-    const height=Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
+    const raster=sourceCamera===null?null:sourceBackingSize(canvas.clientWidth,canvas.clientHeight,ratio);
+    const width=raster?.width??Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
+    const height=raster?.height??Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
     // Every selection clears the complete canvas, including an unknown instant.
     gl.viewport(0,0,width,height);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);
+    // Validate even an empty source state, after clearing any previous image.
+    const source=sourceCamera===null?null:sourceCameraProjection(sourceCamera,width,height);
+    if(source&&partialForm!==null)throw new TypeError('A schematic display plane cannot inherit a source camera');
+    if(referencePoints!==null&&(!source||!Array.isArray(referencePoints)||referencePoints.length>16||
+      referencePoints.some(p=>!Array.isArray(p)||p.length!==3||!p.every(x=>Number.isFinite(x)&&Math.abs(x)<=1e6))))
+      throw new TypeError('Reference marks require a source camera and bounded scene points');
     if(partialForm?.kind==='visible_condensation_region'){
       const geometry=buildCondensationGeometry(partialForm.points,rect.width,rect.height,partialForm.display_preset);
       if(!geometry)return;
@@ -359,18 +385,27 @@ export function createFormRenderer(canvas, quality) {
       gl.drawArrays(gl.TRIANGLES,0,6);return;
     }
     if(!shape)return;
-    const camera=cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
+    const camera=source?.matrix??cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
+    if(source){const v=source.viewport;gl.viewport(v.x,v.y,v.width,v.height);gl.enable(gl.SCISSOR_TEST);gl.scissor(v.x,v.y,v.width,v.height);}
+    try{
     const palette=readingAppearance==='light'?1:readingAppearance==='dark'?2:0;
     gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
     gl.uniform1i(gpu.gridPalette,palette);
+    gl.uniform1i(gpu.gridMarks,0);
     gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);
+    if(source&&referencePoints?.length){
+      gl.bindVertexArray(referenceResources(referencePoints).vao);gl.uniform1i(gpu.gridMarks,1);
+      gl.drawArrays(gl.LINES,0,referencePoints.length*4);
+    }
     gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
     const u=gpu.uniforms;
     gl.uniformMatrix4fv(u.camera,false,camera);gl.uniform3f(u.shape,shape.base,shape.flare,shape.bend);
     gl.uniform1f(u.time,time);gl.uniform1f(u.extent,extent);
-    gl.uniform1f(u.viewportHeight,height);gl.uniform1f(u.maxPoint,gpu.maxPoint);
+    gl.uniform1f(u.viewportHeight,source?.pointScale??height);gl.uniform1f(u.maxPoint,gpu.maxPoint);
+    gl.uniform2f(u.spriteAspect,...(source?.spriteAspect??[1,1]));
     gl.uniform1i(u.readingPalette,palette);
     gl.uniform1i(u.dust,dust?1:0);gl.drawArrays(gl.POINTS,0,gpu.count);
+    }finally{if(source)gl.disable(gl.SCISSOR_TEST);}
   }
   initialize();
   return {render,setQuality,initialize,dispose};

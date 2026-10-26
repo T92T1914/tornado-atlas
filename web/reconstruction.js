@@ -15,6 +15,8 @@ import {mountPhotoViewer,documentaryPhoto} from './photo-view.mjs';
 import {mountReplayScaleImpact} from './replay-scale-impact-view.mjs';
 import {mountDocumentaryAppearance} from './documentary-appearance.mjs';
 import {mountReplayDocumentaryImage} from './replay-documentary-image.mjs';
+import {mountGroundView} from './ground-view.mjs';
+import {GROUND_MARKS} from './ground-view-model.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
@@ -81,14 +83,16 @@ async function start(){
   clock=new PlaybackClock((positions.at(-1).stamp-positions[0].stamp)/1000);
   const start=positions[0].stamp,anchors=data.footage.anchors;
   const photoView=(href=location.href)=>new URL(href).searchParams.get('appearance_view')==='photo';
+  const groundView=(href=location.href)=>event.id==='el-reno-2013'&&new URL(href).searchParams.get('appearance_view')==='ground';
+  const separateAppearance=href=>photoView(href)||groundView(href);
   function selectedSeconds(search){
     const params=new URLSearchParams(search);
-    if(params.get('appearance_view')==='photo')params.delete('footage');
+    if(params.get('appearance_view')==='photo'||params.get('appearance_view')==='ground')params.delete('footage');
     return replaySeconds(params.toString(),clock.duration,anchors,start);
   }
   function momentURL(href,seconds){
     const original=new URL(href);
-    if(!photoView(original.href))return replayURL(original.href,event.id,seconds,anchors,start);
+    if(!separateAppearance(original.href))return replayURL(original.href,event.id,seconds,anchors,start);
     original.searchParams.delete('footage');
     const url=replayURL(original.href,event.id,seconds,anchors,start);
     url.searchParams.delete('footage');
@@ -96,6 +100,7 @@ async function start(){
     return url;
   }
   clock.seek(selectedSeconds(location.search));
+  if(groundView()){clock.setRate(1,performance.now());el('replay-rate').value='1';}
   syncLocation=(mode='replace',fragment=null)=>{
     const url=momentURL(location.href,clock.seconds);
     if(fragment)url.hash=fragment;
@@ -104,7 +109,7 @@ async function start(){
       window.dispatchEvent(new Event('atlas:replay-url-change'));
     }
   };
-  if(photoView())syncLocation();
+  if(separateAppearance())syncLocation();
   function seek(seconds,{mode='push',fragment=null}={}){
     pause();clock.seek(seconds);refresh();if(mode)syncLocation(mode,fragment);
   }
@@ -118,7 +123,15 @@ async function start(){
   el('replay-source-note').textContent=`The source supplies ${positions.length} minute positions and the center path. The moving marker uses linear interpolation between those positions. ${config.clock.basis}`;
   el('replay-geography-source').href=config.geography_source.url;
   const updateFootage=mountFootage({...data.footage,introduction:'Choose a checked clock reading from the original footage. Each button pauses the spatial scene and radar viewer at that historical time and selects the corresponding video position. The original footage stays separate from the illustrative funnel.'},start,seconds=>seek(seconds,{mode:'replace'}),pause,{headingLevel:2,formatTime:localStamp,clockLabel:`Historical clock (${config.clock.time_zone})`,restoreInitialMoment:false,onMomentSelect:anchor=>seek((Date.parse(anchor.utc)-start)/1000,{fragment:'registered-footage'})});
-  el('footage-source')?.addEventListener('change',()=>{lastText=null;refresh();syncLocation();});
+  el('footage-source')?.addEventListener('change',()=>{
+    if(groundView()){
+      if(clock.playing)clock.tick(performance.now());pause();
+      const url=momentURL(location.href,clock.seconds);url.searchParams.delete('appearance_view');url.searchParams.delete('ground_view');
+      history.replaceState(null,'',url);mode.value='source';
+      window.dispatchEvent(new Event('atlas:replay-url-change'));
+    }
+    lastText=null;refresh();syncLocation();
+  });
   const chapters=replayChapters(data.history?.event===event.id?data.history:null,positions,start);
   const warnings=data.documentary?.event===event.id&&Array.isArray(data.documentary.warnings)?data.documentary.warnings:[];
   const mappedChapters=chapters.filter(chapter=>chapter.mapSeconds!==null);
@@ -170,7 +183,23 @@ async function start(){
   const appearanceTimeline=data.appearance_timeline??null;
   const photoSequences=appearanceTimeline?.photo_sequences??[];
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
-  let appearanceRenderer=null,appearanceState={state:'unknown'};
+  let appearanceRenderer=null,appearanceState={state:'unknown'},rendererQuality=3200;
+  const groundOptions={host:el('replay-ground-controls'),referenceHost:el('replay-ground-reference'),
+    onSeek:seconds=>seek(seconds),onQuality:()=>{refresh();},onCamera:id=>{
+      if(clock.playing)clock.tick(performance.now());pause();
+      const url=momentURL(location.href,clock.seconds);url.searchParams.set('ground_view',id);
+      if(url.href!==location.href)history.pushState(null,'',url);
+      window.dispatchEvent(new Event('atlas:replay-url-change'));lastText=null;refresh();
+    }};
+  let mountedGround=null;
+  const ground={quality:()=>mountedGround?.quality()??3200,update(enabled,...args){
+    if(enabled&&!mountedGround)mountedGround=mountGroundView(groundOptions);
+    return mountedGround?.update(enabled,...args)??null;
+  }};
+  if(event.id==='el-reno-2013'){
+    const option=document.createElement('option');option.value='ground';option.textContent='Synthetic ground-view comparison';mode.append(option);
+    el('replay-ground-link').hidden=false;
+  }
   let unavailablePhotoId=null,shownPhotoSequence=null,shownPhotoSample=null;
   const photoImageHost=document.createElement('div');photoImageHost.id='replay-documentary-image';
   el('replay-photo-samples').after(photoImageHost);
@@ -211,15 +240,19 @@ async function start(){
     drawing.hidden=false;
     try{appearanceRenderer=createFormRenderer(formCanvas,3200);}
     catch(error){formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer could not start here. Source and coverage text remain available.';console.error('Appearance renderer failed:',error);}
-    formCanvas.addEventListener('webglcontextlost',event=>{event.preventDefault();appearanceRenderer=null;formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer lost its graphics context. Source and coverage text remain available.';});
+    formCanvas.addEventListener('webglcontextlost',event=>{event.preventDefault();appearanceRenderer?.dispose();appearanceRenderer=null;formCanvas.hidden=true;el('replay-appearance-renderer-status').textContent='The form renderer lost its graphics context. Source and coverage text remain available.';});
     formCanvas.addEventListener('webglcontextrestored',()=>{
-      try{appearanceRenderer=createFormRenderer(formCanvas,3200);formCanvas.hidden=false;el('replay-appearance-renderer-status').textContent='';updateAppearance();requestDraw();}
+      try{appearanceRenderer=createFormRenderer(formCanvas,3200);rendererQuality=3200;formCanvas.hidden=false;el('replay-appearance-renderer-status').textContent='';updateAppearance();requestDraw();}
       catch(error){console.error('Appearance renderer recovery failed:',error);}
     });
     new ResizeObserver(requestDraw).observe(formCanvas);
     mode.addEventListener('change',()=>{
+      if(mode.value==='ground'||groundView()){if(clock.playing)clock.tick(performance.now());pause();}
+      if(mode.value==='ground'){clock.setRate(1,performance.now());el('replay-rate').value='1';}
       const requested=new URL(location.href);
-      if(mode.value.startsWith('photo:')){
+      if(mode.value==='ground'){
+        requested.searchParams.set('appearance_view','ground');requested.searchParams.set('ground_view','synthetic-front');requested.searchParams.delete('appearance_photo');
+      }else if(mode.value.startsWith('photo:')){
         requested.searchParams.set('appearance_view','photo');
         requested.searchParams.set('appearance_photo',mode.value.slice(6));
       }else if(mode.value==='unavailable-photo'){
@@ -231,6 +264,7 @@ async function start(){
         if(mode.value==='illustrative')requested.searchParams.set('appearance_view','illustrative');
         else requested.searchParams.delete('appearance_view');
       }
+      if(mode.value!=='ground')requested.searchParams.delete('ground_view');
       const url=momentURL(requested.href,clock.seconds);
       if(url.href!==location.href){
         history.pushState(null,'',url);
@@ -243,6 +277,7 @@ async function start(){
     mode.querySelector('[data-unavailable-photo]')?.remove();
     unavailablePhotoId=null;
     const params=new URL(location.href).searchParams;
+    if(groundView()){mode.value='ground';return;}
     if(params.get('appearance_view')==='photo'){
       const id=params.get('appearance_photo')??'';
       if(photoSequences.some(sequence=>sequence.id===id))mode.value=`photo:${id}`;
@@ -402,7 +437,10 @@ async function start(){
     const photoSelected=mode.value.startsWith('photo:')||mode.value==='unavailable-photo';
     const sequence=photoSequences.find(item=>mode.value===`photo:${item.id}`)??null;
     const selected=mode.value==='illustrative'?null:sourceId;
-    appearanceState=photoSelected?
+    const groundSelected=mode.value==='ground';
+    const groundState=ground.update(groundSelected,clock.seconds,new URL(location.href).searchParams.get('ground_view'));
+    appearanceState=groundSelected?{...groundState,sourceCamera:groundState.shape?groundState.camera:null}:
+      photoSelected?
       sequence?appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,{kind:'photo',id:sequence.id}):
         {state:'unknown',shape:null,extent:null}:
       appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,selected);
@@ -410,7 +448,10 @@ async function start(){
     const anchor=source?anchorAt(anchors,current.utc,sourceId):null;
     const status=el('replay-appearance-state'),detail=el('replay-appearance-detail'),link=el('replay-appearance-source');
     let statusText,detailText,linkTarget='',linkText='';
-    if(photoSelected){
+    if(groundSelected){
+      statusText=groundState.state==='synthetic'?'Synthetic ground-view rendering. No El Reno appearance is registered.':groundState.state==='gap'?'Outside the synthetic demonstration interval.':'Synthetic camera unavailable.';
+      detailText=groundState.reason;
+    }else if(photoSelected){
       if(!sequence){
         statusText='Photograph selection unavailable.';
         detailText=`The requested sequence "${unavailablePhotoId||'(missing identity)'}" is not declared in this event package. Choose an available appearance view. No source has been substituted.`;
@@ -461,6 +502,10 @@ async function start(){
     formCanvas.dataset.partialForm=String(Boolean(appearanceState.partialForm));
     formCanvas.dataset.partialKind=appearanceState.partialForm?.kind??'';
     formCanvas.dataset.displayPreset=photoDisplayForm(appearanceState)?.display_preset??'';
+    formCanvas.dataset.sourceCamera=appearanceState.sourceCamera?.id??'';
+    el('replay-ground-comparison').className=groundSelected?'ground-active':'';
+    el('ground-render-caption').hidden=!groundSelected;
+    formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground-view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
     // Unknown or documentary-only states retain their controls and source text
     // without reserving an empty drawing area. Supported partial forms remain.
     formCanvas.hidden=!appearanceRenderer||!Boolean(appearanceState.partialForm||appearanceState.shape);
@@ -501,7 +546,7 @@ async function start(){
     el('replay-damage-offscreen').hidden=!selectedSurvey||Boolean(surveyed);
     for(const point of positions){const p=project(localPoint(point.geometry.coordinates,origin));if(!p)continue;context.beginPath();context.arc(p.x,p.y,2.5,0,Math.PI*2);context.fillStyle=text;context.fill();}
     const marker=project(center);
-    if(el('replay-funnel').checked&&!photoView()){
+    if(el('replay-funnel').checked&&!separateAppearance()){
       // The glyph's dimensions are deliberately fixed artwork, never inferred from the path envelope.
       const particles=funnelGlyph(clock.seconds/12).map(p=>project(p.map((v,i)=>v+center[i]))).filter(Boolean).sort((a,b)=>b.depth-a.depth);
       context.fillStyle=text;
@@ -526,8 +571,12 @@ async function start(){
     el('replay-camera-offscreen').hidden=!observer?.visible||Boolean(glyph);
     const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('N',north.x,north.y);}
     context.fillStyle=muted;context.font='11px '+getComputedStyle(canvas).fontFamily;context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
+    const quality=mode.value==='ground'?ground.quality():3200;
+    if(appearanceRenderer&&quality!==rendererQuality){appearanceRenderer.setQuality(quality);rendererQuality=quality;}
     if(appearanceRenderer)appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,
       partialForm:photoDisplayForm(appearanceState),
+      sourceCamera:appearanceState.sourceCamera??null,referencePoints:appearanceState.sourceCamera?GROUND_MARKS:null,
+      readingAppearance:mode.value==='ground'?getComputedStyle(formCanvas).colorScheme:null,
       time:clock.seconds,dust:false});
   };
   refresh=()=>{
@@ -535,19 +584,19 @@ async function start(){
     const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;
     if(key!==lastText)updateFootage(current.utc);
     updateAppearance();
-    el('replay-funnel').disabled=photoView();
-    setText(el('replay-stage-kind'),photoView()?'SOURCE APPEARANCE / CENTER POSITION':'DOCUMENTED PATH / ILLUSTRATIVE FUNNEL');
-    setText(el('replay-funnel-help'),photoView()?'Photograph mode keeps only the center marker in the geographic scene, including unknown appearance times. The source form above is a separate authored display plane. Neither marks a wind field or a recorded orbit viewpoint.':'Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.');
-    el('replay-link').href=momentURL(location.href,photoView()?clock.seconds:Math.floor(clock.seconds)).href;
-    el('replay-time').step=photoView()?'any':'1';
-    el('replay-time').value=photoView()?clock.seconds:Math.round(clock.seconds);
+    el('replay-funnel').disabled=separateAppearance();
+    setText(el('replay-stage-kind'),groundView()?'SYNTHETIC APPEARANCE / HISTORICAL PATH':photoView()?'SOURCE APPEARANCE / CENTER POSITION':'DOCUMENTED PATH / ILLUSTRATIVE FUNNEL');
+    setText(el('replay-funnel-help'),groundView()?'The synthetic camera exercise above has no geographic or historical registration. This path view keeps only the separately recorded center marker.':photoView()?'Photograph mode keeps only the center marker in the geographic scene, including unknown appearance times. The source form above is a separate authored display plane. Neither marks a wind field or a recorded orbit viewpoint.':'Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.');
+    el('replay-link').href=momentURL(location.href,separateAppearance()?clock.seconds:Math.floor(clock.seconds)).href;
+    el('replay-time').step=separateAppearance()?'any':'1';
+    el('replay-time').value=separateAppearance()?clock.seconds:Math.round(clock.seconds);
     if(key===lastText)return;lastText=key;
     updateContext();
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
     el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?
-      (photoView()?'Published source minute position. The geographic scene shows only the center marker.':'Published source minute position. The funnel remains an illustrative symbol.'):
-      `Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. ${photoView()?'Only the center marker is shown; no photographic appearance is assigned by the path.':'Funnel appearance is not registered.'}`;
+      (separateAppearance()?'Published source minute position. The geographic scene shows only the center marker.':'Published source minute position. The funnel remains an illustrative symbol.'):
+      `Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. ${separateAppearance()?'Only the center marker is shown; no photographic appearance is assigned by the path.':'Funnel appearance is not registered.'}`;
     const media=data.timeline_media;
     const reader=el('replay-radar-reader');
     reader.hidden=media.event!=='el-reno-2013';
