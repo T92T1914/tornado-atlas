@@ -27,14 +27,21 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
     const caption=document.createElement('figcaption');caption.textContent='Synthetic analytic reference';referenceHost.append(caption);
     const note=document.createElement('p');note.id='ground-reference-status';note.setAttribute('role','status');
     if(!key){note.textContent=state.state==='synthetic'?'No frozen reference exists at this exact instant. Select one of the three comparison instants.':'No reference is assigned to this camera or time.';referenceHost.append(note);return;}
-    const image=document.createElement('img');image.id='ground-reference-image';image.alt=`Independently computed synthetic funnel guide for ${state.camera.id} at player ${seconds} seconds. Not an El Reno photograph.`;
     const retry=document.createElement('button');retry.type='button';retry.id='ground-reference-retry';retry.textContent='Retry synthetic reference';retry.hidden=true;
     const original=document.createElement('a');original.id='ground-reference-original';original.href=key;original.target='_blank';original.rel='noopener';original.textContent='Open the complete synthetic reference';
-    let retryInitiated=false,inflight=false;
-    const load=()=>{if(token!==identity)return;inflight=true;image.hidden=true;retry.setAttribute('aria-disabled','true');retry.hidden=!retryInitiated;note.textContent='Loading the selected synthetic reference.';image.src=key;};
-    image.addEventListener('load',()=>{if(token!==identity)return;inflight=false;const focused=document.activeElement===retry;image.hidden=false;retry.hidden=true;retry.setAttribute('aria-disabled','false');if(focused)original.focus();note.textContent=`Complete synthetic reference: ${state.camera.id}, player ${seconds} seconds. No historical exposure is assigned.`;});
-    image.addEventListener('error',()=>{if(token!==identity)return;inflight=false;image.hidden=true;retry.hidden=false;retry.setAttribute('aria-disabled','false');note.textContent='The synthetic reference could not load. Its identity and link to the complete file remain available.';});
-    retry.addEventListener('click',()=>{if(inflight)return;retryInitiated=true;load();});referenceHost.append(image,note,retry,original);load();
+    let image=null,attemptIdentity=0,retryInitiated=false,inflight=false;
+    const load=()=>{
+      if(token!==identity)return;
+      const attempt=++attemptIdentity,previous=image,next=document.createElement('img');
+      next.id='ground-reference-image';next.alt=`Independently computed synthetic funnel guide for ${state.camera.id} at player ${seconds} seconds. Not an El Reno photograph.`;
+      next.hidden=true;image=next;
+      const ownsAttempt=()=>token===identity&&attempt===attemptIdentity&&image===next;
+      next.addEventListener('load',()=>{if(!ownsAttempt())return;inflight=false;const focused=document.activeElement===retry;next.hidden=false;retry.hidden=true;retry.setAttribute('aria-disabled','false');if(focused)original.focus();note.textContent=`Complete synthetic reference: ${state.camera.id}, player ${seconds} seconds. No historical exposure is assigned.`;});
+      next.addEventListener('error',()=>{if(!ownsAttempt())return;inflight=false;next.hidden=true;retry.hidden=false;retry.setAttribute('aria-disabled','false');note.textContent='The synthetic reference could not load. Its identity and link to the complete file remain available.';});
+      if(previous){previous.removeAttribute('src');previous.replaceWith(next);}else referenceHost.insertBefore(next,note);
+      inflight=true;retry.setAttribute('aria-disabled','true');retry.hidden=!retryInitiated;note.textContent='Loading the selected synthetic reference.';next.src=key;
+    };
+    retry.addEventListener('click',()=>{if(inflight)return;retryInitiated=true;load();});referenceHost.append(note,retry,original);load();
   }
   return {
     quality:()=>Number(quality.value),

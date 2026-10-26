@@ -85,8 +85,13 @@ test('ground-view failed reference retries and detached callbacks cannot transfe
   await page.route('**/assets/ground-view-demo/synthetic-front-120.svg',route=>++attempts===1?route.abort():route.continue());
   await page.goto(base+'/'+demo);await page.locator('#replay-time:not([disabled])').waitFor();await page.locator('#ground-reference-retry').waitFor();
   assert.match(await page.locator('#ground-reference-status').textContent(),/could not load/);await saveCapture(page,'reference-unavailable.png');
+  const failedImage=await page.locator('#ground-reference-image').elementHandle(),selectedURL=page.url();
   const retry=page.locator('#ground-reference-retry');await page.keyboard.press('Tab');await retry.focus();await page.keyboard.press('Enter');
   await referenceReady(page,'synthetic-front',120);assert.equal(attempts,2);assert.equal(await page.locator('#ground-reference-original').evaluate(n=>n===document.activeElement),true);
+  assert.equal(await page.locator('#replay-time').inputValue(),'120');assert.equal(page.url(),selectedURL);
+  assert.equal(await failedImage.evaluate(n=>n===document.getElementById('ground-reference-image')),false,'A new reference attempt owns a fresh image');
+  await failedImage.evaluate(n=>{n.dispatchEvent(new Event('error'));n.dispatchEvent(new Event('load'));});
+  assert.equal(await page.locator('#ground-reference-image').isVisible(),true);assert.match(await page.locator('#ground-reference-status').textContent(),/Complete.*synthetic-front/);
   const old=await page.locator('#ground-reference-image').elementHandle();await page.locator('#ground-camera').selectOption('synthetic-oblique');await referenceReady(page,'synthetic-oblique',120);
   await old.evaluate(n=>{n.dispatchEvent(new Event('error'));n.dispatchEvent(new Event('load'));});
   assert.match(await page.locator('#ground-reference-status').textContent(),/Complete.*synthetic-oblique/);
