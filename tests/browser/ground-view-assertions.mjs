@@ -59,7 +59,13 @@ export async function nativeSnapshot(page,seconds,id){
     assert.match(await page.locator('#replay-appearance-renderer-status').textContent(),/could not start|lost/);
     assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
     assert.notEqual(process.env.ATLAS_BROWSER_ENGINE??'chromium','chromium','Chromium must supply actual rendered-scene evidence');
-    return {available:false,scope:'DOM and unavailable-WebGL behavior only'};
+    await page.locator('#replay-time').fill(String(seconds));
+    const observed=await page.locator('#replay-time').inputValue();
+    const selectedCamera=await page.locator('#replay-appearance-canvas').getAttribute('data-source-camera');
+    assert.equal(observed,String(seconds),'The unavailable path still selects the requested time');
+    assert.equal(selectedCamera,id,'The unavailable path retains the selected source camera');
+    const unavailable={available:false,time:Number(observed),selectedCamera,scope:'DOM and unavailable-WebGL behavior only'};
+    console.log('GROUND_NATIVE_UNAVAILABLE '+JSON.stringify(unavailable));return unavailable;
   }
   await page.evaluate(({expected,seconds,id})=>{
     const canvas=document.querySelector('#replay-appearance-canvas'),gl=canvas.getContext('webgl2');

@@ -65,7 +65,7 @@ jobs:
           node --check web/source-camera-model.mjs
           node --check web/ground-view-model.mjs
           node --check web/ground-view.mjs
-          node --test tests/source-camera-model.test.mjs
+          node --test tests/source-camera-model.test.mjs tests/ground-view-probe.test.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
           node --check web/documentary-appearance.mjs
           node --check web/documentary-media.mjs
