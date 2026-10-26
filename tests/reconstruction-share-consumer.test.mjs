@@ -32,6 +32,8 @@ async function fixture(t,href) {
     hasAttribute(name) {return this.attributes.has(name);}
     removeAttribute(name) {this.attributes.delete(name);}
     append(...children) {for(const child of children){child.remove();child.parentElement=this;this.children.push(child);}}
+    get nextElementSibling() {const siblings=this.parentElement?.children;return siblings?.[siblings.indexOf(this)+1]??null;}
+    before(child) {const parent=this.parentElement;if(!parent||child===this)return;child.remove();child.parentElement=parent;parent.children.splice(parent.children.indexOf(this),0,child);}
     after(child) {const parent=this.parentElement;if(!parent||child===this)return;child.remove();child.parentElement=parent;parent.children.splice(parent.children.indexOf(this)+1,0,child);}
     replaceChildren(...children) {for(const child of this.children)child.parentElement=null;this._text='';this.children=[];this.append(...children);}
     remove() {if(this.parentElement){const siblings=this.parentElement.children;siblings.splice(siblings.indexOf(this),1);this.parentElement=null;}}
@@ -55,6 +57,14 @@ async function fixture(t,href) {
   const photoPanel=document.getElementById('replay-appearance-photo');
   const photoSamples=document.getElementById('replay-photo-samples'),photoRecord=document.getElementById('replay-photo-record');
   photoPanel.append(photoSamples,photoRecord);
+  const appearance=document.getElementById('replay-appearance'),clockControls=document.getElementById('replay-clock-controls'),drawing=document.getElementById('replay-appearance-drawing');
+  appearance.append(clockControls,drawing,photoPanel);
+  clockControls.append(...['replay-clock','replay-play','replay-rate','replay-time'].map(id=>document.getElementById(id)));
+  const siblingControl=document.createElement('div');drawing.before(siblingControl);
+  assert.equal(clockControls.nextElementSibling,siblingControl);
+  clockControls.before(siblingControl);
+  assert.equal(siblingControl.nextElementSibling,clockControls,'Moving an existing node preserves native sibling order');
+  siblingControl.remove();assert.equal(clockControls.nextElementSibling,drawing);
   const insertionControl=document.createElement('div');
   photoSamples.after(insertionControl);
   assert.deepEqual(photoPanel.children,[photoSamples,insertionControl,photoRecord],'Insertion preserves the real photo panel sibling order');
@@ -94,6 +104,7 @@ async function fixture(t,href) {
   finally {clearTimeout(timer);}
   assert.equal(document.getElementById('replay-error').hidden,true);
   assert.equal(document.getElementById('replay-time').disabled,false);
+  assert.equal(clockControls.nextElementSibling,drawing,'Documentary playback retains the original clock position');
   assert.equal(mode.querySelector('[value="illustrative"]'),null,'Real startup removes the unsupported illustrative option');
   assert.ok(mode.children.includes(sourceOption),'Real startup retains the selected original source option');
   assert.deepEqual(photoPanel.children,[photoSamples,ids.get('replay-documentary-image'),photoRecord],'Real startup inserts the documentary image between sample controls and their record');

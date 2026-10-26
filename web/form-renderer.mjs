@@ -1,6 +1,7 @@
 import {particles, cameraMatrix} from './vortex-model.mjs';
 import {validateCondensationSupport} from './partial-form-geometry.mjs';
 import {sourceCameraProjection,sourceBackingSize} from './source-camera-model.mjs';
+import {simulationTime,simulationBackingSize,simulationParticles,inverseCameraMatrix,FUNNEL_DENSITY_GLSL,funnelVolumeVertex,funnelVolumeFragment} from './funnel-simulation-model.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
@@ -14,11 +15,15 @@ uniform float extent;
 uniform float viewportHeight;
 uniform float maxPoint;
 uniform bool dust;
+uniform bool kinematic;
 uniform int readingPalette;
 uniform vec2 spriteAspect;
 out vec4 color;
 out vec2 cloudSeed;
 out vec2 particleAspect;
+out vec4 kinematicProbe;
+${FUNNEL_DENSITY_GLSL}
+float birthFade(float x){x=clamp(x,0.0,1.0);return x*x*x*(x*(x*6.0-15.0)+10.0);}
 void main() {
   float h = seed.x;
   float angle = seed.y * 6.2831853 + time * (0.5 + 0.9 * (1.0-h));
@@ -43,6 +48,32 @@ void main() {
     size = .23 + seed.z*.18;
     tint = vec3(.52,.45,.32);
   }
+  if(kinematic){
+    // Analytic ages have no accumulated integration state. Both recycling ends
+    // are invisible, including when seeking directly across a cycle boundary.
+    float age=fract(seed.x+time*(.085+.025*seed.z));
+    float life=birthFade(age/.12)*birthFade((1.0-age)/.17);
+    h=age;
+    angle=seed.y*6.2831853+time*.9+6.0*h;
+    r=funnelRadius(h,shape,time)*(.85+.20*seed.z);
+    vec2 axis=funnelCenter(h,shape,time);
+    position=vec3(axis.x+cos(angle)*r,2.6*h,axis.y+sin(angle)*r);
+    opacity=.018*life*smoothstep(1.0-extent-.02,1.0-extent+.045,h);
+    size=.17+.10*seed.z;
+    if(seed.w>1.5){
+      // The slow cloud-base density is integrated by the volume pass.
+      opacity=0.0;
+    }else if(seed.w>.5){
+      age=fract(seed.x+time*(.17+.045*seed.z));
+      life=birthFade(age/.10)*birthFade((1.0-age)/.28);
+      r=(.12+age*(shape.x*.7+.85))*pow(seed.z,.65);
+      angle=seed.y*6.2831853+time*(1.4+.9*seed.z)+age*4.0;
+      position=vec3(cos(angle)*r,.018+.08*age+.18*seed.z*age*(1.0-age),sin(angle)*r);
+      float sector=.30+.70*pow(.5+.5*cos(angle-.3*time-.6),2.0);
+      opacity=dust?.11*life*(1.0-.5*age)*sector:0.0;
+      size=.20+.18*age;
+    }
+  }
   // Optional neutral laboratory palette. Source-informed replay colors retain
   // their separate existing contract when this option is not selected.
   if(readingPalette > 0) {
@@ -54,6 +85,7 @@ void main() {
   color = vec4(tint, opacity);
   cloudSeed = seed.xy*vec2(17.3,23.7)+seed.z*11.1;
   particleAspect = spriteAspect;
+  kinematicProbe = vec4(position,opacity);
 }`;
 const particleFragment = `#version 300 es
 precision mediump float;
@@ -276,6 +308,7 @@ export function createFormRenderer(canvas, quality) {
     if(resources.condensation){gl.deleteVertexArray(resources.condensation.attribute.vao);gl.deleteBuffer(resources.condensation.attribute.buffer);gl.deleteProgram(resources.condensation.program);}
     if(resources.cloud)gl.deleteProgram(resources.cloud);
     if(resources.grid)gl.deleteProgram(resources.grid);
+    if(resources.volume){gl.deleteVertexArray(resources.volume.attribute.vao);gl.deleteBuffer(resources.volume.attribute.buffer);gl.deleteProgram(resources.volume.program);}
   }
   function dispose(){
     const owned=gpu;gpu=null;retire(owned);
@@ -293,7 +326,8 @@ export function createFormRenderer(canvas, quality) {
       pending.gridAttribute=attribute(pending.grid,'position',new Float32Array(lines),3);
       Object.assign(pending,{count:values.length/4,
         gridCount:lines.length/3,maxPoint:gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1],
-        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','readingPalette','spriteAspect'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
+        particleModel:'legacy',
+        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','kinematic','readingPalette','spriteAspect'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
         gridCamera:gl.getUniformLocation(pending.grid,'camera'),gridPalette:gl.getUniformLocation(pending.grid,'readingPalette'),
         gridMarks:gl.getUniformLocation(pending.grid,'referenceMarks')});
       gl.enable(gl.BLEND);
@@ -305,10 +339,20 @@ export function createFormRenderer(canvas, quality) {
   function setQuality(next){
     quality=next;
     if(!gpu)return;
-    const values=particles(Number(quality));
+    const values=(gpu.particleModel==='kinematic-v1'?simulationParticles:particles)(Number(quality));
     gl.bindBuffer(gl.ARRAY_BUFFER,gpu.cloudAttribute.buffer);
     gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
     gpu.count=values.length/4;
+  }
+  function volumeResources(){
+    if(gpu.volume)return gpu.volume;
+    let p=null,a=null;
+    try{
+      p=program(funnelVolumeVertex,funnelVolumeFragment);
+      a=attribute(p,'position',new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),2);
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      gpu.volume=resource;return resource;
+    }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
   function marginResources(){
     if(gpu.margin)return gpu.margin;
@@ -340,10 +384,10 @@ export function createFormRenderer(canvas, quality) {
     gpu.referenceAttribute=attribute(gpu.grid,'position',new Float32Array(lines),3);
     return gpu.referenceAttribute;
   }
-  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null,sourceCamera=null,referencePoints=null}={}){
+  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null,sourceCamera=null,referencePoints=null,motionModel='legacy'}={}){
     if(!gpu)return;
     const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
-    const raster=sourceCamera===null?null:sourceBackingSize(canvas.clientWidth,canvas.clientHeight,ratio);
+    const raster=motionModel==='kinematic-v1'?simulationBackingSize(sourceCamera?canvas.clientWidth:rect.width,sourceCamera?canvas.clientHeight:rect.height,ratio):sourceCamera===null?null:sourceBackingSize(canvas.clientWidth,canvas.clientHeight,ratio);
     const width=raster?.width??Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
     const height=raster?.height??Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
@@ -351,6 +395,13 @@ export function createFormRenderer(canvas, quality) {
     gl.viewport(0,0,width,height);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);
     // Validate even an empty source state, after clearing any previous image.
     const source=sourceCamera===null?null:sourceCameraProjection(sourceCamera,width,height);
+    if(!['legacy','kinematic-v1'].includes(motionModel))throw new TypeError('Unknown funnel motion model');
+    const kinematic=motionModel==='kinematic-v1';
+    if(kinematic){
+      simulationTime(time);
+      if(partialForm!==null)throw new TypeError('A partial historical form cannot inherit the procedural simulation');
+      if(shape&&(![shape.base,shape.flare,shape.bend].every(Number.isFinite)||shape.base<.02||shape.base>1.6||shape.flare<0||shape.flare>1.2||Math.abs(shape.bend)>.7||!Number.isFinite(extent)||extent<0||extent>1))throw new RangeError('Simulation shape exceeds its authored domain');
+    }
     if(source&&partialForm!==null)throw new TypeError('A schematic display plane cannot inherit a source camera');
     if(referencePoints!==null&&(!source||!Array.isArray(referencePoints)||referencePoints.length>16||
       referencePoints.some(p=>!Array.isArray(p)||p.length!==3||!p.every(x=>Number.isFinite(x)&&Math.abs(x)<=1e6))))
@@ -385,6 +436,11 @@ export function createFormRenderer(canvas, quality) {
       gl.drawArrays(gl.TRIANGLES,0,6);return;
     }
     if(!shape)return;
+    if(gpu.particleModel!==motionModel){
+      const values=(kinematic?simulationParticles:particles)(Number(quality));
+      gl.bindBuffer(gl.ARRAY_BUFFER,gpu.cloudAttribute.buffer);gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
+      gpu.count=values.length/4;gpu.particleModel=motionModel;
+    }
     const camera=source?.matrix??cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
     if(source){const v=source.viewport;gl.viewport(v.x,v.y,v.width,v.height);gl.enable(gl.SCISSOR_TEST);gl.scissor(v.x,v.y,v.width,v.height);}
     try{
@@ -397,6 +453,16 @@ export function createFormRenderer(canvas, quality) {
       gl.bindVertexArray(referenceResources(referencePoints).vao);gl.uniform1i(gpu.gridMarks,1);
       gl.drawArrays(gl.LINES,0,referencePoints.length*4);
     }
+    if(kinematic){
+      const volume=volumeResources(),v=source?.viewport??{x:0,y:0,width,height};
+      gl.useProgram(volume.program);gl.bindVertexArray(volume.attribute.vao);
+      gl.uniformMatrix4fv(volume.uniforms.inverseCamera,false,inverseCameraMatrix(camera));
+      gl.uniform4f(volume.uniforms.viewportBox,v.x,v.y,v.width,v.height);
+      gl.uniform3f(volume.uniforms.shape,shape.base,shape.flare,shape.bend);
+      gl.uniform1f(volume.uniforms.time,time);gl.uniform1f(volume.uniforms.extent,extent);
+      gl.uniform1i(volume.uniforms.dust,dust?1:0);
+      gl.uniform1i(volume.uniforms.readingPalette,palette);gl.drawArrays(gl.TRIANGLES,0,6);
+    }
     gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
     const u=gpu.uniforms;
     gl.uniformMatrix4fv(u.camera,false,camera);gl.uniform3f(u.shape,shape.base,shape.flare,shape.bend);
@@ -404,6 +470,7 @@ export function createFormRenderer(canvas, quality) {
     gl.uniform1f(u.viewportHeight,source?.pointScale??height);gl.uniform1f(u.maxPoint,gpu.maxPoint);
     gl.uniform2f(u.spriteAspect,...(source?.spriteAspect??[1,1]));
     gl.uniform1i(u.readingPalette,palette);
+    gl.uniform1i(u.kinematic,kinematic?1:0);
     gl.uniform1i(u.dust,dust?1:0);gl.drawArrays(gl.POINTS,0,gpu.count);
     }finally{if(source)gl.disable(gl.SCISSOR_TEST);}
   }

@@ -1,4 +1,4 @@
-import {GROUND_CAMERAS,GROUND_DEMO,groundViewAt} from './ground-view-model.mjs';
+import {GROUND_CAMERAS,GROUND_DEMO,groundViewAt,funnelSimulationAt} from './ground-view-model.mjs';
 
 const text=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
 export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
@@ -12,7 +12,7 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
     <p id="ground-time" role="timer" aria-live="off"></p>
     <details><summary>Camera geometry and assumptions</summary><p id="ground-camera-details"></p>
     <p>World axes are right handed: X and Z span the ground, Y points up. The origin is the model's central ground point. All pose, lens and shape quantities are illustrative. The height 2.6 is in authored scene units, with no conversion to metres. The pinhole lens is explicitly undistorted. Unknown or unsupported optics cannot be substituted.</p>
-    <p>The reference contains an independently derived analytic funnel outline and four reference marks at known scene points. The rendered particles have soft edges and an additional authored cloud base. Those do not coincide with the analytic outline. This comparison checks software projection, not historical likeness, hidden geometry, wind or damage.</p></details>`;
+    <p id="ground-model-note">The reference contains an independently derived analytic funnel outline and four reference marks at known scene points. The rendered particles have soft edges and an additional authored cloud base. Those do not coincide with the analytic outline. This comparison checks software projection, not historical likeness, hidden geometry, wind or damage.</p></details>`;
   const camera=host.querySelector('#ground-camera'),quality=host.querySelector('#ground-quality');
   for(const view of GROUND_CAMERAS){const option=document.createElement('option');option.value=view.id;option.textContent=view.label;camera.append(option);}
   for(const seconds of GROUND_DEMO.frames){const button=document.createElement('button');button.type='button';button.dataset.groundSecond=seconds;button.textContent=`Compare at player ${seconds} s`;button.addEventListener('click',()=>onSeek(seconds));host.querySelector('#ground-keyframes').append(button);}
@@ -43,21 +43,32 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
     };
     retry.addEventListener('click',()=>{if(inflight)return;retryInitiated=true;load();});referenceHost.append(note,retry,original);load();
   }
+  let simulation=false;
+  const legacyHeading=host.querySelector('h3').textContent,legacyBoundary=host.querySelector('.ground-boundary').textContent,legacyModelNote=host.querySelector('#ground-model-note').textContent;
   return {
     quality:()=>Number(quality.value),
-    update(enabled,seconds,id){
+    update(enabled,seconds,id,variant='legacy'){
+      const nextSimulation=variant==='kinematic-v1';
+      if(nextSimulation!==simulation){
+        simulation=nextSimulation;identity++;referenceKey=null;referenceHost.replaceChildren();
+        text(host.querySelector('h3'),simulation?'Procedural funnel simulation':legacyHeading);
+        text(host.querySelector('.ground-boundary'),simulation?'An authored moving funnel in a declared camera. Player seconds 120 through 140 are simulation offsets with no historical El Reno correspondence.':legacyBoundary);
+        text(host.querySelector('#ground-model-note'),simulation?'The body integrates a bounded procedural density. Detail rises and turns coherently; dust follows separate fading trajectories and the cloud base drifts slowly. These are authored kinematics and display opacity, without physical wind, pressure, debris mass or measured scale. The earlier analytic references remain in the separate synthetic comparison.':legacyModelNote);
+        for(const b of host.querySelectorAll('[data-ground-second]'))text(b,`${simulation?'Show':'Compare'} at player ${b.dataset.groundSecond} s`);
+      }
       host.hidden=!enabled;referenceHost.hidden=!enabled;
       camera.querySelector('[data-unavailable]')?.remove();
       if(!enabled){identity++;referenceKey=null;referenceHost.replaceChildren();return null;}
-      const state=groundViewAt(seconds,id);
+      const state=(simulation?funnelSimulationAt:groundViewAt)(seconds,id);
       if(id&&!GROUND_CAMERAS.some(view=>view.id===id)){
         const option=document.createElement('option');option.value=id;option.textContent='Unavailable synthetic camera';option.dataset.unavailable='';camera.append(option);
       }
       camera.value=id??'';
-      text(host.querySelector('#ground-time'),state.state==='synthetic'?`Synthetic render at player ${seconds.toFixed(2)} s. Authored interval: 120 through 140 s.`:state.reason);
+      text(host.querySelector('#ground-time'),state.state==='synthetic'?`${simulation?'Procedural simulation':'Synthetic render'} at player ${seconds.toFixed(2)} s. Authored interval: 120 through 140 s.`:state.reason);
       text(host.querySelector('#ground-camera-details'),state.camera?`${state.camera.id}. Position [${state.camera.position.join(', ')}], target [${state.camera.target.join(', ')}], up [${state.camera.up.join(', ')}]. Complete image: 1280 by 720 pixels. fx = fy = 900 pixels; principal point [640, 360]. Near/far clipping: 0.1 / 60 authored scene units. Complete source frame is fitted with letterboxing, never cropped.`:'No camera solution is available for the requested selection.');
       for(const button of host.querySelectorAll('[data-ground-second]'))button.setAttribute('aria-pressed',String(Number(button.dataset.groundSecond)===seconds));
-      showReference(state,seconds);return state;
+      if(simulation)referenceHost.hidden=true;else showReference(state,seconds);
+      return state;
     }
   };
 }

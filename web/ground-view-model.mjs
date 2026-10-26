@@ -27,3 +27,12 @@ export function groundViewAt(seconds,id){
     time:seconds,reference:GROUND_DEMO.frames.includes(seconds)?`assets/ground-view-demo/${id}-${seconds}.svg`:null,
     reason:'Authored synthetic evolution. These camera and shape quantities are not El Reno observations.'};
 }
+
+export function funnelSimulationAt(seconds,id){
+  const original=groundViewAt(seconds,id);
+  if(original.state!=='synthetic')return {...original,motionModel:'kinematic-v1'};
+  const u=(seconds-GROUND_DEMO.start)/(GROUND_DEMO.end-GROUND_DEMO.start),smooth=u*u*(3-2*u);
+  return {...original,shape:{base:.42+.23*smooth,flare:.70-.12*smooth,bend:.10},
+    reference:null,motionModel:'kinematic-v1',
+    reason:'Procedural condensation, rising helical detail, low circulating dust and a separately moving cloud base. Authored scene units and motion; no historical El Reno appearance or physical wind is registered.'};
+}

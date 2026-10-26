@@ -70,6 +70,15 @@ and comparison. It is not recorded El Reno appearance or a physical simulation.
 The [camera contract](docs/ground-view-reconstruction.md) explains the geometry,
 independent reference construction and historical inputs still missing.
 
+The current funnel implementation adds a separate Procedural funnel simulation
+view through the same cameras and clock. It draws a connected density body,
+rising and turning detail, low dust and a slowly moving cloud base. The Form
+Study uses that model for new experiments, while earlier saved links and the
+six analytic camera references retain their original renderer. The
+[form study notes](docs/visual-form-study.md) explain the deterministic motion,
+display approximations and pending complete playback and release acceptance.
+This software work does not qualify a historical El Reno appearance interval.
+
 The spatial replay keeps selected footage moments and observer times in browser
 history. Back and Forward restore the clock paused. Scrubbing or pausing updates
 the current address, so reloading does not return to an earlier footage choice.

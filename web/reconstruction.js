@@ -83,11 +83,13 @@ async function start(){
   clock=new PlaybackClock((positions.at(-1).stamp-positions[0].stamp)/1000);
   const start=positions[0].stamp,anchors=data.footage.anchors;
   const photoView=(href=location.href)=>new URL(href).searchParams.get('appearance_view')==='photo';
-  const groundView=(href=location.href)=>event.id==='el-reno-2013'&&new URL(href).searchParams.get('appearance_view')==='ground';
+  const simulationView=(href=location.href)=>event.id==='el-reno-2013'&&new URL(href).searchParams.get('appearance_view')==='simulation';
+  const cameraMode=value=>['ground','simulation'].includes(value);
+  const groundView=(href=location.href)=>event.id==='el-reno-2013'&&cameraMode(new URL(href).searchParams.get('appearance_view'));
   const separateAppearance=href=>photoView(href)||groundView(href);
   function selectedSeconds(search){
     const params=new URLSearchParams(search);
-    if(params.get('appearance_view')==='photo'||params.get('appearance_view')==='ground')params.delete('footage');
+    if(params.get('appearance_view')==='photo'||cameraMode(params.get('appearance_view')))params.delete('footage');
     return replaySeconds(params.toString(),clock.duration,anchors,start);
   }
   function momentURL(href,seconds){
@@ -198,7 +200,9 @@ async function start(){
   }};
   if(event.id==='el-reno-2013'){
     const option=document.createElement('option');option.value='ground';option.textContent='Synthetic ground-view comparison';mode.append(option);
+    const simulation=document.createElement('option');simulation.value='simulation';simulation.textContent='Procedural funnel simulation';mode.append(simulation);
     el('replay-ground-link').hidden=false;
+    const simulationLink=el('replay-simulation-link');if(simulationLink)simulationLink.hidden=false;
   }
   let unavailablePhotoId=null,shownPhotoSequence=null,shownPhotoSample=null;
   const photoImageHost=document.createElement('div');photoImageHost.id='replay-documentary-image';
@@ -247,11 +251,12 @@ async function start(){
     });
     new ResizeObserver(requestDraw).observe(formCanvas);
     mode.addEventListener('change',()=>{
-      if(mode.value==='ground'||groundView()){if(clock.playing)clock.tick(performance.now());pause();}
-      if(mode.value==='ground'){clock.setRate(1,performance.now());el('replay-rate').value='1';}
+      if(cameraMode(mode.value)||groundView()){if(clock.playing)clock.tick(performance.now());pause();}
+      if(cameraMode(mode.value)){clock.setRate(1,performance.now());el('replay-rate').value='1';}
+      if(mode.value==='simulation'&&(clock.seconds<120||clock.seconds>140))clock.seek(120);
       const requested=new URL(location.href);
-      if(mode.value==='ground'){
-        requested.searchParams.set('appearance_view','ground');requested.searchParams.set('ground_view','synthetic-front');requested.searchParams.delete('appearance_photo');
+      if(cameraMode(mode.value)){
+        requested.searchParams.set('appearance_view',mode.value);requested.searchParams.set('ground_view','synthetic-front');requested.searchParams.delete('appearance_photo');
       }else if(mode.value.startsWith('photo:')){
         requested.searchParams.set('appearance_view','photo');
         requested.searchParams.set('appearance_photo',mode.value.slice(6));
@@ -264,7 +269,7 @@ async function start(){
         if(mode.value==='illustrative')requested.searchParams.set('appearance_view','illustrative');
         else requested.searchParams.delete('appearance_view');
       }
-      if(mode.value!=='ground')requested.searchParams.delete('ground_view');
+      if(!cameraMode(mode.value))requested.searchParams.delete('ground_view');
       const url=momentURL(requested.href,clock.seconds);
       if(url.href!==location.href){
         history.pushState(null,'',url);
@@ -277,7 +282,7 @@ async function start(){
     mode.querySelector('[data-unavailable-photo]')?.remove();
     unavailablePhotoId=null;
     const params=new URL(location.href).searchParams;
-    if(groundView()){mode.value='ground';return;}
+    if(groundView()){mode.value=simulationView()?'simulation':'ground';return;}
     if(params.get('appearance_view')==='photo'){
       const id=params.get('appearance_photo')??'';
       if(photoSequences.some(sequence=>sequence.id===id))mode.value=`photo:${id}`;
@@ -437,8 +442,15 @@ async function start(){
     const photoSelected=mode.value.startsWith('photo:')||mode.value==='unavailable-photo';
     const sequence=photoSequences.find(item=>mode.value===`photo:${item.id}`)??null;
     const selected=mode.value==='illustrative'?null:sourceId;
-    const groundSelected=mode.value==='ground';
-    const groundState=ground.update(groundSelected,clock.seconds,new URL(location.href).searchParams.get('ground_view'));
+    const simulationSelected=mode.value==='simulation',groundSelected=cameraMode(mode.value);
+    // Keep the same controls beside the moving body. Reparent once per mode
+    // change so ordinary refreshes cannot disturb keyboard focus or scrolling.
+    const clockControls=el('replay-clock-controls');
+    if(clockControls){
+      const following=simulationSelected?el('replay-ground-comparison'):drawing;
+      if(clockControls.nextElementSibling!==following)following.before(clockControls);
+    }
+    const groundState=ground.update(groundSelected,clock.seconds,new URL(location.href).searchParams.get('ground_view'),simulationSelected?'kinematic-v1':'legacy');
     appearanceState=groundSelected?{...groundState,sourceCamera:groundState.shape?groundState.camera:null}:
       photoSelected?
       sequence?appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,{kind:'photo',id:sequence.id}):
@@ -449,7 +461,7 @@ async function start(){
     const status=el('replay-appearance-state'),detail=el('replay-appearance-detail'),link=el('replay-appearance-source');
     let statusText,detailText,linkTarget='',linkText='';
     if(groundSelected){
-      statusText=groundState.state==='synthetic'?'Synthetic ground-view rendering. No El Reno appearance is registered.':groundState.state==='gap'?'Outside the synthetic demonstration interval.':'Synthetic camera unavailable.';
+      statusText=groundState.state==='synthetic'?(simulationSelected?'Procedural funnel simulation. No El Reno appearance is registered.':'Synthetic ground-view rendering. No El Reno appearance is registered.'):groundState.state==='gap'?'Outside the synthetic demonstration interval.':'Synthetic camera unavailable.';
       detailText=groundState.reason;
     }else if(photoSelected){
       if(!sequence){
@@ -503,7 +515,8 @@ async function start(){
     formCanvas.dataset.partialKind=appearanceState.partialForm?.kind??'';
     formCanvas.dataset.displayPreset=photoDisplayForm(appearanceState)?.display_preset??'';
     formCanvas.dataset.sourceCamera=appearanceState.sourceCamera?.id??'';
-    el('replay-ground-comparison').className=groundSelected?'ground-active':'';
+    el('replay-ground-comparison').className=groundSelected?`ground-active${simulationSelected?' simulation-active':''}`:'';
+    el('ground-render-caption').textContent=simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
     el('ground-render-caption').hidden=!groundSelected;
     formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground-view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
     // Unknown or documentary-only states retain their controls and source text
@@ -571,13 +584,20 @@ async function start(){
     el('replay-camera-offscreen').hidden=!observer?.visible||Boolean(glyph);
     const north=project([0,9,0]);if(north){context.fillStyle=muted;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('N',north.x,north.y);}
     context.fillStyle=muted;context.font='11px '+getComputedStyle(canvas).fontFamily;context.fillText('Grid spacing: 2 km · flat reference plane',16,rect.height-16);
-    const quality=mode.value==='ground'?ground.quality():3200;
+    const quality=cameraMode(mode.value)?ground.quality():3200;
     if(appearanceRenderer&&quality!==rendererQuality){appearanceRenderer.setQuality(quality);rendererQuality=quality;}
-    if(appearanceRenderer)appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,
+    if(appearanceRenderer)try{appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,
       partialForm:photoDisplayForm(appearanceState),
-      sourceCamera:appearanceState.sourceCamera??null,referencePoints:appearanceState.sourceCamera?GROUND_MARKS:null,
-      readingAppearance:mode.value==='ground'?getComputedStyle(formCanvas).colorScheme:null,
-      time:clock.seconds,dust:false});
+      sourceCamera:appearanceState.sourceCamera??null,referencePoints:appearanceState.sourceCamera&&mode.value!=='simulation'?GROUND_MARKS:null,
+      readingAppearance:cameraMode(mode.value)?getComputedStyle(formCanvas).colorScheme:null,
+      motionModel:mode.value==='simulation'?'kinematic-v1':'legacy',
+      time:clock.seconds,dust:mode.value==='simulation'});
+    }catch(error){
+      const owned=appearanceRenderer;appearanceRenderer=null;formCanvas.hidden=true;
+      try{owned.dispose();}catch(cleanupError){console.error('Appearance renderer cleanup failed:',cleanupError);}
+      el('replay-appearance-renderer-status').textContent='The form renderer could not draw this state. Camera, source and coverage text remain available. Reload to retry.';
+      console.error('Appearance rendering failed:',error);pause();
+    }
   };
   refresh=()=>{
     current=positionAt(positions,clock.seconds);observer=updateObserver(current.utc);requestDraw();
@@ -607,8 +627,8 @@ async function start(){
     else el('replay-radar-note').textContent='No reviewed radar frame within the permitted age of this time.';
     if(match&&failedRadar.has(match.frame.file))el('replay-radar-note').textContent='This radar image could not load. The historical clock and source map remain available.';
   };
-  function animate(){frame=null;clock.tick(performance.now());refresh();if(clock.playing)frame=requestAnimationFrame(animate);else{pause();syncLocation();}}
-  el('replay-play').addEventListener('click',()=>{if(clock.playing){pause();refresh();syncLocation();return;}clock.play(performance.now());el('replay-play').textContent='Pause timeline';frame=requestAnimationFrame(animate);});
+  function animate(){frame=null;clock.tick(performance.now());if(simulationView()&&clock.seconds>=140)clock.seek(140);refresh();if(clock.playing)frame=requestAnimationFrame(animate);else{pause();syncLocation();}}
+  el('replay-play').addEventListener('click',()=>{if(clock.playing){pause();refresh();syncLocation();return;}if(simulationView()&&(clock.seconds<120||clock.seconds>=140)){clock.seek(120);refresh();}clock.play(performance.now());el('replay-play').textContent='Pause timeline';frame=requestAnimationFrame(animate);});
   el('replay-time').addEventListener('input',()=>seek(Number(el('replay-time').value),{mode:'replace'}));
   el('replay-rate').addEventListener('change',()=>{clock.setRate(Number(el('replay-rate').value),performance.now());refresh();});
   window.addEventListener('popstate',restore);

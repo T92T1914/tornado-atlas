@@ -56,6 +56,7 @@
 #replay-ground-controls summary {min-height:44px;cursor:pointer}
 #replay-ground-comparison {font-size:14px}
 #replay-ground-comparison.ground-active {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+#replay-ground-comparison.simulation-active {grid-template-columns:minmax(0,1fr)}
 #replay-ground-reference {margin:0;min-width:0;max-width:100%;overflow-wrap:anywhere}
 #replay-ground-comparison figcaption {font-weight:600;font-size:inherit;margin:0 0 8px}
 #ground-reference-image {display:block;box-sizing:border-box;width:100%;height:clamp(260px,38vw,430px);object-fit:contain;border:1px solid var(--line);border-radius:6px;background:var(--bg)}

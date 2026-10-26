@@ -1,0 +1,182 @@
+// Authored kinematics and optical density in normalized scene units.
+// None of these parameters is a measured wind, condensation or debris quantity.
+export const FUNNEL_SIMULATION = Object.freeze({id:'kinematic-v1',seed:20130531,maxSeconds:86400});
+
+export function simulationTime(seconds){
+  if(!Number.isFinite(seconds)||seconds<0||seconds>FUNNEL_SIMULATION.maxSeconds)throw new RangeError('Simulation time must be between 0 and 86400 seconds');
+  return seconds;
+}
+
+export function simulationBackingSize(width,height,pixelRatio){
+  if(![width,height,pixelRatio].every(x=>Number.isFinite(x)&&x>0))throw new RangeError('Invalid simulation raster bounds');
+  // A fixed fragment budget keeps the density pass useful on software graphics.
+  // One scale preserves the full camera frame while CSS retains the reading size.
+  const scale=Math.min(pixelRatio,2,512/width,320/height);
+  return {width:Math.max(1,Math.round(width*scale)),height:Math.max(1,Math.round(height*scale))};
+}
+
+export function simulationParticles(count=7200,seed=FUNNEL_SIMULATION.seed){
+  if(!Number.isInteger(count)||count<100||count>12000||!Number.isInteger(seed))throw new RangeError('Particle budget or seed is invalid');
+  let state=seed>>>0;
+  const random=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+  const result=new Float32Array(count*4);
+  for(let i=0;i<count;i++){
+    const role=random();
+    // Stable prefixes retain the same trajectories when drawing quality changes.
+    result.set([random(),random(),random(),role<.72?0:role<.85?1:2],i*4);
+  }
+  return result;
+}
+
+export function inverseCameraMatrix(matrix){
+  if(!matrix||matrix.length!==16||!Array.from(matrix).every(Number.isFinite))throw new TypeError('A finite camera matrix is required');
+  const rows=Array.from({length:4},(_,r)=>[...Array.from({length:4},(_,c)=>matrix[c*4+r]),...Array.from({length:4},(_,c)=>r===c?1:0)]);
+  for(let c=0;c<4;c++){
+    let pivot=c;
+    for(let r=c+1;r<4;r++)if(Math.abs(rows[r][c])>Math.abs(rows[pivot][c]))pivot=r;
+    if(Math.abs(rows[pivot][c])<1e-12)throw new RangeError('Camera matrix is singular');
+    [rows[c],rows[pivot]]=[rows[pivot],rows[c]];
+    const scale=rows[c][c];for(let k=0;k<8;k++)rows[c][k]/=scale;
+    for(let r=0;r<4;r++)if(r!==c){const f=rows[r][c];for(let k=0;k<8;k++)rows[r][k]-=f*rows[c][k];}
+  }
+  const result=new Float32Array(16);
+  for(let c=0;c<4;c++)for(let r=0;r<4;r++)result[c*4+r]=rows[r][c+4];
+  if(!Array.from(result).every(Number.isFinite))throw new RangeError('Camera inverse exceeds finite range');
+  return result;
+}
+
+// These harmonics are coherent authored modulation, not curl noise or a fluid solve.
+export const FUNNEL_DENSITY_GLSL = `
+vec2 funnelCenter(float h,vec3 s,float t){
+  return s.z*h*vec2(sin(5.5*h-.25*t),cos(4.0*h+.19*t));
+}
+float funnelRadius(float h,vec3 s,float t){
+  float profile=s.x+s.y*pow(clamp(h,0.0,1.0),1.35);
+  return profile*(1.0+.035*sin(8.0*h-.7*t)+.025*sin(13.0*h-1.1*t));
+}
+float condensationDensity(vec3 p,vec3 s,float t,float ex){
+  float h=p.y/2.6;
+  if(ex<=0.0||h<0.0||h>1.04)return 0.0;
+  vec2 q=p.xz-funnelCenter(h,s,t);
+  float r=length(q),radius=funnelRadius(h,s,t);
+  if(r>radius*1.22+.075)return 0.0;
+  float theta=r>.00001?atan(q.y,q.x):0.0;
+  float transported=12.0*(h-.095*t);
+  float turning=theta-.65*t;
+  float angular=smoothstep(0.0,.2*max(radius,.01),r);
+  float ridges=angular*(.12*sin(3.0*turning+transported)+.07*sin(5.0*turning+1.8*transported));
+  float edge=radius*(1.0+ridges);
+  float envelope=1.0-smoothstep(edge-.065,edge+.075,r);
+  vec2 moving=mat2(cos(.65*t),-sin(.65*t),sin(.65*t),cos(.65*t))*q;
+  float interior=.78+.12*sin(19.0*moving.x+7.0*moving.y+transported*2.0)
+    +.08*cos(11.0*moving.y-5.0*moving.x+transported*1.3);
+  float ends=smoothstep(1.0-ex-.02,1.0-ex+.045,h)*(1.0-smoothstep(.96,1.04,h));
+  return max(0.0,envelope*interior*ends);
+}
+float cloudBaseDensity(vec3 p,float t){
+  vec2 q=p.xz-vec2(.12*sin(.11*t),.12*cos(.09*t));
+  float r=length(q);
+  if(r>2.8||p.y<2.05||p.y>3.5)return 0.0;
+  float billow=sin(2.1*q.x-.13*t)*cos(2.6*q.y+.09*t);
+  float height=2.78+.16*billow+.10*sin(3.7*q.y+1.2*q.x-.18*t);
+  float thickness=.27+.06*cos(2.9*q.x-1.7*q.y+.11*t);
+  float vertical=exp(-pow((p.y-height)/thickness,2.0));
+  float edge=2.28+.22*sin(1.8*q.x+.7*q.y-.09*t)+.16*cos(2.2*q.y-1.1*q.x+.07*t);
+  float rim=1.0-smoothstep(edge-.55,edge+.25,r);
+  float texture=.55+.25*billow+.15*sin(5.1*q.y+2.4*q.x-.27*t);
+  float cutoff=smoothstep(2.05,2.22,p.y)*(1.0-smoothstep(3.25,3.5,p.y))*(1.0-smoothstep(2.6,2.8,r));
+  return vertical*rim*max(.12,texture)*cutoff;
+}
+float dustDensity(vec3 p,float t){
+  if(p.y<0.0||p.y>.45)return 0.0;
+  vec2 q=p.xz-vec2(.08*sin(.31*t),.10*cos(.27*t));
+  float width=.26+1.2*p.y;
+  float plume=exp(-dot(q,q)/(width*width))*exp(-p.y*8.0);
+  float skirt=exp(-dot(q,q)/.65)*exp(-p.y*22.0);
+  float patches=.65+.25*sin(6.0*q.x+3.0*q.y-.7*t)*cos(5.0*q.y-.4*t);
+  return (plume*.7+skirt*.4)*patches*(1.0-smoothstep(.9,1.3,length(q)));
+}
+`;
+
+export const funnelVolumeVertex=`#version 300 es
+in vec2 position;
+void main(){gl_Position=vec4(position,0.0,1.0);}`;
+
+export const funnelVolumeFragment=`#version 300 es
+precision highp float;
+uniform mat4 inverseCamera;
+uniform vec4 viewportBox;
+uniform vec3 shape;
+uniform float time;
+uniform float extent;
+uniform int readingPalette;
+uniform bool dust;
+${FUNNEL_DENSITY_GLSL}
+out vec4 outputColor;
+vec2 intersectBox(vec3 origin,vec3 ray,float clipLength,vec3 lower,vec3 upper){
+  vec3 safeRay=vec3(abs(ray.x)<.000001?(ray.x<0.0?-.000001:.000001):ray.x,abs(ray.y)<.000001?(ray.y<0.0?-.000001:.000001):ray.y,abs(ray.z)<.000001?(ray.z<0.0?-.000001:.000001):ray.z);
+  vec3 nearT=(lower-origin)/safeRay,farT=(upper-origin)/safeRay;
+  vec3 lo=min(nearT,farT),hi=max(nearT,farT);
+  return vec2(max(0.0,max(lo.x,max(lo.y,lo.z))),min(clipLength,min(hi.x,min(hi.y,hi.z))));
+}
+vec4 integrateRegion(vec3 origin,vec3 ray,vec2 interval,bool cloudRegion,int samples){
+  if(interval.y<=interval.x||samples<=0)return vec4(0.0);
+  float stepLength=(interval.y-interval.x)/float(samples);
+  vec4 accumulated=vec4(0.0);
+  for(int i=0;i<48;i++){
+    if(i>=samples)break;
+    vec3 p=origin+ray*(interval.x+(float(i)+.5)*stepLength);
+    float body=cloudRegion?0.0:condensationDensity(p,shape,time,extent);
+    // Inside the shared segment, sample both fields at the same depth. Sorting
+    // whole overlapping volumes by their box entry creates an artificial seam.
+    float cloud=cloudBaseDensity(p,time);
+    float haze=!cloudRegion&&dust?dustDensity(p,time):0.0;
+    float density=body+cloud*.6+haze*.5;
+    if(density<.002)continue;
+    float h=clamp(p.y/2.6,0.0,1.0);
+    vec2 radial=p.xz-funnelCenter(h,shape,time);
+    float side=clamp(.5+.5*dot(normalize(vec3(radial.x,.15,radial.y)),normalize(vec3(-.7,.5,.5))),0.0,1.0);
+    float theta=length(radial)>.00001?atan(radial.y,radial.x):0.0;
+    float angular=smoothstep(0.0,.25*max(.01,funnelRadius(h,shape,time)),length(radial));
+    float strands=angular*(.13*sin(3.0*(theta-.65*time)+12.0*(h-.095*time))+.08*cos(5.0*(theta-.65*time)+21.6*(h-.095*time)));
+    float cloudRelief=.19*sin(2.1*p.x-.13*time)*cos(2.6*p.z+.09*time)+.12*sin(3.7*p.z+1.2*p.x-.18*time);
+    float relief=(body*strands+cloud*cloudRelief)/max(.01,body+cloud);
+    float broadLight=clamp(.32+.48*side+relief,0.0,1.0);
+    float value=readingPalette==1?mix(.19,.52,broadLight):mix(.34,.83,broadLight);
+    // A soft side-light cue supplies depth without a calibrated sun or photometry.
+    vec3 tint=readingPalette>0?vec3(value):vec3(value*.94,value,value*.97);
+    float alpha=1.0-exp(-density*stepLength*3.6);
+    accumulated.rgb+=(1.0-accumulated.a)*alpha*tint;
+    accumulated.a+=(1.0-accumulated.a)*alpha;
+    if(accumulated.a>.985)break;
+  }
+  return accumulated;
+}
+void main(){
+  vec2 ndc=(gl_FragCoord.xy-viewportBox.xy)/viewportBox.zw*2.0-1.0;
+  vec4 a=inverseCamera*vec4(ndc,-1.0,1.0),b=inverseCamera*vec4(ndc,1.0,1.0);
+  vec3 origin=a.xyz/a.w,segment=b.xyz/b.w-origin,ray=normalize(segment);
+  // Separate bounds keep the thin body sampled independently of the wide cloud.
+  float radius=max(dust?1.45:.05,1.31*(shape.x+shape.y*1.06)+1.04*abs(shape.z)+.08);
+  vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,2.71,radius));
+  vec2 cloudOffset=vec2(.12*sin(.11*time),.12*cos(.09*time));
+  vec2 cloudRange=intersectBox(origin,ray,length(segment),vec3(cloudOffset.x-2.8,2.05,cloudOffset.y-2.8),vec3(cloudOffset.x+2.8,3.5,cloudOffset.y+2.8));
+  vec4 combined;
+  if(bodyRange.y<=bodyRange.x){
+    combined=integrateRegion(origin,ray,cloudRange,true,16);
+  }else{
+    // Keep at most 48 shared body samples and 16 exterior cloud samples. Split
+    // the cloud at the body interval so composition always follows ray depth.
+    vec2 before=vec2(cloudRange.x,min(cloudRange.y,bodyRange.x));
+    vec2 after=vec2(max(cloudRange.x,bodyRange.y),cloudRange.y);
+    float frontLength=max(0.0,before.y-before.x),backLength=max(0.0,after.y-after.x);
+    int frontSamples=frontLength<=0.0?0:backLength<=0.0?16:int(clamp(floor(16.0*frontLength/(frontLength+backLength)),1.0,15.0));
+    int backSamples=backLength<=0.0?0:16-frontSamples;
+    vec4 front=integrateRegion(origin,ray,before,true,frontSamples);
+    vec4 body=integrateRegion(origin,ray,bodyRange,false,48);
+    vec4 back=integrateRegion(origin,ray,after,true,backSamples);
+    combined=front+(1.0-front.a)*(body+(1.0-body.a)*back);
+  }
+  if(combined.a<.002)discard;
+  outputColor=vec4(combined.rgb/combined.a,combined.a);
+}`;
