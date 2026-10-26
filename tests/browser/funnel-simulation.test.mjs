@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
+import {nativeFunnelTrajectories} from './funnel-shader-probe.mjs';
 import {reflow,enlargeText} from './ground-view-assertions.mjs';
 
 const route='reconstruction.html?event=el-reno-2013&appearance_view=simulation&ground_view=synthetic-front&t=120';
@@ -93,45 +94,25 @@ test('procedural seeking and quality restore the same exact paused pixels withou
 test('actual GPU trajectories agree with independent position and recycling controls',async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});await open(page);
   if(!(await snapshot(page,130)).available){t.skip('No native WebGL in this engine; no executed shader trajectory claim');return;}
-  const result=await page.evaluate(()=>{
-    const gl=document.querySelector('#replay-appearance-canvas').getContext('webgl2'),originalProgram=gl.getParameter(gl.CURRENT_PROGRAM);
-    const originalVAO=gl.getParameter(gl.VERTEX_ARRAY_BINDING),originalBuffer=gl.getParameter(gl.ARRAY_BUFFER_BINDING),originalTF=gl.getParameter(gl.TRANSFORM_FEEDBACK_BINDING),originalTFBuffer=gl.getParameter(gl.TRANSFORM_FEEDBACK_BUFFER_BINDING),originalDiscard=gl.isEnabled(gl.RASTERIZER_DISCARD);
-    const source=gl.getShaderSource(gl.getAttachedShaders(window.funnelPointProgram).find(s=>gl.getShaderParameter(s,gl.SHADER_TYPE)===gl.VERTEX_SHADER));
-    let program=null,vao=null,input=null,output=null,tf=null;const shaders=[];
-    try{
-      program=gl.createProgram();
-      for(const [kind,text]of [[gl.VERTEX_SHADER,source],[gl.FRAGMENT_SHADER,'#version 300 es\nprecision mediump float;out vec4 result;void main(){result=vec4(1.0);}']]){
-        const shader=gl.createShader(kind);shaders.push(shader);gl.shaderSource(shader,text);gl.compileShader(shader);
-        if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(shader));gl.attachShader(program,shader);
-      }
-      gl.transformFeedbackVaryings(program,['kinematicProbe'],gl.INTERLEAVED_ATTRIBS);gl.linkProgram(program);
-      if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
-      vao=gl.createVertexArray();gl.bindVertexArray(vao);input=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,input);
-      gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([.25,.5,.4,0,.25,.5,.4,1]),gl.STATIC_DRAW);
-      const attribute=gl.getAttribLocation(program,'seed');gl.enableVertexAttribArray(attribute);gl.vertexAttribPointer(attribute,4,gl.FLOAT,false,0,0);
-      tf=gl.createTransformFeedback();gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK,tf);output=gl.createBuffer();gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER,output);gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER,32,gl.DYNAMIC_READ);gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER,0,output);
-      gl.useProgram(program);const uniform=name=>gl.getUniformLocation(program,name);
-      gl.uniformMatrix4fv(uniform('camera'),false,new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]));
-      gl.uniform3f(uniform('shape'),.13,.83,.12);gl.uniform1f(uniform('extent'),1);gl.uniform1f(uniform('viewportHeight'),550);gl.uniform1f(uniform('maxPoint'),64);
-      gl.uniform1i(uniform('dust'),1);gl.uniform1i(uniform('kinematic'),1);gl.uniform1i(uniform('readingPalette'),2);gl.uniform2f(uniform('spriteAspect'),1,1);gl.enable(gl.RASTERIZER_DISCARD);
-      const rows=[];
-      for(const seconds of [0,2,150/19-.001,150/19+.001,375/94-.001,375/94+.001]){
-        gl.uniform1f(uniform('time'),seconds);gl.beginTransformFeedback(gl.POINTS);gl.drawArrays(gl.POINTS,0,2);gl.endTransformFeedback();
-        const values=new Float32Array(8);gl.getBufferSubData(gl.TRANSFORM_FEEDBACK_BUFFER,0,values);rows.push({seconds,values:[...values]});
-      }
-      return {rows,error:gl.getError(),sourceUnchanged:source===gl.getShaderSource(shaders[0])};
-    }finally{
-      gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER,0,null);gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK,originalTF);gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER,originalTFBuffer);gl.bindVertexArray(originalVAO);gl.bindBuffer(gl.ARRAY_BUFFER,originalBuffer);gl.useProgram(originalProgram);
-      if(!originalDiscard)gl.disable(gl.RASTERIZER_DISCARD);
-      if(tf)gl.deleteTransformFeedback(tf);if(output)gl.deleteBuffer(output);if(input)gl.deleteBuffer(input);if(vao)gl.deleteVertexArray(vao);if(program)gl.deleteProgram(program);for(const shader of shaders)gl.deleteShader(shader);
-    }
-  });
+  const result=await nativeFunnelTrajectories(page);
+  console.log('FUNNEL_NATIVE_TRAJECTORIES '+JSON.stringify({rows:result.rows,error:result.error,sourceUnchanged:result.sourceUnchanged,backend:result.backend,version:result.version}));
   assert.equal(result.error,0);assert.equal(result.sourceUnchanged,true);
-  const expected=[
+  const mathematicalExpected=[
     [.01197804896,.65,-.22984296739,.018,-.10580590455,.0515,-.16478293176,.02897995958],
     [.15277654870,1.144,.34086442260,.018,-.37780877553,.084936928,.10017576555,.03311387762],
   ];
-  expected.forEach((values,i)=>values.forEach((value,k)=>assert.ok(Math.abs(result.rows[i].values[k]-value)<3e-5,`Independent GPU trajectory row ${i}, component ${k}`)));
+  // Independently calculated with Float32 operations and SwiftShader's Sin5,
+  // Sin and Cos algorithms, rather than sampled production shader outputs:
+  // https://swiftshader.googlesource.com/SwiftShader.git/+/d1116fa9e9dce90556f8db973ba42b246eb633f5/src/Pipeline/ShaderCore.cpp
+  // GLSL does not promise JavaScript Math.sin/Math.cos precision. Keep the
+  // original tolerance and select a reference from the actual backend only.
+  const swiftShaderSin5Expected=[
+    [.011974923312664032,.6499999761581421,-.22980892658233643,.017999999225139618,-.10580768436193466,.051500000059604645,-.164786696434021,.028980150818824768],
+    [.15276162326335907,1.1439999341964722,.340804785490036,.017999999225139618,-.3777453601360321,.08493693172931671,.10016623884439468,.033114250749349594],
+  ];
+  const swiftShader=/SwiftShader/.test(result.backend),expected=swiftShader?swiftShaderSin5Expected:mathematicalExpected;
+  console.log('FUNNEL_TRAJECTORY_ORACLE '+JSON.stringify({backend:result.backend,reference:swiftShader?'independent SwiftShader Sin5':'independent mathematical',tolerance:3e-5}));
+  expected.forEach((values,i)=>values.forEach((value,k)=>assert.ok(Math.abs(result.rows[i].values[k]-value)<3e-5,`Independent GPU trajectory row ${i}, component ${k}: expected ${value}, actual ${result.rows[i].values[k]}`)));
   assert.ok(result.rows[2].values[1]>2.59&&result.rows[3].values[1]<.001);
   assert.ok(result.rows[2].values[3]<1e-7&&result.rows[3].values[3]<1e-7,'Body recycling stays invisible on both sides');
   assert.ok(result.rows[4].values[7]<1e-7&&result.rows[5].values[7]<1e-7,'Dust uses its own invisible recycling boundary');
