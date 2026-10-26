@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
-import {referenceReady,reflow,enlargeText,nativeSnapshot,saveCapture} from './ground-view-assertions.mjs';
+import {referenceReady,reflow,enlargeText,nativeSnapshot,observeReferenceRetry,saveCapture} from './ground-view-assertions.mjs';
 
 const demo='reconstruction.html?event=el-reno-2013&appearance_view=ground&ground_view=synthetic-front&t=120';
 async function open(page){await page.goto(base+'/'+demo);await page.locator('#replay-time:not([disabled])').waitFor();await referenceReady(page,'synthetic-front',120);}
@@ -79,6 +79,9 @@ test('ground-view WebGL refusal preserves camera, reference and source explanati
 });
 test('ground-view failed reference retries and detached callbacks cannot transfer source identity',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900}});let attempts=0;
+  const diagnostic=await observeReferenceRetry(page);
+  let originalFailure=null;
+  try{
   await page.route('**/assets/ground-view-demo/synthetic-front-120.svg',route=>++attempts===1?route.abort():route.continue());
   await page.goto(base+'/'+demo);await page.locator('#replay-time:not([disabled])').waitFor();await page.locator('#ground-reference-retry').waitFor();
   assert.match(await page.locator('#ground-reference-status').textContent(),/could not load/);await saveCapture(page,'reference-unavailable.png');
@@ -89,4 +92,11 @@ test('ground-view failed reference retries and detached callbacks cannot transfe
   assert.match(await page.locator('#ground-reference-status').textContent(),/Complete.*synthetic-oblique/);
   assert.equal(await page.locator('#ground-reference-retry').isVisible(),false);
   assert.match(await page.locator('#ground-reference-original').getAttribute('href'),/synthetic-oblique-120\.svg$/);
+  }catch(error){
+    originalFailure=error;
+    try{await diagnostic.report(error,attempts);}catch(diagnosticError){console.error('GROUND_RETRY_DIAGNOSTIC_FAILURE '+String(diagnosticError).slice(0,500));}
+    throw error;
+  }finally{
+    try{diagnostic.stop();}catch(error){if(!originalFailure)throw error;console.error('GROUND_RETRY_CLEANUP_FAILURE '+String(error).slice(0,500));}
+  }
 });
