@@ -232,3 +232,14 @@ test('hidden empty formation clears without losing ownership and accepts a later
   renderer.render({...input,shape:{base:.4,flare:.2,bend:0},extent:1,formationTime:15});
   assert.equal(f.draws.at(-1).mode,f.gl.POINTS);renderer.dispose();owned(f,none);
 });
+
+test('repeated empty selections keep existing backing pixels at high device ratio',t=>{
+  renderGlobals(t);globalThis.window.devicePixelRatio=2;
+  const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  f.canvas.width=300;f.canvas.height=150;f.canvas.getBoundingClientRect=()=>({width:0,height:0});
+  for(let i=0;i<4;i++){
+    renderer.render({shape:null});
+    assert.equal(f.canvas.width,300);assert.equal(f.canvas.height,150);owned(f,base);
+  }
+  assert.equal(f.draws.length,0);renderer.dispose();owned(f,none);
+});

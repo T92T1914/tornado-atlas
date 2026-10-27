@@ -410,7 +410,7 @@ export function createFormRenderer(canvas, quality) {
     // surface without asking a zero-size hidden layout to define a camera.
     // Validation below still rejects unsupported styles and camera contracts.
     const empty=shape===null&&partialForm===null;
-    const rect=empty?{width:Math.max(1,canvas.width),height:Math.max(1,canvas.height)}:canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
+    const rect=empty?{width:Math.max(1,canvas.width),height:Math.max(1,canvas.height)}:canvas.getBoundingClientRect(),ratio=empty?1:Math.min(window.devicePixelRatio||1,2);
     const lighter=lightingStyle==='world-v1'&&Number(quality)<=(sourceCamera?1600:3600);
     const frameWidth=sourceCamera&&!empty?canvas.clientWidth:rect.width,frameHeight=sourceCamera&&!empty?canvas.clientHeight:rect.height;
     const raster=motionModel!=='legacy'?simulationBackingSize(frameWidth,frameHeight,ratio,lighter?'lighter':'standard'):sourceCamera===null?null:sourceBackingSize(frameWidth,frameHeight,ratio);
