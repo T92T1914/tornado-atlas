@@ -52,7 +52,7 @@ test('Tuscaloosa recovery remains a complete source-linked reading without scrip
   await page.goto(base+'/tuscaloosa.html#recovery-and-remembrance');
   const section=page.locator('#recovery-and-remembrance');
   assert.match(await section.textContent(),/commemoration clock/);
-  assert.match(await section.textContent(),/not establish that the events occurred/);
+  assert.match((await section.textContent()).replace(/\s+/g,' '),/not establish that the events occurred/);
   assert.equal(await section.getByRole('link',{name:"City's memorial account",exact:true}).getAttribute('href'),
     'https://www.tuscaloosa.com/tornadorecovery');
   const damage=section.getByRole('link',{name:'NWS estimated footprint and individual survey accounts',exact:true});
