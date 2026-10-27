@@ -59,6 +59,27 @@ class QualifiedSourcePreservation(unittest.TestCase):
                     after = json.loads((ROOT / 'web/archive' / (
                         event + '-' + EL_RENO_QUALIFIED[:20] + '.json')).read_bytes())
                     self.assertEqual(digest(after), EL_RENO_QUALIFIED)
+                if event == 'tuscaloosa-birmingham-2011':
+                    # The community extension has its own exact-delta controls.
+                    # Retain this earlier source contract across that addition.
+                    self.assertEqual([row['id'] for row in after['sources'][len(before['sources']):]], [
+                        'tuscaloosa-county-recovery-plans', 'tuscaloosa-city-recovery-area',
+                        'tuscaloosa-city-memorial-places', 'tuscaloosa-2021-anniversary-announcement'])
+                    self.assertEqual([row['id'] for row in after['observations'][len(before['observations']):]], [
+                        'community-recovery-plans', 'recovery-area-boundary',
+                        'community-memorial-places', 'anniversary-observance-clock'])
+                    self.assertEqual(after['routes'][len(before['routes']):], [
+                        {'label': 'Read recovery planning and local remembrance',
+                         'href': 'tuscaloosa.html#recovery-and-remembrance'}])
+                    for field in ('sources', 'observations', 'routes'):
+                        after[field] = after[field][:len(before[field])]
+                    intermediate_sha = 'f880ae503c3cb6ef1ebefec27a81f1d9f558abeb9b11eeea8dd59e3962371297'
+                    intermediate = json.loads((ROOT / 'web/archive' / (
+                        event + '-' + intermediate_sha[:20] + '.json')).read_bytes())
+                    self.assertEqual(digest(intermediate), intermediate_sha)
+                    self.assertEqual(intermediate['provenance']['publication_review']['previous_dossier_sha256'], ACCEPTED[event])
+                    self.assertEqual(after['provenance']['publication_review']['previous_dossier_sha256'], intermediate_sha)
+                    after['provenance']['publication_review'] = before['provenance']['publication_review']
                 if event == 'blackwell-1955':
                     old_source = next(row for row in before['sources'] if row['id'] == 'interior-blackwell-power-study-fy1955')
                     new_source = next(row for row in after['sources'] if row['id'] == old_source['id'])

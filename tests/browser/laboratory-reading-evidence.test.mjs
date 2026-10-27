@@ -263,7 +263,7 @@ for(const [width,scheme]of [[320,'light'],[1280,'dark']]){
     assert.equal(await page.locator('#scene').getAttribute('data-appearance-coverage'),null);
    }
   };
-  await page.locator('#shape').selectOption('rope');await input(page,'condensation',65);await input(page,'azimuth',-35);
+  await page.locator('#sequence-enabled').uncheck();await page.locator('#shape').selectOption('rope');await input(page,'condensation',65);await input(page,'azimuth',-35);
   await page.locator('#quality').selectOption('3600');await page.locator('#sequence-coverage').selectOption('bounded');await page.locator('#sequence-enabled').check();await input(page,'sequence-time',.5);
   const expected=await formState(page);
   assert.equal(expected.controls['sequence-time'],'0.5');assert.equal(expected.controls.condensation,'65');

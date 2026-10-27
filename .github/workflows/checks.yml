@@ -65,6 +65,8 @@ jobs:
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
           node --check web/funnel-simulation-model.mjs
+          node --check web/formation-model.mjs
+          node --test tests/formation-model.test.mjs
           node --check web/source-camera-model.mjs
           node --check web/ground-view-model.mjs
           node --check web/ground-view.mjs

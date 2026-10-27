@@ -32,3 +32,6 @@
 .form-sequence {border:1px solid #506051;margin:0 0 24px;padding:14px;border-radius:6px;min-width:0}
 .form-sequence legend {color:#e2e7d9;padding:0 5px}
 .form-sequence p {margin:10px 0}
+.formation-context {display:block;max-width:78ch}
+#formation-observation {padding:0 20px 16px;margin:0}
+#formation-assumptions>label:not(.check-control) {display:block;margin:12px 0 7px}

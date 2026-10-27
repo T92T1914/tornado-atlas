@@ -19,7 +19,8 @@ export const DEFAULT_EXPERIMENTS=Object.freeze({
   form:Object.freeze({shape:'cone',condensation:100,azimuth:25,elevation:12,distance:7,dust:true,quality:7200,sequence:false,coverage:'continuous',rate:1,position:0,phase:0})
 });
 const FORM_SIMULATION_FIELDS=Object.freeze({...EXPERIMENT_FIELDS.form,phase:number(0,86400,null),model:choice('kinematic-v1')});
-function fieldsFor(kind,simulation=false){const fields=EXPERIMENT_FIELDS[kind];if(!fields)throw new RangeError('Unknown laboratory');return kind==='form'&&simulation?FORM_SIMULATION_FIELDS:fields;}
+const FORM_FORMATION_FIELDS=Object.freeze({...FORM_SIMULATION_FIELDS,phase:number(0,30,null),coverage:choice('formation'),model:choice('genesis-v1'),visibility:choice('ordinary','limited'),flow:boolean});
+function fieldsFor(kind,model=null){const fields=EXPERIMENT_FIELDS[kind];if(!fields)throw new RangeError('Unknown laboratory');return kind==='form'&&model==='genesis-v1'?FORM_FORMATION_FIELDS:kind==='form'&&model==='kinematic-v1'?FORM_SIMULATION_FIELDS:fields;}
 function validNumber(value,field){
   if(typeof value!=='number'||!Number.isFinite(value)||value<field.min||value>field.max)return false;
   if(field.step===null)return true;
@@ -29,12 +30,13 @@ function validNumber(value,field){
   return Math.abs(scaled-integer)<=Number.EPSILON*Math.max(1,Math.abs(scaled))*4 && (integer-Math.round(field.min*scale))%Math.round(field.step*scale)===0;
 }
 export function validateExperimentState(kind,state){
-  const fields=fieldsFor(kind,kind==='form'&&state?.model==='kinematic-v1'),keys=Object.keys(fields);
+  const fields=fieldsFor(kind,state?.model),keys=Object.keys(fields);
   if(!state||typeof state!=='object'||Array.isArray(state)||Object.keys(state).sort().join('|')!==[...keys].sort().join('|'))throw new Error('A complete experiment is required');
   for(const key of keys){const field=fields[key],value=state[key];
     if(field.type==='number'?!validNumber(value,field):field.type==='boolean'?typeof value!=='boolean':!field.values.includes(value))throw new Error('Invalid experiment value: '+key);
   }
   if(kind==='form'&&state.sequence&&state.phase!==state.position*30)throw new Error('Authored sequence phase must match its selected step');
+  if(kind==='form'&&state.model==='genesis-v1'&&!state.sequence)throw new Error('Formation study requires its authored sequence');
   return state;
 }
 export function readExperiment(search,kind){
@@ -42,7 +44,7 @@ export function readExperiment(search,kind){
   const refused=message=>({status:'invalid',event:null,state:null,message});
   if(String(search).length>2048)return refused('The experiment link is too large.');
   const params=new URLSearchParams(search),entries=[...params];
-  const simulation=kind==='form'&&params.get('experiment')==='form-2',fields=simulation?FORM_SIMULATION_FIELDS:baseFields;
+  const simulation=kind==='form'&&params.get('experiment')==='form-2',formation=kind==='form'&&params.get('experiment')==='form-3',fields=formation?FORM_FORMATION_FIELDS:simulation?FORM_SIMULATION_FIELDS:baseFields;
   if(entries.length>Object.keys(fields).length+2)return refused('The experiment link is too large.');
   const allowed=new Set(['event','experiment',...Object.keys(fields)]),seen=new Set();
   for(const [key] of entries){if(!allowed.has(key)||seen.has(key))return refused('The experiment link has an unknown or repeated field.');seen.add(key);}
@@ -50,7 +52,7 @@ export function readExperiment(search,kind){
   if(event!==null&&!LAB_EVENTS.some(row=>row.id===event))return refused('The documentary reference is unknown.');
   const version=params.get('experiment'),hasState=Object.keys(fields).some(key=>params.has(key));
   if(version===null){if(hasState)return refused('The experiment link has no supported version.');return {status:event?'reference':'empty',event,state:null,message:''};}
-  if(version!==(simulation?'form-2':kind+'-1'))return refused('The experiment version is not supported in this laboratory.');
+  if(version!==(formation?'form-3':simulation?'form-2':kind+'-1'))return refused('The experiment version is not supported in this laboratory.');
   if(Object.keys(fields).some(key=>!params.has(key)))return refused('The experiment link is incomplete.');
   const state={};
   for(const [key,field] of Object.entries(fields)){
@@ -67,7 +69,7 @@ export function readExperiment(search,kind){
 export function experimentURL(href,kind,event,state){
   validateExperimentState(kind,state);
   if(event!==null&&!LAB_EVENTS.some(row=>row.id===event))throw new RangeError('Unknown documentary reference');
-  const url=new URL(href);url.search='';url.searchParams.set('experiment',kind==='form'&&state.model==='kinematic-v1'?'form-2':kind+'-1');
+  const url=new URL(href);url.search='';url.searchParams.set('experiment',kind==='form'&&state.model==='genesis-v1'?'form-3':kind==='form'&&state.model==='kinematic-v1'?'form-2':kind+'-1');
   if(event!==null)url.searchParams.set('event',event);
   for(const [key,value] of Object.entries(state))url.searchParams.set(key,typeof value==='boolean'?(value?'1':'0'):String(value));
   return url;

@@ -142,7 +142,7 @@ test('procedural graphics refusal retains the explanation and existing documenta
   assert.match(await page.locator('#replay-ground-controls').textContent(),/authored|Authored/);
 });
 
-test('Form Study saves the new model and retains old form-1 experiments as legacy',async t=>{
+test('Form Study preserves explicit form-2 and old form-1 experiment semantics',async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});
   await page.addInitScript(()=>{
     const get=HTMLCanvasElement.prototype.getContext;
@@ -152,7 +152,7 @@ test('Form Study saves the new model and retains old form-1 experiments as legac
       gl.drawArrays=function(...values){const result=draw.apply(this,values);if(values[0]===gl.POINTS){const p=gl.getParameter(gl.CURRENT_PROGRAM);window.funnelStudyDraw={time:gl.getUniform(p,gl.getUniformLocation(p,'time')),kinematic:gl.getUniform(p,gl.getUniformLocation(p,'kinematic'))};}return result;};return gl;
     };
   });
-  await page.goto(base+'/study.html');await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  await page.goto(base+'/study.html?experiment=form-2&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=0&coverage=continuous&rate=1&position=0&phase=0&model=kinematic-v1');await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   await page.locator('#scene').scrollIntoViewIfNeeded();
   const available=await page.locator('#scene').evaluate(c=>Boolean(c.getContext('webgl2')));
   if(available){await page.waitForFunction(()=>window.funnelStudyDraw?.kinematic===true);assert.equal(await page.locator('#scene-failure').isVisible(),false);}

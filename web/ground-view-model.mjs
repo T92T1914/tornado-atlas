@@ -1,4 +1,5 @@
 import {validateSourceCamera} from './source-camera-model.mjs';
+import {formationAt} from './formation-model.mjs';
 
 // Software demonstration only. No source pixels, historical camera, geographic
 // transform or appearance window is supplied by this authored scene.
@@ -35,4 +36,14 @@ export function funnelSimulationAt(seconds,id){
   return {...original,shape:{base:.42+.23*smooth,flare:.70-.12*smooth,bend:.10},
     reference:null,motionModel:'kinematic-v1',
     reason:'Procedural condensation, rising helical detail, low circulating dust and a separately moving cloud base. Authored scene units and motion; no historical El Reno appearance or physical wind is registered.'};
+}
+
+export function formationSimulationAt(seconds,id){
+  const original=groundViewAt(seconds,id);
+  if(original.state!=='synthetic')return {...original,motionModel:'genesis-v1'};
+  // One explicit mapping from the shared player, not an independently running clock.
+  const formationTime=(seconds-GROUND_DEMO.start)/(GROUND_DEMO.end-GROUND_DEMO.start)*30;
+  const state=formationAt(formationTime);
+  return {...original,shape:state.shape,extent:1,reference:null,motionModel:'genesis-v1',formationTime,
+    stage:state.stage,reason:`${state.stage}. An illustrative supercell scenario: circulation, visible condensation and dust have separate authored schedules. No El Reno appearance or physical wind is registered.`};
 }

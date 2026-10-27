@@ -1,5 +1,6 @@
 import { PRESETS, advanceTime } from './vortex-model.mjs';
 import { formAt, boundedFormAt } from './evolution-model.mjs';
+import {formationAt} from './formation-model.mjs';
 import { PlaybackClock } from './playback-model.mjs';
 import { createFormRenderer } from './form-renderer.mjs';
 import {mountLabContext} from './lab-context.mjs';
@@ -8,11 +9,12 @@ import {DEFAULT_EXPERIMENTS} from './experiment-state.mjs';
 const byId = id => document.getElementById(id);
 const canvas = byId('scene');
 let renderer = null, lab = null;
-let motionModel='kinematic-v1';
+let motionModel='genesis-v1';
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let frame = 0, time = 0, last = null, running = false, inView = true;
 const sequenceClock=new PlaybackClock(30,1);
-const sequenceForm=()=>byId('sequence-coverage').value==='bounded'?boundedFormAt(Number(byId('sequence-time').value)*30):formAt(Number(byId('sequence-time').value));
+const formationSelected=()=>motionModel==='genesis-v1';
+const sequenceForm=()=>formationSelected()?formationAt(Number(byId('sequence-time').value)*30,{visibility:byId('condensation-visibility').value,flow:byId('flow-cues').checked}):byId('sequence-coverage').value==='bounded'?boundedFormAt(Number(byId('sequence-time').value)*30):formAt(Number(byId('sequence-time').value));
 
 function initialize() {
   try {
@@ -58,6 +60,7 @@ function draw(now) {
   canvas.dataset.appearanceCoverage=evolving?(sequence?'assigned':'gap'):'manual';
   try{renderer.render({
     motionModel,
+    formationTime:formationSelected()?time:null,formationVisibility:byId('condensation-visibility').value,flow:byId('flow-cues').checked,
     readingAppearance:getComputedStyle(canvas).colorScheme==='light'?'light':'dark',
     shape:evolving?sequence?.shape || null:PRESETS[byId('shape').value],
     extent:evolving?sequence?.extent ?? 0:Number(byId('condensation').value)/100,
@@ -78,10 +81,11 @@ function syncControls() {
     const suffix=id==='condensation'?'%':id==='distance'?'':'°';
     byId(id+'-value').textContent=(id==='distance'?Number(byId(id).value).toFixed(1):byId(id).value)+suffix;
   }
-  byId('scene-form').textContent=byId('sequence-enabled').checked?(sequenceForm()?'AUTHORED FORM SEQUENCE':'GAP / NO ASSIGNED FORM'):PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
+  byId('scene-form').textContent=formationSelected()?'ILLUSTRATIVE SUPERCELL STUDY':byId('sequence-enabled').checked?(sequenceForm()?'AUTHORED FORM SEQUENCE':'GAP / NO ASSIGNED FORM'):PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
   requestFrame();lab?.changed();
 }
 for (const id of ['shape','condensation','azimuth','elevation','distance','dust']) byId(id).addEventListener('input',syncControls);
+for(const id of ['condensation-visibility','flow-cues'])byId(id).addEventListener('change',()=>{stop();sequenceReadout();requestFrame();lab?.changed();});
 byId('quality').addEventListener('change',() => {
   renderer?.setQuality(Number(byId('quality').value));
   requestFrame();lab?.changed();
@@ -129,23 +133,29 @@ canvas.addEventListener('webglcontextrestored',initialize);
 function sequenceReadout() {
   const value=Number(byId('sequence-time').value);
   byId('sequence-progress').textContent=`${Math.round(value*100)}% of authored sequence`;
-  byId('sequence-stage').textContent=sequenceForm()?.label || 'No assigned form between 10 and 22 seconds. The last form is not held or blended across this gap.';
-  byId('scene-form').textContent=byId('sequence-enabled').checked?(sequenceForm()?'AUTHORED FORM SEQUENCE':'GAP / NO ASSIGNED FORM'):PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
+  const state=sequenceForm();
+  byId('sequence-stage').textContent=state?.stage??state?.label??'No assigned form between 10 and 22 seconds. The last form is not held or blended across this gap.';
+  byId('formation-observation').textContent=formationSelected()?`${state.circulation>.1?'Assumed surface circulation is present.':'Assumed circulation is weak or absent.'} ${state.condensation>.1?'Condensation is visible.':'Little or no condensation is visible.'} Dust visibility is separate from both.`:'';
+  byId('formation-assumptions').hidden=!formationSelected();
+  byId('scene-form').textContent=formationSelected()?'ILLUSTRATIVE SUPERCELL STUDY':byId('sequence-enabled').checked?(state?'AUTHORED FORM SEQUENCE':'GAP / NO ASSIGNED FORM'):PRESETS[byId('shape').value].label.toUpperCase()+' FORM';
 }
 byId('sequence-enabled').addEventListener('change',()=>{
+  if(formationSelected()&&!byId('sequence-enabled').checked){motionModel='kinematic-v1';byId('sequence-coverage').value='continuous';}
   stop();time=Number(byId('sequence-time').value)*30;sequenceClock.seek(time);
   for(const id of ['shape','condensation']) byId(id).disabled=byId('sequence-enabled').checked;
   byId('sequence-time').disabled=!byId('sequence-enabled').checked;
-  syncControls();sequenceReadout();lab?.changed();
+  coverageNote();syncControls();sequenceReadout();lab?.changed();
 });
 byId('sequence-time').addEventListener('input',()=>{const requested=Number(byId('sequence-time').value)*30;stop();time=requested;sequenceClock.seek(time);byId('sequence-time').value=time/30;sequenceReadout();requestFrame();lab?.changed();});
-byId('sequence-coverage').addEventListener('change',()=>{stop();byId('sequence-coverage-note').textContent=byId('sequence-coverage').value==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';sequenceReadout();requestFrame();lab?.changed();});
+function coverageNote(){byId('sequence-coverage-note').textContent=formationSelected()?'One illustrative supercell scenario over 30 authored seconds. Circulation precedes a continuous visible funnel in this example. Condensation and dust do not define tornado existence. These timings are assumptions, not a universal sequence or a historical clock.':byId('sequence-coverage').value==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';}
+byId('sequence-coverage').addEventListener('change',()=>{stop();motionModel=byId('sequence-coverage').value==='formation'?'genesis-v1':motionModel==='legacy'?'legacy':'kinematic-v1';if(formationSelected()){byId('sequence-enabled').checked=true;time=Number(byId('sequence-time').value)*30;sequenceClock.seek(time);}for(const id of ['shape','condensation'])byId(id).disabled=byId('sequence-enabled').checked;byId('sequence-time').disabled=!byId('sequence-enabled').checked;coverageNote();sequenceReadout();requestFrame();lab?.changed();});
 byId('sequence-rate').addEventListener('change',()=>{sequenceClock.setRate(Number(byId('sequence-rate').value),performance.now());lab?.changed();});
 
 function experimentState(){
   const position=Number(byId('sequence-time').value),sequence=byId('sequence-enabled').checked;
   const state={shape:byId('shape').value,condensation:Number(byId('condensation').value),azimuth:Number(byId('azimuth').value),elevation:Number(byId('elevation').value),distance:Number(byId('distance').value),dust:byId('dust').checked,quality:Number(byId('quality').value),sequence,coverage:byId('sequence-coverage').value,rate:Number(byId('sequence-rate').value),position,phase:sequence?position*30:time};
-  if(motionModel==='kinematic-v1')state.model=motionModel;
+  if(motionModel!=='legacy')state.model=motionModel;
+  if(formationSelected()){state.visibility=byId('condensation-visibility').value;state.flow=byId('flow-cues').checked;}
   return state;
 }
 function captureExperiment(){
@@ -160,15 +170,16 @@ function captureExperiment(){
 function restoreExperiment(state){
   stop();
   motionModel=state.model??'legacy';
+  byId('condensation-visibility').value=state.visibility??'ordinary';byId('flow-cues').checked=state.flow??true;
   for(const key of ['shape','condensation','azimuth','elevation','distance','quality'])byId(key).value=state[key];
   byId('dust').checked=state.dust;byId('sequence-enabled').checked=state.sequence;
   byId('sequence-coverage').value=state.coverage;byId('sequence-rate').value=state.rate;byId('sequence-time').value=state.position;
   time=state.phase;sequenceClock.seek(state.position*30);sequenceClock.setRate(state.rate);
   for(const id of ['shape','condensation'])byId(id).disabled=state.sequence;
   byId('sequence-time').disabled=!state.sequence;
-  byId('sequence-coverage-note').textContent=state.coverage==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';
+  coverageNote();
   renderer?.setQuality(state.quality);sequenceReadout();syncControls();
 }
 sequenceReadout();syncControls();
-lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'kinematic-v1'}});
+lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage:'formation',visibility:'ordinary',flow:true}});
 initialize();
