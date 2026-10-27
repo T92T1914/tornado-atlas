@@ -145,7 +145,15 @@ async function run(t,spec,body){
 async function open(page,spec,held){
  await page.goto(base+'/'+(spec.kind==='form'?'study.html':'wind.html')+'?event='+spec.event,{waitUntil:'domcontentloaded'});
  await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();await held.wait();
- if(spec.kind==='form')await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden);
+ if(spec.kind==='form'){
+  await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden);
+  // These cases inspect native manual controls while documentary work is held.
+  // New entry pages default to an authored sequence, which disables those controls.
+  await page.locator('#sequence-enabled').uncheck();
+  assert.equal(await page.locator('#sequence-enabled').isChecked(),false);
+  assert.equal(await page.locator('#shape').isEnabled(),true);
+  assert.equal(await page.locator('#condensation').isEnabled(),true);
+ }
  await page.evaluate(()=>document.fonts.ready);
  if(spec.enlarged)await enlargedText(page);
 }
