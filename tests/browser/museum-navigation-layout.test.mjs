@@ -8,6 +8,29 @@ const routes=['atlas','index','joplin','blackwell','tuscaloosa','moore','udall',
   'reconstruction','survey','radar-source','study','wind','japan','curator'];
 const variants=['index','atlas','dossier','curator'];
 
+// Read-only bounded evidence for the previously unexplained WebKit audit error.
+// The fixture's original uncaught-page-error assertion remains unchanged.
+function observeAuditNavigation(t,page){
+ const start=Date.now(),rows=[],requests=new WeakMap();let used=0,omitted=0,next=0;
+ const small=value=>String(value??'').slice(0,768);
+ const note=(kind,data={})=>{const row={ms:Date.now()-start,kind,...data},bytes=Buffer.byteLength(JSON.stringify(row));
+  if(rows.length>=64||used+bytes>14000){omitted++;return;}used+=bytes;rows.push(row);};
+ const requested=request=>{if(new URL(request.url()).pathname!=='/source-audit.json')return;
+  const id=++next;requests.set(request,id);note('request',{id,url:small(request.url()),method:request.method(),resource:request.resourceType(),document:small(page.url())});};
+ const responded=response=>{const id=requests.get(response.request());if(id)note('response',{id,status:response.status()});};
+ const finished=request=>{const id=requests.get(request);if(id)note('finished',{id});};
+ const failed=request=>{const id=requests.get(request);if(id)note('failed',{id,error:small(request.failure()?.errorText),document:small(page.url())});};
+ const navigated=frame=>{if(frame===page.mainFrame())note('navigation',{url:small(frame.url())});};
+ const error=value=>note('pageerror',{name:small(value.name),message:small(value.message),stack:small(value.stack),document:small(page.url())});
+ const closed=()=>note('page_closed');
+ for(const [name,listener] of [['request',requested],['response',responded],['requestfinished',finished],['requestfailed',failed],['framenavigated',navigated],['pageerror',error],['close',closed]])page.on(name,listener);
+ t.after(()=>{
+  for(const [name,listener] of [['request',requested],['response',responded],['requestfinished',finished],['requestfailed',failed],['framenavigated',navigated],['pageerror',error],['close',closed]])page.off(name,listener);
+  t.diagnostic('MUSEUM_AUDIT_NAVIGATION '+JSON.stringify({rows,omitted,observedAuditRequests:next,
+   scope:'Read-only request/navigation/error events. Original strict fixture assertion and all menu checks retained.'}));
+ });
+}
+
 async function layout(page){
   return page.evaluate(()=>{
     const nav=document.querySelector('.museum-nav');
@@ -75,6 +98,7 @@ for(const width of [320,1280])test('Every native museum header has clear panels 
 for(const width of [320,600,601,760,761,1280])test('Responsive enlarged museum panels '+width,{timeout:60000},async t=>{
   const touch=width<=760;
   const page=await fixture(t,{viewport:{width,height:1000},hasTouch:touch,isMobile:touch,reducedMotion:'reduce'});
+  observeAuditNavigation(t,page);
   for(const [index,route] of variants.entries()){
     await page.goto(base+'/'+route+'.html');await page.locator('#reading-appearance:not([disabled])').waitFor();
     const theme=index%2?'light':'dark';await page.locator('#reading-appearance').selectOption(theme);

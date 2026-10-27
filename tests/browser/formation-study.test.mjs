@@ -20,6 +20,11 @@ async function nativeState(page,{study=false,value,seconds,genesis=true,trigger=
   const available=await page.locator(canvas).evaluate(c=>Boolean(c.getContext('webgl2')));
   if(!available){
     assert.notEqual(process.env.ATLAS_BROWSER_ENGINE??'chromium','chromium','Chromium must render the formation scenario');
+    // A missing framebuffer does not remove the caller's DOM/history action.
+    await page.locator(input).fill(String(value));
+    assert.equal(await page.locator(input).inputValue(),String(value));
+    console.info('FORMATION_UNAVAILABLE_CONTROL '+JSON.stringify({study,input,value,available:false,
+      scope:'Requested control action only. No submitted-program or framebuffer acceptance.'}));
     return {available:false};
   }
   await page.locator(canvas).scrollIntoViewIfNeeded();
