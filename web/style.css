@@ -1,4 +1,9 @@
 /* Local Inter for owned interface text. Source imagery and serif exhibit headings retain their typography. */
+.mechanism-entry { margin: 2rem auto; max-width: 74rem; padding-inline: 1.25rem; }
+.mechanism-entry figure { margin: 1.5rem 0; }
+.mechanism-entry img { display: block; width: 100%; height: auto; }
+.mechanism-entry figcaption { color: var(--muted); margin-top: .75rem; }
+.mechanism-entry p { max-width: 75ch; }
 @font-face {font-family:"Atlas Inter";src:local("Inter Regular"),local("Inter-Regular");font-weight:400;font-style:normal;font-display:swap}
 @font-face {font-family:"Atlas Inter";src:local("Inter SemiBold"),local("Inter-SemiBold");font-weight:600;font-style:normal;font-display:swap}
 @font-face {font-family:"Atlas Inter";src:local("Inter Bold"),local("Inter-Bold");font-weight:700;font-style:normal;font-display:swap}

@@ -31,6 +31,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Verify the committed conceptual graphic
+        run: python tools/render_mechanism.py --check
       - name: Verify parsers and source preservation
         run: python -m unittest discover -s tests -v
       - name: Check browser script

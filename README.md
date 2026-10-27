@@ -2,6 +2,15 @@
 
 An interactive museum of historical tornadoes, built around source records, documented paths, footage and the questions those records leave open.
 
+<a href="https://t92t1914.github.io/tornado-atlas/#how-it-works"><picture>
+  <source media="(min-width: 900px)" srcset="web/mechanism-obscur-wide.png">
+  <img src="web/mechanism-obscur-narrow.png" width="960" alt="Conceptual route from a credited source and clock claim through checked time and viewpoint limits to evidence and replay. Unknowns remain explicit and illustration remains labeled.">
+</picture></a>
+
+A conceptual explanation of the evidence route. A source clock alone does not
+register historical appearance. [Explore the example](https://t92t1914.github.io/tornado-atlas/#how-it-works)
+or inspect the [editable figure source and limits](docs/mechanism.md).
+
 I have always been interested in tornadoes. I wanted a place where I could look up a storm, follow where it went, see the evidence behind its history, and eventually explore a reconstruction of what it looked like. This project is how I am starting to build that.
 
 The long term goal is to animate individual tornadoes so you can watch them unfold

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "kind": "conceptual mechanism",
+  "basis_revision": "24baed6b9160932c654c4f99af1c39081494acf9",
+  "application_or_scientific_execution": false,
+  "adapter": {
+    "source": "web/appearance.css",
+    "roles": {
+      "canvas": "#090909",
+      "panel": "#151515",
+      "text": "#f4f4f4",
+      "muted": "#bcbcbc",
+      "line": "#858585"
+    }
+  },
+  "inputs_sha256_lf": {
+    "docs/archive-dossiers.md": "9b9b7159af51b8cd1abdb816ac911ad5fab00c512100ea524adf9cb9de72fb11",
+    "docs/ground-view-reconstruction.md": "e45bba5ee186c51949bea3ae097a6ee79e98af1504cd31d09afeadd4665bc934",
+    "docs/mechanism.json": "875cce034126eef956d16d2e61bd55f1b7f3e31b5ea155832cb7a0064cd66077",
+    "tools/render_mechanism.py": "2cdd5e12d5ecd24eda0e84ac20876b8cbb81246cdf1ec8d0162f92d6b439db94",
+    "web/appearance.css": "987883e17708197fd665b011a8a7158f3449e452783aac9c184c7fca7f297c9c"
+  },
+  "fonts": {
+    "Regular": {
+      "filename": "Inter-Regular.ttf",
+      "weight": 400,
+      "sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82"
+    },
+    "SemiBold": {
+      "filename": "Inter-SemiBold.ttf",
+      "weight": 600,
+      "sha256": "78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3"
+    },
+    "Bold": {
+      "filename": "Inter-Bold.ttf",
+      "weight": 700,
+      "sha256": "288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f"
+    }
+  },
+  "renderer": {
+    "matplotlib": "3.11.1",
+    "fonttools": "4.63.0",
+    "backend": "Agg"
+  },
+  "layouts": {
+    "wide": {
+      "width": 1800,
+      "height": 800,
+      "labels_within_canvas": 16,
+      "card_height": 381.43619791666663,
+      "rendered_body_lines": [
+        [
+          "Creator + exact",
+          "locator",
+          "Source clock and",
+          "limits"
+        ],
+        [
+          "Time and viewpoint",
+          "Unknown stays",
+          "unknown"
+        ],
+        [
+          "Inspect source and",
+          "time",
+          "Illustration is labeled"
+        ]
+      ],
+      "rendered_footer_lines": [
+        "Conceptual route, not a storm measurement."
+      ],
+      "height_rule": "actual font bounds, measured-width wrapping and fixed padding/gaps",
+      "minimum_font_points": 30.0,
+      "minimum_font_pixels_at_100dpi": 41.666666666666664
+    },
+    "narrow": {
+      "width": 960,
+      "height": 1279,
+      "labels_within_canvas": 13,
+      "card_height": 266.05013020833326,
+      "rendered_body_lines": [
+        [
+          "Creator + exact locator",
+          "Source clock and limits"
+        ],
+        [
+          "Time and viewpoint",
+          "Unknown stays unknown"
+        ],
+        [
+          "Inspect source and time",
+          "Illustration is labeled"
+        ]
+      ],
+      "rendered_footer_lines": [
+        "Conceptual route, not a storm",
+        "measurement."
+      ],
+      "height_rule": "actual font bounds, measured-width wrapping and fixed padding/gaps",
+      "minimum_font_points": 33.0,
+      "minimum_font_pixels_at_100dpi": 45.833333333333336
+    }
+  },
+  "outputs_sha256": {
+    "web/mechanism-obscur-wide.png": "490be0bd7813449325f444ff3731994edf065ff3ebabf26541d4dca4ff4ee43d",
+    "web/mechanism-obscur-wide.svg": "88da50e6a34fb8bcfc5e4e9538f3c986fd3aad16277578fe2a95d769f9ca0b81",
+    "web/mechanism-obscur-narrow.png": "5e4bd1a2f05b74f3e46b340b09ce28af40f6e0bb842ce109ad2a7f01d62e1d3d",
+    "web/mechanism-obscur-narrow.svg": "bcbd33d50279430e95b9e4bf0423528b26e2c609a5c0d4580436e91abb0015ab"
+  }
+}
