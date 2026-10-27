@@ -33,7 +33,7 @@ const references=[
   revision:'e0ed6012db7845157367bfb80aef9b9f22efd21fb3857fe32308d994de93bdfd',
   asset:'assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png',sha:'d8e89044ea98c4beab8d568598ea3a1711b73bfe3a425e5afd304af491e48d4f',width:1351,height:767,
   original:'https://repository.library.noaa.gov/view/noaa/26149/noaa_26149_DS1.pdf',item:'https://repository.library.noaa.gov/view/noaa/26149/noaa_26149_DS1.pdf#page=10',
-  story:'tuscaloosa.html#photographs-and-film',role:/estimated time labels/,credit:'creator: MaurÃ­cio I. Oliveira',
+  story:'tuscaloosa.html#photographs-and-film',role:/estimated time labels/,credit:'creator: Maurício I. Oliveira',
   rights:['CC BY4.0','Mike Wilhelm','John Brown','does not license the complete original recordings'],
   limits:['estimated','two credited films','not verified capture UTC'],version:'All panels, printed letters, arrows and time labels preserved'},
  {event:'moore-2013',media:'moore-medical-center-survey',source:'nws-event-hub',
