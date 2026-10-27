@@ -16,6 +16,49 @@ new time or camera label. Reference failure retains an explicit retry and the
 complete file link. The historical photograph modes and their original media
 remain separate.
 
+## Procedural funnel view
+
+The separate Procedural funnel simulation choice uses the same renderer,
+PlaybackClock and two declared cameras. Its direct route is
+`reconstruction.html?event=el-reno-2013&appearance_view=simulation&ground_view=synthetic-front&t=120`.
+It starts paused at 1x. The existing controls play, pause or seek the authored
+interval from 120 through 140 seconds. Playback stops at 140. Starting again
+from the end or an outside instant returns to 120. Neighboring intervals have
+no assigned form.
+
+This view places the existing clock and playback controls immediately above
+the funnel, so starting motion does not take the visitor back above its camera
+explanation. Switching to another appearance view restores their original
+document position. There is still one clock and one set of controls.
+
+These player values are simulation offsets, without historical El Reno
+correspondence. The new profile changes smoothly from base 0.42 and flare 0.70
+to base 0.65 and flare 0.58, with bend 0.10. All values remain authored scene
+units. The density body, rising detail, low dust and drifting cloud base use
+`kinematic-v1`, described in the [form study notes](visual-form-study.md).
+The camera remains locked while geographic orbit controls turn only the path
+scene. Changing particle quality does not change the selected time, camera or
+body parameters.
+
+The original Synthetic ground-view comparison remains an explicit compatibility
+path. It still uses the earlier particle geometry, all six SVGs and their
+unchanged analytic profile. The new procedural view has no analytic reference
+image. It clears and hides the old reference panel instead of showing a guide
+for the wrong geometry. Switching back restores the original comparison route.
+
+The before and after comparison retains about eighteen seconds of actual
+playback for each renderer, including pause, resume, backward seeking and a
+quality change. Ordered inspection covers all 323 encoded baseline frames and
+161 candidate frames. It does not establish normal speed perception or behavior
+between encoded frames. Brief blocky frames coincide with noninitial keyframes
+in both recordings. A separate raw framebuffer comparison did not reproduce
+that banding at the tested seek and quality transition. The original encoded
+artifact and its uncertain cause remain part of the record.
+
+Integrated browser checks and served publication acceptance are separate gates
+bound to the tested revision. Neither a paused image, deterministic trajectory
+nor successful camera test establishes historical likeness or physical accuracy.
+
 ## Explicit camera contract
 
 `source-camera-model.mjs` accepts a right handed, Y-up coordinate system.

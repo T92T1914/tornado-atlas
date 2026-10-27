@@ -3,7 +3,7 @@ import {mountLabReference} from './lab-reference-view.mjs';
 import {createLabViewportOwner} from './lab-viewport.mjs';
 
 // A small page adapter. Evidence navigation and model inputs remain separate.
-export function mountLabContext({kind,read,capture,apply}){
+export function mountLabContext({kind,read,capture,apply,defaults=DEFAULT_EXPERIMENTS[kind]}){
   const get=id=>document.getElementById(id),host=get('lab-context');
   if(!host)return {changed(){},preview(){}};
   const picker=get('lab-event'),share=get('lab-share'),message=get('lab-state'),account=get('lab-reference-account'),links=get('lab-reference-links');
@@ -114,7 +114,7 @@ export function mountLabContext({kind,read,capture,apply}){
     if(retained){replace(new URL(retained));departed.delete(currentEntry);}else recoverStored();
     const result=readExperiment(location.search,kind);
     event=result.event;
-    apply(result.state??DEFAULT_EXPERIMENTS[kind]);reference();
+    apply(result.state??defaults);reference();
     message.dataset.state=result.status;
     message.textContent=result.status==='invalid'?'Experiment link not restored. '+result.message+' No values from the link were applied. Default controls are shown. Change a control or choose a reference to start a new experiment.':
       result.status==='restored'?(event?'Experiment restored and paused. The selected documentary supplies context, not model calibration.':'Experiment restored and paused. No documentary reference is assigned.'):

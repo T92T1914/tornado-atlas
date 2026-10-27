@@ -1,0 +1,167 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {fixture,base} from './harness.mjs';
+import {nativeFunnelTrajectories} from './funnel-shader-probe.mjs';
+import {reflow,enlargeText} from './ground-view-assertions.mjs';
+
+const route='reconstruction.html?event=el-reno-2013&appearance_view=simulation&ground_view=synthetic-front&t=120';
+async function open(page){
+  await page.goto(base+'/'+route);
+  await page.locator('#replay-time:not([disabled])').waitFor();
+  assert.equal(await page.locator('#replay-appearance-mode').inputValue(),'simulation');
+  assert.match(await page.locator('#replay-appearance-state').textContent(),/No El Reno appearance is registered/);
+  assert.equal(await page.locator('#replay-clock-controls').evaluate(n=>n.nextElementSibling?.id),'replay-ground-comparison');
+}
+async function snapshot(page,seconds){
+  const available=await page.locator('#replay-appearance-canvas').evaluate(c=>Boolean(c.getContext('webgl2')));
+  if(!available){
+    assert.notEqual(process.env.ATLAS_BROWSER_ENGINE??'chromium','chromium','Chromium must render the new body');
+    assert.match(await page.locator('#replay-appearance-renderer-status').textContent(),/could not start|lost/);
+    return {available:false};
+  }
+  await page.evaluate(()=>{
+    const canvas=document.querySelector('#replay-appearance-canvas'),gl=canvas.getContext('webgl2');
+    const input=document.querySelector('#replay-time'),draw=gl.drawArrays;
+    let armed=false,volume=null;
+    const arm=()=>{armed=true;};input.addEventListener('input',arm,{capture:true,once:true});
+    window.funnelSnapshot=null;
+    const intercept=function(...args){
+      const result=draw.apply(this,args);if(!armed)return result;
+      const program=gl.getParameter(gl.CURRENT_PROGRAM),uniform=name=>{
+        const location=gl.getUniformLocation(program,name);return location===null?null:gl.getUniform(program,location);
+      };
+      if(args[0]===gl.TRIANGLES&&uniform('inverseCamera')!==null){
+        const viewport=gl.getParameter(gl.VIEWPORT),pixel=new Uint8Array(4);
+        // Independent front-camera ray [640,390] crosses the lower body and
+        // misses ground and cloud. Read before wisps can hide a missing volume.
+        gl.readPixels(Math.floor(viewport[0]+640/1280*viewport[2]),Math.floor(viewport[1]+(1-390/720)*viewport[3]),1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
+        volume={matrix:Array.from(uniform('inverseCamera')),time:uniform('time'),extent:uniform('extent'),shape:Array.from(uniform('shape')),bodyAlpha:pixel[3]};
+      }
+      if(args[0]!==gl.POINTS)return result;
+      gl.drawArrays=draw;window.funnelPointProgram=program;
+      const pixels=new Uint8Array(gl.drawingBufferWidth*gl.drawingBufferHeight*4);
+      gl.readPixels(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
+      window.funnelPixels=pixels;
+      window.funnelSnapshot={available:true,volume,time:uniform('time'),matrix:Array.from(uniform('camera')),shape:Array.from(uniform('shape')),
+        kinematic:uniform('kinematic'),palette:uniform('readingPalette'),pointCount:args[2],error:gl.getError(),lost:gl.isContextLost(),
+        viewport:Array.from(gl.getParameter(gl.VIEWPORT)),buffer:[gl.drawingBufferWidth,gl.drawingBufferHeight]};
+      return result;
+    };
+    gl.drawArrays=intercept;window.funnelSnapshotCleanup=()=>{input.removeEventListener('input',arm,true);if(gl.drawArrays===intercept)gl.drawArrays=draw;};
+  });
+  try{
+    await page.locator('#replay-time').fill(String(seconds));
+    await page.waitForFunction(()=>window.funnelSnapshot!==null);
+    const result=await page.evaluate(async()=>({...window.funnelSnapshot,hash:Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',window.funnelPixels))).map(v=>v.toString(16).padStart(2,'0')).join('')}));
+    assert.equal(result.error,0);assert.equal(result.lost,false);assert.equal(result.time,seconds);assert.equal(result.kinematic,true);
+    assert.ok(result.buffer[0]<=512&&result.buffer[1]<=320,'The new density pass stays inside its fragment budget');
+    assert.equal(result.volume?.time,seconds);assert.equal(result.volume?.extent,1);assert.deepEqual(result.volume.shape,result.shape);
+    return result;
+  }finally{await page.evaluate(()=>{window.funnelSnapshotCleanup?.();window.funnelSnapshotCleanup=null;window.funnelPixels=null;});}
+}
+
+for(const [width,theme,large]of [[320,'dark',false],[320,'light',true],[1280,'dark',true],[1280,'light',false]]){
+  test(`procedural body camera and reading layout ${width} ${theme} ${large?'enlarged':'normal'}`,async t=>{
+    const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});await open(page);
+    await page.locator('#reading-appearance').selectOption(theme);
+    const result=await snapshot(page,130);
+    if(result.available){assert.equal(result.palette,theme==='light'?1:2);assert.equal(result.pointCount,3200);}
+    assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+    assert.equal(await page.locator('#ground-reference-image').count(),0);
+    assert.equal(await page.locator('#replay-ground-reference').isVisible(),false);
+    assert.match(await page.locator('#replay-ground-controls').textContent(),/no historical El Reno correspondence/);
+    if(large)await enlargeText(page);await reflow(page);
+    const button=page.locator('[data-ground-second="130"]');await button.focus();await page.keyboard.press('Enter');
+    assert.equal(await button.evaluate(n=>n===document.activeElement&&n.matches(':focus-visible')),true);
+    assert.equal(await page.locator('#replay-time').inputValue(),'130');
+    assert.equal(await page.locator('#registered-footage iframe').count(),0);
+  });
+}
+
+test('procedural seeking and quality restore the same exact paused pixels without changing the camera',async t=>{
+  const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});await open(page);
+  const original=await snapshot(page,130);if(!original.available){t.skip('No native WebGL in this engine; no deterministic pixel claim');return;}
+  assert.ok(original.volume.bodyAlpha>180,'The independently specified lower-body ray contains condensation before POINTS');
+  await snapshot(page,135);const reverse=await snapshot(page,130);assert.equal(reverse.hash,original.hash);
+  await page.locator('#ground-quality').selectOption('1600');const low=await snapshot(page,130);
+  assert.equal(low.pointCount,1600);assert.deepEqual(low.matrix,original.matrix);assert.deepEqual(low.shape,original.shape);assert.deepEqual(low.volume,original.volume);
+  await page.locator('#ground-quality').selectOption('3200');assert.equal((await snapshot(page,130)).hash,original.hash);
+  await page.locator('#ground-camera').selectOption('synthetic-oblique');const oblique=await snapshot(page,130);assert.notDeepEqual(oblique.matrix,original.matrix);
+  await page.goBack();assert.equal(await page.locator('#ground-camera').inputValue(),'synthetic-front');assert.equal((await snapshot(page,130)).hash,original.hash);
+  await page.reload();await page.locator('#replay-time:not([disabled])').waitFor();assert.equal((await snapshot(page,130)).hash,original.hash);
+});
+
+test('actual GPU trajectories agree with independent position and recycling controls',async t=>{
+  const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});await open(page);
+  if(!(await snapshot(page,130)).available){t.skip('No native WebGL in this engine; no executed shader trajectory claim');return;}
+  const result=await nativeFunnelTrajectories(page);
+  console.log('FUNNEL_NATIVE_TRAJECTORIES '+JSON.stringify({rows:result.rows,error:result.error,sourceUnchanged:result.sourceUnchanged,backend:result.backend,version:result.version}));
+  assert.equal(result.error,0);assert.equal(result.sourceUnchanged,true);
+  const mathematicalExpected=[
+    [.01197804896,.65,-.22984296739,.018,-.10580590455,.0515,-.16478293176,.02897995958],
+    [.15277654870,1.144,.34086442260,.018,-.37780877553,.084936928,.10017576555,.03311387762],
+  ];
+  // Independently calculated with Float32 operations and SwiftShader's Sin5,
+  // Sin and Cos algorithms, rather than sampled production shader outputs:
+  // https://swiftshader.googlesource.com/SwiftShader.git/+/d1116fa9e9dce90556f8db973ba42b246eb633f5/src/Pipeline/ShaderCore.cpp
+  // GLSL does not promise JavaScript Math.sin/Math.cos precision. Keep the
+  // original tolerance and select a reference from the actual backend only.
+  const swiftShaderSin5Expected=[
+    [.011974923312664032,.6499999761581421,-.22980892658233643,.017999999225139618,-.10580768436193466,.051500000059604645,-.164786696434021,.028980150818824768],
+    [.15276162326335907,1.1439999341964722,.340804785490036,.017999999225139618,-.3777453601360321,.08493693172931671,.10016623884439468,.033114250749349594],
+  ];
+  const swiftShader=/SwiftShader/.test(result.backend),expected=swiftShader?swiftShaderSin5Expected:mathematicalExpected;
+  console.log('FUNNEL_TRAJECTORY_ORACLE '+JSON.stringify({backend:result.backend,reference:swiftShader?'independent SwiftShader Sin5':'independent mathematical',tolerance:3e-5}));
+  expected.forEach((values,i)=>values.forEach((value,k)=>assert.ok(Math.abs(result.rows[i].values[k]-value)<3e-5,`Independent GPU trajectory row ${i}, component ${k}: expected ${value}, actual ${result.rows[i].values[k]}`)));
+  assert.ok(result.rows[2].values[1]>2.59&&result.rows[3].values[1]<.001);
+  assert.ok(result.rows[2].values[3]<1e-7&&result.rows[3].values[3]<1e-7,'Body recycling stays invisible on both sides');
+  assert.ok(result.rows[4].values[7]<1e-7&&result.rows[5].values[7]<1e-7,'Dust uses its own invisible recycling boundary');
+});
+
+test('procedural playback stops at its last authored instant and does not fill neighboring gaps',async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900}});await open(page);
+  await page.locator('#replay-time').fill('139');await page.locator('#replay-rate').selectOption('15');await page.locator('#replay-play').click();
+  await page.waitForFunction(()=>document.querySelector('#replay-time').value==='140'&&document.querySelector('#replay-play').textContent==='Play timeline');
+  await page.locator('#replay-time').fill('145');assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
+  assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);assert.equal(await page.locator('#ground-reference-image').count(),0);
+  await page.locator('#replay-play').click();await page.waitForFunction(()=>Number(document.querySelector('#replay-time').value)>=120&&Number(document.querySelector('#replay-time').value)<139);
+  await page.locator('#replay-play').click();
+  await page.locator('#replay-appearance-mode').selectOption('ground');
+  assert.equal(await page.locator('#replay-clock-controls').evaluate(n=>n.nextElementSibling?.id),'replay-appearance-drawing');
+  await page.locator('[data-ground-second="130"]').click();await page.locator('#ground-reference-image').waitFor();
+  assert.match(await page.locator('#ground-reference-image').getAttribute('src'),/synthetic-front-130\.svg$/);
+  await page.locator('#replay-appearance-mode').selectOption('simulation');assert.equal(await page.locator('#ground-reference-image').count(),0);
+});
+
+test('procedural graphics refusal retains the explanation and existing documentary routes',async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900}});
+  await page.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return kind==='webgl2'?null:get.call(this,kind,...args);};});
+  await open(page);assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
+  assert.match(await page.locator('#replay-appearance-renderer-status').textContent(),/could not start/);
+  assert.match(await page.locator('#ground-camera-details').textContent(),/synthetic-front/);
+  assert.match(await page.locator('#replay-ground-controls').textContent(),/authored|Authored/);
+});
+
+test('Form Study saves the new model and retains old form-1 experiments as legacy',async t=>{
+  const page=await fixture(t,{viewport:{width:1280,height:900},reducedMotion:'reduce'});
+  await page.addInitScript(()=>{
+    const get=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(kind,...args){
+      const gl=get.call(this,kind,...args);if(kind!=='webgl2'||!gl||this.id!=='scene'||gl.funnelObserved)return gl;
+      gl.funnelObserved=true;const draw=gl.drawArrays;
+      gl.drawArrays=function(...values){const result=draw.apply(this,values);if(values[0]===gl.POINTS){const p=gl.getParameter(gl.CURRENT_PROGRAM);window.funnelStudyDraw={time:gl.getUniform(p,gl.getUniformLocation(p,'time')),kinematic:gl.getUniform(p,gl.getUniformLocation(p,'kinematic'))};}return result;};return gl;
+    };
+  });
+  await page.goto(base+'/study.html');await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  await page.locator('#scene').scrollIntoViewIfNeeded();
+  const available=await page.locator('#scene').evaluate(c=>Boolean(c.getContext('webgl2')));
+  if(available){await page.waitForFunction(()=>window.funnelStudyDraw?.kinematic===true);assert.equal(await page.locator('#scene-failure').isVisible(),false);}
+  else assert.notEqual(process.env.ATLAS_BROWSER_ENGINE??'chromium','chromium');
+  await page.locator('#lab-share').click();assert.equal(new URL(page.url()).searchParams.get('experiment'),'form-2');assert.equal(new URL(page.url()).searchParams.get('model'),'kinematic-v1');
+  await page.reload();await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();await page.locator('#scene').scrollIntoViewIfNeeded();
+  if(available)await page.waitForFunction(()=>window.funnelStudyDraw?.kinematic===true);
+  const old='study.html?experiment=form-1&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=0&coverage=continuous&rate=1&position=0&phase=1000000000';
+  await page.goto(base+'/'+old);await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();await page.locator('#scene').scrollIntoViewIfNeeded();
+  if(available){await page.waitForFunction(()=>window.funnelStudyDraw?.kinematic===false&&window.funnelStudyDraw?.time===1000000000);assert.equal(await page.locator('#scene-failure').isVisible(),false);}
+  await page.locator('#lab-share').click();assert.equal(new URL(page.url()).searchParams.get('experiment'),'form-1');assert.equal(new URL(page.url()).searchParams.get('model'),null);
+});

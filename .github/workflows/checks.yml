@@ -62,10 +62,11 @@ jobs:
           node --test tests/radar-source-model.test.mjs
           node --check web/partial-form-geometry.mjs
           node --check web/form-renderer.mjs
+          node --check web/funnel-simulation-model.mjs
           node --check web/source-camera-model.mjs
           node --check web/ground-view-model.mjs
           node --check web/ground-view.mjs
-          node --test tests/source-camera-model.test.mjs tests/ground-view-probe.test.mjs
+          node --test tests/source-camera-model.test.mjs tests/ground-view-probe.test.mjs tests/funnel-simulation-model.test.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
           node --check web/documentary-appearance.mjs
           node --check web/documentary-media.mjs

@@ -20,6 +20,16 @@ the shared clock and renderer. The [camera contract](ground-view-reconstruction.
 separates that software capability from the original historical reconstruction.
 No continuous El Reno appearance window is admitted by this milestone.
 
+The following funnel increment adds a separate procedural moving body to those
+same cameras and clock. It uses coherent rising detail, display density,
+separate dust trajectories and a drifting cloud base. Its authored interval is
+still 120 through 140 player seconds, without historical correspondence. The
+earlier camera exercise and six analytic references remain on their explicit
+compatibility route. The [form study notes](visual-form-study.md) describe the
+model and its limits. Complete motion comparison and release acceptance remain
+required for this increment. Better software rendering supplies no missing
+historical camera, source interval, wind or damage evidence.
+
 Build the controls, camera system and rendering once. Give each storm a reviewed
 event package that the player can load. Event-specific work should primarily be
 research, registration and parameter curation, rather than another copy of the

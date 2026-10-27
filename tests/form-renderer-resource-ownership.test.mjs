@@ -40,7 +40,7 @@ function accountingGraphics() {
   gl.getAttribLocation=invoke('getAttribLocation',()=>0);
   gl.getUniformLocation=invoke('getUniformLocation',(program,name)=>({program,name}));
   gl.drawArrays=invoke('drawArrays',(mode,first,count)=>draws.push({mode,first,count}));
-  for(const name of ['shaderSource','compileShader','attachShader','linkProgram','bindVertexArray','bindBuffer','bufferData','enableVertexAttribArray','vertexAttribPointer','enable','blendFuncSeparate','disable','clearColor','viewport','clear','useProgram','bufferSubData','uniform2fv','uniform1i','uniform2f','uniform4fv','scissor','uniform3fv','uniform1f','uniform3f','uniformMatrix4fv'])gl[name]=invoke(name,()=>{});
+  for(const name of ['shaderSource','compileShader','attachShader','linkProgram','bindVertexArray','bindBuffer','bufferData','enableVertexAttribArray','vertexAttribPointer','enable','blendFuncSeparate','disable','clearColor','viewport','clear','useProgram','bufferSubData','uniform2fv','uniform1i','uniform2f','uniform4f','uniform4fv','scissor','uniform3fv','uniform1f','uniform3f','uniformMatrix4fv'])gl[name]=invoke(name,()=>{});
   return {
     gl,created,deleted,foreign,duplicates,draws,
     canvas:{width:0,height:0,clientWidth:320,clientHeight:480,getContext:(kind)=>{if(kind!=='webgl2')throw new Error('Unexpected graphics context');return gl;},getBoundingClientRect:()=>({width:320,height:480})},
@@ -166,4 +166,44 @@ test('second-program compile failure during reinitialize retires the old and pen
   assert.throws(()=>renderer.initialize(),error=>error.constructor===Error&&error.message==='controlled shader compile failure');owned(f,none);
   renderer.dispose();owned(f,none);f.clearFailure();renderer.initialize();owned(f,base);
   renderer.render({shape:{base:.4,flare:.2,bend:0},extent:1});assert.equal(f.draws.at(-1).count,100);renderer.dispose();owned(f,none);
+});
+
+const simulationInput={motionModel:'kinematic-v1',shape:{base:.13,flare:.83,bend:.12},extent:1,time:2,dust:true};
+for(const kind of ['compile','link','attribute'])test('procedural volume '+kind+' failure preserves ownership and supports retry/dispose',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  const original=new Error('controlled volume attribute failure');
+  if(kind==='compile')f.failCompile(6);
+  if(kind==='link')f.failLink(3);
+  if(kind==='attribute')f.failNext('bufferData',original,2);
+  assert.throws(()=>renderer.render(simulationInput),error=>kind==='attribute'?error===original:error.message==='controlled '+(kind==='compile'?'shader compile':'program link')+' failure');
+  owned(f,base);f.clearFailure();renderer.render(simulationInput);
+  owned(f,{program:3,shader:0,vao:3,buffer:3});
+  assert.deepEqual(f.draws.slice(-3).map(d=>d.mode),[f.gl.LINES,f.gl.TRIANGLES,f.gl.POINTS]);
+  const created=f.created.length;renderer.render({...simulationInput,time:5});assert.equal(f.created.length,created);
+  renderer.dispose();owned(f,none);
+});
+
+test('a committed procedural volume remains owned through a uniform failure until explicit disposal',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),original=new Error('controlled volume viewport failure');
+  f.failNext('uniform4f',original);assert.throws(()=>renderer.render(simulationInput),error=>error===original);
+  owned(f,{program:3,shader:0,vao:3,buffer:3});renderer.dispose();owned(f,none);
+});
+
+test('procedural and legacy selections reuse the owned buffers and partial forms keep their legacy path',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  renderer.render(simulationInput);renderer.setQuality(200);renderer.render({...simulationInput,time:0});
+  assert.equal(f.draws.at(-1).count,200);
+  renderer.render({shape:simulationInput.shape,extent:1,time:0});
+  assert.deepEqual(f.draws.slice(-2).map(d=>d.mode),[f.gl.LINES,f.gl.POINTS]);
+  renderer.render({partialForm:condensation});assert.equal(f.draws.at(-1).mode,f.gl.TRIANGLES);
+  renderer.dispose();owned(f,none);
+});
+
+test('invalid procedural time/shape and incompatible partial forms clear without substituting a drawing',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  for(const input of [{...simulationInput,time:86401},{...simulationInput,shape:{base:NaN,flare:.1,bend:0}}, {...simulationInput,partialForm:condensation}]){
+    const before=f.callCount('clear'),drawn=f.draws.length;assert.throws(()=>renderer.render(input));
+    assert.equal(f.callCount('clear'),before+1);assert.equal(f.draws.length,drawn);owned(f,base);
+  }
+  renderer.dispose();owned(f,none);
 });

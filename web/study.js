@@ -3,10 +3,12 @@ import { formAt, boundedFormAt } from './evolution-model.mjs';
 import { PlaybackClock } from './playback-model.mjs';
 import { createFormRenderer } from './form-renderer.mjs';
 import {mountLabContext} from './lab-context.mjs';
+import {DEFAULT_EXPERIMENTS} from './experiment-state.mjs';
 
 const byId = id => document.getElementById(id);
 const canvas = byId('scene');
 let renderer = null, lab = null;
+let motionModel='kinematic-v1';
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let frame = 0, time = 0, last = null, running = false, inView = true;
 const sequenceClock=new PlaybackClock(30,1);
@@ -24,7 +26,8 @@ function initialize() {
 function status(message) { byId('motion-status').textContent=message; }
 function fail(message) {
   if(sequenceClock.playing){sequenceClock.pause(performance.now());time=sequenceClock.seconds;byId('sequence-time').value=time/30;sequenceReadout();}
-  running = false; renderer = null; last = null;
+  running = false; const owned=renderer;renderer=null;last = null;
+  try{owned?.dispose();}catch(error){console.error('Form renderer cleanup failed:',error);}
   if(frame) cancelAnimationFrame(frame);
   frame=0; byId('motion').disabled=true; byId('motion').textContent='Play motion';
   byId('scene-failure').hidden=false; status(message);
@@ -53,7 +56,8 @@ function draw(now) {
   last=now;
   const sequence=evolving?sequenceForm():null;
   canvas.dataset.appearanceCoverage=evolving?(sequence?'assigned':'gap'):'manual';
-  renderer.render({
+  try{renderer.render({
+    motionModel,
     readingAppearance:getComputedStyle(canvas).colorScheme==='light'?'light':'dark',
     shape:evolving?sequence?.shape || null:PRESETS[byId('shape').value],
     extent:evolving?sequence?.extent ?? 0:Number(byId('condensation').value)/100,
@@ -62,7 +66,7 @@ function draw(now) {
     azimuth:Number(byId('azimuth').value),
     elevation:Number(byId('elevation').value),
     distance:Number(byId('distance').value),
-  });
+  });}catch(error){console.error('Form rendering failed:',error);fail('The renderer could not draw this state. Reload to retry.');return;}
   lab?.preview();
   if(running) requestFrame();
 }
@@ -140,7 +144,9 @@ byId('sequence-rate').addEventListener('change',()=>{sequenceClock.setRate(Numbe
 
 function experimentState(){
   const position=Number(byId('sequence-time').value),sequence=byId('sequence-enabled').checked;
-  return {shape:byId('shape').value,condensation:Number(byId('condensation').value),azimuth:Number(byId('azimuth').value),elevation:Number(byId('elevation').value),distance:Number(byId('distance').value),dust:byId('dust').checked,quality:Number(byId('quality').value),sequence,coverage:byId('sequence-coverage').value,rate:Number(byId('sequence-rate').value),position,phase:sequence?position*30:time};
+  const state={shape:byId('shape').value,condensation:Number(byId('condensation').value),azimuth:Number(byId('azimuth').value),elevation:Number(byId('elevation').value),distance:Number(byId('distance').value),dust:byId('dust').checked,quality:Number(byId('quality').value),sequence,coverage:byId('sequence-coverage').value,rate:Number(byId('sequence-rate').value),position,phase:sequence?position*30:time};
+  if(motionModel==='kinematic-v1')state.model=motionModel;
+  return state;
 }
 function captureExperiment(){
   stop();
@@ -153,6 +159,7 @@ function captureExperiment(){
 }
 function restoreExperiment(state){
   stop();
+  motionModel=state.model??'legacy';
   for(const key of ['shape','condensation','azimuth','elevation','distance','quality'])byId(key).value=state[key];
   byId('dust').checked=state.dust;byId('sequence-enabled').checked=state.sequence;
   byId('sequence-coverage').value=state.coverage;byId('sequence-rate').value=state.rate;byId('sequence-time').value=state.position;
@@ -163,5 +170,5 @@ function restoreExperiment(state){
   renderer?.setQuality(state.quality);sequenceReadout();syncControls();
 }
 sequenceReadout();syncControls();
-lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment});
+lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'kinematic-v1'}});
 initialize();

@@ -125,7 +125,7 @@ async function checkedMooreWidget(page){
   return actual;
 }
 // Literal complete default Form link, independent of the production serializer.
-const SAVED_FORM_PARAMETERS={experiment:'form-1',event:'moore-2013',shape:'cone',condensation:'100',
+const SAVED_FORM_PARAMETERS={experiment:'form-2',event:'moore-2013',model:'kinematic-v1',shape:'cone',condensation:'100',
   azimuth:'25',elevation:'12',distance:'7',dust:'1',quality:'7200',sequence:'0',
   coverage:'continuous',rate:'1',position:'0',phase:'0'};
 async function savedMooreExperiment(page){
