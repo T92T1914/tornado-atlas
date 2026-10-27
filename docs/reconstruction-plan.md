@@ -49,8 +49,10 @@ background. Fresh `form-4` experiment links name this presentation, while
 retain the previous lighting. The [form notes](visual-form-study.md) and
 [ground-view contract](ground-view-reconstruction.md) describe the authored
 optical choices, bounded drawing work and compatibility behavior. Paused native
-views have been inspected in both declared cameras. Motion assessment, the
-changed revision's integrated checks and publication acceptance remain pending.
+views and complete declared encoded sequences have been inspected. Focused
+browser checks cover both themes, drawing sizes, state restoration and explicit
+refusals. Sparse software cadence and the still-soft picture remain limits.
+These observations do not replace revision-specific CI and served acceptance.
 Neither these depth cues nor a successful software check supplies calibrated
 sunlight, terrain, a physical wind field or historical likeness.
 

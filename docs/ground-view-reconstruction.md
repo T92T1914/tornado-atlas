@@ -118,8 +118,9 @@ Lighter reduces both particle count and the `world-v1` density raster, to a
 320 by 200 cap. Standard retains the 512 by 320 cap. Both preserve the complete
 camera frame, selected time and scenario parameters. Older lighting links keep
 their earlier density cap. The lower drawing size trades fine spatial detail
-for fewer shaded pixels. Its native validation is still pending, and observed
-software rendering cadence supplies no hardware performance claim.
+for fewer shaded pixels. Native selected-state checks cover both drawing sizes
+at narrow and wide viewports. The retained software recording is sparse and
+supplies no hardware performance or smoothness claim.
 
 The ground remains an authored plane. Its shading supplies neither El Reno's
 terrain nor a measured contact point, and the light has no historical sun or
@@ -128,12 +129,16 @@ schedule keep their existing meaning. A more detailed picture does not supply
 missing historical geometry.
 
 Paused native views have been inspected in both declared cameras. Complete
-motion inspection, integrated regression checks and the normal publication
-gates remain pending for this lighting candidate. The blocky frames at index
-101 in the earlier matched formation clips still have an unknown cause. A
-separate fixed-state diagnostic can compare new framebuffer and encoded
-evidence, but cannot reproduce the old state without its missing frame-to-draw
-mapping.
+ordered encoded inspection covers 149 baseline frames and 52 lit frames from
+matched recordings of about twenty seconds. The lit recording has fewer drawing
+completions on isolated SwiftShader software rendering. Its larger display gaps
+remain a limitation rather than a smoothness pass. The blocky frames at index
+101 in the earlier matched formation clips still have an unknown cause.
+A separate fixed-state recording varies after 64 identical observed native
+framebuffers. That bounds the controlled discrepancy after framebuffer
+observation, without identifying its exact stage or recovering the old
+frame-to-draw mapping. Source review, required CI and served acceptance remain
+distinct from these recorded-frame observations.
 
 ## Explicit camera contract
 
