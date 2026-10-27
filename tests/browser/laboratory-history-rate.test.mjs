@@ -69,7 +69,11 @@ test('Pending same-document Forward restores its own final sample and retired ca
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.goto(base+'/wind.html?event=blackwell-1955');await ready(page);
  await input(page,'passage-time',10);await page.locator('#lab-share').click();
- const original=page.url();await page.locator('#lab-event').selectOption('joplin-2011');
+ // Observe the complete saved entry before using it as the Back baseline.
+ const original=base+'/wind.html?experiment=wind-1&event=blackwell-1955&peak=100&radius=500&background=0&probe-x=1&probe-y=0&area=1&coefficient=1.2&travel=30&offset=1&threshold=50&capacity=1&sample=10';
+ await page.waitForURL(original);
+ assert.equal(page.url(),original);assert.equal(await page.evaluate(()=>location.href),original);
+ await page.locator('#lab-event').selectOption('joplin-2011');
  await page.evaluate(()=>{window.labHistoryProbe.hold=true;for(const value of [200,201]){const node=document.getElementById('passage-time');node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));}});
  assert.ok(await page.evaluate(()=>window.labHistoryProbe.held.size>0),'An address replacement is deliberately withheld');
  assert.equal(new URL(await page.locator('#lab-share').getAttribute('href')).searchParams.get('sample'),'201');
