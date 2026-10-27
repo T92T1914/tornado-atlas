@@ -2,6 +2,7 @@ import {particles, cameraMatrix} from './vortex-model.mjs';
 import {validateCondensationSupport} from './partial-form-geometry.mjs';
 import {sourceCameraProjection,sourceBackingSize} from './source-camera-model.mjs';
 import {simulationTime,simulationBackingSize,simulationParticles,inverseCameraMatrix,FUNNEL_DENSITY_GLSL,funnelVolumeVertex,funnelVolumeFragment} from './funnel-simulation-model.mjs';
+import {formationAt,formationFlow} from './formation-model.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
@@ -16,6 +17,9 @@ uniform float viewportHeight;
 uniform float maxPoint;
 uniform bool dust;
 uniform bool kinematic;
+uniform bool genesis;
+uniform float formationProgress;
+uniform vec4 formationState;
 uniform int readingPalette;
 uniform vec2 spriteAspect;
 out vec4 color;
@@ -59,6 +63,7 @@ void main() {
     vec2 axis=funnelCenter(h,shape,time);
     position=vec3(axis.x+cos(angle)*r,2.6*h,axis.y+sin(angle)*r);
     opacity=.018*life*smoothstep(1.0-extent-.02,1.0-extent+.045,h);
+    if(genesis)opacity*=formationState.x*formationMask(h,angle,time);
     size=.17+.10*seed.z;
     if(seed.w>1.5){
       // The slow cloud-base density is integrated by the volume pass.
@@ -71,6 +76,7 @@ void main() {
       position=vec3(cos(angle)*r,.018+.08*age+.18*seed.z*age*(1.0-age),sin(angle)*r);
       float sector=.30+.70*pow(.5+.5*cos(angle-.3*time-.6),2.0);
       opacity=dust?.11*life*(1.0-.5*age)*sector:0.0;
+      if(genesis)opacity*=formationState.z;
       size=.20+.18*age;
     }
   }
@@ -114,8 +120,9 @@ precision mediump float;
 in float fade;
 uniform int readingPalette;
 uniform bool referenceMarks;
+uniform float markAlpha;
 out vec4 outputColor;
-void main(){vec3 tint=readingPalette==0?vec3(.47,.58,.47):vec3(readingPalette==1?.32:.72);outputColor=vec4(tint,(referenceMarks ? .95 : .22)*fade);}`;
+void main(){vec3 tint=readingPalette==0?vec3(.47,.58,.47):vec3(readingPalette==1?.32:.72);outputColor=vec4(tint,(referenceMarks ? .95 : .22)*fade*markAlpha);}`;
 
 // Authored planar display geometry. It carries no camera or physical units.
 const marginVertex = `#version 300 es
@@ -300,7 +307,7 @@ export function createFormRenderer(canvas, quality) {
   }
   function retire(resources){
     if(!resources)return;
-    for(const key of ['cloudAttribute','gridAttribute','referenceAttribute']){
+    for(const key of ['cloudAttribute','gridAttribute','referenceAttribute','flowAttribute']){
       const item=resources[key];
       if(item){gl.deleteVertexArray(item.vao);gl.deleteBuffer(item.buffer);}
     }
@@ -327,9 +334,9 @@ export function createFormRenderer(canvas, quality) {
       Object.assign(pending,{count:values.length/4,
         gridCount:lines.length/3,maxPoint:gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1],
         particleModel:'legacy',
-        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','kinematic','readingPalette','spriteAspect'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
+        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','kinematic','genesis','formationProgress','formationState','readingPalette','spriteAspect'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
         gridCamera:gl.getUniformLocation(pending.grid,'camera'),gridPalette:gl.getUniformLocation(pending.grid,'readingPalette'),
-        gridMarks:gl.getUniformLocation(pending.grid,'referenceMarks')});
+        gridMarks:gl.getUniformLocation(pending.grid,'referenceMarks'),gridAlpha:gl.getUniformLocation(pending.grid,'markAlpha')});
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
       gl.disable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);
@@ -339,7 +346,7 @@ export function createFormRenderer(canvas, quality) {
   function setQuality(next){
     quality=next;
     if(!gpu)return;
-    const values=(gpu.particleModel==='kinematic-v1'?simulationParticles:particles)(Number(quality));
+    const values=(gpu.particleModel!=='legacy'?simulationParticles:particles)(Number(quality));
     gl.bindBuffer(gl.ARRAY_BUFFER,gpu.cloudAttribute.buffer);
     gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
     gpu.count=values.length/4;
@@ -350,7 +357,7 @@ export function createFormRenderer(canvas, quality) {
     try{
       p=program(funnelVolumeVertex,funnelVolumeFragment);
       a=attribute(p,'position',new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),2);
-      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState'].map(name=>[name,gl.getUniformLocation(p,name)]))};
       gpu.volume=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
@@ -384,10 +391,10 @@ export function createFormRenderer(canvas, quality) {
     gpu.referenceAttribute=attribute(gpu.grid,'position',new Float32Array(lines),3);
     return gpu.referenceAttribute;
   }
-  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null,sourceCamera=null,referencePoints=null,motionModel='legacy'}={}){
+  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null,sourceCamera=null,referencePoints=null,motionModel='legacy',formationTime=null,formationVisibility='ordinary',flow=false}={}){
     if(!gpu)return;
     const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
-    const raster=motionModel==='kinematic-v1'?simulationBackingSize(sourceCamera?canvas.clientWidth:rect.width,sourceCamera?canvas.clientHeight:rect.height,ratio):sourceCamera===null?null:sourceBackingSize(canvas.clientWidth,canvas.clientHeight,ratio);
+    const raster=motionModel!=='legacy'?simulationBackingSize(sourceCamera?canvas.clientWidth:rect.width,sourceCamera?canvas.clientHeight:rect.height,ratio):sourceCamera===null?null:sourceBackingSize(canvas.clientWidth,canvas.clientHeight,ratio);
     const width=raster?.width??Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
     const height=raster?.height??Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
@@ -395,8 +402,11 @@ export function createFormRenderer(canvas, quality) {
     gl.viewport(0,0,width,height);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);
     // Validate even an empty source state, after clearing any previous image.
     const source=sourceCamera===null?null:sourceCameraProjection(sourceCamera,width,height);
-    if(!['legacy','kinematic-v1'].includes(motionModel))throw new TypeError('Unknown funnel motion model');
-    const kinematic=motionModel==='kinematic-v1';
+    if(!['legacy','kinematic-v1','genesis-v1'].includes(motionModel))throw new TypeError('Unknown funnel motion model');
+    const kinematic=motionModel!=='legacy',genesis=motionModel==='genesis-v1';
+    const formation=genesis&&shape?formationAt(formationTime??time,{visibility:formationVisibility,flow}):null;
+    if(formation){shape=formation.shape;extent=formation.extent;time=formation.seconds;}
+    const state=formation?[formation.condensation,formation.erosion,formation.dust,formation.circulation]:[1,0,1,1];
     if(kinematic){
       simulationTime(time);
       if(partialForm!==null)throw new TypeError('A partial historical form cannot inherit the procedural simulation');
@@ -448,7 +458,14 @@ export function createFormRenderer(canvas, quality) {
     gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
     gl.uniform1i(gpu.gridPalette,palette);
     gl.uniform1i(gpu.gridMarks,0);
+    gl.uniform1f(gpu.gridAlpha,1);
     gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);
+    if(formation?.flow&&formation.circulation>0){
+      const lines=formationFlow(formation.seconds,formation.circulation);
+      if(!gpu.flowAttribute)gpu.flowAttribute=attribute(gpu.grid,'position',lines,3);
+      else{gl.bindBuffer(gl.ARRAY_BUFFER,gpu.flowAttribute.buffer);gl.bufferData(gl.ARRAY_BUFFER,lines,gl.DYNAMIC_DRAW);}
+      gl.bindVertexArray(gpu.flowAttribute.vao);gl.uniform1i(gpu.gridMarks,1);gl.uniform1f(gpu.gridAlpha,formation.circulation*.7);gl.drawArrays(gl.LINES,0,lines.length/3);gl.uniform1i(gpu.gridMarks,0);gl.uniform1f(gpu.gridAlpha,1);
+    }
     if(source&&referencePoints?.length){
       gl.bindVertexArray(referenceResources(referencePoints).vao);gl.uniform1i(gpu.gridMarks,1);
       gl.drawArrays(gl.LINES,0,referencePoints.length*4);
@@ -461,6 +478,7 @@ export function createFormRenderer(canvas, quality) {
       gl.uniform3f(volume.uniforms.shape,shape.base,shape.flare,shape.bend);
       gl.uniform1f(volume.uniforms.time,time);gl.uniform1f(volume.uniforms.extent,extent);
       gl.uniform1i(volume.uniforms.dust,dust?1:0);
+      gl.uniform1i(volume.uniforms.genesis,genesis?1:0);gl.uniform1f(volume.uniforms.formationProgress,formation?.progress??0);gl.uniform4f(volume.uniforms.formationState,...state);
       gl.uniform1i(volume.uniforms.readingPalette,palette);gl.drawArrays(gl.TRIANGLES,0,6);
     }
     gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
@@ -471,6 +489,7 @@ export function createFormRenderer(canvas, quality) {
     gl.uniform2f(u.spriteAspect,...(source?.spriteAspect??[1,1]));
     gl.uniform1i(u.readingPalette,palette);
     gl.uniform1i(u.kinematic,kinematic?1:0);
+    gl.uniform1i(u.genesis,genesis?1:0);gl.uniform1f(u.formationProgress,formation?.progress??0);gl.uniform4f(u.formationState,...state);
     gl.uniform1i(u.dust,dust?1:0);gl.drawArrays(gl.POINTS,0,gpu.count);
     }finally{if(source)gl.disable(gl.SCISSOR_TEST);}
   }

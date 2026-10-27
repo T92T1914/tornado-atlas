@@ -20,15 +20,34 @@ the shared clock and renderer. The [camera contract](ground-view-reconstruction.
 separates that software capability from the original historical reconstruction.
 No continuous El Reno appearance window is admitted by this milestone.
 
-The following funnel increment adds a separate procedural moving body to those
+The accepted PR167 funnel increment added a separate procedural moving body to those
 same cameras and clock. It uses coherent rising detail, display density,
 separate dust trajectories and a drifting cloud base. Its authored interval is
 still 120 through 140 player seconds, without historical correspondence. The
 earlier camera exercise and six analytic references remain on their explicit
 compatibility route. The [form study notes](visual-form-study.md) describe the
-model and its limits. Complete motion comparison and release acceptance remain
-required for this increment. Better software rendering supplies no missing
-historical camera, source interval, wind or damage evidence.
+model and its limits. Its release evidence remains attached to that version.
+Better software rendering supplies no missing historical camera, source
+interval, wind or damage evidence.
+
+The next integrated increment adds one research-informed formation and decay
+scenario, `genesis-v1`, to Form Study and the replay's existing ground-view
+renderer. It separates assumed surface circulation, visible condensation, dust
+and cloud behavior over 30 authored study seconds. Replay player 120 through
+140 maps to study 0 through 30 through the same PlaybackClock. Earlier
+`form-1`, `form-2` and camera comparison behavior remain versioned compatibility
+paths. The [source decision](../research/formation-study-2026-10-27.md) explains
+why this scenario is not a universal lifecycle or a solved atmosphere. Its
+visible improvement, matched motion, required checks and served acceptance
+need evidence from the changed implementation.
+
+Historical comparison remains a separate lane. The next bounded target is the
+late RaXPol exposure reported at 23:24:41 UTC in Wakimoto et al. (2015), with
+later exposures reserved for checks rather than fitting. Original exposure,
+camera, clock uncertainty and comparison-use inputs remain unresolved. No new
+historical appearance interval is admitted. The same increment deepens the
+Tuscaloosa account with source-linked recovery planning and local remembrance,
+without turning a recovery area or memorial place into a tornado measurement.
 
 Build the controls, camera system and rendering once. Give each storm a reviewed
 event package that the player can load. Event-specific work should primarily be

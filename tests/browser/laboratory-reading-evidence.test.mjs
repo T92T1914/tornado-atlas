@@ -30,7 +30,7 @@ const references=[
   rights:['PD-USGov','NARA/NAID283884','Individual photographer and exact capture time are unestablished'],
   limits:['daylight','aftermath photograph','exposure time'],version:'full frame and annotation preserved'},
  {event:'tuscaloosa-birmingham-2011',media:'oliveira-2019-tornado-video-frames',source:'oliveira-2019-tuscaloosa-figure6',
-  revision:'63b08e0460f38874aeb9f56825860abb768886cb6eea408e5415e9215bcc4a64',
+  revision:'e0ed6012db7845157367bfb80aef9b9f22efd21fb3857fe32308d994de93bdfd',
   asset:'assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png',sha:'d8e89044ea98c4beab8d568598ea3a1711b73bfe3a425e5afd304af491e48d4f',width:1351,height:767,
   original:'https://repository.library.noaa.gov/view/noaa/26149/noaa_26149_DS1.pdf',item:'https://repository.library.noaa.gov/view/noaa/26149/noaa_26149_DS1.pdf#page=10',
   story:'tuscaloosa.html#photographs-and-film',role:/estimated time labels/,credit:'creator: Maurício I. Oliveira',
@@ -263,7 +263,7 @@ for(const [width,scheme]of [[320,'light'],[1280,'dark']]){
     assert.equal(await page.locator('#scene').getAttribute('data-appearance-coverage'),null);
    }
   };
-  await page.locator('#shape').selectOption('rope');await input(page,'condensation',65);await input(page,'azimuth',-35);
+  await page.locator('#sequence-enabled').uncheck();await page.locator('#shape').selectOption('rope');await input(page,'condensation',65);await input(page,'azimuth',-35);
   await page.locator('#quality').selectOption('3600');await page.locator('#sequence-coverage').selectOption('bounded');await page.locator('#sequence-enabled').check();await input(page,'sequence-time',.5);
   const expected=await formState(page);
   assert.equal(expected.controls['sequence-time'],'0.5');assert.equal(expected.controls.condensation,'65');

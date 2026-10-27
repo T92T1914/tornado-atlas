@@ -79,14 +79,18 @@ and comparison. It is not recorded El Reno appearance or a physical simulation.
 The [camera contract](docs/ground-view-reconstruction.md) explains the geometry,
 independent reference construction and historical inputs still missing.
 
-The current funnel implementation adds a separate Procedural funnel simulation
-view through the same cameras and clock. It draws a connected density body,
-rising and turning detail, low dust and a slowly moving cloud base. The Form
-Study uses that model for new experiments, while earlier saved links and the
-six analytic camera references retain their original renderer. The
-[form study notes](docs/visual-form-study.md) explain the deterministic motion,
-display approximations, recorded comparison coverage and verification limits.
-This software work does not qualify a historical El Reno appearance interval.
+The funnel renderer now also has a formation and decay study through those same
+cameras and clock. One illustrative supercell scenario separates assumed
+circulation from visible condensation, surface dust and the cloud base. Form
+Study lets the visitor compare reduced condensation at the same circulation,
+then seek through development and erosion. New experiments use the versioned
+`genesis-v1` model, while `form-1`, `form-2` and the six analytic camera
+references retain their earlier behavior. The separate Procedural funnel
+simulation remains available. The [form study notes](docs/visual-form-study.md)
+and [source decision](research/formation-study-2026-10-27.md) explain the
+authored timing, deterministic drawing, scientific context and verification
+boundaries. This software work does not qualify a historical El Reno interval
+or claim to solve atmospheric dynamics.
 
 The spatial replay keeps selected footage moments and observer times in browser
 history. Back and Forward restore the clock paused. Scrubbing or pausing updates

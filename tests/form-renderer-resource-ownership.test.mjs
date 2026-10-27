@@ -207,3 +207,15 @@ test('invalid procedural time/shape and incompatible partial forms clear without
   }
   renderer.dispose();owned(f,none);
 });
+
+test('formation flow and density retain partial ownership across failure, retry, quality and disposal',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),original=new Error('controlled flow attribute failure');
+  const input={...simulationInput,motionModel:'genesis-v1',formationTime:15,flow:true};
+  // Particle model upload succeeds, then the new lazy flow attribute fails.
+  f.failNext('bufferData',original,2);assert.throws(()=>renderer.render(input),error=>error===original);owned(f,base);
+  f.clearFailure();renderer.render(input);owned(f,{program:3,shader:0,vao:4,buffer:4});
+  const created=f.created.length;renderer.setQuality(200);renderer.render({...input,formationTime:24});
+  assert.equal(f.created.length,created);assert.equal(f.draws.at(-1).count,200);
+  renderer.render({...input,formationTime:0});renderer.render({...input,formationTime:30});
+  renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});

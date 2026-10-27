@@ -83,8 +83,8 @@ async function start(){
   clock=new PlaybackClock((positions.at(-1).stamp-positions[0].stamp)/1000);
   const start=positions[0].stamp,anchors=data.footage.anchors;
   const photoView=(href=location.href)=>new URL(href).searchParams.get('appearance_view')==='photo';
-  const simulationView=(href=location.href)=>event.id==='el-reno-2013'&&new URL(href).searchParams.get('appearance_view')==='simulation';
-  const cameraMode=value=>['ground','simulation'].includes(value);
+  const simulationView=(href=location.href)=>event.id==='el-reno-2013'&&['simulation','formation'].includes(new URL(href).searchParams.get('appearance_view'));
+  const cameraMode=value=>['ground','simulation','formation'].includes(value);
   const groundView=(href=location.href)=>event.id==='el-reno-2013'&&cameraMode(new URL(href).searchParams.get('appearance_view'));
   const separateAppearance=href=>photoView(href)||groundView(href);
   function selectedSeconds(search){
@@ -201,6 +201,7 @@ async function start(){
   if(event.id==='el-reno-2013'){
     const option=document.createElement('option');option.value='ground';option.textContent='Synthetic ground-view comparison';mode.append(option);
     const simulation=document.createElement('option');simulation.value='simulation';simulation.textContent='Procedural funnel simulation';mode.append(simulation);
+    const formation=document.createElement('option');formation.value='formation';formation.textContent='Formation and decay study';mode.append(formation);
     el('replay-ground-link').hidden=false;
     const simulationLink=el('replay-simulation-link');if(simulationLink)simulationLink.hidden=false;
   }
@@ -253,7 +254,7 @@ async function start(){
     mode.addEventListener('change',()=>{
       if(cameraMode(mode.value)||groundView()){if(clock.playing)clock.tick(performance.now());pause();}
       if(cameraMode(mode.value)){clock.setRate(1,performance.now());el('replay-rate').value='1';}
-      if(mode.value==='simulation'&&(clock.seconds<120||clock.seconds>140))clock.seek(120);
+      if(['simulation','formation'].includes(mode.value)&&(clock.seconds<120||clock.seconds>140))clock.seek(120);
       const requested=new URL(location.href);
       if(cameraMode(mode.value)){
         requested.searchParams.set('appearance_view',mode.value);requested.searchParams.set('ground_view','synthetic-front');requested.searchParams.delete('appearance_photo');
@@ -282,7 +283,7 @@ async function start(){
     mode.querySelector('[data-unavailable-photo]')?.remove();
     unavailablePhotoId=null;
     const params=new URL(location.href).searchParams;
-    if(groundView()){mode.value=simulationView()?'simulation':'ground';return;}
+    if(groundView()){mode.value=params.get('appearance_view');return;}
     if(params.get('appearance_view')==='photo'){
       const id=params.get('appearance_photo')??'';
       if(photoSequences.some(sequence=>sequence.id===id))mode.value=`photo:${id}`;
@@ -442,7 +443,7 @@ async function start(){
     const photoSelected=mode.value.startsWith('photo:')||mode.value==='unavailable-photo';
     const sequence=photoSequences.find(item=>mode.value===`photo:${item.id}`)??null;
     const selected=mode.value==='illustrative'?null:sourceId;
-    const simulationSelected=mode.value==='simulation',groundSelected=cameraMode(mode.value);
+    const formationSelected=mode.value==='formation',simulationSelected=['simulation','formation'].includes(mode.value),groundSelected=cameraMode(mode.value);
     // Keep the same controls beside the moving body. Reparent once per mode
     // change so ordinary refreshes cannot disturb keyboard focus or scrolling.
     const clockControls=el('replay-clock-controls');
@@ -450,7 +451,7 @@ async function start(){
       const following=simulationSelected?el('replay-ground-comparison'):drawing;
       if(clockControls.nextElementSibling!==following)following.before(clockControls);
     }
-    const groundState=ground.update(groundSelected,clock.seconds,new URL(location.href).searchParams.get('ground_view'),simulationSelected?'kinematic-v1':'legacy');
+    const groundState=ground.update(groundSelected,clock.seconds,new URL(location.href).searchParams.get('ground_view'),formationSelected?'genesis-v1':simulationSelected?'kinematic-v1':'legacy');
     appearanceState=groundSelected?{...groundState,sourceCamera:groundState.shape?groundState.camera:null}:
       photoSelected?
       sequence?appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,{kind:'photo',id:sequence.id}):
@@ -516,7 +517,7 @@ async function start(){
     formCanvas.dataset.displayPreset=photoDisplayForm(appearanceState)?.display_preset??'';
     formCanvas.dataset.sourceCamera=appearanceState.sourceCamera?.id??'';
     el('replay-ground-comparison').className=groundSelected?`ground-active${simulationSelected?' simulation-active':''}`:'';
-    el('ground-render-caption').textContent=simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
+    el('ground-render-caption').textContent=formationSelected?'Illustrative formation and decay':simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
     el('ground-render-caption').hidden=!groundSelected;
     formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground-view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
     // Unknown or documentary-only states retain their controls and source text
@@ -588,10 +589,11 @@ async function start(){
     if(appearanceRenderer&&quality!==rendererQuality){appearanceRenderer.setQuality(quality);rendererQuality=quality;}
     if(appearanceRenderer)try{appearanceRenderer.render({shape:appearanceState.shape??null,extent:appearanceState.extent??0,
       partialForm:photoDisplayForm(appearanceState),
-      sourceCamera:appearanceState.sourceCamera??null,referencePoints:appearanceState.sourceCamera&&mode.value!=='simulation'?GROUND_MARKS:null,
+      sourceCamera:appearanceState.sourceCamera??null,referencePoints:appearanceState.sourceCamera&&mode.value==='ground'?GROUND_MARKS:null,
       readingAppearance:cameraMode(mode.value)?getComputedStyle(formCanvas).colorScheme:null,
-      motionModel:mode.value==='simulation'?'kinematic-v1':'legacy',
-      time:clock.seconds,dust:mode.value==='simulation'});
+      motionModel:mode.value==='formation'?'genesis-v1':mode.value==='simulation'?'kinematic-v1':'legacy',
+      formationTime:appearanceState.formationTime??null,flow:mode.value==='formation',
+      time:clock.seconds,dust:['simulation','formation'].includes(mode.value)});
     }catch(error){
       const owned=appearanceRenderer;appearanceRenderer=null;formCanvas.hidden=true;
       try{owned.dispose();}catch(cleanupError){console.error('Appearance renderer cleanup failed:',cleanupError);}

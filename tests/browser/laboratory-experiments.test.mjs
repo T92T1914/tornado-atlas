@@ -72,7 +72,7 @@ for(const width of [320,1280])test('Form experiment retains its authored gap and
   let originalFailed=false,originalError;
   try{
   await page.goto(base+'/study.html?event=el-reno-2013');await ready(page);
-  await page.locator('#shape').selectOption('rope');
+  await page.locator('#sequence-enabled').uncheck();await page.locator('#shape').selectOption('rope');
   for(const [id,value] of Object.entries({condensation:65,azimuth:-35,elevation:24,distance:8.2}))await input(page,id,value);
   await page.locator('#dust').uncheck();await page.locator('#quality').selectOption('3600');
   await page.locator('#sequence-coverage').selectOption('bounded');await page.locator('#sequence-rate').selectOption('15');

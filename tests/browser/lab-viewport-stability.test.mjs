@@ -9,7 +9,7 @@ const REFERENCES={
  'el-reno-2013':{file:'el-reno-2013-854b56dffaf8720e27be.json',media:'nolte-231037-full-documentary',asset:'assets/el-reno-2013/nolte-231037-full.jpg',width:1920,height:1080},
  'joplin-2011':{file:'joplin-2011-68dca24097277ba2afb7.json',media:'friskey-joplin-storm',asset:'assets/joplin-2011/storm.jpg',width:1557,height:932},
  'blackwell-1955':{file:'blackwell-1955-9e74182ea8d0076dae45.json',media:'nara-blackwell-aerial-aftermath',asset:'assets/blackwell-1955/nara-283884.jpg',width:3000,height:2371},
- 'tuscaloosa-birmingham-2011':{file:'tuscaloosa-birmingham-2011-63b08e0460f38874aeb9.json',media:'oliveira-2019-tornado-video-frames',asset:'assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png',width:1351,height:767},
+ 'tuscaloosa-birmingham-2011':{file:'tuscaloosa-birmingham-2011-e0ed6012db7845157367.json',media:'oliveira-2019-tornado-video-frames',asset:'assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png',width:1351,height:767},
  'moore-2013':{file:'moore-2013-5ed36647a0e6141f8dde.json',media:'moore-medical-center-survey',asset:'assets/moore-2013/IMG_9287-800.jpg',width:800,height:533},
  'udall-1955':{file:'udall-1955-ea29259561776155de0d.json',media:'nws-blackwell-warning2',asset:'assets/blackwell-1955/nws-warning2.jpg',width:608,height:436},
 };
@@ -145,7 +145,15 @@ async function run(t,spec,body){
 async function open(page,spec,held){
  await page.goto(base+'/'+(spec.kind==='form'?'study.html':'wind.html')+'?event='+spec.event,{waitUntil:'domcontentloaded'});
  await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();await held.wait();
- if(spec.kind==='form')await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden);
+ if(spec.kind==='form'){
+  await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden);
+  // These cases inspect native manual controls while documentary work is held.
+  // New entry pages default to an authored sequence, which disables those controls.
+  await page.locator('#sequence-enabled').uncheck();
+  assert.equal(await page.locator('#sequence-enabled').isChecked(),false);
+  assert.equal(await page.locator('#shape').isEnabled(),true);
+  assert.equal(await page.locator('#condensation').isEnabled(),true);
+ }
  await page.evaluate(()=>document.fonts.ready);
  if(spec.enlarged)await enlargedText(page);
 }

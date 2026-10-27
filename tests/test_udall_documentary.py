@@ -1,3 +1,4 @@
+import copy
 import hashlib
 from html.parser import HTMLParser
 import json
@@ -5,7 +6,7 @@ from pathlib import Path
 import unittest
 from urllib.parse import parse_qs, urlsplit
 
-from atlas.archive import dossiers, validate_dossier
+from atlas.archive import dossiers, digest, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
 UDALL_RECORDS = ['ncei:10096418', 'ncei:10027629', 'ncei:10027630', 'ncei:10027631', 'ncei:10027632']
@@ -218,6 +219,50 @@ class UdallDocumentaryTests(unittest.TestCase):
         for event_id, (file, sha) in PRESERVED_DOSSIERS.items():
             with self.subTest(event=event_id):
                 self.assertEqual(hashlib.sha256((ROOT / 'web' / file).read_bytes()).hexdigest(), sha)
+                if event_id == 'tuscaloosa-birmingham-2011':
+                    # Udall's accepted predecessor remains immutable. The later
+                    # community addition has its own exact successor and review chain.
+                    entry = entries[event_id]
+                    original = '63b08e0460f38874aeb9f56825860abb768886cb6eea408e5415e9215bcc4a64'
+                    intermediate = 'f880ae503c3cb6ef1ebefec27a81f1d9f558abeb9b11eeea8dd59e3962371297'
+                    current = 'e0ed6012db7845157367bfb80aef9b9f22efd21fb3857fe32308d994de93bdfd'
+                    self.assertEqual(entry['file'], 'archive/tuscaloosa-birmingham-2011-e0ed6012db7845157367.json')
+                    self.assertEqual(entry['dossier_sha256'], current)
+                    self.assertEqual(entry['file_sha256'], 'e97e0a32c9888a7dfc359ef8a1d954e0c092ea900d69d031e3c1464c1cc07f63')
+                    raw = (ROOT / 'web' / entry['file']).read_bytes()
+                    self.assertEqual(hashlib.sha256(raw).hexdigest(), entry['file_sha256'])
+                    before = json.loads((ROOT / 'web' / file).read_bytes())
+                    after = json.loads(raw)
+                    self.assertEqual(digest(before), original)
+                    self.assertEqual(digest(after), current)
+                    self.assertEqual([row['id'] for row in after['sources'][len(before['sources']):]], [
+                        'tuscaloosa-county-recovery-plans', 'tuscaloosa-city-recovery-area',
+                        'tuscaloosa-city-memorial-places', 'tuscaloosa-2021-anniversary-announcement'])
+                    self.assertEqual([row['id'] for row in after['observations'][len(before['observations']):]], [
+                        'community-recovery-plans', 'recovery-area-boundary',
+                        'community-memorial-places', 'anniversary-observance-clock'])
+                    self.assertEqual(after['routes'][len(before['routes']):], [
+                        {'label': 'Read recovery planning and local remembrance',
+                         'href': 'tuscaloosa.html#recovery-and-remembrance'}])
+                    retained = copy.deepcopy(after)
+                    for field in ('sources', 'observations', 'routes'):
+                        retained[field] = retained[field][:len(before[field])]
+                    retained['provenance']['publication_review'] = before['provenance']['publication_review']
+                    self.assertEqual(digest(retained), original)
+                    history = json.loads((ROOT / 'web' / entry['history_file']).read_bytes())
+                    versions = {row['dossier_sha256']: row for row in history['versions']}
+                    self.assertEqual(versions[original]['file'], file)
+                    self.assertEqual(versions[original]['file_sha256'], sha)
+                    self.assertEqual(versions[intermediate]['file_sha256'],
+                                     '8b001d3f224f6ad47d7023c1d867814b08cbe5cb14643edcec199c235f12508c')
+                    intermediate_raw = (ROOT / 'web' / versions[intermediate]['file']).read_bytes()
+                    self.assertEqual(hashlib.sha256(intermediate_raw).hexdigest(), versions[intermediate]['file_sha256'])
+                    self.assertEqual(digest(json.loads(intermediate_raw)), intermediate)
+                    self.assertEqual(versions[intermediate]['review']['previous_dossier_sha256'], original)
+                    self.assertEqual(versions[current]['review']['previous_dossier_sha256'], intermediate)
+                    self.assertTrue(versions[intermediate]['predecessor_available'])
+                    self.assertTrue(versions[current]['predecessor_available'])
+                    continue
                 if event_id != 'moore-2013':
                     self.assertEqual(entries[event_id]['file'], file)
                     self.assertEqual(entries[event_id]['file_sha256'], sha)

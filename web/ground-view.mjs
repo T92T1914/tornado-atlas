@@ -1,4 +1,4 @@
-import {GROUND_CAMERAS,GROUND_DEMO,groundViewAt,funnelSimulationAt} from './ground-view-model.mjs';
+import {GROUND_CAMERAS,GROUND_DEMO,groundViewAt,funnelSimulationAt,formationSimulationAt} from './ground-view-model.mjs';
 
 const text=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
 export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
@@ -43,28 +43,30 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
     };
     retry.addEventListener('click',()=>{if(inflight)return;retryInitiated=true;load();});referenceHost.append(note,retry,original);load();
   }
-  let simulation=false;
+  let simulation=false,currentVariant='legacy';
   const legacyHeading=host.querySelector('h3').textContent,legacyBoundary=host.querySelector('.ground-boundary').textContent,legacyModelNote=host.querySelector('#ground-model-note').textContent;
   return {
     quality:()=>Number(quality.value),
     update(enabled,seconds,id,variant='legacy'){
-      const nextSimulation=variant==='kinematic-v1';
-      if(nextSimulation!==simulation){
-        simulation=nextSimulation;identity++;referenceKey=null;referenceHost.replaceChildren();
-        text(host.querySelector('h3'),simulation?'Procedural funnel simulation':legacyHeading);
+      const nextSimulation=variant!=='legacy',formation=variant==='genesis-v1';
+      if(variant!==currentVariant){
+        currentVariant=variant;simulation=nextSimulation;identity++;referenceKey=null;referenceHost.replaceChildren();
+        text(host.querySelector('h3'),formation?'Formation, visible cloud and decay':simulation?'Procedural funnel simulation':legacyHeading);
         text(host.querySelector('.ground-boundary'),simulation?'An authored moving funnel in a declared camera. Player seconds 120 through 140 are simulation offsets with no historical El Reno correspondence.':legacyBoundary);
+        if(formation)text(host.querySelector('.ground-boundary'),'One illustrative supercell scenario. Surface arrows show assumed circulation, not measured wind. Player seconds 120 through 140 are study offsets with no historical El Reno correspondence.');
         text(host.querySelector('#ground-model-note'),simulation?'The body integrates a bounded procedural density. Detail rises and turns coherently; dust follows separate fading trajectories and the cloud base drifts slowly. These are authored kinematics and display opacity, without physical wind, pressure, debris mass or measured scale. The earlier analytic references remain in the separate synthetic comparison.':legacyModelNote);
+        if(formation)text(host.querySelector('#ground-model-note'),'One illustrative supercell pathway, not a universal life cycle. Surface arrows show assumed circulation, not measured velocities. Condensation can be absent while circulation is present; dust does not define tornado existence. Player 120 through 140 maps linearly to 0 through 30 study seconds. Compare reduced condensation at the same circulation in Form Study.');
         for(const b of host.querySelectorAll('[data-ground-second]'))text(b,`${simulation?'Show':'Compare'} at player ${b.dataset.groundSecond} s`);
       }
       host.hidden=!enabled;referenceHost.hidden=!enabled;
       camera.querySelector('[data-unavailable]')?.remove();
       if(!enabled){identity++;referenceKey=null;referenceHost.replaceChildren();return null;}
-      const state=(simulation?funnelSimulationAt:groundViewAt)(seconds,id);
+      const state=(formation?formationSimulationAt:simulation?funnelSimulationAt:groundViewAt)(seconds,id);
       if(id&&!GROUND_CAMERAS.some(view=>view.id===id)){
         const option=document.createElement('option');option.value=id;option.textContent='Unavailable synthetic camera';option.dataset.unavailable='';camera.append(option);
       }
       camera.value=id??'';
-      text(host.querySelector('#ground-time'),state.state==='synthetic'?`${simulation?'Procedural simulation':'Synthetic render'} at player ${seconds.toFixed(2)} s. Authored interval: 120 through 140 s.`:state.reason);
+      text(host.querySelector('#ground-time'),state.state==='synthetic'?`${state.stage?state.stage+'. ':''}${simulation?'Procedural simulation':'Synthetic render'} at player ${seconds.toFixed(2)} s. Authored interval: 120 through 140 s.`:state.reason);
       text(host.querySelector('#ground-camera-details'),state.camera?`${state.camera.id}. Position [${state.camera.position.join(', ')}], target [${state.camera.target.join(', ')}], up [${state.camera.up.join(', ')}]. Complete image: 1280 by 720 pixels. fx = fy = 900 pixels; principal point [640, 360]. Near/far clipping: 0.1 / 60 authored scene units. Complete source frame is fitted with letterboxing, never cropped.`:'No camera solution is available for the requested selection.');
       for(const button of host.querySelectorAll('[data-ground-second]'))button.setAttribute('aria-pressed',String(Number(button.dataset.groundSecond)===seconds));
       if(simulation)referenceHost.hidden=true;else showReference(state,seconds);

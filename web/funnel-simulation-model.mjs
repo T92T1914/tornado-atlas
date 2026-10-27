@@ -47,10 +47,18 @@ export function inverseCameraMatrix(matrix){
 
 // These harmonics are coherent authored modulation, not curl noise or a fluid solve.
 export const FUNNEL_DENSITY_GLSL = `
+float formationMask(float h,float theta,float t){
+  float onset=smoothstep(.16,.40,formationProgress+.055*cos(9.0*h+1.0));
+  float clearing=1.0-smoothstep(.73,.97,formationProgress+.045*sin(11.0*h));
+  float erosion=1.0-formationState.y*smoothstep(.20,.80,.5+.5*sin(13.0*h+3.0*theta-.4*t));
+  return onset*clearing*erosion;
+}
 vec2 funnelCenter(float h,vec3 s,float t){
+  if(genesis)return s.z*h*vec2(.55*sin(3.1*h-.16*t)+.45*h,.55*cos(2.4*h+.11*t));
   return s.z*h*vec2(sin(5.5*h-.25*t),cos(4.0*h+.19*t));
 }
 float funnelRadius(float h,vec3 s,float t){
+  if(genesis)return (s.x+s.y*pow(clamp(h,0.0,1.0),1.7))*(1.0+.10*sin(4.1*h-.24*t)+.045*sin(10.3*h-.48*t));
   float profile=s.x+s.y*pow(clamp(h,0.0,1.0),1.35);
   return profile*(1.0+.035*sin(8.0*h-.7*t)+.025*sin(13.0*h-1.1*t));
 }
@@ -65,25 +73,41 @@ float condensationDensity(vec3 p,vec3 s,float t,float ex){
   float turning=theta-.65*t;
   float angular=smoothstep(0.0,.2*max(radius,.01),r);
   float ridges=angular*(.12*sin(3.0*turning+transported)+.07*sin(5.0*turning+1.8*transported));
+  if(genesis)ridges=angular*(.085*sin(2.0*theta+4.0*h-.22*t)+.045*cos(5.0*theta-7.0*h+.37*t));
   float edge=radius*(1.0+ridges);
   float envelope=1.0-smoothstep(edge-.065,edge+.075,r);
   vec2 moving=mat2(cos(.65*t),-sin(.65*t),sin(.65*t),cos(.65*t))*q;
   float interior=.78+.12*sin(19.0*moving.x+7.0*moving.y+transported*2.0)
     +.08*cos(11.0*moving.y-5.0*moving.x+transported*1.3);
   float ends=smoothstep(1.0-ex-.02,1.0-ex+.045,h)*(1.0-smoothstep(.96,1.04,h));
+  if(genesis){
+    // Different heights become visible at different authored thresholds. No
+    // descending or ascending tube is used as a definition of tornado onset.
+    float eddies=.62+.22*sin(8.0*moving.x+6.0*moving.y+9.0*h-.8*t)
+      +.13*cos(17.0*moving.y-4.0*moving.x+15.0*h-1.3*t);
+    return max(0.0,envelope*eddies*ends*formationMask(h,theta,t)*formationState.x);
+  }
   return max(0.0,envelope*interior*ends);
 }
 float cloudBaseDensity(vec3 p,float t){
   vec2 q=p.xz-vec2(.12*sin(.11*t),.12*cos(.09*t));
+  if(genesis)q*=1.18;
   float r=length(q);
   if(r>2.8||p.y<2.05||p.y>3.5)return 0.0;
   float billow=sin(2.1*q.x-.13*t)*cos(2.6*q.y+.09*t);
   float height=2.78+.16*billow+.10*sin(3.7*q.y+1.2*q.x-.18*t);
   float thickness=.27+.06*cos(2.9*q.x-1.7*q.y+.11*t);
+  if(genesis){
+    // An irregular lowered center connects to the condensation body. The
+    // surrounding cloud stays separate from the assumed surface circulation.
+    height=2.83-.20*exp(-dot(q,q)/.85)+.10*billow+.045*sin(6.2*q.y+3.1*q.x-.24*t);
+    thickness=.19+.04*cos(4.1*q.x-2.8*q.y+.14*t);
+  }
   float vertical=exp(-pow((p.y-height)/thickness,2.0));
   float edge=2.28+.22*sin(1.8*q.x+.7*q.y-.09*t)+.16*cos(2.2*q.y-1.1*q.x+.07*t);
   float rim=1.0-smoothstep(edge-.55,edge+.25,r);
   float texture=.55+.25*billow+.15*sin(5.1*q.y+2.4*q.x-.27*t);
+  if(genesis)texture=.46+.16*billow+.15*sin(7.1*q.x+3.8*q.y-.29*t)*cos(5.3*q.y-2.1*q.x+.19*t);
   float cutoff=smoothstep(2.05,2.22,p.y)*(1.0-smoothstep(3.25,3.5,p.y))*(1.0-smoothstep(2.6,2.8,r));
   return vertical*rim*max(.12,texture)*cutoff;
 }
@@ -111,6 +135,9 @@ uniform float time;
 uniform float extent;
 uniform int readingPalette;
 uniform bool dust;
+uniform bool genesis;
+uniform float formationProgress;
+uniform vec4 formationState;
 ${FUNNEL_DENSITY_GLSL}
 out vec4 outputColor;
 vec2 intersectBox(vec3 origin,vec3 ray,float clipLength,vec3 lower,vec3 upper){
@@ -130,7 +157,7 @@ vec4 integrateRegion(vec3 origin,vec3 ray,vec2 interval,bool cloudRegion,int sam
     // Inside the shared segment, sample both fields at the same depth. Sorting
     // whole overlapping volumes by their box entry creates an artificial seam.
     float cloud=cloudBaseDensity(p,time);
-    float haze=!cloudRegion&&dust?dustDensity(p,time):0.0;
+    float haze=!cloudRegion&&dust?dustDensity(p,time)*(genesis?formationState.z:1.0):0.0;
     float density=body+cloud*.6+haze*.5;
     if(density<.002)continue;
     float h=clamp(p.y/2.6,0.0,1.0);
@@ -142,7 +169,9 @@ vec4 integrateRegion(vec3 origin,vec3 ray,vec2 interval,bool cloudRegion,int sam
     float cloudRelief=.19*sin(2.1*p.x-.13*time)*cos(2.6*p.z+.09*time)+.12*sin(3.7*p.z+1.2*p.x-.18*time);
     float relief=(body*strands+cloud*cloudRelief)/max(.01,body+cloud);
     float broadLight=clamp(.32+.48*side+relief,0.0,1.0);
+    if(genesis)broadLight=clamp(.18+.57*side+relief*.75-.14*body,0.0,1.0);
     float value=readingPalette==1?mix(.19,.52,broadLight):mix(.34,.83,broadLight);
+    if(genesis)value=readingPalette==1?mix(.15,.48,broadLight):mix(.25,.77,broadLight);
     // A soft side-light cue supplies depth without a calibrated sun or photometry.
     vec3 tint=readingPalette>0?vec3(value):vec3(value*.94,value,value*.97);
     float alpha=1.0-exp(-density*stepLength*3.6);

@@ -32,7 +32,7 @@ explanation. Switching to another appearance view restores their original
 document position. There is still one clock and one set of controls.
 
 These player values are simulation offsets, without historical El Reno
-correspondence. The new profile changes smoothly from base 0.42 and flare 0.70
+correspondence. The `kinematic-v1` profile changes smoothly from base 0.42 and flare 0.70
 to base 0.65 and flare 0.58, with bend 0.10. All values remain authored scene
 units. The density body, rising detail, low dust and drifting cloud base use
 `kinematic-v1`, described in the [form study notes](visual-form-study.md).
@@ -46,7 +46,7 @@ unchanged analytic profile. The new procedural view has no analytic reference
 image. It clears and hides the old reference panel instead of showing a guide
 for the wrong geometry. Switching back restores the original comparison route.
 
-The before and after comparison retains about eighteen seconds of actual
+The retained PR167 before and after comparison contains about eighteen seconds of actual
 playback for each renderer, including pause, resume, backward seeking and a
 quality change. Ordered inspection covers all 323 encoded baseline frames and
 161 candidate frames. It does not establish normal speed perception or behavior
@@ -54,6 +54,44 @@ between encoded frames. Brief blocky frames coincide with noninitial keyframes
 in both recordings. A separate raw framebuffer comparison did not reproduce
 that banding at the tested seek and quality transition. The original encoded
 artifact and its uncertain cause remain part of the record.
+
+## Formation and decay view
+
+The Formation and decay study choice adds the same `genesis-v1` scenario used
+by Form Study to the existing ground cameras. Open
+`reconstruction.html?event=el-reno-2013&appearance_view=formation&ground_view=synthetic-front&t=120#replay-appearance`.
+The direct route starts paused at 1x and retains the existing end, restart,
+camera, history and outside-interval behavior. There is no second animation
+clock. The shared player maps linearly to the study:
+
+```
+study_seconds = (player_seconds - 120) * 1.5
+```
+
+Player 120, 130 and 140 therefore select study seconds 0, 15 and 30. These are
+authored demonstration offsets, not newly established El Reno exposure times.
+Selecting this view does not register the scenario against the geographic path.
+
+The body now develops through changing density and coherent irregularity, then
+leans, thins and erodes. Surface circulation cues, condensation and dust follow
+separate schedules. A continuous visible column need not be present while the
+assumed circulation is active. The arrows show normalized display directions,
+not measured wind vectors. The [Form Study](../web/study.html) also lets a
+visitor reduce condensation at the same circulation, time and camera. Neither
+the ordinary nor reduced display is a universal model of tornadogenesis.
+
+The original synthetic comparison and its six SVGs still use their original
+analytic geometry. The separate procedural simulation still selects
+`kinematic-v1`. Neither supplies independent geometric validation for the new
+formation mode. Its reference panel stays empty instead of attaching an old
+guide to a different model. The [formation decision record](../research/formation-study-2026-10-27.md)
+separates primary scientific context, authored assumptions and historical inputs.
+
+Matched new motion, complete declared frame inspection, alternate cameras,
+pause/seek/history, quality and failure checks remain required at this
+increment's own revision. PR167's accepted recordings and served checks are
+preserved evidence for that earlier model, without transferring acceptance to
+the new scenario.
 
 Integrated browser checks and served publication acceptance are separate gates
 bound to the tested revision. Neither a paused image, deterministic trajectory
@@ -139,12 +177,21 @@ Its photographer locations and horizon targets explain why a source-specific
 camera model matters. Their calibration and uncertainty do not transfer to
 another exposure, creator, crop or uploaded edit.
 
+The bounded next comparison target is the source-reported 23:24:41 UTC exposure
+in Wakimoto et al. (2015), Figure 5(a). It is a late-life view, not genesis.
+The paper's identity and retained figure interpretation do not establish the
+original exposure or a reusable Atlas camera solution. The source-reported
+23:25:01 exposure in Figures 9(a) and 10(a), and 23:25:09 exposure in Figure
+11(a), are candidate held-out checks after their own qualification. Figures 9
+and 10 show one exposure, not two independent observations.
+
 The next deciding input is an original exposure-specific calibration record,
-or an original image with surveyed horizon correspondences, tied to a uniquely
-identified exposure. A changing historical interval would additionally need
+or an original image with surveyed horizon correspondences, tied to that uniquely
+identified exposure and its documented crop/edit relationship. A changing historical interval would additionally need
 the inspectable sequence, edit and time correspondence, continuous inspection,
-camera-change assessment and item-specific allowed use. Sparse stills do not
-become an animation through this software demonstration.
+camera-change assessment and item-specific allowed use. No new camera fit,
+pixel residual, held-out result or registered interval is reported. Sparse
+stills do not become an animation through this software demonstration.
 
 Nolte's permitted full JPEGs remain discrete documentary observations with
 their complete marks. Their first unique correspondence requirement, frozen

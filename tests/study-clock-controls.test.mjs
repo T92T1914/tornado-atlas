@@ -28,7 +28,8 @@ test('active study controls and scheduled frames use the same wall clock',async(
   globalThis.cancelAnimationFrame=id=>frames.delete(id);
   globalThis.ResizeObserver=class{observe(){}};
   globalThis.IntersectionObserver=class{observe(){}};
-  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'bounded','sequence-rate':'1'}))document.getElementById(id).value=value;
+  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'formation','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
+  document.getElementById('flow-cues').checked=true;
   await import('../web/study.js');
   const draw=timestamp=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(timestamp);};
   draw(100);ids.get('sequence-enabled').checked=true;ids.get('sequence-enabled').handlers.get('change')();
