@@ -46,11 +46,18 @@ unchanged analytic profile. The new procedural view has no analytic reference
 image. It clears and hides the old reference panel instead of showing a guide
 for the wrong geometry. Switching back restores the original comparison route.
 
-Current implementation is distinct from acceptance. The complete before and
-after motion comparison, integrated browser checks and normal publication
-acceptance for the new funnel remain pending. A paused image, deterministic
-trajectory or successful camera test does not establish smooth playback or
-historical likeness.
+The before and after comparison retains about eighteen seconds of actual
+playback for each renderer, including pause, resume, backward seeking and a
+quality change. Ordered inspection covers all 323 encoded baseline frames and
+161 candidate frames. It does not establish normal speed perception or behavior
+between encoded frames. Brief blocky frames coincide with noninitial keyframes
+in both recordings. A separate raw framebuffer comparison did not reproduce
+that banding at the tested seek and quality transition. The original encoded
+artifact and its uncertain cause remain part of the record.
+
+Integrated browser checks and served publication acceptance are separate gates
+bound to the tested revision. Neither a paused image, deterministic trajectory
+nor successful camera test establishes historical likeness or physical accuracy.
 
 ## Explicit camera contract
 
