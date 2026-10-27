@@ -87,15 +87,53 @@ formation mode. Its reference panel stays empty instead of attaching an old
 guide to a different model. The [formation decision record](../research/formation-study-2026-10-27.md)
 separates primary scientific context, authored assumptions and historical inputs.
 
-Matched new motion, complete declared frame inspection, alternate cameras,
-pause/seek/history, quality and failure checks remain required at this
-increment's own revision. PR167's accepted recordings and served checks are
-preserved evidence for that earlier model, without transferring acceptance to
-the new scenario.
+PR167's accepted recordings and served checks remain evidence for that earlier
+model. They do not transfer visible or delivery acceptance to a changed
+formation presentation.
 
 Integrated browser checks and served publication acceptance are separate gates
 bound to the tested revision. Neither a paused image, deterministic trajectory
 nor successful camera test establishes historical likeness or physical accuracy.
+
+## Shared lighting and synthetic ground
+
+The formation view now has a versioned `world-v1` presentation shared with Form
+Study. Open
+`reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=world-v1&ground_view=synthetic-front&t=120#replay-appearance`.
+The appearance selector and the current Form Study context link select this
+presentation. A formation URL without `appearance_style` retains its earlier
+lighting. Unknown or repeated style values leave the requested presentation
+unavailable instead of substituting a different scene. The original camera
+comparison and `kinematic-v1` simulation remain separate compatibility paths.
+
+One fixed scene light gives the body, cloud, dust and synthetic ground a common
+direction. Two coarse probes estimate nearby attenuation, with an additional
+local response from the existing primary density sample. A coherent hashed
+value field supplies moving density texture. The ground sits beneath the grid,
+flow marks and volume, with faint grain, distance fade and nearby shading.
+The [form study notes](visual-form-study.md) explain these approximations and
+their additional rendering work.
+
+Lighter reduces both particle count and the `world-v1` density raster, to a
+320 by 200 cap. Standard retains the 512 by 320 cap. Both preserve the complete
+camera frame, selected time and scenario parameters. Older lighting links keep
+their earlier density cap. The lower drawing size trades fine spatial detail
+for fewer shaded pixels. Its native validation is still pending, and observed
+software rendering cadence supplies no hardware performance claim.
+
+The ground remains an authored plane. Its shading supplies neither El Reno's
+terrain nor a measured contact point, and the light has no historical sun or
+exposure calibration. Camera position, projection, authored time and formation
+schedule keep their existing meaning. A more detailed picture does not supply
+missing historical geometry.
+
+Paused native views have been inspected in both declared cameras. Complete
+motion inspection, integrated regression checks and the normal publication
+gates remain pending for this lighting candidate. The blocky frames at index
+101 in the earlier matched formation clips still have an unknown cause. A
+separate fixed-state diagnostic can compare new framebuffer and encoded
+evidence, but cannot reproduce the old state without its missing frame-to-draw
+mapping.
 
 ## Explicit camera contract
 

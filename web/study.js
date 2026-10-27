@@ -10,6 +10,7 @@ const byId = id => document.getElementById(id);
 const canvas = byId('scene');
 let renderer = null, lab = null;
 let motionModel='genesis-v1';
+let lightingStyle='world-v1';
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let frame = 0, time = 0, last = null, running = false, inView = true;
 const sequenceClock=new PlaybackClock(30,1);
@@ -60,6 +61,7 @@ function draw(now) {
   canvas.dataset.appearanceCoverage=evolving?(sequence?'assigned':'gap'):'manual';
   try{renderer.render({
     motionModel,
+    lightingStyle:formationSelected()?lightingStyle:'legacy',
     formationTime:formationSelected()?time:null,formationVisibility:byId('condensation-visibility').value,flow:byId('flow-cues').checked,
     readingAppearance:getComputedStyle(canvas).colorScheme==='light'?'light':'dark',
     shape:evolving?sequence?.shape || null:PRESETS[byId('shape').value],
@@ -131,6 +133,11 @@ new IntersectionObserver(entries => {
 canvas.addEventListener('webglcontextlost',event => {event.preventDefault();fail('Graphics context lost; waiting for recovery');});
 canvas.addEventListener('webglcontextrestored',initialize);
 function sequenceReadout() {
+  canvas.dataset.lightingStyle=formationSelected()?lightingStyle:'legacy';
+  byId('lighting-note').hidden=!formationSelected()||lightingStyle!=='world-v1';
+  byId('quality').querySelector('[value="3600"]').textContent=formationSelected()&&lightingStyle==='world-v1'?'Lighter · 3,600 particles · up to 320 × 200':'Lighter · 3,600 particles';
+  const groundLink=document.querySelector('.formation-context a[href*="reconstruction.html"]');
+  if(groundLink){const target=new URL(groundLink.href);if(lightingStyle==='world-v1')target.searchParams.set('appearance_style','world-v1');else target.searchParams.delete('appearance_style');groundLink.href=target.href;}
   const value=Number(byId('sequence-time').value);
   byId('sequence-progress').textContent=`${Math.round(value*100)}% of authored sequence`;
   const state=sequenceForm();
@@ -156,6 +163,7 @@ function experimentState(){
   const state={shape:byId('shape').value,condensation:Number(byId('condensation').value),azimuth:Number(byId('azimuth').value),elevation:Number(byId('elevation').value),distance:Number(byId('distance').value),dust:byId('dust').checked,quality:Number(byId('quality').value),sequence,coverage:byId('sequence-coverage').value,rate:Number(byId('sequence-rate').value),position,phase:sequence?position*30:time};
   if(motionModel!=='legacy')state.model=motionModel;
   if(formationSelected()){state.visibility=byId('condensation-visibility').value;state.flow=byId('flow-cues').checked;}
+  if(formationSelected()&&lightingStyle==='world-v1')state.lighting=lightingStyle;
   return state;
 }
 function captureExperiment(){
@@ -170,6 +178,7 @@ function captureExperiment(){
 function restoreExperiment(state){
   stop();
   motionModel=state.model??'legacy';
+  lightingStyle=state.lighting??'legacy';
   byId('condensation-visibility').value=state.visibility??'ordinary';byId('flow-cues').checked=state.flow??true;
   for(const key of ['shape','condensation','azimuth','elevation','distance','quality'])byId(key).value=state[key];
   byId('dust').checked=state.dust;byId('sequence-enabled').checked=state.sequence;
@@ -181,5 +190,5 @@ function restoreExperiment(state){
   renderer?.setQuality(state.quality);sequenceReadout();syncControls();
 }
 sequenceReadout();syncControls();
-lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage:'formation',visibility:'ordinary',flow:true}});
+lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage:'formation',visibility:'ordinary',flow:true,lighting:'world-v1'}});
 initialize();

@@ -219,3 +219,16 @@ test('formation flow and density retain partial ownership across failure, retry,
   renderer.render({...input,formationTime:0});renderer.render({...input,formationTime:30});
   renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
 });
+
+test('hidden empty formation clears without losing ownership and accepts a later visible selection',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  f.canvas.clientWidth=0;f.canvas.clientHeight=0;f.canvas.getBoundingClientRect=()=>({width:0,height:0});
+  const input={motionModel:'genesis-v1',lightingStyle:'world-v1',sourceCamera:GROUND_CAMERAS[0].camera,shape:null,time:130};
+  const cleared=f.callCount('clear');
+  assert.doesNotThrow(()=>renderer.render(input));
+  assert.equal(f.callCount('clear'),cleared+1);assert.equal(f.draws.length,0);owned(f,base);
+  assert.throws(()=>renderer.render({...input,lightingStyle:'world-v2'}),/Unsupported funnel lighting/);owned(f,base);
+  f.canvas.clientWidth=320;f.canvas.clientHeight=480;f.canvas.getBoundingClientRect=()=>({width:320,height:480});
+  renderer.render({...input,shape:{base:.4,flare:.2,bend:0},extent:1,formationTime:15});
+  assert.equal(f.draws.at(-1).mode,f.gl.POINTS);renderer.dispose();owned(f,none);
+});

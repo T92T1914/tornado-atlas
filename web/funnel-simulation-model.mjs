@@ -1,3 +1,4 @@
+import {FUNNEL_LIGHTING_GLSL} from './funnel-lighting-model.mjs';
 // Authored kinematics and optical density in normalized scene units.
 // None of these parameters is a measured wind, condensation or debris quantity.
 export const FUNNEL_SIMULATION = Object.freeze({id:'kinematic-v1',seed:20130531,maxSeconds:86400});
@@ -7,11 +8,12 @@ export function simulationTime(seconds){
   return seconds;
 }
 
-export function simulationBackingSize(width,height,pixelRatio){
+export function simulationBackingSize(width,height,pixelRatio,detail='standard'){
   if(![width,height,pixelRatio].every(x=>Number.isFinite(x)&&x>0))throw new RangeError('Invalid simulation raster bounds');
+  if(!['standard','lighter'].includes(detail))throw new RangeError('Unknown simulation drawing detail');
   // A fixed fragment budget keeps the density pass useful on software graphics.
   // One scale preserves the full camera frame while CSS retains the reading size.
-  const scale=Math.min(pixelRatio,2,512/width,320/height);
+  const scale=Math.min(pixelRatio,2,(detail==='lighter'?320:512)/width,(detail==='lighter'?200:320)/height);
   return {width:Math.max(1,Math.round(width*scale)),height:Math.max(1,Math.round(height*scale))};
 }
 
@@ -45,8 +47,22 @@ export function inverseCameraMatrix(matrix){
   return result;
 }
 
-// These harmonics are coherent authored modulation, not curl noise or a fluid solve.
+// Authored harmonics and a smooth hashed value field, not curl noise or a fluid solve.
 export const FUNNEL_DENSITY_GLSL = `
+float materialCell(ivec3 cell){
+  uvec3 q=uvec3(cell+ivec3(4096));
+  uint value=q.x*1664525u+q.y*1013904223u+q.z*69069u+20130531u;
+  value^=value>>13;value*=1274126177u;value^=value>>16;
+  return float(value&65535u)/65535.0;
+}
+float materialNoise(vec3 p){
+  ivec3 cell=ivec3(floor(p));vec3 u=fract(p);u=u*u*(3.0-2.0*u);
+  float lower=mix(mix(materialCell(cell),materialCell(cell+ivec3(1,0,0)),u.x),
+    mix(materialCell(cell+ivec3(0,1,0)),materialCell(cell+ivec3(1,1,0)),u.x),u.y);
+  float upper=mix(mix(materialCell(cell+ivec3(0,0,1)),materialCell(cell+ivec3(1,0,1)),u.x),
+    mix(materialCell(cell+ivec3(0,1,1)),materialCell(cell+ivec3(1,1,1)),u.x),u.y);
+  return mix(lower,upper,u.z);
+}
 float formationMask(float h,float theta,float t){
   float onset=smoothstep(.16,.40,formationProgress+.055*cos(9.0*h+1.0));
   float clearing=1.0-smoothstep(.73,.97,formationProgress+.045*sin(11.0*h));
@@ -75,7 +91,7 @@ float condensationDensity(vec3 p,vec3 s,float t,float ex){
   float ridges=angular*(.12*sin(3.0*turning+transported)+.07*sin(5.0*turning+1.8*transported));
   if(genesis)ridges=angular*(.085*sin(2.0*theta+4.0*h-.22*t)+.045*cos(5.0*theta-7.0*h+.37*t));
   float edge=radius*(1.0+ridges);
-  float envelope=1.0-smoothstep(edge-.065,edge+.075,r);
+  float envelope=1.0-smoothstep(edge-(worldLighting?.035:.065),edge+(worldLighting?.05:.075),r);
   vec2 moving=mat2(cos(.65*t),-sin(.65*t),sin(.65*t),cos(.65*t))*q;
   float interior=.78+.12*sin(19.0*moving.x+7.0*moving.y+transported*2.0)
     +.08*cos(11.0*moving.y-5.0*moving.x+transported*1.3);
@@ -83,8 +99,8 @@ float condensationDensity(vec3 p,vec3 s,float t,float ex){
   if(genesis){
     // Different heights become visible at different authored thresholds. No
     // descending or ascending tube is used as a definition of tornado onset.
-    float eddies=.62+.22*sin(8.0*moving.x+6.0*moving.y+9.0*h-.8*t)
-      +.13*cos(17.0*moving.y-4.0*moving.x+15.0*h-1.3*t);
+    float eddies=worldLighting?.25+.80*materialNoise(vec3(moving.x*7.5,11.0*h-.8*t,moving.y*7.5)):
+      .62+.22*sin(8.0*moving.x+6.0*moving.y+9.0*h-.8*t)+.13*cos(17.0*moving.y-4.0*moving.x+15.0*h-1.3*t);
     return max(0.0,envelope*eddies*ends*formationMask(h,theta,t)*formationState.x);
   }
   return max(0.0,envelope*interior*ends);
@@ -107,7 +123,8 @@ float cloudBaseDensity(vec3 p,float t){
   float edge=2.28+.22*sin(1.8*q.x+.7*q.y-.09*t)+.16*cos(2.2*q.y-1.1*q.x+.07*t);
   float rim=1.0-smoothstep(edge-.55,edge+.25,r);
   float texture=.55+.25*billow+.15*sin(5.1*q.y+2.4*q.x-.27*t);
-  if(genesis)texture=.46+.16*billow+.15*sin(7.1*q.x+3.8*q.y-.29*t)*cos(5.3*q.y-2.1*q.x+.19*t);
+  if(genesis)texture=worldLighting?.30+.35*materialNoise(vec3(q.x*2.8,p.y*3.2-.08*t,q.y*2.8))+.10*billow:
+    .46+.16*billow+.15*sin(7.1*q.x+3.8*q.y-.29*t)*cos(5.3*q.y-2.1*q.x+.19*t);
   float cutoff=smoothstep(2.05,2.22,p.y)*(1.0-smoothstep(3.25,3.5,p.y))*(1.0-smoothstep(2.6,2.8,r));
   return vertical*rim*max(.12,texture)*cutoff;
 }
@@ -128,6 +145,7 @@ void main(){gl_Position=vec4(position,0.0,1.0);}`;
 
 export const funnelVolumeFragment=`#version 300 es
 precision highp float;
+precision highp int;
 uniform mat4 inverseCamera;
 uniform vec4 viewportBox;
 uniform vec3 shape;
@@ -138,7 +156,10 @@ uniform bool dust;
 uniform bool genesis;
 uniform float formationProgress;
 uniform vec4 formationState;
+uniform bool worldLighting;
+uniform bool surfacePass;
 ${FUNNEL_DENSITY_GLSL}
+${FUNNEL_LIGHTING_GLSL}
 out vec4 outputColor;
 vec2 intersectBox(vec3 origin,vec3 ray,float clipLength,vec3 lower,vec3 upper){
   vec3 safeRay=vec3(abs(ray.x)<.000001?(ray.x<0.0?-.000001:.000001):ray.x,abs(ray.y)<.000001?(ray.y<0.0?-.000001:.000001):ray.y,abs(ray.z)<.000001?(ray.z<0.0?-.000001:.000001):ray.z);
@@ -174,6 +195,7 @@ vec4 integrateRegion(vec3 origin,vec3 ray,vec2 interval,bool cloudRegion,int sam
     if(genesis)value=readingPalette==1?mix(.15,.48,broadLight):mix(.25,.77,broadLight);
     // A soft side-light cue supplies depth without a calibrated sun or photometry.
     vec3 tint=readingPalette>0?vec3(value):vec3(value*.94,value,value*.97);
+    if(worldLighting)tint=worldMaterial(p,density);
     float alpha=1.0-exp(-density*stepLength*3.6);
     accumulated.rgb+=(1.0-accumulated.a)*alpha*tint;
     accumulated.a+=(1.0-accumulated.a)*alpha;
@@ -185,6 +207,21 @@ void main(){
   vec2 ndc=(gl_FragCoord.xy-viewportBox.xy)/viewportBox.zw*2.0-1.0;
   vec4 a=inverseCamera*vec4(ndc,-1.0,1.0),b=inverseCamera*vec4(ndc,1.0,1.0);
   vec3 origin=a.xyz/a.w,segment=b.xyz/b.w-origin,ray=normalize(segment);
+  if(surfacePass){
+    if(!worldLighting)discard;
+    float sky=readingPalette==1?.95-.035*exp(-max(0.0,ray.y)*7.0):.035+.035*exp(-max(0.0,ray.y)*7.0);
+    if(ray.y>=-.00001){
+      outputColor=vec4(vec3(sky),.92);return;
+    }
+    float distance=-origin.y/ray.y;
+    if(distance<0.0||distance>length(segment)){outputColor=vec4(vec3(sky),.92);return;}
+    vec3 point=origin+ray*distance;
+    float reach=exp(-.012*dot(point.xz,point.xz));
+    float shadow=nearbyTransmission(point+vec3(0,.01,0),worldLight());
+    float grain=.006*(materialNoise(point*1.5)-.5);
+    float value=readingPalette==1?.85-.16*(1.0-shadow)+grain:.10-.045*(1.0-shadow)+grain*.4;
+    outputColor=vec4(vec3(mix(sky,value,reach)),.92);return;
+  }
   // Separate bounds keep the thin body sampled independently of the wide cloud.
   float radius=max(dust?1.45:.05,1.31*(shape.x+shape.y*1.06)+1.04*abs(shape.z)+.08);
   vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,2.71,radius));

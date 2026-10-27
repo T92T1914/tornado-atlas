@@ -30,24 +30,38 @@ model and its limits. Its release evidence remains attached to that version.
 Better software rendering supplies no missing historical camera, source
 interval, wind or damage evidence.
 
-The next integrated increment adds one research-informed formation and decay
+The shared renderer also supplies one research-informed formation and decay
 scenario, `genesis-v1`, to Form Study and the replay's existing ground-view
 renderer. It separates assumed surface circulation, visible condensation, dust
 and cloud behavior over 30 authored study seconds. Replay player 120 through
 140 maps to study 0 through 30 through the same PlaybackClock. Earlier
 `form-1`, `form-2` and camera comparison behavior remain versioned compatibility
 paths. The [source decision](../research/formation-study-2026-10-27.md) explains
-why this scenario is not a universal lifecycle or a solved atmosphere. Its
-visible improvement, matched motion, required checks and served acceptance
-need evidence from the changed implementation.
+why this scenario is not a universal lifecycle or a solved atmosphere.
+
+The current lighting increment adds a versioned `world-v1` presentation to this
+scenario in Form Study and the replay's existing synthetic ground cameras.
+A fixed scene light, two coarse nearby attenuation probes, local density
+response and a coherent hashed texture field give the drawing more depth.
+A synthetic ground plane helps separate the base and low dust from the
+background. Fresh `form-4` experiment links name this presentation, while
+`form-3` links and replay formation URLs without `appearance_style=world-v1`
+retain the previous lighting. The [form notes](visual-form-study.md) and
+[ground-view contract](ground-view-reconstruction.md) describe the authored
+optical choices, bounded drawing work and compatibility behavior. Paused native
+views have been inspected in both declared cameras. Motion assessment, the
+changed revision's integrated checks and publication acceptance remain pending.
+Neither these depth cues nor a successful software check supplies calibrated
+sunlight, terrain, a physical wind field or historical likeness.
 
 Historical comparison remains a separate lane. The next bounded target is the
 late RaXPol exposure reported at 23:24:41 UTC in Wakimoto et al. (2015), with
 later exposures reserved for checks rather than fitting. Original exposure,
 camera, clock uncertainty and comparison-use inputs remain unresolved. No new
-historical appearance interval is admitted. The same increment deepens the
-Tuscaloosa account with source-linked recovery planning and local remembrance,
-without turning a recovery area or memorial place into a tornado measurement.
+historical appearance interval is admitted. The existing documentary work also
+deepens the Tuscaloosa account with source-linked recovery planning and local
+remembrance, without turning a recovery area or memorial place into a tornado
+measurement.
 
 Build the controls, camera system and rendering once. Give each storm a reviewed
 event package that the player can load. Event-specific work should primarily be

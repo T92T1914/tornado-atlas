@@ -21,6 +21,9 @@ test('the simulation fragment budget uses one frame-preserving scale at narrow a
   assert.deepEqual(simulationBackingSize(280,430,2),{width:208,height:320});
   assert.deepEqual(simulationBackingSize(1920,1080,2),{width:512,height:288});
   assert.deepEqual(simulationBackingSize(200,100,1),{width:200,height:100});
+  assert.deepEqual(simulationBackingSize(826,428,1,'lighter'),{width:320,height:166});
+  assert.deepEqual(simulationBackingSize(280,430,2,'lighter'),{width:130,height:200});
+  assert.throws(()=>simulationBackingSize(826,428,1,'unbounded'),RangeError);
   for(const dimensions of [[0,1,1],[1,-1,1],[1,1,NaN],[Infinity,1,1]])assert.throws(()=>simulationBackingSize(...dimensions));
 });
 
