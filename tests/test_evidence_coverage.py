@@ -390,6 +390,8 @@ class EvidenceCoverageTests(unittest.TestCase):
         raw = publication()['coverage.html']
         self.assertEqual(raw,(ROOT/'web/coverage.html').read_bytes())
         text = raw.decode('utf-8')
+        self.assertIn('<html lang="en" data-appearance="dark">',text)
+        self.assertIn('<option value="dark" selected>Obscur</option>',text)
         self.assertIn('<noscript>',text)
         for doc in self.docs.values():
             self.assertIn(doc['id'],text)

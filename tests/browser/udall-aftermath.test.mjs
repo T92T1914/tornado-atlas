@@ -96,6 +96,7 @@ async function sourceAndArticle(page,kind){
 }
 for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scripts of [true,false]){
   test('Udall aftermath source-only reading '+width+' '+scheme+' '+(scripts?'scripts':'no scripts'),{timeout:60000},async t=>{
+    const actualAppearance=scripts?scheme:'dark';
     const page=await fixture(t,{viewport:{width,height:1000},colorScheme:scheme,
       hasTouch:width===320,...(width===320?{isMobile:true}:{}),javaScriptEnabled:scripts,reducedMotion:'reduce'});
     const originalRequests=[];page.on('request',request=>{if(request.url().startsWith('https://www.weather.gov/'))originalRequests.push(request.url());});
@@ -106,11 +107,11 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
       await page.waitForFunction(()=>document.querySelector('.documentary-contents')?.dataset.focusReveal==='ready');
     }else{
       assert.equal(await page.locator('#reading-appearance').isDisabled(),true);
-      assert.equal(await page.locator('#reading-appearance').inputValue(),'system');
-      assert.equal(await page.locator('html').getAttribute('data-appearance'),null);
+      assert.equal(await page.locator('#reading-appearance').inputValue(),'dark');
+      assert.equal(await page.locator('html').getAttribute('data-appearance'),'dark');
     }
     if(scripts)assert.equal(await page.locator('html').getAttribute('data-appearance'),scheme);
-    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),scheme,'The actual theme reflects the selected or native system preference');
+    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),actualAppearance,'The actual theme reflects the selected choice or no-script Obscur default');
     assert.equal(await page.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches),true);
     const contents=page.locator('.documentary-contents'),summary=contents.locator(':scope > summary');
     if(!await contents.evaluate(node=>node.open)){await keyboardArrival(page,summary);await summary.press('Enter');}
@@ -139,7 +140,7 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
       await page.goBack();await page.waitForURL(url=>url.pathname.endsWith('/udall.html')&&url.hash==='#'+anchor);
       await stylesReady(page);
     }
-    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),scheme,'Computed theme survives the source-return journey');
+    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),actualAppearance,'Computed theme survives the source-return journey');
     await assertReadingReflow(page,'Udall source-only reading '+width+' '+scheme);
     if(!await contents.evaluate(node=>node.open)){await keyboardArrival(page,summary);await summary.press('Enter');}
     const roles=['#'+anchor+' > p','#'+anchor+' > h3','.documentary-contents a[href="#'+anchor+'"]'];
@@ -163,7 +164,7 @@ for(const width of [320,1280])for(const scheme of ['dark','light'])for(const scr
     assert.ok(paragraphs.length>0);
     assert.ok(paragraphs.every(r=>r.left>=-1&&r.right<=width+1),'Every visible passage fragment stays inside the viewport');
     assert.deepEqual(originalRequests,[],'Reading does not request the external photograph or archive');
-    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),scheme,'Captured enlarged text uses the intended actual theme');
+    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),actualAppearance,'Captured enlarged text uses the intended actual theme');
     const captures=process.env.ATLAS_UDALL_AFTERMATH_CAPTURE;
     if(captures){
       await mkdir(captures,{recursive:true});

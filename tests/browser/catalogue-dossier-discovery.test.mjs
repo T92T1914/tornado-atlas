@@ -95,7 +95,9 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
   phase('font_status_loaded','before',{timeout_ms:5000});
   await page.waitForFunction(()=>document.fonts.status==='loaded',null,{timeout:5000});
   phase('font_status_loaded','after',{required_status:'loaded'});
-  assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),theme);
+  assert.equal(await page.locator('html').getAttribute('data-appearance'),'dark');
+  assert.equal(await page.locator('#reading-appearance').inputValue(),'dark');
+  assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),'dark');
   assert.match(await page.locator('noscript').innerText(),/accounts and their source links are available/);
   phase('measurement','before');
   const result=await page.evaluate(()=>{

@@ -21,7 +21,8 @@ async function openArticle(page,scheme,scripts=true){
     await page.locator('#reading-appearance').selectOption(scheme);
   }else{
     assert.equal(await page.locator('#reading-appearance').isDisabled(),true);
-    assert.equal(await page.locator('#reading-appearance').inputValue(),'system');
+    assert.equal(await page.locator('#reading-appearance').inputValue(),'dark');
+    assert.equal(await page.locator('html').getAttribute('data-appearance'),'dark');
   }
 }
 async function openContents(page){

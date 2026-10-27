@@ -1,0 +1,45 @@
+{
+  "id": "atlas-mechanism-20261026",
+  "basis_revision": "24baed6b9160932c654c4f99af1c39081494acf9",
+  "title": "From observation to replay",
+  "subtitle": "Keep evidence and illustration apart.",
+  "footer": "Conceptual route, not a storm measurement.",
+  "output_prefix": "web/mechanism-obscur",
+  "adapter": {
+    "source": "web/appearance.css",
+    "roles": {
+      "canvas": "#090909",
+      "panel": "#151515",
+      "text": "#f4f4f4",
+      "muted": "#bcbcbc",
+      "line": "#858585"
+    }
+  },
+  "source_paths": [
+    "docs/archive-dossiers.md",
+    "docs/ground-view-reconstruction.md"
+  ],
+  "panels": [
+    {
+      "title": "Source record",
+      "lines": [
+        "Creator + exact locator",
+        "Source clock and limits"
+      ]
+    },
+    {
+      "title": "Checked context",
+      "lines": [
+        "Time and viewpoint",
+        "Unknown stays unknown"
+      ]
+    },
+    {
+      "title": "Replay + evidence",
+      "lines": [
+        "Inspect source and time",
+        "Illustration is labeled"
+      ]
+    }
+  ]
+}

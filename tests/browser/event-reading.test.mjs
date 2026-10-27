@@ -13,14 +13,15 @@ const tasks=[
   {file:'blackwell.html',first:'#clocks',source:'#source-report',media:'#archive-prints',wording:/labels.*reconciliation/i},
   {file:'tuscaloosa.html',first:'#path-greene',source:'#source-survey',media:'#railway-bridge',wording:/rural beginning/i}
 ];
-test('unenhanced entry pages name the actual system appearance and keep the switch unavailable',async t=>{
-  const pages=['atlas.html','index.html','joplin.html','blackwell.html','tuscaloosa.html','dossier.html','coverage.html','reconstruction.html','survey.html','radar-source.html','study.html','wind.html','japan.html','curator.html'];
+test('unenhanced entry pages declare Obscur and keep the switch unavailable',async t=>{
+  const pages=['atlas.html','index.html','joplin.html','blackwell.html','tuscaloosa.html','moore.html','udall.html','dossier.html','coverage.html','reconstruction.html','survey.html','radar-source.html','study.html','wind.html','japan.html','curator.html'];
   for(const scheme of ['light','dark']){
     const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false,colorScheme:scheme});
     for(const file of pages){
       await page.goto(base+'/'+file);assert.equal(await page.locator('#reading-appearance').isDisabled(),true,file);
-      assert.equal(await page.locator('#reading-appearance').inputValue(),'system',file);
-      assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),scheme,file+' reflects the declared system preference');
+      assert.equal(await page.locator('#reading-appearance').inputValue(),'dark',file);
+      assert.equal(await page.locator('html').getAttribute('data-appearance'),'dark',file);
+      assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme),'dark',file+' retains its declared Obscur default under '+scheme+' system preference');
     }
   }
 });
