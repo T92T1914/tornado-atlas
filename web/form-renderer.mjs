@@ -3,11 +3,13 @@ import {validateCondensationSupport} from './partial-form-geometry.mjs';
 import {sourceCameraProjection,sourceBackingSize} from './source-camera-model.mjs';
 import {simulationTime,simulationBackingSize,simulationParticles,inverseCameraMatrix,FUNNEL_DENSITY_GLSL,funnelVolumeVertex,funnelVolumeFragment} from './funnel-simulation-model.mjs';
 import {formationAt,formationFlow} from './formation-model.mjs';
+import {FUNNEL_LIGHTING_GLSL} from './funnel-lighting-model.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
 const particleVertex = `#version 300 es
 precision highp float;
+precision highp int;
 in vec4 seed;
 uniform mat4 camera;
 uniform vec3 shape;
@@ -22,11 +24,14 @@ uniform float formationProgress;
 uniform vec4 formationState;
 uniform int readingPalette;
 uniform vec2 spriteAspect;
+uniform bool worldLighting;
+uniform vec3 worldEye;
 out vec4 color;
 out vec2 cloudSeed;
 out vec2 particleAspect;
 out vec4 kinematicProbe;
 ${FUNNEL_DENSITY_GLSL}
+${FUNNEL_LIGHTING_GLSL}
 float birthFade(float x){x=clamp(x,0.0,1.0);return x*x*x*(x*(x*6.0-15.0)+10.0);}
 void main() {
   float h = seed.x;
@@ -86,6 +91,13 @@ void main() {
     float value = readingPalette == 1 ? .27 : .72;
     tint = vec3(value) * (.76 + .24*cos(angle-.8));
   }
+  if(worldLighting&&opacity>0.0){
+    tint=worldMaterial(position,sceneDensity(position));
+    // Dust behind dense condensation has a bounded two-probe view attenuation.
+    // This is not a complete depth buffer or a full camera-path integral.
+    if(seed.w>.5&&seed.w<1.5)opacity*=nearbyTransmission(position,normalize(worldEye-position));
+    if(seed.w<.5){opacity*=.30;size*=.65;}
+  }
   gl_Position = camera * vec4(position,1.0);
   gl_PointSize = clamp(viewportHeight * size / max(.2,gl_Position.w),1.0,maxPoint);
   color = vec4(tint, opacity);
@@ -98,6 +110,7 @@ precision mediump float;
 in vec4 color;
 in vec2 cloudSeed;
 in vec2 particleAspect;
+uniform bool worldLighting;
 out vec4 outputColor;
 void main() {
   vec2 p = (gl_PointCoord*2.0-1.0)/particleAspect;
@@ -108,7 +121,7 @@ void main() {
   float alpha = color.a * exp(-1.8*radius2) * edge * texture;
   if(alpha < .002) discard;
   float light = .88 + .12*clamp(.5+.5*p.y-.2*p.x,0.0,1.0);
-  outputColor = vec4(color.rgb*light,alpha);
+  outputColor = vec4(color.rgb*(worldLighting?1.0:light),alpha);
 }`;
 const gridVertex = `#version 300 es
 in vec3 position;
@@ -334,7 +347,7 @@ export function createFormRenderer(canvas, quality) {
       Object.assign(pending,{count:values.length/4,
         gridCount:lines.length/3,maxPoint:gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1],
         particleModel:'legacy',
-        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','kinematic','genesis','formationProgress','formationState','readingPalette','spriteAspect'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
+        uniforms:Object.fromEntries(['camera','shape','time','extent','viewportHeight','maxPoint','dust','kinematic','genesis','formationProgress','formationState','readingPalette','spriteAspect','worldLighting','worldEye'].map(name=>[name,gl.getUniformLocation(pending.cloud,name)])),
         gridCamera:gl.getUniformLocation(pending.grid,'camera'),gridPalette:gl.getUniformLocation(pending.grid,'readingPalette'),
         gridMarks:gl.getUniformLocation(pending.grid,'referenceMarks'),gridAlpha:gl.getUniformLocation(pending.grid,'markAlpha')});
       gl.enable(gl.BLEND);
@@ -357,7 +370,7 @@ export function createFormRenderer(canvas, quality) {
     try{
       p=program(funnelVolumeVertex,funnelVolumeFragment);
       a=attribute(p,'position',new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),2);
-      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState','worldLighting','surfacePass'].map(name=>[name,gl.getUniformLocation(p,name)]))};
       gpu.volume=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
@@ -391,10 +404,16 @@ export function createFormRenderer(canvas, quality) {
     gpu.referenceAttribute=attribute(gpu.grid,'position',new Float32Array(lines),3);
     return gpu.referenceAttribute;
   }
-  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null,sourceCamera=null,referencePoints=null,motionModel='legacy',formationTime=null,formationVisibility='ordinary',flow=false}={}){
+  function render({partialForm=null,shape=null,extent=0,time=0,dust=false,azimuth=25,elevation=12,distance=7,readingAppearance=null,sourceCamera=null,referencePoints=null,motionModel='legacy',formationTime=null,formationVisibility='ordinary',flow=false,lightingStyle='legacy'}={}){
     if(!gpu)return;
-    const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,2);
-    const raster=motionModel!=='legacy'?simulationBackingSize(sourceCamera?canvas.clientWidth:rect.width,sourceCamera?canvas.clientHeight:rect.height,ratio):sourceCamera===null?null:sourceBackingSize(canvas.clientWidth,canvas.clientHeight,ratio);
+    // An unavailable selection hides the canvas. Clear its existing backing
+    // surface without asking a zero-size hidden layout to define a camera.
+    // Validation below still rejects unsupported styles and camera contracts.
+    const empty=shape===null&&partialForm===null;
+    const rect=empty?{width:Math.max(1,canvas.width),height:Math.max(1,canvas.height)}:canvas.getBoundingClientRect(),ratio=empty?1:Math.min(window.devicePixelRatio||1,2);
+    const lighter=lightingStyle==='world-v1'&&Number(quality)<=(sourceCamera?1600:3600);
+    const frameWidth=sourceCamera&&!empty?canvas.clientWidth:rect.width,frameHeight=sourceCamera&&!empty?canvas.clientHeight:rect.height;
+    const raster=motionModel!=='legacy'?simulationBackingSize(frameWidth,frameHeight,ratio,lighter?'lighter':'standard'):sourceCamera===null?null:sourceBackingSize(frameWidth,frameHeight,ratio);
     const width=raster?.width??Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
     const height=raster?.height??Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
@@ -403,6 +422,8 @@ export function createFormRenderer(canvas, quality) {
     // Validate even an empty source state, after clearing any previous image.
     const source=sourceCamera===null?null:sourceCameraProjection(sourceCamera,width,height);
     if(!['legacy','kinematic-v1','genesis-v1'].includes(motionModel))throw new TypeError('Unknown funnel motion model');
+    if(!['legacy','world-v1'].includes(lightingStyle)||lightingStyle==='world-v1'&&motionModel!=='genesis-v1')throw new TypeError('Unsupported funnel lighting presentation');
+    const worldLighting=lightingStyle==='world-v1';
     const kinematic=motionModel!=='legacy',genesis=motionModel==='genesis-v1';
     const formation=genesis&&shape?formationAt(formationTime??time,{visibility:formationVisibility,flow}):null;
     if(formation){shape=formation.shape;extent=formation.extent;time=formation.seconds;}
@@ -455,6 +476,20 @@ export function createFormRenderer(canvas, quality) {
     if(source){const v=source.viewport;gl.viewport(v.x,v.y,v.width,v.height);gl.enable(gl.SCISSOR_TEST);gl.scissor(v.x,v.y,v.width,v.height);}
     try{
     const palette=readingAppearance==='light'?1:readingAppearance==='dark'?2:0;
+    function volumeState(surfacePass){
+      const volume=volumeResources(),v=source?.viewport??{x:0,y:0,width,height};
+      gl.useProgram(volume.program);gl.bindVertexArray(volume.attribute.vao);
+      gl.uniformMatrix4fv(volume.uniforms.inverseCamera,false,inverseCameraMatrix(camera));
+      gl.uniform4f(volume.uniforms.viewportBox,v.x,v.y,v.width,v.height);
+      gl.uniform3f(volume.uniforms.shape,shape.base,shape.flare,shape.bend);
+      gl.uniform1f(volume.uniforms.time,time);gl.uniform1f(volume.uniforms.extent,extent);
+      gl.uniform1i(volume.uniforms.dust,dust?1:0);gl.uniform1i(volume.uniforms.genesis,genesis?1:0);
+      gl.uniform1f(volume.uniforms.formationProgress,formation?.progress??0);gl.uniform4f(volume.uniforms.formationState,...state);
+      gl.uniform1i(volume.uniforms.readingPalette,palette);gl.uniform1i(volume.uniforms.worldLighting,worldLighting?1:0);gl.uniform1i(volume.uniforms.surfacePass,surfacePass?1:0);
+      gl.drawArrays(gl.TRIANGLES,0,6);
+    }
+    // Synthetic floor is beneath grid and circulation marks, then cloud/dust.
+    if(worldLighting)volumeState(true);
     gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
     gl.uniform1i(gpu.gridPalette,palette);
     gl.uniform1i(gpu.gridMarks,0);
@@ -471,15 +506,7 @@ export function createFormRenderer(canvas, quality) {
       gl.drawArrays(gl.LINES,0,referencePoints.length*4);
     }
     if(kinematic){
-      const volume=volumeResources(),v=source?.viewport??{x:0,y:0,width,height};
-      gl.useProgram(volume.program);gl.bindVertexArray(volume.attribute.vao);
-      gl.uniformMatrix4fv(volume.uniforms.inverseCamera,false,inverseCameraMatrix(camera));
-      gl.uniform4f(volume.uniforms.viewportBox,v.x,v.y,v.width,v.height);
-      gl.uniform3f(volume.uniforms.shape,shape.base,shape.flare,shape.bend);
-      gl.uniform1f(volume.uniforms.time,time);gl.uniform1f(volume.uniforms.extent,extent);
-      gl.uniform1i(volume.uniforms.dust,dust?1:0);
-      gl.uniform1i(volume.uniforms.genesis,genesis?1:0);gl.uniform1f(volume.uniforms.formationProgress,formation?.progress??0);gl.uniform4f(volume.uniforms.formationState,...state);
-      gl.uniform1i(volume.uniforms.readingPalette,palette);gl.drawArrays(gl.TRIANGLES,0,6);
+      volumeState(false);
     }
     gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
     const u=gpu.uniforms;
@@ -488,6 +515,9 @@ export function createFormRenderer(canvas, quality) {
     gl.uniform1f(u.viewportHeight,source?.pointScale??height);gl.uniform1f(u.maxPoint,gpu.maxPoint);
     gl.uniform2f(u.spriteAspect,...(source?.spriteAspect??[1,1]));
     gl.uniform1i(u.readingPalette,palette);
+    gl.uniform1i(u.worldLighting,worldLighting?1:0);
+    const a=azimuth*Math.PI/180,e=elevation*Math.PI/180;
+    gl.uniform3fv(u.worldEye,sourceCamera?.position??[distance*Math.sin(a)*Math.cos(e),1.15+distance*Math.sin(e),distance*Math.cos(a)*Math.cos(e)]);
     gl.uniform1i(u.kinematic,kinematic?1:0);
     gl.uniform1i(u.genesis,genesis?1:0);gl.uniform1f(u.formationProgress,formation?.progress??0);gl.uniform4f(u.formationState,...state);
     gl.uniform1i(u.dust,dust?1:0);gl.drawArrays(gl.POINTS,0,gpu.count);

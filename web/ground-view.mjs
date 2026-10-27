@@ -47,21 +47,26 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
   const legacyHeading=host.querySelector('h3').textContent,legacyBoundary=host.querySelector('.ground-boundary').textContent,legacyModelNote=host.querySelector('#ground-model-note').textContent;
   return {
     quality:()=>Number(quality.value),
-    update(enabled,seconds,id,variant='legacy'){
+    update(enabled,seconds,id,variant='legacy',lightingStyle='legacy'){
       const nextSimulation=variant!=='legacy',formation=variant==='genesis-v1';
-      if(variant!==currentVariant){
-        currentVariant=variant;simulation=nextSimulation;identity++;referenceKey=null;referenceHost.replaceChildren();
+      const presentation=variant+':'+lightingStyle;
+      if(presentation!==currentVariant){
+        currentVariant=presentation;simulation=nextSimulation;identity++;referenceKey=null;referenceHost.replaceChildren();
         text(host.querySelector('h3'),formation?'Formation, visible cloud and decay':simulation?'Procedural funnel simulation':legacyHeading);
         text(host.querySelector('.ground-boundary'),simulation?'An authored moving funnel in a declared camera. Player seconds 120 through 140 are simulation offsets with no historical El Reno correspondence.':legacyBoundary);
         if(formation)text(host.querySelector('.ground-boundary'),'One illustrative supercell scenario. Surface arrows show assumed circulation, not measured wind. Player seconds 120 through 140 are study offsets with no historical El Reno correspondence.');
         text(host.querySelector('#ground-model-note'),simulation?'The body integrates a bounded procedural density. Detail rises and turns coherently; dust follows separate fading trajectories and the cloud base drifts slowly. These are authored kinematics and display opacity, without physical wind, pressure, debris mass or measured scale. The earlier analytic references remain in the separate synthetic comparison.':legacyModelNote);
         if(formation)text(host.querySelector('#ground-model-note'),'One illustrative supercell pathway, not a universal life cycle. Surface arrows show assumed circulation, not measured velocities. Condensation can be absent while circulation is present; dust does not define tornado existence. Player 120 through 140 maps linearly to 0 through 30 study seconds. Compare reduced condensation at the same circulation in Form Study.');
+        if(formation&&lightingStyle==='world-v1')text(host.querySelector('#ground-model-note'),host.querySelector('#ground-model-note').textContent+' The shared side light and synthetic surface are authored depth cues, not historical illumination, surveyed terrain or physical scale.');
+        text(quality.querySelector('[value="1600"]'),formation&&lightingStyle==='world-v1'?'Lighter · 1600 particles · up to 320 × 200':'1600 particles');
         for(const b of host.querySelectorAll('[data-ground-second]'))text(b,`${simulation?'Show':'Compare'} at player ${b.dataset.groundSecond} s`);
       }
       host.hidden=!enabled;referenceHost.hidden=!enabled;
       camera.querySelector('[data-unavailable]')?.remove();
       if(!enabled){identity++;referenceKey=null;referenceHost.replaceChildren();return null;}
-      const state=(formation?formationSimulationAt:simulation?funnelSimulationAt:groundViewAt)(seconds,id);
+      const validStyle=lightingStyle==='legacy'||formation&&lightingStyle==='world-v1';
+      const state=validStyle?(formation?formationSimulationAt:simulation?funnelSimulationAt:groundViewAt)(seconds,id):{state:'unavailable',camera:null,shape:null,reference:null,reason:'The requested lighting presentation is unavailable. No appearance has been substituted.'};
+      state.lightingStyle=validStyle?lightingStyle:'legacy';
       if(id&&!GROUND_CAMERAS.some(view=>view.id===id)){
         const option=document.createElement('option');option.value=id;option.textContent='Unavailable synthetic camera';option.dataset.unavailable='';camera.append(option);
       }

@@ -67,6 +67,8 @@ jobs:
           node --check web/funnel-simulation-model.mjs
           node --check web/formation-model.mjs
           node --test tests/formation-model.test.mjs
+          node --check web/funnel-lighting-model.mjs
+          node --test tests/funnel-lighting-model.test.mjs tests/experiment-state.test.mjs
           node --check web/source-camera-model.mjs
           node --check web/ground-view-model.mjs
           node --check web/ground-view.mjs
@@ -161,7 +163,11 @@ jobs:
           - engine: chromium
             channel: chrome
             part: 1
-            total: 1
+            total: 2
+          - engine: chromium
+            channel: chrome
+            part: 2
+            total: 2
           - engine: webkit
             channel: ''
             part: 1

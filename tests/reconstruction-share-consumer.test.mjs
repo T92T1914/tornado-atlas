@@ -54,6 +54,11 @@ async function fixture(t,href) {
     querySelectorAll:()=>[],addEventListener:()=>{}};
   document.getElementById('replay-error').hidden=true;
   document.getElementById('replay-time').disabled=true;
+  // Static HTML anchors have resolved hrefs in the real DOM. The fixture must
+  // supply that surface before startup can version its formation destination.
+  const simulationLink=document.getElementById('replay-simulation-link');
+  simulationLink.href='reconstruction.html?event=el-reno-2013&appearance_view=formation&ground_view=synthetic-front&t=120#replay-appearance';
+  assert.equal(new URL(simulationLink.href).origin,location.origin);
   const photoPanel=document.getElementById('replay-appearance-photo');
   const photoSamples=document.getElementById('replay-photo-samples'),photoRecord=document.getElementById('replay-photo-record');
   photoPanel.append(photoSamples,photoRecord);
@@ -104,6 +109,7 @@ async function fixture(t,href) {
   finally {clearTimeout(timer);}
   assert.equal(document.getElementById('replay-error').hidden,true);
   assert.equal(document.getElementById('replay-time').disabled,false);
+  assert.equal(new URL(simulationLink.href).searchParams.get('appearance_style'),'world-v1');
   assert.equal(clockControls.nextElementSibling,drawing,'Documentary playback retains the original clock position');
   assert.equal(mode.querySelector('[value="illustrative"]'),null,'Real startup removes the unsupported illustrative option');
   assert.ok(mode.children.includes(sourceOption),'Real startup retains the selected original source option');

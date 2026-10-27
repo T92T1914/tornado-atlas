@@ -83,14 +83,18 @@ The funnel renderer now also has a formation and decay study through those same
 cameras and clock. One illustrative supercell scenario separates assumed
 circulation from visible condensation, surface dust and the cloud base. Form
 Study lets the visitor compare reduced condensation at the same circulation,
-then seek through development and erosion. New experiments use the versioned
-`genesis-v1` model, while `form-1`, `form-2` and the six analytic camera
-references retain their earlier behavior. The separate Procedural funnel
-simulation remains available. The [form study notes](docs/visual-form-study.md)
-and [source decision](research/formation-study-2026-10-27.md) explain the
-authored timing, deterministic drawing, scientific context and verification
-boundaries. This software work does not qualify a historical El Reno interval
-or claim to solve atmospheric dynamics.
+then seek through development and erosion. The `world-v1` presentation adds a
+fixed light direction, coherent density texture and a synthetic ground surface
+to that shared scenario. Its new `form-4` experiment links retain the lighting
+version as well as the `genesis-v1` model. Earlier `form-1`, `form-2`, `form-3`
+links and the six analytic camera references keep their previous drawing
+behavior. The separate Procedural funnel simulation remains available.
+The [form study notes](docs/visual-form-study.md) explain the drawing,
+versioned links and verification boundary. The
+[source decision](research/formation-study-2026-10-27.md) separates scientific
+context from authored timing. These are synthetic scene improvements, without
+measured sunlight, terrain, atmospheric dynamics or a newly qualified
+historical El Reno interval.
 
 The spatial replay keeps selected footage moments and observer times in browser
 history. Back and Forward restore the clock paused. Scrubbing or pausing updates

@@ -120,7 +120,7 @@ test('formation replay restores native state across reverse seek, quality, histo
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
 });
 
-test('Form Study compares condensation at unchanged circulation and preserves three experiment versions',async t=>{
+test('Form Study compares condensation at unchanged circulation and preserves earlier experiment versions',async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:1000},reducedMotion:'reduce'});
   await page.goto(base+'/study.html');await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   assert.equal(await page.locator('#sequence-coverage').inputValue(),'formation');
@@ -132,7 +132,7 @@ test('Form Study compares condensation at unchanged circulation and preserves th
   await page.locator('#flow-cues').uncheck();
   await page.locator('#lab-share').click();
   const saved=page.url(),params=new URL(saved).searchParams;
-  assert.equal(params.get('experiment'),'form-3');assert.equal(params.get('model'),'genesis-v1');
+  assert.equal(params.get('experiment'),'form-4');assert.equal(params.get('model'),'genesis-v1');assert.equal(params.get('lighting'),'world-v1');
   assert.equal(params.get('visibility'),'limited');assert.equal(params.get('flow'),'0');assert.equal(params.get('position'),'0.5');
   await page.reload();await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   assert.equal(await page.locator('#condensation-visibility').inputValue(),'limited');assert.equal(await page.locator('#flow-cues').isChecked(),false);
