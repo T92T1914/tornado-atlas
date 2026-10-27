@@ -10,6 +10,11 @@ test('active study controls and scheduled frames use the same wall clock',async(
     addEventListener(name,callback){this.handlers.set(name,callback);}
     getBoundingClientRect(){return {width:800,height:500};}
     getContext(){return gl;}
+    querySelector(selector){
+      assert.equal(this.id,'quality');assert.equal(selector,'[value="3600"]');
+      if(!ids.has('lighter-option'))ids.set('lighter-option',new Element('lighter-option'));
+      return ids.get('lighter-option');
+    }
   }
   const factories=new Set(['createProgram','createShader','createVertexArray','createBuffer','getUniformLocation']);
   const gl=new Proxy({}, {get(_target,name){
@@ -20,7 +25,9 @@ test('active study controls and scheduled frames use the same wall clock',async(
     if(name.toUpperCase()===name)return 1;
     return ()=>{};
   }});
-  globalThis.document={hidden:false,getElementById:id=>{if(id==='lab-context')return null;if(!ids.has(id))ids.set(id,new Element(id));return ids.get(id);},addEventListener:()=>{}};
+  const groundLink=new Element('formation-link');groundLink.href='https://example.test/reconstruction.html?event=el-reno-2013&appearance_view=formation';
+  globalThis.document={hidden:false,getElementById:id=>{if(id==='lab-context')return null;if(!ids.has(id))ids.set(id,new Element(id));return ids.get(id);},
+    querySelector:selector=>{assert.equal(selector,'.formation-context a[href*="reconstruction.html"]');return groundLink;},addEventListener:()=>{}};
   globalThis.window={devicePixelRatio:1,matchMedia:()=>({matches:false,addEventListener:()=>{}})};
   let appearance='dark';globalThis.getComputedStyle=()=>({colorScheme:appearance});
   globalThis.performance={now:()=>wall};
@@ -31,6 +38,8 @@ test('active study controls and scheduled frames use the same wall clock',async(
   for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'formation','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
   document.getElementById('flow-cues').checked=true;
   await import('../web/study.js');
+  assert.match(ids.get('lighter-option').textContent,/320 × 200/);
+  assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'world-v1');
   const draw=timestamp=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(timestamp);};
   draw(100);ids.get('sequence-enabled').checked=true;ids.get('sequence-enabled').handlers.get('change')();
   wall=101;ids.get('motion').handlers.get('click')();

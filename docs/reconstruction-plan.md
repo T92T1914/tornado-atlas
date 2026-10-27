@@ -51,7 +51,7 @@ retain the previous lighting. The [form notes](visual-form-study.md) and
 optical choices, bounded drawing work and compatibility behavior. Paused native
 views and complete declared encoded sequences have been inspected. Focused
 browser checks cover both themes, drawing sizes, state restoration and explicit
-refusals. Sparse software cadence and the still-soft picture remain limits.
+refusals. Sparse software cadence and the soft picture remain limits.
 These observations do not replace revision-specific CI and served acceptance.
 Neither these depth cues nor a successful software check supplies calibrated
 sunlight, terrain, a physical wind field or historical likeness.
