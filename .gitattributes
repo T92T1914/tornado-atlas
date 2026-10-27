@@ -18,3 +18,5 @@ research/evidence/warning-*.txt -text whitespace=-blank-at-eol
 web/vendor/leaflet/leaflet.js -text whitespace=-blank-at-eol
 web/vendor/leaflet/leaflet.css -text whitespace=-blank-at-eol
 web/vendor/leaflet/LICENSE -text whitespace=-blank-at-eol
+# New conceptual SVGs have exact output hashes in their rendering receipt.
+web/mechanism-obscur-*.svg text eol=lf
