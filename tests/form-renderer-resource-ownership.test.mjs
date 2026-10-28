@@ -5,7 +5,7 @@ import {GROUND_CAMERAS,GROUND_MARKS} from '../web/ground-view-model.mjs';
 
 // Controlled explicit GL calls. This ledger does not measure native GPU memory.
 function accountingGraphics() {
-  const live=new Map(['program','shader','vao','buffer'].map(kind=>[kind,new Set()]));
+  const live=new Map(['program','shader','vao','buffer','texture'].map(kind=>[kind,new Set()]));
   const created=[],deleted=[],foreign=[],duplicates=[],calls=new Map(),draws=[];
   let next=0,failure=null,compileFailure=null,linkFailure=null;
   const invoke=(name,fn)=>(...args)=>{
@@ -28,10 +28,14 @@ function accountingGraphics() {
   gl.createShader=invoke('createShader',type=>create('shader',{ordinal:++shaderOrdinal,type}));
   gl.createVertexArray=invoke('createVertexArray',()=>create('vao'));
   gl.createBuffer=invoke('createBuffer',()=>create('buffer'));
+  gl.createTexture=invoke('createTexture',()=>create('texture'));
   gl.deleteProgram=invoke('deleteProgram',handle=>remove('program',handle));
   gl.deleteShader=invoke('deleteShader',handle=>remove('shader',handle));
   gl.deleteVertexArray=invoke('deleteVertexArray',handle=>remove('vao',handle));
   gl.deleteBuffer=invoke('deleteBuffer',handle=>remove('buffer',handle));
+  gl.deleteTexture=invoke('deleteTexture',handle=>remove('texture',handle));
+  gl.NO_ERROR=0;gl.getError=invoke('getError',()=>0);
+  for(const name of ['activeTexture','bindTexture','texParameteri','texStorage3D','texSubImage3D'])gl[name]=invoke(name,()=>{});
   gl.getShaderParameter=invoke('getShaderParameter',shader=>shader.ordinal!==compileFailure);
   gl.getShaderInfoLog=invoke('getShaderInfoLog',()=> 'controlled shader compile failure');
   gl.getProgramParameter=invoke('getProgramParameter',program=>program.ordinal!==linkFailure);
@@ -67,7 +71,7 @@ function renderGlobals(t){
   globalThis.window={devicePixelRatio:1};globalThis.getComputedStyle=()=>({colorScheme:'dark'});
 }
 function owned(f,expected){
-  assert.deepEqual(f.counts(),expected);
+  assert.deepEqual(f.counts(),{texture:0,...expected});
   assert.deepEqual(f.foreign,[]);assert.deepEqual(f.duplicates,[]);
 }
 for(const [name,configure,message] of [
@@ -242,4 +246,49 @@ test('repeated empty selections keep existing backing pixels at high device rati
     assert.equal(f.canvas.width,300);assert.equal(f.canvas.height,150);owned(f,base);
   }
   assert.equal(f.draws.length,0);renderer.dispose();owned(f,none);
+});
+
+const referenceInput={...simulationInput,motionModel:'genesis-v1',formationTime:15,flow:true,lightingStyle:'reference-v1'};
+for(const kind of ['compile','link','attribute'])test('reference particle '+kind+' failure keeps committed siblings owned until retry/disposal',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  const original=new Error('controlled reference particle attribute failure');
+  if(kind==='compile')f.failCompile(8);
+  if(kind==='link')f.failLink(4);
+  if(kind==='attribute')f.failNext('bufferData',original,4);
+  assert.throws(()=>renderer.render(referenceInput),error=>kind==='attribute'?error===original:error.message==='controlled '+(kind==='compile'?'shader compile':'program link')+' failure');
+  // The volume and flow already committed. The failed particle bundle did not.
+  owned(f,{program:3,shader:0,vao:4,buffer:4,texture:1});
+  f.clearFailure();renderer.render(referenceInput);owned(f,{program:4,shader:0,vao:5,buffer:5,texture:1});
+  renderer.dispose();owned(f,none);renderer.dispose();owned(f,none);
+});
+
+test('reference, world and original forms can share one renderer across reverse seek and quality changes',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  renderer.render(referenceInput);renderer.setQuality(200);
+  renderer.render({...referenceInput,formationTime:6});assert.equal(f.draws.at(-1).count,200);
+  renderer.render({...referenceInput,lightingStyle:'world-v1'});
+  renderer.render({shape:simulationInput.shape,extent:1,time:0});
+  assert.deepEqual(f.draws.slice(-2).map(draw=>draw.mode),[f.gl.LINES,f.gl.POINTS]);
+  renderer.render(referenceInput);assert.equal(f.draws.at(-1).count,200);
+  renderer.initialize();owned(f,base);renderer.render(referenceInput);
+  renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});
+
+for(const method of ['texStorage3D','texSubImage3D'])test('reference '+method+' failure retires the uncommitted texture and preserves retry',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),original=new Error('controlled '+method);
+  f.failNext(method,original);assert.throws(()=>renderer.render(referenceInput),error=>error===original);
+  owned(f,{program:3,shader:0,vao:3,buffer:3});
+  f.clearFailure();renderer.render(referenceInput);owned(f,{program:4,shader:0,vao:5,buffer:5,texture:1});
+  renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});
+
+test('a null reference texture and an upload API error refuse rather than substitute material',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),create=f.gl.createTexture;
+  f.gl.createTexture=()=>null;
+  assert.throws(()=>renderer.render(referenceInput),/Reference material texture is unavailable/);
+  owned(f,{program:3,shader:0,vao:3,buffer:3});f.gl.createTexture=create;
+  f.gl.getError=()=>1285;
+  assert.throws(()=>renderer.render(referenceInput),/Reference material upload failed: 1285/);
+  owned(f,{program:3,shader:0,vao:3,buffer:3});
+  f.gl.getError=()=>0;renderer.render(referenceInput);renderer.dispose();owned(f,none);
 });

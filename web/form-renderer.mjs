@@ -4,6 +4,7 @@ import {sourceCameraProjection,sourceBackingSize} from './source-camera-model.mj
 import {simulationTime,simulationBackingSize,simulationParticles,inverseCameraMatrix,FUNNEL_DENSITY_GLSL,funnelVolumeVertex,funnelVolumeFragment} from './funnel-simulation-model.mjs';
 import {formationAt,formationFlow} from './formation-model.mjs';
 import {FUNNEL_LIGHTING_GLSL} from './funnel-lighting-model.mjs';
+import {referenceNoiseLattice} from './reference-form-model.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
@@ -34,6 +35,14 @@ ${FUNNEL_DENSITY_GLSL}
 ${FUNNEL_LIGHTING_GLSL}
 float birthFade(float x){x=clamp(x,0.0,1.0);return x*x*x*(x*(x*6.0-15.0)+10.0);}
 void main() {
+#if REFERENCE_FORM
+  // Condensation and cloud belong to the integrated volume in this version.
+  // Only restrained low dust sprites remain as a separate moving cue.
+  if(seed.w<.5||seed.w>1.5){
+    gl_Position=vec4(2.0,2.0,2.0,1.0);gl_PointSize=1.0;
+    color=vec4(0.0);cloudSeed=vec2(0.0);particleAspect=vec2(1.0);kinematicProbe=vec4(0.0);return;
+  }
+#endif
   float h = seed.x;
   float angle = seed.y * 6.2831853 + time * (0.5 + 0.9 * (1.0-h));
   float r = (shape.x + shape.y * pow(h,1.6)) * sqrt(seed.z);
@@ -91,6 +100,9 @@ void main() {
     float value = readingPalette == 1 ? .27 : .72;
     tint = vec3(value) * (.76 + .24*cos(angle-.8));
   }
+#if REFERENCE_FORM
+  opacity*=.30;size*=.75;
+#endif
   if(worldLighting&&opacity>0.0){
     tint=worldMaterial(position,sceneDensity(position));
     // Dust behind dense condensation has a bounded two-probe view attenuation.
@@ -328,7 +340,12 @@ export function createFormRenderer(canvas, quality) {
     if(resources.condensation){gl.deleteVertexArray(resources.condensation.attribute.vao);gl.deleteBuffer(resources.condensation.attribute.buffer);gl.deleteProgram(resources.condensation.program);}
     if(resources.cloud)gl.deleteProgram(resources.cloud);
     if(resources.grid)gl.deleteProgram(resources.grid);
+    if(resources.referenceTexture)gl.deleteTexture(resources.referenceTexture);
     if(resources.volume){gl.deleteVertexArray(resources.volume.attribute.vao);gl.deleteBuffer(resources.volume.attribute.buffer);gl.deleteProgram(resources.volume.program);}
+    for(const key of ['referenceCloud','referenceVolume']){
+      const item=resources[key];
+      if(item){gl.deleteVertexArray(item.attribute.vao);gl.deleteBuffer(item.attribute.buffer);gl.deleteProgram(item.program);}
+    }
   }
   function dispose(){
     const owned=gpu;gpu=null;retire(owned);
@@ -362,16 +379,44 @@ export function createFormRenderer(canvas, quality) {
     const values=(gpu.particleModel!=='legacy'?simulationParticles:particles)(Number(quality));
     gl.bindBuffer(gl.ARRAY_BUFFER,gpu.cloudAttribute.buffer);
     gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
+    if(gpu.referenceCloud){gl.bindBuffer(gl.ARRAY_BUFFER,gpu.referenceCloud.attribute.buffer);gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);}
     gpu.count=values.length/4;
   }
-  function volumeResources(){
-    if(gpu.volume)return gpu.volume;
+  const referenceShader=source=>source.replace('#version 300 es','#version 300 es\n#define REFERENCE_FORM 1');
+  function referenceTexture(){
+    if(gpu.referenceTexture)return gpu.referenceTexture;
+    const texture=gl.createTexture();
+    if(!texture)throw new Error('Reference material texture is unavailable');
+    try{
+      gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_3D,texture);
+      for(const axis of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T,gl.TEXTURE_WRAP_R])gl.texParameteri(gl.TEXTURE_3D,axis,gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_BASE_LEVEL,0);gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MAX_LEVEL,0);
+      gl.texStorage3D(gl.TEXTURE_3D,1,gl.R8,32,32,32);
+      gl.texSubImage3D(gl.TEXTURE_3D,0,0,0,0,32,32,32,gl.RED,gl.UNSIGNED_BYTE,referenceNoiseLattice());
+      const error=gl.getError();if(error!==gl.NO_ERROR)throw new Error('Reference material upload failed: '+error);
+      gpu.referenceTexture=texture;return texture;
+    }catch(error){gl.deleteTexture(texture);throw error;}
+  }
+  function referenceParticleResources(){
+    if(gpu.referenceCloud)return gpu.referenceCloud;
     let p=null,a=null;
     try{
-      p=program(funnelVolumeVertex,funnelVolumeFragment);
+      p=program(referenceShader(particleVertex),particleFragment);
+      a=attribute(p,'seed',simulationParticles(Number(quality)),4);
+      const uniforms=Object.fromEntries([...Object.keys(gpu.uniforms),'referenceNoiseTexture'].map(name=>[name,gl.getUniformLocation(p,name)]));
+      const resource={program:p,attribute:a,uniforms};gpu.referenceCloud=resource;return resource;
+    }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
+  }
+  function volumeResources(reference=false){
+    const key=reference?'referenceVolume':'volume';
+    if(gpu[key])return gpu[key];
+    let p=null,a=null;
+    try{
+      p=program(funnelVolumeVertex,reference?referenceShader(funnelVolumeFragment):funnelVolumeFragment);
       a=attribute(p,'position',new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),2);
-      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState','worldLighting','surfacePass'].map(name=>[name,gl.getUniformLocation(p,name)]))};
-      gpu.volume=resource;return resource;
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState','worldLighting','surfacePass','referenceNoiseTexture'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      gpu[key]=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
   function marginResources(){
@@ -411,7 +456,7 @@ export function createFormRenderer(canvas, quality) {
     // Validation below still rejects unsupported styles and camera contracts.
     const empty=shape===null&&partialForm===null;
     const rect=empty?{width:Math.max(1,canvas.width),height:Math.max(1,canvas.height)}:canvas.getBoundingClientRect(),ratio=empty?1:Math.min(window.devicePixelRatio||1,2);
-    const lighter=lightingStyle==='world-v1'&&Number(quality)<=(sourceCamera?1600:3600);
+    const lighter=lightingStyle!=='legacy'&&Number(quality)<=(sourceCamera?1600:3600);
     const frameWidth=sourceCamera&&!empty?canvas.clientWidth:rect.width,frameHeight=sourceCamera&&!empty?canvas.clientHeight:rect.height;
     const raster=motionModel!=='legacy'?simulationBackingSize(frameWidth,frameHeight,ratio,lighter?'lighter':'standard'):sourceCamera===null?null:sourceBackingSize(frameWidth,frameHeight,ratio);
     const width=raster?.width??Math.max(1,Math.min(2048,Math.round(rect.width*ratio)));
@@ -422,8 +467,8 @@ export function createFormRenderer(canvas, quality) {
     // Validate even an empty source state, after clearing any previous image.
     const source=sourceCamera===null?null:sourceCameraProjection(sourceCamera,width,height);
     if(!['legacy','kinematic-v1','genesis-v1'].includes(motionModel))throw new TypeError('Unknown funnel motion model');
-    if(!['legacy','world-v1'].includes(lightingStyle)||lightingStyle==='world-v1'&&motionModel!=='genesis-v1')throw new TypeError('Unsupported funnel lighting presentation');
-    const worldLighting=lightingStyle==='world-v1';
+    if(!['legacy','world-v1','reference-v1'].includes(lightingStyle)||lightingStyle!=='legacy'&&motionModel!=='genesis-v1')throw new TypeError('Unsupported funnel lighting presentation');
+    const worldLighting=lightingStyle!=='legacy',reference=lightingStyle==='reference-v1';
     const kinematic=motionModel!=='legacy',genesis=motionModel==='genesis-v1';
     const formation=genesis&&shape?formationAt(formationTime??time,{visibility:formationVisibility,flow}):null;
     if(formation){shape=formation.shape;extent=formation.extent;time=formation.seconds;}
@@ -470,6 +515,7 @@ export function createFormRenderer(canvas, quality) {
     if(gpu.particleModel!==motionModel){
       const values=(kinematic?simulationParticles:particles)(Number(quality));
       gl.bindBuffer(gl.ARRAY_BUFFER,gpu.cloudAttribute.buffer);gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);
+      if(gpu.referenceCloud){gl.bindBuffer(gl.ARRAY_BUFFER,gpu.referenceCloud.attribute.buffer);gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);}
       gpu.count=values.length/4;gpu.particleModel=motionModel;
     }
     const camera=source?.matrix??cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
@@ -477,8 +523,9 @@ export function createFormRenderer(canvas, quality) {
     try{
     const palette=readingAppearance==='light'?1:readingAppearance==='dark'?2:0;
     function volumeState(surfacePass){
-      const volume=volumeResources(),v=source?.viewport??{x:0,y:0,width,height};
+      const volume=volumeResources(reference),v=source?.viewport??{x:0,y:0,width,height};
       gl.useProgram(volume.program);gl.bindVertexArray(volume.attribute.vao);
+      if(reference){gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_3D,referenceTexture());gl.uniform1i(volume.uniforms.referenceNoiseTexture,0);}
       gl.uniformMatrix4fv(volume.uniforms.inverseCamera,false,inverseCameraMatrix(camera));
       gl.uniform4f(volume.uniforms.viewportBox,v.x,v.y,v.width,v.height);
       gl.uniform3f(volume.uniforms.shape,shape.base,shape.flare,shape.bend);
@@ -499,7 +546,7 @@ export function createFormRenderer(canvas, quality) {
       const lines=formationFlow(formation.seconds,formation.circulation);
       if(!gpu.flowAttribute)gpu.flowAttribute=attribute(gpu.grid,'position',lines,3);
       else{gl.bindBuffer(gl.ARRAY_BUFFER,gpu.flowAttribute.buffer);gl.bufferData(gl.ARRAY_BUFFER,lines,gl.DYNAMIC_DRAW);}
-      gl.bindVertexArray(gpu.flowAttribute.vao);gl.uniform1i(gpu.gridMarks,1);gl.uniform1f(gpu.gridAlpha,formation.circulation*.7);gl.drawArrays(gl.LINES,0,lines.length/3);gl.uniform1i(gpu.gridMarks,0);gl.uniform1f(gpu.gridAlpha,1);
+      gl.bindVertexArray(gpu.flowAttribute.vao);gl.uniform1i(gpu.gridMarks,1);gl.uniform1f(gpu.gridAlpha,formation.circulation*(reference?.28:.7));gl.drawArrays(gl.LINES,0,lines.length/3);gl.uniform1i(gpu.gridMarks,0);gl.uniform1f(gpu.gridAlpha,1);
     }
     if(source&&referencePoints?.length){
       gl.bindVertexArray(referenceResources(referencePoints).vao);gl.uniform1i(gpu.gridMarks,1);
@@ -508,8 +555,10 @@ export function createFormRenderer(canvas, quality) {
     if(kinematic){
       volumeState(false);
     }
-    gl.useProgram(gpu.cloud);gl.bindVertexArray(gpu.cloudAttribute.vao);
-    const u=gpu.uniforms;
+    const particleResources=reference?referenceParticleResources():{program:gpu.cloud,attribute:gpu.cloudAttribute,uniforms:gpu.uniforms};
+    gl.useProgram(particleResources.program);gl.bindVertexArray(particleResources.attribute.vao);
+    const u=particleResources.uniforms;
+    if(reference){gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_3D,referenceTexture());gl.uniform1i(u.referenceNoiseTexture,0);}
     gl.uniformMatrix4fv(u.camera,false,camera);gl.uniform3f(u.shape,shape.base,shape.flare,shape.bend);
     gl.uniform1f(u.time,time);gl.uniform1f(u.extent,extent);
     gl.uniform1f(u.viewportHeight,source?.pointScale??height);gl.uniform1f(u.maxPoint,gpu.maxPoint);

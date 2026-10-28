@@ -16,10 +16,12 @@ test('active study controls and scheduled frames use the same wall clock',async(
       return ids.get('lighter-option');
     }
   }
-  const factories=new Set(['createProgram','createShader','createVertexArray','createBuffer','getUniformLocation']);
+  const factories=new Set(['createProgram','createShader','createVertexArray','createBuffer','createTexture','getUniformLocation']);
   const gl=new Proxy({}, {get(_target,name){
     if(name==='getShaderParameter'||name==='getProgramParameter')return ()=>true;
     if(name==='getParameter')return ()=>[1,64];
+    if(name==='getError')return ()=>0;
+    if(name==='NO_ERROR')return 0;
     if(name==='getAttribLocation')return ()=>0;
     if(factories.has(name))return ()=>({});
     if(name.toUpperCase()===name)return 1;
@@ -35,11 +37,11 @@ test('active study controls and scheduled frames use the same wall clock',async(
   globalThis.cancelAnimationFrame=id=>frames.delete(id);
   globalThis.ResizeObserver=class{observe(){}};
   globalThis.IntersectionObserver=class{observe(){}};
-  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'formation','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
+  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'reference','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
   document.getElementById('flow-cues').checked=true;
   await import('../web/study.js');
   assert.match(ids.get('lighter-option').textContent,/320 × 200/);
-  assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'world-v1');
+  assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'reference-v1');
   const draw=timestamp=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(timestamp);};
   draw(100);ids.get('sequence-enabled').checked=true;ids.get('sequence-enabled').handlers.get('change')();
   wall=101;ids.get('motion').handlers.get('click')();

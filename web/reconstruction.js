@@ -85,7 +85,7 @@ async function start(){
   const photoView=(href=location.href)=>new URL(href).searchParams.get('appearance_view')==='photo';
   const simulationView=(href=location.href)=>event.id==='el-reno-2013'&&['simulation','formation'].includes(new URL(href).searchParams.get('appearance_view'));
   const cameraMode=value=>['ground','simulation','formation'].includes(value);
-  const appearanceStyle=(href=location.href)=>{const values=new URL(href).searchParams.getAll('appearance_style');return values.length===0?'legacy':values.length===1&&values[0]==='world-v1'?'world-v1':'unavailable';};
+  const appearanceStyle=(href=location.href)=>{const values=new URL(href).searchParams.getAll('appearance_style');return values.length===0?'legacy':values.length===1&&['world-v1','reference-v1'].includes(values[0])?values[0]:'unavailable';};
   const groundView=(href=location.href)=>event.id==='el-reno-2013'&&cameraMode(new URL(href).searchParams.get('appearance_view'));
   const separateAppearance=href=>photoView(href)||groundView(href);
   function selectedSeconds(search){
@@ -204,7 +204,7 @@ async function start(){
     const simulation=document.createElement('option');simulation.value='simulation';simulation.textContent='Procedural funnel simulation';mode.append(simulation);
     const formation=document.createElement('option');formation.value='formation';formation.textContent='Formation and decay study';mode.append(formation);
     el('replay-ground-link').hidden=false;
-    const simulationLink=el('replay-simulation-link');if(simulationLink){const target=new URL(simulationLink.href);target.searchParams.set('appearance_style','world-v1');simulationLink.href=target.href;simulationLink.hidden=false;}
+    const simulationLink=el('replay-simulation-link');if(simulationLink){const target=new URL(simulationLink.href);target.searchParams.set('appearance_style','reference-v1');simulationLink.href=target.href;simulationLink.hidden=false;}
   }
   let unavailablePhotoId=null,shownPhotoSequence=null,shownPhotoSample=null;
   const photoImageHost=document.createElement('div');photoImageHost.id='replay-documentary-image';
@@ -257,7 +257,7 @@ async function start(){
       if(cameraMode(mode.value)){clock.setRate(1,performance.now());el('replay-rate').value='1';}
       if(['simulation','formation'].includes(mode.value)&&(clock.seconds<120||clock.seconds>140))clock.seek(120);
       const requested=new URL(location.href);
-      if(mode.value==='formation')requested.searchParams.set('appearance_style','world-v1');else requested.searchParams.delete('appearance_style');
+      if(mode.value==='formation')requested.searchParams.set('appearance_style','reference-v1');else requested.searchParams.delete('appearance_style');
       if(cameraMode(mode.value)){
         requested.searchParams.set('appearance_view',mode.value);requested.searchParams.set('ground_view','synthetic-front');requested.searchParams.delete('appearance_photo');
       }else if(mode.value.startsWith('photo:')){
@@ -519,7 +519,7 @@ async function start(){
     formCanvas.dataset.displayPreset=photoDisplayForm(appearanceState)?.display_preset??'';
     formCanvas.dataset.sourceCamera=appearanceState.sourceCamera?.id??'';
     el('replay-ground-comparison').className=groundSelected?`ground-active${simulationSelected?' simulation-active':''}`:'';
-    el('ground-render-caption').textContent=formationSelected?'Illustrative formation and decay':simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
+    el('ground-render-caption').textContent=formationSelected?(appearanceState.lightingStyle==='reference-v1'?'Source-informed broad form':'Illustrative formation and decay'):simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
     el('ground-render-caption').hidden=!groundSelected;
     formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground-view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
     // Unknown or documentary-only states retain their controls and source text

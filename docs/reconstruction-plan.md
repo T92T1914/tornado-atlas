@@ -39,13 +39,13 @@ and cloud behavior over 30 authored study seconds. Replay player 120 through
 paths. The [source decision](../research/formation-study-2026-10-27.md) explains
 why this scenario is not a universal lifecycle or a solved atmosphere.
 
-The current lighting increment adds a versioned `world-v1` presentation to this
+The accepted lighting increment added a versioned `world-v1` presentation to this
 scenario in Form Study and the replay's existing synthetic ground cameras.
 A fixed scene light, two coarse nearby attenuation probes, local density
 response and a coherent hashed texture field give the drawing more depth.
 A synthetic ground plane helps separate the base and low dust from the
-background. Fresh `form-4` experiment links name this presentation, while
-`form-3` links and replay formation URLs without `appearance_style=world-v1`
+background. `form-4` experiment links name this presentation, while
+`form-3` links and replay formation URLs without `appearance_style`
 retain the previous lighting. The [form notes](visual-form-study.md) and
 [ground-view contract](ground-view-reconstruction.md) describe the authored
 optical choices, bounded drawing work and compatibility behavior. Paused native
@@ -53,6 +53,16 @@ views and complete declared encoded sequences have been inspected. Focused
 browser checks cover both themes, drawing sizes, state restoration and explicit
 refusals. Sparse software cadence and the soft picture remain limits.
 These observations do not replace revision-specific CI and served acceptance.
+
+The next reference fidelity increment retains that scenario and adds a distinct
+`reference-v1` broad appearance presentation in `form-5`. Complete permitted
+photographs inform unequal margins, cloud attachment and opacity. Its
+numerical geometry, hidden surfaces, motion and lighting remain authored.
+The [reference notes](reference-form-study.md) keep those software changes
+separate from the missing historical camera, original-exposure and timing
+inputs. The governing objective remains a reconstruction that agrees with the
+actual tornado at supported times and viewpoints. A better illustration does
+not complete that objective.
 Neither these depth cues nor a successful software check supplies calibrated
 sunlight, terrain, a physical wind field or historical likeness.
 
