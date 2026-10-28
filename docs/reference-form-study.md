@@ -28,9 +28,11 @@ prevent treating apparent movement as an independently measured cloud speed.
 
 ## One shared scene, a distinct version
 
-Fresh Form Study experiments save as `form-5`, with `coverage=reference` and
-`presentation=reference-v1`. The existing ground camera link selects
-`appearance_view=formation&appearance_style=reference-v1`. The replay still
+`form-5` experiments retain `coverage=reference` and
+`presentation=reference-v1`. An explicit ground camera link uses
+`appearance_view=formation&appearance_style=reference-v1`. Fresh Form Study
+uses `form-6` and `storm-v1`, described in the
+[storm scene notes](storm-scene-study.md). The replay still
 maps player 120 through 140 to study 0 through 30. Those offsets have no historical
 El Reno correspondence. A source visit pauses and saves the current Form Study
 step before ordinary navigation. Back restores that experiment.

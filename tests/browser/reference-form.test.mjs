@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 import {enlargeText,reflow} from './ground-view-assertions.mjs';
 import {referenceNoiseAt} from '../../web/reference-form-model.mjs';
+const form5='study.html?experiment=form-5&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=reference&rate=1&position=0&phase=0&model=genesis-v1&visibility=ordinary&flow=1&presentation=reference-v1';
 
 test('native reference lattice samples preserve coordinates, periodic seams and declared precision',async t=>{
   const page=await fixture(t);await page.goto(base+'/study.html');
@@ -70,7 +71,7 @@ async function frame(page){
 }
 
 for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`reference form separates ground cues and retains source return at ${width} ${theme}`,async t=>{
-  const page=await fixture(t,{viewport:{width,height:1000},reducedMotion:'reduce'});await page.goto(base+'/study.html');
+  const page=await fixture(t,{viewport:{width,height:1000},reducedMotion:'reduce'});await page.goto(base+'/'+form5);
   await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();await page.locator('#reading-appearance').selectOption(theme);
   assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'reference-v1');assert.equal(await page.locator('#reference-form-sources').isVisible(),true);
   const both=await frame(page);await page.locator('#flow-cues').uncheck();const dust=await frame(page);

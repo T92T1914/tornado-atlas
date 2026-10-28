@@ -54,7 +54,7 @@ browser checks cover both themes, drawing sizes, state restoration and explicit
 refusals. Sparse software cadence and the soft picture remain limits.
 These observations do not replace revision-specific CI and served acceptance.
 
-The next reference fidelity increment retains that scenario and adds a distinct
+The reference fidelity increment retains that scenario and adds a distinct
 `reference-v1` broad appearance presentation in `form-5`. Complete permitted
 photographs inform unequal margins, cloud attachment and opacity. Its
 numerical geometry, hidden surfaces, motion and lighting remain authored.
@@ -65,6 +65,19 @@ actual tornado at supported times and viewpoints. A better illustration does
 not complete that objective.
 Neither these depth cues nor a successful software check supplies calibrated
 sunlight, terrain, a physical wind field or historical likeness.
+
+A separate `storm-v1` presentation uses the same thirty authored seconds in a
+continuing cloud environment. Fresh Form Study experiments name it in `form-6`.
+Condensation, cloud and low dust sample one analytic material transport, while
+their world envelopes and visibility remain authored. A fixed opaque exposure
+separates scene illumination from the reading theme. The renderer retains its
+48 shared body and 16 exterior cloud sample limits, with actual nonuniform bin
+lengths, bounded detail filtering and a homogeneous mean cloud tail beyond the
+existing camera clip. The [storm scene notes](storm-scene-study.md) explain the
+method and limits. Literal `form-5`, `form-4` and earlier links retain their
+presentations. This adds no qualified historical interval, original exposure,
+camera fit or new permission to reuse a source. Visual, motion, CI and served acceptance
+remain separate checks tied to the changed source revision.
 
 Historical comparison remains a separate lane. The next bounded target is the
 late RaXPol exposure reported at 23:24:41 UTC in Wakimoto et al. (2015), with

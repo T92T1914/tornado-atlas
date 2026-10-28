@@ -109,7 +109,7 @@ async function fixture(t,href) {
   finally {clearTimeout(timer);}
   assert.equal(document.getElementById('replay-error').hidden,true);
   assert.equal(document.getElementById('replay-time').disabled,false);
-  assert.equal(new URL(simulationLink.href).searchParams.get('appearance_style'),'reference-v1');
+  assert.equal(new URL(simulationLink.href).searchParams.get('appearance_style'),'storm-v1');
   assert.equal(clockControls.nextElementSibling,drawing,'Documentary playback retains the original clock position');
   assert.equal(mode.querySelector('[value="illustrative"]'),null,'Real startup removes the unsupported illustrative option');
   assert.ok(mode.children.includes(sourceOption),'Real startup retains the selected original source option');

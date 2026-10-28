@@ -11,9 +11,11 @@ test('active study controls and scheduled frames use the same wall clock',async(
     getBoundingClientRect(){return {width:800,height:500};}
     getContext(){return gl;}
     querySelector(selector){
-      assert.equal(this.id,'quality');assert.equal(selector,'[value="3600"]');
-      if(!ids.has('lighter-option'))ids.set('lighter-option',new Element('lighter-option'));
-      return ids.get('lighter-option');
+      assert.equal(this.id,'quality');
+      const options=new Map([['[value="3600"]','lighter-option'],['[value="7200"]','standard-option']]);
+      assert.ok(options.has(selector),'Only the two actual quality options exist');
+      const id=options.get(selector);if(!ids.has(id))ids.set(id,new Element(id));
+      return ids.get(id);
     }
   }
   const factories=new Set(['createProgram','createShader','createVertexArray','createBuffer','createTexture','getUniformLocation']);
@@ -37,11 +39,12 @@ test('active study controls and scheduled frames use the same wall clock',async(
   globalThis.cancelAnimationFrame=id=>frames.delete(id);
   globalThis.ResizeObserver=class{observe(){}};
   globalThis.IntersectionObserver=class{observe(){}};
-  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'reference','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
+  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'storm','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
   document.getElementById('flow-cues').checked=true;
   await import('../web/study.js');
   assert.match(ids.get('lighter-option').textContent,/320 × 200/);
-  assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'reference-v1');
+  assert.match(ids.get('standard-option').textContent,/512 × 320/);
+  assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'storm-v1');
   const draw=timestamp=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(timestamp);};
   draw(100);ids.get('sequence-enabled').checked=true;ids.get('sequence-enabled').handlers.get('change')();
   wall=101;ids.get('motion').handlers.get('click')();

@@ -292,3 +292,29 @@ test('a null reference texture and an upload API error refuse rather than substi
   owned(f,{program:3,shader:0,vao:3,buffer:3});
   f.gl.getError=()=>0;renderer.render(referenceInput);renderer.dispose();owned(f,none);
 });
+
+const stormInput={...referenceInput,lightingStyle:'storm-v1'};
+for(const kind of ['compile','link','attribute'])test('storm volume '+kind+' failure retires partial construction and preserves retry',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),original=new Error('controlled storm attribute failure');
+  if(kind==='compile')f.failCompile(6);if(kind==='link')f.failLink(3);if(kind==='attribute')f.failNext('bufferData',original);
+  assert.throws(()=>renderer.render(stormInput),error=>kind==='attribute'?error===original:error.message==='controlled '+(kind==='compile'?'shader compile':'program link')+' failure');
+  owned(f,base);f.clearFailure();renderer.render(stormInput);owned(f,{program:3,shader:0,vao:4,buffer:4,texture:1});
+  assert.equal(f.draws.at(-1).mode,f.gl.TRIANGLES);renderer.dispose();owned(f,none);
+});
+for(const method of ['texStorage3D','texSubImage3D'])test('storm '+method+' failure preserves its original error and has no abandoned texture',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),original=new Error('controlled storm '+method);
+  f.failNext(method,original);assert.throws(()=>renderer.render(stormInput),error=>error===original);owned(f,{program:3,shader:0,vao:3,buffer:3});
+  f.clearFailure();renderer.render(stormInput);renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});
+test('storm exposure is fixed and returning to an earlier version resets opaque clearing',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),clears=[],palettes=[];
+  const clear=f.gl.clearColor,uniform=f.gl.uniform1i;
+  f.gl.clearColor=(...values)=>{clears.push(values);return clear(...values);};
+  f.gl.uniform1i=(location,value)=>{if(location.name==='readingPalette')palettes.push(value);return uniform(location,value);};
+  renderer.render({...stormInput,readingAppearance:'light'});renderer.render({...stormInput,readingAppearance:'dark'});
+  assert.ok(palettes.length>=4&&palettes.every(v=>v===2));assert.ok(clears.every(v=>v.join(',')==='0.52,0.55,0.56,1'));
+  renderer.render(referenceInput);assert.deepEqual(clears.at(-1),[0,0,0,0]);
+  renderer.setQuality(200);renderer.render({...stormInput,formationTime:6});assert.equal(f.draws.at(-1).mode,f.gl.TRIANGLES);
+  renderer.render({...referenceInput,lightingStyle:'world-v1'});renderer.render(stormInput);renderer.initialize();owned(f,base);
+  renderer.render(stormInput);renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});

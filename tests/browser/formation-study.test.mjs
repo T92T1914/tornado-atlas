@@ -2,10 +2,12 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 import {enlargeText,reflow} from './ground-view-assertions.mjs';
+import {sceneFrame} from './storm-scene-assertions.mjs';
 
 const replay='reconstruction.html?event=el-reno-2013&appearance_view=formation&ground_view=synthetic-front&t=120';
 const oldForm2='study.html?experiment=form-2&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=0&coverage=continuous&rate=1&position=0&phase=15&model=kinematic-v1';
 const oldForm1='study.html?experiment=form-1&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=0&coverage=continuous&rate=1&position=0&phase=1000000000';
+const form5='study.html?experiment=form-5&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=reference&rate=1&position=0&phase=0&model=genesis-v1&visibility=ordinary&flow=1&presentation=reference-v1';
 
 async function openReplay(page){
   await page.goto(base+'/'+replay);
@@ -118,7 +120,9 @@ test('formation replay restores native state across reverse seek, quality, histo
   await page.locator('#replay-appearance-mode').selectOption('simulation');
   await nativeState(page,{value:130,seconds:130,genesis:false});
   await page.locator('#replay-appearance-mode').selectOption('formation');
-  await nativeState(page,{value:130,seconds:15});
+  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v1');
+  assert.equal(await page.locator('#ground-camera').inputValue(),'synthetic-front');
+  await sceneFrame(page,{value:130,seconds:15,camera:'synthetic-front'});
   await page.locator('#replay-time').fill('145');
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
@@ -126,7 +130,7 @@ test('formation replay restores native state across reverse seek, quality, histo
 
 test('Form Study compares condensation at unchanged circulation and preserves earlier experiment versions',async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:1000},reducedMotion:'reduce'});
-  await page.goto(base+'/study.html');await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  await page.goto(base+'/'+form5);await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   assert.equal(await page.locator('#sequence-coverage').inputValue(),'reference');
   const normal=await nativeState(page,{study:true,value:.5,seconds:15});
   if(normal.available)assert.deepEqual(normal.state,[1,0,1,1]);
