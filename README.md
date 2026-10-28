@@ -85,8 +85,13 @@ circulation from visible condensation, surface dust and the cloud base. Form
 Study lets the visitor compare reduced condensation at the same circulation,
 then seek through development and erosion. The `world-v1` presentation adds a
 fixed light direction, coherent density texture and a synthetic ground surface
-to that shared scenario. Its new `form-4` experiment links retain the lighting
-version as well as the `genesis-v1` model. Earlier `form-1`, `form-2`, `form-3`
+to that shared scenario. Its `form-4` experiment links retain that earlier lighting
+version as well as the `genesis-v1` model. Fresh `form-5` links select a broader
+`reference-v1` presentation informed by the permitted documentary photographs,
+with unequal margins, deeper cloud attachment and separate low dust. Its
+timing, hidden geometry and camera remain authored. The
+[reference notes](docs/reference-form-study.md) identify the sources, material
+approximation and remaining historical gate. Earlier `form-1`, `form-2`, `form-3`
 links and the six analytic camera references keep their previous drawing
 behavior. The separate Procedural funnel simulation remains available.
 The [form study notes](docs/visual-form-study.md) explain the drawing,

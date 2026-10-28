@@ -10,7 +10,7 @@ const byId = id => document.getElementById(id);
 const canvas = byId('scene');
 let renderer = null, lab = null;
 let motionModel='genesis-v1';
-let lightingStyle='world-v1';
+let lightingStyle='reference-v1';
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let frame = 0, time = 0, last = null, running = false, inView = true;
 const sequenceClock=new PlaybackClock(30,1);
@@ -134,10 +134,12 @@ canvas.addEventListener('webglcontextlost',event => {event.preventDefault();fail
 canvas.addEventListener('webglcontextrestored',initialize);
 function sequenceReadout() {
   canvas.dataset.lightingStyle=formationSelected()?lightingStyle:'legacy';
-  byId('lighting-note').hidden=!formationSelected()||lightingStyle!=='world-v1';
-  byId('quality').querySelector('[value="3600"]').textContent=formationSelected()&&lightingStyle==='world-v1'?'Lighter · 3,600 particles · up to 320 × 200':'Lighter · 3,600 particles';
+  byId('lighting-note').hidden=!formationSelected()||lightingStyle==='legacy';
+  byId('reference-form-sources').hidden=!formationSelected()||lightingStyle!=='reference-v1';
+  byId('lighting-note').textContent=lightingStyle==='reference-v1'?'This broad, irregular form uses published photographs as visible references. Its shape, light, cloud motion and ground surface are authored. No historical camera, time or physical scale is assigned.':'Authored side light and a synthetic ground surface help show depth. Their brightness, texture and distances are illustrative, with no historical illumination or physical scale.';
+  byId('quality').querySelector('[value="3600"]').textContent=formationSelected()&&lightingStyle!=='legacy'?'Lighter · 3,600 particles · up to 320 × 200':'Lighter · 3,600 particles';
   const groundLink=document.querySelector('.formation-context a[href*="reconstruction.html"]');
-  if(groundLink){const target=new URL(groundLink.href);if(lightingStyle==='world-v1')target.searchParams.set('appearance_style','world-v1');else target.searchParams.delete('appearance_style');groundLink.href=target.href;}
+  if(groundLink){const target=new URL(groundLink.href);if(lightingStyle!=='legacy')target.searchParams.set('appearance_style',lightingStyle);else target.searchParams.delete('appearance_style');groundLink.href=target.href;}
   const value=Number(byId('sequence-time').value);
   byId('sequence-progress').textContent=`${Math.round(value*100)}% of authored sequence`;
   const state=sequenceForm();
@@ -154,8 +156,8 @@ byId('sequence-enabled').addEventListener('change',()=>{
   coverageNote();syncControls();sequenceReadout();lab?.changed();
 });
 byId('sequence-time').addEventListener('input',()=>{const requested=Number(byId('sequence-time').value)*30;stop();time=requested;sequenceClock.seek(time);byId('sequence-time').value=time/30;sequenceReadout();requestFrame();lab?.changed();});
-function coverageNote(){byId('sequence-coverage-note').textContent=formationSelected()?'One illustrative supercell scenario over 30 authored seconds. Circulation precedes a continuous visible funnel in this example. Condensation and dust do not define tornado existence. These timings are assumptions, not a universal sequence or a historical clock.':byId('sequence-coverage').value==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';}
-byId('sequence-coverage').addEventListener('change',()=>{stop();motionModel=byId('sequence-coverage').value==='formation'?'genesis-v1':motionModel==='legacy'?'legacy':'kinematic-v1';if(formationSelected()){byId('sequence-enabled').checked=true;time=Number(byId('sequence-time').value)*30;sequenceClock.seek(time);}for(const id of ['shape','condensation'])byId(id).disabled=byId('sequence-enabled').checked;byId('sequence-time').disabled=!byId('sequence-enabled').checked;coverageNote();sequenceReadout();requestFrame();lab?.changed();});
+function coverageNote(){byId('sequence-coverage-note').textContent=lightingStyle==='reference-v1'&&formationSelected()?'A broad appearance study informed by documentary photographs, using the existing 30 authored study seconds. Photograph times do not set this sequence. Camera, hidden shape and physical dimensions are unresolved.':formationSelected()?'One illustrative supercell scenario over 30 authored seconds. Circulation precedes a continuous visible funnel in this example. Condensation and dust do not define tornado existence. These timings are assumptions, not a universal sequence or a historical clock.':byId('sequence-coverage').value==='bounded'?'This authored laboratory fixture covers 0 through 10 seconds and 22 through 30 seconds. The unassigned gap contains no funnel drawing. These windows are not historical observations.':'Four authored shapes blend over 30 seconds. This example is not El Reno or a measured life cycle.';}
+byId('sequence-coverage').addEventListener('change',()=>{stop();const selected=byId('sequence-coverage').value;motionModel=['formation','reference'].includes(selected)?'genesis-v1':motionModel==='legacy'?'legacy':'kinematic-v1';lightingStyle=selected==='reference'?'reference-v1':selected==='formation'?'world-v1':'legacy';if(formationSelected()){byId('sequence-enabled').checked=true;time=Number(byId('sequence-time').value)*30;sequenceClock.seek(time);}for(const id of ['shape','condensation'])byId(id).disabled=byId('sequence-enabled').checked;byId('sequence-time').disabled=!byId('sequence-enabled').checked;coverageNote();sequenceReadout();requestFrame();lab?.changed();});
 byId('sequence-rate').addEventListener('change',()=>{sequenceClock.setRate(Number(byId('sequence-rate').value),performance.now());lab?.changed();});
 
 function experimentState(){
@@ -163,7 +165,8 @@ function experimentState(){
   const state={shape:byId('shape').value,condensation:Number(byId('condensation').value),azimuth:Number(byId('azimuth').value),elevation:Number(byId('elevation').value),distance:Number(byId('distance').value),dust:byId('dust').checked,quality:Number(byId('quality').value),sequence,coverage:byId('sequence-coverage').value,rate:Number(byId('sequence-rate').value),position,phase:sequence?position*30:time};
   if(motionModel!=='legacy')state.model=motionModel;
   if(formationSelected()){state.visibility=byId('condensation-visibility').value;state.flow=byId('flow-cues').checked;}
-  if(formationSelected()&&lightingStyle==='world-v1')state.lighting=lightingStyle;
+  if(formationSelected()&&lightingStyle==='reference-v1')state.presentation=lightingStyle;
+  else if(formationSelected()&&lightingStyle==='world-v1')state.lighting=lightingStyle;
   return state;
 }
 function captureExperiment(){
@@ -178,7 +181,7 @@ function captureExperiment(){
 function restoreExperiment(state){
   stop();
   motionModel=state.model??'legacy';
-  lightingStyle=state.lighting??'legacy';
+  lightingStyle=state.presentation??state.lighting??'legacy';
   byId('condensation-visibility').value=state.visibility??'ordinary';byId('flow-cues').checked=state.flow??true;
   for(const key of ['shape','condensation','azimuth','elevation','distance','quality'])byId(key).value=state[key];
   byId('dust').checked=state.dust;byId('sequence-enabled').checked=state.sequence;
@@ -190,5 +193,6 @@ function restoreExperiment(state){
   renderer?.setQuality(state.quality);sequenceReadout();syncControls();
 }
 sequenceReadout();syncControls();
-lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage:'formation',visibility:'ordinary',flow:true,lighting:'world-v1'}});
+lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage:'reference',visibility:'ordinary',flow:true,presentation:'reference-v1'}});
+byId('reference-form-sources').addEventListener('click',event=>{if(event.target.closest('a'))lab.beforeNavigate?.();});
 initialize();

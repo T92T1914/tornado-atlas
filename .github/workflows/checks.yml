@@ -69,6 +69,7 @@ jobs:
           node --test tests/formation-model.test.mjs
           node --check web/funnel-lighting-model.mjs
           node --test tests/funnel-lighting-model.test.mjs tests/experiment-state.test.mjs
+          node --test tests/reference-form-experiment.test.mjs tests/reference-form-field.test.mjs
           node --check web/source-camera-model.mjs
           node --check web/ground-view-model.mjs
           node --check web/ground-view.mjs

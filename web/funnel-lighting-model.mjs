@@ -24,6 +24,10 @@ float sceneDensity(vec3 p){
   if(p.y<=2.71&&extent>0.0){
     vec2 radial=p.xz-funnelCenter(h,shape,time);
     float radius=max(.02,shape.x+shape.y*pow(h,1.7));
+#if REFERENCE_FORM
+    radial/=referenceSection(h,time);
+    radius=referenceRadius(h,shape);
+#endif
     body=(1.0-smoothstep(.65*radius,1.10*radius,length(radial)))
       *smoothstep(1.0-extent-.02,1.0-extent+.045,rawHeight)*(1.0-smoothstep(.96,1.04,rawHeight))
       *(genesis?formationState.x*(1.0-.6*formationState.y):1.0);
@@ -32,8 +36,12 @@ float sceneDensity(vec3 p){
   float cloud=0.0;
   if(p.y>2.05){
     float radius=length(q)*(genesis?1.18:1.0);
-    float height=2.83-.20*exp(-dot(q,q)/.85);
-    cloud=.35*exp(-pow((p.y-height)/.24,2.0))*(1.0-smoothstep(1.8,2.55,radius));
+    float height=2.83-.20*exp(-dot(q,q)/.85),thickness=.24;
+#if REFERENCE_FORM
+    height=referenceCloudHeight(q,time);thickness=.38;
+    radius=length(q/vec2(1.10,.88));
+#endif
+    cloud=.35*exp(-pow((p.y-height)/thickness,2.0))*(1.0-smoothstep(1.8,2.55,radius));
   }
   float haze=0.0;
   if(dust&&p.y<.45)haze=.45*exp(-dot(p.xz,p.xz)/.28-p.y*12.0)*(genesis?formationState.z:1.0);
@@ -47,6 +55,9 @@ vec3 worldMaterial(vec3 p,float localDensity){
   // The existing primary sample supplies a short authored local extinction cue.
   // It adds no density probe and is not calibrated microphysical scattering.
   float illumination=.24+.76*nearbyTransmission(p,worldLight())*exp(-.72*max(0.0,localDensity));
+#if REFERENCE_FORM
+  illumination=.32+.68*nearbyTransmission(p,worldLight())*exp(-.18*max(0.0,localDensity));
+#endif
   float value=readingPalette==1?mix(.12,.61,illumination):mix(.12,.84,illumination);
   return readingPalette>0?vec3(value):vec3(value*.95,value,value*.98);
 }

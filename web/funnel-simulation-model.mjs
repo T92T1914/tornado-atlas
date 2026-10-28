@@ -1,4 +1,5 @@
 import {FUNNEL_LIGHTING_GLSL} from './funnel-lighting-model.mjs';
+import {REFERENCE_FIELD_GLSL} from './reference-form-model.mjs';
 // Authored kinematics and optical density in normalized scene units.
 // None of these parameters is a measured wind, condensation or debris quantity.
 export const FUNNEL_SIMULATION = Object.freeze({id:'kinematic-v1',seed:20130531,maxSeconds:86400});
@@ -49,19 +50,27 @@ export function inverseCameraMatrix(matrix){
 
 // Authored harmonics and a smooth hashed value field, not curl noise or a fluid solve.
 export const FUNNEL_DENSITY_GLSL = `
+#ifndef REFERENCE_FORM
+#define REFERENCE_FORM 0
+#endif
 float materialCell(ivec3 cell){
   uvec3 q=uvec3(cell+ivec3(4096));
   uint value=q.x*1664525u+q.y*1013904223u+q.z*69069u+20130531u;
   value^=value>>13;value*=1274126177u;value^=value>>16;
   return float(value&65535u)/65535.0;
 }
+${REFERENCE_FIELD_GLSL}
 float materialNoise(vec3 p){
+#if REFERENCE_FORM
+  return referenceNoise(p);
+#else
   ivec3 cell=ivec3(floor(p));vec3 u=fract(p);u=u*u*(3.0-2.0*u);
   float lower=mix(mix(materialCell(cell),materialCell(cell+ivec3(1,0,0)),u.x),
     mix(materialCell(cell+ivec3(0,1,0)),materialCell(cell+ivec3(1,1,0)),u.x),u.y);
   float upper=mix(mix(materialCell(cell+ivec3(0,0,1)),materialCell(cell+ivec3(1,0,1)),u.x),
     mix(materialCell(cell+ivec3(0,1,1)),materialCell(cell+ivec3(1,1,1)),u.x),u.y);
   return mix(lower,upper,u.z);
+#endif
 }
 float formationMask(float h,float theta,float t){
   float onset=smoothstep(.16,.40,formationProgress+.055*cos(9.0*h+1.0));
@@ -70,15 +79,24 @@ float formationMask(float h,float theta,float t){
   return onset*clearing*erosion;
 }
 vec2 funnelCenter(float h,vec3 s,float t){
+#if REFERENCE_FORM
+  return referenceAxis(h,s,t);
+#endif
   if(genesis)return s.z*h*vec2(.55*sin(3.1*h-.16*t)+.45*h,.55*cos(2.4*h+.11*t));
   return s.z*h*vec2(sin(5.5*h-.25*t),cos(4.0*h+.19*t));
 }
 float funnelRadius(float h,vec3 s,float t){
+#if REFERENCE_FORM
+  return referenceRadius(h,s);
+#endif
   if(genesis)return (s.x+s.y*pow(clamp(h,0.0,1.0),1.7))*(1.0+.10*sin(4.1*h-.24*t)+.045*sin(10.3*h-.48*t));
   float profile=s.x+s.y*pow(clamp(h,0.0,1.0),1.35);
   return profile*(1.0+.035*sin(8.0*h-.7*t)+.025*sin(13.0*h-1.1*t));
 }
 float condensationDensity(vec3 p,vec3 s,float t,float ex){
+#if REFERENCE_FORM
+  return referenceBody(p,s,t,ex);
+#endif
   float h=p.y/2.6;
   if(ex<=0.0||h<0.0||h>1.04)return 0.0;
   vec2 q=p.xz-funnelCenter(h,s,t);
@@ -106,6 +124,9 @@ float condensationDensity(vec3 p,vec3 s,float t,float ex){
   return max(0.0,envelope*interior*ends);
 }
 float cloudBaseDensity(vec3 p,float t){
+#if REFERENCE_FORM
+  return referenceCloud(p,t);
+#endif
   vec2 q=p.xz-vec2(.12*sin(.11*t),.12*cos(.09*t));
   if(genesis)q*=1.18;
   float r=length(q);
@@ -129,6 +150,9 @@ float cloudBaseDensity(vec3 p,float t){
   return vertical*rim*max(.12,texture)*cutoff;
 }
 float dustDensity(vec3 p,float t){
+#if REFERENCE_FORM
+  return referenceDust(p,t);
+#endif
   if(p.y<0.0||p.y>.45)return 0.0;
   vec2 q=p.xz-vec2(.08*sin(.31*t),.10*cos(.27*t));
   float width=.26+1.2*p.y;
@@ -224,6 +248,9 @@ void main(){
   }
   // Separate bounds keep the thin body sampled independently of the wide cloud.
   float radius=max(dust?1.45:.05,1.31*(shape.x+shape.y*1.06)+1.04*abs(shape.z)+.08);
+#if REFERENCE_FORM
+  radius=2.75;
+#endif
   vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,2.71,radius));
   vec2 cloudOffset=vec2(.12*sin(.11*time),.12*cos(.09*time));
   vec2 cloudRange=intersectBox(origin,ray,length(segment),vec3(cloudOffset.x-2.8,2.05,cloudOffset.y-2.8),vec3(cloudOffset.x+2.8,3.5,cloudOffset.y+2.8));

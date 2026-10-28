@@ -100,8 +100,9 @@ nor successful camera test establishes historical likeness or physical accuracy.
 The formation view now has a versioned `world-v1` presentation shared with Form
 Study. Open
 `reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=world-v1&ground_view=synthetic-front&t=120#replay-appearance`.
-The appearance selector and the current Form Study context link select this
-presentation. A formation URL without `appearance_style` retains its earlier
+Explicit links keep this presentation. The current selector and Form Study
+context link select the broader `reference-v1` presentation described in the
+[reference notes](reference-form-study.md). A formation URL without `appearance_style` retains its earlier
 lighting. Unknown or repeated style values leave the requested presentation
 unavailable instead of substituting a different scene. The original camera
 comparison and `kinematic-v1` simulation remain separate compatibility paths.

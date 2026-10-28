@@ -48,6 +48,7 @@ async function nativeState(page,{study=false,value,seconds,genesis=true,trigger=
       window.formationPixels=pixels;
       window.formationNative={available:true,time:uniform('time'),genesis:uniform('genesis'),kinematic:uniform('kinematic'),
         progress:uniform('formationProgress'),state:Array.from(uniform('formationState')),volume,
+        reference:gl.getAttachedShaders(p).some(shader=>/^#define REFERENCE_FORM 1$/m.test(gl.getShaderSource(shader))),
         shape:Array.from(uniform('shape')),matrix:Array.from(uniform('camera')),count:args[2],
         buffer:[gl.drawingBufferWidth,gl.drawingBufferHeight],error:gl.getError(),lost:gl.isContextLost()};
       return result;
@@ -67,7 +68,10 @@ async function nativeState(page,{study=false,value,seconds,genesis=true,trigger=
     assert.ok(Math.abs(result.time-seconds)<3e-5,'Native motion time follows the declared scenario mapping');
     assert.ok(result.buffer[0]<=512&&result.buffer[1]<=320,'Formation retains the accepted raster budget');
     assert.equal(result.volume?.genesis,genesis);assert.equal(result.volume?.time,result.time);
-    assert.deepEqual(result.volume.state,result.state);assert.equal(result.volume.progress,result.progress);
+    assert.deepEqual(result.volume.state,result.state);
+    if(genesis)assert.ok(Math.abs(result.volume.progress-Math.fround(seconds/30))<2e-6,'Actual volume progression follows the selected scenario');
+    if(result.progress===null){assert.equal(result.reference,true);result.particleProgress=null;result.progress=result.volume.progress;}
+    else assert.equal(result.volume.progress,result.progress);
     return result;
   }finally{
     await page.evaluate(()=>{window.formationNativeCleanup?.();window.formationNativeCleanup=null;window.formationPixels=null;});
@@ -123,7 +127,7 @@ test('formation replay restores native state across reverse seek, quality, histo
 test('Form Study compares condensation at unchanged circulation and preserves earlier experiment versions',async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:1000},reducedMotion:'reduce'});
   await page.goto(base+'/study.html');await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
-  assert.equal(await page.locator('#sequence-coverage').inputValue(),'formation');
+  assert.equal(await page.locator('#sequence-coverage').inputValue(),'reference');
   const normal=await nativeState(page,{study:true,value:.5,seconds:15});
   if(normal.available)assert.deepEqual(normal.state,[1,0,1,1]);
   await page.locator('#condensation-visibility').selectOption('limited');
@@ -132,7 +136,8 @@ test('Form Study compares condensation at unchanged circulation and preserves ea
   await page.locator('#flow-cues').uncheck();
   await page.locator('#lab-share').click();
   const saved=page.url(),params=new URL(saved).searchParams;
-  assert.equal(params.get('experiment'),'form-4');assert.equal(params.get('model'),'genesis-v1');assert.equal(params.get('lighting'),'world-v1');
+  assert.equal(params.get('experiment'),'form-5');assert.equal(params.get('model'),'genesis-v1');assert.equal(params.get('presentation'),'reference-v1');
+  assert.equal(params.get('coverage'),'reference');assert.equal(params.has('lighting'),false);
   assert.equal(params.get('visibility'),'limited');assert.equal(params.get('flow'),'0');assert.equal(params.get('position'),'0.5');
   await page.reload();await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   assert.equal(await page.locator('#condensation-visibility').inputValue(),'limited');assert.equal(await page.locator('#flow-cues').isChecked(),false);
