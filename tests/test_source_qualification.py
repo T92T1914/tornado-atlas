@@ -4,7 +4,9 @@ from html.parser import HTMLParser
 import json
 from pathlib import Path
 import unittest
+from tempfile import TemporaryDirectory
 
+from reviewed_continuation_support import PROMOTIONS, canonical, reviewed_predecessor
 from atlas.archive import digest, dossiers
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,7 +54,7 @@ class QualifiedSourcePreservation(unittest.TestCase):
         for event in ACCEPTED:
             with self.subTest(event=event):
                 before = accepted(event)
-                after = copy.deepcopy(self.docs[event])
+                after = reviewed_predecessor(self, self.docs[event])
                 if event == 'el-reno-2013':
                     # Keep the completed source-qualification decision frozen.
                     # Later documentary increments have their own preservation controls.
@@ -151,7 +153,7 @@ class QualifiedSourcePreservation(unittest.TestCase):
         self.assertIsNone(obs['place']['coordinates'])
         self.assertIn('30 fps does not establish camera accuracy', obs['limits'])
         self.assertIn('no 23:15:19 correspondence', obs['limits'])
-        self.assertEqual(doc['media'], accepted('el-reno-2013')['media'])
+        self.assertEqual(reviewed_predecessor(self, doc)['media'], accepted('el-reno-2013')['media'])
         timeline = json.loads((ROOT / 'exhibits/el-reno-2013/appearance-timeline.json').read_bytes())
         self.assertEqual(timeline['windows'], [])
         self.assertNotIn('coy-calhoun', json.dumps(timeline))
@@ -173,6 +175,128 @@ class QualifiedSourcePreservation(unittest.TestCase):
                       'dossier.html?event=el-reno-2013&source=coy-calhoun-lightning-video-2015#source-coy-calhoun-lightning-video-2015'):
             self.assertIn(route, parsed.links)
         self.assertFalse(any('Coy-finalpaper' in json.dumps(row) for row in parsed.media))
+
+
+
+
+class ExactReviewedContinuationControls(unittest.TestCase):
+    """Current source review is exact; historical preservation has its own subject."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.docs = {doc['id']: doc for doc in dossiers(ROOT)}
+
+    def test_four_exact_current_promotions_and_retained_bases_are_pinned(self):
+        self.assertEqual(set(PROMOTIONS), {
+            'el-reno-2013', 'joplin-2011', 'blackwell-1955',
+            'tuscaloosa-birmingham-2011'})
+        for event, spec in PROMOTIONS.items():
+            with self.subTest(event=event):
+                current = self.docs[event]
+                retained = reviewed_predecessor(self, current)
+                self.assertEqual(canonical(current), spec['current'])
+                self.assertEqual(canonical(retained), spec['previous'])
+                self.assertEqual(current['reconstruction']['intervals'], [])
+                self.assertIsNot(current, retained)
+
+    def rejected_mutation(self, event, change):
+        current = copy.deepcopy(self.docs[event])
+        change(current)
+        with self.assertRaisesRegex(AssertionError, 'Only the exact reviewed continuation'):
+            reviewed_predecessor(self, current)
+
+    def test_unrelated_source_rights_and_identity_mutations_still_fail(self):
+        for event in PROMOTIONS:
+            for field in ('rights', 'url'):
+                with self.subTest(event=event, field=field):
+                    self.rejected_mutation(event, lambda doc, field=field:
+                        doc['sources'][0].__setitem__(field, 'unreviewed replacement'))
+
+    def test_unrelated_time_camera_and_interval_mutations_still_fail(self):
+        for event in PROMOTIONS:
+            changes = {
+                'capture': lambda doc: doc['observations'][0]['time'].__setitem__(
+                    'capture', '2013-05-31T23:15:19Z'),
+                'camera': lambda doc: doc['observations'][0]['place'].__setitem__(
+                    'coordinates', [35.0, -98.0]),
+                'registration': lambda doc: doc['reconstruction']['intervals'].append(
+                    {'start': 0, 'end': 1, 'claim': 'unreviewed geometry'}),
+            }
+            for label, change in changes.items():
+                with self.subTest(event=event, mutation=label):
+                    self.rejected_mutation(event, change)
+
+    def test_named_reviewed_leaf_is_not_an_open_ended_text_allowance(self):
+        targets = {
+            'el-reno-2013': 'bohac-archived-extended-film',
+            'joplin-2011': 'piotrowski-joplin-original',
+            'blackwell-1955': 'tulsa-blackwell-enhanced-edition',
+            'tuscaloosa-birmingham-2011': 'brown-tuscaloosa-original',
+        }
+        for event, item in targets.items():
+            with self.subTest(event=event):
+                def change(doc):
+                    media = next(row for row in doc['media'] if row['id'] == item)
+                    media['limits'] += ' Unreviewed permission expansion.'
+                self.rejected_mutation(event, change)
+
+    def test_joplin_added_records_and_observations_remain_exact(self):
+        changes = {
+            'record basis': lambda doc: doc['records'][0].__setitem__(
+                'basis', 'Unreviewed whole-event equivalence'),
+            'extra observation': lambda doc: doc['observations'].append(
+                copy.deepcopy(doc['observations'][-1])),
+            'clock alignment': lambda doc: doc['observations'][-1]['time'].__setitem__(
+                'alignment', {'utc': '2011-05-22T22:41:00Z'}),
+        }
+        for label, change in changes.items():
+            with self.subTest(mutation=label):
+                self.rejected_mutation('joplin-2011', change)
+
+    def test_reviewer_identity_is_not_an_allowed_review_edit(self):
+        for event in PROMOTIONS:
+            with self.subTest(event=event):
+                self.rejected_mutation(event, lambda doc:
+                    doc['provenance']['publication_review'].__setitem__('reviewer_kind', 'other'))
+
+    def isolated_publication(self, destination, event):
+        spec = PROMOTIONS[event]
+        for field in ('previous_file', 'current_file', 'history_file'):
+            path = destination / 'web' / spec[field]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((ROOT / 'web' / spec[field]).read_bytes())
+        index = json.loads((ROOT / 'web/archive/index.json').read_bytes())
+        entry = next(row for row in index['events'] if row['id'] == event)
+        (destination / 'web/archive/index.json').write_text(
+            json.dumps({'events': [entry]}), encoding='utf-8')
+
+    def test_whitespace_tampering_does_not_replace_exact_immutable_bytes(self):
+        event = 'joplin-2011'
+        for field in ('previous_file', 'current_file', 'history_file'):
+            with self.subTest(file=field), TemporaryDirectory() as temporary:
+                isolated = Path(temporary)
+                self.isolated_publication(isolated, event)
+                # A complete positive control precedes each isolated byte mutation.
+                reviewed_predecessor(self, self.docs[event], isolated)
+                path = isolated / 'web' / PROMOTIONS[event][field]
+                path.write_bytes(path.read_bytes() + b'\n')
+                with self.assertRaisesRegex(AssertionError, 'Immutable reviewed publication bytes changed'):
+                    reviewed_predecessor(self, self.docs[event], isolated)
+
+    def test_current_index_must_keep_the_new_association_and_exact_identity(self):
+        event = 'joplin-2011'
+        for field in ('records', 'dossier_sha256', 'history_file'):
+            with self.subTest(field=field), TemporaryDirectory() as temporary:
+                isolated = Path(temporary)
+                self.isolated_publication(isolated, event)
+                reviewed_predecessor(self, self.docs[event], isolated)
+                path = isolated / 'web/archive/index.json'
+                index = json.loads(path.read_bytes())
+                entry = index['events'][0]
+                entry[field] = entry[field][1:] if field == 'records' else 'unreviewed replacement'
+                path.write_text(json.dumps(index), encoding='utf-8')
+                with self.assertRaises(AssertionError):
+                    reviewed_predecessor(self, self.docs[event], isolated)
 
 
 if __name__ == '__main__':

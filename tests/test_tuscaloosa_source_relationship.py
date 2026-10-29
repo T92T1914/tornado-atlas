@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import unittest
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import dossiers, digest, validate_dossier
 from atlas.evidence_coverage import layer_references
 from test_article_reading import BASELINES, READING_ROUTES
@@ -16,31 +17,32 @@ class TuscaloosaSourceRelationshipTests(unittest.TestCase):
         cls.old = json.loads((ROOT / 'web/archive/tuscaloosa-birmingham-2011-86b0d953102d962b43c5.json').read_text(encoding='utf8'))
 
     def test_prior_evidence_identity_order_and_source_limits_survive(self):
+        retained = reviewed_predecessor(self, self.doc)
         for field in ('records', 'creators', 'media', 'reconstruction'):
-            self.assertEqual(digest(self.doc[field]), digest(self.old[field]))
-        self.assertEqual(self.doc['routes'], self.old['routes'] + READING_ROUTES[self.doc['id']] + [
+            self.assertEqual(digest(retained[field]), digest(self.old[field]))
+        self.assertEqual(retained['routes'], self.old['routes'] + READING_ROUTES[retained['id']] + [
             {'label': 'Read recovery planning and local remembrance',
              'href': 'tuscaloosa.html#recovery-and-remembrance'}])
         for field in ('sources', 'observations'):
-            self.assertEqual(digest(self.doc[field][:len(self.old[field])]), digest(self.old[field]))
-        self.assertEqual(self.doc['reconstruction']['intervals'], [])
-        self.assertEqual(self.doc['coverage'], 'Exhibit')
-        accepted_sha = BASELINES[self.doc['id']]
+            self.assertEqual(digest(retained[field][:len(self.old[field])]), digest(self.old[field]))
+        self.assertEqual(retained['reconstruction']['intervals'], [])
+        self.assertEqual(retained['coverage'], 'Exhibit')
+        accepted_sha = BASELINES[retained['id']]
         accepted = json.loads((ROOT / 'web/archive' /
-                               (self.doc['id'] + '-' + accepted_sha[:20] + '.json')).read_bytes())
+                               (retained['id'] + '-' + accepted_sha[:20] + '.json')).read_bytes())
         self.assertEqual(digest(accepted), accepted_sha)
         self.assertEqual(accepted['provenance']['publication_review']['previous_dossier_sha256'], digest(self.old))
         reading_sha = '63b08e0460f38874aeb9f56825860abb768886cb6eea408e5415e9215bcc4a64'
         reading = json.loads((ROOT / 'web/archive' /
-                             (self.doc['id'] + '-' + reading_sha[:20] + '.json')).read_bytes())
+                             (retained['id'] + '-' + reading_sha[:20] + '.json')).read_bytes())
         self.assertEqual(digest(reading), reading_sha)
         self.assertEqual(reading['provenance']['publication_review']['previous_dossier_sha256'], accepted_sha)
         intermediate_sha = 'f880ae503c3cb6ef1ebefec27a81f1d9f558abeb9b11eeea8dd59e3962371297'
         intermediate = json.loads((ROOT / 'web/archive' /
-                                  (self.doc['id'] + '-' + intermediate_sha[:20] + '.json')).read_bytes())
+                                  (retained['id'] + '-' + intermediate_sha[:20] + '.json')).read_bytes())
         self.assertEqual(digest(intermediate), intermediate_sha)
         self.assertEqual(intermediate['provenance']['publication_review']['previous_dossier_sha256'], reading_sha)
-        self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], intermediate_sha)
+        self.assertEqual(retained['provenance']['publication_review']['previous_dossier_sha256'], intermediate_sha)
 
     def test_source_is_the_inspected_links_only_publication(self):
         s = next(x for x in self.doc['sources'] if x['id'] == 'oliveira-2022-trailing-vortices')

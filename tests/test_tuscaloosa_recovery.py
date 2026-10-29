@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import dossiers, digest, validate_dossier
 from atlas.evidence_coverage import layer_references
 
@@ -66,7 +67,7 @@ class TuscaloosaRecoveryTests(unittest.TestCase):
         self.assertEqual(digest(self.previous), PREVIOUS)
         self.assertEqual(hashlib.sha256(self.raw).hexdigest(),
                          '02c2d593027112397d859184955225db56912135ab6ea827ec2f76598d334f72')
-        after = copy.deepcopy(self.doc)
+        after = reviewed_predecessor(self, self.doc)
         self.assertEqual([s['id'] for s in after['sources'][len(self.previous['sources']):]], list(SOURCE_URLS))
         self.assertEqual([o['id'] for o in after['observations'][len(self.previous['observations']):]], OBSERVATIONS)
         self.assertEqual(after['routes'][len(self.previous['routes']):], [ROUTE])
@@ -83,7 +84,7 @@ class TuscaloosaRecoveryTests(unittest.TestCase):
         intermediate = json.loads(raw)
         self.assertEqual(digest(intermediate), INTERMEDIATE)
         self.assertEqual(intermediate['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS)
-        corrected = copy.deepcopy(self.doc)
+        corrected = reviewed_predecessor(self, self.doc)
         city_ids = set(OBSERVATIONS[1:])
         for obs in corrected['observations']:
             if obs['id'] in city_ids:
@@ -118,7 +119,7 @@ class TuscaloosaRecoveryTests(unittest.TestCase):
         self.assertIn('2021', observance['time']['event'])
         self.assertIn('time zone not explicitly stated', observance['time']['event'])
         self.assertEqual(observance['time']['publication'], 'April 23, 2021, as labeled by the City article.')
-        self.assertEqual(self.doc['reconstruction'], self.previous['reconstruction'])
+        self.assertEqual(reviewed_predecessor(self, self.doc)['reconstruction'], self.previous['reconstruction'])
         refs = layer_references(ROOT, self.doc)
         before_refs = json.loads((ROOT / 'exhibits/tuscaloosa-birmingham-2011/layers.json').read_text())
         self.assertEqual(before_refs['dossier_sha256'], digest(self.doc))
@@ -151,7 +152,7 @@ class TuscaloosaRecoveryTests(unittest.TestCase):
             self.assertIn(fragment, self.section.links)
         self.assertEqual(self.section.media, [])
         self.assertIn('<a href="#recovery-and-remembrance">Recovery and remembrance</a>', self.html)
-        self.assertEqual(self.doc['media'], self.previous['media'])
+        self.assertEqual(reviewed_predecessor(self, self.doc)['media'], self.previous['media'])
 
 
 if __name__ == '__main__':

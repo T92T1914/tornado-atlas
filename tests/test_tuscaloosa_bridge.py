@@ -8,6 +8,7 @@ from pathlib import Path
 import unittest
 
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,6 +59,7 @@ class TuscaloosaBridgeTests(unittest.TestCase):
         cls.html = (ROOT / 'web/tuscaloosa.html').read_text(encoding='utf-8')
 
     def test_previous_evidence_and_registration_are_unchanged(self):
+        retained = reviewed_predecessor(self, self.doc)
         bridge_sha = '11a6678e22a1f3fab562a7cddb07891279bd6e7d03b83f2d57d08bd12614e8df'
         bridge = json.loads((ROOT / 'web/archive' / f'{EVENT}-{bridge_sha[:20]}.json').read_text(encoding='utf-8'))
         self.assertEqual(digest(bridge), bridge_sha)
@@ -69,16 +71,16 @@ class TuscaloosaBridgeTests(unittest.TestCase):
         for field in ('observations', 'records', 'reconstruction', 'creators', 'title', 'coverage'):
             self.assertEqual(bridge[field], self.prior[field], field)
             if field in ('observations', 'creators'):
-                self.assertEqual(self.doc[field][:len(bridge[field])], bridge[field], field)
+                self.assertEqual(retained[field][:len(bridge[field])], bridge[field], field)
             else:
-                assert_preserved_field(self, self.doc[field], bridge[field], field)
+                assert_preserved_field(self, retained[field], bridge[field], field)
         self.assertEqual(bridge['media'][:-1], self.prior['media'])
         self.assertEqual(bridge['sources'][:-1], self.prior['sources'])
         self.assertEqual(bridge['media'][-1]['id'], MEDIA)
         self.assertEqual(bridge['sources'][-1]['id'], SOURCE)
         self.assertEqual(bridge['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS_SHA)
-        self.assertEqual(self.doc['media'][:len(bridge['media'])], bridge['media'])
-        self.assertEqual(self.doc['sources'][:len(bridge['sources'])], bridge['sources'])
+        self.assertEqual(retained['media'][:len(bridge['media'])], bridge['media'])
+        self.assertEqual(retained['sources'][:len(bridge['sources'])], bridge['sources'])
         self.assertLess((ROOT / f'exhibits/{EVENT}/dossier.json').stat().st_size, 50_000)
 
     def test_item_attribution_does_not_assign_a_bridge_or_camera(self):

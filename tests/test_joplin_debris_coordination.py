@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,16 +87,17 @@ class JoplinDebrisCoordinationTests(unittest.TestCase):
         cls.raw = (ROOT / 'web' / ASSET).read_bytes()
 
     def test_preserved_predecessor_and_exact_added_records(self):
+        retained = reviewed_predecessor(self, self.doc)
         # This stage's exact additions remain tied to its immutable publication;
         # later satellite evidence must preserve it rather than erase the history.
         debris = json.loads((ROOT / 'web/archive/joplin-2011-df879ecba5ed85a4c8c0.json').read_text(encoding='utf-8'))
         self.assertEqual(digest(self.prior), PRIOR)
         for field in ('sources', 'media', 'observations', 'creators', 'routes'):
-            self.assertEqual(self.doc[field][:len(self.prior[field])], self.prior[field], field)
+            self.assertEqual(retained[field][:len(self.prior[field])], self.prior[field], field)
         for field in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
-            self.assertEqual(self.doc[field], self.prior[field], field)
+            self.assertEqual(retained[field], self.prior[field], field)
         for field in ('sources','media','observations','creators','routes'):
-            self.assertEqual(self.doc[field][:len(debris[field])],debris[field],field)
+            self.assertEqual(retained[field][:len(debris[field])],debris[field],field)
         self.assertEqual(debris['sources'][len(self.prior['sources']):], [self.source])
         self.assertEqual(debris['media'][len(self.prior['media']):], [self.media])
         self.assertEqual(debris['observations'][len(self.prior['observations']):], [self.observation])
@@ -103,7 +105,7 @@ class JoplinDebrisCoordinationTests(unittest.TestCase):
         self.assertEqual(debris['routes'][len(self.prior['routes']):], [
             {'label':'Debris removal and quality assurance', 'href':'joplin.html#debris-removal'}])
         self.assertIs(validate_dossier(self.doc), self.doc)
-        current = next(v for v in dossier_history(self.doc)['versions'] if v['dossier_sha256']==digest(debris))
+        current = next(v for v in dossier_history(retained)['versions'] if v['dossier_sha256']==digest(debris))
         self.assertEqual(current['review']['previous_dossier_sha256'], PRIOR)
         self.assertTrue(current['predecessor_available'])
         self.assertFalse(any(row['change'] == 'removed' for row in current['changes']))

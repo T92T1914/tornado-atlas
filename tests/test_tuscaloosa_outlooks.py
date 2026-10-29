@@ -10,6 +10,7 @@ import unittest
 from urllib.parse import parse_qs, urlsplit
 
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -107,6 +108,14 @@ class TuscaloosaOutlookHTMLTests(unittest.TestCase):
             rb'\r?\n        <div id="pre-event-outlooks".*?</div>\r?\n      ',
             b'', warning, flags=re.S)
         self.assertEqual(count, 1)
+        # The reviewed article edit changes only these two chapter labels.
+        # Restore their exact prior bytes before enforcing the original digest.
+        for current, previous in (
+                (b'BEFORE AND DURING THE TORNADO', b'04 / WARNINGS AND THE LAST MILE'),
+                (b'<h2>Forecasts and warning communication</h2>',
+                 b'<h2>A warning also needed a way to reach someone.</h2>')):
+            self.assertEqual(retained.count(current), 1)
+            retained = retained.replace(current, previous)
         self.assertEqual(hashlib.sha256(retained).hexdigest(), WARNING_SHA)
 
 
@@ -143,14 +152,15 @@ class TuscaloosaOutlookPublicationTests(unittest.TestCase):
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PRIOR)
 
     def test_current_publication_preserves_the_complete_accepted_outlook(self):
+        retained = reviewed_predecessor(self, self.current)
         for field in ('title', 'coverage', 'summary', 'records', 'reconstruction'):
-            assert_preserved_field(self, self.current[field], self.doc[field], field)
-        self.assertEqual(self.current['creators'][:len(self.doc['creators'])], self.doc['creators'])
+            assert_preserved_field(self, retained[field], self.doc[field], field)
+        self.assertEqual(retained['creators'][:len(self.doc['creators'])], self.doc['creators'])
         for field in ('media', 'sources', 'routes', 'observations'):
-            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
+            self.assertEqual(retained[field][:len(self.doc[field])], self.doc[field], field)
         for key, value in self.doc['provenance'].items():
             if key != 'publication_review':
-                self.assertEqual(self.current['provenance'][key], value, key)
+                self.assertEqual(retained['provenance'][key], value, key)
         self.assertIs(validate_dossier(self.current), self.current)
 
     def test_forecast_context_cannot_acquire_a_guessed_map_point(self):

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import dossiers
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,6 +16,7 @@ class HospitalExhibitTests(unittest.TestCase):
         self.before = json.loads((ROOT / 'web/archive/joplin-2011-01b24def4c0f59517dd4.json').read_text(encoding='utf-8'))
 
     def test_previous_evidence_and_chronology_are_unchanged(self):
+        retained = reviewed_predecessor(self, self.doc)
         hospital = json.loads((ROOT / 'web/archive/joplin-2011-2ff06de762b0d24a3451.json').read_text(encoding='utf-8'))
         # Check this increment at its immutable boundary, then check that later
         # reviewed additions still preserve its rows in the current dossier.
@@ -26,8 +28,8 @@ class HospitalExhibitTests(unittest.TestCase):
         self.assertEqual(hospital['provenance']['publication_review']['previous_dossier_sha256'],
                          '01b24def4c0f59517dd4c799ffb19f53db60a94c6fad1803c477e9047e22bec1')
         for field in ('sources', 'media', 'routes', 'observations', 'creators', 'records'):
-            self.assertEqual(self.doc[field][:len(hospital[field])], hospital[field], field)
-        self.assertEqual(self.doc['reconstruction'], hospital['reconstruction'])
+            self.assertEqual(retained[field][:len(hospital[field])], hospital[field], field)
+        self.assertEqual(retained['reconstruction'], hospital['reconstruction'])
 
     def test_photos_are_complete_bounded_unregistered_report_sources(self):
         expected = [

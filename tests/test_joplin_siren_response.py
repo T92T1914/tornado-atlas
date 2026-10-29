@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, publication
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +20,7 @@ class JoplinSirenResponseTests(unittest.TestCase):
         raw = (ROOT / 'web' / OLD).read_bytes()
         self.assertEqual(hashlib.sha256(raw).hexdigest(), OLD_SHA256)
         old = json.loads(raw)
-        current = next(d for d in dossiers() if d['id'] == old['id'])
+        current = reviewed_predecessor(self, next(d for d in dossiers() if d['id'] == old['id']))
         prior_ids = {o['id'] for o in old['observations']}
         self.assertEqual([o for o in current['observations'] if o['id'] in prior_ids], old['observations'])
         self.assertEqual(current['observations'][:len(old['observations'])], old['observations'])

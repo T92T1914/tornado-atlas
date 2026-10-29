@@ -6,6 +6,7 @@ from pathlib import Path
 import unittest
 from urllib.parse import parse_qs, urlsplit
 
+from reviewed_continuation_support import retained_index_entry
 from atlas.archive import dossiers, digest, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -215,7 +216,7 @@ class UdallDocumentaryTests(unittest.TestCase):
         self.assertEqual(membership['dossier_sha256'], digest(self.doc))
 
     def test_existing_five_dossiers_keep_their_accepted_archive_objects(self):
-        entries = {row['id']: row for row in self.index['events']}
+        entries = {row['id']: retained_index_entry(self, row) for row in self.index['events']}
         for event_id, (file, sha) in PRESERVED_DOSSIERS.items():
             with self.subTest(event=event_id):
                 self.assertEqual(hashlib.sha256((ROOT / 'web' / file).read_bytes()).hexdigest(), sha)

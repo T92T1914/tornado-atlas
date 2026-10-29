@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import dossier_history, dossiers
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,12 +58,13 @@ class JoplinContextPhotoTests(unittest.TestCase):
         self.assertIn('unverified', self.media['nws-joplin-aftermath']['time']['capture']['reported'])
 
     def test_previous_reviewed_rows_and_reconstruction_are_preserved(self):
+        retained = reviewed_predecessor(self, self.doc)
         previous = json.loads((ROOT / 'web/archive' / PREVIOUS).read_text(encoding='utf-8'))
         for field in ('records', 'reconstruction'):
-            self.assertEqual(previous[field], self.doc[field])
+            self.assertEqual(previous[field], retained[field])
         for field in ('media', 'observations', 'sources', 'creators', 'routes'):
             for row in previous[field]:
-                self.assertIn(row, self.doc[field], (field, row.get('id', row)))
+                self.assertIn(row, retained[field], (field, row.get('id', row)))
 
     def test_increment_records_exact_predecessor_and_additions(self):
         history = dossier_history(self.doc)
