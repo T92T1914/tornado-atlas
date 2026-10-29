@@ -86,7 +86,14 @@ for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`storm-v2 Form and 
     const before=await sceneFrame(page,{study,style:'storm-v2',retain:'detail-before'}),ui=await readingState(page);
     if(study)await page.waitForURL(base+'/'+form7);
     const saved=page.url();
-    if(before){assert.deepEqual(before.state,[1,0,1,1]);assert.deepEqual(before.alpha,[255,255]);assert.deepEqual(before.final.viewport,[0,0,...before.buffer]);}
+    if(before){
+      assert.deepEqual(before.state,[1,0,1,1]);assert.deepEqual(before.alpha,[255,255]);
+      // The declared replay image is 1280x720. Integer backing dimensions
+      // retain its complete frame with the existing centered pixel rounding.
+      const [w,h]=before.buffer,scale=Math.min(w/1280,h/720),fw=1280*scale,fh=720*scale;
+      const expectedViewport=study?[0,0,w,h]:[Math.floor((w-fw)/2),Math.floor((h-fh)/2),Math.round(fw),Math.round(fh)];
+      assert.deepEqual(before.final.viewport,expectedViewport);
+    }
     if(!study){
       assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-scene-frame'),'complete-synthetic');
       const fit=await page.locator('#replay-appearance-canvas').evaluate(canvas=>[canvas.clientWidth,canvas.clientHeight]);

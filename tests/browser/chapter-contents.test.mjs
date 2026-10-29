@@ -8,7 +8,7 @@ const chapters=['joplin.html','blackwell.html','tuscaloosa.html'];
 const expectedDestinations={
   'joplin.html':['#photographs-and-film','#before','#chronology','#visibility','#path','#satellite-scar','#radar-reading','#school-refuge','#damage','#hospital-envelope','#roof-bracing','#hospital-services','#recovery','#remembrance','#questions','#sources','#assumed-experiments'],
   'blackwell.html':['#photographs-and-film','#warning-context','#storm-and-tornadoes','#record','#pressure-damage','#database-lineage','#aftermath','#archive-prints','#clocks','#observations','#remembrance','#sources','#assumed-experiments'],
-  'tuscaloosa.html':['#photographs-and-film','#storm','#satellite-context','#path','#damage-map','#field-survey','#birmingham-aftermath','#apartment-complex','#train-cars','#aerial-context','#damage','#warnings','#pre-event-outlooks','#counts','#recovery-and-remembrance','#clocks','#evidence','#railway-bridge','#sources','#assumed-experiments']
+  'tuscaloosa.html':['#photographs-and-film','#warnings','#pre-event-outlooks','#storm','#path','#damage-map','#field-survey','#birmingham-aftermath','#apartment-complex','#train-cars','#aerial-context','#damage','#satellite-context','#counts','#recovery-and-remembrance','#clocks','#evidence','#railway-bridge','#sources','#assumed-experiments']
 };
 const fits=page=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
 async function enlarge(page){
