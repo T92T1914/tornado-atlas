@@ -72,7 +72,7 @@ Condensation, cloud and low dust sample one analytic material transport, while
 their world envelopes and visibility remain authored. A fixed opaque exposure
 separates scene illumination from the reading theme. The renderer retains its
 48 shared body and 16 exterior cloud sample limits, with actual nonuniform bin
-lengths, bounded detail filtering and a homogeneous mean cloud tail beyond the
+lengths, bounded detail filtering and a tail using the mean vertical cloud profile beyond the
 existing camera clip. The [storm scene notes](storm-scene-study.md) explain the
 method and limits. Literal `form-5`, `form-4` and earlier links retain their
 presentations. This adds no qualified historical interval, original exposure,
