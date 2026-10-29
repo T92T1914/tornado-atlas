@@ -45,7 +45,10 @@ void stormSample(vec3 p,vec3 ray,float t,float span){
   float dt=-t,a=.018,b=.036,r2=dot(p.xz,p.xz)/(.95*.95);
   float e=exp(2.0*a*dt),scale=exp(-a*dt);
   float angle=.24/(2.0*a)*log((e+r2)/(1.0+r2));
-  float c=cos(angle),s=sin(angle);
+  // Native trigonometric approximations need not preserve unit length.
+  // Keep rotation separate from the declared radial strain in both maps.
+  vec2 rotation=normalize(vec2(cos(angle),sin(angle)));
+  float c=rotation.x,s=rotation.y;
   mat2 turn=mat2(c,s,-s,c);
   vec2 q=scale*turn*p.xz;
   // One fixed orthonormal texture basis follows the common material pullback.

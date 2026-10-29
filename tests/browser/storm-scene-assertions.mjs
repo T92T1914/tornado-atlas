@@ -24,7 +24,7 @@ export async function readingState(page){
 // A theme test can therefore observe its change event without a compensating seek.
 export async function sceneFrame(page,{study=false,value=study ? .5 : 130,seconds=15,style='storm-v1',
   trigger=study?'#sequence-time':'#replay-time',event='input',action=null,lighter=false,
-  camera=study?null:'synthetic-front',pointCount=study?7200:3200,retain=null,compare=null}={}){
+  camera=study?null:'synthetic-front',pointCount=study?7200:3200,retain=null,compare=null,fromGap=false}={}){
   const canvas=study?'#scene':'#replay-appearance-canvas';
   const perform=action??(()=>page.locator(trigger).fill(String(value)));
   const available=await page.locator(canvas).evaluate(c=>Boolean(c.getContext('webgl2')));
@@ -36,7 +36,12 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
     console.info('STORM_SCENE_UNAVAILABLE '+JSON.stringify({study,trigger,event,seconds,scope:'Control and explicit unavailable-graphics behavior only. No native scene acceptance.'}));
     return null;
   }
-  await page.locator(canvas).scrollIntoViewIfNeeded();
+  if(fromGap){
+    assert.equal(study,false,'Gap recovery uses the replay');
+    assert.equal(await page.locator(canvas).isVisible(),false,'The unsupported interval has no visible scene');
+    assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
+    await page.locator(trigger).scrollIntoViewIfNeeded();
+  }else await page.locator(canvas).scrollIntoViewIfNeeded();
   await page.evaluate(({canvas,trigger,event,retain,compare})=>{
     const c=document.querySelector(canvas),control=document.querySelector(trigger),gl=c.getContext('webgl2'),original=gl.drawArrays;
     if(!control)throw Error('Missing storm scene test control '+trigger);

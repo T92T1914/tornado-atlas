@@ -32,7 +32,9 @@ for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`storm scene keeps 
       assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v1');
       assert.equal(await page.locator('#sequence-enabled').isChecked(),true);
     }
-    const initialUI=await readingState(page),before=await sceneFrame(page,{study,retain:'theme-before'}),url=page.url(),other=theme==='light'?'dark':'light';
+    const initialUI=await readingState(page),before=await sceneFrame(page,{study,retain:'theme-before'});
+    if(study)await page.waitForURL(base+'/'+form6);
+    const url=page.url(),other=theme==='light'?'dark':'light';
     const changed=await sceneFrame(page,{study,trigger:'#reading-appearance',event:'change',
       action:()=>page.locator('#reading-appearance').selectOption(other),compare:'theme-before'});
     const changedUI=await readingState(page);
@@ -156,7 +158,7 @@ test('storm replay retains its locked camera and source across reverse seek, his
   }
   await page.locator('#replay-time').fill('145');assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
-  const recovered=await sceneFrame(page,{trigger:'[data-ground-second="130"]',event:'click',camera:'synthetic-oblique',action:()=>stage.click()});
+  const recovered=await sceneFrame(page,{trigger:'[data-ground-second="130"]',event:'click',camera:'synthetic-oblique',fromGap:true,action:()=>stage.click()});
   if(oblique)assert.equal(recovered.hash,oblique.hash);
 });
 

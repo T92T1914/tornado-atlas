@@ -204,6 +204,7 @@ void main(){
   assert.equal(result.lightingUniforms.extent,1);assert.equal(result.lightingUniforms.dust,true);assert.equal(result.lightingUniforms.sampler,0);
   assert.equal(result.lightingUniforms.readingPaletteRequested,2);
   if(result.lightingUniforms.readingPalette!==null)assert.equal(result.lightingUniforms.readingPalette,2);
+  console.info('STORM_FIELD_NATIVE_SAMPLES '+JSON.stringify({densitySHA256:result.densitySHA256,lightingSHA256:result.lightingSHA256,vertexSHA256:result.vertexSHA256,lightingUniforms:result.lightingUniforms,samples:result.samples}));
   for(const sample of result.samples){
     assert.deepEqual(sample.materialAfterLight,sample.material,sample.name+' actual primary point restored exactly');
     assert.deepEqual(sample.spanAfterLight,sample.span,sample.name+' actual primary span restored exactly');
@@ -215,6 +216,10 @@ void main(){
     const expected=materialExpected(row),span=spanExpected(row,1e-4),refined=spanExpected(row,5e-5);
     vectorNear(span,refined,row.name+' converged independent central difference',1e-7,1e-7);
     vectorNear(actual.material,expected,row.name+' actual GLSL material point',7e-5,2e-5);
+    const [mx,my,mz]=actual.material;
+    const radial=Math.hypot(.8*mx+.6*my,.48*mx-.64*my+.6*mz);
+    const radialExpected=Math.hypot(row.point[0],row.point[2])*Math.exp(.018*row.time);
+    vectorNear([radial],[radialExpected],row.name+' declared radial strain is separate from rotation',7e-5,2e-5);
     vectorNear(actual.span,refined,row.name+' actual GLSL directional span',3e-5,3e-5);
     materialErrors.push(...actual.material.map((value,axis)=>Math.abs(value-expected[axis])));
     spanErrors.push(...actual.span.map((value,axis)=>Math.abs(value-refined[axis])));
