@@ -13,6 +13,7 @@
     {
       "event_id": "joplin-2011",
       "records": [
+        "ncei:296616",
         "ncei:296617",
         "ncei:296620"
       ],

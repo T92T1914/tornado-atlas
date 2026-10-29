@@ -6,6 +6,7 @@ from pathlib import Path
 import struct
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,7 @@ class RoofBracingTests(unittest.TestCase):
         cls.source = next(row for row in cls.doc['sources'] if row['id'] == IDENTIFIER)
 
     def test_only_named_source_media_and_route_are_added(self):
+        retained = reviewed_predecessor(self, self.current)
         for field in ('observations', 'records', 'reconstruction', 'creators', 'title', 'summary', 'coverage'):
             self.assertEqual(self.doc[field], self.before[field], field)
         for field in ('sources', 'media', 'routes'):
@@ -34,8 +36,8 @@ class RoofBracingTests(unittest.TestCase):
         self.assertEqual(self.doc['routes'][-1], {'label': 'How roof loss removed wall support', 'href': 'joplin.html#roof-bracing'})
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], digest(self.before))
         for field in ('sources', 'media', 'routes', 'observations', 'creators', 'records'):
-            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
-        self.assertEqual(self.current['reconstruction'], self.doc['reconstruction'])
+            self.assertEqual(retained[field][:len(self.doc[field])], self.doc[field], field)
+        self.assertEqual(retained['reconstruction'], self.doc['reconstruction'])
 
     def test_full_annotated_figure_identity_and_metadata_exclusion(self):
         transform = self.media['transformation']

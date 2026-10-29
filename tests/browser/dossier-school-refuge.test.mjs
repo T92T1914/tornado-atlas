@@ -15,6 +15,19 @@ const beforeContext = JSON.parse(beforeContextBytes.toString('utf8'));
 const reviewedBytes = await readFile(new URL('../../web/archive/joplin-2011-47a506c259e731b4c8e8.json', import.meta.url));
 assert.equal(createHash('sha256').update(reviewedBytes).digest('hex'), '4515786871b2e983092685ffcf9bc327fa15874fd8dc455af0f3f62f2b3188f9');
 const reviewed = JSON.parse(reviewedBytes.toString('utf8'));
+// Exact reviewed three-segment continuation; earlier two-record publications stay pinned above.
+const currentPublicationBytes = await readFile(new URL('../../web/archive/joplin-2011-287b0f5e3036c9f76549.json', import.meta.url));
+assert.equal(createHash('sha256').update(currentPublicationBytes).digest('hex'), '9133b8b962c879c395a9125e78567d47dae2cd8c5f4b221b8da06ebbf0c52dc0');
+const currentRecords = JSON.parse(currentPublicationBytes.toString('utf8')).records;
+assert.deepEqual(currentRecords.map(row => row.id), ['ncei:296616', 'ncei:296617', 'ncei:296620']);
+assert.deepEqual(currentRecords.slice(1), reviewed.records);
+assert.deepEqual(currentRecords[0], {
+  "id": "ncei:296616",
+  "basis": "NCEI event narrative explicitly identifies this northern Newton County segment as the beginning of the EF5 tornado that impacted Joplin. Its endpoint and reported end time match the beginning of Jasper County record ncei:296617 in the same episode. The association preserves this segment\u2019s EF2 rating and does not merge source records.",
+  "status": "reviewed_association",
+  "alternatives": []
+});
+
 async function ready(page) {
   await page.waitForFunction(() => document.body?.dataset.ready === 'true');
 }
@@ -65,7 +78,9 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
       assert.deepEqual(exported[field].filter(row => retainedIds.has(row.id)), reviewed[field],
         `The current download preserves every complete established ${field} record`);
     }
-    for (const field of ['records', 'reconstruction']) assert.deepEqual(exported[field], reviewed[field]);
+    assert.deepEqual(exported.records, currentRecords, 'The download includes the exact reviewed initial Newton segment');
+    assert.deepEqual(exported.records.slice(1), reviewed.records, 'Both complete earlier associations remain unchanged');
+    assert.deepEqual(exported.reconstruction, reviewed.reconstruction);
     assert.deepEqual(exported.routes.slice(0, reviewed.routes.length), reviewed.routes);
     const interview = exported.media[0];
     assert.equal(interview.source_id, 'nist-investigation-photo');

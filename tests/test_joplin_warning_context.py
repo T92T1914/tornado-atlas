@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, publication
 from atlas.curator import Conflict, Store, candidate, intake
 
@@ -24,6 +25,7 @@ class JoplinWarningContextTests(unittest.TestCase):
         cls.doc = next(d for d in dossiers() if d['id'] == 'joplin-2011')
 
     def test_ten_observations_and_recorded_warning_review_base_are_preserved(self):
+        retained = reviewed_predecessor(self, self.doc)
         self.assertEqual(hashlib.sha256(self.raw).hexdigest(), OLD_SHA256)
         self.assertEqual(len(self.old['observations']), 10)
         introduced_raw = (ROOT / 'web/archive/joplin-2011-30b168fee88e544e1ecd.json').read_bytes()
@@ -33,22 +35,22 @@ class JoplinWarningContextTests(unittest.TestCase):
         self.assertEqual(len(introduced['observations']), 11)
         self.assertEqual(introduced['observations'][:10], self.old['observations'])
         self.assertEqual(introduced['observations'][10]['id'], NEW_ID)
-        self.assertEqual(self.doc['observations'][:11], introduced['observations'])
-        self.assertEqual(self.doc['observations'][:10], self.old['observations'])
-        self.assertEqual(self.doc['observations'][10]['id'], NEW_ID)
+        self.assertEqual(retained['observations'][:11], introduced['observations'])
+        self.assertEqual(retained['observations'][:10], self.old['observations'])
+        self.assertEqual(retained['observations'][10]['id'], NEW_ID)
         for key in ('records', 'reconstruction'):
-            self.assertEqual(self.doc[key], self.old[key])
+            self.assertEqual(retained[key], self.old[key])
         retained_routes = self.old['routes'] + [{
             'label': 'Hospital frame, windows and loss of function',
             'href': 'joplin.html#hospital-envelope'}, {
             'label': 'How roof loss removed wall support',
             'href': 'joplin.html#roof-bracing'}]
-        self.assertEqual(self.doc['routes'][:len(retained_routes)], retained_routes)
+        self.assertEqual(retained['routes'][:len(retained_routes)], retained_routes)
         for key in ('media', 'creators'):
             prior_ids = {row['id'] for row in self.old[key]}
-            self.assertEqual([row for row in self.doc[key] if row['id'] in prior_ids], self.old[key])
+            self.assertEqual([row for row in retained[key] if row['id'] in prior_ids], self.old[key])
         prior_source_ids = {row['id'] for row in self.old['sources']}
-        retained_sources = [row for row in self.doc['sources'] if row['id'] in prior_source_ids]
+        retained_sources = [row for row in retained['sources'] if row['id'] in prior_source_ids]
         self.assertEqual([s['id'] for s in retained_sources], [s['id'] for s in self.old['sources']])
         for old, new in zip(self.old['sources'], retained_sources):
             if old['id'] != 'nws-assessment':

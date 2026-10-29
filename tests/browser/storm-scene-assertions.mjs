@@ -56,14 +56,16 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
       const shaders=(gl.getAttachedShaders(program)??[]).map(shader=>{
         const source=gl.getShaderSource(shader);
         return {type:gl.getShaderParameter(shader,gl.SHADER_TYPE)===gl.VERTEX_SHADER?'vertex':'fragment',
-          reference:/^#define REFERENCE_FORM 1$/m.test(source),storm:/^#define STORM_SCENE 1$/m.test(source)};
+          reference:/^#define REFERENCE_FORM 1$/m.test(source),storm:/^#define STORM_SCENE [12]$/m.test(source),
+          stormVersion:Number(source.match(/^#define STORM_SCENE ([12])$/m)?.[1]??0)};
       });
       const inverse=array('inverseCamera'),surface=uniform('surfacePass');
       const role=args[0]===gl.POINTS?'particles':args[0]===gl.LINES?'grid':args[0]===gl.TRIANGLES&&inverse!==null?(surface===true?'surface':surface===false?'volume':'unknown-volume'):'other';
       const record={role,mode:args[0],count:args[2],linked:gl.getProgramParameter(program,gl.LINK_STATUS),shaders,
         time:uniform('time'),state:array('formationState'),shape:array('shape'),progress:uniform('formationProgress'),
         extent:uniform('extent'),genesis:uniform('genesis'),world:uniform('worldLighting'),dust:uniform('dust'),
-        palette:uniform('readingPalette'),surface,inverse,matrix:array('camera'),eye:array('worldEye'),kinematic:uniform('kinematic')};
+        palette:uniform('readingPalette'),surface,inverse,viewport:array('viewportBox'),pullback:array('stormPullback'),
+        matrix:array('camera'),eye:array('worldEye'),kinematic:uniform('kinematic')};
       if(state.draws.length<8)state.draws.push(record);else state.omitted++;
       if(role!=='volume'&&role!=='particles')return result;
       const width=gl.drawingBufferWidth,height=gl.drawingBufferHeight;
@@ -92,7 +94,8 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
     await page.waitForFunction(()=>window.stormSceneProbe?.done===true);
     const observed=await page.evaluate(()=>window.stormSceneProbe.read());
     assert.equal(observed.error,0);assert.equal(observed.lost,false);assert.equal(observed.omitted,0);assert.equal(observed.initiatingEvent?.type,event);
-    const {final}=observed,storm=style==='storm-v1',volumes=observed.draws.filter(draw=>draw.role==='volume'),surfaces=observed.draws.filter(draw=>draw.role==='surface'),grids=observed.draws.filter(draw=>draw.role==='grid'),points=observed.draws.filter(draw=>draw.role==='particles');
+    const {final}=observed,storm=['storm-v1','storm-v2'].includes(style),stormVersion=style==='storm-v2'?2:storm?1:0,
+      volumes=observed.draws.filter(draw=>draw.role==='volume'),surfaces=observed.draws.filter(draw=>draw.role==='surface'),grids=observed.draws.filter(draw=>draw.role==='grid'),points=observed.draws.filter(draw=>draw.role==='particles');
     assert.equal(volumes.length,1);assert.equal(surfaces.length,1);assert.ok(grids.length>=1);
     assert.equal(points.length,storm?0:1,'The new scene has no separate particle pass');
     assert.deepEqual(observed.draws.filter(draw=>['unknown-volume','other'].includes(draw.role)),[]);
@@ -108,7 +111,15 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
       assert.ok(Math.abs(pass.progress-Math.fround(seconds/30))<2e-6);
       assert.equal(pass.palette,storm?2:final.palette);
       assert.equal(pass.shaders.length,2);
-      for(const shader of pass.shaders){assert.equal(shader.reference,shader.type==='fragment');assert.equal(shader.storm,storm&&shader.type==='fragment');}
+      for(const shader of pass.shaders){
+        assert.equal(shader.reference,shader.type==='fragment');assert.equal(shader.storm,storm&&shader.type==='fragment');
+        assert.equal(shader.stormVersion,shader.type==='fragment'?stormVersion:0,'The actual submitted shader uses the requested version');
+      }
+      if(stormVersion===2){
+        const vertical=Math.exp(-.036*seconds);
+        assert.deepEqual(pass.pullback,Array.from(new Float32Array([vertical,Math.exp(.018*seconds),(.08/.036)*(vertical-1),0])),
+          'Actual per-draw factors follow the independently specified authored transport');
+      }else assert.equal(pass.pullback,null,'Earlier programs do not borrow the new version uniform');
       assert.equal(pass.inverse?.length,16);
       for(let row=0;row<4;row++)for(let column=0;column<4;column++){
         const product=[0,1,2,3].reduce((sum,k)=>sum+matrix[k*4+row]*pass.inverse[column*4+k],0);

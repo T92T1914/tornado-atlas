@@ -17,6 +17,7 @@
       "query": "Joplin 2011",
       "route": "joplin.html",
       "records": [
+        "ncei:296616",
         "ncei:296617",
         "ncei:296620"
       ]
@@ -61,5 +62,23 @@
       ]
     }
   ],
-  "unrelated_record": "ncei:1222429"
+  "unrelated_record": "ncei:1222429",
+  "extensions": [
+    {
+      "reviewed_on": "2026-10-29",
+      "accepted_base": "abcb948ae30df031426bb22f11a135da03fead63",
+      "frozen_fourteen_fixture_sha256": "ee42e9dbc1ef41a409d53728f072cffeaf52c26b66ce70c4d3adc7ac94d178ee",
+      "record_id": "ncei:296616",
+      "event_id": "joplin-2011",
+      "basis": "NCEI event narrative explicitly identifies this northern Newton County segment as the beginning of the EF5 tornado that impacted Joplin. Its endpoint and reported end time match the beginning of Jasper County record ncei:296617 in the same episode. The association preserves this segment’s EF2 rating and does not merge source records.",
+      "source_episode_id": "49972",
+      "source_revision": "ncei:2011:20260323",
+      "boundary_clock": "22-MAY-11 16:40:00 CST-6",
+      "boundary_coordinates": [
+        -94.5701,
+        37.056
+      ],
+      "qualification": "The beginning narrative and shared source boundaries support a separate reviewed association, not a merged source record or independent optical view."
+    }
+  ]
 }

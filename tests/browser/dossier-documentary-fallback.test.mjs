@@ -41,7 +41,7 @@ async function keyboardFollow(page,link){
 async function dossierReady(page){await page.waitForFunction(()=>document.body?.dataset.ready==='true');}
 async function surveyHeadingReady(page){
   // Await the destination content itself, then retain its exact identity checks.
-  const heading=page.locator('#path').getByRole('heading',{name:'The same track had different outcomes along it.',exact:true});
+  const heading=page.locator('#path').getByRole('heading',{name:'The track through communities',exact:true});
   await heading.waitFor({state:'visible',timeout:10000});
   assert.equal(await heading.count(),1);
   assert.equal(await page.locator('#source-survey').count(),1);

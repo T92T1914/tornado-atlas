@@ -227,8 +227,8 @@ test('unknown or repeated replay lighting refuses the selection and recovers thr
   await page.locator('#replay-appearance-mode').selectOption('simulation');
   assert.equal(new URL(page.url()).searchParams.has('appearance_style'),false);
   await page.locator('#replay-appearance-mode').selectOption('formation');
-  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v1');
-  await sceneFrame(page);
+  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v2');
+  await sceneFrame(page,{style:'storm-v2'});
   await page.locator('#replay-time').fill('145');
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
@@ -243,7 +243,7 @@ test('invalid form-4 lighting never partially restores a claimed experiment',asy
     assert.match(await page.locator('#lab-state').textContent(),/No values from the link were applied/);
     assert.equal(await page.locator('#azimuth').inputValue(),'25');
     assert.equal(await page.locator('#sequence-time').inputValue(),'0');
-    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v1');
+    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v2');
     assert.equal(await page.locator('#motion').textContent(),'Play motion');
   }
   await readyStudy(page,form4);assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'restored');

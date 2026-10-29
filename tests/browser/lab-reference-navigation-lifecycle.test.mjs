@@ -124,19 +124,20 @@ async function checkedMooreWidget(page){
   assert.equal(source.hash,'#source-nws-event-hub');
   return actual;
 }
-// Literal complete default Form link, independent of the production serializer.
+// Literal complete retained Form6 link, independent of the production serializer.
 const SAVED_FORM_PARAMETERS={experiment:'form-6',event:'moore-2013',model:'genesis-v1',shape:'cone',condensation:'100',
   azimuth:'25',elevation:'12',distance:'7',dust:'1',quality:'7200',sequence:'1',
   coverage:'storm',rate:'1',position:'0',phase:'0',visibility:'ordinary',flow:'1',presentation:'storm-v1'};
-async function savedMooreExperiment(page){
+const DEFAULT_FORM_PARAMETERS={...SAVED_FORM_PARAMETERS,experiment:'form-7',coverage:'storm-detail',presentation:'storm-v2'};
+async function savedMooreExperiment(page,parameters=DEFAULT_FORM_PARAMETERS){
   const url=new URL(await page.locator('#lab-share').getAttribute('href'),base);
   assert.equal(url.origin,new URL(base).origin);assert.equal(url.pathname,'/study.html');
   assert.equal(url.hash,'');assert.equal(url.username,'');assert.equal(url.password,'');
-  assert.equal([...url.searchParams].length,Object.keys(SAVED_FORM_PARAMETERS).length);
-  assert.deepEqual(Object.fromEntries(url.searchParams),SAVED_FORM_PARAMETERS);
+  assert.equal([...url.searchParams].length,Object.keys(parameters).length);
+  assert.deepEqual(Object.fromEntries(url.searchParams),parameters);
   return url.href;
 }
-async function nativeReturnAndBack(page,laboratoryURL){
+async function nativeReturnAndBack(page,laboratoryURL,parameters=DEFAULT_FORM_PARAMETERS){
   const link=page.locator('#scene-failure-return');
   assert.equal(await link.getAttribute('href'),'moore.html#survey-photographs');
   assert.match(await link.textContent(),/Moore.*documentary evidence/);
@@ -145,7 +146,7 @@ async function nativeReturnAndBack(page,laboratoryURL){
   assert.equal(await page.locator('#survey-photographs').count(),1);
   await page.goBack();await experimentReady(page);await page.waitForURL(laboratoryURL);
   assert.equal(page.url(),laboratoryURL);
-  assert.equal(await savedMooreExperiment(page),laboratoryURL);
+  assert.equal(await savedMooreExperiment(page,parameters),laboratoryURL);
 }
 
 test('Native same-origin image success and caught abort preserve strict errors',{timeout:45000},async t=>{
@@ -407,8 +408,8 @@ test('Pending reference remains owned across same-document, prevented and new-co
     await ordinaryHeld.wait();await stillPendingMoore(page,ordinaryHeld);
     const laboratoryURL=page.url(),saved=new URL(await page.locator('#lab-share').getAttribute('href'));
     assert.equal(saved.href,laboratoryURL);assert.equal(saved.origin,new URL(base).origin);assert.equal(saved.pathname,'/study.html');
-    assert.equal(saved.hash,'#form-model-limits');assert.equal([...saved.searchParams].length,Object.keys(SAVED_FORM_PARAMETERS).length);
-    assert.deepEqual(Object.fromEntries(saved.searchParams),SAVED_FORM_PARAMETERS);
+    assert.equal(saved.hash,'#form-model-limits');assert.equal([...saved.searchParams].length,Object.keys(DEFAULT_FORM_PARAMETERS).length);
+    assert.deepEqual(Object.fromEntries(saved.searchParams),DEFAULT_FORM_PARAMETERS);
     const oldTimeOrigin=await page.evaluate(()=>performance.timeOrigin);
     await page.locator('#owned-download-return').evaluate(link=>link.removeAttribute('download'));
     await page.unroute(downloadURL);
@@ -583,4 +584,25 @@ test('Existing beforeunload fallback stops pending work and preserves a ready re
     assert.deepEqual(await formState(page),before);
     assert.equal(await page.evaluate(()=>window.__atlasControlledNavigationAbsence.absent),true);
   }finally{record.held=held.state;await finish(t,diagnostics,'widget-controlled-navigation-api-absence',record);}
+});
+
+
+test('Retained Form6 storm1 parameters preserve their native documentary return',{timeout:45000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
+  const diagnostics=await observeLabReferenceNavigation(t,page,{base,label:'retained-form6-native-return'});
+  const record={control:'Explicit complete retained Form6 URL, unchanged Moore image and native return/Back'};
+  await forceUnavailableForm(page);
+  try{
+    await page.goto(base+'/study.html?'+new URLSearchParams(SAVED_FORM_PARAMETERS));await experimentReady(page);
+    record.before=await checkedMooreWidget(page);
+    const before=await formState(page),laboratoryURL=await savedMooreExperiment(page,SAVED_FORM_PARAMETERS);
+    assert.equal(before.coverage,'storm');
+    record.saved_laboratory_url=laboratoryURL;
+    await nativeReturnAndBack(page,laboratoryURL,SAVED_FORM_PARAMETERS);
+    record.after=await checkedMooreWidget(page);
+    assert.deepEqual(await formState(page),before);
+    assert.deepEqual(record.after,record.before);
+    assert.equal(await page.locator('#scene-failure').isVisible(),true);
+    assert.equal(await page.locator('#motion').isDisabled(),true);
+  }finally{await finish(t,diagnostics,'retained-form6-native-return',record);}
 });

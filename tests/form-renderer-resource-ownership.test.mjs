@@ -294,6 +294,16 @@ test('a null reference texture and an upload API error refuse rather than substi
 });
 
 const stormInput={...referenceInput,lightingStyle:'storm-v1'};
+for(const kind of ['compile','link','attribute'])test('new storm presentation failure preserves the earlier cached comparison and retry',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  renderer.render(stormInput);const prior={program:3,shader:0,vao:4,buffer:4,texture:1};owned(f,prior);
+  const original=new Error('controlled new storm attribute failure');
+  if(kind==='compile')f.failCompile(8);if(kind==='link')f.failLink(4);if(kind==='attribute')f.failNext('bufferData',original);
+  assert.throws(()=>renderer.render({...stormInput,lightingStyle:'storm-v2'}),e=>kind==='attribute'?e===original:e.message==='controlled '+(kind==='compile'?'shader compile':'program link')+' failure');
+  owned(f,prior);f.clearFailure();renderer.render(stormInput);owned(f,prior);
+  renderer.render({...stormInput,lightingStyle:'storm-v2'});owned(f,{program:4,shader:0,vao:5,buffer:5,texture:1});
+  renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});
 for(const kind of ['compile','link','attribute'])test('storm volume '+kind+' failure retires partial construction and preserves retry',t=>{
   renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),original=new Error('controlled storm attribute failure');
   if(kind==='compile')f.failCompile(6);if(kind==='link')f.failLink(3);if(kind==='attribute')f.failNext('bufferData',original);

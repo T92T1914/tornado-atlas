@@ -10,7 +10,7 @@ laboratoryEnlargedReadingCases();
 
 const tasks=[
   {file:'joplin.html',first:'#warning-context',source:'#source-nws-assessment',media:'#visibility',wording:/first siren/i},
-  {file:'blackwell.html',first:'#clocks',source:'#source-report',media:'#archive-prints',wording:/labels.*reconciliation/i},
+  {file:'blackwell.html',first:'#clocks',source:'#source-report',media:'#archive-prints'},
   {file:'tuscaloosa.html',first:'#path-greene',source:'#source-survey',media:'#railway-bridge',wording:/rural beginning/i}
 ];
 test('unenhanced entry pages declare Obscur and keep the switch unavailable',async t=>{
@@ -45,7 +45,22 @@ for(const enabled of [false,true])for(const task of tasks)test(`${task.file}: pu
     page.keyboard.press('Enter')
   ]);
   assert.equal(new URL(page.url()).hash,task.first);
-  assert.match(await page.locator(task.first).textContent(),task.wording);
+  if(task.file==='blackwell.html'){
+    const clocks=page.locator(task.first);
+    assert.equal(await clocks.locator('h2').textContent(),'Reported times and clock differences');
+    const reports=await clocks.locator('.documentary-timeline > li').evaluateAll(nodes=>nodes.map(node=>({
+      label:node.querySelector('span').textContent,source:node.querySelector('h3').textContent,
+      href:node.querySelector('a').getAttribute('href')
+    })));
+    assert.deepEqual(reports,[
+      {label:'9:27 p.m. CDT',source:'Norman narrative',href:'#source-norman'},
+      {label:'2126 · CST column',source:'Norman table',href:'#source-norman'},
+      {label:'About 2127 CST',source:'Reproduced historical report',href:'#source-report'}
+    ],'Preserve all three attributed source labels without merging their clock conventions');
+    const text=await clocks.textContent();
+    for(const limit of ['not three synchronized observations','about an hour','No absolute playback clock is assigned here','Tonkawa barograph had no time checks'])
+      assert.ok(text.includes(limit),'The clock conflict retains its qualification: '+limit);
+  }else assert.match(await page.locator(task.first).textContent(),task.wording);
   const citation=guide.locator('a[href="#sources"]');await citation.focus();
   await Promise.all([
     page.waitForURL(url=>url.hash==='#sources'),

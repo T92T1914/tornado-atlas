@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import unittest
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, validate_dossier, dossier_history
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -60,7 +61,7 @@ class SatelliteDepthTests(unittest.TestCase):
         self.assertIn('00:00:00',j['limits']);self.assertIn('not adopted',j['limits'])
     def test_all_previous_evidence_and_immutable_predecessors_survive(self):
         for event,item,source,page,section,prior,*_ in CASES:
-            doc=self.docs[event];old=json.loads((ROOT/f'web/archive/{event}-{prior[:20]}.json').read_text(encoding='utf-8'))
+            doc=reviewed_predecessor(self,self.docs[event]);old=json.loads((ROOT/f'web/archive/{event}-{prior[:20]}.json').read_text(encoding='utf-8'))
             self.assertEqual(digest(old),prior)
             for key in ('sources','media','observations','creators','routes'):
                 self.assertEqual(doc[key][:len(old[key])],old[key],key)

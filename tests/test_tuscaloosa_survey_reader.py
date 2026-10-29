@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import dossiers
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,16 +29,17 @@ class TuscaloosaSurveyReaderTests(unittest.TestCase):
         self.page = (ROOT / 'web/tuscaloosa.html').read_text(encoding='utf-8')
 
     def test_all_previous_evidence_and_media_are_preserved(self):
+        retained = reviewed_predecessor(self, self.doc)
         old = json.loads((ROOT / 'web/archive' / PREVIOUS).read_text(encoding='utf-8'))
         for field in ('records', 'reconstruction'):
-            assert_preserved_field(self, self.doc[field], old[field], field)
+            assert_preserved_field(self, retained[field], old[field], field)
         for field in ('sources', 'observations', 'creators', 'routes', 'media'):
             for row in old[field]:
-                self.assertIn(row, self.doc[field], field)
-        self.assertEqual(len(self.doc['media']), 14)
-        self.assertEqual([m['id'] for m in self.doc['media'] if m['kind'] == 'video'], ['brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'])
-        self.assertEqual(len([m for m in self.doc['media'] if m['id'] not in {'bmx-static-survey-map', 'brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'}]), 11)
-        maps = [m for m in self.doc['media'] if m['id'] == 'bmx-static-survey-map']
+                self.assertIn(row, retained[field], field)
+        self.assertEqual(len(retained['media']), 14)
+        self.assertEqual([m['id'] for m in retained['media'] if m['kind'] == 'video'], ['brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'])
+        self.assertEqual(len([m for m in retained['media'] if m['id'] not in {'bmx-static-survey-map', 'brown-tuscaloosa-original', 'rosolowski-tuscaloosa-original'}]), 11)
+        maps = [m for m in retained['media'] if m['id'] == 'bmx-static-survey-map']
         self.assertEqual(len(maps), 1)
         self.assertEqual((maps[0]['kind'], maps[0]['source_id']), ('map', 'bmx-estimated-damage-map'))
 

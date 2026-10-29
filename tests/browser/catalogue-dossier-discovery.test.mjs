@@ -8,12 +8,12 @@ const frozen=JSON.parse(await readFile(new URL('../fixtures/catalogue-dossier-di
 const published=JSON.parse(await readFile(new URL('../../web/catalogue/index.json',import.meta.url),'utf8'));
 const identifiers=new Set([...frozen.groups.flatMap(group=>group.records),frozen.unrelated_record]);
 const records=published.records.filter(row=>identifiers.has(row.id));
-assert.equal(records.length,15,'All fourteen published associations and the ordinary control must exist');
+assert.equal(records.length,16,'All fifteen published associations and the ordinary control must exist');
 const byYear={};for(const record of records)byYear[record.year]=(byYear[record.year]??0)+1;
 
 async function selectedCatalogue(t,width,beforeOpen=async()=>{}){
   const page=await fixture(t,{viewport:{width,height:1000},reducedMotion:'reduce'});
-  // This controlled fifteen-record response uses actual published annotation
+  // This controlled sixteen-record response uses actual published annotation
   // values. It tests the existing consumer, not full-catalogue payload costs.
   // Full-payload local/public acceptance needs its own declared workload.
   await page.route('**/catalogue/index.json.gz',route=>route.fulfill({status:404,body:'Use selected published JSON records'}));
@@ -61,7 +61,7 @@ for(const width of [320,1280])test('published dossier links preserve catalogue r
         const article=page.getByRole('link',{name:'Open reviewed exhibit',exact:true});
         assert.equal(new URL(await article.getAttribute('href'),page.url()).pathname,'/'+group.route);
         // The first theme follows all six actual article routes and native
-        // Back/Forward. Both themes inspect every one of the fourteen links.
+        // Back/Forward. Both themes inspect every one of the fifteen links.
         if(theme==='dark'&&id===group.records[0]){
           await article.focus();await article.press('Enter');
           await page.waitForURL(url=>url.pathname==='/'+group.route);

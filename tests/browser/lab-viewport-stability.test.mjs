@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {fixture,base} from './harness.mjs';
 
 // These literal published identities are independent of the viewport adapter.
@@ -13,6 +15,45 @@ const REFERENCES={
  'moore-2013':{file:'moore-2013-5ed36647a0e6141f8dde.json',media:'moore-medical-center-survey',asset:'assets/moore-2013/IMG_9287-800.jpg',width:800,height:533},
  'udall-1955':{file:'udall-1955-ea29259561776155de0d.json',media:'nws-blackwell-warning2',asset:'assets/blackwell-1955/nws-warning2.jpg',width:608,height:436},
 };
+// The four reviewed continuations retain these exact earlier reference items.
+// Only their current immutable dossier filenames change. Holds remain exact URLs.
+const REVIEWED_PUBLICATIONS={
+  "el-reno-2013": {
+    "file": "el-reno-2013-3a4374318d08b471b959.json",
+    "wire": "fda8f908acffe9b264a19c3a6f1303dd709533138c20c97cdfee641e11503813",
+    "previous_wire": "7033875ffc69f083f131ddfb31136afab6d5af418e4d0bb9dbfa3d69b5c5b131"
+  },
+  "joplin-2011": {
+    "file": "joplin-2011-287b0f5e3036c9f76549.json",
+    "wire": "9133b8b962c879c395a9125e78567d47dae2cd8c5f4b221b8da06ebbf0c52dc0",
+    "previous_wire": "05d6966cb4c1e6469c1b1cae9ed26b0799f330ecfb696ab80efb2d11d2315bd2"
+  },
+  "blackwell-1955": {
+    "file": "blackwell-1955-c0ccacb0fa341a0989a4.json",
+    "wire": "c4459214136b7c1f026a53a65a815a667778bd35aa95393dd79a19a8f74ce68d",
+    "previous_wire": "7d4aad53d4bdaa7fd9813a5b4f962145bfe484fd0d0a0b9195128364b8232dd1"
+  },
+  "tuscaloosa-birmingham-2011": {
+    "file": "tuscaloosa-birmingham-2011-22697c0e0b3bcdf5fce7.json",
+    "wire": "fd8a0deb7a5dc0a7cf239a364dd46624b86a354e67a84cab110cf8bf1bcd353c",
+    "previous_wire": "e97e0a32c9888a7dfc359ef8a1d954e0c092ea900d69d031e3c1464c1cc07f63"
+  }
+};
+const CURRENT_REFERENCES={...REFERENCES};
+const currentIndex=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
+for(const[event,promotion]of Object.entries(REVIEWED_PUBLICATIONS)){
+ const previous=REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event);
+ assert.equal(entry.file,'archive/'+promotion.file);assert.equal(entry.file_sha256,promotion.wire);
+ const beforeBytes=await readFile(new URL('../../web/archive/'+previous.file,import.meta.url));
+ const afterBytes=await readFile(new URL('../../web/archive/'+promotion.file,import.meta.url));
+ assert.equal(createHash('sha256').update(beforeBytes).digest('hex'),promotion.previous_wire);
+ assert.equal(createHash('sha256').update(afterBytes).digest('hex'),promotion.wire);
+ const before=JSON.parse(beforeBytes.toString('utf8')),after=JSON.parse(afterBytes.toString('utf8'));
+ const beforeItem=before.media.find(row=>row.id===previous.media),afterItem=after.media.find(row=>row.id===previous.media);
+ assert.ok(beforeItem&&afterItem);assert.deepEqual(afterItem,beforeItem,'Exact reference, timing, rights and image identity survive '+event);
+ assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),before.sources.find(row=>row.id===beforeItem.source_id));
+ CURRENT_REFERENCES[event]={...previous,file:promotion.file};
+}
 const ABORTED=/Target page, context or browser has been closed|Request with the provided ID does not exist|Invalid InterceptionId|No resource with given identifier|interception.*(?:not found|cancelled|canceled)|request.*(?:cancelled|canceled|aborted)|Route is already handled/i;
 const NATIVE_ABORT=/abort|cancel|NS_BINDING_ABORTED/i;
 const small=error=>({name:String(error.name).slice(0,64),message:String(error.message).slice(0,240)});
@@ -88,7 +129,7 @@ function ownedScope(t){
    });
   },
   async hold(event,phase,{failure=false}={}){
-   const ref=REFERENCES[event];if(phase==='article')assert.equal(event,'moore-2013');
+   const ref=CURRENT_REFERENCES[event];if(phase==='article')assert.equal(event,'moore-2013');
    const pathname=phase==='article'?'moore.html':phase==='index'?'archive/index.json':phase==='dossier'?'archive/'+ref.file:ref.asset;
    const hold={event,phase,url:base+'/'+pathname,failure,arrived:deferred(),open:deferred(),done:deferred(),started:false,request:null,retirement:null,nativeFailure:null,delivery:null};holds.push(hold);
    await page.route(base+'/'+pathname,route=>{
@@ -232,7 +273,7 @@ async function watch(page,kind,targetId=sceneId(kind)){
 }
 async function stopWatch(page){return page.evaluate(()=>window.__atlasViewportWatch.stop());}
 async function reference(page,event){
- const ref=REFERENCES[event];await page.locator('#lab-reference-evidence[data-state="ready"][data-event="'+event+'"]').waitFor();
+ const ref=CURRENT_REFERENCES[event];await page.locator('#lab-reference-evidence[data-state="ready"][data-event="'+event+'"]').waitFor();
  const actual=await page.locator('#lab-reference-image').evaluate(image=>({complete:image.complete,hidden:image.hidden,width:image.naturalWidth,height:image.naturalHeight,asset:image.closest('a').getAttribute('href')}));
  assert.deepEqual(actual,{complete:true,hidden:false,width:ref.width,height:ref.height,asset:base+'/'+ref.asset});
  assert.equal(await page.locator('#lab-reference-evidence').getAttribute('data-media-id'),ref.media);

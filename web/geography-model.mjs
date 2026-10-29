@@ -8,6 +8,22 @@ export function geographicBounds(view, unproject) {
   if (![west,south,east,north].every(Number.isFinite) || west>=east || south>=north) throw new Error('Invalid map bounds');
   return [west,south,east,north];
 }
+// Raster sizing is separate from geographic registration and renderer quality.
+export function basemapRasterSize(bounds,cssWidth,cssHeight,pixelRatio=1) {
+  if(!Array.isArray(bounds)||bounds.length!==4||![...bounds,cssWidth,cssHeight,pixelRatio].every(Number.isFinite)
+      ||bounds[0]<-180||bounds[2]>180||bounds[1]<-90||bounds[3]>90
+      ||bounds[0]>=bounds[2]||bounds[1]>=bounds[3]||cssWidth<=0||cssHeight<=0||pixelRatio<=0)
+    throw new RangeError('Invalid basemap raster size');
+  const aspect=(bounds[3]-bounds[1])/(bounds[2]-bounds[0]),density=Math.min(2,Math.max(1,pixelRatio));
+  const bucket=Math.ceil(Math.max(cssWidth,cssHeight/aspect)*density/64)*64;
+  const maximum=Math.min(4096,Math.floor(4096/aspect),Math.floor(Math.sqrt(4194304/aspect)));
+  if(!Number.isFinite(bucket)||maximum<1)throw new RangeError('Basemap aspect exceeds the bounded export');
+  let width=Math.min(bucket,maximum),height=Math.max(1,Math.round(width*aspect));
+  if(width*height>4194304){width--;height=Math.max(1,Math.round(width*aspect));}
+  if(width<1||width>4096||height>4096||width*height>4194304)throw new RangeError('Basemap size exceeds the bounded export');
+  return {width,height,density,capped:width<bucket||pixelRatio>density};
+}
+
 export function basemapRequest(mode,bounds,width=1200) {
   if(!['streets','terrain'].includes(mode)) throw new Error('Unknown basemap');
   const service=mode==='streets'?'USGSTopo':'USGSShadedReliefOnly';

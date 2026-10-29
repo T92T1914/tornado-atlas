@@ -43,7 +43,7 @@ function draw(elapsed=0) {
   }
   ctx.globalAlpha=1;ctx.strokeStyle=colors.muted;ctx.lineWidth=1;ctx.setLineDash([5,6]);
   ctx.beginPath();ctx.arc(cx,cy,scale,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=colors.muted;ctx.font='11px '+reading.fontFamily;ctx.fillText('N ↑',18,24);
+  ctx.fillStyle=colors.muted;ctx.font='11px '+reading.fontFamily;ctx.fillText('N ↑',18,24);ctx.fillText('E →',18,42);
   ctx.textAlign='right';ctx.fillText(`R = ${Math.round(s.radius/FOOT)} ft`,width-18,24);ctx.textAlign='left';
   if (elapsed) for (const point of particles) {
     advanceWindTracer(point,s,elapsed);
@@ -56,6 +56,23 @@ function draw(elapsed=0) {
   // Keep the moving annotation below the fixed north/radius legend and inside the field.
   ctx.fillStyle=colors.text;ctx.fillText('PROBE',Math.max(8,Math.min(width-ctx.measureText('PROBE').width-8,px+14)),Math.max(52,Math.min(height-10,py-13)));
 }
+function spatialReadings(s,wind) {
+  const north=windAt(0,s.radius,s),south=windAt(0,-s.radius,s);
+  const northLoad=loadAt(north.speed,s),southLoad=loadAt(south.speed,s);
+  const velocity=value=>`${(value/MPH).toFixed(1)} mph · ${value.toFixed(1)} m/s`;
+  const side=(value,load)=>`${velocity(value.speed)} · ${(load.force/1000).toFixed(2)} kN drag`;
+  el('probe-east-component').textContent=velocity(wind.u);
+  el('probe-north-component').textContent=velocity(wind.v);
+  el('wind-north-point').textContent=side(north,northLoad);
+  el('wind-south-point').textContent=side(south,southLoad);
+  el('wind-side-ratio').textContent=northLoad.force===0
+    ? (southLoad.force===0?'Undefined: both calculated drags are zero.':'Undefined: north calculated drag is zero.')
+    : `${(southLoad.force/northLoad.force).toFixed(3)} ×`;
+  el('wind-spatial-assumptions').textContent=`Peak swirl ${(s.peak/MPH).toFixed(1)} mph, eastward background ${(s.background/MPH).toFixed(1)} mph, core radius ${Math.round(s.radius/FOOT)} ft, area ${s.area.toFixed(1)} m², coefficient ${s.coefficient.toFixed(1)} and density 1.225 kg/m³. The selected probe is (${s['probe-x'].toFixed(1)} R east, ${s['probe-y'].toFixed(1)} R north).`;
+  el('wind-spatial-note').textContent=s.peak===0||s.background===0
+    ? 'The two comparison points have equal model speed and drag.'
+    : 'The eastward background opposes swirl at the north point and reinforces it at the south point.'+(s.background>s.peak?' The net wind at the north point still points east because the background is larger than the swirl.':'');
+}
 function update() {
   const s=settings(),wind=windAt(s['probe-x']*s.radius,s['probe-y']*s.radius,s),load=loadAt(wind.speed,s);
   const labels={peak:`${el('peak').value} mph`,radius:`${el('radius').value} ft`,background:`${el('background').value} mph`,'probe-x':`${s['probe-x'].toFixed(1)} R`,'probe-y':`${s['probe-y'].toFixed(1)} R`,area:`${s.area.toFixed(1)} m²`,coefficient:s.coefficient.toFixed(1)};
@@ -64,6 +81,7 @@ function update() {
   el('probe-si').textContent=`${wind.speed.toFixed(1)} m/s · ${(wind.speed*3.6).toFixed(1)} km/h`;
   el('probe-pressure').textContent=`${(load.pressure/1000).toFixed(2)} kPa`;
   el('probe-force').textContent=`${(load.force/1000).toFixed(2)} kN`;
+  spatialReadings(s,wind);
   draw();
 }
 function pause(message='Paused. Move the probe to explore.') {
@@ -82,6 +100,9 @@ el('wind-motion').addEventListener('click',()=>{
 });
 el('wind-reset').addEventListener('click',()=>{pause();el('wind-controls').reset();resetParticles();update();});
 function probe(x,y) {el('probe-x').value=Math.max(-2.5,Math.min(2.5,x));el('probe-y').value=Math.max(-2.5,Math.min(2.5,y));update();el('wind-controls').dispatchEvent(new Event('input',{bubbles:true}));}
+el('wind-probe-north').addEventListener('click',()=>probe(0,1));
+el('wind-probe-south').addEventListener('click',()=>probe(0,-1));
+for(const id of ['wind-probe-north','wind-probe-south'])el(id).disabled=false;
 canvas.addEventListener('pointerdown',e=>{
   const box=canvas.getBoundingClientRect(),scale=box.height/5.5;
   probe((e.clientX-box.left-box.width/2)/scale,-(e.clientY-box.top-box.height/2)/scale);

@@ -1,13 +1,13 @@
 # Storm scene and shared transport
 
-`storm-v1` gives the illustrative formation study a continuing cloud layer, a changing condensation body and low dust whose spatial detail follows one declared flow. It uses the existing `genesis-v1` schedule and camera controls. Its dimensions, visibility, light and transport are authored in scene units. No conversion to metres, measured wind or historical El Reno clock is assigned.
+The storm presentations give the illustrative formation study a continuing cloud layer, a changing condensation body and low dust whose spatial detail follows one declared flow. They use the existing `genesis-v1` schedule and camera controls. Their dimensions, visibility, light and transport are authored in scene units. No conversion to metres, measured wind or historical El Reno clock is assigned.
 
-Fresh Form Study experiments use `form-6`, with `model=genesis-v1`, `coverage=storm` and `presentation=storm-v1`. They open paused. When running this checkout, open `study.html` or select **Storm scene and shared transport**. The complete experiment link retains the selected view, sequence position, condensation comparison, dust switch, flow cue and drawing detail.
+Fresh Form Study experiments use `form-7`, with `model=genesis-v1`, `coverage=storm-detail` and `presentation=storm-v2`. They open paused. When running this checkout, open `study.html` or select **Storm scene and ground detail**. The complete experiment link retains the selected view, sequence position, condensation comparison, dust switch, flow cue and drawing detail. Select the earlier storm presentation to compare `storm-v1` under the same study clock and controls.
 
 The replay uses the same renderer through its existing declared ground cameras. One explicit example is:
 
 ```text
-reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v1&ground_view=synthetic-front&t=130#replay-appearance
+reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v2&ground_view=synthetic-front&t=130#replay-appearance
 ```
 
 The existing player maps seconds 120 through 140 to study seconds 0 through 30:
@@ -26,11 +26,22 @@ Older links retain their declared presentation:
 
 | Form link | Presentation |
 | --- | --- |
+| `form-7`, `coverage=storm-detail`, `presentation=storm-v2` | Broader material structure, unequal funnel margins and illustrative ground parcels |
 | `form-6`, `coverage=storm`, `presentation=storm-v1` | Continuing storm scene with shared material transport and fixed opaque exposure |
 | `form-5`, `coverage=reference`, `presentation=reference-v1` | Earlier broad form informed by documentary photographs |
 | `form-4`, `coverage=formation`, `lighting=world-v1` | Earlier formation view with scene lighting and a synthetic ground surface |
 
 The earlier `form-1`, `form-2` and `form-3` links, manual forms, bounded sequence gap and six analytic camera references retain their own contracts. Explicit replay `appearance_style=reference-v1` and `appearance_style=world-v1` also remain available. A formation replay URL without a style retains its earlier lighting. Unknown or repeated style values leave that selection unavailable. The [form study notes](visual-form-study.md) describe saving and restoration, and the [reference notes](reference-form-study.md) preserve the earlier presentation's source and material boundaries.
+
+## Ground detail and broader material structure
+
+`storm-v2` keeps the same transport, seed, light, clock and sampling ceilings. It lowers the material frequencies used by the cloud, condensation and dust, broadens the lower condensation envelope and varies its edge softness. These choices reduce some thin vertical strands and give the cloud underside broader local structure. They do not remove every repeated band or make the soft volume photorealistic.
+
+The ground adds irregular parcels and boundary lines using the existing ground noise and a stable cell hash. Their positions are fixed in scene coordinates, so camera changes reveal a consistent surface. Derivative filtering softens details smaller than a pixel. This is invented flat scenery for depth and orientation, without surveyed roads, buildings, topography or an assigned physical parcel size.
+
+The new replay presentation fits its complete 16:9 synthetic camera frame. It does not crop or recalibrate that camera. A larger active drawing region can cost more even when the backing dimensions remain capped. The earlier `storm-v1` framing remains attached to its explicit URL.
+
+The renderer computes constant exponential pullback factors on the CPU for each new-version draw and uploads them as Float32 uniforms. The surface and volume passes each upload these factors. Rotation, the spatial derivative and material sampling remain in the shader. This removes repeated exponential evaluations from the density probes, but does not establish an overall speed improvement. Comparable dispatch, completion and readback boundaries must be measured separately from capture cadence and encoding.
 
 ## One analytic flow for material detail
 

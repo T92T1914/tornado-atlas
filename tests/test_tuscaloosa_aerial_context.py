@@ -8,6 +8,7 @@ from pathlib import Path
 import unittest
 
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,11 +84,12 @@ class TuscaloosaAerialContextTests(unittest.TestCase):
         self.assertLess((ROOT / f'exhibits/{EVENT}/dossier.json').stat().st_size, 50_000)
 
     def test_current_publication_preserves_all_accepted_photo_values(self):
+        retained = reviewed_predecessor(self, self.current)
         for field in ('records', 'reconstruction', 'title', 'coverage', 'summary'):
-            assert_preserved_field(self, self.current[field], self.doc[field], field)
-        self.assertEqual(self.current['creators'][:len(self.doc['creators'])], self.doc['creators'])
+            assert_preserved_field(self, retained[field], self.doc[field], field)
+        self.assertEqual(retained['creators'][:len(self.doc['creators'])], self.doc['creators'])
         for field in ('media', 'observations', 'sources', 'routes'):
-            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
+            self.assertEqual(retained[field][:len(self.doc[field])], self.doc[field], field)
         self.assertEqual(validate_dossier(self.current), self.current)
 
     def test_source_attribution_and_clocks_do_not_register_a_camera_or_path(self):

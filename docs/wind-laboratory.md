@@ -33,6 +33,35 @@ are normalized to the current velocity settings and therefore do not form
 a fixed wind-speed scale across different experiments. Motion starts paused,
 stops when hidden, and does not catch up a hidden-tab time gap.
 
+## Direction and opposite sides of the field
+
+The stationary probe shows its signed east and north velocity components in mph
+and m/s. Positive values point east or north and negative values west or south.
+This is the direction the air moves, not the meteorological direction it comes
+from. Speed remains the magnitude of those two components.
+
+Beside the selected probe, the laboratory compares the points `(0,+R)` and
+`(0,-R)` under the same peak swirl, eastward background, core radius, reference
+area and coefficient. At those points, the east components are `background -
+peak` and `background + peak`; their north components are zero. With 100 mph
+swirl and 20 mph background, their speeds are 80 and 120 mph. The same generic
+drag equation therefore gives a south/north force ratio of `(120/80)² = 2.25`.
+This is a consequence of the chosen field, not a rule for every tornado.
+
+The comparison uses unrounded forces. A zero north force has no finite ratio;
+if both forces are zero, that case is stated separately. A background greater
+than swirl can make the north point's net wind point east despite opposing the
+local swirl. Radius changes the physical positions of the points but not their
+normalized velocities. Area and coefficient change their drag, not their wind.
+
+Native buttons move the existing probe to either point through its existing
+input path. They change only its two coordinate controls and do not start
+motion. The shared experiment link, selected passage sample and documentary
+reference retain their existing owners. The HTML contains the complete default
+component and opposite-side readings with printed assumptions. Without scripts,
+those readings stay at their stated defaults and the new buttons stay disabled,
+alongside the complete existing sample table. The generated table is unchanged.
+
 ## A passage past a fixed probe
 
 The second view prescribes eastward movement of the unchanged field. A fixed
@@ -170,6 +199,6 @@ The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#s
 
 A controlled execution of the previous drawing consumer found artificial radial drift in zero-background swirl. At 250 mph, 50 ft and a starting radius of 0.1 R, 600 steps of 0.04 seconds moved the tracer to about 0.174 R. The exact stated field keeps that radius at 0.1 R. The zero-background path uses circular rotation at the appropriate angular speed inside or outside the core.
 
-A separate positive-background check found radius and phase drift inside the core. With 250 mph swirl, a 50 ft radius, 20 mph background and initial point (0.1 R, 0.2 R), 600 steps of 0.04 seconds produced about 0.4053 R of position error against the independently derived trajectory. The complete numerical orbit remained inside the core. For this field, shifting the north coordinate by background/peak makes the motion a rigid rotation. The tracer now uses that exact solution when the whole shifted circle is strictly inside the core. This guard covers the complete arc rather than only its endpoints. Circles touching or crossing the boundary and outside-core mixed flow retain the midpoint approximation and its error. This is a bounded correction, not a general exact mixed-flow solver.
+A separate positive-background check found radius and phase drift inside the core. With 250 mph swirl, a 50 ft radius, 20 mph background and initial point (0.1 R, 0.2 R), 600 steps of 0.04 seconds produced about 0.4053 R of position error against the independently derived trajectory. The complete numerical orbit remained inside the core. For this field, shifting the north coordinate by background/peak makes the motion a rigid rotation. The tracer now uses that exact solution when the whole shifted circle is strictly inside the core. This guard covers the complete arc rather than only its endpoints. Circles touching or crossing the boundary and outside-core mixed flow use the bounded fourth-order Runge-Kutta substeps described above. They retain numerical approximation error. The older midpoint witnesses remain in the tests and release evidence. This is a bounded correction, not a general exact mixed-flow solver.
 
 The unchanged frame-time cap, offscreen recycling and visual marker count remain display choices. These repairs improve motion within the mathematical assumption. They do not validate a historical tornado, add radial inflow or change the force, passage, capacity or continuous-reference calculations.

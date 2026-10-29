@@ -9,6 +9,7 @@ import unittest
 import zlib
 
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,6 +56,7 @@ class TuscaloosaSatelliteTests(unittest.TestCase):
         cls.view.feed(cls.html)
 
     def test_exact_predecessor_is_preserved_with_only_named_additions(self):
+        retained = reviewed_predecessor(self, self.doc)
         satellite = json.loads((ROOT / f'web/archive/{EVENT}-{SATELLITE_SHA[:20]}.json').read_text(encoding='utf-8'))
         self.assertEqual(digest(satellite), SATELLITE_SHA)
         self.assertEqual(digest(self.prior), PREVIOUS)
@@ -67,12 +69,12 @@ class TuscaloosaSatelliteTests(unittest.TestCase):
         self.assertEqual([m['id'] for m in satellite['media'][7:]], [GOES, EO1])
         self.assertEqual([s['id'] for s in satellite['sources'][12:]], ['nesdis-goes-storm', 'nasa-eo1-track'])
         for key in ('media', 'sources', 'observations', 'creators', 'routes'):
-            self.assertEqual(self.doc[key][:len(satellite[key])], satellite[key], key)
+            self.assertEqual(retained[key][:len(satellite[key])], satellite[key], key)
         for key in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
-            assert_preserved_field(self, self.doc[key], satellite[key], key)
+            assert_preserved_field(self, retained[key], satellite[key], key)
         self.assertIs(validate_dossier(satellite), satellite)
         self.assertIs(validate_dossier(self.doc), self.doc)
-        version = next(version for version in dossier_history(self.doc)['versions']
+        version = next(version for version in dossier_history(retained)['versions']
                        if version['dossier_sha256'] == SATELLITE_SHA)
         self.assertEqual(version['review']['previous_dossier_sha256'], PREVIOUS)
         self.assertTrue(version['predecessor_available'])

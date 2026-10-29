@@ -7,21 +7,56 @@ const id='nist-joplin-radar-sequence';
 const asset='assets/joplin-2011/nist-radar-sequence.png';
 const source='https://www.govinfo.gov/content/pkg/GOVPUB-C13-a0ac8adb5269166f1b1e230423cf79ec/pdf/GOVPUB-C13-a0ac8adb5269166f1b1e230423cf79ec.pdf';
 const figureName='Open the complete NOAA and NIST Joplin radar figure and caption';
-async function observedWait(page,label,predicate,expected,options={}){
-  try{await page.waitForFunction(predicate,expected,options);}
-  catch(error){
-    let timer,snapshot;
-    try{snapshot=await Promise.race([page.evaluate(()=>({
-      href:location.href.slice(0,1200),ready:document.body?.dataset.photoViewer||null,
+async function radarSnapshot(page,original=null){
+  let timer;
+  try{return await Promise.race([page.evaluate(original=>{
+    const source=original||document.querySelector('#radar-reading a[data-photo-id="nist-joplin-radar-sequence"] img');
+    return {href:location.href.slice(0,1200),ready:document.body?.dataset.photoViewer||null,
       dialog:document.getElementById('photo-dialog')?.open??null,
       image:document.getElementById('photo-full')?.getAttribute('src')?.slice(0,300)||null,
       dimensions:[document.getElementById('photo-full')?.naturalWidth||0,document.getElementById('photo-full')?.naturalHeight||0],
-      focus:document.activeElement?.id?.slice(0,100)||null
-    })).catch(()=>({unavailable:true})),
-      new Promise(resolve=>{timer=setTimeout(()=>resolve({unavailable:'Snapshot exceeded 500 ms'}),500);})
-    ]);}finally{clearTimeout(timer);}
+      focus:document.activeElement?.id?.slice(0,100)||null,
+      original:source?{connected:source.isConnected,same_node:source===document.querySelector('#radar-reading a[data-photo-id="nist-joplin-radar-sequence"] img'),
+        src:source.getAttribute('src')?.slice(0,300)??null,current_src:source.currentSrc.slice(0,300),complete:source.complete,
+        loading:source.loading,dimensions:[source.naturalWidth,source.naturalHeight]}:null};
+    },original).catch(()=>({unavailable:true})),
+    new Promise(resolve=>{timer=setTimeout(()=>resolve({unavailable:'Snapshot exceeded 500 ms'}),500);})]);}
+  finally{clearTimeout(timer);}
+}
+async function observedWait(page,label,predicate,expected,options={}){
+  try{await page.waitForFunction(predicate,expected,options);}
+  catch(error){
+    const snapshot=await radarSnapshot(page);
     console.error('Joplin radar wait failed',JSON.stringify({label,snapshot}));
     throw error;
+  }
+}
+async function originalRadarReadyAndDecoded(page,image){
+  const original=await image.elementHandle();assert.ok(original,'The unchanged article IMG exists');
+  const expected={original,href:base+'/'+asset,asset};let problem=null;
+  try{
+    await observedWait(page,'original radar native image completion',({original,href,asset})=>{
+      return original.isConnected&&original===document.querySelector('#radar-reading a[data-photo-id="nist-joplin-radar-sequence"] img')&&
+        original.getAttribute('src')===asset&&original.src===href&&original.currentSrc===href&&
+        original.complete&&original.naturalWidth===947&&original.naturalHeight===1326;
+    },expected);
+    // Keep the native decode on the very same connected original node. A decode
+    // rejection is still fatal; no catch-and-continue or source retry is used.
+    await original.evaluate(node=>node.decode());
+    const after=await original.evaluate(node=>({connected:node.isConnected,
+      same_node:node===document.querySelector('#radar-reading a[data-photo-id="nist-joplin-radar-sequence"] img'),
+      src:node.getAttribute('src'),resolved_src:node.src,current_src:node.currentSrc,complete:node.complete,
+      dimensions:[node.naturalWidth,node.naturalHeight]}));
+    assert.deepEqual(after,{connected:true,same_node:true,src:asset,resolved_src:expected.href,current_src:expected.href,complete:true,dimensions:[947,1326]});
+  }catch(error){
+    problem=error;
+    console.error('Joplin original radar readiness or decode failed',JSON.stringify({error:{name:error.name,message:String(error.message).slice(0,500)},snapshot:await radarSnapshot(page,original)}));
+    throw error;
+  }finally{
+    try{await original.dispose();}catch(error){
+      if(!problem)throw error;
+      console.error('Joplin radar handle cleanup failed',JSON.stringify({original_error_preserved:true,message:String(error.message).slice(0,300)}));
+    }
   }
 }
 async function ready(page,href){
@@ -53,7 +88,7 @@ for(const [width,height,appearance] of [[1280,900,'light'],[390,844,'dark'],[700
     await page.goto(href);await ready(page,href);
     await page.locator('#reading-appearance').selectOption(appearance);
     const note=page.locator('#radar-reading'),link=note.getByRole('link',{name:figureName,exact:true});
-    const image=link.locator('img');await image.scrollIntoViewIfNeeded();await image.evaluate(i=>i.decode());
+    const image=link.locator('img');await image.scrollIntoViewIfNeeded();await originalRadarReadyAndDecoded(page,image);
     assert.deepEqual(await image.evaluate(i=>[i.naturalWidth,i.naturalHeight]),[947,1326]);
     assert.match(await note.textContent(),/1.5 kilometers above the ground/);
     assert.match(await note.textContent(),/not raw radar data or an optical photograph/);

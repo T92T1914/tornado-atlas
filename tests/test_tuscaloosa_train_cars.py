@@ -8,6 +8,7 @@ from pathlib import Path
 import unittest
 
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,6 +99,7 @@ class TuscaloosaTrainCarsTests(unittest.TestCase):
         cls.raw = (ROOT / 'web' / ASSET).read_bytes()
 
     def test_exact_retained_train_revision_preserves_the_accepted_outlook_publication(self):
+        retained = reviewed_predecessor(self, self.current)
         self.assertEqual(digest(self.doc), TRAIN_SHA)
         self.assertEqual(digest(self.prior), PRIOR_SHA)
         self.assertEqual(tuple(len(self.prior[key]) for key in ('media', 'sources', 'observations', 'records', 'routes')),
@@ -118,9 +120,9 @@ class TuscaloosaTrainCarsTests(unittest.TestCase):
         self.assertEqual(self.doc['provenance']['publication_review']['previous_dossier_sha256'], PRIOR_SHA)
         self.assertEqual(self.wrapper['dossier'], self.current)
         for field in ('media', 'sources', 'creators', 'routes', 'observations'):
-            self.assertEqual(self.current[field][:len(self.doc[field])], self.doc[field], field)
+            self.assertEqual(retained[field][:len(self.doc[field])], self.doc[field], field)
         for field in ('records', 'reconstruction', 'title', 'summary', 'coverage'):
-            assert_preserved_field(self, self.current[field], self.doc[field], field)
+            assert_preserved_field(self, retained[field], self.doc[field], field)
         self.assertEqual(self.wrapper['adapter_sha256'], ADAPTER_SHA)
         standalone = (ROOT / f'exhibits/{EVENT}/dossier.json').read_bytes()
         self.assertEqual((len(standalone), hashlib.sha256(standalone).hexdigest()), (49883, STANDALONE_SHA))

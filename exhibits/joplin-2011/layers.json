@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
   "event_id": "joplin-2011",
-  "dossier_sha256": "68dca24097277ba2afb70a2430ed89cda500cd4e833c804347b2dee2e4ebe326",
+  "dossier_sha256": "287b0f5e3036c9f765497b6e5e9b4c6e3994699345decfd4c99f768373d6190c",
   "survey": null,
   "layers": {
     "geography": {
-      "basis": "Reported localities and a later satellite scar give documentary context. Neither supplies registered minute positions or an Atlas geographic replay.",
+      "basis": "Reported localities and a later satellite scar give documentary context. Neither supplies registered minute positions or an Atlas geographic replay. Three retained county segments have an explicit beginning/continuation narrative and matching source boundaries. They remain separate records with EF2, EF5 and EF2 ratings, rather than a new surveyed continuous route.",
       "observations": [
         "touchdown",
-        "second-siren"
+        "second-siren",
+        "joplin-three-county-segments"
       ],
       "media": [
         "nasa-joplin-aster-may30"
@@ -43,10 +44,12 @@
       ]
     },
     "gaps": {
-      "basis": "The storm photograph inception-field conflict, unverified aftermath and housing clocks, and the radar report conversion inconsistency remain separate attributed records. None changes the admitted NWS documentary chronology. Provider temporary-care dates and facility labels remain separate attributed descriptions with unresolved correspondence.",
+      "basis": "The storm photograph inception-field conflict, unverified aftermath and housing clocks, and the radar report conversion inconsistency remain separate attributed records. None changes the admitted NWS documentary chronology. Provider temporary-care dates and facility labels remain separate attributed descriptions with unresolved correspondence. Reported whole-track lengths of nearly 21.6 and 22.1 miles remain attributed alternatives. Reported county-record clocks do not recover a physical dissipation instant or independently align an optical source.",
       "observations": [
         "barbe-joplin-temporary-care-phases",
-        "mercy-joplin-temporary-care-phases"
+        "mercy-joplin-temporary-care-phases",
+        "joplin-whole-track-length-alternatives",
+        "joplin-source-segment-clocks"
       ],
       "media": [
         "friskey-joplin-storm",

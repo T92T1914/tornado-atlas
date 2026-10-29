@@ -69,7 +69,7 @@ jobs:
           node --test tests/formation-model.test.mjs
           node --check web/funnel-lighting-model.mjs
           node --test tests/funnel-lighting-model.test.mjs tests/experiment-state.test.mjs
-          node --test tests/reference-form-experiment.test.mjs tests/reference-form-field.test.mjs tests/storm-scene-model.test.mjs tests/storm-scene-experiment.test.mjs
+          node --test tests/reference-form-experiment.test.mjs tests/reference-form-field.test.mjs tests/storm-scene-model.test.mjs tests/storm-scene-experiment.test.mjs tests/storm-detail-model.test.mjs
           node --check web/source-camera-model.mjs
           node --check web/ground-view-model.mjs
           node --check web/ground-view.mjs
@@ -94,7 +94,7 @@ jobs:
           node --test tests/reconstruction-model.test.mjs tests/reconstruction-share-consumer.test.mjs
           node --check web/wind.js
           node --check web/wind-tracer.mjs
-          node --test tests/wind-tracer.test.mjs
+          node --test tests/wind-tracer.test.mjs tests/wind-spatial-interpretation.test.mjs
           node --check web/passage.js
           node --test tests/passage-clock-controls.test.mjs
           node --test tests/passage-values.test.mjs
@@ -127,7 +127,7 @@ jobs:
           node --check web/playback-model.mjs
           node --check web/documentary-view.mjs
           node --check web/geography-view.mjs
-          node --test tests/geography-view.test.mjs
+          node --test tests/geography-view.test.mjs tests/geography-raster-size.test.mjs
           node --check web/damage-explanation.mjs
           node --check web/footage-view.mjs
           node --test tests/footage-model.test.mjs

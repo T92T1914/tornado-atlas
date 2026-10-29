@@ -8,6 +8,7 @@ from pathlib import Path
 import unittest
 
 from museum_test_support import assert_preserved_field
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,19 +59,20 @@ class TuscaloosaComplexTests(unittest.TestCase):
         cls.html = (ROOT / 'web/tuscaloosa.html').read_text(encoding='utf-8')
 
     def test_previous_evidence_and_registration_are_unchanged(self):
+        retained = reviewed_predecessor(self, self.doc)
         self.assertEqual(digest(self.prior), PREVIOUS_SHA)
         self.assertEqual(len(self.prior['media']), 3)
         self.assertEqual(len(self.prior['sources']), 7)
         self.assertEqual(len(self.prior['observations']), 11)
         self.assertEqual(len(self.prior['records']), 3)
-        self.assertEqual(self.doc['observations'][:len(self.prior['observations'])], self.prior['observations'])
+        self.assertEqual(retained['observations'][:len(self.prior['observations'])], self.prior['observations'])
         for field in ('records', 'reconstruction', 'title', 'coverage'):
-            assert_preserved_field(self, self.doc[field], self.prior[field], field)
-        self.assertEqual(self.doc['creators'][:len(self.prior['creators'])], self.prior['creators'])
-        self.assertEqual(self.doc['media'][:3], self.prior['media'])
-        self.assertEqual(self.doc['sources'][:7], self.prior['sources'])
-        self.assertEqual(self.doc['media'][3]['id'], MEDIA)
-        self.assertEqual(self.doc['sources'][7]['id'], SOURCE)
+            assert_preserved_field(self, retained[field], self.prior[field], field)
+        self.assertEqual(retained['creators'][:len(self.prior['creators'])], self.prior['creators'])
+        self.assertEqual(retained['media'][:3], self.prior['media'])
+        self.assertEqual(retained['sources'][:7], self.prior['sources'])
+        self.assertEqual(retained['media'][3]['id'], MEDIA)
+        self.assertEqual(retained['sources'][7]['id'], SOURCE)
         complex_revision = json.loads((ROOT / 'web/archive/tuscaloosa-birmingham-2011-a1d19787e5730aa6216e.json').read_text(encoding='utf-8'))
         self.assertEqual(complex_revision['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS_SHA)
         self.assertEqual(self.item, complex_revision['media'][3])

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import digest, dossiers, dossier_history
 from atlas.evidence_coverage import layer_references
 
@@ -73,7 +74,8 @@ class NtrsLightningReferenceTests(unittest.TestCase):
             self.assertIn(expected, obs['limits'])
 
     def test_increment_preserves_every_preceding_record_and_nolte_grant(self):
-        after = copy.deepcopy(self.doc)
+        retained = reviewed_predecessor(self, self.doc)
+        after = copy.deepcopy(retained)
         for field, additions in (('sources', [SOURCE]), ('observations', [OBSERVATION])):
             count = len(self.previous[field])
             self.assertEqual([row['id'] for row in after[field][count:]], additions)
@@ -85,8 +87,8 @@ class NtrsLightningReferenceTests(unittest.TestCase):
         self.assertEqual(after['provenance']['publication_review']['previous_dossier_sha256'], PREVIOUS)
         after['provenance']['publication_review'] = self.previous['provenance']['publication_review']
         self.assertEqual(digest(after), PREVIOUS)
-        changes = next(row for row in dossier_history(self.doc)['versions']
-                       if row['dossier_sha256'] == digest(self.doc))['changes']
+        changes = next(row for row in dossier_history(retained)['versions']
+                       if row['dossier_sha256'] == digest(retained))['changes']
         self.assertEqual(changes, [
             {'kind':'sources','id':SOURCE,'change':'added','fields':[]},
             {'kind':'observations','id':OBSERVATION,'change':'added','fields':[]},

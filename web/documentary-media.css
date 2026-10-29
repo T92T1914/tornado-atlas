@@ -22,3 +22,9 @@
 
 [data-clip-action] {min-height:44px;padding:10px 16px;font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);cursor:pointer}
 [data-clip-action]:focus-visible {outline:2px solid currentColor;outline-offset:4px}
+
+[data-observation-stage] svg {display:block;width:100%;height:auto;max-width:100%;border:1px solid var(--line)}
+[data-observation-controls] select {max-width:100%;font:inherit;background:var(--panel);color:var(--text)}
+.documentary-observation-actions {display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.documentary-observation-actions button {min-width:0;max-width:100%;min-height:44px;padding:10px 16px;font:inherit;white-space:normal;overflow-wrap:anywhere;background:var(--panel);color:var(--text);border:1px solid var(--line);cursor:pointer}
+.documentary-observation-actions button:focus-visible,[data-observation-controls] select:focus-visible {outline:2px solid currentColor;outline-offset:4px}

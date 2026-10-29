@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import unittest
 
+from reviewed_continuation_support import reviewed_predecessor
 from atlas.archive import dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,7 +36,7 @@ class ContextImageTests(unittest.TestCase):
                 raw = (ROOT / 'web/archive' / f'{event}-{identity}.json').read_bytes()
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), checksum)
                 old = json.loads(raw)
-                latest = self.docs[event]
+                latest = reviewed_predecessor(self, self.docs[event])
                 # Assert the established image increment at its immutable
                 # revision; later radar evidence has its own exact tests.
                 increment_files = {

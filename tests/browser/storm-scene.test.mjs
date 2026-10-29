@@ -25,7 +25,7 @@ async function paused(page,study){
 for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`storm scene keeps opaque RGBA while actual reading appearance changes at ${width} ${theme}`,async t=>{
   const page=await fixture(t,{viewport:{width,height:1000},deviceScaleFactor:1,reducedMotion:'reduce'});
   for(const study of [true,false]){
-    if(study)await readyStudy(page);else await readyReplay(page);
+    if(study)await readyStudy(page,form6);else await readyReplay(page);
     await page.locator('#reading-appearance').selectOption(theme);
     if(study){
       assert.equal(await page.locator('#sequence-coverage').inputValue(),'storm');
@@ -177,13 +177,13 @@ test('literal form-5 and reference-v1 stay native while invalid new selections r
   await readyReplay(page,referenceReplay);const earlierReplay=await sceneFrame(page,{style:'reference-v1'});
   if(stormReplay){sameScenario(earlierReplay,stormReplay);assert.notEqual(earlierReplay.hash,stormReplay.hash);}
   const changed=form6.replace('azimuth=25','azimuth=40');
-  for(const url of [changed.replace('storm-v1','storm-v2'),changed+'&presentation=storm-v1',changed.replace('&presentation=storm-v1',''),changed.replace('form-6','form-5')]){
+  for(const url of [changed.replace('storm-v1','storm-v3'),changed.replace('storm-v1','storm-v2'),changed+'&presentation=storm-v1',changed.replace('&presentation=storm-v1',''),changed.replace('form-6','form-5')]){
     await readyStudy(page,url);assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'invalid');
     assert.match(await page.locator('#lab-state').textContent(),/No values from the link were applied/);
     assert.equal(await page.locator('#azimuth').inputValue(),'25');assert.equal(await page.locator('#sequence-time').inputValue(),'0');
-    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v1');assert.equal(await page.locator('#motion').textContent(),'Play motion');
+    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v2');assert.equal(await page.locator('#motion').textContent(),'Play motion');
   }
-  for(const style of ['storm-v2','storm-v1&appearance_style=storm-v1','']){
+  for(const style of ['storm-v3','storm-v1&appearance_style=storm-v1','']){
     await readyReplay(page,replay.replace('appearance_style=storm-v1','appearance_style='+style));
     assert.match(await page.locator('#ground-time').textContent(),/requested lighting presentation is unavailable.*No appearance has been substituted/);
     assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
@@ -191,5 +191,5 @@ test('literal form-5 and reference-v1 stay native while invalid new selections r
   }
   await page.locator('#replay-appearance-mode').selectOption('simulation');
   await page.locator('#replay-appearance-mode').selectOption('formation');
-  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v1');await sceneFrame(page);
+  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v2');await sceneFrame(page,{style:'storm-v2'});
 });
