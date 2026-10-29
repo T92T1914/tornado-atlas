@@ -13,12 +13,20 @@ export function opticalTransmission(densities,lengths,extinction=FUNNEL_LIGHTING
   return Math.exp(-depth);
 }
 
-// Two fixed probes use a coarse extinction proxy rather than repeating the
-// high-frequency density field. This omits distant and fine-scale shadowing.
-// All media and the synthetic floor share the same direction and proxy.
+// Two fixed probes retain a bounded local optical approximation. Earlier
+// presentations use a coarse proxy; storm-v1 uses filtered shared material.
+// Both omit distant shadow transport and calibrated scattering.
 export const FUNNEL_LIGHTING_GLSL=`
 vec3 worldLight(){return normalize(vec3(-.65,.72,.42));}
 float sceneDensity(vec3 p){
+#if STORM_SCENE
+  if(p.y<0.0||p.y>5.6)return 0.0;
+  // The same two light probes now see filtered samples of the shared material.
+  stormSample(p,worldLight(),time,.22);
+  float body=stormBody(p,shape,time,extent),cloud=stormCloud(p,time);
+  float haze=dust?stormDust(p,time)*formationState.z:0.0;
+  return max(0.0,body+.6*cloud+.5*haze);
+#else
   if(p.y<0.0||p.y>3.5)return 0.0;
   float rawHeight=p.y/2.6,h=clamp(rawHeight,0.0,1.0),body=0.0;
   if(p.y<=2.71&&extent>0.0){
@@ -46,12 +54,19 @@ float sceneDensity(vec3 p){
   float haze=0.0;
   if(dust&&p.y<.45)haze=.45*exp(-dot(p.xz,p.xz)/.28-p.y*12.0)*(genesis?formationState.z:1.0);
   return max(0.0,body+.6*cloud+.5*haze);
+#endif
 }
 float nearbyTransmission(vec3 p,vec3 direction){
   float depth=.20*sceneDensity(p+.10*direction)+.44*sceneDensity(p+.42*direction);
   return exp(-3.6*max(0.0,depth));
 }
 vec3 worldMaterial(vec3 p,float localDensity){
+#if STORM_SCENE
+  vec3 primaryPoint=stormMaterialPoint,primarySpan=stormSampleSpan;
+  float fixedLight=.28+.72*nearbyTransmission(p,worldLight())*exp(-.70*max(0.0,localDensity));
+  stormMaterialPoint=primaryPoint;stormSampleSpan=primarySpan;
+  return mix(vec3(.14,.16,.17),vec3(.64,.66,.65),fixedLight);
+#endif
   // The existing primary sample supplies a short authored local extinction cue.
   // It adds no density probe and is not calibrated microphysical scattering.
   float illumination=.24+.76*nearbyTransmission(p,worldLight())*exp(-.72*max(0.0,localDensity));

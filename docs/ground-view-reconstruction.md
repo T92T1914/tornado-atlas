@@ -97,11 +97,12 @@ nor successful camera test establishes historical likeness or physical accuracy.
 
 ## Shared lighting and synthetic ground
 
-The formation view now has a versioned `world-v1` presentation shared with Form
+The formation view retains a versioned `world-v1` presentation shared with Form
 Study. Open
 `reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=world-v1&ground_view=synthetic-front&t=120#replay-appearance`.
 Explicit links keep this presentation. The current selector and Form Study
-context link select the broader `reference-v1` presentation described in the
+context link select `storm-v1`, described in the [storm scene notes](storm-scene-study.md).
+Explicit `reference-v1` links retain the broader presentation described in the
 [reference notes](reference-form-study.md). A formation URL without `appearance_style` retains its earlier
 lighting. Unknown or repeated style values leave the requested presentation
 unavailable instead of substituting a different scene. The original camera
@@ -140,6 +141,36 @@ framebuffers. That bounds the controlled discrepancy after framebuffer
 observation, without identifying its exact stage or recovering the old
 frame-to-draw mapping. Source review, required CI and served acceptance remain
 distinct from these recorded-frame observations.
+
+## Storm scene and shared transport
+
+Open the current storm presentation with
+`reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v1&ground_view=synthetic-front&t=130#replay-appearance`.
+It uses the same declared camera and the existing mapping from player 120 through
+140 to study 0 through 30. Player 130 still selects study second 15. The selected
+footage source, geographic path and historical clock keep their separate roles.
+
+The new presentation integrates condensation, continuing cloud and enabled low
+dust together. Their spatial detail samples one analytic material pullback,
+followed by a fixed texture basis and bounded filtering. Their envelopes and
+visibility schedules remain authored in scene units. No conversion to metres,
+measured wind or historical cloud geometry is assigned. Dust and circulation
+marks remain separately controlled.
+
+The scene has an opaque sky and synthetic ground surface with fixed exposure.
+Clair and Obscur change the surrounding reading interface. Standard remains
+capped at 512 by 320 pixels and Lighter at 320 by 200, preserving the complete
+camera frame. The storm branch has no separate particle draw, so its quality
+labels describe raster dimensions. The primary budget remains 48 shared body
+samples and 16 exterior cloud samples. The [storm scene notes](storm-scene-study.md)
+describe the actual bin lengths and analytic mean tail beyond the local camera
+clip, together with the limits of those approximations.
+
+This version changes no camera calibration, source registration, original
+photograph, permission or historical appearance coverage. Earlier recordings
+and browser results retain their original presentation and revision. A native
+draw, paused picture, motion recording, numerical check, CI result and served
+visitor journey answer different acceptance questions.
 
 ## Explicit camera contract
 

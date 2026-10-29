@@ -86,14 +86,21 @@ Study lets the visitor compare reduced condensation at the same circulation,
 then seek through development and erosion. The `world-v1` presentation adds a
 fixed light direction, coherent density texture and a synthetic ground surface
 to that shared scenario. Its `form-4` experiment links retain that earlier lighting
-version as well as the `genesis-v1` model. Fresh `form-5` links select a broader
-`reference-v1` presentation informed by the permitted documentary photographs,
-with unequal margins, deeper cloud attachment and separate low dust. Its
-timing, hidden geometry and camera remain authored. The
-[reference notes](docs/reference-form-study.md) identify the sources, material
-approximation and remaining historical gate. Earlier `form-1`, `form-2`, `form-3`
-links and the six analytic camera references keep their previous drawing
-behavior. The separate Procedural funnel simulation remains available.
+version as well as the `genesis-v1` model. `form-5` links retain the broader
+`reference-v1` presentation informed by the permitted documentary photographs.
+The [reference notes](docs/reference-form-study.md) identify its sources,
+material approximation and remaining historical gate.
+
+Fresh Form Study experiments save as `form-6` with the `storm-v1` presentation.
+Its continuing cloud, condensation detail and low dust use one analytic
+material transport in authored scene units. The formation schedule over thirty
+seconds and replay clock mapping stay the same. An opaque scene keeps its
+authored exposure when Clair or Obscur changes the reading interface. The
+[storm scene notes](docs/storm-scene-study.md) explain the shared flow, bounded
+integration, coarse distant cloud tail and limits. Earlier `form-1`, `form-2`,
+`form-3`, `form-4` and `form-5` links and the six analytic camera references
+keep their previous drawing behavior. The separate Procedural funnel
+simulation remains available.
 The [form study notes](docs/visual-form-study.md) explain the drawing,
 versioned links and verification boundary. The
 [source decision](research/formation-study-2026-10-27.md) separates scientific
@@ -291,7 +298,7 @@ The [photograph notes](research/source-photographs-2026-09-21.md) explain why
 these remain unregistered observations. They do not seek the historical clock
 or place a camera on the map, and the copyrighted images remain on their source site.
 
-In the form study, choose a cone, wedge or rope, drag to orbit, change the visible funnel extent, and start or pause the motion. This is procedural artwork in three dimensions, with no historical date, physical scale, wind estimate or damage prediction. It is a working visual prototype, not yet a reconstruction of El Reno.
+Form Study opens a paused storm scene over the authored formation schedule. Scrub through its thirty study seconds, turn the camera, compare reduced condensation at unchanged circulation, or switch dust and circulation marks independently. The earlier manual cone, wedge and rope forms and visible-extent control remain available. The drawing has no historical date, physical scale, wind estimate or damage prediction. El Reno's historical appearance reconstruction remains unfinished.
 
 Documentary references load independently of the model. Their updates keep the chosen laboratory control or canvas in place, while scrolling or moving focus releases that position. The [laboratory reading guide](docs/laboratory-reading.md) explains the source and model limits.
 
@@ -309,7 +316,7 @@ Documentary references load independently of the model. Their updates keep the c
 | Research log | Dated findings, a source contribution form and a preserved link access audit |
 | Damage survey gallery | Nine original NOAA/NWS photographs, independent comparison views, enlargement, caption ratings and descriptive locations |
 | Survey location explorer | 336 preserved DAT records, 45 original linked photographs, combined filters, zoom, image enlargement and shareable observations |
-| Interactive form study | Native WebGL 2 particle rendering, three forms, camera orbit, visibility controls and motion that begins paused |
+| Interactive form study | Native WebGL 2 volume rendering, an authored storm scene, earlier manual forms, camera orbit, separate visibility controls and motion that begins paused |
 | Wind and force laboratory | Adjustable Rankine vortex, passive tracers, a movable probe, passage experiment over time and generic drag calculations |
 | Source catalogue | NOAA NCEI imports, SQLite search, original records, source revisions and SHA-256 checks |
 | Browser publication | A compressed static search index and 256 detail files addressed by their content, loaded as needed without a database server |
@@ -453,6 +460,7 @@ fixed page links, not all 80,318 catalogue records.
 * [Data contract](docs/data-contract.md)
 * [Video evidence workflow](docs/video-evidence-workflow.md)
 * [Visual form study](docs/visual-form-study.md)
+* [Storm scene and shared transport](docs/storm-scene-study.md)
 * [Wind and force laboratory](docs/wind-laboratory.md)
 * [El Reno history and remembrance](docs/el-reno-history.md)
 * [Research claim ledger](research/claim-ledger.csv)

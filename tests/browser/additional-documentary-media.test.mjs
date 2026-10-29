@@ -39,6 +39,7 @@ for(const width of [320,1280])test('derived film still, parent source and additi
  await region.getByRole('link',{name:'Open Ray Bohac’s decoded film still at full resolution'}).click();
  await page.waitForURL(u=>u.pathname.endsWith('/bohac-opening-film-still.png'));
  await page.goBack();await region.waitFor();
+ await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
  const card=page.locator('#media-bohac-opening-film-still');
  await inspectDossierHop(page,async()=>{
   await region.getByRole('link',{name:'Inspect this still, its parent film and reuse record'}).click();

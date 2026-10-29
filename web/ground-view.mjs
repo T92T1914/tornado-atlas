@@ -59,13 +59,16 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
         if(formation)text(host.querySelector('#ground-model-note'),'One illustrative supercell pathway, not a universal life cycle. Surface arrows show assumed circulation, not measured velocities. Condensation can be absent while circulation is present; dust does not define tornado existence. Player 120 through 140 maps linearly to 0 through 30 study seconds. Compare reduced condensation at the same circulation in Form Study.');
         if(formation&&lightingStyle!=='legacy')text(host.querySelector('#ground-model-note'),host.querySelector('#ground-model-note').textContent+' The shared side light and synthetic surface are authored depth cues, not historical illumination, surveyed terrain or physical scale.');
         if(formation&&lightingStyle==='reference-v1')text(host.querySelector('#ground-model-note'),host.querySelector('#ground-model-note').textContent+' Published El Reno photographs inform the broad unequal contour, cloud attachment and opacity. No photograph is registered to this camera or study time. Compare the complete source photographs in Form Study.');
+        if(formation&&lightingStyle==='storm-v1')text(host.querySelector('#ground-model-note'),host.querySelector('#ground-model-note').textContent+' The wider storm base, condensation detail and low dust share an assumed flow in scene units per study second. Scene illumination stays fixed across reading appearances. Its geometry, visibility and transport remain authored, without measured El Reno winds, physical dimensions or a matched source exposure.');
         text(quality.querySelector('[value="1600"]'),formation&&lightingStyle!=='legacy'?'Lighter · 1600 particles · up to 320 × 200':'1600 particles');
+        if(lightingStyle==='storm-v1')text(quality.querySelector('[value="1600"]'),'Lighter · up to 320 × 200');
+        text(quality.querySelector('[value="3200"]'),lightingStyle==='storm-v1'?'Standard · up to 512 × 320':'3200 particles');
         for(const b of host.querySelectorAll('[data-ground-second]'))text(b,`${simulation?'Show':'Compare'} at player ${b.dataset.groundSecond} s`);
       }
       host.hidden=!enabled;referenceHost.hidden=!enabled;
       camera.querySelector('[data-unavailable]')?.remove();
       if(!enabled){identity++;referenceKey=null;referenceHost.replaceChildren();return null;}
-      const validStyle=lightingStyle==='legacy'||formation&&['world-v1','reference-v1'].includes(lightingStyle);
+      const validStyle=lightingStyle==='legacy'||formation&&['world-v1','reference-v1','storm-v1'].includes(lightingStyle);
       const state=validStyle?(formation?formationSimulationAt:simulation?funnelSimulationAt:groundViewAt)(seconds,id):{state:'unavailable',camera:null,shape:null,reference:null,reason:'The requested lighting presentation is unavailable. No appearance has been substituted.'};
       state.lightingStyle=validStyle?lightingStyle:'legacy';
       if(id&&!GROUND_CAMERAS.some(view=>view.id===id)){

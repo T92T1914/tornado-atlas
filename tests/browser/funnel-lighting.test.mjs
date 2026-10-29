@@ -2,12 +2,14 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 import {enlargeText,reflow} from './ground-view-assertions.mjs';
+import {sceneFrame} from './storm-scene-assertions.mjs';
 
 const replay='reconstruction.html?event=el-reno-2013&appearance_view=formation&ground_view=synthetic-front&t=130';
 const formFields={shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7',dust:'1',quality:'7200',
   sequence:'1',coverage:'formation',rate:'1',position:'0.5',phase:'15',model:'genesis-v1',visibility:'ordinary',flow:'1'};
 const form3='study.html?'+new URLSearchParams({experiment:'form-3',...formFields});
 const form4='study.html?'+new URLSearchParams({experiment:'form-4',...formFields,lighting:'world-v1'});
+const form5='study.html?'+new URLSearchParams({experiment:'form-5',...formFields,coverage:'reference',presentation:'reference-v1'});
 const form2='study.html?experiment=form-2&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=0&coverage=continuous&rate=1&position=0&phase=15&model=kinematic-v1';
 const form1='study.html?experiment=form-1&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=0&coverage=continuous&rate=1&position=0&phase=15';
 
@@ -146,9 +148,9 @@ for(const [width,theme,palette]of [[320,'light',1],[1280,'dark',2]]){
   });
 }
 
-test('fresh Form Study saves form-5 while history and literal form-4 retain distinct presentations',async t=>{
+test('literal form-5 saves its state while history and literal form-4 retain distinct presentations',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:1000},reducedMotion:'reduce'});
-  await readyStudy(page);await page.locator('#reading-appearance').selectOption('light');
+  await readyStudy(page,form5);await page.locator('#reading-appearance').selectOption('light');
   assert.equal(await page.locator('#sequence-coverage').inputValue(),'reference');
   assert.equal(await page.locator('#sequence-enabled').isChecked(),true);
   assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'reference-v1');
@@ -182,7 +184,7 @@ test('fresh Form Study saves form-5 while history and literal form-4 retain dist
   await enlargeText(page);await reflow(page);
   assert.equal(await page.locator('#motion').textContent(),'Play motion');
   const wide=page;await wide.setViewportSize({width:1280,height:1000});
-  await readyStudy(wide);await wide.locator('#reading-appearance').selectOption('dark');
+  await readyStudy(wide,form5);await wide.locator('#reading-appearance').selectOption('dark');
   const wideFrame=await submittedFrame(wide,{study:true,value:.5,count:7200});
   if(wideFrame){assert.equal(wideFrame.palette,2);assert.deepEqual(wideFrame.state,[1,0,1,1]);}
   assert.equal(await wide.locator('#lighting-note').isVisible(),true);
@@ -225,8 +227,8 @@ test('unknown or repeated replay lighting refuses the selection and recovers thr
   await page.locator('#replay-appearance-mode').selectOption('simulation');
   assert.equal(new URL(page.url()).searchParams.has('appearance_style'),false);
   await page.locator('#replay-appearance-mode').selectOption('formation');
-  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'reference-v1');
-  await submittedFrame(page);
+  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v1');
+  await sceneFrame(page);
   await page.locator('#replay-time').fill('145');
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
@@ -241,7 +243,7 @@ test('invalid form-4 lighting never partially restores a claimed experiment',asy
     assert.match(await page.locator('#lab-state').textContent(),/No values from the link were applied/);
     assert.equal(await page.locator('#azimuth').inputValue(),'25');
     assert.equal(await page.locator('#sequence-time').inputValue(),'0');
-    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'reference-v1');
+    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v1');
     assert.equal(await page.locator('#motion').textContent(),'Play motion');
   }
   await readyStudy(page,form4);assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'restored');

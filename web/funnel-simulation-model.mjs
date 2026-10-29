@@ -1,5 +1,6 @@
 import {FUNNEL_LIGHTING_GLSL} from './funnel-lighting-model.mjs';
 import {REFERENCE_FIELD_GLSL} from './reference-form-model.mjs';
+import {STORM_FIELD_GLSL} from './storm-scene-model.mjs';
 // Authored kinematics and optical density in normalized scene units.
 // None of these parameters is a measured wind, condensation or debris quantity.
 export const FUNNEL_SIMULATION = Object.freeze({id:'kinematic-v1',seed:20130531,maxSeconds:86400});
@@ -53,6 +54,9 @@ export const FUNNEL_DENSITY_GLSL = `
 #ifndef REFERENCE_FORM
 #define REFERENCE_FORM 0
 #endif
+#ifndef STORM_SCENE
+#define STORM_SCENE 0
+#endif
 float materialCell(ivec3 cell){
   uvec3 q=uvec3(cell+ivec3(4096));
   uint value=q.x*1664525u+q.y*1013904223u+q.z*69069u+20130531u;
@@ -60,6 +64,7 @@ float materialCell(ivec3 cell){
   return float(value&65535u)/65535.0;
 }
 ${REFERENCE_FIELD_GLSL}
+${STORM_FIELD_GLSL}
 float materialNoise(vec3 p){
 #if REFERENCE_FORM
   return referenceNoise(p);
@@ -94,6 +99,9 @@ float funnelRadius(float h,vec3 s,float t){
   return profile*(1.0+.035*sin(8.0*h-.7*t)+.025*sin(13.0*h-1.1*t));
 }
 float condensationDensity(vec3 p,vec3 s,float t,float ex){
+#if STORM_SCENE
+  return stormBody(p,s,t,ex);
+#endif
 #if REFERENCE_FORM
   return referenceBody(p,s,t,ex);
 #endif
@@ -124,6 +132,9 @@ float condensationDensity(vec3 p,vec3 s,float t,float ex){
   return max(0.0,envelope*interior*ends);
 }
 float cloudBaseDensity(vec3 p,float t){
+#if STORM_SCENE
+  return stormCloud(p,t);
+#endif
 #if REFERENCE_FORM
   return referenceCloud(p,t);
 #endif
@@ -150,6 +161,9 @@ float cloudBaseDensity(vec3 p,float t){
   return vertical*rim*max(.12,texture)*cutoff;
 }
 float dustDensity(vec3 p,float t){
+#if STORM_SCENE
+  return stormDust(p,t);
+#endif
 #if REFERENCE_FORM
   return referenceDust(p,t);
 #endif
@@ -197,7 +211,19 @@ vec4 integrateRegion(vec3 origin,vec3 ray,vec2 interval,bool cloudRegion,int sam
   vec4 accumulated=vec4(0.0);
   for(int i=0;i<48;i++){
     if(i>=samples)break;
-    vec3 p=origin+ray*(interval.x+(float(i)+.5)*stepLength);
+    float position=interval.x+(float(i)+.5)*stepLength;
+#if STORM_SCENE
+    if(cloudRegion){
+      float u0=float(i)/float(samples),u1=float(i+1)/float(samples);
+      float a=u0*u0,b=u1*u1;
+      stepLength=(interval.y-interval.x)*(b-a);
+      position=interval.x+(interval.y-interval.x)*.5*(a+b);
+    }
+#endif
+    vec3 p=origin+ray*position;
+#if STORM_SCENE
+    stormSample(p,ray,time,stepLength);
+#endif
     float body=cloudRegion?0.0:condensationDensity(p,shape,time,extent);
     // Inside the shared segment, sample both fields at the same depth. Sorting
     // whole overlapping volumes by their box entry creates an artificial seam.
@@ -220,6 +246,12 @@ vec4 integrateRegion(vec3 origin,vec3 ray,vec2 interval,bool cloudRegion,int sam
     // A soft side-light cue supplies depth without a calibrated sun or photometry.
     vec3 tint=readingPalette>0?vec3(value):vec3(value*.94,value,value*.97);
     if(worldLighting)tint=worldMaterial(p,density);
+#if STORM_SCENE
+    tint=mix(tint,vec3(.45,.39,.29),.80*haze/max(.001,body+cloud+haze));
+    // The far local medium and its analytic tail share a radiance limit.
+    // This changes color resolution with distance, without added fog opacity.
+    tint=mix(tint,STORM_FAR_RADIANCE,smoothstep(18.0,45.0,length(p-origin)));
+#endif
     float alpha=1.0-exp(-density*stepLength*3.6);
     accumulated.rgb+=(1.0-accumulated.a)*alpha*tint;
     accumulated.a+=(1.0-accumulated.a)*alpha;
@@ -233,6 +265,19 @@ void main(){
   vec3 origin=a.xyz/a.w,segment=b.xyz/b.w-origin,ray=normalize(segment);
   if(surfacePass){
     if(!worldLighting)discard;
+#if STORM_SCENE
+    vec3 skyColor=stormDistantSky(origin,ray,length(segment));
+    if(ray.y>=-.00001){outputColor=vec4(skyColor,1.0);return;}
+    float groundDistance=-origin.y/ray.y;
+    // Opaque ground is an analytic forward boundary. The local volume's far
+    // clip must not replace more distant ground with a visible strip of sky.
+    if(groundDistance<0.0){outputColor=vec4(skyColor,1.0);return;}
+    vec3 groundPoint=origin+ray*groundDistance;
+    float groundLight=nearbyTransmission(groundPoint+vec3(0,.01,0),worldLight());
+    float grain=.008*(materialNoise(groundPoint*1.5)-.5);
+    vec3 groundColor=vec3(.19,.22,.18)*(.72+.28*groundLight)+grain;
+    outputColor=vec4(mix(skyColor,groundColor,exp(-.0007*dot(groundPoint.xz,groundPoint.xz))),1.0);return;
+#else
     float sky=readingPalette==1?.95-.035*exp(-max(0.0,ray.y)*7.0):.035+.035*exp(-max(0.0,ray.y)*7.0);
     if(ray.y>=-.00001){
       outputColor=vec4(vec3(sky),.92);return;
@@ -245,15 +290,29 @@ void main(){
     float grain=.006*(materialNoise(point*1.5)-.5);
     float value=readingPalette==1?.85-.16*(1.0-shadow)+grain:.10-.045*(1.0-shadow)+grain*.4;
     outputColor=vec4(vec3(mix(sky,value,reach)),.92);return;
+#endif
   }
   // Separate bounds keep the thin body sampled independently of the wide cloud.
   float radius=max(dust?1.45:.05,1.31*(shape.x+shape.y*1.06)+1.04*abs(shape.z)+.08);
 #if REFERENCE_FORM
   radius=2.75;
 #endif
+#if STORM_SCENE
+  radius=3.3;
+#endif
   vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,2.71,radius));
   vec2 cloudOffset=vec2(.12*sin(.11*time),.12*cos(.09*time));
   vec2 cloudRange=intersectBox(origin,ray,length(segment),vec3(cloudOffset.x-2.8,2.05,cloudOffset.y-2.8),vec3(cloudOffset.x+2.8,3.5,cloudOffset.y+2.8));
+#if STORM_SCENE
+  // Clip only vertically and at the existing camera's far segment. Perspective
+  // far depth is not radial distance, so an arbitrary wide box can still bind.
+  if(ray.y==0.0){
+    cloudRange=origin.y>=1.8&&origin.y<=5.6?vec2(0.0,length(segment)):vec2(1.0,0.0);
+  }else{
+    float lower=(1.8-origin.y)/ray.y,upper=(5.6-origin.y)/ray.y;
+    cloudRange=vec2(max(0.0,min(lower,upper)),min(length(segment),max(lower,upper)));
+  }
+#endif
   vec4 combined;
   if(bodyRange.y<=bodyRange.x){
     combined=integrateRegion(origin,ray,cloudRange,true,16);

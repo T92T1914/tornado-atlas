@@ -5,6 +5,7 @@ import {simulationTime,simulationBackingSize,simulationParticles,inverseCameraMa
 import {formationAt,formationFlow} from './formation-model.mjs';
 import {FUNNEL_LIGHTING_GLSL} from './funnel-lighting-model.mjs';
 import {referenceNoiseLattice} from './reference-form-model.mjs';
+import {stormFlow} from './storm-scene-model.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
@@ -342,7 +343,7 @@ export function createFormRenderer(canvas, quality) {
     if(resources.grid)gl.deleteProgram(resources.grid);
     if(resources.referenceTexture)gl.deleteTexture(resources.referenceTexture);
     if(resources.volume){gl.deleteVertexArray(resources.volume.attribute.vao);gl.deleteBuffer(resources.volume.attribute.buffer);gl.deleteProgram(resources.volume.program);}
-    for(const key of ['referenceCloud','referenceVolume']){
+    for(const key of ['referenceCloud','referenceVolume','stormVolume']){
       const item=resources[key];
       if(item){gl.deleteVertexArray(item.attribute.vao);gl.deleteBuffer(item.attribute.buffer);gl.deleteProgram(item.program);}
     }
@@ -383,6 +384,7 @@ export function createFormRenderer(canvas, quality) {
     gpu.count=values.length/4;
   }
   const referenceShader=source=>source.replace('#version 300 es','#version 300 es\n#define REFERENCE_FORM 1');
+  const stormShader=source=>source.replace('#version 300 es','#version 300 es\n#define REFERENCE_FORM 1\n#define STORM_SCENE 1');
   function referenceTexture(){
     if(gpu.referenceTexture)return gpu.referenceTexture;
     const texture=gl.createTexture();
@@ -408,12 +410,12 @@ export function createFormRenderer(canvas, quality) {
       const resource={program:p,attribute:a,uniforms};gpu.referenceCloud=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
-  function volumeResources(reference=false){
-    const key=reference?'referenceVolume':'volume';
+  function volumeResources(reference=false,storm=false){
+    const key=storm?'stormVolume':reference?'referenceVolume':'volume';
     if(gpu[key])return gpu[key];
     let p=null,a=null;
     try{
-      p=program(funnelVolumeVertex,reference?referenceShader(funnelVolumeFragment):funnelVolumeFragment);
+      p=program(funnelVolumeVertex,storm?stormShader(funnelVolumeFragment):reference?referenceShader(funnelVolumeFragment):funnelVolumeFragment);
       a=attribute(p,'position',new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),2);
       const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState','worldLighting','surfacePass','referenceNoiseTexture'].map(name=>[name,gl.getUniformLocation(p,name)]))};
       gpu[key]=resource;return resource;
@@ -463,12 +465,16 @@ export function createFormRenderer(canvas, quality) {
     const height=raster?.height??Math.max(1,Math.min(1600,Math.round(rect.height*ratio)));
     if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
     // Every selection clears the complete canvas, including an unknown instant.
-    gl.viewport(0,0,width,height);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.viewport(0,0,width,height);gl.disable(gl.SCISSOR_TEST);
+    // The new scene has its own opaque exposure, including letterbox pixels.
+    // Reset explicitly when returning to an earlier transparent presentation.
+    if(lightingStyle==='storm-v1')gl.clearColor(.52,.55,.56,1);else gl.clearColor(0,0,0,0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     // Validate even an empty source state, after clearing any previous image.
     const source=sourceCamera===null?null:sourceCameraProjection(sourceCamera,width,height);
     if(!['legacy','kinematic-v1','genesis-v1'].includes(motionModel))throw new TypeError('Unknown funnel motion model');
-    if(!['legacy','world-v1','reference-v1'].includes(lightingStyle)||lightingStyle!=='legacy'&&motionModel!=='genesis-v1')throw new TypeError('Unsupported funnel lighting presentation');
-    const worldLighting=lightingStyle!=='legacy',reference=lightingStyle==='reference-v1';
+    if(!['legacy','world-v1','reference-v1','storm-v1'].includes(lightingStyle)||lightingStyle!=='legacy'&&motionModel!=='genesis-v1')throw new TypeError('Unsupported funnel lighting presentation');
+    const worldLighting=lightingStyle!=='legacy',storm=lightingStyle==='storm-v1',reference=storm||lightingStyle==='reference-v1';
     const kinematic=motionModel!=='legacy',genesis=motionModel==='genesis-v1';
     const formation=genesis&&shape?formationAt(formationTime??time,{visibility:formationVisibility,flow}):null;
     if(formation){shape=formation.shape;extent=formation.extent;time=formation.seconds;}
@@ -521,9 +527,9 @@ export function createFormRenderer(canvas, quality) {
     const camera=source?.matrix??cameraMatrix(azimuth,elevation,distance,rect.width/rect.height);
     if(source){const v=source.viewport;gl.viewport(v.x,v.y,v.width,v.height);gl.enable(gl.SCISSOR_TEST);gl.scissor(v.x,v.y,v.width,v.height);}
     try{
-    const palette=readingAppearance==='light'?1:readingAppearance==='dark'?2:0;
+    const palette=storm?2:readingAppearance==='light'?1:readingAppearance==='dark'?2:0;
     function volumeState(surfacePass){
-      const volume=volumeResources(reference),v=source?.viewport??{x:0,y:0,width,height};
+      const volume=volumeResources(reference,storm),v=source?.viewport??{x:0,y:0,width,height};
       gl.useProgram(volume.program);gl.bindVertexArray(volume.attribute.vao);
       if(reference){gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_3D,referenceTexture());gl.uniform1i(volume.uniforms.referenceNoiseTexture,0);}
       gl.uniformMatrix4fv(volume.uniforms.inverseCamera,false,inverseCameraMatrix(camera));
@@ -540,13 +546,13 @@ export function createFormRenderer(canvas, quality) {
     gl.useProgram(gpu.grid);gl.bindVertexArray(gpu.gridAttribute.vao);
     gl.uniform1i(gpu.gridPalette,palette);
     gl.uniform1i(gpu.gridMarks,0);
-    gl.uniform1f(gpu.gridAlpha,1);
+    gl.uniform1f(gpu.gridAlpha,storm?.25:1);
     gl.uniformMatrix4fv(gpu.gridCamera,false,camera);gl.drawArrays(gl.LINES,0,gpu.gridCount);
     if(formation?.flow&&formation.circulation>0){
-      const lines=formationFlow(formation.seconds,formation.circulation);
+      const lines=(storm?stormFlow:formationFlow)(formation.seconds,formation.circulation);
       if(!gpu.flowAttribute)gpu.flowAttribute=attribute(gpu.grid,'position',lines,3);
       else{gl.bindBuffer(gl.ARRAY_BUFFER,gpu.flowAttribute.buffer);gl.bufferData(gl.ARRAY_BUFFER,lines,gl.DYNAMIC_DRAW);}
-      gl.bindVertexArray(gpu.flowAttribute.vao);gl.uniform1i(gpu.gridMarks,1);gl.uniform1f(gpu.gridAlpha,formation.circulation*(reference?.28:.7));gl.drawArrays(gl.LINES,0,lines.length/3);gl.uniform1i(gpu.gridMarks,0);gl.uniform1f(gpu.gridAlpha,1);
+      gl.bindVertexArray(gpu.flowAttribute.vao);gl.uniform1i(gpu.gridMarks,1);gl.uniform1f(gpu.gridAlpha,formation.circulation*(storm?.15:reference?.28:.7));gl.drawArrays(gl.LINES,0,lines.length/3);gl.uniform1i(gpu.gridMarks,0);gl.uniform1f(gpu.gridAlpha,1);
     }
     if(source&&referencePoints?.length){
       gl.bindVertexArray(referenceResources(referencePoints).vao);gl.uniform1i(gpu.gridMarks,1);
@@ -555,6 +561,9 @@ export function createFormRenderer(canvas, quality) {
     if(kinematic){
       volumeState(false);
     }
+    // This version integrates condensation, cloud and dust together. It has no
+    // separate sprite draw with unrelated lifetimes or transport.
+    if(storm)return;
     const particleResources=reference?referenceParticleResources():{program:gpu.cloud,attribute:gpu.cloudAttribute,uniforms:gpu.uniforms};
     gl.useProgram(particleResources.program);gl.bindVertexArray(particleResources.attribute.vao);
     const u=particleResources.uniforms;
