@@ -97,7 +97,12 @@ for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`storm-v2 Form and 
     if(!study){
       assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-scene-frame'),'complete-synthetic');
       const fit=await page.locator('#replay-appearance-canvas').evaluate(canvas=>[canvas.clientWidth,canvas.clientHeight]);
-      assert.ok(Math.abs(fit[0]/fit[1]-16/9)<.025,'The complete declared camera follows its image aspect ratio');
+      if(before)assert.ok(Math.abs(fit[0]/fit[1]-16/9)<.025,'The complete declared camera follows its image aspect ratio');
+      else{
+        assert.deepEqual(fit,[0,0],'An explicitly unavailable and hidden canvas has no displayed camera frame');
+        assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
+        assert.match(await page.locator('#replay-appearance-renderer-status').textContent(),/could not start|lost/);
+      }
       assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
     }
     const changed=await sceneFrame(page,{study,style:'storm-v2',trigger:'#reading-appearance',event:'change',compare:'detail-before',

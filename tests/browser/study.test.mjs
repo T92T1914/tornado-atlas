@@ -85,9 +85,14 @@ test('unavailable WebGL keeps its diagnosis through view and motion controls',as
   assert.equal(await page.locator('#museum-title').textContent(),'Tornado history, through the surviving record.');
 });
 
-test('a real WebGL context can recover without resuming motion or losing controls',async t=>{
+for(const scenario of [
+  {name:'current Form7 storm2',route:'study.html',experiment:'form-7',version:2},
+  {name:'retained Form6 storm1',route:'study.html?experiment=form-6&model=genesis-v1&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=storm&rate=1&position=0&phase=0&visibility=ordinary&flow=1&presentation=storm-v1',experiment:'form-6',version:1},
+])test('a real WebGL context can recover without resuming motion or losing controls: '+scenario.name,async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:1200}});
-  await page.goto(base+'/study.html');
+  await page.goto(base+'/'+scenario.route);
+  await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  assert.equal(new URL(await page.locator('#lab-share').getAttribute('href'),base).searchParams.get('experiment'),scenario.experiment);
   const available=await page.locator('#scene').evaluate(canvas=>{
     const gl=canvas.getContext('webgl2');
     const extension=gl?.getExtension('WEBGL_lose_context');
@@ -128,7 +133,7 @@ test('a real WebGL context can recover without resuming motion or losing control
         const pixels=new Uint8Array(canvas.width*canvas.height*4);
         gl.readPixels(0,0,canvas.width,canvas.height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
         const fragment=gl.getAttachedShaders(program).find(shader=>gl.getShaderParameter(shader,gl.SHADER_TYPE)===gl.FRAGMENT_SHADER);
-        state.rendered={lost:gl.isContextLost(),error:gl.getError(),painted:pixels.some((value,index)=>index%4===3&&value>0),opaque:pixels.every((value,index)=>index%4!==3||value===255),count:args[2],linked:gl.getProgramParameter(program,gl.LINK_STATUS),storm:/^#define STORM_SCENE 1$/m.test(gl.getShaderSource(fragment))};
+        state.rendered={lost:gl.isContextLost(),error:gl.getError(),painted:pixels.some((value,index)=>index%4===3&&value>0),opaque:pixels.every((value,index)=>index%4!==3||value===255),count:args[2],linked:gl.getProgramParameter(program,gl.LINK_STATUS),storm:Number(/^#define STORM_SCENE (\d+)$/m.exec(gl.getShaderSource(fragment))?.[1]??NaN)};
       }finally{gl.drawArrays=drawArrays;}
       return result;
     };
@@ -136,7 +141,7 @@ test('a real WebGL context can recover without resuming motion or losing control
   await page.locator('#quality').selectOption('3600');
   await page.waitForFunction(()=>window.studyContextTest.rendered!==undefined);
   const rendered=await page.evaluate(()=>window.studyContextTest.rendered);
-  assert.deepEqual(rendered,{lost:false,error:0,painted:true,opaque:true,count:6,linked:true,storm:true});
+  assert.deepEqual(rendered,{lost:false,error:0,painted:true,opaque:true,count:6,linked:true,storm:scenario.version});
   assert.equal(await page.locator('#sequence-time').inputValue(),'0.6');
   assert.equal(await page.locator('#motion').textContent(),'Play motion');
 });

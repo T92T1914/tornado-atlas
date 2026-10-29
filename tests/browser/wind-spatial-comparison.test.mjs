@@ -148,7 +148,16 @@ for(const viewport of viewports)for(const failure of ['no-script','module-refusa
   let refused=0;
   if(failure==='module-refusal')await page.route('**/wind.js',route=>{refused++;return route.abort('failed');});
   await page.goto(base+'/wind.html#wind-spatial-reading');
-  await page.evaluate(()=>document.fonts.ready);
+  if(failure==='no-script'){
+    // Read the actual static layout without awaiting a page Promise while scripts are disabled.
+    const staticLayout=await page.evaluate(()=>{
+      const box=document.getElementById('wind-spatial-reading').getBoundingClientRect();
+      return {ready:document.readyState,fonts:document.fonts.status,width:box.width,height:box.height};
+    });
+    console.info('WIND_NOSCRIPT_STATIC_LAYOUT '+JSON.stringify({viewport_width:viewport.width,dpr:viewport.deviceScaleFactor,layout:staticLayout}));
+    assert.equal(staticLayout.ready,'complete');assert.equal(staticLayout.fonts,'loaded');
+    assert.ok(Number.isFinite(staticLayout.width)&&Number.isFinite(staticLayout.height)&&staticLayout.width>0&&staticLayout.height>0,'The complete static comparison has actual layout');
+  }else await page.evaluate(()=>document.fonts.ready);
   assert.equal(await page.evaluate(()=>innerWidth),viewport.width);
   assert.equal(await page.evaluate(()=>devicePixelRatio),viewport.deviceScaleFactor);
   if(failure==='module-refusal'){
