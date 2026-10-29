@@ -250,7 +250,7 @@ vec4 integrateRegion(vec3 origin,vec3 ray,vec2 interval,bool cloudRegion,int sam
     tint=mix(tint,vec3(.45,.39,.29),.80*haze/max(.001,body+cloud+haze));
     // The far local medium and its analytic tail share a radiance limit.
     // This changes color resolution with distance, without added fog opacity.
-    tint=mix(tint,vec3(.48,.51,.52),smoothstep(18.0,45.0,length(p-origin)));
+    tint=mix(tint,STORM_FAR_RADIANCE,smoothstep(18.0,45.0,length(p-origin)));
 #endif
     float alpha=1.0-exp(-density*stepLength*3.6);
     accumulated.rgb+=(1.0-accumulated.a)*alpha*tint;
@@ -269,7 +269,9 @@ void main(){
     vec3 skyColor=stormDistantSky(origin,ray,length(segment));
     if(ray.y>=-.00001){outputColor=vec4(skyColor,1.0);return;}
     float groundDistance=-origin.y/ray.y;
-    if(groundDistance<0.0||groundDistance>length(segment)){outputColor=vec4(skyColor,1.0);return;}
+    // Opaque ground is an analytic forward boundary. The local volume's far
+    // clip must not replace more distant ground with a visible strip of sky.
+    if(groundDistance<0.0){outputColor=vec4(skyColor,1.0);return;}
     vec3 groundPoint=origin+ray*groundDistance;
     float groundLight=nearbyTransmission(groundPoint+vec3(0,.01,0),worldLight());
     float grain=.008*(materialNoise(groundPoint*1.5)-.5);

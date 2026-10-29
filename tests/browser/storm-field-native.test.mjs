@@ -5,12 +5,13 @@ import {fixture,base} from './harness.mjs';
 import {stormCoordinates} from '../../web/storm-scene-model.mjs';
 import {FUNNEL_DENSITY_GLSL} from '../../web/funnel-simulation-model.mjs';
 import {FUNNEL_LIGHTING_GLSL} from '../../web/funnel-lighting-model.mjs';
+import {retainedTailInputs,additionalTailInputs,literalColumnControls,numericalVerticalColumn,numericalTailRGB,numericalTailTransmission} from './storm-tail-oracle.mjs';
 
 // Columns of the fixed, declared orthonormal texture basis. This is the CPU
 // comparison basis, not a copied shader implementation of the characteristic.
 const basis=([x,y,z])=>[.8*x-.36*y+.48*z,.6*x+.48*y-.64*z,.8*y+.6*z];
 const normalize=ray=>{const length=Math.hypot(...ray);return ray.map(value=>value/length);};
-const nativeRow=({name,point,ray,time=0,span=0,clipLength=0,lengthInCloud=null})=>({name,point:point.map(Math.fround),ray:normalize(ray).map(Math.fround),time:Math.fround(time),span:Math.fround(span),clipLength:Math.fround(clipLength),lengthInCloud});
+const nativeRow=({name,point,ray,time=0,span=0,clipLength=0})=>({name,point:point.map(Math.fround),ray:normalize(ray).map(Math.fround),time:Math.fround(time),span:Math.fround(span),clipLength:Math.fround(clipLength)});
 const materialRows=[
   {name:'origin time zero vertical ray',point:[0,0,0],ray:[0,1,0],time:0,span:.1},
   {name:'off axis time zero oblique ray',point:[.3,.1,-.7],ray:[.2,.9,-.1],time:0,span:.045},
@@ -22,20 +23,9 @@ const materialRows=[
   {name:'lower time six reversed oblique ray',point:[-1.2,.1,.7],ray:[-.7,-.4,.2],time:6,span:.03},
 ].map(nativeRow);
 
-// These lengths follow the stated slab intersections independently of the
-// production function. Tiny outward rays must miss, rather than becoming the
-// opaque parallel-inside case through an epsilon parallel classification.
-const tailRows=[
-  {name:'up from y zero beyond far two',point:[0,0,0],ray:[0,1,0],clipLength:2,lengthInCloud:3.6},
-  {name:'down from y six beyond far one point five',point:[0,6,0],ray:[0,-1,0],clipLength:1.5,lengthInCloud:2.7},
-  {name:'up from y zero beyond far six misses',point:[0,0,0],ray:[0,1,0],clipLength:6,lengthInCloud:0},
-  {name:'parallel inside slab is opaque continuation',point:[0,3,0],ray:[1,0,0],clipLength:2,lengthInCloud:1000000},
-  {name:'parallel outside slab is clear',point:[0,1,0],ray:[1,0,0],clipLength:2,lengthInCloud:0},
-  {name:'lower boundary tiny outward ray misses',point:[.2,1.8,-.3],ray:[1,-5e-7,0],clipLength:2,lengthInCloud:0},
-  {name:'upper boundary tiny outward ray misses',point:[.2,5.6,-.3],ray:[1,5e-7,0],clipLength:2,lengthInCloud:0},
-  {name:'oblique up tail has length six point two',point:[0,0,0],ray:[0,.5,Math.sqrt(.75)],clipLength:5,lengthInCloud:6.2},
-  {name:'oblique down tail has length four point five',point:[2,6,-1],ray:[.6,-.8,0],clipLength:.75,lengthInCloud:4.5},
-].map(nativeRow);
+// Preserve all nine earlier points/rays/clips, with the new profile's
+// independently integrated expectations and additional boundary controls.
+const tailRows=[...retainedTailInputs,...additionalTailInputs].map(nativeRow);
 
 const materialExpected=row=>basis(stormCoordinates(row.point,row.time));
 function spanExpected(row,step){
@@ -44,15 +34,7 @@ function spanExpected(row,step){
   const a=basis(stormCoordinates(plus,row.time)),b=basis(stormCoordinates(minus,row.time));
   return a.map((value,index)=>Math.abs((value-b[index])/(2*step))*row.span);
 }
-function fixedSky(ray){
-  const x=Math.max(0,Math.min(1,(ray[1]+.02)/.77)),amount=x*x*(3-2*x);
-  const horizon=[.52,.55,.56],upper=[.27,.31,.34];
-  return horizon.map((value,index)=>value+(upper[index]-value)*amount);
-}
-function tailExpected(row){
-  const transmission=Math.exp(-3.6*.18*row.lengthInCloud),sky=fixedSky(row.ray),cloud=[.48,.51,.52];
-  return sky.map((value,index)=>value*transmission+cloud[index]*(1-transmission));
-}
+const tailExpected=numericalTailRGB;
 function vectorNear(actual,expected,label,absolute,relative=0){
   assert.equal(actual.length,expected.length,label+' length');
   actual.forEach((value,index)=>{
@@ -62,6 +44,7 @@ function vectorNear(actual,expected,label,absolute,relative=0){
 }
 
 test('native storm characteristic and tail controls preserve primary material state through actual lighting',async t=>{
+  for(const row of literalColumnControls)assert.ok(Math.abs(numericalVerticalColumn(row.from,row.to)-row.expected)<=2e-12,row.name+' independent quadrature control');
   const page=await fixture(t);await page.goto(base+'/study.html');
   const rows=[...materialRows,...tailRows];
   const result=await page.evaluate(async rows=>{
@@ -108,6 +91,7 @@ out vec3 sampledSky;
 out vec3 materialAfterLight;
 out vec3 spanAfterLight;
 out vec3 sampledLight;
+out float sampledTransmission;
 ${FUNNEL_DENSITY_GLSL}
 ${FUNNEL_LIGHTING_GLSL}
 void main(){
@@ -115,6 +99,7 @@ void main(){
   sampledMaterial=stormMaterialPoint;
   sampledSpan=stormSampleSpan;
   sampledSky=stormDistantSky(samplePoint,sampleRay,sampleClip);
+  sampledTransmission=stormDistantTransmission(samplePoint,sampleRay,sampleClip);
   sampledLight=worldMaterial(samplePoint,.3);
   materialAfterLight=stormMaterialPoint;
   spanAfterLight=stormSampleSpan;
@@ -124,7 +109,7 @@ void main(){
       const program=gl.createProgram();if(!program)throw Error('Native program allocation failed');programs.push(program);allocated.program++;
       gl.attachShader(program,compile(gl.VERTEX_SHADER,vertex));
       gl.attachShader(program,compile(gl.FRAGMENT_SHADER,'#version 300 es\nprecision highp float;out vec4 color;void main(){color=vec4(1);}'));
-      gl.transformFeedbackVaryings(program,['sampledMaterial','sampledSpan','sampledSky','materialAfterLight','spanAfterLight','sampledLight'],gl.INTERLEAVED_ATTRIBS);gl.linkProgram(program);
+      gl.transformFeedbackVaryings(program,['sampledMaterial','sampledSpan','sampledSky','materialAfterLight','spanAfterLight','sampledLight','sampledTransmission'],gl.INTERLEAVED_ATTRIBS);gl.linkProgram(program);
       if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program)||'Native program link failed without a log');
       gl.useProgram(program);
       // The primary characteristic uses each row's sampleTime. The two actual
@@ -151,14 +136,14 @@ void main(){
         gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,size,gl.FLOAT,false,36,offset*4);
       }
       const output=gl.createBuffer();if(!output)throw Error('Native output buffer allocation failed');buffers.push(output);allocated.buffer++;
-      gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER,output);gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER,rows.length*72,gl.STREAM_READ);
+      gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER,output);gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER,rows.length*76,gl.STREAM_READ);
       const feedback=gl.createTransformFeedback();if(!feedback)throw Error('Native transform feedback allocation failed');feedbacks.push(feedback);allocated.feedback++;
       gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK,feedback);gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER,0,output);
       gl.enable(gl.RASTERIZER_DISCARD);gl.beginTransformFeedback(gl.POINTS);activeFeedback=true;
       gl.drawArrays(gl.POINTS,0,rows.length);gl.endTransformFeedback();activeFeedback=false;gl.disable(gl.RASTERIZER_DISCARD);
-      const sampled=new Float32Array(rows.length*18);gl.getBufferSubData(gl.TRANSFORM_FEEDBACK_BUFFER,0,sampled);
+      const sampled=new Float32Array(rows.length*19);gl.getBufferSubData(gl.TRANSFORM_FEEDBACK_BUFFER,0,sampled);
       const digest=async source=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(source)))).map(value=>value.toString(16).padStart(2,'0')).join('');
-      result={densitySHA256:await digest(FUNNEL_DENSITY_GLSL),lightingSHA256:await digest(FUNNEL_LIGHTING_GLSL),vertexSHA256:await digest(vertex),linkStatus:gl.getProgramParameter(program,gl.LINK_STATUS),lightingUniforms:{time:gl.getUniform(program,uniform('time')),shape:Array.from(gl.getUniform(program,uniform('shape'))),extent:gl.getUniform(program,uniform('extent')),dust:gl.getUniform(program,uniform('dust')),sampler:gl.getUniform(program,uniform('referenceNoiseTexture')),readingPaletteRequested:2,readingPalette:paletteLocation===null?null:gl.getUniform(program,paletteLocation)},samples:rows.map((row,index)=>({name:row.name,material:Array.from(sampled.subarray(index*18,index*18+3)),span:Array.from(sampled.subarray(index*18+3,index*18+6)),sky:Array.from(sampled.subarray(index*18+6,index*18+9)),materialAfterLight:Array.from(sampled.subarray(index*18+9,index*18+12)),spanAfterLight:Array.from(sampled.subarray(index*18+12,index*18+15)),light:Array.from(sampled.subarray(index*18+15,index*18+18))})),error:gl.getError(),lost:gl.isContextLost()};
+      result={densitySHA256:await digest(FUNNEL_DENSITY_GLSL),lightingSHA256:await digest(FUNNEL_LIGHTING_GLSL),vertexSHA256:await digest(vertex),linkStatus:gl.getProgramParameter(program,gl.LINK_STATUS),lightingUniforms:{time:gl.getUniform(program,uniform('time')),shape:Array.from(gl.getUniform(program,uniform('shape'))),extent:gl.getUniform(program,uniform('extent')),dust:gl.getUniform(program,uniform('dust')),sampler:gl.getUniform(program,uniform('referenceNoiseTexture')),readingPaletteRequested:2,readingPalette:paletteLocation===null?null:gl.getUniform(program,paletteLocation)},samples:rows.map((row,index)=>({name:row.name,material:Array.from(sampled.subarray(index*19,index*19+3)),span:Array.from(sampled.subarray(index*19+3,index*19+6)),sky:Array.from(sampled.subarray(index*19+6,index*19+9)),materialAfterLight:Array.from(sampled.subarray(index*19+9,index*19+12)),spanAfterLight:Array.from(sampled.subarray(index*19+12,index*19+15)),light:Array.from(sampled.subarray(index*19+15,index*19+18)),transmission:sampled[index*19+18]})),error:gl.getError(),lost:gl.isContextLost()};
     }catch(error){originalFailure=serial(error);}
     finally{
       if(activeFeedback)clean('end active feedback',()=>{gl.endTransformFeedback();activeFeedback=false;});
@@ -210,7 +195,7 @@ void main(){
     assert.deepEqual(sample.spanAfterLight,sample.span,sample.name+' actual primary span restored exactly');
     assert.equal(sample.light.length,3);assert.ok(sample.light.every(value=>Number.isFinite(value)&&value>=0&&value<=1),sample.name+' actual finite bounded light');
   }
-  const materialErrors=[],spanErrors=[],tailErrors=[];
+  const materialErrors=[],spanErrors=[],tailErrors=[],transmissionErrors=[];
   for(let index=0;index<materialRows.length;index++){
     const row=materialRows[index],actual=result.samples[index];assert.equal(actual.name,row.name);
     const expected=materialExpected(row),span=spanExpected(row,1e-4),refined=spanExpected(row,5e-5);
@@ -229,7 +214,11 @@ void main(){
   for(let index=0;index<tailRows.length;index++){
     const row=tailRows[index],actual=result.samples[materialRows.length+index],expected=tailExpected(row);assert.equal(actual.name,row.name);
     vectorNear(actual.sky,expected,row.name+' analytic tail RGB',3e-6);
+    if(row.name.startsWith('default orbit'))vectorNear(actual.sky,[.48,.51,.52],row.name+' shared horizontal radiance',3e-6);
+    const expectedTransmission=numericalTailTransmission(row),transmissionError=Math.abs(actual.transmission-expectedTransmission);
+    assert.ok(Number.isFinite(actual.transmission)&&transmissionError<=3e-6,row.name+' actual mean-tail transmittance: '+actual.transmission+' versus '+expectedTransmission);
+    transmissionErrors.push(transmissionError);
     tailErrors.push(...actual.sky.map((value,axis)=>Math.abs(value-expected[axis])));
   }
-  console.info('STORM_FIELD_NATIVE_LIGHT_PRECISION '+JSON.stringify({materialSamples:materialRows.length,tailSamples:tailRows.length,primaryStateRestorationSamples:result.samples.length,materialMaxAbsoluteError:Math.max(...materialErrors),spanMaxAbsoluteError:Math.max(...spanErrors),tailRGBMaxAbsoluteError:Math.max(...tailErrors),densitySHA256:result.densitySHA256,lightingSHA256:result.lightingSHA256,vertexSHA256:result.vertexSHA256,lightingUniforms:result.lightingUniforms,allocated:result.allocated,liveAfterExplicitDelete:result.live,scope:'Actual isolated production GLSL characteristic, local ray-bin derivative, analytic slab continuation and primary state restoration after actual shared-material lighting. Not a lighting-value oracle, native GPU memory measurement, rendered scene, real time performance, fluid simulation validation or historical qualification.'}));
+  console.info('STORM_FIELD_NATIVE_LIGHT_PRECISION '+JSON.stringify({materialSamples:materialRows.length,tailSamples:tailRows.length,primaryStateRestorationSamples:result.samples.length,materialMaxAbsoluteError:Math.max(...materialErrors),spanMaxAbsoluteError:Math.max(...spanErrors),tailRGBMaxAbsoluteError:Math.max(...tailErrors),tailTransmissionMaxAbsoluteError:Math.max(...transmissionErrors),densitySHA256:result.densitySHA256,lightingSHA256:result.lightingSHA256,vertexSHA256:result.vertexSHA256,lightingUniforms:result.lightingUniforms,allocated:result.allocated,liveAfterExplicitDelete:result.live,scope:'Actual isolated production GLSL characteristic, local ray-bin derivative, analytic mean cloud profile continuation and primary state restoration after actual shared-material lighting. Not a lighting-value oracle, native GPU memory measurement, rendered scene, real time performance, fluid simulation validation or historical qualification.'}));
 });

@@ -1,7 +1,8 @@
 // A reduced authored scene, not an atmospheric or historical reconstruction.
 // Lengths are scene units and time is the existing authored study second.
 export const STORM_SCENE=Object.freeze({id:'storm-v1',inflow:.018,rotation:.24,core:.95,lift:.08,
-  verticalStrain:.036,cloudLower:1.8,cloudUpper:5.6,tailDensity:.18});
+  verticalStrain:.036,cloudLower:1.8,cloudUpper:5.6,tailDensity:1124893/6075000,
+  tailProfile:Object.freeze([2.84,3.58,4.9,5.6]),horizonRadiance:Object.freeze([.48,.51,.52])});
 
 function pointInDomain(point,seconds){
   if(!Array.isArray(point)||point.length!==3||!point.every(v=>Number.isFinite(v)&&Math.abs(v)<=1024)||
@@ -39,6 +40,7 @@ export function stormFlow(seconds,strength){
 
 export const STORM_FIELD_GLSL=`
 #if STORM_SCENE
+const vec3 STORM_FAR_RADIANCE=vec3(.48,.51,.52);
 vec3 stormMaterialPoint;
 vec3 stormSampleSpan;
 void stormSample(vec3 p,vec3 ray,float t,float span){
@@ -109,20 +111,43 @@ float stormDust(vec3 p,float t){
   return (.95*low+1.25*lift)*smoothstep(.18,.76,dustPatch)*ends;
 }
 vec3 stormSky(vec3 ray){
-  return mix(vec3(.52,.55,.56),vec3(.27,.31,.34),smoothstep(-.02,.75,ray.y));
+  // Clear and cloud-filled horizontal rays meet at the same radiance limit.
+  return mix(STORM_FAR_RADIANCE,vec3(.27,.31,.34),smoothstep(0.0,.75,ray.y));
+}
+float stormMeanCloudPrimitive(float y){
+  // The far footprint filter tends to .5 and the central lowering tends to
+  // zero. Integrate that same mean vertical profile, rather than the slab box.
+  if(y<=2.84)return 0.0;
+  if(y<3.58){
+    float u=(y-2.84)/.74;
+    return .74*(u*u*u-.5*u*u*u*u);
+  }
+  if(y<=4.9)return .37+y-3.58;
+  if(y<5.6){
+    float v=(y-4.9)/.7;
+    return 1.69+.7*(v-v*v*v+.5*v*v*v*v);
+  }
+  return 2.04;
+}
+float stormDistantTransmission(vec3 origin,vec3 ray,float clipLength){
+  // Continue only beyond the local segment, with the same filtered cloud
+  // onset and upper fade. This adds no fog volume or texture/ray samples.
+  float meanLength=0.0;
+  if(ray.y==0.0){
+    float profile=smoothstep(2.84,3.58,origin.y)*(1.0-smoothstep(4.9,5.6,origin.y));
+    if(profile>0.0)meanLength=1000000.0;
+  }else{
+    float partial=stormMeanCloudPrimitive(origin.y+ray.y*clipLength);
+    float column=ray.y>0.0?2.04-partial:partial;
+    meanLength=min(1000000.0,max(0.0,column)/abs(ray.y));
+  }
+  // Include the .6 cloud optical weight used by the local integration.
+  float meanDensity=.6*.44*(.06+.80*smoothstep(.25,.70,.5)+.35*.5);
+  return exp(-3.6*meanDensity*meanLength);
 }
 vec3 stormDistantSky(vec3 origin,vec3 ray,float clipLength){
-  // Analytic homogeneous continuation beyond the local camera segment only.
-  // This closes the same cloud slab, without a fog volume or extra ray samples.
-  float lengthInCloud=0.0;
-  if(ray.y==0.0){
-    if(origin.y>=1.8&&origin.y<=5.6)lengthInCloud=1000000.0;
-  }else{
-    float a=(1.8-origin.y)/ray.y,b=(5.6-origin.y)/ray.y;
-    lengthInCloud=max(0.0,max(a,b)-max(clipLength,min(a,b)));
-  }
-  float opacity=1.0-exp(-3.6*.18*lengthInCloud);
-  return mix(stormSky(ray),vec3(.48,.51,.52),opacity);
+  float opacity=1.0-stormDistantTransmission(origin,ray,clipLength);
+  return mix(stormSky(ray),STORM_FAR_RADIANCE,opacity);
 }
 #endif
 `;
