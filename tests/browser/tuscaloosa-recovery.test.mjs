@@ -56,7 +56,11 @@ test('Tuscaloosa recovery remains a complete source-linked reading without scrip
   assert.equal(await section.getByRole('link',{name:"City's memorial account",exact:true}).getAttribute('href'),
     'https://www.tuscaloosa.com/tornadorecovery');
   const damage=section.getByRole('link',{name:'NWS estimated footprint and individual survey accounts',exact:true});
-  await damage.focus();await page.keyboard.press('Enter');
+  assert.equal(await damage.getAttribute('href'),'#damage-map');
+  await damage.focus();
+  assert.equal(await damage.evaluate(node=>node===document.activeElement),true);
+  await page.keyboard.press('Enter');
+  await page.waitForURL(base+'/tuscaloosa.html#damage-map',{timeout:10000});
   assert.equal(new URL(page.url()).hash,'#damage-map');
   assert.match(await page.locator('#damage-map').textContent(),/198 source accounts/);
   assert.equal(await page.locator('iframe').count(),0);
