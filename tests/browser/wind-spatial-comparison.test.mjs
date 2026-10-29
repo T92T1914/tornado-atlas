@@ -76,6 +76,73 @@ async function fit(page){
   assert.ok(north.right<=south.left+1||south.right<=north.left+1||north.bottom<=south.top+1||south.bottom<=north.top+1,'Comparison buttons do not overlap');
 }
 
+// BEGIN STATIC FONT READINESS CONTROLS
+// The page read stays synchronous when scripts are disabled. Node owns the
+// condition interval and deadline, including a stalled protocol evaluation.
+async function staticFontLayoutReady(read,{timeout=10000,interval=25,now=()=>performance.now(),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
+  const started=now();let done=false,timer=null,first=null,last=null,reads=0;
+  const observations=()=>({reads,elapsed_ms:Math.max(0,now()-started),first,last});
+  const expired=()=>{const error=new Error('Static font/layout readiness exceeded '+timeout+'ms');error.fontReadiness=observations();return error;};
+  const work=async()=>{
+    while(!done){
+      if(now()-started>=timeout)throw expired();
+      const layout=await read();if(done)return;
+      reads++;last={...layout};first??={...layout};
+      assert.equal(layout.ready,'complete','The static document completed loading');
+      assert.ok(['loading','loaded'].includes(layout.fonts),'Known actual font loading state');
+      assert.ok(Number.isFinite(layout.width)&&Number.isFinite(layout.height)&&layout.width>0&&layout.height>0,'The complete static comparison has actual layout');
+      if(now()-started>=timeout)throw expired();
+      if(layout.fonts==='loaded')return {layout,readiness:observations()};
+      await wait(Math.min(interval,timeout-(now()-started)));
+    }
+  };
+  try{return await Promise.race([work(),new Promise((_,reject)=>{timer=setTimeout(()=>{done=true;reject(expired());},timeout);})]);}
+  catch(error){try{error.fontReadiness??=observations();}catch{}throw error;}
+  finally{done=true;clearTimeout(timer);}
+}
+
+const loadedLayout=()=>({ready:'complete',fonts:'loaded',width:280,height:1998.171875});
+test('static font readiness accepts an already loaded complete layout without a delay',async()=>{
+  let waits=0;const result=await staticFontLayoutReady(()=>loadedLayout(),{wait:async()=>{waits++;}});
+  assert.deepEqual(result.layout,loadedLayout());assert.equal(result.readiness.reads,1);assert.equal(waits,0);
+});
+test('static font readiness waits for observed loading and returns the later real layout',async()=>{
+  let time=0,reads=0;const states=[{...loadedLayout(),fonts:'loading',height:2133.050048828125},{...loadedLayout(),fonts:'loading',height:2040},loadedLayout()];
+  const result=await staticFontLayoutReady(()=>states[reads++],{now:()=>time,wait:async ms=>{time+=ms;}});
+  assert.equal(reads,3);assert.equal(result.readiness.elapsed_ms,50);assert.equal(result.readiness.first.fonts,'loading');
+  assert.equal(result.readiness.first.height,2133.050048828125);assert.deepEqual(result.layout,loadedLayout());
+});
+test('static font readiness rejects perpetual loading at its deadline and retains that state',async()=>{
+  let time=0,reads=0;
+  await assert.rejects(staticFontLayoutReady(()=>{reads++;return {...loadedLayout(),fonts:'loading'};},{timeout:50,now:()=>time,wait:async ms=>{time+=ms;}}),error=>{
+    assert.match(error.message,/exceeded 50ms/);assert.equal(error.fontReadiness.reads,2);assert.equal(error.fontReadiness.last.fonts,'loading');return true;
+  });
+  assert.equal(reads,2);
+  time=0;
+  await assert.rejects(staticFontLayoutReady(()=>{time=51;return loadedLayout();},{timeout:50,now:()=>time}),error=>{
+    assert.match(error.message,/exceeded 50ms/);assert.equal(error.fontReadiness.last.fonts,'loaded');return true;
+  });
+});
+test('static font readiness refuses incomplete documents, unknown font state and invalid geometry',async()=>{
+  for(const changed of [{ready:'interactive'},{fonts:'unloaded'},{fonts:'loading',width:0},{width:NaN},{height:Infinity},{height:-1}]){
+    let reads=0,waits=0;
+    await assert.rejects(staticFontLayoutReady(()=>{reads++;return {...loadedLayout(),...changed};},{wait:async()=>{waits++;}}),error=>error.name==='AssertionError');
+    assert.equal(reads,1);assert.equal(waits,0);
+  }
+});
+test('static font readiness preserves an original read exception',async()=>{
+  const original=new Error('controlled synchronous protocol read failure');
+  await assert.rejects(staticFontLayoutReady(()=>{throw original;}),error=>error===original);
+});
+test('static font readiness bounds a stalled read and ignores its late loaded result',async()=>{
+  let release,reads=0;const pending=new Promise(resolve=>{release=resolve;});
+  await assert.rejects(staticFontLayoutReady(()=>{reads++;return pending;},{timeout:20}),error=>{
+    assert.match(error.message,/exceeded 20ms/);assert.equal(error.fontReadiness.reads,0);assert.equal(error.fontReadiness.last,null);return true;
+  });
+  release(loadedLayout());await Promise.resolve();await Promise.resolve();assert.equal(reads,1);
+});
+// END STATIC FONT READINESS CONTROLS
+
 for(const viewport of viewports)test(`Wind signed comparison, keyboard and paused sample ${viewport.width} CSS px DPR ${viewport.deviceScaleFactor}`,{timeout:45000},async t=>{
   const page=await fixture(t,{viewport:{width:viewport.width,height:viewport.height},
     deviceScaleFactor:viewport.deviceScaleFactor,hasTouch:viewport.hasTouch??false,
@@ -149,14 +216,15 @@ for(const viewport of viewports)for(const failure of ['no-script','module-refusa
   if(failure==='module-refusal')await page.route('**/wind.js',route=>{refused++;return route.abort('failed');});
   await page.goto(base+'/wind.html#wind-spatial-reading');
   if(failure==='no-script'){
-    // Read the actual static layout without awaiting a page Promise while scripts are disabled.
-    const staticLayout=await page.evaluate(()=>{
-      const box=document.getElementById('wind-spatial-reading').getBoundingClientRect();
-      return {ready:document.readyState,fonts:document.fonts.status,width:box.width,height:box.height};
-    });
-    console.info('WIND_NOSCRIPT_STATIC_LAYOUT '+JSON.stringify({viewport_width:viewport.width,dpr:viewport.deviceScaleFactor,layout:staticLayout}));
-    assert.equal(staticLayout.ready,'complete');assert.equal(staticLayout.fonts,'loaded');
-    assert.ok(Number.isFinite(staticLayout.width)&&Number.isFinite(staticLayout.height)&&staticLayout.width>0&&staticLayout.height>0,'The complete static comparison has actual layout');
+    try{
+      const state=await staticFontLayoutReady(()=>page.evaluate(()=>{
+        const box=document.getElementById('wind-spatial-reading').getBoundingClientRect();
+        return {ready:document.readyState,fonts:document.fonts.status,width:box.width,height:box.height};
+      }));
+      console.info('WIND_NOSCRIPT_STATIC_LAYOUT '+JSON.stringify({viewport_width:viewport.width,dpr:viewport.deviceScaleFactor,...state}));
+    }catch(error){
+      console.error('WIND_NOSCRIPT_READINESS_FAILURE '+JSON.stringify({viewport_width:viewport.width,dpr:viewport.deviceScaleFactor,observed:error?.fontReadiness??null}));throw error;
+    }
   }else await page.evaluate(()=>document.fonts.ready);
   assert.equal(await page.evaluate(()=>innerWidth),viewport.width);
   assert.equal(await page.evaluate(()=>devicePixelRatio),viewport.deviceScaleFactor);
