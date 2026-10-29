@@ -67,7 +67,12 @@ Neither these depth cues nor a successful software check supplies calibrated
 sunlight, terrain, a physical wind field or historical likeness.
 
 A separate `storm-v1` presentation uses the same thirty authored seconds in a
-continuing cloud environment. Fresh Form Study experiments name it in `form-6`.
+continuing cloud environment. Literal `form-6` links retain this presentation.
+Fresh `form-7` experiments use `storm-v2`, with broader material structure and
+invented ground parcels for depth. Both retain the same authored schedule,
+transport and light. The complete synthetic replay frame fits a 16:9 region
+without cropping or changing its camera. These scene cues have no historical
+terrain or physical scale.
 Condensation, cloud and low dust sample one analytic material transport, while
 their world envelopes and visibility remain authored. A fixed opaque exposure
 separates scene illumination from the reading theme. The renderer retains its

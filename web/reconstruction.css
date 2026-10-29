@@ -191,3 +191,6 @@
 
 .replay-event-control {display:grid;grid-template-columns:minmax(0,1fr);max-width:100%;min-width:0;overflow:hidden;overflow-wrap:anywhere;padding:6px}
 #replay-event {display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:44px;font:inherit;overflow:hidden;text-overflow:ellipsis}
+
+/* Fit the complete synthetic camera image without unused fixed-height margins. */
+#replay-appearance-canvas[data-scene-frame="complete-synthetic"] {height:auto;aspect-ratio:16/9}

@@ -219,7 +219,7 @@ def native_section(survey, filename, raw):
                  if point['local_area_ids'] else 'Outside all seven local estimated EF4 areas.')
         incomplete = ('<p class="fineprint">The source description ends with an open parenthesis. Its missing text has not been supplied.</p>'
                       if degree.rstrip().endswith('(') else '')
-        if degree.startswith('20%);'):
+        if degree == '20%)' or degree.startswith('20%);'):
             incomplete = '<p class="fineprint">The source description begins incompletely. Its missing beginning has not been supplied.</p>'
         cards.append(f'''<li data-account-row="{escape(point['id'])}" data-rating="{escape(attrs['efscale'])}"><details id="{target}" class="damage-account" data-account-id="{escape(point['id'])}" tabindex="-1"><summary>Account {fid + 1} · {escape(attrs['efscale'])} · {escape(degree_label)}</summary>
 <h4>Account {fid + 1}: {escape(indicator_label)}</h4><p>{escape(description)}</p>{incomplete}<p>{escape(relation)} {escape(local)}</p>

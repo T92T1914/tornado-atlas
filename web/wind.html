@@ -51,6 +51,22 @@
   <div><span>IDEALIZED DRAG</span><strong id="probe-force"></strong><small>Pressure × area × drag coefficient</small></div>
   <div><span>IF LOCAL SPEED DOUBLED</span><strong>4 × force</strong><small>With density, area and coefficient fixed</small></div>
 </section>
+<section id="wind-spatial-reading" class="lab-context continuous-reference" aria-labelledby="wind-spatial-title">
+  <h3 id="wind-spatial-title">Why do the two sides differ?</h3>
+  <p>Wind has direction as well as speed. Positive components point east and north; negative components point west and south. The total speed combines both components. These directions describe where the air moves, not the meteorological direction it comes from.</p>
+  <p id="wind-spatial-assumptions">Peak swirl 100.0 mph, eastward background 0.0 mph, core radius 500 ft, area 1.0 m², coefficient 1.2 and density 1.225 kg/m³. The selected probe is (1.0 R east, 0.0 R north).</p>
+  <dl class="passage-readings">
+    <dt>East component at the selected probe</dt><dd id="probe-east-component">0.0 mph · 0.0 m/s</dd>
+    <dt>North component at the selected probe</dt><dd id="probe-north-component">100.0 mph · 44.7 m/s</dd>
+    <dt>North point at (0, +1 R)</dt><dd id="wind-north-point">100.0 mph · 44.7 m/s · 1.47 kN drag</dd>
+    <dt>South point at (0, -1 R)</dt><dd id="wind-south-point">100.0 mph · 44.7 m/s · 1.47 kN drag</dd>
+    <dt>South / north calculated drag</dt><dd id="wind-side-ratio">1.000 ×</dd>
+  </dl>
+  <p id="wind-spatial-note" role="status">The two comparison points have equal model speed and drag.</p>
+  <div class="lab-actions"><button id="wind-probe-north" type="button" disabled>Probe north point</button><button id="wind-probe-south" type="button" disabled>Probe south point</button></div>
+  <p>Try an eastward background of 20 mph with 100 mph peak swirl. The north point then has 80 mph wind and the south point 120 mph. For the same area and coefficient, the south point's calculated drag is 2.25 times the north point's. Changing radius moves these points physically but keeps them at the same fraction of R.</p>
+  <p class="control-note">The readings begin with the printed default assumptions. JavaScript recalculates them when settings change. Without scripts, they remain this default example. Both points use the same <a href="https://glossary.ametsoc.org/wiki/rankine-vortex/">Rankine idealization</a> and <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/">generic drag equation</a>. They do not describe measured winds, damage or a real object's resistance.</p>
+</section>
 <p class="lab-return"><a href="#lab-contents-title">On this experiment</a></p>
 <section id="passage" class="passage" tabindex="-1">
   <div class="eyebrow">A VORTEX PASSES ONE LOCATION</div><h2>What changes as it moves past?</h2>

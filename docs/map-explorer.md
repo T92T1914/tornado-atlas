@@ -34,9 +34,9 @@ requests. Detail responses carry a request token so an older response cannot
 replace a later selection.
 
 Only visible, usable reported positions enter the map groups. A group is a
-72-pixel world-grid cell at the current zoom. Its symbol is at the cell center,
-not a derived tornado position. Opening a group reveals its source records in
-the same paginated list. Single records and the selection ring use the reported
+72-pixel world-grid cell at the current zoom. Its symbol is at the mean screen
+position of its visible members, not a derived tornado position. Opening a group
+reveals its source records in the same paginated list. Single records and the selection ring use the reported
 coordinate. Coincident records remain separate list entries. Compact labels
 have exact accessible counts. These are source-record counts, including county
 segments, not counts of unique tornadoes or a climatology.
@@ -78,6 +78,39 @@ the narrow-screen gallery. The selected attachment remained loading during
 that inspection. Its complete media behavior was not verified. The useful
 pattern here is coordinated evidence browsing with a stable selection, not a
 claim that Atlas reproduces every feature of that application.
+
+## Reference images beneath exhibit vectors
+
+The El Reno path and survey SVGs use the separate `geography-view.mjs` consumer,
+including the standalone survey and the survey section in Spatial Replay.
+Their historical paths, selected records and labels remain vector elements.
+Optional USGS reference images are requested for the map's visible CSS size
+and device density, targeting at most twice the CSS density in 64-pixel width
+buckets. Export dimensions are limited to 4096 on either side and 4,194,304
+pixels in total. The source's geographic aspect ratio determines height.
+These are loading limits, not a claim of new positional accuracy or native
+detail beyond the provider's source.
+
+The actual returned WGS84 extent still places the image under the vectors.
+Only a successfully loaded current image commits its request key, including
+mode, geographic bounds and bounded size. A resize within that same key keeps
+the image without another export request. Changed bounds or size request a new
+image; the previous same-mode image stays visible until the replacement loads.
+Late metadata or image events cannot replace a newer selection. Error, timeout,
+evidence-only mode and mode changes clear the successful key so recovery does
+not reuse a failed or inappropriate image. The source link opens the image
+actually displayed, with the same stale-result guard. It clears with the image.
+
+CSS resize uses the existing SVG navigation event. A device-density change also
+uses that event without moving the view or the historical clock. A hidden
+zero-size map waits for a visible size. The old direct export helper retains
+its 1200-pixel default for callers that do not provide a measured width.
+
+This export sizing does not change Leaflet tiles, their native zoom limit or
+the separate tornado appearance raster. Provider requests, response bytes and
+rendered quality require their own measured checks. A 4K CSS viewport or a
+larger request alone does not demonstrate source detail, readable labels or a
+physical 4K display.
 
 ## Location review and photographs
 

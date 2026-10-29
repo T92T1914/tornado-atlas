@@ -266,6 +266,12 @@ void main(){
   if(surfacePass){
     if(!worldLighting)discard;
 #if STORM_SCENE
+#if STORM_SCENE == 2
+    // Evaluate derivatives before the sky/ground branch. Every fragment in a
+    // quad participates, including sky rays beside the horizon.
+    vec3 filterPoint=origin+ray*(-origin.y/min(-.00001,ray.y));
+    vec2 groundFilter=max(fwidth((mat2(.94,.34,-.34,.94)*filterPoint.xz)/vec2(1.8,2.4)),vec2(.008));
+#endif
     vec3 skyColor=stormDistantSky(origin,ray,length(segment));
     if(ray.y>=-.00001){outputColor=vec4(skyColor,1.0);return;}
     float groundDistance=-origin.y/ray.y;
@@ -276,6 +282,18 @@ void main(){
     float groundLight=nearbyTransmission(groundPoint+vec3(0,.01,0),worldLight());
     float grain=.008*(materialNoise(groundPoint*1.5)-.5);
     vec3 groundColor=vec3(.19,.22,.18)*(.72+.28*groundLight)+grain;
+#if STORM_SCENE == 2
+    // Illustrative parcels supply perspective scale, not historical geography.
+    // Reuse the existing ground texture sample; this adds no texture probe.
+    vec2 field=mat2(.94,.34,-.34,.94)*groundPoint.xz+vec2(.18,-.12)*(grain/.008);
+    vec2 cell=floor(field/vec2(1.8,2.4));
+    float parcelValue=materialCell(ivec3(int(cell.x),0,int(cell.y)));
+    vec2 edge=min(fract(field/vec2(1.8,2.4)),1.0-fract(field/vec2(1.8,2.4)));
+    vec2 filterWidth=groundFilter;
+    float interior=smoothstep(0.0,filterWidth.x*1.2,edge.x)*smoothstep(0.0,filterWidth.y*1.2,edge.y);
+    vec3 terrain=mix(vec3(.17,.205,.135),vec3(.235,.215,.16),parcelValue);
+    groundColor=terrain*(.72+.28*groundLight)*mix(.84,1.0,interior)+grain;
+#endif
     outputColor=vec4(mix(skyColor,groundColor,exp(-.0007*dot(groundPoint.xz,groundPoint.xz))),1.0);return;
 #else
     float sky=readingPalette==1?.95-.035*exp(-max(0.0,ray.y)*7.0):.035+.035*exp(-max(0.0,ray.y)*7.0);

@@ -420,9 +420,19 @@ class EvidenceCoverageTests(unittest.TestCase):
         items = {item['id']:item for _,item in gaps['items']}
         self.assertEqual(set(items),{'friskey-joplin-storm','nws-joplin-aftermath',
                                     'usace-joplin-temporary-housing','nist-joplin-radar-sequence',
-                                    'barbe-joplin-temporary-care-phases','mercy-joplin-temporary-care-phases'})
-        self.assertTrue(all(item['status']['assertion']=='source_reported' for item in items.values()))
-        self.assertEqual(gaps['state'],'unknown')
+                                    'barbe-joplin-temporary-care-phases','mercy-joplin-temporary-care-phases',
+                                    'joplin-whole-track-length-alternatives','joplin-source-segment-clocks'})
+        for identifier, item in items.items():
+            self.assertEqual(item['status']['assertion'],
+                             'disputed' if identifier == 'joplin-whole-track-length-alternatives'
+                             else 'source_reported')
+        clock = items['joplin-source-segment-clocks']
+        self.assertEqual(clock['status']['temporal'], 'source_label')
+        self.assertIsNone(clock['time']['alignment'])
+        self.assertIn('not an independently recovered physical dissipation instant', clock['limits'])
+        self.assertEqual(gaps['state'],'disputed')
+        self.assertIn('nearly 21.6 miles', items['joplin-whole-track-length-alternatives']['account'])
+        self.assertIn('22.1 miles', items['joplin-whole-track-length-alternatives']['account'])
         self.assertIn('revision='+rows['joplin-2011']['dossier_sha256'],gaps['routes'][0][1])
 
     def test_static_provenance_retains_source_revision_item_scope_and_clock_roles(self):

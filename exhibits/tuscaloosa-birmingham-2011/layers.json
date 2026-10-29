@@ -1,1 +1,66 @@
-{"schema_version":1,"event_id":"tuscaloosa-birmingham-2011","dossier_sha256":"e0ed6012db7845157367bfb80aef9b9f22efd21fb3857fe32308d994de93bdfd","survey":{"sha256":"3a9ed08ced2485b3e64ec7fa1ae6da5d4e9c84a1226a7c906407de04989000c6","basis":"Maintained NWS Birmingham agency map with all198 untimed accounts and8 separately identified estimated areas. Composite item/layer/FID identities, original fields, repeated coordinates, outside records and unknown units remain separate. No replay, impact clock, funnel boundary or calibrated historical wind/damage model."},"layers":{"geography":{"basis":"Approximate reported endpoints, county associations and later satellite context retain their source scope. They do not supply a surveyed continuous route or minute-by-minute positions. The independently qualified NWS estimated footprint is linked separately from the retained county endpoints. Static surveyed extent adds no geographic replay or camera registration. The2022 paper reports a camera location and approximate distance to the damage-path centerline. This source context remains distinct from calibrated frame viewpoint and independently surveyed accuracy.","observations":["one-track-many-records","survey-start","survey-end","bmx-estimated-footprint","rosolowski-2022-reported-viewpoint"],"media":["eo1-tuscaloosa-track","usgs-tuscaloosa-landsat-scar","bmx-static-survey-map"]},"appearance":{"basis":"The complete published three-panel Figure6 preserves actual Tuscaloosa tornado video frames with estimated time labels. These documentary views have no registered historical interval, camera calibration or physical scale. The existing John Brown and Jason Rosolowski recordings retain their separate documentary context. Aftermath and satellite images retain their different roles. Four2022 paper-selected Rosolowski panels retain printed relative labels, an editorial7degree correction for b, and unknown current-edition exposure correspondence. No2022illustration is hosted or UTC alignment added.","observations":["rosolowski-2022-panel-a","rosolowski-2022-panel-b","rosolowski-2022-panel-c","rosolowski-2022-panel-d"],"media":["oliveira-2019-tornado-video-frames"]},"damage":{"basis":"Written survey progression, field-study methods and aftermath images retain distinct capture and event clocks. The field-survey collection clock is not tornado arrival time. The source-derived map and198 individual accounts preserve local ratings, coincident identities and outside-footprint records. Existing aftermath photographs are not attached to accounts by proximity.","observations":["tuscaloosa-damage-progression","holt-brookwood-progression","jefferson-damage-progression","damage-reading-limits","field-study-boundary-and-clocks","bmx-estimated-footprint","bmx-198-damage-accounts"],"media":["birmingham-aftermath-april29","apartment-complex-aftermath","railway-bridge-aftermath","aerial-context-aftermath","train-cars-aftermath","bmx-static-survey-map"]},"gaps":{"basis":"Reported fatality definitions and summary clock scope retain their attributed differences. Field collection dates and described methods do not establish storm arrival times or inspected figure pixels. Source wind units, incomplete descriptions, calendar dates and estimate/account differences retain their stated limits.","observations":["field-study-boundary-and-clocks","bmx-198-damage-accounts"],"media":[]}}}
+{
+  "schema_version": 1,
+  "event_id": "tuscaloosa-birmingham-2011",
+  "dossier_sha256": "22697c0e0b3bcdf5fce7b4ff7fb4e73e05186ae129d5fa65dc4830b982fe591e",
+  "survey": {
+    "sha256": "3a9ed08ced2485b3e64ec7fa1ae6da5d4e9c84a1226a7c906407de04989000c6",
+    "basis": "Maintained NWS Birmingham agency map with all198 untimed accounts and8 separately identified estimated areas. Composite item/layer/FID identities, original fields, repeated coordinates, outside records and unknown units remain separate. No replay, impact clock, funnel boundary or calibrated historical wind/damage model."
+  },
+  "layers": {
+    "geography": {
+      "basis": "Approximate reported endpoints, county associations and later satellite context retain their source scope. They do not supply a surveyed continuous route or minute-by-minute positions. The independently qualified NWS estimated footprint is linked separately from the retained county endpoints. Static surveyed extent adds no geographic replay or camera registration. The2022 paper reports a camera location and approximate distance to the damage-path centerline. This source context remains distinct from calibrated frame viewpoint and independently surveyed accuracy.",
+      "observations": [
+        "one-track-many-records",
+        "survey-start",
+        "survey-end",
+        "bmx-estimated-footprint",
+        "rosolowski-2022-reported-viewpoint"
+      ],
+      "media": [
+        "eo1-tuscaloosa-track",
+        "usgs-tuscaloosa-landsat-scar",
+        "bmx-static-survey-map"
+      ]
+    },
+    "appearance": {
+      "basis": "The complete published three-panel Figure6 preserves actual Tuscaloosa tornado video frames with estimated time labels. These documentary views have no registered historical interval, camera calibration or physical scale. The existing John Brown and Jason Rosolowski recordings retain their separate documentary context. Aftermath and satellite images retain their different roles. Four2022 paper-selected Rosolowski panels retain printed relative labels, an editorial7degree correction for b, and unknown current-edition exposure correspondence. No2022illustration is hosted or UTC alignment added.",
+      "observations": [
+        "rosolowski-2022-panel-a",
+        "rosolowski-2022-panel-b",
+        "rosolowski-2022-panel-c",
+        "rosolowski-2022-panel-d"
+      ],
+      "media": [
+        "oliveira-2019-tornado-video-frames"
+      ]
+    },
+    "damage": {
+      "basis": "Written survey progression, field-study methods and aftermath images retain distinct capture and event clocks. The field-survey collection clock is not tornado arrival time. The source-derived map and198 individual accounts preserve local ratings, coincident identities and outside-footprint records. Existing aftermath photographs are not attached to accounts by proximity.",
+      "observations": [
+        "tuscaloosa-damage-progression",
+        "holt-brookwood-progression",
+        "jefferson-damage-progression",
+        "damage-reading-limits",
+        "field-study-boundary-and-clocks",
+        "bmx-estimated-footprint",
+        "bmx-198-damage-accounts"
+      ],
+      "media": [
+        "birmingham-aftermath-april29",
+        "apartment-complex-aftermath",
+        "railway-bridge-aftermath",
+        "aerial-context-aftermath",
+        "train-cars-aftermath",
+        "bmx-static-survey-map"
+      ]
+    },
+    "gaps": {
+      "basis": "Reported fatality definitions and summary clock scope retain their attributed differences. Field collection dates and described methods do not establish storm arrival times or inspected figure pixels. Source wind units, incomplete descriptions, calendar dates and estimate/account differences retain their stated limits.",
+      "observations": [
+        "field-study-boundary-and-clocks",
+        "bmx-198-damage-accounts"
+      ],
+      "media": []
+    }
+  }
+}

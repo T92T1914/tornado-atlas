@@ -35,9 +35,9 @@ class CatalogueDossierLinksTests(unittest.TestCase):
             copy.deepcopy(self.events if events is None else events),
             copy.deepcopy(self.reviewed if reviewed is None else reviewed))
 
-    def test_fourteen_routes_match_the_independently_frozen_table(self):
+    def test_fifteen_routes_match_the_source_qualified_extension(self):
         result = load_catalogue_aliases(ROOT)
-        self.assertEqual(len(EXPECTED), 14)
+        self.assertEqual(len(EXPECTED), 15)
         self.assertEqual({key: row['exhibit'] for key, row in result.items()
                           if row.get('exhibit')}, EXPECTED)
         for group in FROZEN['groups']:

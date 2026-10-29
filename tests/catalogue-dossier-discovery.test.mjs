@@ -9,8 +9,8 @@ const catalogue=await read('../web/catalogue/index.json');
 const expected=new Map(frozen.groups.flatMap(group=>group.records.map(id=>[id,group.route])));
 const byId=new Map(catalogue.records.map(row=>[row.id,row]));
 
-test('the published reviewed-account filter includes all fourteen accepted source records',()=>{
-  assert.equal(expected.size,14);
+test('the published reviewed-account filter includes all fifteen accepted source records',()=>{
+  assert.equal(expected.size,15);
   const actual=filterRecords(catalogue.records,{exhibits:true});
   assert.deepEqual(actual.map(row=>row.id).sort(),[...expected.keys()].sort());
   for(const row of actual){
