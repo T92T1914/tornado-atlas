@@ -13,6 +13,15 @@ export function stormTransportParameters(seconds){
     STORM_SCENE.lift/STORM_SCENE.verticalStrain*(vertical-1),0]);
 }
 
+
+// The local cloud lowering follows the declared upper-body ellipse. It carries
+// no measured cloud base, camera calibration or physical length.
+export function stormAttachmentParameters(shape,seconds){
+  if(!shape||!Number.isFinite(shape.base)||shape.base<.02||shape.base>1.6||!Number.isFinite(shape.bend)||Math.abs(shape.bend)>.7||!Number.isFinite(seconds)||seconds<0||seconds>30)throw new RangeError('Invalid storm attachment frame');
+  const radius=1.24*(.96+.95*shape.base);
+  return new Float32Array([.09+.55*shape.bend,-.10,
+    radius*(1.10+.06*Math.sin(2-.13*seconds)),radius*(.88+.05*Math.cos(2.7+.11*seconds))]);
+}
 function pointInDomain(point,seconds){
   if(!Array.isArray(point)||point.length!==3||!point.every(v=>Number.isFinite(v)&&Math.abs(v)<=1024)||
     !Number.isFinite(seconds)||Math.abs(seconds)>30)throw new RangeError('Storm transport requires a finite scene point and at most thirty authored seconds');
@@ -52,6 +61,9 @@ export const STORM_FIELD_GLSL=`
 const vec3 STORM_FAR_RADIANCE=vec3(.48,.51,.52);
 #if STORM_SCENE >= 2
 uniform vec4 stormPullback;
+#endif
+#if STORM_SCENE >= 3
+uniform vec4 stormAttachment;
 #endif
 vec3 stormMaterialPoint;
 vec3 stormSampleSpan;
@@ -98,7 +110,16 @@ float stormCloudHeight(vec2 q){
   float broad=stormNoise(vec3(.60,.75,.60),vec3(0));
   float folded=stormNoise(vec3(1.35,.65,1.35),vec3(5.2,1.1,8.4));
 #endif
-  return 3.10-.70*exp(-dot(local,local))+.64*(broad-.5)+.28*(folded-.5);
+  float base=3.10-.70*exp(-dot(local,local))+.64*(broad-.5)+.28*(folded-.5);
+#if STORM_SCENE >= 3
+  // A local cloud-base ceiling meets the existing upper condensation support.
+  // Reuse the same material inputs and keep the outer cloud/tail unchanged.
+  vec2 upper=(q-stormAttachment.xy)/stormAttachment.zw;
+  float attachment=1.0-smoothstep(1.0,1.8,length(upper));
+  float ceiling=2.30+.10*(broad-.5)+.06*(folded-.5);
+  base=mix(base,min(base,ceiling),attachment);
+#endif
+  return base;
 }
 float stormBody(vec3 p,vec3 shape,float t,float ex){
   float h=p.y/2.6;

@@ -64,7 +64,7 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
       const record={role,mode:args[0],count:args[2],linked:gl.getProgramParameter(program,gl.LINK_STATUS),shaders,
         time:uniform('time'),state:array('formationState'),shape:array('shape'),progress:uniform('formationProgress'),
         extent:uniform('extent'),genesis:uniform('genesis'),world:uniform('worldLighting'),dust:uniform('dust'),
-        palette:uniform('readingPalette'),surface,inverse,viewport:array('viewportBox'),pullback:array('stormPullback'),
+        palette:uniform('readingPalette'),surface,inverse,viewport:array('viewportBox'),pullback:array('stormPullback'),attachment:array('stormAttachment'),
         matrix:array('camera'),eye:array('worldEye'),kinematic:uniform('kinematic')};
       if(state.draws.length<8)state.draws.push(record);else state.omitted++;
       if(role!=='volume'&&role!=='particles')return result;
@@ -120,6 +120,10 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
         assert.deepEqual(pass.pullback,Array.from(new Float32Array([vertical,Math.exp(.018*seconds),(.08/.036)*(vertical-1),0])),
           'Actual per-draw factors follow the independently specified authored transport');
       }else assert.equal(pass.pullback,null,'Earlier programs do not borrow the new version uniform');
+      if(stormVersion===3){
+        assert.equal(pass.attachment?.length,4);assert.equal(pass.attachment.every(Number.isFinite),true);
+        assert.ok(pass.attachment[2]>0&&pass.attachment[3]>0);
+      }else assert.equal(pass.attachment,null,'Earlier programs do not borrow the version 3 attachment uniform');
       assert.equal(pass.inverse?.length,16);
       for(let row=0;row<4;row++)for(let column=0;column<4;column++){
         const product=[0,1,2,3].reduce((sum,k)=>sum+matrix[k*4+row]*pass.inverse[column*4+k],0);

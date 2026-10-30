@@ -7,6 +7,88 @@ import {sceneFrame,sameScenario,readingState} from './storm-scene-assertions.mjs
 const form7='study.html?experiment=form-7&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=storm-detail&rate=1&position=0.5&phase=15&model=genesis-v1&visibility=ordinary&flow=1&presentation=storm-v2';
 const replay='reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v2&ground_view=synthetic-front&t=130&footage_source=robinson-dashcam';
 
+// Literal binary32 expectations expanded independently from the existing h=1 body geometry.
+// No product attachment or formation helper supplies these expected values.
+const attachmentFrames=[
+  {
+    "seconds": 6,
+    "form_position": 0.2,
+    "replay_seconds": 124,
+    "shape_f32": [
+      0.1899999976158142,
+      0.48664721846580505,
+      0.07000000029802322
+    ],
+    "attachment_f32": [
+      0.12849999964237213,
+      -0.10000000149011612,
+      1.6353275775909424,
+      1.1754823923110962
+    ]
+  },
+  {
+    "seconds": 15,
+    "form_position": 0.5,
+    "replay_seconds": 130,
+    "shape_f32": [
+      0.4569677710533142,
+      0.6000000238418579,
+      0.07000000029802322
+    ],
+    "attachment_f32": [
+      0.12849999964237213,
+      -0.10000000149011612,
+      1.9067628383636475,
+      1.4906209707260132
+    ]
+  },
+  {
+    "seconds": 24,
+    "form_position": 0.8,
+    "replay_seconds": 136,
+    "shape_f32": [
+      0.33903831243515015,
+      0.5481593012809753,
+      0.19960179924964905
+    ],
+    "attachment_f32": [
+      0.19978098571300507,
+      -0.10000000149011612,
+      1.6629077196121216,
+      1.4456897974014282
+    ]
+  },
+  {
+    "seconds": 30,
+    "form_position": 1,
+    "replay_seconds": 140,
+    "shape_f32": [
+      0.18000000715255737,
+      0.47999998927116394,
+      0.3700000047683716
+    ],
+    "attachment_f32": [
+      0.29350000619888306,
+      -0.10000000149011612,
+      1.463056206703186,
+      1.301476240158081
+    ]
+  }
+];
+function checkAttachmentFrame(frame,expected){
+  assert.equal(frame.time,expected.seconds);
+  assert.equal(frame.shape?.length,3);
+  frame.shape.forEach((value,index)=>assert.ok(Math.abs(value-expected.shape_f32[index])<=2e-7,
+    'Independent authored shape at '+expected.seconds+'/'+index));
+  const passes=frame.draws.filter(draw=>draw.role==='volume'||draw.role==='surface');
+  assert.equal(passes.length,2);
+  for(const pass of passes){
+    assert.equal(pass.attachment?.length,4);
+    pass.attachment.forEach((value,index)=>assert.ok(Math.abs(value-expected.attachment_f32[index])<=2e-7,
+      'Independent h=1 attachment upload at '+expected.seconds+'/'+index));
+  }
+}
+
 test('native storm-v2 compiles and submits independently specified pullback factors without borrowing storm-v1',async t=>{
   const page=await fixture(t,{deviceScaleFactor:1,reducedMotion:'reduce'});await page.goto(base+'/study.html');
   const result=await page.evaluate(async()=>{
@@ -104,6 +186,23 @@ for(const [style,scenario,formRoute]of [['storm-v2','storm-detail',form7],['stor
         assert.match(await page.locator('#replay-appearance-renderer-status').textContent(),/could not start|lost/);
       }
       assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
+    }
+    if(style==='storm-v3'&&before){
+      const defaultAttachment=attachmentFrames.find(row=>row.seconds===15);
+      checkAttachmentFrame(before,defaultAttachment);
+      if(study){
+        for(const [id,wanted]of [['azimuth','25'],['elevation','12'],['distance','7']])assert.equal(await page.locator('#'+id).inputValue(),wanted);
+      }else assert.equal(await page.locator('#ground-camera').inputValue(),'synthetic-front');
+      for(const expected of attachmentFrames.filter(row=>row.seconds!==15)){
+        const sought=await sceneFrame(page,{study,style,value:study?expected.form_position:expected.replay_seconds,seconds:expected.seconds});
+        assert.ok(sought,'The actual storm-v3 renderer supplies both submitted attachment uniforms');
+        checkAttachmentFrame(sought,expected);
+        assert.deepEqual(sought.matrix,before.matrix,'Seeking changes authored state without changing the declared default camera');
+      }
+      const returned=await sceneFrame(page,{study,style,compare:'detail-before'});
+      assert.ok(returned);checkAttachmentFrame(returned,defaultAttachment);sameScenario(returned,before);
+      assert.equal(returned.rawEqual,true,'Reverse seek restores every RGBA byte after the current attachment updates');
+      assert.equal(returned.hash,before.hash);await page.waitForURL(saved);
     }
     const changed=await sceneFrame(page,{study,style,trigger:'#reading-appearance',event:'change',compare:'detail-before',
       action:()=>page.locator('#reading-appearance').selectOption(theme==='light'?'dark':'light')});

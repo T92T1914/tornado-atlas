@@ -5,7 +5,7 @@ import {simulationTime,simulationBackingSize,simulationParticles,inverseCameraMa
 import {formationAt,formationFlow} from './formation-model.mjs';
 import {FUNNEL_LIGHTING_GLSL} from './funnel-lighting-model.mjs';
 import {referenceNoiseLattice} from './reference-form-model.mjs';
-import {stormFlow,stormTransportParameters} from './storm-scene-model.mjs';
+import {stormFlow,stormTransportParameters,stormAttachmentParameters} from './storm-scene-model.mjs';
 
 // The form study and historical replay share these drawing resources. Time,
 // coverage and source selection belong to their existing page controllers.
@@ -417,7 +417,7 @@ export function createFormRenderer(canvas, quality) {
     try{
       p=program(funnelVolumeVertex,storm?stormShader(funnelVolumeFragment,version):reference?referenceShader(funnelVolumeFragment):funnelVolumeFragment);
       a=attribute(p,'position',new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),2);
-      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState','worldLighting','surfacePass','referenceNoiseTexture','stormPullback'].map(name=>[name,gl.getUniformLocation(p,name)]))};
+      const resource={program:p,attribute:a,uniforms:Object.fromEntries(['inverseCamera','viewportBox','shape','time','extent','readingPalette','dust','genesis','formationProgress','formationState','worldLighting','surfacePass','referenceNoiseTexture','stormPullback','stormAttachment'].map(name=>[name,gl.getUniformLocation(p,name)]))};
       gpu[key]=resource;return resource;
     }catch(error){if(a){gl.deleteVertexArray(a.vao);gl.deleteBuffer(a.buffer);}if(p)gl.deleteProgram(p);throw error;}
   }
@@ -537,6 +537,7 @@ export function createFormRenderer(canvas, quality) {
       gl.uniform3f(volume.uniforms.shape,shape.base,shape.flare,shape.bend);
       gl.uniform1f(volume.uniforms.time,time);gl.uniform1f(volume.uniforms.extent,extent);
       if(storm&&stormVersion>=2)gl.uniform4fv(volume.uniforms.stormPullback,stormTransportParameters(time));
+      if(storm&&stormVersion===3)gl.uniform4fv(volume.uniforms.stormAttachment,stormAttachmentParameters(shape,time));
       gl.uniform1i(volume.uniforms.dust,dust?1:0);gl.uniform1i(volume.uniforms.genesis,genesis?1:0);
       gl.uniform1f(volume.uniforms.formationProgress,formation?.progress??0);gl.uniform4f(volume.uniforms.formationState,...state);
       gl.uniform1i(volume.uniforms.readingPalette,palette);gl.uniform1i(volume.uniforms.worldLighting,worldLighting?1:0);gl.uniform1i(volume.uniforms.surfacePass,surfacePass?1:0);

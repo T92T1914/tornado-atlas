@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {stormAttachmentParameters} from '../web/storm-scene-model.mjs';
 import {DEFAULT_EXPERIMENTS,experimentURL,readExperiment,validateExperimentState} from '../web/experiment-state.mjs';
 const state=(presentation,coverage)=>({...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage,visibility:'ordinary',flow:true,presentation,position:.5,phase:15});
 test('integrated cloud experiments preserve complete v8 and earlier v7 identities',()=>{
@@ -16,4 +17,17 @@ test('v8 links refuse cross-version fields, duplicates and partial restoration',
   const duplicate=new URL(url);duplicate.searchParams.append('presentation','storm-v3');assert.equal(readExperiment(duplicate.search,'form').status,'invalid');
   const partial=new URL(url);partial.searchParams.delete('phase');assert.equal(readExperiment(partial.search,'form').status,'invalid');
   assert.throws(()=>validateExperimentState('form',{...wanted,coverage:'storm-detail'}));
+});
+
+test('cached cloud attachment follows independently expanded existing upper-body geometry',()=>{
+  const cases=[
+    [.19,.07,0,[.12849999964237213,-.10000000149011612,1.6327987909317017,1.1805857419967651]],
+    [.19,.07,10,[.12849999964237213,-.10000000149011612,1.610305905342102,1.188583493232727]],
+    [.19,.07,30,[.12849999964237213,-.10000000149011612,1.4753453731536865,1.312408208847046]],
+    [.46,.37,15,[.29350000619888306,-.10000000149011612,1.9107027053833008,1.4937009811401367]],
+  ];
+  for(const [base,bend,time,wanted]of cases){const actual=stormAttachmentParameters({base,bend},time);assert.ok(actual instanceof Float32Array);assert.deepEqual([...actual],wanted);}
+});
+test('attachment frames reject nonfinite, out-of-domain and missing inputs',()=>{
+  for(const [shape,time]of [[null,0],[{},0],[{base:.01,bend:0},0],[{base:1.61,bend:0},0],[{base:.4,bend:.71},0],[{base:NaN,bend:0},0],[{base:.4,bend:Infinity},0],[{base:.4,bend:0},-1],[{base:.4,bend:0},31],[{base:.4,bend:0},NaN]])assert.throws(()=>stormAttachmentParameters(shape,time),RangeError);
 });
