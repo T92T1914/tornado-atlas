@@ -39,12 +39,12 @@ test('active study controls and scheduled frames use the same wall clock',async(
   globalThis.cancelAnimationFrame=id=>frames.delete(id);
   globalThis.ResizeObserver=class{observe(){}};
   globalThis.IntersectionObserver=class{observe(){}};
-  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'storm-detail','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
+  for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'storm-integrated','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
   document.getElementById('flow-cues').checked=true;
   await import('../web/study.js');
   assert.match(ids.get('lighter-option').textContent,/320 × 200/);
   assert.match(ids.get('standard-option').textContent,/512 × 320/);
-  assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'storm-v2');
+  assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'storm-v3');
   const draw=timestamp=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(timestamp);};
   draw(100);ids.get('sequence-enabled').checked=true;ids.get('sequence-enabled').handlers.get('change')();
   wall=101;ids.get('motion').handlers.get('click')();

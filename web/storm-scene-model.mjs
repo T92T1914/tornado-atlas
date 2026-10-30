@@ -50,14 +50,14 @@ export function stormFlow(seconds,strength){
 export const STORM_FIELD_GLSL=`
 #if STORM_SCENE
 const vec3 STORM_FAR_RADIANCE=vec3(.48,.51,.52);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
 uniform vec4 stormPullback;
 #endif
 vec3 stormMaterialPoint;
 vec3 stormSampleSpan;
 void stormSample(vec3 p,vec3 ray,float t,float span){
   float dt=-t,a=.018,b=.036,r2=dot(p.xz,p.xz)/(.95*.95);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float e=stormPullback.x,scale=stormPullback.y;
 #else
   float e=exp(2.0*a*dt),scale=exp(-a*dt);
@@ -71,7 +71,7 @@ void stormSample(vec3 p,vec3 ray,float t,float span){
   vec2 q=scale*turn*p.xz;
   // One fixed orthonormal texture basis follows the common material pullback.
   mat3 basis=mat3(.8,.6,0,-.36,.48,.8,.48,-.64,.6);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   stormMaterialPoint=basis*vec3(q.x,p.y*stormPullback.x+stormPullback.z,q.y);
 #else
   stormMaterialPoint=basis*vec3(q.x,(p.y+.08/b)*exp(b*dt)-.08/b,q.y);
@@ -79,7 +79,7 @@ void stormSample(vec3 p,vec3 ray,float t,float span){
   // Directional derivative of that same analytic map along this ray bin.
   float angularSlope=.24/a*dot(p.xz,ray.xz)/(.95*.95)*(1.0/(e+r2)-1.0/(1.0+r2));
   vec2 tangent=scale*turn*ray.xz+vec2(-q.y,q.x)*angularSlope;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   stormSampleSpan=abs(basis*vec3(tangent.x,stormPullback.x*ray.y,tangent.y))*span;
 #else
   stormSampleSpan=abs(basis*vec3(tangent.x,exp(b*dt)*ray.y,tangent.y))*span;
@@ -91,7 +91,7 @@ float stormNoise(vec3 frequency,vec3 offset){
 }
 float stormCloudHeight(vec2 q){
   vec2 local=q/vec2(1.55,1.25);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float broad=stormNoise(vec3(.34,.42,.34),vec3(0));
   float folded=stormNoise(vec3(.92,.58,.92),vec3(5.2,1.1,8.4));
 #else
@@ -105,12 +105,12 @@ float stormBody(vec3 p,vec3 shape,float t,float ex){
   if(ex<=0.0||h<0.0||h>1.04)return 0.0;
   vec2 q=(p.xz-referenceAxis(h,shape,t))/referenceSection(h,t);
   float radius=referenceRadius(h,shape)*(.64+.56*h*h),r=length(q);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   radius=referenceRadius(h,shape)*(.82+.42*h*h);
 #endif
   if(r>radius*1.45+.08)return 0.0;
   vec3 w=stormMaterialPoint;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float bulk=stormNoise(vec3(2.2,2.6,2.2),vec3(0));
   float detail=stormNoise(vec3(5.8,6.4,5.8),vec3(3.1,7.7,2.4));
 #else
@@ -120,7 +120,7 @@ float stormBody(vec3 p,vec3 shape,float t,float ex){
   float theta=atan(w.z+.000001,w.x+.000001);
   float lobe=1.0+.14*sin(2.0*theta+.9*h)+.12*(bulk-.5);
   float relative=r/(radius*lobe),edge=mix(.18,.09,smoothstep(.25,.72,bulk));
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   edge=mix(.14,.055,smoothstep(.25,.72,bulk));
 #endif
   float envelope=1.0-smoothstep(.94-edge,1.02+edge,relative);
@@ -133,7 +133,7 @@ float stormBody(vec3 p,vec3 shape,float t,float ex){
 }
 float stormCloud(vec3 p,float t){
   if(p.y<1.8||p.y>5.6)return 0.0;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float n=stormNoise(vec3(.42,.72,.42),vec3(0));
   float detail=stormNoise(vec3(1.25,1.55,1.25),vec3(7.2,2.4,3.8));
 #else
@@ -145,11 +145,12 @@ float stormCloud(vec3 p,float t){
   // No radial rim. The bounded camera sees a continuing storm-base layer.
   return .44*vertical*(.06+.80*smoothstep(.25,.70,n)+.35*detail);
 }
+
 float stormDust(vec3 p,float t){
   if(p.y<0.0||p.y>.52)return 0.0;
   float r=length(p.xz);
   if(r>1.65)return 0.0;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float dustPatch=stormNoise(vec3(4.2,3.2,4.2),vec3(2.3,9.1,5.4));
 #else
   float dustPatch=stormNoise(vec3(5.2,6.5,5.2),vec3(2.3,9.1,5.4));

@@ -65,7 +65,13 @@ vec3 worldMaterial(vec3 p,float localDensity){
   vec3 primaryPoint=stormMaterialPoint,primarySpan=stormSampleSpan;
   float fixedLight=.28+.72*nearbyTransmission(p,worldLight())*exp(-.70*max(0.0,localDensity));
   stormMaterialPoint=primaryPoint;stormSampleSpan=primarySpan;
+#if STORM_SCENE >= 3
+  // Keep local shadow depth without making thin material brighter than the
+  // distant cloud radiance. This remains an authored exposure response.
+  return mix(vec3(.14,.16,.17),STORM_FAR_RADIANCE,fixedLight);
+#else
   return mix(vec3(.14,.16,.17),vec3(.64,.66,.65),fixedLight);
+#endif
 #endif
   // The existing primary sample supplies a short authored local extinction cue.
   // It adds no density probe and is not calibrated microphysical scattering.

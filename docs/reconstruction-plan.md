@@ -68,7 +68,7 @@ sunlight, terrain, a physical wind field or historical likeness.
 
 A separate `storm-v1` presentation uses the same thirty authored seconds in a
 continuing cloud environment. Literal `form-6` links retain this presentation.
-Fresh `form-7` experiments use `storm-v2`, with broader material structure and
+Fresh `form-8` experiments use `storm-v3`, with denser cloud sampling, restrained material radiance and
 invented ground parcels for depth. Both retain the same authored schedule,
 transport and light. The complete synthetic replay frame fits a 16:9 region
 without cropping or changing its camera. These scene cues have no historical
