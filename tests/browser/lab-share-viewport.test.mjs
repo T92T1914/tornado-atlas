@@ -62,7 +62,12 @@ for(const kind of ['wind','form'])for(const width of [320,1280])test('Checked so
   await setInput(page,control,kind==='wind'?19:.6);assert.equal(await page.locator('#lab-share').getAttribute('href'),next);
   assert.equal(page.url(),first);assert.equal(await page.evaluate(()=>location.href),first);assert.ok(await page.evaluate(()=>atlasShareViewportControl.held.size>0));
   await page.locator('#lab-share').focus();await page.keyboard.press('Enter');
-  const keyboardCommit=await page.evaluate(()=>atlasShareViewportControl.commits.at(-1));assert.ok(keyboardCommit?.trusted&&keyboardCommit.anchor&&keyboardCommit.prevented&&keyboardCommit.detail===0);assert.equal(keyboardCommit.url,next);
+  const keyboardObservation=await page.evaluate(()=>{
+   const keyboardCommit=atlasShareViewportControl.commits.at(-1);
+   return {keyboardCommit,commitCount:atlasShareViewportControl.commits.length,commits:atlasShareViewportControl.commits.map((row,index)=>({index,...row})),events:atlasShareViewportControl.events.slice(-12),active:document.activeElement.id,url:location.href};
+  }),keyboardCommit=keyboardObservation.keyboardCommit;
+  const keyboardDiagnostic=JSON.stringify({kind,width,...keyboardObservation});assert.ok(Buffer.byteLength(keyboardDiagnostic)<=262144);t.diagnostic('LAB_SHARE_KEYBOARD '+keyboardDiagnostic);
+  assert.ok(keyboardCommit?.trusted&&keyboardCommit.anchor&&keyboardCommit.prevented&&keyboardCommit.detail===0);assert.equal(keyboardCommit.url,next);
   assert.equal(await page.evaluate(()=>location.href),next);await page.waitForURL(next,{timeout:5000});assert.equal(page.url(),next);
   const keyboard=await page.evaluate(()=>({key:atlasShareViewportControl.events.filter(row=>row.type==='keydown'&&row.key==='Enter').at(-1),click:atlasShareViewportControl.events.filter(row=>row.type==='click').at(-1)}));
   assert.ok(keyboard.key?.trusted&&keyboard.key.anchor&&keyboard.click?.trusted&&keyboard.click.anchor&&keyboard.click.detail===0,'A trusted Enter activation commits the next complete assumptions');
