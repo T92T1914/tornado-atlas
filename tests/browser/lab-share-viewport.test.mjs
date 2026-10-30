@@ -28,6 +28,17 @@ async function installControl(page){
   document.addEventListener('click',event=>{if(state.commits.length<8)state.commits.push({trusted:event.isTrusted,anchor:event.target.closest?.('#lab-share')===document.getElementById('lab-share'),prevented:event.defaultPrevented,detail:event.detail,url:location.href});},{passive:true});
  });
 }
+function assertKeyboardActivation(observation,before,next){
+ assert.ok(Number.isInteger(before.eventCount)&&before.eventCount>=0&&before.eventCount<=60,'The bounded record retains room to detect an extra event');
+ assert.equal(before.active,'lab-share');assert.equal(observation.commitCount,before.commitCount+1,'Enter must produce one distinct new commit');
+ assert.equal(observation.eventCount,before.eventCount+3,'The activation contains only the trusted Enter gesture');
+ assert.deepEqual(observation.gesture.map(row=>row.type),['keydown','click','keyup']);
+ for(const row of observation.gesture)assert.ok(row.trusted&&row.anchor,'Every keyboard activation event must reach the same anchor');
+ assert.equal(observation.gesture[0].key,'Enter');assert.equal(observation.gesture[2].key,'Enter');
+ const commit=observation.keyboardCommit;assert.ok(commit?.trusted&&commit.anchor&&commit.prevented);
+ assert.equal(commit.detail,observation.gesture[1].detail,'The commit belongs to the observed new click');
+ assert.equal(commit.url,next);assert.equal(observation.url,next);assert.equal(observation.active,'lab-share');
+}
 async function ready(page){await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();}
 async function setInput(page,id,value){await page.locator('#'+id).evaluate((node,value)=>{node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));},String(value));}
 const imageReady=()=>document.getElementById('lab-reference-evidence')?.dataset.state==='ready'&&document.getElementById('lab-reference-image')?.naturalWidth>0&&!document.getElementById('lab-reference-image')?.hidden;
@@ -61,16 +72,21 @@ for(const kind of ['wind','form'])for(const width of [320,1280])test('Checked so
   for(const type of ['pointerup','mouseup','click']){const row=events.filter(row=>row.type===type).at(-1);assert.ok(row?.trusted&&row.anchor,'The real '+type+' must reach the same anchor');}
   await setInput(page,control,kind==='wind'?19:.6);assert.equal(await page.locator('#lab-share').getAttribute('href'),next);
   assert.equal(page.url(),first);assert.equal(await page.evaluate(()=>location.href),first);assert.ok(await page.evaluate(()=>atlasShareViewportControl.held.size>0));
-  await page.locator('#lab-share').focus();await page.keyboard.press('Enter');
-  const keyboardObservation=await page.evaluate(()=>{
+  await page.locator('#lab-share').focus();
+  const keyboardBefore=await page.evaluate(()=>({commitCount:atlasShareViewportControl.commits.length,eventCount:atlasShareViewportControl.events.length,active:document.activeElement.id}));
+  assert.equal(keyboardBefore.commitCount,1);assert.ok(keyboardBefore.eventCount<=60,'The bounded record must retain room to detect an extra event');
+  await page.keyboard.press('Enter');
+  const keyboardObservation=await page.evaluate(before=>{
    const keyboardCommit=atlasShareViewportControl.commits.at(-1);
-   return {keyboardCommit,commitCount:atlasShareViewportControl.commits.length,commits:atlasShareViewportControl.commits.map((row,index)=>({index,...row})),events:atlasShareViewportControl.events.slice(-12),active:document.activeElement.id,url:location.href};
-  }),keyboardCommit=keyboardObservation.keyboardCommit;
+   return {keyboardCommit,commitCount:atlasShareViewportControl.commits.length,commits:atlasShareViewportControl.commits.map((row,index)=>({index,...row})),events:atlasShareViewportControl.events.slice(-12),eventCount:atlasShareViewportControl.events.length,gesture:atlasShareViewportControl.events.slice(before.eventCount),active:document.activeElement.id,url:location.href};
+  },keyboardBefore),keyboardCommit=keyboardObservation.keyboardCommit;
   const keyboardDiagnostic=JSON.stringify({kind,width,...keyboardObservation});assert.ok(Buffer.byteLength(keyboardDiagnostic)<=262144);t.diagnostic('LAB_SHARE_KEYBOARD '+keyboardDiagnostic);
-  assert.ok(keyboardCommit?.trusted&&keyboardCommit.anchor&&keyboardCommit.prevented&&keyboardCommit.detail===0);assert.equal(keyboardCommit.url,next);
+  // Firefox can report click detail 1 for trusted Enter. The recorded key
+  // gesture and distinct commit establish activation without that heuristic.
+  assertKeyboardActivation(keyboardObservation,keyboardBefore,next);
   assert.equal(await page.evaluate(()=>location.href),next);await page.waitForURL(next,{timeout:5000});assert.equal(page.url(),next);
   const keyboard=await page.evaluate(()=>({key:atlasShareViewportControl.events.filter(row=>row.type==='keydown'&&row.key==='Enter').at(-1),click:atlasShareViewportControl.events.filter(row=>row.type==='click').at(-1)}));
-  assert.ok(keyboard.key?.trusted&&keyboard.key.anchor&&keyboard.click?.trusted&&keyboard.click.anchor&&keyboard.click.detail===0,'A trusted Enter activation commits the next complete assumptions');
+  assert.deepEqual(keyboard,{key:keyboardObservation.gesture[0],click:keyboardObservation.gesture[1]},'The final key and click still identify the same trusted activation');
   await page.reload();await ready(page);assert.equal(page.url(),next);assert.equal(await page.evaluate(()=>location.href),next);assert.equal(await page.locator('#'+control).inputValue(),kind==='wind'?'19':'0.6');
   assert.equal(await page.locator(kind==='wind'?'#passage-play':'#motion').textContent(),kind==='wind'?'Play passage':'Play motion');if(kind==='wind')assert.equal(await page.locator('#component-play').textContent(),'Play passage');
   await page.waitForFunction(imageReady);
