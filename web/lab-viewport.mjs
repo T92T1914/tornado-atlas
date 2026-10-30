@@ -3,7 +3,7 @@ export function createLabViewportOwner() {
   let owner=null;
   const route=()=>location.pathname+location.hash;
   const clear=()=>{owner=null;};
-  const eligible='#scene,#wind-field,.study-controls input,.study-controls select,.study-controls button,.scene-footer button,.passage input,.passage select,.passage button';
+  const eligible='#scene,#wind-field,#lab-share,.study-controls input,.study-controls select,.study-controls button,.scene-footer button,.passage input,.passage select,.passage button';
   const choose=event=>{
     if(!event.isTrusted)return;
     const target=event.target.closest?.(eligible);

@@ -107,6 +107,30 @@ test('negative vertical movement keeps its sign without a horizontal correction'
   assert.deepEqual(f.scrolls,[{top:-65,behavior:'instant'}]);
 });
 
+test('a pressed experiment link retains its hit position when the checked source appears',t=>{
+  const f=fixture(t),share=f.node({tag:'a',id:'lab-share',top:1805.203125,left:73,width:252.828125,height:44});
+  f.win.scrollY=1415;
+  const child=f.node({tag:'span',parent:share}),point=412.203125;
+  f.emit('pointerdown',child);
+  // Independent document displacement from the retained native image-arrival
+  // witness. This linear fixture does not simulate native CSS scroll anchoring.
+  f.owner.update(()=>{share.documentTop+=641.828125;});
+  assert.deepEqual(f.scrolls,[{top:641.828125,behavior:'instant'}]);
+  const rect=share.getBoundingClientRect();assert.equal(rect.top,390.203125);
+  assert.ok(point>=rect.top&&point<=rect.bottom,'The held pointer still hits the same link');
+  assert.equal(f.style.value,'');assert.equal(f.style.priority,'');
+});
+
+test('the experiment link supports keyboard ownership without granting it to other anchors or synthetic presses',t=>{
+  const f=fixture(t),share=f.node({tag:'a',id:'lab-share'});
+  f.emit('pointerdown',share,{isTrusted:false});
+  f.owner.update(()=>{share.documentTop+=35;});assert.deepEqual(f.scrolls,[]);
+  f.emit('focusin',share);f.emit('keydown',share,{key:'Enter'});
+  f.owner.update(()=>{share.documentTop+=50;});assert.deepEqual(f.scrolls,[{top:50,behavior:'instant'}]);
+  f.emit('focusin',f.outside);
+  f.owner.update(()=>{share.documentTop+=70;});assert.deepEqual(f.scrolls,[{top:50,behavior:'instant'}]);
+});
+
 test('horizontal or size changes alone do not request a scroll',t=>{
   const f=fixture(t);f.emit('keydown');
   f.owner.update(()=>{f.control.left+=300;f.control.width=250;f.control.height=60;});
