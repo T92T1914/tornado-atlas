@@ -365,10 +365,22 @@ test('Visitor wheel scroll retires the previous Form position',{timeout:25000},a
 test('Keyboard focus outside the Wind model retires the previous position',{timeout:25000},async t=>{
  const spec={kind:'wind',width:320,scheme:'light',event:'moore-2013'};await run(t,spec,async(page,scope)=>{
   const held=await scope.hold(spec.event,'image');await open(page,spec,held);await interact(page,spec.kind);await page.keyboard.press('Shift+Tab');
-  const focus=await page.evaluate(()=>({tag:document.activeElement.tagName,href:document.activeElement.getAttribute('href'),inside:!!document.activeElement.closest('.study-controls,.scene-footer,.passage')}));
-  assert.equal(focus.tag,'A');assert.equal(focus.inside,false);const expected=await model(page,spec.kind),current=await position(page,spec.kind);
+  // The experiment link now owns its own visible position. Continue with the
+  // keyboard to the dossier link before testing retirement outside that owner.
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'lab-share');
+  const traversed=[];
+  for(let step=0;step<12;step++){
+   await page.keyboard.press('Shift+Tab');
+   const target=await page.evaluate(()=>({id:document.activeElement.id,href:document.activeElement.getAttribute('href'),dossier:document.activeElement.matches('#lab-reference-links a[href="dossier.html?event=moore-2013"]')}));
+   traversed.push(target);if(target.dossier)break;
+  }
+  t.diagnostic('LAB_VIEWPORT_OUTSIDE_FOCUS '+JSON.stringify(traversed));
+  assert.equal(traversed.at(-1)?.dossier,true,'Bounded keyboard traversal must reach the exact outside dossier link');
+  const focus=await page.evaluate(()=>({id:document.activeElement.id,tag:document.activeElement.tagName,href:document.activeElement.getAttribute('href'),inside:!!document.activeElement.closest('.study-controls,.scene-footer,.passage')}));
+  assert.equal(focus.tag,'A');assert.notEqual(focus.id,'lab-share');assert.equal(focus.href,'dossier.html?event=moore-2013');assert.equal(focus.inside,false);
+  assert.equal(await page.evaluate(()=>document.activeElement.matches('#lab-reference-links a')),true);const expected=await model(page,spec.kind),current=await position(page,spec.kind);
   await held.release();await reference(page,spec.event);await frames(page);assert.deepEqual(await model(page,spec.kind),expected);
-  assert.deepEqual(await page.evaluate(()=>({tag:document.activeElement.tagName,href:document.activeElement.getAttribute('href'),inside:!!document.activeElement.closest('.study-controls,.scene-footer,.passage')})),focus);
+  assert.deepEqual(await page.evaluate(()=>({id:document.activeElement.id,tag:document.activeElement.tagName,href:document.activeElement.getAttribute('href'),inside:!!document.activeElement.closest('.study-controls,.scene-footer,.passage')})),focus);
   assert.equal((await position(page,spec.kind)).scrollCalls,current.scrollCalls,'Arrival must not restore the abandoned model position');
  });
 });
