@@ -116,7 +116,7 @@ float stormCloudHeight(vec2 q){
   // Reuse the same material inputs and keep the outer cloud/tail unchanged.
   vec2 upper=(q-stormAttachment.xy)/stormAttachment.zw;
   float attachment=1.0-smoothstep(1.0,1.8,length(upper));
-  float ceiling=2.30+.10*(broad-.5)+.06*(folded-.5);
+  float ceiling=1.98+.04*(broad-.5)+.02*(folded-.5);
   base=mix(base,min(base,ceiling),attachment);
 #endif
   return base;
