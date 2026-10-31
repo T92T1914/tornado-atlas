@@ -86,7 +86,8 @@ test('unavailable WebGL keeps its diagnosis through view and motion controls',as
 });
 
 for(const scenario of [
-  {name:'current Form7 storm2',route:'study.html',experiment:'form-7',version:2},
+  {name:'current Form8 storm3',route:'study.html',experiment:'form-8',version:3},
+  {name:'retained Form7 storm2',route:'study.html?experiment=form-7&model=genesis-v1&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=storm-detail&rate=1&position=0&phase=0&visibility=ordinary&flow=1&presentation=storm-v2',experiment:'form-7',version:2},
   {name:'retained Form6 storm1',route:'study.html?experiment=form-6&model=genesis-v1&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=storm&rate=1&position=0&phase=0&visibility=ordinary&flow=1&presentation=storm-v1',experiment:'form-6',version:1},
 ])test('a real WebGL context can recover without resuming motion or losing controls: '+scenario.name,async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:1200}});

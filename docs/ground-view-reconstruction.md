@@ -101,7 +101,7 @@ The formation view retains a versioned `world-v1` presentation shared with Form
 Study. Open
 `reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=world-v1&ground_view=synthetic-front&t=120#replay-appearance`.
 Explicit links keep this presentation. The current selector and Form Study
-context link select `storm-v2`, described in the [storm scene notes](storm-scene-study.md).
+context link select `storm-v3`, described in the [storm scene notes](storm-scene-study.md).
 Explicit `reference-v1` links retain the broader presentation described in the
 [reference notes](reference-form-study.md). A formation URL without `appearance_style` retains its earlier
 lighting. Unknown or repeated style values leave the requested presentation
@@ -145,7 +145,7 @@ distinct from these recorded-frame observations.
 ## Storm scene and shared transport
 
 Open the current storm presentation with
-`reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v2&ground_view=synthetic-front&t=130#replay-appearance`.
+`reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v3&ground_view=synthetic-front&t=130#replay-appearance`.
 It uses the same declared camera and the existing mapping from player 120 through
 140 to study 0 through 30. Player 130 still selects study second 15. The selected
 footage source, geographic path and historical clock keep their separate roles.

@@ -91,14 +91,14 @@ version as well as the `genesis-v1` model. `form-5` links retain the broader
 The [reference notes](docs/reference-form-study.md) identify its sources,
 material approximation and remaining historical gate.
 
-Fresh Form Study experiments save as `form-7` with the `storm-v2` presentation.
+Fresh Form Study experiments save as `form-8` with the `storm-v3` presentation.
 Its continuing cloud, condensation detail and low dust use one analytic
 material transport in authored scene units. The formation schedule over thirty
 seconds and replay clock mapping stay the same. An opaque scene keeps its
 authored exposure when Clair or Obscur changes the reading interface. The
 [storm scene notes](docs/storm-scene-study.md) explain the shared flow, bounded
-integration, broader material structure, illustrative ground parcels and limits.
-Earlier `form-1`, `form-2`, `form-3`, `form-4`, `form-5` and `form-6` links and the six analytic camera references
+integration, cloud transitions, restrained bright margins, illustrative ground parcels and limits.
+Earlier `form-1`, `form-2`, `form-3`, `form-4`, `form-5`, `form-6` and `form-7` links and the six analytic camera references
 keep their previous drawing behavior. The separate Procedural funnel
 simulation remains available.
 The [form study notes](docs/visual-form-study.md) explain the drawing,

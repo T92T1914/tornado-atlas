@@ -13,6 +13,15 @@ export function stormTransportParameters(seconds){
     STORM_SCENE.lift/STORM_SCENE.verticalStrain*(vertical-1),0]);
 }
 
+
+// The local cloud lowering follows the declared upper-body ellipse. It carries
+// no measured cloud base, camera calibration or physical length.
+export function stormAttachmentParameters(shape,seconds){
+  if(!shape||!Number.isFinite(shape.base)||shape.base<.02||shape.base>1.6||!Number.isFinite(shape.bend)||Math.abs(shape.bend)>.7||!Number.isFinite(seconds)||seconds<0||seconds>30)throw new RangeError('Invalid storm attachment frame');
+  const radius=1.24*(.96+.95*shape.base);
+  return new Float32Array([.09+.55*shape.bend,-.10,
+    radius*(1.10+.06*Math.sin(2-.13*seconds)),radius*(.88+.05*Math.cos(2.7+.11*seconds))]);
+}
 function pointInDomain(point,seconds){
   if(!Array.isArray(point)||point.length!==3||!point.every(v=>Number.isFinite(v)&&Math.abs(v)<=1024)||
     !Number.isFinite(seconds)||Math.abs(seconds)>30)throw new RangeError('Storm transport requires a finite scene point and at most thirty authored seconds');
@@ -50,14 +59,17 @@ export function stormFlow(seconds,strength){
 export const STORM_FIELD_GLSL=`
 #if STORM_SCENE
 const vec3 STORM_FAR_RADIANCE=vec3(.48,.51,.52);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
 uniform vec4 stormPullback;
+#endif
+#if STORM_SCENE >= 3
+uniform vec4 stormAttachment;
 #endif
 vec3 stormMaterialPoint;
 vec3 stormSampleSpan;
 void stormSample(vec3 p,vec3 ray,float t,float span){
   float dt=-t,a=.018,b=.036,r2=dot(p.xz,p.xz)/(.95*.95);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float e=stormPullback.x,scale=stormPullback.y;
 #else
   float e=exp(2.0*a*dt),scale=exp(-a*dt);
@@ -71,7 +83,7 @@ void stormSample(vec3 p,vec3 ray,float t,float span){
   vec2 q=scale*turn*p.xz;
   // One fixed orthonormal texture basis follows the common material pullback.
   mat3 basis=mat3(.8,.6,0,-.36,.48,.8,.48,-.64,.6);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   stormMaterialPoint=basis*vec3(q.x,p.y*stormPullback.x+stormPullback.z,q.y);
 #else
   stormMaterialPoint=basis*vec3(q.x,(p.y+.08/b)*exp(b*dt)-.08/b,q.y);
@@ -79,7 +91,7 @@ void stormSample(vec3 p,vec3 ray,float t,float span){
   // Directional derivative of that same analytic map along this ray bin.
   float angularSlope=.24/a*dot(p.xz,ray.xz)/(.95*.95)*(1.0/(e+r2)-1.0/(1.0+r2));
   vec2 tangent=scale*turn*ray.xz+vec2(-q.y,q.x)*angularSlope;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   stormSampleSpan=abs(basis*vec3(tangent.x,stormPullback.x*ray.y,tangent.y))*span;
 #else
   stormSampleSpan=abs(basis*vec3(tangent.x,exp(b*dt)*ray.y,tangent.y))*span;
@@ -91,26 +103,35 @@ float stormNoise(vec3 frequency,vec3 offset){
 }
 float stormCloudHeight(vec2 q){
   vec2 local=q/vec2(1.55,1.25);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float broad=stormNoise(vec3(.34,.42,.34),vec3(0));
   float folded=stormNoise(vec3(.92,.58,.92),vec3(5.2,1.1,8.4));
 #else
   float broad=stormNoise(vec3(.60,.75,.60),vec3(0));
   float folded=stormNoise(vec3(1.35,.65,1.35),vec3(5.2,1.1,8.4));
 #endif
-  return 3.10-.70*exp(-dot(local,local))+.64*(broad-.5)+.28*(folded-.5);
+  float base=3.10-.70*exp(-dot(local,local))+.64*(broad-.5)+.28*(folded-.5);
+#if STORM_SCENE >= 3
+  // A local cloud-base ceiling meets the existing upper condensation support.
+  // Reuse the same material inputs and keep the outer cloud/tail unchanged.
+  vec2 upper=(q-stormAttachment.xy)/stormAttachment.zw;
+  float attachment=1.0-smoothstep(1.0,1.8,length(upper));
+  float ceiling=1.98+.04*(broad-.5)+.02*(folded-.5);
+  base=mix(base,min(base,ceiling),attachment);
+#endif
+  return base;
 }
 float stormBody(vec3 p,vec3 shape,float t,float ex){
   float h=p.y/2.6;
   if(ex<=0.0||h<0.0||h>1.04)return 0.0;
   vec2 q=(p.xz-referenceAxis(h,shape,t))/referenceSection(h,t);
   float radius=referenceRadius(h,shape)*(.64+.56*h*h),r=length(q);
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   radius=referenceRadius(h,shape)*(.82+.42*h*h);
 #endif
   if(r>radius*1.45+.08)return 0.0;
   vec3 w=stormMaterialPoint;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float bulk=stormNoise(vec3(2.2,2.6,2.2),vec3(0));
   float detail=stormNoise(vec3(5.8,6.4,5.8),vec3(3.1,7.7,2.4));
 #else
@@ -120,7 +141,7 @@ float stormBody(vec3 p,vec3 shape,float t,float ex){
   float theta=atan(w.z+.000001,w.x+.000001);
   float lobe=1.0+.14*sin(2.0*theta+.9*h)+.12*(bulk-.5);
   float relative=r/(radius*lobe),edge=mix(.18,.09,smoothstep(.25,.72,bulk));
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   edge=mix(.14,.055,smoothstep(.25,.72,bulk));
 #endif
   float envelope=1.0-smoothstep(.94-edge,1.02+edge,relative);
@@ -133,7 +154,7 @@ float stormBody(vec3 p,vec3 shape,float t,float ex){
 }
 float stormCloud(vec3 p,float t){
   if(p.y<1.8||p.y>5.6)return 0.0;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float n=stormNoise(vec3(.42,.72,.42),vec3(0));
   float detail=stormNoise(vec3(1.25,1.55,1.25),vec3(7.2,2.4,3.8));
 #else
@@ -145,11 +166,12 @@ float stormCloud(vec3 p,float t){
   // No radial rim. The bounded camera sees a continuing storm-base layer.
   return .44*vertical*(.06+.80*smoothstep(.25,.70,n)+.35*detail);
 }
+
 float stormDust(vec3 p,float t){
   if(p.y<0.0||p.y>.52)return 0.0;
   float r=length(p.xz);
   if(r>1.65)return 0.0;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
   float dustPatch=stormNoise(vec3(4.2,3.2,4.2),vec3(2.3,9.1,5.4));
 #else
   float dustPatch=stormNoise(vec3(5.2,6.5,5.2),vec3(2.3,9.1,5.4));

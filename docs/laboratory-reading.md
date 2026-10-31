@@ -13,9 +13,11 @@ authenticity or permission. Full images keep their proportions and remain linked
 to the complete published file. A failed image has a retry and retains article
 and source routes.
 
-After you choose a model control or canvas, late reference updates keep that
-interaction at its current screen position. Scrolling, moving focus, changing
-the reference or leaving the document ends that position preservation. The
+After you choose a model control, canvas or experiment link, late reference
+updates preserve the current visible interaction's vertical position. The
+experiment link uses the same preservation during a pointer press or keyboard
+focus. Scrolling, moving focus away, changing the reference or leaving the
+document ends that position preservation. The
 reference remains optional and does not change model values or start motion.
 
 | Documentary reference | Displayed evidence | Appearance limit |
