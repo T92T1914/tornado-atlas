@@ -44,10 +44,10 @@ for(const width of [320,1280])for(const scripts of [false,true]){
     const beforeDeparture=await audit.innerHTML();
     assert.equal(beforeDeparture,initial);
     if(scripts){
-      const link=page.locator('.museum-nav a[href="study.html"]');
+      const link=page.locator('.museum-nav a[href="study.html?event=el-reno-2013"]');
       await link.locator('xpath=ancestor::details').locator('summary').click();
       await link.focus();await page.keyboard.press('Enter');
-      await page.waitForURL(base+'/study.html');
+      await page.waitForURL(base+'/study.html?event=el-reno-2013');
       await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
       await page.goBack();
       await page.waitForFunction(()=>document.body.dataset.exhibitReady==='true');
