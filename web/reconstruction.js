@@ -85,7 +85,7 @@ async function start(){
   const photoView=(href=location.href)=>new URL(href).searchParams.get('appearance_view')==='photo';
   const simulationView=(href=location.href)=>event.id==='el-reno-2013'&&['simulation','formation'].includes(new URL(href).searchParams.get('appearance_view'));
   const cameraMode=value=>['ground','simulation','formation'].includes(value);
-  const appearanceStyle=(href=location.href)=>{const values=new URL(href).searchParams.getAll('appearance_style');return values.length===0?'legacy':values.length===1&&['world-v1','reference-v1','storm-v1','storm-v2'].includes(values[0])?values[0]:'unavailable';};
+  const appearanceStyle=(href=location.href)=>{const values=new URL(href).searchParams.getAll('appearance_style');return values.length===0?'legacy':values.length===1&&['world-v1','reference-v1','storm-v1','storm-v2','storm-v4'].includes(values[0])?values[0]:'unavailable';};
   const groundView=(href=location.href)=>event.id==='el-reno-2013'&&cameraMode(new URL(href).searchParams.get('appearance_view'));
   const separateAppearance=href=>photoView(href)||groundView(href);
   function selectedSeconds(search){
@@ -519,8 +519,8 @@ async function start(){
     formCanvas.dataset.displayPreset=photoDisplayForm(appearanceState)?.display_preset??'';
     formCanvas.dataset.sourceCamera=appearanceState.sourceCamera?.id??'';
     el('replay-ground-comparison').className=groundSelected?`ground-active${simulationSelected?' simulation-active':''}`:'';
-    el('replay-appearance-canvas').dataset.sceneFrame=appearanceState.lightingStyle==='storm-v2'?'complete-synthetic':'';
-    el('ground-render-caption').textContent=formationSelected?(appearanceState.lightingStyle==='storm-v2'?'Storm scene and illustrative ground detail':appearanceState.lightingStyle==='storm-v1'?'Storm scene and shared transport':appearanceState.lightingStyle==='reference-v1'?'Source-informed broad form':'Illustrative formation and decay'):simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
+    el('replay-appearance-canvas').dataset.sceneFrame=['storm-v2','storm-v4'].includes(appearanceState.lightingStyle)?'complete-synthetic':'';
+    el('ground-render-caption').textContent=formationSelected?(appearanceState.lightingStyle==='storm-v4'?'Storm scene with filtered lighting':appearanceState.lightingStyle==='storm-v2'?'Storm scene and illustrative ground detail':appearanceState.lightingStyle==='storm-v1'?'Storm scene and shared transport':appearanceState.lightingStyle==='reference-v1'?'Source-informed broad form':'Illustrative formation and decay'):simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
     el('ground-render-caption').hidden=!groundSelected;
     formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground-view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
     // Unknown or documentary-only states retain their controls and source text

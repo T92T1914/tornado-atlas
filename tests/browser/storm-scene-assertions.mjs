@@ -57,7 +57,8 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
         const source=gl.getShaderSource(shader);
         return {type:gl.getShaderParameter(shader,gl.SHADER_TYPE)===gl.VERTEX_SHADER?'vertex':'fragment',
           reference:/^#define REFERENCE_FORM 1$/m.test(source),storm:/^#define STORM_SCENE [12]$/m.test(source),
-          stormVersion:Number(source.match(/^#define STORM_SCENE ([12])$/m)?.[1]??0)};
+          stormVersion:Number(source.match(/^#define STORM_SCENE ([12])$/m)?.[1]??0),
+          filtered:/^#define STORM_LIGHT_FILTER 1$/m.test(source)};
       });
       const inverse=array('inverseCamera'),surface=uniform('surfacePass');
       const role=args[0]===gl.POINTS?'particles':args[0]===gl.LINES?'grid':args[0]===gl.TRIANGLES&&inverse!==null?(surface===true?'surface':surface===false?'volume':'unknown-volume'):'other';
@@ -94,7 +95,7 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
     await page.waitForFunction(()=>window.stormSceneProbe?.done===true);
     const observed=await page.evaluate(()=>window.stormSceneProbe.read());
     assert.equal(observed.error,0);assert.equal(observed.lost,false);assert.equal(observed.omitted,0);assert.equal(observed.initiatingEvent?.type,event);
-    const {final}=observed,storm=['storm-v1','storm-v2'].includes(style),stormVersion=style==='storm-v2'?2:storm?1:0,
+    const {final}=observed,storm=['storm-v1','storm-v2','storm-v4'].includes(style),stormVersion=['storm-v2','storm-v4'].includes(style)?2:storm?1:0,
       volumes=observed.draws.filter(draw=>draw.role==='volume'),surfaces=observed.draws.filter(draw=>draw.role==='surface'),grids=observed.draws.filter(draw=>draw.role==='grid'),points=observed.draws.filter(draw=>draw.role==='particles');
     assert.equal(volumes.length,1);assert.equal(surfaces.length,1);assert.ok(grids.length>=1);
     assert.equal(points.length,storm?0:1,'The new scene has no separate particle pass');
@@ -113,7 +114,8 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
       assert.equal(pass.shaders.length,2);
       for(const shader of pass.shaders){
         assert.equal(shader.reference,shader.type==='fragment');assert.equal(shader.storm,storm&&shader.type==='fragment');
-        assert.equal(shader.stormVersion,shader.type==='fragment'?stormVersion:0,'The actual submitted shader uses the requested version');
+        assert.equal(shader.stormVersion,shader.type==='fragment'?stormVersion:0,'The actual submitted shader uses the requested geometry version');
+        assert.equal(shader.filtered,shader.type==='fragment'&&style==='storm-v4','Only the explicitly filtered presentation enables its light filter');
       }
       if(stormVersion===2){
         const vertical=Math.exp(-.036*seconds);

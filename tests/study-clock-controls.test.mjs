@@ -74,7 +74,7 @@ test('active study controls and scheduled frames use the same wall clock',async(
   groundLink.handlers.get('focus')();
   assert.equal(groundLink.textContent,'View this authored phase with Replay defaults');
   assert.deepEqual([...new URL(groundLink.href).searchParams.keys()].sort(),['appearance_style','appearance_view','event','ground_view','t']);
-  for(const [coverage,style]of [['formation','world-v1'],['reference','reference-v1'],['storm','storm-v1'],['storm-detail','storm-v2']]){
+  for(const [coverage,style]of [['formation','world-v1'],['reference','reference-v1'],['storm','storm-v1'],['storm-detail','storm-v2'],['storm-filtered','storm-v4']]){
     ids.get('sequence-coverage').value=coverage;ids.get('sequence-coverage').handlers.get('change')();
     assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),style);
   }

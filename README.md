@@ -98,6 +98,10 @@ seconds and replay clock mapping stay the same. An opaque scene keeps its
 authored exposure when Clair or Obscur changes the reading interface. The
 [storm scene notes](docs/storm-scene-study.md) explain the shared flow, bounded
 integration, broader material structure, illustrative ground parcels and limits.
+The optional **Storm scene with filtered lighting** choice softens fine cloud lighting
+detail while keeping the same geometry, exposure and formation schedule. It saves
+as `form-9` with `storm-v4` and follows the selected phase into Spatial Replay.
+The earlier default remains available for direct comparison.
 Earlier `form-1`, `form-2`, `form-3`, `form-4`, `form-5` and `form-6` links and the six analytic camera references
 keep their previous drawing behavior. The separate Procedural funnel
 simulation remains available.
