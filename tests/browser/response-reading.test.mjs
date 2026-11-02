@@ -88,8 +88,54 @@ for(const spec of stories)for(const [width,appearance]of [[320,'dark'],[1280,'li
 });
 
 test('Response reading Moore no-script complete photograph and native return 320',{timeout:40000},async t=>{
- const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900},reducedMotion:'reduce'});noExternal(page,t);let response=null;page.on('response',r=>{if(r.url()===absolute(asset)&&!response)response=r;});await page.goto(absolute('moore.html'));await ready(page,'dark',false);await chapter(page,'weather-support-after-the-tornado');await imageLayout(page);assert.ok(response);assert.equal(response.status(),200);const bytes=await response.body();assert.equal(bytes.length,1669372);assert.equal(hash(bytes),imageSHA);
- await capture(page,'response-moore-noscript-320',page.locator('#moore-command-post img'));await activate(page,page.locator('#moore-command-post a[href*="source=nws-moore-command-post"]'));await page.locator('#documentary-js-required').waitFor();assert.equal(await page.locator('#source-nws-moore-command-post').count(),0);await activate(page,page.locator('#documentary-chapters a[href="moore.html"]'));await page.waitForURL(absolute('moore.html'));await ready(page,'dark',false);await chapter(page,'weather-support-after-the-tornado');await enlarge(page,'#weather-support-after-the-tornado > p');assert.match(await page.locator('#moore-command-post figcaption').innerText(),/Bruce Thoren \/ NWS/);
+ const phaseStarted=performance.now();let phaseOrdinal=0;
+ const phase=(name,edge)=>t.diagnostic('ATLAS_MOORE_NOSCRIPT_PHASE '+JSON.stringify({phase:name,edge,ordinal:++phaseOrdinal,elapsed_ms:Math.round(performance.now()-phaseStarted)}));
+ phase('fixture-and-response-listener','before');
+ const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900},reducedMotion:'reduce'});noExternal(page,t);let response=null;page.on('response',r=>{if(r.url()===absolute(asset)&&!response)response=r;});
+ phase('fixture-and-response-listener','after');
+ phase('initial-article-navigation','before');
+await page.goto(absolute('moore.html'));
+ phase('initial-article-navigation','after');
+ phase('initial-style-readiness','before');
+await ready(page,'dark',false);
+ phase('initial-style-readiness','after');
+ phase('initial-chapter-navigation','before');
+await chapter(page,'weather-support-after-the-tornado');
+ phase('initial-chapter-navigation','after');
+ phase('complete-image-layout','before');
+await imageLayout(page);
+ phase('complete-image-layout','after');
+ phase('exact-image-body','before');
+assert.ok(response);assert.equal(response.status(),200);const bytes=await response.body();assert.equal(bytes.length,1669372);assert.equal(hash(bytes),imageSHA);
+ phase('exact-image-body','after');
+ phase('optional-viewport-capture','before');
+
+ await capture(page,'response-moore-noscript-320',page.locator('#moore-command-post img'));
+ phase('optional-viewport-capture','after');
+ phase('source-link-activation','before');
+await activate(page,page.locator('#moore-command-post a[href*="source=nws-moore-command-post"]'));
+ phase('source-link-activation','after');
+ phase('source-noscript-fallback','before');
+await page.locator('#documentary-js-required').waitFor();assert.equal(await page.locator('#source-nws-moore-command-post').count(),0);
+ phase('source-noscript-fallback','after');
+ phase('return-link-activation','before');
+await activate(page,page.locator('#documentary-chapters a[href="moore.html"]'));
+ phase('return-link-activation','after');
+ phase('return-exact-url','before');
+await page.waitForURL(absolute('moore.html'));
+ phase('return-exact-url','after');
+ phase('return-style-readiness','before');
+await ready(page,'dark',false);
+ phase('return-style-readiness','after');
+ phase('return-chapter-navigation','before');
+await chapter(page,'weather-support-after-the-tornado');
+ phase('return-chapter-navigation','after');
+ phase('enlarged-text-and-reflow','before');
+await enlarge(page,'#weather-support-after-the-tornado > p');
+ phase('enlarged-text-and-reflow','after');
+ phase('returned-attribution','before');
+assert.match(await page.locator('#moore-command-post figcaption').innerText(),/Bruce Thoren \/ NWS/);
+ phase('returned-attribution','after');
 });
 
 test('Response reading Moore unavailable photograph preserves account and item source 320',{timeout:40000},async t=>{
