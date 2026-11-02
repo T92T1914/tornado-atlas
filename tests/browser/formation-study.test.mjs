@@ -260,21 +260,56 @@ test('Form ground link remains a separate beginning route without scripts',async
   assert.match(await page.locator('#form-ground-note').textContent(),/With scripts/);
 });
 
-test('Form playing-origin visit retains its captured paused step',{timeout:45000},async t=>{
+for(const forcedUnavailable of [false,true])test(forcedUnavailable?
+  'Form unavailable graphics retains stationary phase through Replay and Back':
+  'Form phase departure retains its captured step for actual graphics capability',{timeout:45000},async t=>{
   const page=await fixture(t,{viewport:{width:1280,height:1000},reducedMotion:'no-preference'});
+  if(forcedUnavailable)await page.addInitScript(()=>{
+    const original=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(type,...args){
+      return this.id==='scene'&&type==='webgl2'?null:Reflect.apply(original,this,[type,...args]);
+    };
+  });
   await page.goto(base+'/'+handoffForm.replace('rate=15','rate=1'));await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
-  await page.locator('#scene').scrollIntoViewIfNeeded();await page.locator('#motion:not([disabled])').click();
-  await page.waitForFunction(()=>Number(document.getElementById('sequence-time').value)>.5,null,{timeout:5000});
+  await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden,null,{timeout:5000});
+  const capability=await page.evaluate(()=>({available:Boolean(document.getElementById('scene').getContext('webgl2')),
+    disabled:document.getElementById('motion').disabled,failureVisible:!document.getElementById('scene-failure').hidden,
+    status:document.getElementById('motion-status').textContent,position:Number(document.getElementById('sequence-time').value)}));
+  t.diagnostic('FORM_DEPARTURE_CAPABILITY '+JSON.stringify({forcedUnavailable,...capability}));
+  assert.equal(capability.position,.5);
+  if(capability.available){
+    assert.equal(forcedUnavailable,false);assert.equal(capability.disabled,false);assert.equal(capability.failureVisible,false);
+    await page.locator('#scene').scrollIntoViewIfNeeded();await page.locator('#motion:not([disabled])').click();
+    await page.waitForFunction(()=>Number(document.getElementById('sequence-time').value)>.5,null,{timeout:5000});
+  }else{
+    if(!forcedUnavailable)assert.notEqual(process.env.ATLAS_BROWSER_ENGINE??'chromium','chromium','Chromium must supply the native playing-origin control');
+    assert.equal(capability.disabled,true);assert.equal(capability.failureVisible,true);assert.equal(capability.status,'WebGL 2 is unavailable');
+    await page.locator('#scene-failure').waitFor({state:'visible'});
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    assert.equal(Number(await page.locator('#sequence-time').inputValue()),.5);
+    t.diagnostic('FORM_DEPARTURE_UNAVAILABLE_CONTROL: stationary phase and native navigation only; no playing-origin or framebuffer acceptance.');
+  }
   await page.locator('#form-ground-link').evaluate(node=>node.scrollIntoView({block:'start'}));
   await page.locator('#form-ground-link').focus();
   // Scrolling to this real link can invoke the existing offscreen pause first.
   await page.waitForFunction(()=>document.getElementById('motion').textContent==='Play motion',null,{timeout:5000});
   const position=Number(await page.locator('#sequence-time').inputValue()),saved=await page.locator('#lab-share').getAttribute('href');
-  assert.ok(position>.5&&position<=1);assert.equal(new URL(saved).searchParams.get('phase'),String(position*30));
+  if(capability.available)assert.ok(position>.5&&position<=1);else assert.equal(position,.5);
+  assert.equal(new URL(saved).searchParams.get('phase'),String(position*30));
   await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/reconstruction.html'),{timeout:10000}),page.keyboard.press('Enter')]);
   await page.locator('#replay-time:not([disabled])').waitFor();
   assert.ok(Math.abs(Number(await page.locator('#replay-time').inputValue())-(120+20*position))<1e-10);
   assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
   await page.goBack();await page.waitForURL(saved,{timeout:10000});await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   assert.equal(Number(await page.locator('#sequence-time').inputValue()),position);assert.equal(await page.locator('#motion').textContent(),'Play motion');
+  if(!capability.available){
+    await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden,null,{timeout:5000});
+    const returned=await page.evaluate(()=>({available:Boolean(document.getElementById('scene').getContext('webgl2')),
+      disabled:document.getElementById('motion').disabled,failureVisible:!document.getElementById('scene-failure').hidden,
+      status:document.getElementById('motion-status').textContent}));
+    t.diagnostic('FORM_DEPARTURE_RETURN_CAPABILITY '+JSON.stringify({forcedUnavailable,...returned}));
+    if(forcedUnavailable)assert.equal(returned.available,false);
+    assert.equal(returned.disabled,!returned.available);assert.equal(returned.failureVisible,!returned.available);
+    if(!returned.available)assert.equal(returned.status,'WebGL 2 is unavailable');
+  }
 });
