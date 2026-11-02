@@ -33,6 +33,8 @@ async function checkArticle(page){
  assert.deepEqual(await table.locator('thead th').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('scope'),n.textContent])),[['col','Source record'],['col','County'],['col','Reported CST-6'],['col','Converted CDT']]);
  assert.deepEqual(await table.locator('tbody tr').evaluateAll(nodes=>nodes.map(n=>[...n.children].map(c=>c.textContent))),[['35934','Comanche','20:00 to 20:03','9:00 to 9:03 p.m.'],['35937','Kiowa','20:03 to 21:05','9:03 to 10:05 p.m.']]);
  assert.deepEqual(await table.locator('tbody th').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('scope'))),['row','row']);
+ assert.equal(await page.getByRole('table').count(),1);assert.equal(await table.getByRole('row').count(),3);assert.equal(await table.getByRole('rowheader').count(),2);assert.equal(await table.getByRole('cell').count(),6);
+ assert.deepEqual(await table.locator('tbody tr').evaluateAll(nodes=>nodes.map(n=>[...n.children].map(c=>c.getAttribute('data-label')))),[['Source record','County','Reported CST-6','Converted CDT'],['Source record','County','Reported CST-6','Converted CDT']]);
  assert.deepEqual(await table.locator('tbody th a').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href'))),['dossier.html?record=ncei%3A35934','dossier.html?record=ncei%3A35937']);
  assert.match(await page.locator('#records-and-clocks').innerText(),/02:00 to 02:03 and 02:03 to 03:05 UTC on May 5/);
  assert.match(await page.locator('#boundary-and-dimensions').innerText(),/-99\.4517, latitude 37\.3668/);assert.match(await page.locator('#boundary-and-dimensions').innerText(),/-99\.3826, latitude 37\.3934/);assert.match(await page.locator('#boundary-and-dimensions').innerText(),/No connecting segment is drawn/);
