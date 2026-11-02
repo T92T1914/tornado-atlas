@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FROZEN = json.loads((ROOT / 'tests/fixtures/catalogue-dossier-discovery.json').read_text(encoding='utf-8'))
 EXPECTED = {identifier: group['route'] for group in FROZEN['groups']
             for identifier in group['records']}
+CURRENT_EXPECTED = {**EXPECTED, 'ncei:35934': 'greensburg.html',
+                    'ncei:35937': 'greensburg.html'}
 
 
 class CatalogueDossierLinksTests(unittest.TestCase):
@@ -35,11 +37,16 @@ class CatalogueDossierLinksTests(unittest.TestCase):
             copy.deepcopy(self.events if events is None else events),
             copy.deepcopy(self.reviewed if reviewed is None else reviewed))
 
-    def test_fifteen_routes_match_the_source_qualified_extension(self):
+    def test_seventeen_current_routes_preserve_fifteen_retained_associations(self):
         result = load_catalogue_aliases(ROOT)
         self.assertEqual(len(EXPECTED), 15)
         self.assertEqual({key: row['exhibit'] for key, row in result.items()
-                          if row.get('exhibit')}, EXPECTED)
+                          if row.get('exhibit')}, CURRENT_EXPECTED)
+        for identifier in ['ncei:35934', 'ncei:35937']:
+            self.assertEqual(result[identifier]['names'], ['Greensburg 2007'])
+            record = next(row for doc in self.reviewed if doc['id'] == 'greensburg-2007'
+                          for row in doc['records'] if row['id'] == identifier)
+            self.assertEqual(result[identifier]['basis'], record['basis'])
         for group in FROZEN['groups']:
             for identifier in group['records']:
                 with self.subTest(record=identifier):
@@ -157,7 +164,7 @@ class CatalogueAnnotationPublicationTests(unittest.TestCase):
         fixture = fixtures.PersistenceTests()
         fixture.setUp()
         try:
-            identifiers = list(EXPECTED) + [FROZEN['unrelated_record']]
+            identifiers = list(CURRENT_EXPECTED) + [FROZEN['unrelated_record']]
             rows = [sample(EVENT_ID=identifier.split(':')[1]) for identifier in identifiers]
             import_ncei(fixture.db, fixture.snapshot(rows, '20260323'), fixture.root)
             output = fixture.root / 'public'
@@ -182,7 +189,7 @@ class CatalogueAnnotationPublicationTests(unittest.TestCase):
                 self.assertEqual(detail.pop('curation'), annotations.get(row['id']))
                 old_detail.pop('curation')
                 self.assertEqual(detail, old_detail)
-                self.assertEqual(row['exhibit'], EXPECTED.get(row['id']))
+                self.assertEqual(row['exhibit'], CURRENT_EXPECTED.get(row['id']))
             for relative, content in old_files.items():
                 self.assertEqual((output / relative).read_bytes(), content)
         finally:

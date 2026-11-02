@@ -4,6 +4,7 @@ from pathlib import Path
 import unittest
 
 from atlas.archive import validate_dossier, dossiers
+from response_continuation_support import response_predecessor
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,13 +34,14 @@ class MooreDocumentaryTests(unittest.TestCase):
         self.assertEqual(siren['status']['temporal'], 'source_label')
         self.assertIsNone(siren['time']['alignment'])
 
-    def test_two_qualified_agency_photograph_versions_remain_exact(self):
+    def test_three_qualified_agency_photograph_versions_remain_exact(self):
         expected = {
             'assets/moore-2013/IMG_2314-800.jpg': (410330, 'd53b38069c63ec7508cece9e4a70b11fabf45aad090fa072bc7f115efd2ac7e6', 800, 600),
             'assets/moore-2013/IMG_9287-800.jpg': (339582, 'f10b6b33fbcecd2c228632d2d681bbef47e58876246b753a04721dda3a58c6bb', 800, 533),
+            'assets/moore-2013/bruce_command.jpg': (1669372, 'b08b9dea73be54a692887caf361d262858561e8e8f4d912518a8dc8737e78281', 2592, 1936),
         }
         photos = [row for row in self.doc['media'] if row['kind'] == 'photograph']
-        self.assertEqual(len(photos), 2)
+        self.assertEqual(len(photos), 3)
         self.assertEqual({r['transformation']['asset'] for r in photos}, set(expected))
         for row in photos:
             asset = row['transformation']
@@ -51,7 +53,16 @@ class MooreDocumentaryTests(unittest.TestCase):
             self.assertEqual(row['status']['rights'], 'permitted_hosting')
             self.assertIsNone(row['place']['coordinates'])
             self.assertIsNone(row['time']['alignment'])
-            self.assertNotEqual(asset['parent_sha256'], sha)
+            self.assertEqual(asset['sha256'], sha)
+            if row['id'] == 'moore-command-post':
+                # A separately qualified complete JPEG, not either 800px derivative.
+                self.assertIsNone(row['parent'])
+                self.assertNotIn('parent_sha256', asset)
+                self.assertEqual(row['source_id'], 'nws-moore-command-post')
+                self.assertEqual(row['roles'], {'creator': 'bruce-thoren-nws', 'uploader': 'nws-norman', 'rights_holder': None})
+                self.assertEqual(row['url'], 'https://www.weather.gov/images/oun/wxevents/20130520/bruce_command.jpg')
+            else:
+                self.assertNotEqual(asset['parent_sha256'], sha)
 
 
 
@@ -62,7 +73,7 @@ class MooreDocumentaryTests(unittest.TestCase):
         }
         radar = {row['id']: row for row in self.doc['media'] if row['kind'] == 'radar'}
         self.assertEqual(set(radar), set(expected))
-        names = {'IMG_2314-800.jpg', 'IMG_9287-800.jpg'}
+        names = {'IMG_2314-800.jpg', 'IMG_9287-800.jpg', 'bruce_command.jpg'}
         for item, (product, size, digest, poster_size, poster_digest) in expected.items():
             row = radar[item]
             transform = row['transformation']
@@ -88,16 +99,18 @@ class MooreDocumentaryTests(unittest.TestCase):
             self.assertIsNone(row['place']['coordinates'])
             self.assertIn('one hour', row['limits'])
             self.assertIn('VST and Prod remain separate', row['time']['capture']['disposition'])
+        self.assertEqual(len(names), 7)
         self.assertEqual({p.name for p in (ROOT / 'web/assets/moore-2013').iterdir()}, names)
 
     def test_accepted_moore_evidence_is_preserved_when_radar_is_added(self):
+        retained = response_predecessor(self, self.doc)
         previous = json.loads((ROOT / 'web/archive/moore-2013-b871ef828cd8a1c475bc.json').read_bytes())
         self.assertEqual(len(previous['observations']), 14)
         for field in ('records', 'creators', 'observations', 'reconstruction'):
-            self.assertEqual(self.doc[field], previous[field])
+            self.assertEqual(retained[field], previous[field])
         for field in ('sources', 'media', 'routes'):
             for row in previous[field]:
-                self.assertIn(row, self.doc[field])
+                self.assertIn(row, retained[field])
 
     def test_school_accounts_preserve_source_kind_and_unknown_registration(self):
         # These expectations come from the selected NIST report passages,

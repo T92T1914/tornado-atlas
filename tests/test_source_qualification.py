@@ -7,6 +7,7 @@ import unittest
 from tempfile import TemporaryDirectory
 
 from reviewed_continuation_support import PROMOTIONS, canonical, reviewed_predecessor
+from response_continuation_support import response_predecessor
 from atlas.archive import digest, dossiers
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -194,7 +195,8 @@ class ExactReviewedContinuationControls(unittest.TestCase):
             with self.subTest(event=event):
                 current = self.docs[event]
                 retained = reviewed_predecessor(self, current)
-                self.assertEqual(canonical(current), spec['current'])
+                boundary = response_predecessor(self, current)
+                self.assertEqual(canonical(boundary), spec['current'])
                 self.assertEqual(canonical(retained), spec['previous'])
                 self.assertEqual(current['reconstruction']['intervals'], [])
                 self.assertIsNot(current, retained)
