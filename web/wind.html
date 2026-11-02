@@ -134,8 +134,22 @@
     <dt>Continuous maximum drag</dt><dd id="reference-maximum-drag"></dd>
     <dt>Time at or above the chosen wind comparison</dt><dd id="reference-comparison-duration"></dd>
     <dt>Time strictly above assumed capacity</dt><dd id="reference-capacity-duration"></dd>
-  </dl></div>
-  <p id="wind-reference-status" role="status">The continuous comparison requires JavaScript. The complete default sample table remains readable below.</p>
+ </dl>
+  <div id="wind-grid-values" class="wind-grid-region" role="region" tabindex="0" aria-label="Two sample grids for the same passage" aria-describedby="wind-grid-help" hidden>
+    <table class="wind-grid-table">
+      <caption>Sampling the same finite passage</caption>
+      <thead><tr><th scope="col">Quantity</th><th scope="col">481 samples</th><th scope="col">961 samples</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Nominal spacing (model s)</th><td id="grid-481-spacing"></td><td id="grid-961-spacing"></td></tr>
+        <tr><th scope="row">Highest sampled drag (N)</th><td id="grid-481-peak"></td><td id="grid-961-peak"></td></tr>
+        <tr><th scope="row">Any sample strictly above capacity?</th><td id="grid-481-exceeded"></td><td id="grid-961-exceeded"></td></tr>
+        <tr><th scope="row">Continuous minus sampled peak (N)</th><td id="grid-481-shortfall"></td><td id="grid-961-shortfall"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p id="wind-grid-help" class="control-note">Focus the table region to scroll its columns with the arrow keys. Capacity decisions use unrounded forces. A positive difference means the sampled peak is lower than the continuous maximum. A small negative difference can reflect floating point roundoff. Two grids do not establish convergence or a general error bound.</p>
+  <p id="wind-grid-status" role="status"></p></div>
+  <p id="wind-reference-status" role="status">The comparison of continuous and sampled results requires JavaScript. The complete default sample table remains readable below.</p>
   <details><summary>How the independent comparison works</summary><p>With no background flow, speed depends only on distance from the prescribed center. A positive comparison speed no greater than peak swirl defines an annulus between radii R × comparison / peak and R × peak / comparison. The straight probe path intersects that annulus within the finite -6 R to +6 R window. Path lengths divided by travel speed give model durations. Maximum drag uses the same stated density, area and coefficient. Zero wind and strict capacity equality are handled separately.</p><p>This is a mathematical reference within the stated assumptions and floating-point arithmetic, not an error bound for arbitrary wind fields, a convergence claim, a physical failure time or a structural safety assessment. With eastward background wind, the north and south sides differ. Inside the core, squared speed is linear in squared along-track distance; outside, it is a constant plus an inverse-distance term. The reference splits those pieces at the core and clips them to the same finite path. Constant branches and strict capacity equality are handled explicitly. Unrepresentable intermediate arithmetic is refused rather than displayed as a valid result. <a href="https://glossary.ametsoc.org/wiki/rankine-vortex/">AMS: Rankine vortex</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/">NASA: drag equation</a>.</p></details>
 </section>
 <!-- BEGIN GENERATED WIND SAMPLES -->
