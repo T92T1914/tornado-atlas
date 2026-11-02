@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from .museum_reading import element, link, text
 
-ROUTES = ('atlas', 'index', 'joplin', 'blackwell', 'tuscaloosa', 'moore', 'udall', 'dossier', 'coverage',
+ROUTES = ('atlas', 'index', 'joplin', 'blackwell', 'tuscaloosa', 'moore', 'udall', 'greensburg', 'dossier', 'coverage',
           'reconstruction', 'survey', 'radar-source', 'study', 'wind', 'japan', 'curator')
 PUBLIC_MUSEUM = 'https://t92t1914.github.io/tornado-atlas/'
 

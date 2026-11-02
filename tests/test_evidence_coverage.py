@@ -269,9 +269,17 @@ class EvidenceCoverageTests(unittest.TestCase):
 
     def test_moore_coverage_links_existing_outcomes_and_unresolved_source_roles(self):
         doc = self.docs['moore-2013']
-        identity = '5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85'
+        identity = 'd7a6ec9d4ca0081f368bd2703c2b65ac3ba6e05dcabfc333029f42af87c1f654'
         self.assertEqual(digest(doc), identity)
-        self.assertEqual(len(doc['observations']), 14)
+        self.assertEqual({item['id'] for item in doc['observations']}, {
+            'one-track-two-records', 'reported-path-and-dimensions', 'county-impacts',
+            'warning-issue-1940', 'tornado-emergency-2001', 'reported-siren-clock',
+            'briarwood-rating-revision', 'facility-reconnaissance-scope',
+            'medical-center-function', 'survey-photo-source-group',
+            'preliminary-precursor-difference', 'plaza-reported-refuge-change',
+            'plaza-roof-wall-performance', 'briarwood-400-refuge-envelope',
+            'moore-response-weather-support',
+        })
         raw = (ROOT/'web/archive/moore-2013-b871ef828cd8a1c475bc.json').read_bytes()
         self.assertEqual((len(raw), hashlib.sha256(raw).hexdigest()),
                          (39046, 'c15c3c827585eec744ef91fb760d6b4a989e39cbc9e77c3b35b61049764aa7e8'))

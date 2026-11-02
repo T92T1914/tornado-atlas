@@ -23,8 +23,8 @@ test('procedural version refuses missing/unknown models, overflow phase and unve
 test('empty laboratories have no assigned historical storm',()=>{
   for(const kind of ['wind','form'])assert.deepEqual(readExperiment('',kind),{status:'empty',event:null,state:null,message:''});
 });
-test('all six documentary-only routes are valid without an experiment',()=>{
-  for(const id of ['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955']){
+test('all seven documentary-only routes are valid without an experiment',()=>{
+  for(const id of ['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955','greensburg-2007']){
     for(const kind of ['wind','form'])assert.deepEqual(readExperiment('?event='+id,kind),{status:'reference',event:id,state:null,message:''});
   }
 });

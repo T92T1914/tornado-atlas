@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "event_id": "greensburg-2007",
+  "dossier_sha256": "c4d47704a89025e2fc66e70ffe25eeaa30b9d77d863fc8abc55a6735f8bad937",
+  "survey": null,
+  "layers": {
+    "geography": {
+      "basis": "The two retained county records describe one tornado but disagree at their boundary coordinates. No connecting route, camera or geographic replay is admitted.",
+      "observations": [],
+      "media": []
+    },
+    "damage": {
+      "basis": "The original county narratives describe damage to oil tanks and trees, homes south of Greensburg and the town. These are reported outcomes without mapped survey points, assigned impact times or a recovered wind field.",
+      "observations": [
+        "comanche-beginning",
+        "kiowa-town-impact"
+      ],
+      "media": []
+    },
+    "appearance": {
+      "basis": "The linked recovery gallery has no inspected storm-time appearance or calibrated viewpoint. Damage dimensions and EF ratings do not supply visible funnel geometry.",
+      "observations": [],
+      "media": []
+    },
+    "gaps": {
+      "basis": "County boundary coordinates, retrospective warning labels, casualty scopes and dated recovery quantities retain their separate source meanings. No clock or location conflict is silently repaired.",
+      "observations": [
+        "county-clocks",
+        "boundary-coordinate-conflict",
+        "warning-sequence",
+        "event-casualties",
+        "city-count-scope",
+        "dated-recovery",
+        "recovery-views"
+      ],
+      "media": []
+    }
+  }
+}

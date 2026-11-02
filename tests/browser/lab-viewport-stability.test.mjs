@@ -12,8 +12,8 @@ const REFERENCES={
  'joplin-2011':{file:'joplin-2011-68dca24097277ba2afb7.json',media:'friskey-joplin-storm',asset:'assets/joplin-2011/storm.jpg',width:1557,height:932},
  'blackwell-1955':{file:'blackwell-1955-9e74182ea8d0076dae45.json',media:'nara-blackwell-aerial-aftermath',asset:'assets/blackwell-1955/nara-283884.jpg',width:3000,height:2371},
  'tuscaloosa-birmingham-2011':{file:'tuscaloosa-birmingham-2011-e0ed6012db7845157367.json',media:'oliveira-2019-tornado-video-frames',asset:'assets/tuscaloosa-birmingham-2011/tornado-video-frames-oliveira2019.png',width:1351,height:767},
- 'moore-2013':{file:'moore-2013-5ed36647a0e6141f8dde.json',media:'moore-medical-center-survey',asset:'assets/moore-2013/IMG_9287-800.jpg',width:800,height:533},
- 'udall-1955':{file:'udall-1955-ea29259561776155de0d.json',media:'nws-blackwell-warning2',asset:'assets/blackwell-1955/nws-warning2.jpg',width:608,height:436},
+ 'moore-2013':{file:'moore-2013-d7a6ec9d4ca0081f368b.json',media:'moore-medical-center-survey',asset:'assets/moore-2013/IMG_9287-800.jpg',width:800,height:533},
+ 'udall-1955':{file:'udall-1955-33163d1731a0f30fae5e.json',media:'nws-blackwell-warning2',asset:'assets/blackwell-1955/nws-warning2.jpg',width:608,height:436},
 };
 // The four reviewed continuations retain these exact earlier reference items.
 // Only their current immutable dossier filenames change. Holds remain exact URLs.
@@ -29,8 +29,8 @@ const REVIEWED_PUBLICATIONS={
     "previous_wire": "05d6966cb4c1e6469c1b1cae9ed26b0799f330ecfb696ab80efb2d11d2315bd2"
   },
   "blackwell-1955": {
-    "file": "blackwell-1955-c0ccacb0fa341a0989a4.json",
-    "wire": "c4459214136b7c1f026a53a65a815a667778bd35aa95393dd79a19a8f74ce68d",
+    "file": "blackwell-1955-dcb7f27027e6e6192902.json",
+    "wire": "d14d75d302f1236b507e7e583420ff9c6ac7a6c0ee2c7807efa37f3fd3a62cd5",
     "previous_wire": "7d4aad53d4bdaa7fd9813a5b4f962145bfe484fd0d0a0b9195128364b8232dd1"
   },
   "tuscaloosa-birmingham-2011": {

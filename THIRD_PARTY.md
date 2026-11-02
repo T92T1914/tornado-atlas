@@ -175,3 +175,13 @@ assessment in `exhibits/joplin-2011/`. The report includes third-party imagery,
 and the map's underlying components are not separately licensed here. Neither
 the figure nor the PDF is placed under the software's MIT license. Their source,
 hashes and extraction details are in the adjacent manifest.
+
+## Moore response photograph
+
+`web/assets/moore-2013/bruce_command.jpg` is the complete JPEG published with the [NWS Norman Decision Support account](https://www.weather.gov/oun/events-20130520#idss). Its caption credits Bruce Thoren, NWS, and identifies Wednesday, May 22, 2013. The [original JPEG](https://www.weather.gov/images/oun/wxevents/20130520/bruce_command.jpg) is preserved unchanged at 2,592 by 1,936 pixels, 1,669,372 bytes, SHA-256 `b08b9dea73be54a692887caf361d262858561e8e8f4d912518a8dc8737e78281`.
+
+The item uses the [NWS agency-material policy](https://www.weather.gov/disclaimer) with attribution. This basis does not cover the event page's separately credited courtesy photographs. No government endorsement is implied. The caption supplies a reported day, not a calibrated exposure clock or camera position. Later editing metadata does not replace that date. The [response reading note](research/response-reading-2026-10-30.md) records the inspected source and item limits.
+
+## Greensburg source links
+
+The Greensburg account paraphrases attributable agency text and preserves two normalized NOAA NCEI county records. Its two recovery-photo routes link to the original NWS gallery objects. Their hosting, captions and archive custody do not establish each image's photographer or reuse rights. No Greensburg image, film or derivative is hosted by this addition. The [foundation note](research/greensburg-foundation-2026-11-01.md) identifies the source versions, selected reading and unresolved rights.

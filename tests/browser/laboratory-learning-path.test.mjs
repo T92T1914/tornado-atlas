@@ -40,7 +40,7 @@ for(const kind of ['wind','study'])test('Native laboratory contents work without
  const targets=kind==='wind'?windTargets:formTargets;for(const target of targets)await localLink(page,target);await noOverflow(page);
  assert.deepEqual(await page.locator('#lab-documentary-fallback a').evaluateAll(links=>links.map(link=>[link.getAttribute('href'),link.textContent.trim()])),[
   ['index.html','El Reno documentary'],['joplin.html','Joplin documentary'],['blackwell.html','Blackwell documentary'],
-  ['tuscaloosa.html','Tuscaloosa and Birmingham documentary'],['moore.html','Newcastle and Moore documentary'],['udall.html','Udall documentary'],
+  ['tuscaloosa.html','Tuscaloosa and Birmingham documentary'],['moore.html','Newcastle and Moore documentary'],['udall.html','Udall documentary'],['greensburg.html','Greensburg documentary'],
  ]);
  if(kind==='wind'){assert.equal(await page.locator('#sampled-values-body tr').count(),481);assert.match(await page.locator('#sampled-values-assumptions').textContent(),/Peak swirl 100.0 mph/);assert.equal(await page.locator('#wind-reference-values').isHidden(),true);}
 });

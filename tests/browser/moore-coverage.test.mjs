@@ -5,7 +5,7 @@ import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
 // Accepted source identities and report locators, independent of the coverage generator.
-const revision='5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85';
+const revision='d7a6ec9d4ca0081f368bd2703c2b65ac3ba6e05dcabfc333029f42af87c1f654';
 const damageObservations=[
   'facility-reconnaissance-scope','medical-center-function','plaza-reported-refuge-change',
   'plaza-roof-wall-performance','briarwood-400-refuge-envelope'
@@ -34,7 +34,7 @@ async function selected(page,name){
     document.querySelector('#coverage-layer').value===name,{name});
   assert.equal(await page.locator('.coverage-event:visible').count(),1);
   assert.equal(await page.locator('.coverage-layer:visible').count(),1);
-  assert.equal(await page.locator('.coverage-event').count(),6);
+  assert.deepEqual(await page.locator('.coverage-event').evaluateAll(nodes=>nodes.map(node=>node.dataset.event)),['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955','greensburg-2007']);
 }
 async function selectLayer(page,name){
   await page.getByLabel('Evidence layer',{exact:true}).selectOption(name);
@@ -165,7 +165,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
 test('Moore damage and disputed sources remain linked without JavaScript',async t=>{
   const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900}});
   await page.goto(base+'/coverage.html?event=moore-2013&layer=gaps');
-  assert.equal(await page.locator('.coverage-event:visible').count(),6);
+  assert.deepEqual(await page.locator('.coverage-event:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.event)),['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955','greensburg-2007']);
   assert.match(await page.locator('noscript').innerText(),/All published coverage is available/);
   const gaps=layer(page,'gaps');await openEvidence(gaps);
   assert.equal(await gaps.getAttribute('data-state'),'disputed');
@@ -184,7 +184,7 @@ for(const width of [320,1280])for(const [kind,id,layerName] of [
   ['media','moore-briarwood-survey','damage'],
 ])test('Moore coverage retries the exact unavailable '+kind+' reader '+width,{timeout:30000},async t=>{
   const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
-  const archive=base+'/archive/moore-2013-5ed36647a0e6141f8dde.json';
+  const archive=base+'/archive/moore-2013-d7a6ec9d4ca0081f368b.json';
   let unavailable=true,blocked=0,recovered=0;
   await page.route(archive,route=>{
     assert.equal(route.request().url(),archive);

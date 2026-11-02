@@ -1,7 +1,7 @@
 # Wind and force laboratory
 
 This is a separate educational experiment at `web/wind.html`. A documentary
-reference can select one of the six dossiers, but it does not assign the
+reference can select one of the seven dossiers, but it does not assign the
 model to that tornado or populate its assumptions from historical measurements
 or a damage rating.
 
@@ -171,7 +171,7 @@ reset, focus and the no-script or unavailable-module fallback separately.
 
 ## Keep an experiment beside its source account
 
-Open the laboratory from any of the six dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier, plus one checked existing documentary image with its source, rights and limits. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate. See the [laboratory reading notes](laboratory-reading.md) for the selected items, full-image presentation and Clair/Obscur behavior.
+Open the laboratory from any of the seven dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier. Six references also show a checked documentary image with its source, rights and limits. Greensburg provides the attributed county account and original record links without loading a photograph. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate. See the [laboratory reading notes](laboratory-reading.md) for the selected items, full-image presentation and Clair/Obscur behavior.
 
 The experiment link records all eleven controls and one shared sample index from 0 through 480. Reopening, reloading or using Back/Forward restores those settings paused. The field, passage graph, component state and sampled-values table are recomputed from that same state. Before an ordinary same-tab evidence visit, the displayed sample is captured in the experiment URL so native Back can recover it. Reset restores the documented model defaults while retaining the documentary reference.
 
@@ -191,7 +191,7 @@ With zero background and positive comparison speed no greater than peak swirl, t
 
 Adding eastward background flow changes the annulus geometry and distinguishes the north and south sides of the track. The reference instead splits squared speed into its inside-core and outside-core expressions and solves the clipped intervals. Constant branches, tangencies and strict capacity equality have separate controls. Unrepresentable reference inputs clear its values and explain the refusal while retaining the separate sampled consumers. This is a mathematical cross-check within floating-point arithmetic, not a general sampling-error bound or evidence that finer grids always converge monotonically. The 481 rows, model equations, shared selected sample and paused experiment-link contract remain unchanged.
 
-Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all six documentary references.
+Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all seven documentary references.
 
 ## Follow the experiment as a reading path
 
