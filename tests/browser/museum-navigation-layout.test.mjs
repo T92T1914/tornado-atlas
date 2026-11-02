@@ -10,7 +10,7 @@ const variants=['index','atlas','dossier','curator'];
 
 // Read-only bounded evidence for the previously unexplained WebKit audit error.
 // The fixture's original uncaught-page-error assertion remains unchanged.
-function observeAuditNavigation(t,page){
+async function observeAuditNavigation(t,page){
  const start=Date.now(),rows=[],requests=new WeakMap();let used=0,omitted=0,next=0,disposed=false,reportedError=false;
  const small=value=>String(value??'').slice(0,768);
  const note=(kind,data={})=>{const row={ms:Date.now()-start,kind,...data},bytes=Buffer.byteLength(JSON.stringify(row));
@@ -22,11 +22,29 @@ function observeAuditNavigation(t,page){
  const failed=request=>{const id=requests.get(request);if(id)note('failed',{id,error:small(request.failure()?.errorText),document:small(page.url())});};
  const navigated=frame=>{if(frame===page.mainFrame())note('navigation',{url:small(frame.url())});};
  const report=reason=>t.diagnostic('MUSEUM_AUDIT_NAVIGATION '+JSON.stringify({reason,rows,omitted,observedAuditRequests:next,
-  scope:'Read-only request/navigation/error events. Original strict fixture assertion and all menu checks retained.'}));
+  scope:'Read-only protocol and bounded document events. Document snapshots do not expose fetch creation or Promise settlement. Original strict fixture assertion and all menu checks retained.',
+  limits:{rows:64,row_bytes:14000,field_characters:768,document_events:8,document_payload_characters:4096}}));
  const error=value=>{note('pageerror',{name:small(value.name),message:small(value.message),stack:small(value.stack),document:small(page.url())});
   if(!reportedError){reportedError=true;report('first page error');}};
+ const documentEvent=message=>{
+  const prefix='MUSEUM_AUDIT_DOCUMENT ',text=message.text();
+  if(message.type()!=='debug'||!text.startsWith(prefix))return;
+  if(text.length>4096){omitted++;return;}
+  try{
+   const row=JSON.parse(text.slice(prefix.length));
+   if(!row||!['observer_ready','error','unhandledrejection','rejectionhandled','pagehide','pageshow'].includes(row.event)
+     ||!Number.isInteger(row.sequence)||row.sequence<1||row.sequence>8
+     ||!Number.isFinite(row.document_time_origin)||!Number.isFinite(row.document_ms)
+     ||row.path!=='/index.html'||!['loading','interactive','complete'].includes(row.ready)
+     ||!['visible','hidden'].includes(row.visibility)||!['missing','empty','report','fallback','other'].includes(row.audit)
+     ||![true,false,null].includes(row.persisted)
+     ||!['name','message'].every(key=>row[key]===null||typeof row[key]==='string'&&row[key].length<=768))throw new Error('Unexpected document observation shape');
+   note('document_event',{event:row.event,sequence:row.sequence,document_time_origin:row.document_time_origin,document_ms:row.document_ms,
+    path:row.path,ready:row.ready,visibility:row.visibility,audit:row.audit,persisted:row.persisted,name:row.name,message:row.message});
+  }catch{omitted++;}
+ };
  const closed=()=>{note('page_closed');retire();};
- const listeners=[['request',requested],['response',responded],['requestfinished',finished],['requestfailed',failed],['framenavigated',navigated],['pageerror',error],['close',closed]];
+ const listeners=[['request',requested],['response',responded],['requestfinished',finished],['requestfailed',failed],['framenavigated',navigated],['pageerror',error],['console',documentEvent],['close',closed]];
  function retire(){
   if(disposed)return;disposed=true;
   for(const [name,listener] of listeners)page.off(name,listener);
@@ -36,6 +54,33 @@ function observeAuditNavigation(t,page){
  // A failing earlier after hook can prevent a later hook from running. Retire
  // on the owned page close too, and report the first error before that boundary.
  t.after(retire);
+ await page.addInitScript(()=>{
+  if(window!==window.top||location.pathname!=='/index.html')return;
+  let count=0;
+  const auditState=()=>{
+   const node=document.getElementById('link-audit-summary');
+   if(!node)return 'missing';
+   const text=node.querySelector('p')?.textContent??node.textContent??'';
+   if(text==='The link audit could not be loaded. Its preserved file is linked below.')return 'fallback';
+   if(text.startsWith('Link access checked '))return 'report';
+   return text.trim()?'other':'empty';
+  };
+  const observe=event=>{
+   if(count>=8)return;
+   const reason=event.type==='error'?event.error:event.reason;
+   const small=value=>typeof value==='string'?value.slice(0,768):null;
+   console.debug('MUSEUM_AUDIT_DOCUMENT '+JSON.stringify({event:event.type,sequence:++count,
+    document_time_origin:performance.timeOrigin,document_ms:performance.now(),path:location.pathname,
+    ready:document.readyState,visibility:document.visibilityState,audit:auditState(),
+    persisted:['pagehide','pageshow'].includes(event.type)?event.persisted:null,
+    name:reason instanceof Error?small(reason.name):null,
+    message:event.type==='error'?small(event.message):reason instanceof Error?small(reason.message):small(reason)}));
+  };
+  // These listeners neither handle a Promise nor cancel an event. They retire
+  // with the owned document. The snapshot does not inspect fetch internals.
+  for(const type of ['error','unhandledrejection','rejectionhandled','pagehide','pageshow'])window.addEventListener(type,observe,{capture:true,passive:true});
+  observe({type:'observer_ready'});
+ });
 }
 
 async function layout(page){
@@ -105,7 +150,7 @@ for(const width of [320,1280])test('Every native museum header has clear panels 
 for(const width of [320,600,601,760,761,1280])test('Responsive enlarged museum panels '+width,{timeout:60000},async t=>{
   const touch=width<=760;
   const page=await fixture(t,{viewport:{width,height:1000},hasTouch:touch,isMobile:touch,reducedMotion:'reduce'});
-  observeAuditNavigation(t,page);
+  await observeAuditNavigation(t,page);
   for(const [index,route] of variants.entries()){
     await page.goto(base+'/'+route+'.html');await page.locator('#reading-appearance:not([disabled])').waitFor();
     const theme=index%2?'light':'dark';await page.locator('#reading-appearance').selectOption(theme);

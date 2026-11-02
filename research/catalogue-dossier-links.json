@@ -65,6 +65,16 @@
       "names": [
         "Udall 1955"
       ]
+    },
+    {
+      "event_id": "greensburg-2007",
+      "records": [
+        "ncei:35934",
+        "ncei:35937"
+      ],
+      "names": [
+        "Greensburg 2007"
+      ]
     }
   ]
 }

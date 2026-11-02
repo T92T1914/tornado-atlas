@@ -10,6 +10,7 @@ from unittest.mock import patch
 from atlas.archive import (build, digest, dossier_changes, dossier_history, dossiers,
                            evidence, publication, source, validate_dossier)
 from atlas.publication import write_json
+from response_continuation_support import response_predecessor
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,7 +20,7 @@ class ArchiveHistoryTests(unittest.TestCase):
         artifacts = publication()
         index = artifacts['archive/index.json']
         events = {'el-reno-2013', 'joplin-2011', 'blackwell-1955',
-                  'tuscaloosa-birmingham-2011', 'moore-2013', 'udall-1955'}
+                  'tuscaloosa-birmingham-2011', 'moore-2013', 'udall-1955', 'greensburg-2007'}
         self.assertEqual({e['id'] for e in index['events']}, events)
         for entry in index['events']:
             history = artifacts[entry['history_file']]
@@ -109,9 +110,11 @@ class ArchiveHistoryTests(unittest.TestCase):
         doc = json.loads((ROOT / 'web' / current['file']).read_text(encoding='utf-8'))
         for field in ('records', 'reconstruction'):
             self.assertEqual(latest[field], doc[field])
+        # Validate the complete current promotion before comparing its retained source wording.
+        prior_response = response_predecessor(self, latest)
         for field in ('observations', 'sources', 'media', 'creators', 'routes'):
             for row in doc[field]:
-                self.assertIn(row, latest[field])
+                self.assertIn(row, prior_response[field] if field == 'sources' else latest[field])
         prior_sha = '54ce2e5ef8f7a616c7766adde8d075e42e846a99e1a5e5f3ebfb4b34ca248a09'
         self.assertEqual(current['review']['previous_dossier_sha256'], prior_sha)
         prior = next(version for version in history['versions'] if version['dossier_sha256'] == prior_sha)

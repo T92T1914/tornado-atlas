@@ -240,7 +240,7 @@ for(const viewport of viewports)for(const failure of ['no-script','module-refusa
   assert.equal(await page.locator('#wind-spatial-reading a').first().getAttribute('href'),'https://glossary.ametsoc.org/wiki/rankine-vortex/');
   assert.equal(await page.locator('#wind-spatial-reading a').nth(1).getAttribute('href'),'https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/');
   const links=await page.locator('#lab-documentary-fallback a').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
-  assert.deepEqual(links,['index.html','joplin.html','blackwell.html','tuscaloosa.html','moore.html','udall.html']);
+  assert.deepEqual(links,['index.html','joplin.html','blackwell.html','tuscaloosa.html','moore.html','udall.html','greensburg.html']);
   assert.equal(await page.locator('#sampled-values-body tr').count(),481);
   assert.ok(await page.locator('#sampled-values-static').isVisible());
   assert.match(await page.locator('#sampled-values-static').textContent(),/controls cannot recalculate it/);

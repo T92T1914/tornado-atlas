@@ -7,6 +7,7 @@ import unittest
 from urllib.parse import parse_qs, urlsplit
 
 from reviewed_continuation_support import retained_index_entry
+from response_continuation_support import response_index_entry
 from atlas.archive import dossiers, digest, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -183,7 +184,9 @@ class UdallDocumentaryTests(unittest.TestCase):
                             for tag, attrs in fallback.elements))
 
     def test_clock_clarification_retains_the_first_candidate_and_exact_change(self):
-        entry = next(row for row in self.index['events'] if row['id'] == 'udall-1955')
+        # This historical three-version contract follows validation of the
+        # exact current response edge; current consumer tests keep self.doc.
+        entry = response_index_entry(self, next(row for row in self.index['events'] if row['id'] == 'udall-1955'))
         initial = 'f9611c08821bb3e8852e612615fe75704fa647a4256e92c82094c0030150ae61'
         path = ROOT / 'web/archive/udall-1955-f9611c08821bb3e8852e.json'
         self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), 'a304c5cc3013cc17aa23497f70d79321ae523af62a22631a3baf937504f6e094')

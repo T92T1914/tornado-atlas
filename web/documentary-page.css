@@ -96,3 +96,16 @@ details.documentary-contents {display:block}
 .reading-options {max-width:1040px;border-block:1px solid var(--line);margin:18px 0}
 .reading-options .museum-reading-start {border:0}
 @media(min-width:1081px){.documentary-contents > nav{display:block}}
+
+/* Preserve the county comparison as readable labeled rows on narrow screens. */
+.county-clock-table {width:100%;border-collapse:collapse;line-height:1.6}
+.county-clock-table caption {text-align:left;font-weight:600;margin-bottom:1em}
+.county-clock-table th,.county-clock-table td {text-align:left;vertical-align:top;padding:.5em;border-bottom:1px solid var(--line)}
+@media(max-width:650px){
+  .county-clock-table,.county-clock-table caption,.county-clock-table tbody,.county-clock-table tr,.county-clock-table th,.county-clock-table td {display:block;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
+  .county-clock-table thead {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:normal}
+  .county-clock-table tbody tr {margin-bottom:1.5em;border:1px solid var(--line)}
+  .county-clock-table tbody th,.county-clock-table tbody td {padding:.6em;border-bottom:1px solid var(--line)}
+  .county-clock-table tbody tr>:last-child {border-bottom:0}
+  .county-clock-table [data-label]::before {content:attr(data-label);display:block;color:var(--muted);font-weight:600;margin-bottom:.2em}
+}

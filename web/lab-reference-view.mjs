@@ -21,7 +21,11 @@ const REFERENCES=Object.freeze({
     boundary:'Damage and reported survey context do not supply a funnel shape, historical wind field or failure sequence.',license:'https://www.weather.gov/disclaimer'},
   'udall-1955':{id:'nws-blackwell-warning2',source:'nws-blackwell-warning2',asset:'assets/blackwell-1955/nws-warning2.jpg',
     role:'Regional forecast document, not a photograph of the tornado',story:'udall.html#udall-regional-forecast',
-    boundary:'This regional document preserves forecast and later caption labels. It supplies no storm-time appearance, calibrated clock or local warning receipt.',license:'https://www.weather.gov/disclaimer'}
+    boundary:'This regional document preserves forecast and later caption labels. It supplies no storm-time appearance, calibrated clock or local warning receipt.',license:'https://www.weather.gov/disclaimer'},
+  'greensburg-2007':{kind:'observation',id:'kiowa-town-impact',source:'ncei-2007-retained',
+    sourceURL:'https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2007_c20260323.csv.gz',
+    role:'Reported damage account, with original documentary source links',story:'greensburg.html#path-and-impact',
+    boundary:'This account records reported destruction. It supplies no historical funnel geometry, camera or measured wind field.'}
 });
 const DEADLINE_MS=10000;
 const element=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
@@ -52,26 +56,28 @@ export function mountLabReference(host,beforeNavigate,layoutChange=change=>chang
     const status=host.querySelector('#lab-reference-status'),retry=host.querySelector('#lab-reference-retry');
     layoutChange(()=>{
       retire();host.dataset.state='unavailable';host.setAttribute('aria-busy','false');
-      status.textContent='The image check stopped before leaving this page. If you stay here, retry the image or use its article and source links.';
+      status.textContent=REFERENCES[selected]?.kind==='observation'?'The source check stopped before leaving this page. If you stay here, retry the account or use its article and source links.':'The image check stopped before leaving this page. If you stay here, retry the image or use its article and source links.';
       retry.hidden=false;
     });
   }
   function show(event,{retry=false}={}){
     if(event===selected&&!retry&&attempt?.active)return;
-    retire();selected=event;host.replaceChildren();host.dataset.event=event??'';delete host.dataset.mediaId;
+    retire();selected=event;host.replaceChildren();host.dataset.event=event??'';delete host.dataset.mediaId;delete host.dataset.observationId;
     if(!event){host.hidden=true;host.dataset.state='empty';host.setAttribute('aria-busy','false');return;}
-    const reference=REFERENCES[event];
+    const reference=REFERENCES[event],isObservation=reference?.kind==='observation';
     if(!reference)throw Error('No documentary reference is assigned to this event.');
-    host.hidden=false;host.dataset.state='loading';host.dataset.mediaId=reference.id;host.setAttribute('aria-busy','true');
+    host.hidden=false;host.dataset.state='loading';
+    if(isObservation)host.dataset.observationId=reference.id;else host.dataset.mediaId=reference.id;
+    host.setAttribute('aria-busy','true');
     const title=element('h3','Inspect the selected documentary evidence.');title.id='lab-reference-title';host.setAttribute('aria-labelledby',title.id);
     const role=element('p',reference.role,'lab-reference-role'),boundary=element('p',reference.boundary,'lab-reference-boundary');
-    const status=element('p','Checking the selected source record and complete image...');status.id='lab-reference-status';status.setAttribute('role','status');
+    const status=element('p',isObservation?'Checking the selected documentary account and source record...':'Checking the selected source record and complete image...');status.id='lab-reference-status';status.setAttribute('role','status');
     const actions=element('nav',undefined,'lab-reference-actions');actions.setAttribute('aria-label','Selected documentary source and reading');
-    const retryButton=element('button','Retry documentary image');retryButton.id='lab-reference-retry';retryButton.type='button';retryButton.hidden=true;
+    const retryButton=element('button',isObservation?'Retry documentary account':'Retry documentary image');retryButton.id='lab-reference-retry';retryButton.type='button';retryButton.hidden=true;
     function sourceLinks(revision){
       actions.replaceChildren(link('Read this item in its article',reference.story),
-        link('Inspect the media record and its limits',dossierRoute(event,'media',reference.id,revision)),
-        link('Read the item source and permission',dossierRoute(event,'source',reference.source,revision)));
+        link(isObservation?'Inspect the observation and its limits':'Inspect the media record and its limits',dossierRoute(event,isObservation?'observation':'media',reference.id,revision)),
+        link(isObservation?'Read the source record':'Read the item source and permission',dossierRoute(event,'source',reference.source,revision)));
       for(const [label,href] of reference.extra??[])actions.append(link(label,href));
     }
     sourceLinks();host.append(title,role,boundary,status,actions,retryButton);
@@ -81,7 +87,7 @@ export function mountLabReference(host,beforeNavigate,layoutChange=change=>chang
       if(!owns())return;
       layoutChange(()=>{
         retire();host.dataset.state='unavailable';host.setAttribute('aria-busy','false');
-        status.textContent='The documentary image could not be checked or displayed. '+error.message+' The article and source records remain available.';retryButton.hidden=false;
+        status.textContent=(isObservation?'The documentary account could not be checked. ':'The documentary image could not be checked or displayed. ')+error.message+' The article and source records remain available.';retryButton.hidden=false;
       });
     }
     function live(){
@@ -96,7 +102,28 @@ export function mountLabReference(host,beforeNavigate,layoutChange=change=>chang
       const index=validateArchiveReferences(await boundedJSON('archive/index.json',200000,{fetcher}));if(!live())return;
       const entry=index.events.find(row=>row.id===event);if(!entry)throw Error('The selected event is absent from this archive publication.');
       const checked=await loadVerifiedDossier(entry,event,{fetcher});if(!live())return;
-      const doc=checked.dossier,item=doc.media.find(row=>row.id===reference.id),source=doc.sources.find(row=>row.id===reference.source),version=item?.transformation;
+      const doc=checked.dossier,source=doc.sources.find(row=>row.id===reference.source);
+      if(isObservation){
+        const item=doc.observations.find(row=>row.id===reference.id);
+        if(!item||item.source_id!==reference.source||!source||source.url!==reference.sourceURL||
+          item.status.intake!=='published'||item.status.assertion!=='source_reported'||
+          item.status.availability!=='reviewed_available'||item.status.rights!=='links_only'||
+          item.status.temporal!=='unregistered'||item.status.spatial!=='unregistered'||
+          item.time.alignment!==null||item.place.coordinates!==null)
+          throw Error('The selected observation no longer has its expected documentary source, status and links only basis.');
+        const account=element('div',undefined,'lab-reference-observation');
+        account.append(element('p',item.account,'lab-reference-caption'),element('p',item.limits,'lab-reference-limits'),
+          element('p','Source: '+source.title,'lab-reference-credit'),element('p',source.rights,'lab-reference-rights'));
+        layoutChange(()=>{
+          if(!owns())return;
+          title.textContent=item.title;sourceLinks(checked.reference.dossier_sha256);status.before(account);
+          actions.append(link('Open the original source',source.url));
+          clearTimeout(owned.timer);host.dataset.state='ready';host.setAttribute('aria-busy','false');
+          status.textContent='The selected account matches this archive publication. It supplies documentary context without calibrating the assumed experiment.';
+        });
+        return;
+      }
+      const item=doc.media.find(row=>row.id===reference.id),version=item?.transformation;
       if(!item||item.source_id!==reference.source||!source||item.kind!=='photograph'||item.status.intake!=='published'||
         item.status.availability!=='reviewed_available'||item.status.rights!=='permitted_hosting'||version?.asset!==reference.asset||
         !Number.isSafeInteger(version.width)||version.width<=0||!Number.isSafeInteger(version.height)||version.height<=0||

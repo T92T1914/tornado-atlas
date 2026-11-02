@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {fixture,base} from './harness.mjs';
 import {enlargeText,reflow} from './ground-view-assertions.mjs';
 import {sceneFrame,sameScenario,readingState} from './storm-scene-assertions.mjs';
+import {waitForDossier} from './dossier-readiness.mjs';
 
 // Full submitted shader identities from the retained, reviewed private controls.
 const shaderHashes={
@@ -107,4 +108,95 @@ for(const [width,theme]of [[320,'light'],[1280,'dark']])test('opt-in filtered Fo
   assert.equal(await page.locator('#sequence-coverage').inputValue(),'storm-filtered');assert.equal(await page.locator('#sequence-time').inputValue(),'0.5');
   assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v4');assert.equal(await page.locator('#motion').textContent(),'Play motion');
   await enlargeText(page);await reflow(page);
+});
+
+
+// One combined-state check. The literal Form9 link and Greensburg identity come
+// from their separate reviewed contracts, never from the serializer under test.
+test('filtered Form9 retains Greensburg source-only reference through saved native return 320',{timeout:60000},async t=>{
+  const revision='c4d47704a89025e2fc66e70ffe25eeaa30b9d77d863fc8abc55a6735f8bad937';
+  const original='https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2007_c20260323.csv.gz';
+  const account='The Kiowa record describes destroyed homes and a church south of Greensburg, then destruction across nearly 95 percent of the town. It reports 961 homes and businesses destroyed, 216 with major damage and 307 with minor damage. Its reported damage estimate is about $250 million including uninsured losses.';
+  const rights='Attributed paraphrase and original source links. No source photograph, figure, audio or film is copied or licensed by this record.';
+  const saved=base+'/study.html?experiment=form-9&event=greensburg-2007&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=storm-filtered&rate=1&position=0.5&phase=15&model=genesis-v1&visibility=ordinary&flow=1&presentation=storm-v4#form-experiment';
+  const destination=base+'/dossier.html?event=greensburg-2007&source=ncei-2007-retained&revision='+revision+'#source-ncei-2007-retained';
+  const page=await fixture(t,{viewport:{width:320,height:1000},deviceScaleFactor:1,colorScheme:'light',reducedMotion:'reduce',serviceWorkers:'block'});
+  let unexpectedRequests=0;const unexpected=[];
+  page.on('request',request=>{
+    const url=request.url();
+    if(['image','media'].includes(request.resourceType())||url.startsWith('blob:')||new URL(url).origin!==new URL(base).origin){
+      unexpectedRequests++;if(unexpected.length<8)unexpected.push({url,kind:request.resourceType()});
+    }
+  });
+  await page.addInitScript(()=>{
+    window.__filteredSourceAllocations={images:0,objectURLs:0};
+    const element=document.createElement,create=URL.createObjectURL;
+    document.createElement=function(name,...args){if(String(name).toLowerCase()==='img')window.__filteredSourceAllocations.images++;return Reflect.apply(element,this,[name,...args]);};
+    if(typeof create==='function')URL.createObjectURL=function(...args){window.__filteredSourceAllocations.objectURLs++;return Reflect.apply(create,this,args);};
+  });
+  const sourceOnly=async()=>{
+    assert.deepEqual(await page.evaluate(()=>window.__filteredSourceAllocations),{images:0,objectURLs:0});
+    assert.equal(await page.locator('img,video,audio,iframe').count(),0);
+    assert.equal(unexpectedRequests,0,JSON.stringify(unexpected));
+  };
+  const restored=async()=>{
+    await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+    const evidence=page.locator('#lab-reference-evidence[data-event="greensburg-2007"][data-state="ready"]');await evidence.waitFor();
+    assert.equal(page.url(),saved);assert.equal(await page.locator('#lab-share').getAttribute('href'),saved);
+    assert.deepEqual(await page.evaluate(()=>({
+      values:Object.fromEntries(['shape','condensation','azimuth','elevation','distance','quality','sequence-coverage','sequence-rate','sequence-time','condensation-visibility','lab-event'].map(id=>[id,document.getElementById(id).value])),
+      switches:Object.fromEntries(['dust','sequence-enabled','flow-cues'].map(id=>[id,document.getElementById(id).checked]))
+    })),{values:{shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7',quality:'7200','sequence-coverage':'storm-filtered','sequence-rate':'1','sequence-time':'0.5','condensation-visibility':'ordinary','lab-event':'greensburg-2007'},switches:{dust:true,'sequence-enabled':true,'flow-cues':true}});
+    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v4');
+    assert.equal(await page.locator('#motion').textContent(),'Play motion');
+    assert.equal(await evidence.getAttribute('data-observation-id'),'kiowa-town-impact');assert.equal(await evidence.getAttribute('data-media-id'),null);
+    assert.equal(await evidence.getAttribute('aria-busy'),'false');
+    assert.equal(await evidence.locator('#lab-reference-title').textContent(),'From homes south of town into Greensburg');
+    assert.equal(await evidence.locator('.lab-reference-caption').textContent(),account);
+    assert.equal(await evidence.locator('.lab-reference-limits').textContent(),'These are source reported damage categories and a nominal historical estimate. No independently assessed building inventory, present day value, complete local EF5 swath or uniform wind field is inferred.');
+    assert.equal(await evidence.locator('.lab-reference-boundary').textContent(),'This account records reported destruction. It supplies no historical funnel geometry, camera or measured wind field.');
+    assert.equal(await evidence.locator('.lab-reference-rights').textContent(),rights);
+    assert.equal(await evidence.locator('.lab-reference-credit').textContent(),'Source: NOAA NCEI Storm Events: two Greensburg county records');
+    assert.equal(await evidence.getByRole('link',{name:'Read the source record',exact:true}).getAttribute('href'),destination);
+    assert.equal(await evidence.getByRole('link',{name:'Open the original source',exact:true}).getAttribute('href'),original);
+    await sourceOnly();
+  };
+  await page.goto(saved);await restored();
+  await page.locator('#lab-share').click();await restored();
+  await page.reload();await restored();
+  const before=await sceneFrame(page,{study:true,style:'storm-v4'});await restored();
+  const link=page.locator('#lab-reference-evidence').getByRole('link',{name:'Read the source record',exact:true});
+  await link.evaluate(node=>{
+    const events=[];let total=0;sessionStorage.removeItem('__filteredSourceGesture');
+    for(const type of ['keydown','click','keyup'])document.addEventListener(type,event=>{
+      total++;if(events.length<8)events.push({type:event.type,key:event.key??null,trusted:event.isTrusted,repeat:event.repeat??null,
+        detail:event.detail??null,targetIsLink:event.target===node,focused:document.activeElement===node,href:node.href,
+        alt:event.altKey,ctrl:event.ctrlKey,meta:event.metaKey,shift:event.shiftKey});
+      sessionStorage.setItem('__filteredSourceGesture',JSON.stringify({total,events}));
+    },true);
+  });
+  await link.focus();assert.equal(await link.evaluate(node=>document.activeElement===node),true);
+  const commits=[],onCommit=frame=>{if(frame===page.mainFrame())commits.push(frame.url());};page.on('framenavigated',onCommit);
+  let gesture;
+  try{
+    await page.keyboard.press('Enter');await waitForDossier(page,{href:destination,elementId:'source-ncei-2007-retained'});
+    assert.equal(page.url(),destination);
+    const card=page.locator('#source-ncei-2007-retained');assert.equal(await card.locator('h3').textContent(),'NOAA NCEI Storm Events: two Greensburg county records');
+    assert.equal(await card.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),original);
+    assert.match(await card.textContent(),/No source photograph, figure, audio or film is copied or licensed by this record/);
+    gesture=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('__filteredSourceGesture')));
+    assert.ok([2,3].includes(gesture.total));assert.equal(gesture.events.length,gesture.total);
+    assert.deepEqual(gesture.events.map(row=>row.type),gesture.total===2?['keydown','click']:['keydown','click','keyup']);
+    assert.equal(gesture.events[0].key,'Enter');assert.equal(gesture.events[0].repeat,false);assert.equal(gesture.events[1].key,null);
+    if(gesture.total===3){assert.equal(gesture.events[2].key,'Enter');assert.equal(gesture.events[2].repeat,false);}
+    assert.ok(gesture.events.every(row=>row.trusted&&row.targetIsLink&&row.focused&&row.href===destination&&!row.alt&&!row.ctrl&&!row.meta&&!row.shift));
+    assert.deepEqual(commits,[destination]);await sourceOnly();
+  }finally{page.off('framenavigated',onCommit);}
+  await page.goBack();await page.waitForURL(saved);await restored();
+  const after=await sceneFrame(page,{study:true,style:'storm-v4'});
+  if(before){assert.ok(after);assert.equal(after.hash,before.hash);sameScenario(after,before);}
+  await restored();
+  const returned=page.locator('#lab-reference-evidence').getByRole('link',{name:'Read the source record',exact:true});await returned.focus();
+  assert.equal(await returned.evaluate(node=>document.activeElement===node),true);
+  t.diagnostic('FILTERED_GREEN_SOURCE_RETURN '+JSON.stringify({gesture,commits,nativeSceneCompared:Boolean(before),returnFocus:'explicit focusability only',scope:'Saved synthetic Form9 state and source-only documentary context. No historical camera or physical-device qualification.'}));
 });

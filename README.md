@@ -31,8 +31,9 @@ A separate interactive 3D form study starts the visual work, and a wind laborato
 
 The [evidence dossiers](https://t92t1914.github.io/tornado-atlas/dossier.html)
 connect source records, attributed observations, credited creators and original
-media links. El Reno, Joplin, Blackwell and Tuscaloosa share a dossier view, while any
-catalogue record can open a source dossier without inventing an event history.
+media links. Seven accounts cover El Reno, Joplin, Blackwell, Tuscaloosa and
+Birmingham, Newcastle and Moore, Udall, and Greensburg. Any catalogue record can
+open a source dossier without inventing an event history.
 Evidence discovery distinguishes linked photographs, discrete video samples,
 chronology, radar and unresolved source disagreements. A media item with an
 unknown camera position is not advertised as registered imagery. The
@@ -364,6 +365,10 @@ are model foundations. They do not reconstruct El Reno's visible evolution or
 predict a specific building's damage.
 
 The [Udall account](https://t92t1914.github.io/tornado-atlas/udall.html) follows the separate later tornado of May 25, 1955. Five county records, a historical damage account and the complete regional forecast document remain individually inspectable. The unmatched boundary, conflicting clock labels and different injury totals stay visible. Udall can serve as a documentary reference beside the labs, with no measured model presets or historical replay.
+
+The [Greensburg account](https://t92t1914.github.io/tornado-atlas/greensburg.html) follows the May 4, 2007 nighttime tornado through its warnings, county records and dated recovery accounts. Conflicting boundary coordinates, clock conventions and differently scoped casualty counts remain visible. Original recovery photographs are linked with their unresolved reuse status. A county damage account can sit beside either laboratory without assigning winds or a reconstructed funnel.
+
+Moore's rescue account includes the complete NWS command-post photograph credited to Bruce Thoren. Udall's directional damage observations and Blackwell's separately located witness sequences add detail without turning reported debris directions or quiet intervals into a recovered wind field.
 
 Both labs provide native contents for their controls, source context and model limits. The Wind Lab’s tracers with zero background flow follow the circular paths of its stated field, while mixed background flow retains an approximate integrator. The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#schools) distinguishes reported refuge decisions, surveyed building damage and NIST’s interpretation. Those observations do not set the lab’s winds or component capacity.
 
