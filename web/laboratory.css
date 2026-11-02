@@ -19,6 +19,12 @@
 .continuous-reference dd {overflow-wrap:anywhere}
 .continuous-reference summary {min-height:44px;cursor:pointer;padding:12px 0}
 .continuous-reference [hidden] {display:none}
+.continuous-reference .wind-grid-region {max-width:100%;min-width:0;overflow-x:auto;margin-top:20px}
+.continuous-reference .wind-grid-region:focus-visible {outline:2px solid var(--text);outline-offset:3px}
+.continuous-reference .wind-grid-table {width:100%;min-width:27rem;border-collapse:collapse;color:var(--text);background:var(--bg);font-size:15px;line-height:1.6}
+.continuous-reference .wind-grid-table caption {text-align:left;font-weight:600;padding:0 0 10px}
+.continuous-reference .wind-grid-table th,.continuous-reference .wind-grid-table td {padding:10px;border:1px solid var(--line);text-align:left;vertical-align:top}
+.continuous-reference .wind-grid-table th:first-child {width:48%}
 #wind-reference-status[data-state="missed-exceedance"] {border-left:3px solid var(--text);padding:12px 16px;background:var(--bg)}
 @media(max-width:700px){.continuous-reference .passage-readings{grid-template-columns:minmax(0,1fr);gap:6px}.continuous-reference dd{margin-bottom:12px}}
 @media(max-width:700px){.lab-context{padding:18px}.lab-context-grid{grid-template-columns:minmax(0,1fr);gap:18px}.lab-context select{font-size:16px}.lab-reference-links{display:grid;gap:4px}}

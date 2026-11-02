@@ -146,5 +146,5 @@ export function mountLabContext({kind,read,capture,apply,defaults=DEFAULT_EXPERI
   window.addEventListener('popstate',restore);
   get('lab-enhancement').hidden=false;get('lab-documentary-fallback').hidden=true;
   restore();
-  return {changed,preview,beforeNavigate:()=>commit(capture(),'Experiment paused before opening the evidence.')};
+  return {changed,preview,beforeNavigate:(notice='Experiment paused before opening the evidence.')=>commit(capture(),notice)};
 }
