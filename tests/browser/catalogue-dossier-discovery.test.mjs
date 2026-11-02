@@ -175,7 +175,7 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
     else break;
   }
   t.diagnostic('CATALOGUE_STATIC_REFLOW_DIAGNOSTIC '+JSON.stringify(diagnostic));
-  assert.equal(result.cards.length,5,'All five additional documentary account cards remain');
+  assert.deepEqual(result.cards.map(card=>card.title),['Joplin','Tuscaloosa and Birmingham','Blackwell','Newcastle and Moore','Udall','Greensburg'],'All six additional documentary account cards remain in order');
   assert.equal(result.text_preserved,true,'No documentary text was removed for reflow');
   result.before.forEach((before,i)=>{
     assert.ok(before.size>0);assert.equal(result.after[i].text,before.text);
