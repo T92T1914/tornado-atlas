@@ -34,7 +34,7 @@ async function selected(page,name){
     document.querySelector('#coverage-layer').value===name,{name});
   assert.equal(await page.locator('.coverage-event:visible').count(),1);
   assert.equal(await page.locator('.coverage-layer:visible').count(),1);
-  assert.equal(await page.locator('.coverage-event').count(),6);
+  assert.deepEqual(await page.locator('.coverage-event').evaluateAll(nodes=>nodes.map(node=>node.dataset.event)),['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955','greensburg-2007']);
 }
 async function selectLayer(page,name){
   await page.getByLabel('Evidence layer',{exact:true}).selectOption(name);
@@ -165,7 +165,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']]){
 test('Moore damage and disputed sources remain linked without JavaScript',async t=>{
   const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900}});
   await page.goto(base+'/coverage.html?event=moore-2013&layer=gaps');
-  assert.equal(await page.locator('.coverage-event:visible').count(),6);
+  assert.deepEqual(await page.locator('.coverage-event:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.event)),['el-reno-2013','joplin-2011','blackwell-1955','tuscaloosa-birmingham-2011','moore-2013','udall-1955','greensburg-2007']);
   assert.match(await page.locator('noscript').innerText(),/All published coverage is available/);
   const gaps=layer(page,'gaps');await openEvidence(gaps);
   assert.equal(await gaps.getAttribute('data-state'),'disputed');
