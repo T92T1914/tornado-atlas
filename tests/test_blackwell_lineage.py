@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 
 from atlas.archive import dossiers, publication
+from response_continuation_support import response_predecessor
 
 ROOT = Path(__file__).resolve().parents[1]
 OLD = 'archive/blackwell-1955-51d56cb1f0c100423c87.json'
@@ -26,8 +27,10 @@ class BlackwellLineageTests(unittest.TestCase):
         prior_media_ids = {row['id'] for row in old['media']}
         self.assertEqual([row for row in current['media'] if row['id'] in prior_media_ids], old['media'])
         self.assertEqual(current['reconstruction'], old['reconstruction'])
+        # Current source growth has its own exact promotion contract.
+        prior_response = response_predecessor(self, current)
         for original_source in old['sources']:
-            self.assertIn(original_source, current['sources'])
+            self.assertIn(original_source, prior_response['sources'])
 
     def test_methods_are_published_without_event_time_or_geometry_registration(self):
         doc = next(d for d in dossiers() if d['id'] == 'blackwell-1955')
