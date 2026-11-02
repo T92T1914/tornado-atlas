@@ -6,6 +6,7 @@ import path from 'node:path';
 import {fixture,base} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
+import {noScriptImage} from './no-script-image.mjs';
 
 // Exact reviewed publications, not expectations generated from the current index.
 const stories=[
@@ -35,10 +36,13 @@ async function chapter(page,section){const toc=page.locator('.documentary-conten
 async function capture(page,name,anchor){if(!process.env.ATLAS_DOCUMENTARY_CAPTURE)return;await anchor.scrollIntoViewIfNeeded();await mkdir(process.env.ATLAS_DOCUMENTARY_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_DOCUMENTARY_CAPTURE,name+'.png'),fullPage:false});}
 function noExternal(page,t){const outside=[];page.on('request',r=>{if(!r.url().startsWith(base+'/')&&!r.url().startsWith('blob:'+base+'/'))outside.push(r.url());});t.after(()=>assert.deepEqual(outside,[],'Source links never request an external provider'));
 }
-async function imageLayout(page){
+async function imageLayout(page,{noScript=false}={}){
  const image=page.locator('#moore-command-post img');await image.scrollIntoViewIfNeeded();
  await page.waitForFunction(({asset,url})=>{const n=document.querySelector('#moore-command-post img');return n?.getAttribute('src')===asset&&n.currentSrc===url&&n.complete&&n.naturalWidth===2592&&n.naturalHeight===1936;},{asset,url:absolute(asset)});
- await image.evaluate(n=>n.decode());
+ // A returned page Promise can remain pending in no-script Firefox.
+ // Reuse the maintained synchronous bitmap witness; full layout and byte checks remain separate.
+ if(noScript)await noScriptImage(image,{source:absolute(asset),width:2592,height:1936});
+ else await image.evaluate(n=>n.decode());
  const view=await image.evaluate(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n),clips=[],altered=[];for(let p=n;p;p=p.parentElement){const c=getComputedStyle(p),b=p.getBoundingClientRect();if(c.filter!=='none'||c.mixBlendMode!=='normal'||Number(c.opacity)!==1||c.visibility!=='visible')altered.push(p.id||p.tagName);if(c.clipPath!=='none'||c.maskImage&&c.maskImage!=='none'||['hidden','clip','auto','scroll'].includes(c.overflowX)&&r.left<b.left-1||['hidden','clip','auto','scroll'].includes(c.overflowX)&&r.right>b.right+1||['hidden','clip','auto','scroll'].includes(c.overflowY)&&r.top<b.top-1||['hidden','clip','auto','scroll'].includes(c.overflowY)&&r.bottom>b.bottom+1)clips.push(p.id||p.tagName);}
   const points=[[r.left+3,r.top+3],[r.right-3,r.top+3],[r.left+3,r.bottom-3],[r.right-3,r.bottom-3],[r.left+r.width/2,r.bottom-3]];
   return {width:r.width,height:r.height,top:r.top,bottom:r.bottom,left:r.left,right:r.right,viewport:[innerWidth,innerHeight],fit:s.objectFit,clips,altered,visibleEdges:points.map(([x,y])=>document.elementFromPoint(x,y)===n),alt:n.alt};});
@@ -103,7 +107,7 @@ await ready(page,'dark',false);
 await chapter(page,'weather-support-after-the-tornado');
  phase('initial-chapter-navigation','after');
  phase('complete-image-layout','before');
-await imageLayout(page);
+await imageLayout(page,{noScript:true});
  phase('complete-image-layout','after');
  phase('exact-image-body','before');
 assert.ok(response);assert.equal(response.status(),200);const bytes=await response.body();assert.equal(bytes.length,1669372);assert.equal(hash(bytes),imageSHA);
