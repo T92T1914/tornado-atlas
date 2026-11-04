@@ -70,15 +70,19 @@ export function attachPassageValues(document) {
       for(const row of rows) {
         const cells=nodes[row.index].cells;
         rowCells(row).forEach((value,index)=>{
-          cells[index+1].textContent=value.text;
-          cells[index+1].dataset.value=value.value;
+          const cell=cells[index+1];
+          if(cell.textContent!==value.text)cell.textContent=value.text;
+          if(cell.dataset.value!==value.value)cell.dataset.value=value.value;
         });
-        cells[7].textContent=stateText(row.failed);
+        const state=stateText(row.failed);
+        if(cells[7].textContent!==state)cells[7].textContent=state;
       }
-      document.getElementById('sampled-values-assumptions').textContent=assumptionText(experiment);
-      document.getElementById('sampled-values-static').hidden=true;
-      document.getElementById('sampled-values-controls').hidden=false;
-      document.body.dataset.windSamples='ready';
+      const assumptions=document.getElementById('sampled-values-assumptions'),text=assumptionText(experiment);
+      if(assumptions.textContent!==text)assumptions.textContent=text;
+      const fallback=document.getElementById('sampled-values-static'),controls=document.getElementById('sampled-values-controls');
+      if(!fallback.hidden)fallback.hidden=true;
+      if(controls.hidden!==false)controls.hidden=false;
+      if(document.body.dataset.windSamples!=='ready')document.body.dataset.windSamples='ready';
     },
     select(index) {
       if(!Number.isInteger(index) || index<0 || index>=nodes.length)throw new RangeError('Sample index outside passage');

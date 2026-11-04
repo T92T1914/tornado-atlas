@@ -9,7 +9,7 @@ async function fixture(t) {
   const ids=new Map(),frames=new Map(),documentHandlers=new Map(),observers=[];
   let wall=0,nextFrame=0;
   class Element {
-    constructor(id) {this.id=id;this.handlers=new Map();this.attributes=new Map();this.dataset={};this._textContent='';this.textWrites=0;this.scrollCalls=0;this.defaultValue='0';this._value='0';this.classes=new Set();this.classList={toggle:(name,on)=>on?this.classes.add(name):this.classes.delete(name)};}
+    constructor(id) {this.id=id;this.handlers=new Map();this.attributes=new Map();this.dataWrites=0;this.dataset=new Proxy({},{set:(target,key,value)=>{this.dataWrites++;target[key]=value;return true;}});this._textContent='';this.textWrites=0;this.scrollCalls=0;this.defaultValue='0';this._value='0';this.classes=new Set();this.classList={toggle:(name,on)=>on?this.classes.add(name):this.classes.delete(name)};}
     set textContent(value) {this._textContent=String(value);this.textWrites++;}
     get textContent() {return this._textContent;}
     set value(value) {this._value=String(value);}
@@ -176,4 +176,40 @@ test('decisive sample actions pause the actual passage and focus its exact exist
   f.ids.get('peak').value=0;f.ids.get('wind-controls').fire('input');
   f.ids.get('component-inspect-peak').fire('click');assert.equal(f.index(),0);
   assert.equal(f.document.activeElement,rows[0]);
+});
+
+
+test('actual input rebuild leaves unchanged sample cells alone and preserves focus',async t=>{
+  const f=await fixture(t),rows=f.ids.get('sampled-values-body').rows;
+  f.ids.get('component-inspect-peak').fire('click');
+  const counters=()=>rows.map(row=>row.cells.map(cell=>[cell.textWrites,cell.dataWrites]));
+  const before=counters(),assumptions=f.ids.get('sampled-values-assumptions').textWrites;
+  f.ids.get('wind-controls').fire('input');
+  assert.deepEqual(counters(),before,'Unchanged calculation does not replace any table cell or raw value');
+  assert.equal(f.ids.get('sampled-values-assumptions').textWrites,assumptions);
+  assert.equal(f.document.activeElement,rows[240]);assert.equal(f.index(),240);
+  f.ids.get('capacity').value=20;f.ids.get('capacity').fire('input');
+  for(let i=0;i<481;i++)for(let col=0;col<=5;col++)
+    assert.deepEqual([rows[i].cells[col].textWrites,rows[i].cells[col].dataWrites],before[i][col],
+      'Capacity changes leave sample number, time, wind, pressure and force untouched');
+  // This independent division starts from stored kN rather than the model's N.
+  for(const row of rows)assert.ok(Math.abs(Number(row.cells[6].dataset.value)-Number(row.cells[5].dataset.value)/20)<1e-15);
+  assert.ok(rows.every(row=>row.cells[7].textContent==='Capacity not exceeded so far'));
+  assert.equal(f.document.activeElement,rows[240]);assert.equal(rows[240].attributes.get('aria-current'),'true');
+});
+
+test('actual input updates unrounded force and strict state even when every displayed number stays the same',async t=>{
+  const f=await fixture(t),rows=f.ids.get('sampled-values-body').rows,peak=rows[240];
+  const oldForce=Number(peak.cells[5].dataset.value);
+  f.ids.get('capacity').value=oldForce;f.ids.get('capacity').fire('input');
+  assert.equal(peak.cells[7].textContent,'Capacity not exceeded so far','Equality is not exceedance');
+  const text=peak.cells.slice(1,7).map(cell=>cell.textContent),writes=peak.cells.slice(1,7).map(cell=>cell.textWrites);
+  f.ids.get('coefficient').value=1.200000001;f.ids.get('wind-controls').fire('input');
+  assert.deepEqual(peak.cells.slice(1,7).map(cell=>cell.textContent),text);
+  assert.deepEqual(peak.cells.slice(1,7).map(cell=>cell.textWrites),writes);
+  const speed=100*.44704,expectedForce=.5*1.225*speed*speed*1.200000001/1000;
+  assert.equal(Number(peak.cells[5].dataset.value),expectedForce);
+  assert.ok(Number(peak.cells[5].dataset.value)>oldForce);
+  assert.ok(Number(peak.cells[6].dataset.value)>1);
+  assert.equal(peak.cells[7].textContent,'Failed under this rule');
 });
