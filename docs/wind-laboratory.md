@@ -128,6 +128,14 @@ the hypothetical experiment. Reset restores the controls and returns to its
 first sample. The detached panel is a state diagram, not calculated debris
 motion.
 
+The summary has two explicit inspection actions. One selects the earliest
+sample with the highest unrounded load. The other selects the first strict
+capacity exceedance. Each pauses the existing passage, updates both sliders
+and the graph, and opens and focuses that sample's table row. The experiment
+link retains the selected index. If no sampled load exceeds capacity, the
+exceedance action is disabled, even when the continuous reference identifies
+an exceedance between samples. These actions add no sampling or physical rule.
+
 Capacity is an assumption, not a measured resistance for a roof, wall or other
 building part. The rule has no fatigue, deformation, changing area, pressure
 coupling or impact loads. It is not a historical reconstruction, structural

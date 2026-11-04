@@ -47,6 +47,8 @@ function rebuild() {
   el('capacity-value').textContent=`${Number(el('capacity').value).toFixed(1)} kN`;
   el('component-peak').textContent=`${(component.peak/1000).toFixed(2)} kN`;
   el('component-first').textContent=component.firstFailureTime===null?'Not exceeded in this sampled window':`${component.firstFailureTime.toFixed(1)} s from closest approach (first failing sample)`;
+  el('component-inspect-first').disabled=component.firstFailureIndex===null;
+  el('component-inspection-controls').hidden=false;
   const top=Math.max(field.peak+field.background,threshold)*1.12;
   y=speed=>200-speed/top*170;
   el('passage-line').setAttribute('d',result.samples.map((s,i)=>`${i?'L':'M'}${x(i).toFixed(2)},${y(s.speed).toFixed(2)}`).join(' '));
@@ -84,6 +86,12 @@ function togglePlay() {
 function seek(index) {
   pause();clock.seek(Number(index)/480*clock.duration);syncTime();lab?.changed();
 }
+function inspectSample(index) {
+  if(index===null)return;
+  seek(index);sampledValues.showSelected();
+}
+el('component-inspect-peak').addEventListener('click',()=>inspectSample(component.peakIndex));
+el('component-inspect-first').addEventListener('click',()=>inspectSample(component.firstFailureIndex));
 for(const id of ['passage-play','component-play'])el(id).addEventListener('click',togglePlay);
 el('passage-time').addEventListener('input',()=>seek(el('passage-time').value));
 el('component-time').addEventListener('input',()=>seek(el('component-time').value));

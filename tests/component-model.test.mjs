@@ -23,6 +23,17 @@ test('invalid resistance and unordered samples are rejected',()=>{
   assert.throws(()=>componentHistory([],settings),RangeError);
   assert.throws(()=>componentHistory([...samples,samples[0]],settings),RangeError);
 });
+test('inspection locates the earliest raw maximum without rounding or a false exceedance',()=>{
+  const history=speeds=>componentHistory(speeds.map((speed,time)=>({speed,time})),settings);
+  assert.equal(history([0,0,0]).peakIndex,0);
+  assert.equal(history([20,10,20]).peakIndex,0);
+  assert.equal(history([0,20,20,10]).peakIndex,1);
+  const close=history([10,10.0001]);
+  assert.equal(close.states[0].force.toFixed(2),close.states[1].force.toFixed(2));
+  assert.equal(close.peakIndex,1,'Raw unequal loads must not become a rounded tie');
+  assert.equal(close.firstFailureIndex,1,'Equality at sample zero does not exceed capacity');
+  assert.equal(history([0,10,0]).firstFailureIndex,null);
+});
 test('off-grid sampling can change the illustrative capacity outcome',()=>{
   const field={peak:105*MPH,radius:500*FOOT,travel:30*MPH,
     offset:.7,background:0};

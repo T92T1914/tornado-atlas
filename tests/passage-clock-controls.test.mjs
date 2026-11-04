@@ -148,3 +148,32 @@ test('actual passage keeps complete sample cells and focus stable while selectin
   assert.equal(rows[240].cells[7].textContent,'Failed under this rule');
   assert.equal(f.document.activeElement,rows[240]);
 });
+
+test('decisive sample actions pause the actual passage and focus its exact existing row',async t=>{
+  const f=await fixture(t),rows=f.ids.get('sampled-values-body').rows;
+  f.ids.get('passage-play').fire('click');f.draw(1000);f.playing(true);
+  f.ids.get('component-inspect-peak').fire('click');
+  assert.equal(f.index(),240,'Default tangent passage reaches its maximum at closest approach');
+  f.playing(false);assert.equal(f.document.activeElement,rows[240]);
+  assert.equal(rows[240].attributes.get('aria-current'),'true');
+  assert.equal(f.ids.get('sampled-values-details').open,true);
+  for(const [id,value] of Object.entries({background:20,offset:-.7,capacity:1.6}))f.ids.get(id).value=value;
+  f.ids.get('wind-controls').fire('input');
+  f.ids.get('component-inspect-first').fire('click');
+  assert.equal(f.index(),206,'Independent opposite-side witness retained from capacity controls');
+  assert.equal(f.document.activeElement,rows[206]);f.playing(false);
+  assert.equal(f.ids.get('component-state').textContent,'Failed under this rule');
+  f.ids.get('component-time').value=205;f.ids.get('component-time').fire('input');
+  assert.equal(f.ids.get('component-state').textContent,'Capacity not exceeded so far');
+  f.ids.get('offset').value=.7;f.ids.get('offset').fire('input');
+  assert.equal(f.ids.get('component-inspect-first').disabled,true);
+  f.ids.get('component-inspect-first').fire('click');
+  assert.equal(f.index(),205,'A stale or synthetic activation cannot select a nonexistent exceedance');
+  assert.equal(f.document.activeElement,rows[206],'Rebuild and rejected actions do not move focus');
+  for(const [id,value] of Object.entries({peak:105,background:0,offset:.7,capacity:1.6}))f.ids.get(id).value=value;
+  f.ids.get('wind-controls').fire('input');
+  assert.equal(f.ids.get('component-inspect-first').disabled,true,'Continuous exceedance cannot authorize a sampled target');
+  f.ids.get('peak').value=0;f.ids.get('wind-controls').fire('input');
+  f.ids.get('component-inspect-peak').fire('click');assert.equal(f.index(),0);
+  assert.equal(f.document.activeElement,rows[0]);
+});

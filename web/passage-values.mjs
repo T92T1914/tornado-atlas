@@ -56,12 +56,14 @@ export function attachPassageValues(document) {
   const details=document.getElementById('sampled-values-details');
   const selection=document.getElementById('sampled-values-selection');
   let selected=0;
-  document.getElementById('sampled-values-show').addEventListener('click',()=>{
+  function showSelected() {
     details.open=true;
     nodes[selected].scrollIntoView({block:'center',inline:'nearest'});
     nodes[selected].focus({preventScroll:true});
-  });
+  }
+  document.getElementById('sampled-values-show').addEventListener('click',showSelected);
   return {
+    showSelected,
     rebuild(experiment) {
       const rows=passageValueRows(experiment.result,experiment.component,experiment.field);
       // Keep the existing row nodes and focus. Recalculate only on input changes.
