@@ -459,6 +459,13 @@ py -3.11 tools/check_catalogue.py
 
 Node 20 or newer is needed for the JavaScript checks, but not to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
 
+The El Reno article includes the retained audit as ordinary HTML, with its
+September 21, 2026 check date, all thirteen unresolved source links and an
+explicit link to the complete raw report. It remains readable without
+JavaScript. Publishing checks its counts and source results against that file.
+Opening the article does not start another audit request or renew the check
+date. The recorded access results do not establish historical accuracy.
+
 Optional network audit: install `requests`, then run
 `py -3.11 tools/audit_exhibit_links.py`. The report separates reachable links,
 missing pages and unresolved access. `--new-only` keeps the original check date
