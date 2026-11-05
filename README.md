@@ -109,6 +109,15 @@ context from authored timing. These are synthetic scene improvements, without
 measured sunlight, terrain, atmospheric dynamics or a newly qualified
 historical El Reno interval.
 
+A synthetic formation view also offers a contextual comparison in Form Study.
+It opens the selected presentation paused and shows the requested and opened
+study times. The nearest supported step can differ by at most 0.015 authored
+study seconds. Form uses its own camera and drawing defaults. Its condensation
+comparison changes visibility while retaining the same assumed circulation at
+that opened phase. This link does not match a historical exposure or camera.
+Ordinary navigation preserves Replay time, the selected synthetic camera and
+footage source for browser Back.
+
 The spatial replay keeps selected footage moments and observer times in browser
 history. Back and Forward restore the clock paused. Scrubbing or pausing updates
 the current address, so reloading does not return to an earlier footage choice.

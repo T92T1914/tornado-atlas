@@ -1,5 +1,6 @@
 import {validateSourceCamera} from './source-camera-model.mjs';
 import {formationAt} from './formation-model.mjs';
+import {DEFAULT_EXPERIMENTS,experimentURL} from './experiment-state.mjs';
 
 // Software demonstration only. No source pixels, historical camera, geographic
 // transform or appearance window is supplied by this authored scene.
@@ -46,4 +47,21 @@ export function formationSimulationAt(seconds,id){
   const state=formationAt(formationTime);
   return {...original,shape:state.shape,extent:1,reference:null,motionModel:'genesis-v1',formationTime,
     stage:state.stage,reason:`${state.stage}. An illustrative supercell scenario: circulation, visible condensation and dust have separate authored schedules. No El Reno appearance or physical wind is registered.`};
+}
+
+// This transfers an authored phase, not a historical instant or camera fit.
+// Form links retain the existing .001 position grid and its complete defaults.
+export function formationStudyComparison(href,seconds,id,lightingStyle='legacy'){
+  if(!Number.isFinite(seconds)||!['legacy','world-v1','reference-v1','storm-v1','storm-v2'].includes(lightingStyle))return null;
+  const source=formationSimulationAt(seconds,id);
+  if(source.state!=='synthetic')return null;
+  const position=Math.round((seconds-GROUND_DEMO.start)/(GROUND_DEMO.end-GROUND_DEMO.start)*1000)/1000;
+  const phase=position*30;
+  const coverage={'legacy':'formation','world-v1':'formation','reference-v1':'reference','storm-v1':'storm','storm-v2':'storm-detail'}[lightingStyle];
+  const state={...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage,position,phase,visibility:'ordinary',flow:true};
+  if(lightingStyle==='world-v1')state.lighting=lightingStyle;
+  else if(lightingStyle!=='legacy')state.presentation=lightingStyle;
+  return {href:experimentURL(new URL('study.html#form-experiment',href).href,'form','el-reno-2013',state).href,
+    playerSeconds:seconds,requestedPhase:source.formationTime,openedPhase:phase,position,
+    rounding:phase-source.formationTime};
 }

@@ -188,6 +188,10 @@ async function start(){
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
   let appearanceRenderer=null,appearanceState={state:'unknown'},rendererQuality=3200;
   const groundOptions={host:el('replay-ground-controls'),referenceHost:el('replay-ground-reference'),
+    onStudy:seconds=>{
+      // Freeze the displayed snapshot before the ordinary pause can tick time.
+      clock.pause();pause();clock.seek(seconds);refresh();syncLocation();
+    },
     onSeek:seconds=>seek(seconds),onQuality:()=>{refresh();},onCamera:id=>{
       if(clock.playing)clock.tick(performance.now());pause();
       const url=momentURL(location.href,clock.seconds);url.searchParams.set('ground_view',id);

@@ -73,7 +73,7 @@ jobs:
           node --check web/source-camera-model.mjs
           node --check web/ground-view-model.mjs
           node --check web/ground-view.mjs
-          node --test tests/source-camera-model.test.mjs tests/ground-view-probe.test.mjs tests/funnel-simulation-model.test.mjs
+          node --test tests/source-camera-model.test.mjs tests/ground-view-probe.test.mjs tests/ground-study-comparison.test.mjs tests/funnel-simulation-model.test.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
           node --check web/documentary-appearance.mjs
           node --check web/documentary-media.mjs
@@ -164,11 +164,15 @@ jobs:
           - engine: chromium
             channel: chrome
             part: 1
-            total: 2
+            total: 3
           - engine: chromium
             channel: chrome
             part: 2
-            total: 2
+            total: 3
+          - engine: chromium
+            channel: chrome
+            part: 3
+            total: 3
           - engine: webkit
             channel: ''
             part: 1
