@@ -1,0 +1,85 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {mkdir} from 'node:fs/promises';
+import path from 'node:path';
+import {fixture,base} from './harness.mjs';
+import {waitForDossier} from './dossier-readiness.mjs';
+import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
+
+const current={"file":"archive/greensburg-2007-c4d47704a89025e2fc66.json","wire":"0a19be127840656c88eff706b967de04f896f998e159face887ec95a8f79be04","bytes":34670,"digest":"c4d47704a89025e2fc66e70ffe25eeaa30b9d77d863fc8abc55a6735f8bad937"};
+const archive='https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2007_c20260323.csv.gz';
+const originals={
+ 'nws-ddc-2008':['https://www.weather.gov/media/ddc/Greensburg_1year_later.pdf',/April 25, 2008/],
+ 'nws-ddc-2017':['https://www.weather.gov/media/ddc/2017%20Spring%20Final.pdf',/printed pages 6 to 8/],
+ 'nws-ddc-recovery-gallery':['https://www.weather.gov/ddc/greensburgfiveyear',/May 5, 2012/],
+ 'epa-greensburg-response':['https://response.epa.gov/site/site_profile.aspx?site_id=2948',/May 5, 9 and 11, 2007/],
+ 'city-greensburg-2007':['https://www.greensburgks.org/1258/2007-EF5-Tornado',/Publication and update dates are unknown/],
+ 'nws-warning-example-2010':['https://www.weather.gov/media/directives/010_pdfs_archived/pd01005011a.pdf',/not original transmission bytes/]
+};
+const photos=[['nws-ddc-main-street-2008','https://www.weather.gov/images/ddc/IMG_0231.jpg'],['nws-ddc-main-street-2012','https://www.weather.gov/images/ddc/Main_looking_north.jpg']];
+const chapters=['path-and-impact','warnings','records-and-clocks','boundary-and-dimensions','response','recovery','documentary-views','counts-and-remembrance','sources','assumed-experiments'];
+const absolute=route=>new URL(route,base+'/').href;
+async function activate(page,link){await link.scrollIntoViewIfNeeded();await link.focus();assert.equal(await link.evaluate(n=>document.activeElement===n),true);await page.keyboard.press('Enter');}
+async function ready(page,appearance='dark',script=true){await page.waitForFunction(()=>[...document.styleSheets].some(s=>s.href?.endsWith('/documentary-page.css')&&s.cssRules.length>0)&&document.fonts.status==='loaded');if(script){await page.locator('#reading-appearance:not([disabled])').waitFor();await page.locator('#reading-appearance').selectOption(appearance);}else assert.equal(await page.locator('#reading-appearance').isDisabled(),true);assert.equal(await page.locator('html').getAttribute('data-appearance'),appearance);}
+async function chapter(page,id){const toc=page.locator('.documentary-contents');if(!await toc.evaluate(n=>n.open))await activate(page,toc.locator('summary'));await activate(page,toc.locator('a[href="#'+id+'"]'));await page.waitForURL(u=>u.hash==='#'+id);}
+function observeRequests(page,t){const external=[],hosted=[];page.on('request',r=>{const url=r.url();if(!url.startsWith(base+'/')&&!url.startsWith('blob:'+base+'/'))external.push(url);if(/\/assets\/greensburg(?:-2007)?\//.test(url))hosted.push(url);});t.after(()=>{assert.deepEqual(external,[],'Original-source anchors do not request their providers');assert.deepEqual(hosted,[],'Caption review does not add hosted Greensburg photographs');});}
+async function capture(page,name,anchor){if(!process.env.ATLAS_DOCUMENTARY_CAPTURE)return;await anchor.scrollIntoViewIfNeeded();await mkdir(process.env.ATLAS_DOCUMENTARY_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_DOCUMENTARY_CAPTURE,name+'.png'),fullPage:false});}
+async function checkArticle(page){
+ assert.equal(await page.locator('h1').textContent(),'Greensburg May 4, 2007');
+ assert.deepEqual(await page.locator('.documentary-contents nav a').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href'))),chapters.map(id=>'#'+id));
+ assert.equal(await page.locator('main img,main video,main source,main iframe').count(),0,'Only source links, not ungranted historical imagery, are published');
+ const table=page.locator('#records-and-clocks table');assert.equal(await table.locator('caption').innerText(),'Reported county intervals and their clock conversion');
+ assert.deepEqual(await table.locator('thead th').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('scope'),n.textContent])),[['col','Source record'],['col','County'],['col','Reported CST-6'],['col','Converted CDT']]);
+ assert.deepEqual(await table.locator('tbody tr').evaluateAll(nodes=>nodes.map(n=>[...n.children].map(c=>c.textContent))),[['35934','Comanche','20:00 to 20:03','9:00 to 9:03 p.m.'],['35937','Kiowa','20:03 to 21:05','9:03 to 10:05 p.m.']]);
+ assert.deepEqual(await table.locator('tbody th').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('scope'))),['row','row']);
+ assert.equal(await page.getByRole('table').count(),1);assert.equal(await table.getByRole('row').count(),3);assert.equal(await table.getByRole('rowheader').count(),2);assert.equal(await table.getByRole('cell').count(),6);
+ assert.deepEqual(await table.locator('tbody tr').evaluateAll(nodes=>nodes.map(n=>[...n.children].map(c=>c.getAttribute('data-label')))),[['Source record','County','Reported CST-6','Converted CDT'],['Source record','County','Reported CST-6','Converted CDT']]);
+ assert.deepEqual(await table.locator('tbody th a').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href'))),['dossier.html?record=ncei%3A35934','dossier.html?record=ncei%3A35937']);
+ assert.match(await page.locator('#records-and-clocks').innerText(),/02:00 to 02:03 and 02:03 to 03:05 UTC on May 5/);
+ assert.match(await page.locator('#boundary-and-dimensions').innerText(),/-99\.4517, latitude 37\.3668/);assert.match(await page.locator('#boundary-and-dimensions').innerText(),/-99\.3826, latitude 37\.3934/);assert.match(await page.locator('#boundary-and-dimensions').innerText(),/No connecting segment is drawn/);
+ assert.deepEqual(await page.locator('#warnings ol li').allTextContents(),['8:55 p.m. First warning associated with the tornado.','9:19 p.m. First warning specifically mentioning Greensburg.','9:45 p.m. Reported arrival at the south side of town.']);assert.match(await page.locator('#warnings').innerText(),/does not print a time zone/);assert.match(await page.locator('#warnings').innerText(),/9:41 p\.m\. CDT/);
+ assert.match(await page.locator('#recovery').innerText(),/800,000 cubic yards/);assert.match(await page.locator('#recovery').innerText(),/400,000 cubic yards/);assert.match(await page.locator('#recovery').innerText(),/differently dated accounts/);
+ assert.match(await page.locator('#counts-and-remembrance').innerText(),/September 19, 2007/);assert.match(await page.locator('#counts-and-remembrance').innerText(),/other-county figures are not added/);
+ for(const [id,[url,meaning]]of Object.entries(originals)){const source=page.locator('#source-'+id);assert.equal(await source.locator('a').getAttribute('href'),url);assert.match(await source.evaluate(n=>n.nextElementSibling.textContent),meaning);}
+ for(const [,url]of photos){const link=page.locator('#documentary-views a[href="'+url+'"]');assert.equal(await link.count(),1);assert.equal(await link.getAttribute('target'),'_blank');assert.match(await link.getAttribute('rel'),/noopener/);}
+ assert.match(await page.locator('#documentary-views').innerText(),/not acquired, cropped, recolored or animated/);assert.match(await page.locator('#sources').innerText(),/No original optical interval or calibrated historical camera has been qualified/);
+ assert.equal(await page.locator('#assumed-experiments a[href="study.html?event=greensburg-2007"]').count(),1);assert.equal(await page.locator('#assumed-experiments a[href="wind.html?event=greensburg-2007#wind-model-limits"]').count(),1);assert.match(await page.locator('#assumed-experiments').innerText(),/no measured Greensburg funnel geometry or wind field/);
+}
+async function enlargedCounty(page){
+ const body=await page.locator('#records-and-clocks > p').first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize)),cell=await page.locator('#records-and-clocks tbody td').first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize));
+ await page.evaluate(()=>{const nodes=[document.body,...document.body.querySelectorAll('*')],sizes=nodes.map(n=>parseFloat(getComputedStyle(n).fontSize));nodes.forEach((n,i)=>n.style.fontSize=sizes[i]*2+'px');});
+ assert.ok(await page.locator('#records-and-clocks > p').first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize))>=body*1.99);assert.ok(await page.locator('#records-and-clocks tbody td').first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize))>=cell*1.99);
+ await assertReadingReflow(page,'Greensburg enlarged county clocks and source paragraphs');
+ const fragments=await page.locator('#records-and-clocks table, #sources dd').evaluateAll(nodes=>{const outside=[];for(const node of nodes){const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);for(let text=walker.nextNode();text;text=walker.nextNode()){if(!text.textContent.trim())continue;const range=document.createRange();range.selectNodeContents(text);for(const r of range.getClientRects()){if(r.width>0&&(r.left< -1||r.right>innerWidth+1))outside.push(text.textContent.slice(0,80));}range.detach();}}return outside;});assert.deepEqual(fragments,[],'County cells and source paragraphs remain horizontally readable without hiding their text');
+}
+async function returnFromCard(page,card,section){await activate(page,card.locator('summary').filter({hasText:'Continue in the current article'}));await activate(page,card.locator('a[href="'+absolute('greensburg.html#'+section)+'"]'));await page.waitForURL(absolute('greensburg.html#'+section));}
+async function collectionEntrance(page,appearance){
+ await page.goto(absolute('atlas.html?layer=local'));await page.waitForFunction(()=>document.body?.dataset.ready==='true');await page.locator('#reading-appearance').selectOption(appearance);const entrance=page.url();assert.equal(new URL(entrance).searchParams.get('layer'),'local');
+ const card=page.locator('#museum article').filter({has:page.locator('h2>a[href="greensburg.html"]')});
+ assert.deepEqual(await card.locator('a').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('href'),n.textContent])),[['greensburg.html','Greensburg'],['greensburg.html','Read the account'],['greensburg.html#recovery','Follow the recovery'],['dossier.html?event=greensburg-2007','Inspect the evidence']]);
+ await activate(page,card.locator('h2>a'));await page.waitForURL(absolute('greensburg.html'));await ready(page,appearance);
+ await page.goBack();await page.waitForURL(entrance);await page.waitForFunction(()=>document.body?.dataset.ready==='true');assert.equal(await page.locator('#museum h2>a[href="greensburg.html"]').count(),1);
+ await page.goForward();await page.waitForURL(absolute('greensburg.html'));await ready(page,appearance);
+}
+async function countyJourney(page){
+ const link=page.locator('#records-and-clocks a[href*="observation=county-clocks"]'),href=await link.evaluate(n=>n.href);
+ const [response]=await Promise.all([page.waitForResponse(r=>r.url()===absolute(current.file)),activate(page,link)]);await waitForDossier(page,{href,elementId:'observation-county-clocks'});assert.equal(response.status(),200);const bytes=await response.body();assert.equal(bytes.length,current.bytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),current.wire);const doc=JSON.parse(bytes.toString('utf8'));assert.equal(doc.id,'greensburg-2007');assert.deepEqual(doc.records.map(r=>r.id),['ncei:35934','ncei:35937']);assert.equal(doc.reconstruction.appearance,'unregistered');assert.deepEqual(doc.reconstruction.intervals,[]);
+ const card=page.locator('#observation-county-clocks');assert.match(await card.innerText(),/reported source boundary minutes/);assert.match(await page.locator('#content').innerText(),new RegExp(current.digest));
+ for(const [id,url]of photos){const media=doc.media.find(x=>x.id===id);assert.equal(media.url,url);assert.equal(media.status.rights,'links_only');assert.equal(media.status.availability,'not_researched');assert.deepEqual(media.roles,{creator:null,uploader:'nws-ddc',rights_holder:null});assert.equal(media.time.capture,null);assert.equal(media.time.alignment,null);assert.equal(media.place.coordinates,null);assert.equal(typeof media.transformation,'string');}assert.equal(doc.media.length,2);
+ const source=card.getByRole('link',{name:'Inspect the source card',exact:true}),sourceHref=await source.evaluate(n=>n.href);assert.equal(new URL(sourceHref).searchParams.get('source'),'ncei-2007-retained');await activate(page,source);await waitForDossier(page,{href:sourceHref,elementId:'source-ncei-2007-retained'});const sourceCard=page.locator('#source-ncei-2007-retained');assert.equal(await sourceCard.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),archive);await returnFromCard(page,sourceCard,'records-and-clocks');await page.goBack();await waitForDossier(page,{href:sourceHref,elementId:'source-ncei-2007-retained'});await page.goForward();await page.waitForURL(absolute('greensburg.html#records-and-clocks'));
+}
+async function recoveryJourney(page){
+ await chapter(page,'recovery');await activate(page,page.locator('#recovery a[href="#source-nws-ddc-2008"]'));await page.waitForURL(u=>u.hash==='#source-nws-ddc-2008');assert.equal(await page.locator('#source-nws-ddc-2008 a').getAttribute('href'),originals['nws-ddc-2008'][0]);
+ await chapter(page,'documentary-views');const link=page.locator('#documentary-views a[href*="media=nws-ddc-main-street-2012"]'),href=await link.evaluate(n=>n.href);await activate(page,link);await waitForDossier(page,{href,elementId:'media-nws-ddc-main-street-2012'});const card=page.locator('#media-nws-ddc-main-street-2012');assert.match(await card.innerText(),/links only/);assert.match(await card.innerText(),/Pixels and original full bytes were not inspected/);assert.equal(await card.locator('img,video,iframe').count(),0);assert.equal(await card.getByRole('link',{name:'Open original media at its source',exact:true}).getAttribute('href'),photos[1][1]);
+ const source=card.getByRole('link',{name:'Inspect the source card',exact:true}),sourceHref=await source.evaluate(n=>n.href);await activate(page,source);await waitForDossier(page,{href:sourceHref,elementId:'source-nws-ddc-recovery-gallery'});const sourceCard=page.locator('#source-nws-ddc-recovery-gallery');assert.equal(await sourceCard.getByRole('link',{name:'Read original source',exact:true}).getAttribute('href'),originals['nws-ddc-recovery-gallery'][0]);await returnFromCard(page,sourceCard,'documentary-views');
+}
+for(const [width,appearance]of [[320,'dark'],[1280,'light']])test('Greensburg documentary county clocks sources and return '+width,{timeout:60000},async t=>{
+ const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});observeRequests(page,t);await page.goto(absolute('udall.html'));await ready(page,appearance);const exhibits=page.locator('.museum-nav details').filter({has:page.locator('summary').filter({hasText:'Exhibits'})});await activate(page,exhibits.locator('summary'));await activate(page,exhibits.locator('a[href="greensburg.html"]'));await page.waitForURL(absolute('greensburg.html'));await ready(page,appearance);assert.equal(await page.locator('.museum-nav a[href="greensburg.html"]').getAttribute('aria-current'),'page');await collectionEntrance(page,appearance);await checkArticle(page);
+ await chapter(page,'records-and-clocks');await countyJourney(page);await ready(page,appearance);await recoveryJourney(page);await ready(page,appearance);await chapter(page,'records-and-clocks');if(width===320)await enlargedCounty(page);else await assertReadingReflow(page,'Greensburg wide article');await capture(page,'greensburg-county-'+width,page.locator('#records-and-clocks table'));
+ await page.reload();await ready(page,appearance);await checkArticle(page);await assertReadingReflow(page,'Reloaded Greensburg reading');
+});
+
+test('Greensburg no-script source-only reading and native contents 320',{timeout:40000},async t=>{
+ const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900},reducedMotion:'reduce'});observeRequests(page,t);await page.goto(absolute('greensburg.html'));await ready(page,'dark',false);await checkArticle(page);await chapter(page,'records-and-clocks');await activate(page,page.locator('#records-and-clocks a[href*="observation=county-clocks"]'));await page.locator('#documentary-js-required').waitFor();assert.equal(await page.locator('#observation-county-clocks').count(),0);await activate(page,page.locator('#documentary-chapters a[href="greensburg.html"]'));await page.waitForURL(absolute('greensburg.html'));await ready(page,'dark',false);await chapter(page,'documentary-views');assert.equal(await page.locator('#documentary-views a[href="'+photos[1][1]+'"]').count(),1);await capture(page,'greensburg-noscript-sources-320',page.locator('#documentary-views'));await chapter(page,'records-and-clocks');await enlargedCounty(page);
+});

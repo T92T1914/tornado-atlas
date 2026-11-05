@@ -10,6 +10,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from response_continuation_support import RESPONSE_PROMOTIONS, response_boundary, response_index_entry
+
 ROOT = Path(__file__).resolve().parents[1]
 # Independently reviewed immutable old/current publications, not runtime adapter
 # expectations. New source qualification requires a new explicit amendment.
@@ -89,7 +91,7 @@ def _parent(doc, path):
     return node, path[-1]
 
 
-def reviewed_predecessor(case, current, root=ROOT):
+def _october29_predecessor(case, current, root=ROOT, index_entry=None):
     """Validate the complete current continuation, then expose its retained base.
 
     Call only at a historical preservation comparison. Actual current behavior,
@@ -123,7 +125,8 @@ def reviewed_predecessor(case, current, root=ROOT):
     case.assertEqual(current, expected, 'Only the exact reviewed continuation changes are admitted')
     case.assertEqual(canonical(current), spec['current'])
     index = json.loads((root / 'web/archive/index.json').read_bytes())
-    entry = next(row for row in index['events'] if row['id'] == event)
+    entry = (next(row for row in index['events'] if row['id'] == event)
+             if index_entry is None else index_entry)
     case.assertEqual((entry['file'], entry['file_sha256'], entry['dossier_sha256']),
                      (spec['current_file'], spec['current_wire'], spec['current']))
     case.assertEqual(entry['records'], [row['id'] for row in current['records']])
@@ -142,6 +145,12 @@ def reviewed_predecessor(case, current, root=ROOT):
     return copy.deepcopy(previous)
 
 
+def reviewed_predecessor(case, current, root=ROOT):
+    """Validate the named response edge before the unchanged October 29 edge."""
+    boundary, retained_entry = response_boundary(case, current, root)
+    return _october29_predecessor(case, boundary, root, retained_entry)
+
+
 def retained_index_entry(case, entry, root=ROOT):
     """Retain the earlier index identity after validating its exact successor.
 
@@ -149,11 +158,13 @@ def retained_index_entry(case, entry, root=ROOT):
     test-local historical view, never an index rewrite or an application input.
     """
     event = entry['id']
+    chained = event in RESPONSE_PROMOTIONS
+    entry = response_index_entry(case, entry, root)
     if event not in PROMOTIONS:
         return entry
     spec = PROMOTIONS[event]
     current = json.loads((root / 'web' / entry['file']).read_bytes())
-    previous = reviewed_predecessor(case, current, root)
+    previous = _october29_predecessor(case, current, root, entry if chained else None)
     return {**entry, 'file': spec['previous_file'], 'file_sha256': spec['previous_wire'],
             'dossier_sha256': spec['previous'], 'summary': previous['summary'],
             'records': [row['id'] for row in previous['records']]}

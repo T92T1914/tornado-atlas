@@ -29,7 +29,7 @@ test('active study controls and scheduled frames use the same wall clock',async(
     if(name.toUpperCase()===name)return 1;
     return ()=>{};
   }});
-  const groundLink=new Element('formation-link');groundLink.href='https://example.test/reconstruction.html?event=el-reno-2013&appearance_view=formation';
+  const groundLink=new Element('formation-link');groundLink.href='https://example.test/reconstruction.html?event=el-reno-2013&appearance_view=formation&ground_view=synthetic-front&t=120#replay-appearance';
   globalThis.document={hidden:false,getElementById:id=>{if(id==='lab-context')return null;if(!ids.has(id))ids.set(id,new Element(id));return ids.get(id);},
     querySelector:selector=>{assert.equal(selector,'.formation-context a[href*="reconstruction.html"]');return groundLink;},addEventListener:()=>{}};
   globalThis.window={devicePixelRatio:1,matchMedia:()=>({matches:false,addEventListener:()=>{}})};
@@ -41,6 +41,7 @@ test('active study controls and scheduled frames use the same wall clock',async(
   globalThis.IntersectionObserver=class{observe(){}};
   for(const [id,value] of Object.entries({quality:'3600',shape:'cone',condensation:'100',azimuth:'25',elevation:'12',distance:'7','sequence-time':'0','sequence-coverage':'storm-integrated','sequence-rate':'1','condensation-visibility':'ordinary'}))document.getElementById(id).value=value;
   document.getElementById('flow-cues').checked=true;
+  document.getElementById('sequence-enabled').checked=true;
   await import('../web/study.js');
   assert.match(ids.get('lighter-option').textContent,/320 × 200/);
   assert.match(ids.get('standard-option').textContent,/512 × 320/);
@@ -64,4 +65,29 @@ test('active study controls and scheduled frames use the same wall clock',async(
     assert.equal(ids.get('sequence-time').value,paused,'Appearance redraw retains the paused sequence position');
     assert.equal(ids.get('motion').textContent,'Play motion');
   }
+  for(const [position,target]of [[0,120],[.2,124],[.5,130],[.8,136],[1,140],[.333,126.66]]){
+    ids.get('sequence-time').value=String(position);ids.get('sequence-time').handlers.get('input')();
+    assert.equal(Number(new URL(groundLink.href).searchParams.get('t')),target);
+    assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),'storm-v3');
+  }
+  ids.get('condensation-visibility').value='limited';ids.get('flow-cues').checked=false;ids.get('dust').checked=false;
+  groundLink.handlers.get('focus')();
+  assert.equal(groundLink.textContent,'View this authored phase with Replay defaults');
+  assert.deepEqual([...new URL(groundLink.href).searchParams.keys()].sort(),['appearance_style','appearance_view','event','ground_view','t']);
+  for(const [coverage,style]of [['formation','world-v1'],['reference','reference-v1'],['storm','storm-v1'],['storm-detail','storm-v2'],['storm-integrated','storm-v3']]){
+    ids.get('sequence-coverage').value=coverage;ids.get('sequence-coverage').handlers.get('change')();
+    assert.equal(new URL(groundLink.href).searchParams.get('appearance_style'),style);
+  }
+  ids.get('sequence-time').value='.5';ids.get('sequence-time').handlers.get('input')();
+  ids.get('motion').handlers.get('click')();
+  groundLink.handlers.get('click')({button:0,ctrlKey:true,defaultPrevented:false});
+  assert.equal(ids.get('motion').textContent,'Pause motion','Modified activation leaves the source motion alone');
+  ids.get('motion').handlers.get('click')();
+  ids.get('sequence-enabled').checked=false;ids.get('sequence-enabled').handlers.get('change')();
+  assert.equal(new URL(groundLink.href).searchParams.get('t'),'120');
+  assert.equal(new URL(groundLink.href).searchParams.has('appearance_style'),false);
+  assert.match(groundLink.textContent,/separate formation scenario/);
+  ids.get('lab-state').dataset.state='invalid';groundLink.handlers.get('focus')();
+  groundLink.handlers.get('click')({button:0,defaultPrevented:false});
+  assert.equal(ids.get('lab-state').dataset.state,'invalid');assert.equal(new URL(groundLink.href).searchParams.get('t'),'120');
 });

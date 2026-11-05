@@ -183,3 +183,135 @@ test('formation motion respects reduced motion and refuses unavailable graphics 
   assert.match(await page.locator('#replay-appearance-state').textContent(),/unavailable/);
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
 });
+
+const handoffForm='study.html?experiment=form-7&event=moore-2013&shape=wedge&condensation=75&azimuth=40&elevation=20&distance=8.3&dust=0&quality=3600&sequence=1&coverage=storm-detail&rate=15&position=0.5&phase=15&model=genesis-v1&visibility=limited&flow=0&presentation=storm-v2';
+const handoffForm8='study.html?experiment=form-8&event=moore-2013&shape=wedge&condensation=75&azimuth=40&elevation=20&distance=8.3&dust=0&quality=3600&sequence=1&coverage=storm-integrated&rate=15&position=0.5&phase=15&model=genesis-v1&visibility=limited&flow=0&presentation=storm-v3';
+for(const [route,presentation,label]of [[handoffForm,'storm-v2',''],[handoffForm8,'storm-v3',' form-8']])
+for(const [width,appearance]of [[320,'light'],[1280,'dark']])test('Form phase handoff carries phase and returns complete controls '+width+label,{timeout:45000},async t=>{
+  const page=await fixture(t,{viewport:{width,height:1000},reducedMotion:'reduce'});
+  await page.goto(base+'/'+route);await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  await page.locator('#reading-appearance').selectOption(appearance);
+  assert.equal(await page.locator('#motion').textContent(),'Play motion');
+  assert.match(await page.locator('#form-ground-note').textContent(),/ordinary condensation, dust and flow cues/);
+  assert.match(await page.locator('#form-ground-note').textContent(),/pacing is separate from the selected Form playback rate/);
+  const saved=await page.locator('#lab-share').getAttribute('href');
+  await page.locator('#form-ground-link').focus();
+  assert.equal(await page.locator('#form-ground-link').textContent(),'View this authored phase with Replay defaults');
+  const target=new URL(await page.locator('#form-ground-link').getAttribute('href'));
+  assert.equal(target.searchParams.get('t'),'130');assert.equal(target.searchParams.get('appearance_style'),presentation);
+  assert.deepEqual([...target.searchParams.keys()].sort(),['appearance_style','appearance_view','event','ground_view','t']);
+  await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/reconstruction.html'),{timeout:10000}),page.keyboard.press('Enter')]);
+  await page.locator('#replay-time:not([disabled])').waitFor();
+  assert.equal(await page.locator('#replay-time').inputValue(),'130');
+  assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');assert.equal(await page.locator('#replay-rate').inputValue(),'1');
+  assert.equal(await page.locator('#ground-camera').inputValue(),'synthetic-front');
+  assert.equal(await page.locator('#ground-quality').inputValue(),'3200');
+  assert.equal(new URL(page.url()).searchParams.get('event'),'el-reno-2013');
+  assert.match(await page.locator('#ground-model-note').textContent(),/no measured El Reno winds|without measured El Reno winds/);
+  const observed=await sceneFrame(page,{style:presentation,value:130,seconds:15});
+  if(observed){assert.equal(observed.time,15);assert.equal(observed.dust,true);assert.deepEqual(observed.state,[1,0,1,1]);assert.equal(observed.lines,2,'The declared Replay defaults retain their surface flow cues');}
+  await page.goBack();await page.waitForURL(saved,{timeout:10000});
+  await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  for(const [id,value]of [['lab-event','moore-2013'],['shape','wedge'],['condensation','75'],['azimuth','40'],['elevation','20'],['distance','8.3'],['quality','3600'],['sequence-rate','15'],['sequence-time','0.5'],['condensation-visibility','limited']])assert.equal(await page.locator('#'+id).inputValue(),value);
+  assert.equal(await page.locator('#dust').isChecked(),false);assert.equal(await page.locator('#flow-cues').isChecked(),false);
+  assert.equal(await page.locator('#motion').textContent(),'Play motion');assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),presentation);
+  await enlargeText(page);await reflow(page);
+});
+test('Form phase handoff retains older formation and refuses unrelated or invalid state',{timeout:60000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:1000},reducedMotion:'reduce'});
+  const form3='study.html?experiment=form-3&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=formation&rate=1&position=0.5&phase=15&model=genesis-v1&visibility=ordinary&flow=1';
+  const boundedForm2='study.html?experiment=form-2&shape=cone&condensation=100&azimuth=25&elevation=12&distance=7&dust=1&quality=7200&sequence=1&coverage=bounded&rate=1&position=0.5&phase=15&model=kinematic-v1';
+  for(const [route,expectedTime,legacy]of [[form3,'130',true],[oldForm2,'120',false],[boundedForm2,'120',false],[handoffForm+'&visibility=ordinary','120',false]]){
+    await page.goto(base+'/'+route);await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+    const invalid=route.includes('&visibility=ordinary')&&route.startsWith(handoffForm),original=page.url();
+    if(invalid)assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'invalid');
+    if(route===boundedForm2){
+      assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'restored');
+      assert.equal(await page.locator('#sequence-enabled').isChecked(),true);
+      assert.equal(await page.locator('#sequence-coverage').inputValue(),'bounded');
+      assert.equal(await page.locator('#sequence-time').inputValue(),'0.5');
+      assert.match(await page.locator('#sequence-stage').textContent(),/unassigned|unavailable|gap/i);
+    }
+    await page.locator('#form-ground-link').focus();
+    const target=new URL(await page.locator('#form-ground-link').getAttribute('href'));
+    assert.equal(target.searchParams.get('t'),expectedTime);assert.equal(target.searchParams.has('appearance_style'),false);
+    if(!legacy)assert.match(await page.locator('#form-ground-link').textContent(),/separate formation scenario/);
+    await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/reconstruction.html'),{timeout:10000}),page.keyboard.press('Enter')]);
+    await page.locator('#replay-time:not([disabled])').waitFor();
+    assert.equal(await page.locator('#replay-time').inputValue(),expectedTime);assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+    await page.goBack();await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+    if(invalid){assert.equal(page.url(),original);assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'invalid');}
+    else{assert.equal(new URL(page.url()).searchParams.get('experiment'),legacy?'form-3':'form-2');assert.equal(new URL(page.url()).searchParams.get('phase'),'15');}
+    if(route===boundedForm2){
+      assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'restored');
+      assert.equal(await page.locator('#sequence-enabled').isChecked(),true);
+      assert.equal(await page.locator('#sequence-coverage').inputValue(),'bounded');
+      assert.equal(await page.locator('#sequence-time').inputValue(),'0.5');
+      assert.equal(new URL(page.url()).searchParams.get('model'),'kinematic-v1');
+      assert.match(await page.locator('#sequence-stage').textContent(),/unassigned|unavailable|gap/i);
+    }
+    assert.equal(await page.locator('#motion').textContent(),'Play motion');
+  }
+});
+test('Form ground link remains a separate beginning route without scripts',async t=>{
+  const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900}});
+  await page.goto(base+'/'+handoffForm);
+  const target=new URL(await page.locator('#form-ground-link').getAttribute('href'),page.url());
+  assert.equal(target.searchParams.get('t'),'120');assert.equal(target.searchParams.has('appearance_style'),false);
+  assert.match(await page.locator('#form-ground-link').textContent(),/Open the formation scenario/);
+  assert.match(await page.locator('#form-ground-note').textContent(),/With scripts/);
+});
+
+for(const forcedUnavailable of [false,true])test(forcedUnavailable?
+  'Form unavailable graphics retains stationary phase through Replay and Back':
+  'Form phase departure retains its captured step for actual graphics capability',{timeout:45000},async t=>{
+  const page=await fixture(t,{viewport:{width:1280,height:1000},reducedMotion:'no-preference'});
+  if(forcedUnavailable)await page.addInitScript(()=>{
+    const original=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(type,...args){
+      return this.id==='scene'&&type==='webgl2'?null:Reflect.apply(original,this,[type,...args]);
+    };
+  });
+  await page.goto(base+'/'+handoffForm.replace('rate=15','rate=1'));await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden,null,{timeout:5000});
+  const capability=await page.evaluate(()=>({available:Boolean(document.getElementById('scene').getContext('webgl2')),
+    disabled:document.getElementById('motion').disabled,failureVisible:!document.getElementById('scene-failure').hidden,
+    status:document.getElementById('motion-status').textContent,position:Number(document.getElementById('sequence-time').value)}));
+  t.diagnostic('FORM_DEPARTURE_CAPABILITY '+JSON.stringify({forcedUnavailable,...capability}));
+  assert.equal(capability.position,.5);
+  if(capability.available){
+    assert.equal(forcedUnavailable,false);assert.equal(capability.disabled,false);assert.equal(capability.failureVisible,false);
+    await page.locator('#scene').scrollIntoViewIfNeeded();await page.locator('#motion:not([disabled])').click();
+    await page.waitForFunction(()=>Number(document.getElementById('sequence-time').value)>.5,null,{timeout:5000});
+  }else{
+    if(!forcedUnavailable)assert.notEqual(process.env.ATLAS_BROWSER_ENGINE??'chromium','chromium','Chromium must supply the native playing-origin control');
+    assert.equal(capability.disabled,true);assert.equal(capability.failureVisible,true);assert.equal(capability.status,'WebGL 2 is unavailable');
+    await page.locator('#scene-failure').waitFor({state:'visible'});
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    assert.equal(Number(await page.locator('#sequence-time').inputValue()),.5);
+    t.diagnostic('FORM_DEPARTURE_UNAVAILABLE_CONTROL: stationary phase and native navigation only; no playing-origin or framebuffer acceptance.');
+  }
+  await page.locator('#form-ground-link').evaluate(node=>node.scrollIntoView({block:'start'}));
+  await page.locator('#form-ground-link').focus();
+  // Scrolling to this real link can invoke the existing offscreen pause first.
+  await page.waitForFunction(()=>document.getElementById('motion').textContent==='Play motion',null,{timeout:5000});
+  const position=Number(await page.locator('#sequence-time').inputValue()),saved=await page.locator('#lab-share').getAttribute('href');
+  if(capability.available)assert.ok(position>.5&&position<=1);else assert.equal(position,.5);
+  assert.equal(new URL(saved).searchParams.get('phase'),String(position*30));
+  await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/reconstruction.html'),{timeout:10000}),page.keyboard.press('Enter')]);
+  await page.locator('#replay-time:not([disabled])').waitFor();
+  assert.ok(Math.abs(Number(await page.locator('#replay-time').inputValue())-(120+20*position))<1e-10);
+  assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+  await page.goBack();await page.waitForURL(saved,{timeout:10000});await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  assert.equal(Number(await page.locator('#sequence-time').inputValue()),position);assert.equal(await page.locator('#motion').textContent(),'Play motion');
+  if(!capability.available){
+    await page.waitForFunction(()=>!document.getElementById('motion').disabled||!document.getElementById('scene-failure').hidden,null,{timeout:5000});
+    const returned=await page.evaluate(()=>({available:Boolean(document.getElementById('scene').getContext('webgl2')),
+      disabled:document.getElementById('motion').disabled,failureVisible:!document.getElementById('scene-failure').hidden,
+      status:document.getElementById('motion-status').textContent}));
+    t.diagnostic('FORM_DEPARTURE_RETURN_CAPABILITY '+JSON.stringify({forcedUnavailable,...returned}));
+    if(forcedUnavailable)assert.equal(returned.available,false);
+    assert.equal(returned.disabled,!returned.available);assert.equal(returned.failureVisible,!returned.available);
+    if(!returned.available)assert.equal(returned.status,'WebGL 2 is unavailable');
+  }
+});

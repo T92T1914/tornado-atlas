@@ -1,7 +1,7 @@
 # Wind and force laboratory
 
 This is a separate educational experiment at `web/wind.html`. A documentary
-reference can select one of the six dossiers, but it does not assign the
+reference can select one of the seven dossiers, but it does not assign the
 model to that tornado or populate its assumptions from historical measurements
 or a damage rating.
 
@@ -128,6 +128,14 @@ the hypothetical experiment. Reset restores the controls and returns to its
 first sample. The detached panel is a state diagram, not calculated debris
 motion.
 
+The summary has two explicit inspection actions. One selects the earliest
+sample with the highest unrounded load. The other selects the first strict
+capacity exceedance. Each pauses the existing passage, updates both sliders
+and the graph, and opens and focuses that sample's table row. The experiment
+link retains the selected index. If no sampled load exceeds capacity, the
+exceedance action is disabled, even when the continuous reference identifies
+an exceedance between samples. These actions add no sampling or physical rule.
+
 Capacity is an assumption, not a measured resistance for a roof, wall or other
 building part. The rule has no fatigue, deformation, changing area, pressure
 coupling or impact loads. It is not a historical reconstruction, structural
@@ -171,7 +179,7 @@ reset, focus and the no-script or unavailable-module fallback separately.
 
 ## Keep an experiment beside its source account
 
-Open the laboratory from any of the six dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier, plus one checked existing documentary image with its source, rights and limits. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate. See the [laboratory reading notes](laboratory-reading.md) for the selected items, full-image presentation and Clair/Obscur behavior.
+Open the laboratory from any of the seven dossiers, or choose a documentary reference within the page. The reference provides a specific account and its evidence dossier. Six references also show a checked documentary image with its source, rights and limits. Greensburg provides the attributed county account and original record links without loading a photograph. It never changes peak swirl, radius, background flow, probe position, passage settings, capacity or the selected sample. The recorded outcome and hypothetical model remain separate. See the [laboratory reading notes](laboratory-reading.md) for the selected items, full-image presentation and Clair/Obscur behavior.
 
 The experiment link records all eleven controls and one shared sample index from 0 through 480. Reopening, reloading or using Back/Forward restores those settings paused. The field, passage graph, component state and sampled-values table are recomputed from that same state. Before an ordinary same-tab evidence visit, the displayed sample is captured in the experiment URL so native Back can recover it. Reset restores the documented model defaults while retaining the documentary reference.
 
@@ -183,13 +191,15 @@ The bounded versioned contract refuses unknown references, repeated fields, inco
 
 The [continuous comparison](https://t92t1914.github.io/tornado-atlas/wind.html#continuous-reference) exposes the independent geometry of the same Rankine assumption, with or without eastward background wind. It calculates the maximum speed and drag within the finite window, the duration at or above the chosen wind comparison, and the duration strictly above the assumed capacity. A separate module derives those values from the probe path through an annulus at zero background, or from piecewise squared-speed intervals with positive background. It does not read the sampled velocities or integrate the displayed graph.
 
-The example button loads the documented 105 mph, 500 ft, 30 mph, 0.7 R and 1.6 kN case, with zero background, area 1 m² and coefficient 1.2. The continuous maximum is 1619.417 N, while the 481-point component sequence stays below 1600 N. The comparison calls out that missed exceedance without changing the graph, table or sampled failure state. Both results describe their stated calculations. Neither supplies a real connection strength or a historical failure time.
+The example button loads the documented 105 mph, 500 ft, 30 mph, 0.7 R and 1.6 kN case, with zero background, area 1 m² and coefficient 1.2. The continuous maximum is 1619.417 N, while the 481-point component sequence stays below 1600 N. A separate 961-point grid catches a sampled exceedance for these same inputs. The compact comparison shows nominal model-second spacing, highest sampled drag, the strict capacity decision and the difference from the continuous maximum. The graph, component, selected sample and complete table continue to use 481 points. Neither grid supplies a real connection strength or a historical failure time.
+
+The comparison reuses the existing 481-point result and calculates one finer grid when the numeric assumptions change. Identical assumptions retain that comparison during reference-only restores. Animation and sample selection do not calculate an extra grid. Capacity decisions use unrounded force; the displayed decimals do not decide failure. A positive continuous-minus-sampled difference describes the missed maximum for that grid and those inputs. Floating-point roundoff can produce a small negative difference. These two values are not a general error bound or proof of convergence. Unrepresentable comparison results clear the affected values rather than leaving an earlier result under new settings.
 
 With zero background and positive comparison speed no greater than peak swirl, the qualifying radial interval lies between R times comparison/peak and R times peak/comparison. Intersecting the straight path with those boundaries, clipping to the finite window and dividing by travel speed gives the model duration. The maximum considers whether the window reaches the radius of maximum swirl. Zero wind, zero comparison, zero drag coefficient, tangency and strict capacity equality retain separate controls.
 
 Adding eastward background flow changes the annulus geometry and distinguishes the north and south sides of the track. The reference instead splits squared speed into its inside-core and outside-core expressions and solves the clipped intervals. Constant branches, tangencies and strict capacity equality have separate controls. Unrepresentable reference inputs clear its values and explain the refusal while retaining the separate sampled consumers. This is a mathematical cross-check within floating-point arithmetic, not a general sampling-error bound or evidence that finer grids always converge monotonically. The 481 rows, model equations, shared selected sample and paused experiment-link contract remain unchanged.
 
-Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all six documentary references.
+Moore's documentary reference adds recorded building outcomes and the source-edition discussion beside this experiment. Its damage rating and path dimensions do not populate the model. The same separation applies to all seven documentary references.
 
 ## Follow the experiment as a reading path
 

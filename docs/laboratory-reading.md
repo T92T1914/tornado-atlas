@@ -1,12 +1,16 @@
 # Reading evidence beside an experiment
 
-The Form Study and Wind Laboratory accept documentary references for all six
+The Form Study and Wind Laboratory accept documentary references for all seven
 current dossiers. Selecting a reference changes the nearby evidence and reading
 links. It preserves the experiment settings. No selection supplies a historical
 shape, wind field, physical size, camera pose or damage sequence.
 
-The reference panel displays one existing reviewed public image with its source,
-creator roles, item rights, version and limits. It checks the current archive
+Six references display an existing reviewed public image with its source,
+creator roles, item rights, version and limits. Greensburg instead presents a
+source account from the retained Kiowa County record. Its original record and
+dossier remain linked; selecting it does not request a photograph.
+
+For the six image references, the viewer checks the current archive
 association, received image bytes and decoded dimensions before showing the
 image. This establishes agreement with the published record, not independent
 authenticity or permission. Full images keep their proportions and remain linked
@@ -28,6 +32,7 @@ reference remains optional and does not change model values or start motion.
 | Blackwell | NARA aerial aftermath photograph | Aftermath does not establish storm-time appearance. |
 | Newcastle and Moore | Medical-center survey photograph | Following-day damage does not determine a funnel or wind field. |
 | Udall | Regional forecast document | Forecast and later caption labels do not supply an optical observation or local warning receipt. |
+| Greensburg | Attributed Kiowa County damage account and original record | Reported outcomes supply neither a measured wind field nor the appearance of the tornado. |
 
 Nolte's three full JPEG grants remain item-specific. The fourth still and movie
 are outside that grant. The current images, bottom marks, earlier image versions,

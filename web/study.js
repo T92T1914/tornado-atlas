@@ -4,10 +4,12 @@ import {formationAt} from './formation-model.mjs';
 import { PlaybackClock } from './playback-model.mjs';
 import { createFormRenderer } from './form-renderer.mjs';
 import {mountLabContext} from './lab-context.mjs';
-import {DEFAULT_EXPERIMENTS} from './experiment-state.mjs';
+import {DEFAULT_EXPERIMENTS,readExperiment,validateExperimentState} from './experiment-state.mjs';
 
 const byId = id => document.getElementById(id);
 const canvas = byId('scene');
+const groundLink=document.querySelector('.formation-context a[href*="reconstruction.html"]');
+const originalGroundHref=groundLink?.href;
 let renderer = null, lab = null;
 let motionModel='genesis-v1';
 let lightingStyle='storm-v3';
@@ -139,8 +141,7 @@ function sequenceReadout() {
   byId('lighting-note').textContent=['storm-v2','storm-v3'].includes(lightingStyle)?'A wider authored cloud base, irregular condensation and low dust share the same declared transport. Ground parcels are illustrative scale cues, not historical El Reno geography. Scene lighting stays fixed across reading appearances. The thirty study seconds, terrain and shape have no calibrated historical camera or clock.':['storm-v1','storm-v2','storm-v3'].includes(lightingStyle)?'A wider authored storm base, condensation and low dust share one assumed transport field. Scene lighting stays fixed when the reading appearance changes. Shape, transport and thirty study seconds have no calibrated El Reno camera, physical scale or historical clock.':lightingStyle==='reference-v1'?'This broad, irregular form uses published photographs as visible references. Its shape, light, cloud motion and ground surface are authored. No historical camera, time or physical scale is assigned.':'Authored side light and a synthetic ground surface help show depth. Their brightness, texture and distances are illustrative, with no historical illumination or physical scale.';
   byId('quality').querySelector('[value="3600"]').textContent=['storm-v1','storm-v2','storm-v3'].includes(lightingStyle)&&formationSelected()?'Lighter · up to 320 × 200':formationSelected()&&lightingStyle!=='legacy'?'Lighter · 3,600 particles · up to 320 × 200':'Lighter · 3,600 particles';
   byId('quality').querySelector('[value="7200"]').textContent=['storm-v1','storm-v2','storm-v3'].includes(lightingStyle)&&formationSelected()?'Standard · up to 512 × 320':'Standard · 7,200 particles';
-  const groundLink=document.querySelector('.formation-context a[href*="reconstruction.html"]');
-  if(groundLink){const target=new URL(groundLink.href);if(lightingStyle!=='legacy')target.searchParams.set('appearance_style',lightingStyle);else target.searchParams.delete('appearance_style');groundLink.href=target.href;}
+  updateGroundLink();
   const value=Number(byId('sequence-time').value);
   byId('sequence-progress').textContent=`${Math.round(value*100)}% of authored sequence`;
   const state=sequenceForm();
@@ -179,6 +180,23 @@ function captureExperiment(){
   }
   return experimentState();
 }
+function updateGroundLink(saved=null){
+  if(!groundLink)return;
+  const target=new URL(originalGroundHref);target.searchParams.set('t','120');target.searchParams.delete('appearance_style');
+  let state=null;
+  if(byId('lab-state')?.dataset.state!=='invalid'){
+    if(saved){const restored=readExperiment(saved.search,'form');if(restored.status==='restored')state=restored.state;}
+    else{try{state=validateExperimentState('form',experimentState());}catch{}}
+  }
+  const formation=state?.model==='genesis-v1'&&state.sequence;
+  if(formation){
+    target.searchParams.set('t',String(120+20*state.position));
+    const presentation=state.presentation??state.lighting;
+    if(presentation)target.searchParams.set('appearance_style',presentation);
+  }
+  groundLink.href=target.href;
+  groundLink.textContent=formation?'View this authored phase with Replay defaults':'Open the separate formation scenario from its beginning';
+}
 function restoreExperiment(state){
   stop();
   motionModel=state.model??'legacy';
@@ -195,5 +213,18 @@ function restoreExperiment(state){
 }
 sequenceReadout();syncControls();
 lab=mountLabContext({kind:'form',read:experimentState,capture:captureExperiment,apply:restoreExperiment,defaults:{...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage:'storm-integrated',visibility:'ordinary',flow:true,presentation:'storm-v3'}});
+updateGroundLink();
+if(groundLink){
+  groundLink.addEventListener('focus',()=>updateGroundLink());
+  groundLink.addEventListener('pointerenter',()=>updateGroundLink());
+  groundLink.addEventListener('click',event=>{
+    if(event.defaultPrevented)return;
+    if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey){updateGroundLink();return;}
+    if(byId('lab-state')?.dataset.state==='invalid'){stop();updateGroundLink();return;}
+    const saved=lab.beforeNavigate?.('Experiment paused before opening the synthetic ground view.');
+    if(!saved)stop();
+    updateGroundLink(saved??null);
+  });
+}
 byId('reference-form-sources').addEventListener('click',event=>{if(event.target.closest('a'))lab.beforeNavigate?.();});
 initialize();
