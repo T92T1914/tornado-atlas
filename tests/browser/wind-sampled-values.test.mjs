@@ -180,6 +180,7 @@ test('Complete default wind samples remain keyboard-readable without scripts', {
   assert.equal(await page.locator('#sampled-values-body tr').count(),481);
   assert.ok(await page.locator('#sampled-values-static').isVisible());
   assert.equal(await page.locator('#sampled-values-controls').isVisible(),false);
+  assert.equal(await page.locator('#component-inspection-controls').isVisible(),false);
   await expectedRows(page,defaults.field,defaults.capacity,'node-static');
   await page.locator('#sampled-values-details summary').focus();await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
@@ -201,6 +202,7 @@ test('Unavailable passage module retains the complete declared default calculati
   assert.equal(await page.evaluate(()=>document.body.dataset.windSamples ?? null),null);
   assert.ok(await page.locator('#sampled-values-static').isVisible());
   assert.equal(await page.locator('#sampled-values-controls').isVisible(),false);
+  assert.equal(await page.locator('#component-inspection-controls').isVisible(),false);
   await page.locator('#sampled-values-details summary').click();
   await expectedRows(page,defaults.field,defaults.capacity,'node-static');
   assert.match(await page.locator('#sampled-values-static').textContent(),/controls cannot recalculate it/);

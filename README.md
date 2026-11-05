@@ -356,7 +356,9 @@ The [form study](https://t92t1914.github.io/tornado-atlas/study.html) can play a
 scrub an authored sequence of changing shapes. The
 [wind lab](https://t92t1914.github.io/tornado-atlas/wind.html#component-title)
 now has a generic component experiment: choose a load capacity and inspect the
-first sampled exceedance, persistent failure state, and rewind behavior. These
+first sampled exceedance, persistent failure state, and rewind behavior.
+Its inspection actions pause at the highest sampled load or first sampled
+capacity exceedance and open the exact numerical row. These
 are model foundations. They do not reconstruct El Reno's visible evolution or
 predict a specific building's damage.
 

@@ -120,6 +120,10 @@
       <div class="study-controls"><label for="capacity">Assumed total load capacity <output id="capacity-value"></output></label><input id="capacity" type="range" min=".1" max="20" step=".1" value="1">
         <p class="control-note">A chosen experiment value, not a measured rating for a roof, wall or other real building part. The reference area and drag coefficient are set above.</p>
         <dl class="passage-readings"><dt>Current force / capacity</dt><dd id="component-now"></dd><dt>Highest sampled load</dt><dd id="component-peak"></dd><dt>First exceedance in the full experiment</dt><dd id="component-first"></dd></dl>
+        <div id="component-inspection-controls" hidden>
+          <div class="sampled-values-controls"><button id="component-inspect-peak" type="button" aria-describedby="component-inspection-help">Inspect highest sampled load</button><button id="component-inspect-first" type="button" aria-describedby="component-inspection-help component-first">Inspect first sampled exceedance</button></div>
+          <p id="component-inspection-help" class="control-note">Each action pauses the passage and opens its exact row in the table below. Equal maximum loads select the earliest sample. The exceedance action is unavailable when none of the 481 samples exceeds capacity, even if the continuous reference finds an exceedance between samples.</p>
+        </div>
       </div>
     </div>
     <p class="wind-caption">This rule assumes an intact component before evaluating the sequence. It can declare failure at the first sample. It has no fatigue, deformation, changing area, pressure coupling or impact loads. Sampling can miss brief peaks. Rewinding recomputes the prior state; changing a setting creates a new hypothetical experiment. The diagram indicates the state and does not calculate how debris flies.</p>
