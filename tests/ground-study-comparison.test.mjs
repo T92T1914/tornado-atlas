@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {formationStudyComparison} from '../web/ground-view-model.mjs';
 import {DEFAULT_EXPERIMENTS,readExperiment} from '../web/experiment-state.mjs';
 import {formationAt} from '../web/formation-model.mjs';
+import {mountGroundStudyReturn} from '../web/ground-view.mjs';
 
 const origin='https://example.test/tornado-atlas/reconstruction.html?event=el-reno-2013&source=retained#replay-ground-controls';
 const read=link=>readExperiment(new URL(link.href).search,'form');
@@ -52,4 +53,59 @@ test('the existing visibility comparison changes condensation alone at the trans
   assert.equal(limited.condensation,ordinary.condensation*.22);
   for(const key of ['seconds','progress','circulation','dust','erosion','extent','stage'])assert.equal(limited[key],ordinary[key]);
   assert.deepEqual(limited.shape,ordinary.shape);
+});
+
+// Controlled lifecycle policy only, separate from native Back/focus evidence.
+function focusFixture({type='navigate',state=null,shown=true,mounted=true}={}){
+  const events=new Map(),microtasks=[],frames=new Map(),focus=[],writes=[];let next=0;
+  const node={isConnected:true,hidden:false,hasAttribute:()=>true,closest:()=>node.hidden?{}:null,focus:options=>focus.push(options)};
+  const doc={readyState:shown?'complete':'loading',getElementById:id=>mounted&&id==='ground-study-link'?node:null};
+  const win={performance:{getEntriesByType:()=>[{type}]},location:{href:origin},
+    history:{state,replaceState(value,_title,href){this.state=value;writes.push(value);assert.equal(href,win.location.href);}},
+    queueMicrotask:fn=>microtasks.push(fn),requestAnimationFrame:fn=>{frames.set(++next,fn);return next;},cancelAnimationFrame:id=>frames.delete(id),
+    addEventListener:(name,fn)=>{if(!events.has(name))events.set(name,[]);events.get(name).push(fn);}};
+  const fixture={doc,win,node,focus,writes,microtasks,frames,mount:()=>{mounted=true;},emit:(name,value={})=>{for(const fn of events.get(name)??[])fn(value);},flushMicro:()=>{while(microtasks.length)microtasks.shift()();},flushFrames:()=>{const pending=[...frames.values()];frames.clear();for(const fn of pending)fn();}};
+  fixture.owner=mountGroundStudyReturn(doc,win);return fixture;
+}
+const ordinary=()=>({button:0,defaultPrevented:false,ctrlKey:false,metaKey:false,shiftKey:false,altKey:false});
+const intent=()=>({atlasGroundStudyReturn:{version:1,href:origin,wasNull:false},unrelated:'retained'});
+
+test('ordinary departure finalizes in Window bubble and preserves unrelated native history state',()=>{
+  const f=focusFixture({state:{unrelated:'retained'}}),click=ordinary();f.owner.arm(click);assert.equal(f.writes.length,0);f.flushMicro();assert.equal(f.writes.length,0);f.emit('click',click);
+  assert.equal(f.win.history.state.unrelated,'retained');assert.equal(f.win.history.state.atlasGroundStudyReturn.href,origin);
+  f.owner.restore();f.flushFrames();assert.equal(f.focus.length,0,'Departure does not focus its own origin');
+  for(const field of ['ctrlKey','metaKey','shiftKey','altKey']){
+    const modified=focusFixture(),event={...ordinary(),[field]:true};modified.owner.arm(event);modified.emit('click',event);assert.equal(modified.writes.length,0);
+  }
+  const cancelled=focusFixture(),event=ordinary();cancelled.owner.arm(event);cancelled.flushMicro();event.defaultPrevented=true;cancelled.emit('click',event);assert.equal(cancelled.writes.length,0);
+  for(const button of [1,2]){const auxiliary=focusFixture(),event={...ordinary(),button};auxiliary.owner.arm(event);auxiliary.emit('click',event);assert.equal(auxiliary.writes.length,0);}
+});
+
+test('fresh history return waits for the page and valid mounted link, consumes once and preserves scroll',()=>{
+  const f=focusFixture({type:'back_forward',state:intent(),shown:false,mounted:false});
+  f.owner.restore();assert.equal(f.frames.size,0);f.emit('pageshow',{persisted:false,isTrusted:true});assert.equal(f.frames.size,0);
+  f.mount();f.owner.restore();f.owner.restore();assert.equal(f.frames.size,1);assert.deepEqual(f.win.history.state,{unrelated:'retained'});
+  f.flushFrames();assert.deepEqual(f.focus,[{preventScroll:true}]);f.owner.restore();f.flushFrames();assert.equal(f.focus.length,1);
+});
+
+test('cached history return restores only after real pageshow and retires a pending focus frame',()=>{
+  const f=focusFixture(),event=ordinary();f.owner.arm(event);f.emit('click',event);f.emit('pagehide');f.emit('pageshow',{persisted:true,isTrusted:true});
+  assert.equal(f.frames.size,1);assert.equal(f.win.history.state,null);f.flushFrames();assert.equal(f.focus.length,1);
+  const leaving=focusFixture({type:'back_forward',state:intent()});leaving.owner.restore();leaving.emit('pagehide');leaving.flushFrames();assert.equal(leaving.focus.length,0);
+});
+
+test('initial loads, reloads and newer deliberate input cannot steal focus',()=>{
+  for(const type of ['navigate','reload']){const f=focusFixture({type,state:intent()});f.emit('pageshow',{persisted:false,isTrusted:true});f.owner.restore();f.flushFrames();assert.equal(f.focus.length,0);assert.deepEqual(f.win.history.state,{unrelated:'retained'});}
+  for(const name of ['pointerdown','keydown']){
+    const f=focusFixture({type:'back_forward',state:intent()});f.owner.restore();f.emit(name,{isTrusted:true});f.flushFrames();assert.equal(f.focus.length,0);assert.deepEqual(f.win.history.state,{unrelated:'retained'});
+    const synthetic=focusFixture({type:'back_forward',state:intent()});synthetic.owner.restore();synthetic.emit(name,{isTrusted:false});synthetic.flushFrames();assert.equal(synthetic.focus.length,1);
+  }
+  const syntheticShow=focusFixture({type:'back_forward',state:intent(),shown:false});syntheticShow.emit('pageshow',{persisted:true,isTrusted:false});syntheticShow.flushFrames();assert.equal(syntheticShow.focus.length,0);
+});
+
+test('stale URLs, unavailable links and detached targets never receive return focus',()=>{
+  const stale=focusFixture({type:'back_forward',state:intent()});stale.win.location.href=origin+'&t=145';stale.owner.restore();stale.flushFrames();assert.equal(stale.focus.length,0);
+  const hidden=focusFixture({type:'back_forward',state:intent()});hidden.node.hidden=true;hidden.owner.restore();assert.equal(hidden.frames.size,0);
+  const detached=focusFixture({type:'back_forward',state:intent()});detached.owner.restore();detached.node.isConnected=false;detached.flushFrames();assert.equal(detached.focus.length,0);
+  const moved=focusFixture({type:'back_forward',state:intent()});moved.owner.restore();moved.win.location.href=origin+'&t=145';moved.flushFrames();assert.equal(moved.focus.length,0);
 });

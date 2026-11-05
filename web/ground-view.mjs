@@ -1,6 +1,56 @@
 import {GROUND_CAMERAS,GROUND_DEMO,groundViewAt,funnelSimulationAt,formationSimulationAt,formationStudyComparison} from './ground-view-model.mjs';
 
 const text=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
+
+// One native history entry owns this return. Fresh visits and modified clicks
+// never request focus, and a newer pointer or keyboard action takes priority.
+export function mountGroundStudyReturn(doc=document,win=window){
+  const key='atlasGroundStudyReturn';
+  let returning=win.performance.getEntriesByType('navigation')[0]?.type==='back_forward';
+  let shown=doc.readyState==='complete',interacted=false,departing=false,frame=null,pending=null;
+  const link=()=>doc.getElementById('ground-study-link');
+  const available=node=>node?.isConnected&&node.hasAttribute('href')&&!node.closest('[hidden]');
+  const stateObject=value=>value===null||typeof value==='object'&&!Array.isArray(value);
+  function consume(previous){
+    const intent=previous[key],remaining={...previous};delete remaining[key];
+    win.history.replaceState(intent.wasNull&&Object.keys(remaining).length===0?null:remaining,'',win.location.href);
+  }
+  if(!returning&&win.history.state?.[key]?.version===1)consume(win.history.state);
+  function restore(){
+    if(!returning||!shown||departing||frame!==null)return;
+    const previous=win.history.state,intent=previous?.[key],node=link();
+    if(!intent||intent.version!==1||intent.href!==win.location.href||!available(node))return;
+    consume(previous);
+    if(interacted)return;
+    const href=win.location.href;
+    frame=win.requestAnimationFrame(()=>{
+      frame=null;
+      if(!interacted&&!departing&&win.location.href===href&&available(node))node.focus({preventScroll:true});
+    });
+  }
+  for(const name of ['pointerdown','keydown'])win.addEventListener(name,event=>{if(event.isTrusted)interacted=true;},{capture:true});
+  win.addEventListener('pageshow',event=>{
+    if(!event.isTrusted)return;
+    shown=true;
+    if(event.persisted){returning=true;interacted=false;departing=false;}
+    restore();
+  });
+  win.addEventListener('pagehide',()=>{if(frame!==null)win.cancelAnimationFrame(frame);frame=null;pending=null;});
+  // Current target and document listeners have finished at this phase. This
+  // owner does not assume that a microtask runs after native click dispatch.
+  win.addEventListener('click',event=>{
+    if(pending?.event!==event)return;
+    const {href}=pending;pending=null;
+    if(event.defaultPrevented||win.location.href!==href||!stateObject(win.history.state)){departing=false;return;}
+    const previous=win.history.state;
+    win.history.replaceState({...previous,[key]:{version:1,href,wasNull:previous===null}},'',href);
+  });
+  return {restore,arm(event){
+    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||!available(link()))return;
+    departing=true;pending={event,href:win.location.href};
+  }};
+}
+
 export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality,onStudy}){
   host.innerHTML=`<h3>Synthetic ground-view comparison</h3>
     <p class="ground-boundary">This is a synthetic camera exercise, not recorded El Reno appearance. The authored interval uses player seconds 120 through 140 to exercise the existing shared clock. It has no historical time correspondence.</p>
@@ -19,7 +69,7 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality,on
   let comparison=null;
   study.addEventListener('click',event=>{
     if(!comparison||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-    onStudy?.(comparison.playerSeconds);
+    onStudy?.(comparison.playerSeconds,event);
   });
   const phaseLabel=value=>String(Number(value.toFixed(6)));
   for(const view of GROUND_CAMERAS){const option=document.createElement('option');option.value=view.id;option.textContent=view.label;camera.append(option);}

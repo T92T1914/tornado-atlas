@@ -44,6 +44,8 @@ for(const [width,appearance,keyboard] of [[320,'dark',false],[1280,'light',true]
   assert.equal(page.url(),origin);assert.equal(await page.locator('#replay-time').inputValue(),'130.011');
   assert.equal(await page.locator('#ground-camera').inputValue(),'synthetic-oblique');assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
   assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
+  await page.waitForFunction(()=>document.activeElement?.id==='ground-study-link');
+  console.info('REPLAY_FORM_RETURN_FOCUS '+JSON.stringify(await page.evaluate(()=>({activeId:document.activeElement?.id??null,activeTag:document.activeElement?.tagName??null,navigation:performance.getEntriesByType('navigation')[0]?.type??null,returnIntent:history.state?.atlasGroundStudyReturn??null}))));
   assert.equal(await page.locator('#ground-study-link').evaluate(node=>node===document.activeElement),true);
   await page.goForward();await studyReady(page);assert.equal(await page.locator('#sequence-time').inputValue(),'0.501');assert.equal(await page.locator('#motion').textContent(),'Play motion');
   assert.equal(await page.locator('#condensation-visibility').inputValue(),'limited');
@@ -90,6 +92,7 @@ test('script-free Replay retains the ordinary Form route without claiming phase 
   assert.match(await page.locator('noscript').textContent(),/requires JavaScript/);
   assert.equal(await page.locator('#ground-study-link').count(),0);
   const form=page.locator('.museum-nav a[href="study.html"]');assert.equal(await form.count(),1);
-  await page.goto(new URL(await form.getAttribute('href'),page.url()).href);
+  await page.locator('.museum-nav summary').filter({hasText:'Explore'}).click();
+  await Promise.all([page.waitForURL(new URL('study.html',base+'/').href),form.click()]);
   assert.equal(new URL(page.url()).search,'');assert.equal(await page.locator('#form-experiment').count(),1);
 });

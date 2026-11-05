@@ -15,12 +15,13 @@ import {mountPhotoViewer,documentaryPhoto} from './photo-view.mjs';
 import {mountReplayScaleImpact} from './replay-scale-impact-view.mjs';
 import {mountDocumentaryAppearance} from './documentary-appearance.mjs';
 import {mountReplayDocumentaryImage} from './replay-documentary-image.mjs';
-import {mountGroundView} from './ground-view.mjs';
+import {mountGroundView,mountGroundStudyReturn} from './ground-view.mjs';
 import {GROUND_MARKS} from './ground-view-model.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
+const groundStudyReturn=mountGroundStudyReturn();
 let drawPending=null, frame=null, clock=null, redraw=()=>{}, refresh=()=>{}, syncLocation=()=>{};
 const failedRadar=new Set();
 const requestDraw=()=>{if(drawPending===null) drawPending=requestAnimationFrame(()=>{drawPending=null;redraw();});};
@@ -188,9 +189,9 @@ async function start(){
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
   let appearanceRenderer=null,appearanceState={state:'unknown'},rendererQuality=3200;
   const groundOptions={host:el('replay-ground-controls'),referenceHost:el('replay-ground-reference'),
-    onStudy:seconds=>{
+    onStudy:(seconds,event)=>{
       // Freeze the displayed snapshot before the ordinary pause can tick time.
-      clock.pause();pause();clock.seek(seconds);refresh();syncLocation();
+      clock.pause();pause();clock.seek(seconds);refresh();syncLocation();groundStudyReturn.arm(event);
     },
     onSeek:seconds=>seek(seconds),onQuality:()=>{refresh();},onCamera:id=>{
       if(clock.playing)clock.tick(performance.now());pause();
@@ -458,6 +459,7 @@ async function start(){
       if(clockControls.nextElementSibling!==following)following.before(clockControls);
     }
     const groundState=ground.update(groundSelected,clock.seconds,new URL(location.href).searchParams.get('ground_view'),formationSelected?'genesis-v1':simulationSelected?'kinematic-v1':'legacy',formationSelected?appearanceStyle():'legacy');
+    groundStudyReturn.restore();
     appearanceState=groundSelected?{...groundState,sourceCamera:groundState.shape?groundState.camera:null}:
       photoSelected?
       sequence?appearanceAt(appearanceTimeline,clock.seconds,config.clock.start_utc,{kind:'photo',id:sequence.id}):

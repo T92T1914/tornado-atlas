@@ -48,7 +48,7 @@ async function fixture(t,href) {
     fire(name) {for(const callback of this.handlers.get(name)||[])callback({target:this});}
     getContext() {return {};}
   }
-  const document={hidden:false,documentElement:new Element(),head:new Element('head'),fonts:{ready:Promise.resolve()},
+  const document={hidden:false,readyState:'complete',documentElement:new Element(),head:new Element('head'),fonts:{ready:Promise.resolve()},
     createElement:tag=>{const element=new Element(tag);created.push(element);return element;},
     getElementById:id=>{if(!ids.has(id)){const element=new Element();element.id=id;}return ids.get(id);},
     querySelectorAll:()=>[],addEventListener:()=>{}};
@@ -86,7 +86,7 @@ async function fixture(t,href) {
   assert.equal(mode.querySelector('[data-unavailable-photo]'),null,'Removal detaches the matched option');
   assert.deepEqual(mode.children,[sourceOption,illustrativeOption],'Removing an unavailable option preserves the static options');
   const globals={document,location,crypto:webcrypto,window:new EventTarget(),
-    history:Object.fromEntries(['pushState','replaceState'].map(method=>[method,(_state,_title,url)=>{location.href=String(url);historyWrites.push({method,href:location.href});}])),
+    history:{state:null,...Object.fromEntries(['pushState','replaceState'].map(method=>[method,(_state,_title,url)=>{globals.history.state=_state;location.href=String(url);historyWrites.push({method,href:location.href});}]))},
     fetch:async path=>{
       requests.push(String(path));
       if(path==='events.json')return {ok:true,json:async()=>index};
@@ -97,6 +97,11 @@ async function fixture(t,href) {
     matchMedia:()=>({matches:false,addEventListener:()=>{}}),
     requestAnimationFrame:callback=>{const id=++nextFrame;frames.set(id,callback);return id;},cancelAnimationFrame:id=>frames.delete(id),
     ResizeObserver:class{observe(){}},MutationObserver:class{observe(){}}};
+  // The real Window exposes these same objects. This fixture is an ordinary
+  // fresh visit, not a cached or newly loaded native history return.
+  Object.assign(globals.window,{history:globals.history,location,
+    performance:{getEntriesByType:()=>[{type:'navigate'}]},queueMicrotask,
+    requestAnimationFrame:globals.requestAnimationFrame,cancelAnimationFrame:globals.cancelAnimationFrame});
   const original=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
   for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
   let disposed=false;
