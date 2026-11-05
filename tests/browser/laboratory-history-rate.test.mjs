@@ -210,12 +210,14 @@ test('Unavailable pending storage remains visible while the exact experiment anc
  const page=await fixture(t,{serviceWorkers:'block',reducedMotion:'reduce'});await probe(page);
  await page.addInitScript(()=>{
   const original=Storage.prototype.setItem;
+  window.labShareCommit=null;document.addEventListener('click',event=>{if(event.target.closest?.('#lab-share'))window.labShareCommit={trusted:event.isTrusted,prevented:event.defaultPrevented,url:location.href};},{passive:true});
   Storage.prototype.setItem=function(key,value){if(key.startsWith('atlasLabPendingV1:'))throw new DOMException('Controlled pending storage refusal','SecurityError');return original.call(this,key,value);};
  });
  await page.goto(base+'/wind.html?event=blackwell-1955');await ready(page);
  await page.evaluate(()=>{window.labHistoryProbe.hold=true;});await input(page,'capacity',20);
  assert.match(await page.locator('#lab-state').textContent(),/Automatic reload retention is unavailable/);
  const exact=await page.locator('#lab-share').getAttribute('href');assert.equal(new URL(exact).searchParams.get('capacity'),'20');
- await page.locator('#lab-share').click();assert.equal(page.url(),exact);
+ await page.locator('#lab-share').click();const commit=await page.evaluate(()=>window.labShareCommit);assert.ok(commit?.trusted&&commit.prevented);assert.equal(commit.url,exact,'The browser handler commits before its click bubbles');
+ assert.equal(await page.evaluate(()=>location.href),exact);await page.waitForURL(exact,{timeout:5000});assert.equal(page.url(),exact);
  await page.reload();await ready(page);assert.equal(page.url(),exact);assert.equal(await page.locator('#capacity').inputValue(),'20');await paused(page,'wind');
 });

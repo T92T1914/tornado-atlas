@@ -181,9 +181,9 @@ test('literal form-5 and reference-v1 stay native while invalid new selections r
     await readyStudy(page,url);assert.equal(await page.locator('#lab-state').getAttribute('data-state'),'invalid');
     assert.match(await page.locator('#lab-state').textContent(),/No values from the link were applied/);
     assert.equal(await page.locator('#azimuth').inputValue(),'25');assert.equal(await page.locator('#sequence-time').inputValue(),'0');
-    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v2');assert.equal(await page.locator('#motion').textContent(),'Play motion');
+    assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v3');assert.equal(await page.locator('#motion').textContent(),'Play motion');
   }
-  for(const style of ['storm-v3','storm-v1&appearance_style=storm-v1','']){
+  for(const style of ['storm-v4','storm-v1&appearance_style=storm-v1','']){
     await readyReplay(page,replay.replace('appearance_style=storm-v1','appearance_style='+style));
     assert.match(await page.locator('#ground-time').textContent(),/requested lighting presentation is unavailable.*No appearance has been substituted/);
     assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
@@ -191,5 +191,5 @@ test('literal form-5 and reference-v1 stay native while invalid new selections r
   }
   await page.locator('#replay-appearance-mode').selectOption('simulation');
   await page.locator('#replay-appearance-mode').selectOption('formation');
-  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v2');await sceneFrame(page,{style:'storm-v2'});
+  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v3');await sceneFrame(page,{style:'storm-v3'});
 });

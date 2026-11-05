@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {stormAttachmentParameters} from '../web/storm-scene-model.mjs';
+import {DEFAULT_EXPERIMENTS,experimentURL,readExperiment,validateExperimentState} from '../web/experiment-state.mjs';
+const state=(presentation,coverage)=>({...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage,visibility:'ordinary',flow:true,presentation,position:.5,phase:15});
+test('integrated cloud experiments preserve complete v8 and earlier v7 identities',()=>{
+  for(const [presentation,coverage,version] of [['storm-v3','storm-integrated','form-8'],['storm-v2','storm-detail','form-7']]){
+    const wanted=state(presentation,coverage),url=experimentURL('https://atlas.invalid/study.html','form','el-reno-2013',wanted);
+    assert.equal(url.searchParams.get('experiment'),version);
+    const result=readExperiment(url.search,'form');assert.equal(result.status,'restored');assert.equal(result.event,'el-reno-2013');assert.deepEqual(result.state,wanted);
+    for(const position of [0,.2,.8,1]){const point={...wanted,position,phase:position*30};assert.deepEqual(readExperiment(experimentURL(url.href,'form',null,point).search,'form').state,point);}
+  }
+});
+test('v8 links refuse cross-version fields, duplicates and partial restoration',()=>{
+  const wanted=state('storm-v3','storm-integrated'),url=experimentURL('https://atlas.invalid/study.html','form',null,wanted);
+  for(const [key,value] of [['experiment','form-7'],['presentation','storm-v2'],['coverage','storm-detail'],['phase','14'],['model','kinematic-v1']]){const changed=new URL(url);changed.searchParams.set(key,value);assert.equal(readExperiment(changed.search,'form').status,'invalid',key);}
+  const duplicate=new URL(url);duplicate.searchParams.append('presentation','storm-v3');assert.equal(readExperiment(duplicate.search,'form').status,'invalid');
+  const partial=new URL(url);partial.searchParams.delete('phase');assert.equal(readExperiment(partial.search,'form').status,'invalid');
+  assert.throws(()=>validateExperimentState('form',{...wanted,coverage:'storm-detail'}));
+});
+
+test('cached cloud attachment follows independently expanded existing upper-body geometry',()=>{
+  const cases=[
+    [.19,.07,0,[.12849999964237213,-.10000000149011612,1.6327987909317017,1.1805857419967651]],
+    [.19,.07,10,[.12849999964237213,-.10000000149011612,1.610305905342102,1.188583493232727]],
+    [.19,.07,30,[.12849999964237213,-.10000000149011612,1.4753453731536865,1.312408208847046]],
+    [.46,.37,15,[.29350000619888306,-.10000000149011612,1.9107027053833008,1.4937009811401367]],
+  ];
+  for(const [base,bend,time,wanted]of cases){const actual=stormAttachmentParameters({base,bend},time);assert.ok(actual instanceof Float32Array);assert.deepEqual([...actual],wanted);}
+});
+test('attachment frames reject nonfinite, out-of-domain and missing inputs',()=>{
+  for(const [shape,time]of [[null,0],[{},0],[{base:.01,bend:0},0],[{base:1.61,bend:0},0],[{base:.4,bend:.71},0],[{base:NaN,bend:0},0],[{base:.4,bend:Infinity},0],[{base:.4,bend:0},-1],[{base:.4,bend:0},31],[{base:.4,bend:0},NaN]])assert.throws(()=>stormAttachmentParameters(shape,time),RangeError);
+});

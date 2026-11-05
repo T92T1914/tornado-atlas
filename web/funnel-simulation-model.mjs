@@ -266,7 +266,7 @@ void main(){
   if(surfacePass){
     if(!worldLighting)discard;
 #if STORM_SCENE
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
     // Evaluate derivatives before the sky/ground branch. Every fragment in a
     // quad participates, including sky rays beside the horizon.
     vec3 filterPoint=origin+ray*(-origin.y/min(-.00001,ray.y));
@@ -282,7 +282,7 @@ void main(){
     float groundLight=nearbyTransmission(groundPoint+vec3(0,.01,0),worldLight());
     float grain=.008*(materialNoise(groundPoint*1.5)-.5);
     vec3 groundColor=vec3(.19,.22,.18)*(.72+.28*groundLight)+grain;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
     // Illustrative parcels supply perspective scale, not historical geography.
     // Reuse the existing ground texture sample; this adds no texture probe.
     vec2 field=mat2(.94,.34,-.34,.94)*groundPoint.xz+vec2(.18,-.12)*(grain/.008);
@@ -331,17 +331,22 @@ void main(){
     cloudRange=vec2(max(0.0,min(lower,upper)),min(length(segment),max(lower,upper)));
   }
 #endif
+#if STORM_SCENE >= 3
+  const int exteriorCloudSamples=32;
+#else
+  const int exteriorCloudSamples=16;
+#endif
   vec4 combined;
   if(bodyRange.y<=bodyRange.x){
-    combined=integrateRegion(origin,ray,cloudRange,true,16);
+    combined=integrateRegion(origin,ray,cloudRange,true,exteriorCloudSamples);
   }else{
-    // Keep at most 48 shared body samples and 16 exterior cloud samples. Split
+    // Keep 48 shared body samples and the versioned exterior budget. Split
     // the cloud at the body interval so composition always follows ray depth.
     vec2 before=vec2(cloudRange.x,min(cloudRange.y,bodyRange.x));
     vec2 after=vec2(max(cloudRange.x,bodyRange.y),cloudRange.y);
     float frontLength=max(0.0,before.y-before.x),backLength=max(0.0,after.y-after.x);
-    int frontSamples=frontLength<=0.0?0:backLength<=0.0?16:int(clamp(floor(16.0*frontLength/(frontLength+backLength)),1.0,15.0));
-    int backSamples=backLength<=0.0?0:16-frontSamples;
+    int frontSamples=frontLength<=0.0?0:backLength<=0.0?exteriorCloudSamples:int(clamp(floor(float(exteriorCloudSamples)*frontLength/(frontLength+backLength)),1.0,float(exteriorCloudSamples-1)));
+    int backSamples=backLength<=0.0?0:exteriorCloudSamples-frontSamples;
     vec4 front=integrateRegion(origin,ray,before,true,frontSamples);
     vec4 body=integrateRegion(origin,ray,bodyRange,false,48);
     vec4 back=integrateRegion(origin,ray,after,true,backSamples);

@@ -44,6 +44,44 @@ async function displayed(page,id,expected=null){
 }
 async function capture(page,id,name){if(process.env.ATLAS_MAP_DENSITY_CAPTURE){await mkdir(process.env.ATLAS_MAP_DENSITY_CAPTURE,{recursive:true});await page.locator('#'+id).screenshot({scale:'css',path:path.join(process.env.ATLAS_MAP_DENSITY_CAPTURE,name+'.png')});}}
 
+
+// Passive evidence for an initial caller-image failure. No bodies are reread and
+// the original displayed predicate and its deadline remain unchanged.
+async function observeCallerImage(page,mapId){
+ const rows=[],states=new WeakMap(),counts={requested:0,responded:0,finished:0,failed:0,omitted:0};
+ const small=value=>String(value??'').slice(0,384);
+ const request=req=>{if(new URL(req.url()).hostname!=='basemap.nationalmap.gov')return;counts.requested++;const row={id:counts.requested,url:small(req.url()),method:req.method(),resource:req.resourceType(),status:null,terminal:null,failure:null};states.set(req,row);if(rows.length<16)rows.push(row);else counts.omitted++;};
+ const response=res=>{const row=states.get(res.request());if(row){counts.responded++;row.status=res.status();}};
+ const finished=req=>{const row=states.get(req);if(row){counts.finished++;row.terminal='finished';}};
+ const failed=req=>{const row=states.get(req);if(row){counts.failed++;row.terminal='failed';row.failure=small(req.failure()?.errorText);}};
+ page.on('request',request);page.on('response',response);page.on('requestfinished',finished);page.on('requestfailed',failed);
+ const stop=()=>{page.off('request',request);page.off('response',response);page.off('requestfinished',finished);page.off('requestfailed',failed);};
+ await page.addInitScript(mapId=>{
+  const state=window.__atlasMapCallerImage={events:[],omitted:0};
+  for(const type of ['load','error'])document.addEventListener(type,event=>{
+   const image=event.target;if(image?.localName!=='image'||image.ownerSVGElement?.id!==mapId)return;
+   if(state.events.length>=16){state.omitted++;return;}
+   state.events.push({type,trusted:event.isTrusted,href:String(image.getAttribute('href')??'').slice(0,384),style:String(image.getAttribute('style')??'').slice(0,128),connected:image.isConnected,at:performance.now()});
+  },{capture:true,passive:true});
+ },mapId);
+ async function report(t,provider,route,original){
+  let timer,snapshot;
+  try{snapshot=await Promise.race([page.evaluate(mapId=>{
+   const map=document.getElementById(mapId),select=document.getElementById(mapId+'-geography'),controls=select?.closest('.geography-controls');
+   const rect=node=>{const r=node?.getBoundingClientRect();return r?[r.x,r.y,r.width,r.height]:null;};
+   const images=map?[...map.querySelectorAll('.basemap-layer image')]:[];
+   return {ready:document.readyState,url:location.href,viewport:[innerWidth,innerHeight,devicePixelRatio],scroll:[scrollX,scrollY],map:map?{class:map.getAttribute('class'),viewBox:map.getAttribute('viewBox'),client:[map.clientWidth,map.clientHeight],rect:rect(map),display:getComputedStyle(map).display,visibility:getComputedStyle(map).visibility}:null,mode:select?.value??null,status:String(controls?.querySelector('[role="status"]')?.textContent??'').slice(0,512),image_count:images.length,images:images.slice(-4).map(image=>({href:String(image.getAttribute('href')??'').slice(0,384),style:String(image.getAttribute('style')??'').slice(0,128),rect:rect(image),visibility:getComputedStyle(image).visibility})),events:window.__atlasMapCallerImage??null};
+  },mapId),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Passive map snapshot exceeded500ms')),500);})]);}
+  catch(error){snapshot={unavailable:small(error.message)};}finally{clearTimeout(timer);}
+  const record={route,mapId,original_error:{name:original.name,message:small(original.message)},counts:{...counts,pending:counts.requested-counts.finished-counts.failed},network:rows.map(row=>({...row})),provider:{exports:provider.exports.slice(-4),exports_total:provider.exports.length,images:provider.images.slice(-4),images_total:provider.images.length},snapshot,diagnostic_rows_omitted:0,provider_contact:false,scope:'Passive controlled caller evidence. No response bodies reread, provider request, screenshot, retry or deadline change.'};
+  let text=JSON.stringify(record);
+  while(Buffer.byteLength(text)>16384&&record.network.length){record.network.shift();record.diagnostic_rows_omitted++;text=JSON.stringify(record);}
+  if(Buffer.byteLength(text)>16384)text=JSON.stringify({route,mapId,original_error:record.original_error,counts:record.counts,diagnostic:'Size bound exceeded; detailed passive snapshot omitted',original_failure_retained:true});
+  t.diagnostic('MAP_CALLER_INITIAL_IMAGE_FAILURE '+text);
+ }
+ return {stop,report};
+}
+
 for(const c of cases)for(const theme of ['dark','light'])test('actual geographic consumer fixed extent CSS'+c.width+' DPR'+c.dpr+' '+theme,{timeout:20000},async t=>{
  const page=await fixture(t,{viewport:{width:c.width,height:c.height},deviceScaleFactor:c.dpr,colorScheme:theme,reducedMotion:'reduce',serviceWorkers:'block'}),provider=await mockGeography(page,{fixedExtent:returnedExtent});
  await fixedMap(page,theme);const first=provider.exports[0];assert.deepEqual(first.bbox,fullBounds);assert.deepEqual(first.size,c.size);assert.equal(provider.exports.length,1);assert.equal(provider.images.length,1);
@@ -91,8 +129,12 @@ test('native geographic image callbacks and failed metadata cannot restore a ret
 
 for(const c of cases)for(const route of ['index.html#path','survey.html'])test('published map caller at CSS'+c.width+' DPR'+c.dpr+' '+route,{timeout:25000},async t=>{
  const page=await fixture(t,{viewport:{width:c.width,height:c.height},deviceScaleFactor:c.dpr,reducedMotion:'reduce',serviceWorkers:'block'}),provider=await mockGeography(page);
- const id=route.startsWith('index')?'map':'survey-map';await page.goto(base+'/'+route);await page.locator('#'+id+'-geography').waitFor();await page.locator('#'+id).scrollIntoViewIfNeeded();
- const current=await displayed(page,id),record=provider.exports.find(row=>row.href===current.href);assert.ok(record);
+ const id=route.startsWith('index')?'map':'survey-map',observation=await observeCallerImage(page,id);t.after(observation.stop);
+ await page.goto(base+'/'+route);await page.locator('#'+id+'-geography').waitFor();await page.locator('#'+id).scrollIntoViewIfNeeded();
+ let current;try{current=await displayed(page,id);}
+ catch(original){try{await observation.report(t,provider,route,original);}catch(error){t.diagnostic('MAP_CALLER_DIAGNOSTIC_FAILED '+JSON.stringify({name:error.name,message:String(error.message).slice(0,384),original_failure_retained:true}));}throw original;}
+ finally{observation.stop();}
+ const record=provider.exports.find(row=>row.href===current.href);assert.ok(record);
  assert.ok(record.size.every(value=>Number.isInteger(value)&&value>0&&value<=4096));assert.ok(record.size[0]*record.size[1]<=4194304);
  const controls=page.locator('#'+id+'-geography').locator('xpath=ancestor::*[contains(@class,"geography-controls")]');await controls.locator('details summary').click();
  const source=controls.getByRole('link',{name:'Open displayed reference image',exact:true});assert.equal(await source.isVisible(),true);

@@ -21,6 +21,14 @@ belongs in the existing JSON authority, followed by a rebuild. Editing the
 generated passage alone produces a publication check failure. There is no
 separately maintained fallback account.
 
+The dated link-access summary and its complete unresolved-source list are also
+published into the article from `web/source-audit.json`. They remain readable
+without scripts and do not start a background request during exhibit startup or
+navigation. The existing full-report link retains every result and its original
+check date. These are recorded access results, not live availability checks or
+verification of historical claims. An authorized update to the report requires
+the same museum-reading rebuild and freshness check below.
+
 Regenerate essential reading from the checked bundle:
 
 ```text

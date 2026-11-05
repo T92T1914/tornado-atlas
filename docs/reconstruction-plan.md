@@ -68,7 +68,7 @@ sunlight, terrain, a physical wind field or historical likeness.
 
 A separate `storm-v1` presentation uses the same thirty authored seconds in a
 continuing cloud environment. Literal `form-6` links retain this presentation.
-Fresh `form-7` experiments use `storm-v2`, with broader material structure and
+Fresh `form-8` experiments use `storm-v3`, with denser cloud sampling, restrained material radiance and
 invented ground parcels for depth. Both retain the same authored schedule,
 transport and light. The complete synthetic replay frame fits a 16:9 region
 without cropping or changing its camera. These scene cues have no historical
@@ -76,8 +76,9 @@ terrain or physical scale.
 Condensation, cloud and low dust sample one analytic material transport, while
 their world envelopes and visibility remain authored. A fixed opaque exposure
 separates scene illumination from the reading theme. The renderer retains its
-48 shared body and 16 exterior cloud sample limits, with actual nonuniform bin
-lengths, bounded detail filtering and a tail using the mean vertical cloud profile beyond the
+48 shared body samples. `storm-v3` uses 32 exterior cloud samples, while earlier
+storm presentations retain 16. The renderer retains actual nonuniform bin lengths, bounded detail
+filtering and a tail using the mean vertical cloud profile beyond the
 existing camera clip. The [storm scene notes](storm-scene-study.md) explain the
 method and limits. Literal `form-5`, `form-4` and earlier links retain their
 presentations. This adds no qualified historical interval, original exposure,

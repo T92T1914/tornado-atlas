@@ -120,9 +120,9 @@ test('formation replay restores native state across reverse seek, quality, histo
   await page.locator('#replay-appearance-mode').selectOption('simulation');
   await nativeState(page,{value:130,seconds:130,genesis:false});
   await page.locator('#replay-appearance-mode').selectOption('formation');
-  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v2');
+  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v3');
   assert.equal(await page.locator('#ground-camera').inputValue(),'synthetic-front');
-  await sceneFrame(page,{value:130,seconds:15,camera:'synthetic-front',style:'storm-v2'});
+  await sceneFrame(page,{value:130,seconds:15,camera:'synthetic-front',style:'storm-v3'});
   await page.locator('#replay-time').fill('145');
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);
@@ -185,9 +185,11 @@ test('formation motion respects reduced motion and refuses unavailable graphics 
 });
 
 const handoffForm='study.html?experiment=form-7&event=moore-2013&shape=wedge&condensation=75&azimuth=40&elevation=20&distance=8.3&dust=0&quality=3600&sequence=1&coverage=storm-detail&rate=15&position=0.5&phase=15&model=genesis-v1&visibility=limited&flow=0&presentation=storm-v2';
-for(const [width,appearance]of [[320,'light'],[1280,'dark']])test('Form phase handoff carries phase and returns complete controls '+width,{timeout:45000},async t=>{
+const handoffForm8='study.html?experiment=form-8&event=moore-2013&shape=wedge&condensation=75&azimuth=40&elevation=20&distance=8.3&dust=0&quality=3600&sequence=1&coverage=storm-integrated&rate=15&position=0.5&phase=15&model=genesis-v1&visibility=limited&flow=0&presentation=storm-v3';
+for(const [route,presentation,label]of [[handoffForm,'storm-v2',''],[handoffForm8,'storm-v3',' form-8']])
+for(const [width,appearance]of [[320,'light'],[1280,'dark']])test('Form phase handoff carries phase and returns complete controls '+width+label,{timeout:45000},async t=>{
   const page=await fixture(t,{viewport:{width,height:1000},reducedMotion:'reduce'});
-  await page.goto(base+'/'+handoffForm);await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
+  await page.goto(base+'/'+route);await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   await page.locator('#reading-appearance').selectOption(appearance);
   assert.equal(await page.locator('#motion').textContent(),'Play motion');
   assert.match(await page.locator('#form-ground-note').textContent(),/ordinary condensation, dust and flow cues/);
@@ -196,7 +198,7 @@ for(const [width,appearance]of [[320,'light'],[1280,'dark']])test('Form phase ha
   await page.locator('#form-ground-link').focus();
   assert.equal(await page.locator('#form-ground-link').textContent(),'View this authored phase with Replay defaults');
   const target=new URL(await page.locator('#form-ground-link').getAttribute('href'));
-  assert.equal(target.searchParams.get('t'),'130');assert.equal(target.searchParams.get('appearance_style'),'storm-v2');
+  assert.equal(target.searchParams.get('t'),'130');assert.equal(target.searchParams.get('appearance_style'),presentation);
   assert.deepEqual([...target.searchParams.keys()].sort(),['appearance_style','appearance_view','event','ground_view','t']);
   await Promise.all([page.waitForURL(url=>url.pathname.endsWith('/reconstruction.html'),{timeout:10000}),page.keyboard.press('Enter')]);
   await page.locator('#replay-time:not([disabled])').waitFor();
@@ -206,13 +208,13 @@ for(const [width,appearance]of [[320,'light'],[1280,'dark']])test('Form phase ha
   assert.equal(await page.locator('#ground-quality').inputValue(),'3200');
   assert.equal(new URL(page.url()).searchParams.get('event'),'el-reno-2013');
   assert.match(await page.locator('#ground-model-note').textContent(),/no measured El Reno winds|without measured El Reno winds/);
-  const observed=await sceneFrame(page,{style:'storm-v2',value:130,seconds:15});
+  const observed=await sceneFrame(page,{style:presentation,value:130,seconds:15});
   if(observed){assert.equal(observed.time,15);assert.equal(observed.dust,true);assert.deepEqual(observed.state,[1,0,1,1]);assert.equal(observed.lines,2,'The declared Replay defaults retain their surface flow cues');}
   await page.goBack();await page.waitForURL(saved,{timeout:10000});
   await page.locator('#lab-context[data-experiment-ready="true"]').waitFor();
   for(const [id,value]of [['lab-event','moore-2013'],['shape','wedge'],['condensation','75'],['azimuth','40'],['elevation','20'],['distance','8.3'],['quality','3600'],['sequence-rate','15'],['sequence-time','0.5'],['condensation-visibility','limited']])assert.equal(await page.locator('#'+id).inputValue(),value);
   assert.equal(await page.locator('#dust').isChecked(),false);assert.equal(await page.locator('#flow-cues').isChecked(),false);
-  assert.equal(await page.locator('#motion').textContent(),'Play motion');assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v2');
+  assert.equal(await page.locator('#motion').textContent(),'Play motion');assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),presentation);
   await enlargeText(page);await reflow(page);
 });
 test('Form phase handoff retains older formation and refuses unrelated or invalid state',{timeout:60000},async t=>{
