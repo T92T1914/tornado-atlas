@@ -18,6 +18,18 @@ study_seconds = (player_seconds - 120) * 1.5
 
 Player 130 therefore selects study second 15. The replay has no additional storm clock. These offsets exercise the shared player and have no historical correspondence. A selected original footage source remains a separate documentary choice.
 
+## Optional filtered lighting
+
+Select **Storm scene with filtered lighting** in Form Study to compare `storm-v4` with the accepted `storm-v2` scene. The filtered choice saves as `form-9`, `coverage=storm-filtered` and `presentation=storm-v4`. Fresh experiments still open with Form7. The existing ground-view link captures the selected authored phase and carries the filtered presentation into Replay. Native Back returns the saved Form state. An explicit replay example is:
+
+`reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v4&ground_view=synthetic-front&t=130#replay-appearance`
+
+This version keeps the accepted v2 geometry, formation schedule, ground parcels, exposure and material transport. It gives each of the two light probes at least the primary material sample's footprint, then restores the prior footprint. This attenuates detail the current sample cannot resolve. It does not move the cloud base, enlarge the funnel, repair an attachment boundary or supply historical camera evidence.
+
+The primary ceilings remain 48 body samples and 16 total exterior cloud samples. There are still two lighting probes. Standard and Lighter retain their existing backing caps. A fixed sample count does not establish equal rendering time, smooth motion or freedom from aliasing.
+
+Form8 and storm-v3 remain reserved for the separate storm-fidelity candidate. Form9 is an independent branch from the accepted v2 appearance, not evidence that the reserved candidate was delivered. Older saved links keep their own shader and rendering behavior. Default promotion requires its own visual and temporal acceptance; it is not part of this optional version.
+
 ## A distinct presentation over the existing schedule
 
 `genesis-v1` still supplies condensation, circulation, dust and erosion envelopes over thirty seconds. Reducing condensation keeps the selected circulation, time and camera. The dust switch changes the dust contribution. Circulation arrows remain independently removable. Their length is fixed and their opacity follows the assumed circulation strength, so their appearance does not measure speed.
@@ -26,6 +38,7 @@ Older links retain their declared presentation:
 
 | Form link | Presentation |
 | --- | --- |
+| `form-9`, `coverage=storm-filtered`, `presentation=storm-v4` | Optional lighting filter over the unchanged v2 geometry |
 | `form-7`, `coverage=storm-detail`, `presentation=storm-v2` | Broader material structure, unequal funnel margins and illustrative ground parcels |
 | `form-6`, `coverage=storm`, `presentation=storm-v1` | Continuing storm scene with shared material transport and fixed opaque exposure |
 | `form-5`, `coverage=reference`, `presentation=reference-v1` | Earlier broad form informed by documentary photographs |
@@ -90,9 +103,9 @@ The mean tail is a rendering approximation with declared profile, density and co
 
 ## Local lighting through the same material
 
-The storm presentation keeps the existing fixed light direction and two nearby attenuation probes. Each probe now samples the same condensation, cloud and enabled dust functions through the shared material pullback. Its texture filter uses a fixed span of 0.22 scene units. The probe positions and optical weights remain a coarse local estimate, with an additional response from the density already computed at the primary sample.
+The storm presentation keeps the existing fixed light direction and two nearby attenuation probes. Each probe now samples the same condensation, cloud and enabled dust functions through the shared material pullback. The earlier storm presentations use a fixed light-probe span of 0.22 scene units. The optional storm-v4 filter retains that span as its starting value, then takes the componentwise maximum with the current primary material footprint. The probe positions and optical weights remain a coarse local estimate, with an additional response from the density already computed at the primary sample.
 
-These auxiliary samples temporarily change the shader's material coordinate and footprint. The material function restores the primary sample's values afterward, so subsequent primary shading continues from its own sample. Earlier presentations retain their simpler lighting proxy. Evaluating the actual filtered material at the storm probes adds work, even with the same number of probes and raster cap. It supplies no hardware performance claim, calibrated sunlight, droplet scattering or complete shadow transport.
+These auxiliary samples temporarily change the shader's material coordinate and footprint. The material function restores the primary sample's values afterward, so subsequent primary shading continues from its own sample. The filtered version also restores the prior minimum footprint; a ground-lighting call cannot inherit the last volume sample's minimum. Earlier presentations retain their simpler lighting proxy. Evaluating the actual filtered material at the storm probes adds work, even with the same number of probes and raster cap. It supplies no hardware performance claim, calibrated sunlight, droplet scattering or complete shadow transport.
 
 ## Exposure, dust and drawing detail
 

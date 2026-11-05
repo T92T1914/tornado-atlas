@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {createFormRenderer} from '../web/form-renderer.mjs';
 import {GROUND_CAMERAS,GROUND_MARKS} from '../web/ground-view-model.mjs';
 
@@ -327,4 +328,35 @@ test('storm exposure is fixed and returning to an earlier version resets opaque 
   renderer.setQuality(200);renderer.render({...stormInput,formationTime:6});assert.equal(f.draws.at(-1).mode,f.gl.TRIANGLES);
   renderer.render({...referenceInput,lightingStyle:'world-v1'});renderer.render(stormInput);renderer.initialize();owned(f,base);
   renderer.render(stormInput);renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});
+
+// These controls model explicit ownership and shader submission, not native GPU cost.
+for(const kind of ['compile','link','attribute'])test('filtered storm failure retains the accepted v2 program and supports retry '+kind,t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100);
+  const accepted={...stormInput,lightingStyle:'storm-v2'},filtered={...stormInput,lightingStyle:'storm-v4'};
+  renderer.render(accepted);const prior={program:3,shader:0,vao:4,buffer:4,texture:1};owned(f,prior);
+  const original=new Error('controlled filtered storm attribute failure');
+  if(kind==='compile')f.failCompile(8);if(kind==='link')f.failLink(4);if(kind==='attribute')f.failNext('bufferData',original);
+  assert.throws(()=>renderer.render(filtered),e=>kind==='attribute'?e===original:e.message==='controlled '+(kind==='compile'?'shader compile':'program link')+' failure');
+  owned(f,prior);f.clearFailure();renderer.render(accepted);owned(f,prior);
+  renderer.render(filtered);owned(f,{program:4,shader:0,vao:5,buffer:5,texture:1});
+  renderer.dispose();owned(f,none);renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
+});
+test('filtered and accepted storm programs keep separate exact shader identities through reuse and reinitialize',t=>{
+  renderGlobals(t);const f=accountingGraphics(),renderer=createFormRenderer(f.canvas,100),sources=[];
+  const submit=f.gl.shaderSource;f.gl.shaderSource=(shader,source)=>{if(shader.type===f.gl.FRAGMENT_SHADER)sources.push(source);return submit(shader,source);};
+  const hash=source=>createHash('sha256').update(source).digest('hex');
+  for(const style of ['storm-v2','storm-v4','storm-v2','storm-v4'])renderer.render({...stormInput,lightingStyle:style});
+  assert.equal(sources.length,2,'The two complete programs are cached separately');
+  assert.deepEqual(sources.map(hash),[
+    'c125b0cc8f42aa53e13925595809037a3d0dbc4b4ea96ccedf8623d3c9306e2a',
+    'e0c316773e6f5339b2e83cac1d198465cda86b019339335b6d1e12e72a072b29'
+  ],'Literal identities retained from the independently reviewed matched private comparison');
+  assert.doesNotMatch(sources[0],/STORM_LIGHT_FILTER/);
+  assert.match(sources[1],/^#define STORM_SCENE 2$/m);assert.match(sources[1],/^#define STORM_LIGHT_FILTER 1$/m);
+  renderer.initialize();owned(f,base);sources.length=0;
+  renderer.render({...stormInput,lightingStyle:'storm-v4'});assert.equal(sources.length,1);
+  assert.equal(hash(sources[0]),'e0c316773e6f5339b2e83cac1d198465cda86b019339335b6d1e12e72a072b29');
+  for(const style of ['storm-v3','storm-v5'])assert.throws(()=>renderer.render({...stormInput,lightingStyle:style}),/Unsupported funnel lighting/);
+  renderer.dispose();owned(f,none);assert.equal(f.created.length,f.deleted.length);
 });
