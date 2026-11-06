@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fixture,base} from './harness.mjs';
+import {reportMapRasterFailure} from './map-raster-diagnostics.mjs';
 
 // Literal independent controls, not expectations imported from the new helper.
 // This first group mounts the actual changed geography and navigation modules
@@ -92,7 +93,10 @@ test('native geographic image callbacks and failed metadata cannot restore a ret
 for(const c of cases)for(const route of ['index.html#path','survey.html'])test('published map caller at CSS'+c.width+' DPR'+c.dpr+' '+route,{timeout:25000},async t=>{
  const page=await fixture(t,{viewport:{width:c.width,height:c.height},deviceScaleFactor:c.dpr,reducedMotion:'reduce',serviceWorkers:'block'}),provider=await mockGeography(page);
  const id=route.startsWith('index')?'map':'survey-map';await page.goto(base+'/'+route);await page.locator('#'+id+'-geography').waitFor();await page.locator('#'+id).scrollIntoViewIfNeeded();
- const current=await displayed(page,id),record=provider.exports.find(row=>row.href===current.href);assert.ok(record);
+ let current;
+ try{current=await displayed(page,id);}
+ catch(error){await reportMapRasterFailure(t,page,{mapId:id,provider},error);throw error;}
+ const record=provider.exports.find(row=>row.href===current.href);assert.ok(record);
  assert.ok(record.size.every(value=>Number.isInteger(value)&&value>0&&value<=4096));assert.ok(record.size[0]*record.size[1]<=4194304);
  const controls=page.locator('#'+id+'-geography').locator('xpath=ancestor::*[contains(@class,"geography-controls")]');await controls.locator('details summary').click();
  const source=controls.getByRole('link',{name:'Open displayed reference image',exact:true});assert.equal(await source.isVisible(),true);
