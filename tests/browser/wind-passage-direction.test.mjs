@@ -73,7 +73,9 @@ for(const [width,appearance] of [[320,'dark'],[320,'light'],[1280,'dark'],[1280,
   await page.waitForFunction(()=>document.getElementById('passage-time').value==='0' && document.getElementById('background').value==='0');
   assert.equal(await page.locator('#passage-east-component').textContent(),'-2.7 mph');
   assert.equal(await page.locator('#passage-north-component').textContent(),'+16.2 mph');
-  await page.locator('#passage .study-controls').evaluate(host=>{
+  const passageControls=page.locator('#passage .study-controls').filter({has:page.locator('#passage-east-component')});
+  assert.equal(await passageControls.count(),1,'Exactly one passage control panel contains the selected east component');
+  await passageControls.evaluate(host=>{
     for(const node of host.querySelectorAll('dt,dd,p'))node.style.fontSize=(parseFloat(getComputedStyle(node).fontSize)*2)+'px';
   });
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
