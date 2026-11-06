@@ -4,9 +4,45 @@ import {formationStudyComparison} from '../web/ground-view-model.mjs';
 import {DEFAULT_EXPERIMENTS,readExperiment} from '../web/experiment-state.mjs';
 import {formationAt} from '../web/formation-model.mjs';
 import {mountGroundStudyReturn} from '../web/ground-view.mjs';
+import {exactPlayingComparisonSeconds} from './browser/ground-view-assertions.mjs';
 
 const origin='https://example.test/tornado-atlas/reconstruction.html?event=el-reno-2013&source=retained#replay-ground-controls';
 const read=link=>readExperiment(new URL(link.href).search,'form');
+
+function playingRecord(seconds,visible=String(seconds)){
+  const sourceHref='https://example.test/tornado-atlas/reconstruction.html?event=el-reno-2013&appearance_view=formation&t='+String(seconds);
+  return {nativeType:'range',nativeStep:'any',rawBefore:visible,rawAfter:visible,requested:Number(visible),after:Number(visible),
+    sourceHref,sourceHrefAfter:sourceHref,url:sourceHref,serializedSource:visible};
+}
+
+test('the playing oracle retains the literal CI clock double across native decimal serialization',()=>{
+  const exact=130.01399999999998,record=playingRecord(exact,'130.014');
+  assert.notEqual(record.requested,exact);assert.equal(exactPlayingComparisonSeconds(record),exact);
+  assert.equal(exactPlayingComparisonSeconds(playingRecord(130.011)),130.011);
+});
+
+test('one adjacent clock value cannot borrow an unchanged native range display',()=>{
+  const record=playingRecord(130.01399999999998,'130.014'),advanced=130.014;
+  assert.equal(advanced-record.requested,0);assert.notEqual(advanced,130.01399999999998);
+  assert.equal(advanced-130.01399999999998,2**-45,'These are adjacent binary64 values in the 128 to 256 interval');
+  const next=new URL(record.url);next.searchParams.set('t',advanced);
+  assert.throws(()=>exactPlayingComparisonSeconds({...record,url:next.href}));
+  assert.throws(()=>exactPlayingComparisonSeconds({...record,url:next.href,sourceHrefAfter:next.href}));
+});
+
+test('the strict playing oracle refuses changed display or inconsistent native serialization',()=>{
+  const record=playingRecord(130.01399999999998,'130.014');
+  for(const patch of [{rawAfter:'130.015'},{after:130.015},{serializedSource:'130.01399999999998'},{nativeType:'number'},{nativeStep:'1'}]){
+    assert.throws(()=>exactPlayingComparisonSeconds({...record,...patch}));
+  }
+});
+
+test('an invalid or ambiguous exact snapshot cannot become a playing comparison',()=>{
+  for(const query of ['','t=','t=NaN','t=Infinity','t=119','t=141','t=130&t=131']){
+    const record=playingRecord(130),href='https://example.test/reconstruction.html?'+query;
+    assert.throws(()=>exactPlayingComparisonSeconds({...record,sourceHref:href,sourceHrefAfter:href,url:href}));
+  }
+});
 
 test('literal comparison instants preserve the declared mapping and complete Form defaults',()=>{
   for(const [player,phase,position] of [[120,0,0],[124,6,.2],[130,15,.5],[136,24,.8],[140,30,1]]){

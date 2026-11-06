@@ -9,6 +9,24 @@ export const referencePixels={
   'synthetic-oblique':[[457.208888,520.073871],[640,205.988617],[889.537300,526.571085],[640,522.820933]],
 };
 const worldMarks=[[-2,0,0],[0,2.6,0],[2,0,0],[0,0,0]];
+
+// The native range can serialize a clock double with fewer significant digits.
+// The existing Replay permalink retains that exact double independently of the
+// new comparison. Keep both representations strict rather than adding tolerance.
+export function exactPlayingComparisonSeconds(chosen){
+  assert.equal(chosen.nativeType,'range');assert.equal(chosen.nativeStep,'any');
+  assert.equal(typeof chosen.rawBefore,'string');assert.equal(chosen.rawAfter,chosen.rawBefore);
+  assert.equal(chosen.after,chosen.requested);assert.equal(chosen.requested,Number(chosen.rawBefore));
+  const source=new URL(chosen.sourceHref),values=source.searchParams.getAll('t');
+  assert.equal(values.length,1);assert.notEqual(values[0].trim(),'');
+  const seconds=Number(values[0]);assert.ok(Number.isFinite(seconds)&&seconds>=120&&seconds<=140);
+  assert.equal(chosen.serializedSource,chosen.rawBefore,'The exact clock value has the captured native range representation');
+  assert.equal(chosen.sourceHrefAfter,chosen.sourceHref,'The original exact permalink snapshot remains unchanged');
+  assert.equal(chosen.url,chosen.sourceHref,'The address retains the preactivation exact Replay snapshot');
+  assert.equal(Number(new URL(chosen.url).searchParams.get('t')),seconds);
+  return seconds;
+}
+
 export async function referenceReady(page,id,seconds){
   await page.waitForFunction(({id,seconds})=>{
     const image=document.querySelector('#ground-reference-image');

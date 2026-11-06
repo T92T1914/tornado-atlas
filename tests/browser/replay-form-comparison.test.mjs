@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {fixture,base} from './harness.mjs';
-import {enlargeText,reflow} from './ground-view-assertions.mjs';
+import {enlargeText,reflow,exactPlayingComparisonSeconds} from './ground-view-assertions.mjs';
 
 const replay='reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v2&ground_view=synthetic-oblique&t=130.011&footage_source=robinson-dashcam';
 async function ready(page){await page.locator('#replay-time:not([disabled])').waitFor();}
@@ -71,15 +71,19 @@ test('comparison refuses unavailable or unrelated states and preserves the displ
   // This is an instrumented same-task activation. No wall-time tick may replace
   // the already displayed snapshot between reading the link and its handler.
   const chosen=await page.evaluate(()=>{
-    const link=document.getElementById('ground-study-link'),href=link.href,requested=Number(document.getElementById('replay-time').value),length=history.length;
+    const link=document.getElementById('ground-study-link'),input=document.getElementById('replay-time'),permalink=document.getElementById('replay-link');
+    const href=link.href,sourceHref=permalink.href,rawBefore=input.value,requested=Number(rawBefore),length=history.length;
+    const probe=input.cloneNode(false);probe.value=Number(new URL(sourceHref).searchParams.get('t'));
+    const serializedSource=probe.value,nativeType=input.type,nativeStep=input.step;
     link.addEventListener('click',event=>event.preventDefault(),{once:true});link.click();
-    return {href,requested,after:Number(document.getElementById('replay-time').value),url:location.href,length,afterLength:history.length,play:document.getElementById('replay-play').textContent};
+    return {href,requested,rawBefore,rawAfter:input.value,after:Number(input.value),sourceHref,sourceHrefAfter:permalink.href,serializedSource,nativeType,nativeStep,
+      url:location.href,length,afterLength:history.length,play:document.getElementById('replay-play').textContent};
   });
-  assert.equal(chosen.after,chosen.requested);assert.equal(Number(new URL(chosen.url).searchParams.get('t')),chosen.requested);
+  assert.equal(chosen.after,chosen.requested);const exactSeconds=exactPlayingComparisonSeconds(chosen);
   const opened=new URL(chosen.href).searchParams;
-  assert.equal(Number(opened.get('position')),Math.round((chosen.requested-120)*50)/1000);
+  assert.equal(Number(opened.get('position')),Math.round((exactSeconds-120)*50)/1000);
   assert.equal(Number(opened.get('phase')),Number(opened.get('position'))*30);
-  assert.ok(Math.abs(Number(opened.get('phase'))-(chosen.requested-120)*1.5)<=.015+1e-10);
+  assert.ok(Math.abs(Number(opened.get('phase'))-(exactSeconds-120)*1.5)<=.015+1e-10);
   assert.equal(chosen.afterLength,chosen.length);assert.equal(chosen.play,'Play timeline');
   await page.emulateMedia({reducedMotion:'reduce'});await enlargeText(page);await reflow(page);
   await page.locator('#ground-camera').selectOption('synthetic-front');assert.equal(await page.locator('#ground-study-comparison').isVisible(),true);
