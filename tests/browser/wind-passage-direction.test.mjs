@@ -6,7 +6,10 @@ async function ready(page) {
   await page.waitForFunction(()=>document.body.dataset.windSamples==='ready' && document.querySelector('#lab-context').dataset.experimentReady==='true');
 }
 async function input(page,id,value) {
-  await page.locator('#'+id).evaluate((node,value)=>{node.value=String(value);node.dispatchEvent(new Event('input',{bubbles:true}));},value);
+  const control=page.locator('#'+id);
+  const assigned=await control.evaluate((node,value)=>{node.value=String(value);return Number(node.value);},value);
+  assert.equal(assigned,Number(value),'Native input #'+id+' must retain the requested value');
+  await control.evaluate(node=>node.dispatchEvent(new Event('input',{bubbles:true})));
 }
 async function cardinal(page,east,index=240) {
   const state=await page.evaluate(()=>({
@@ -60,9 +63,9 @@ for(const [width,appearance] of [[320,'dark'],[320,'light'],[1280,'dark'],[1280,
   await page.goBack();await ready(page);await cardinal(page,-80);
   await page.goForward();await ready(page);await cardinal(page,120);
   await page.reload();await ready(page);await cardinal(page,120);
-  await input(page,'probe-x',-2);await input(page,'probe-y',3);
+  await input(page,'probe-x',-2);await input(page,'probe-y',2);
   await cardinal(page,120); // Separate stationary coordinates do not relocate this probe.
-  await input(page,'background',100);await input(page,'offset',1);
+  await input(page,'peak',50);await input(page,'background',50);await input(page,'offset',1);
   await cardinal(page,0);
   assert.match(await page.locator('#passage-direction-reading').textContent(),/no direction/);
   assert.equal(await page.locator('#passage-direction-arrow').getAttribute('d'),'');
