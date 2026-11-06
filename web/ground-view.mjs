@@ -1,7 +1,57 @@
-import {GROUND_CAMERAS,GROUND_DEMO,groundViewAt,funnelSimulationAt,formationSimulationAt} from './ground-view-model.mjs';
+import {GROUND_CAMERAS,GROUND_DEMO,groundViewAt,funnelSimulationAt,formationSimulationAt,formationStudyComparison} from './ground-view-model.mjs';
 
 const text=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
-export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
+
+// One native history entry owns this return. Fresh visits and modified clicks
+// never request focus, and a newer pointer or keyboard action takes priority.
+export function mountGroundStudyReturn(doc=document,win=window){
+  const key='atlasGroundStudyReturn';
+  let returning=win.performance.getEntriesByType('navigation')[0]?.type==='back_forward';
+  let shown=doc.readyState==='complete',interacted=false,departing=false,frame=null,pending=null;
+  const link=()=>doc.getElementById('ground-study-link');
+  const available=node=>node?.isConnected&&node.hasAttribute('href')&&!node.closest('[hidden]');
+  const stateObject=value=>value===null||typeof value==='object'&&!Array.isArray(value);
+  function consume(previous){
+    const intent=previous[key],remaining={...previous};delete remaining[key];
+    win.history.replaceState(intent.wasNull&&Object.keys(remaining).length===0?null:remaining,'',win.location.href);
+  }
+  if(!returning&&win.history.state?.[key]?.version===1)consume(win.history.state);
+  function restore(){
+    if(!returning||!shown||departing||frame!==null)return;
+    const previous=win.history.state,intent=previous?.[key],node=link();
+    if(!intent||intent.version!==1||intent.href!==win.location.href||!available(node))return;
+    consume(previous);
+    if(interacted)return;
+    const href=win.location.href;
+    frame=win.requestAnimationFrame(()=>{
+      frame=null;
+      if(!interacted&&!departing&&win.location.href===href&&available(node))node.focus({preventScroll:true});
+    });
+  }
+  for(const name of ['pointerdown','keydown'])win.addEventListener(name,event=>{if(event.isTrusted)interacted=true;},{capture:true});
+  win.addEventListener('pageshow',event=>{
+    if(!event.isTrusted)return;
+    shown=true;
+    if(event.persisted){returning=true;interacted=false;departing=false;}
+    restore();
+  });
+  win.addEventListener('pagehide',()=>{if(frame!==null)win.cancelAnimationFrame(frame);frame=null;pending=null;});
+  // Current target and document listeners have finished at this phase. This
+  // owner does not assume that a microtask runs after native click dispatch.
+  win.addEventListener('click',event=>{
+    if(pending?.event!==event)return;
+    const {href}=pending;pending=null;
+    if(event.defaultPrevented||win.location.href!==href||!stateObject(win.history.state)){departing=false;return;}
+    const previous=win.history.state;
+    win.history.replaceState({...previous,[key]:{version:1,href,wasNull:previous===null}},'',href);
+  });
+  return {restore,arm(event){
+    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||!available(link()))return;
+    departing=true;pending={event,href:win.location.href};
+  }};
+}
+
+export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality,onStudy}){
   host.innerHTML=`<h3>Synthetic ground-view comparison</h3>
     <p class="ground-boundary">This is a synthetic camera exercise, not recorded El Reno appearance. The authored interval uses player seconds 120 through 140 to exercise the existing shared clock. It has no historical time correspondence.</p>
     <div class="ground-options"><label>Source camera <select id="ground-camera"><option value="">Choose a synthetic camera</option></select></label>
@@ -10,10 +60,18 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
     <p>Use the existing Play, playback speed and time controls above. Viewpoint selection pauses playback. The three buttons select authored comparison instants.</p>
     <div id="ground-keyframes" class="ground-keyframes" role="group" aria-label="Synthetic comparison instants"></div>
     <p id="ground-time" role="timer" aria-live="off"></p>
+    <p id="ground-study-comparison" hidden><a id="ground-study-link" aria-describedby="ground-study-note">Compare this phase in Form Study</a><br><span id="ground-study-note"></span></p>
     <details><summary>Camera geometry and assumptions</summary><p id="ground-camera-details"></p>
     <p>World axes are right handed: X and Z span the ground, Y points up. The origin is the model's central ground point. All pose, lens and shape quantities are illustrative. The height 2.6 is in authored scene units, with no conversion to metres. The pinhole lens is explicitly undistorted. Unknown or unsupported optics cannot be substituted.</p>
     <p id="ground-model-note">The reference contains an independently derived analytic funnel outline and four reference marks at known scene points. The rendered particles have soft edges and an additional authored cloud base. Those do not coincide with the analytic outline. This comparison checks software projection, not historical likeness, hidden geometry, wind or damage.</p></details>`;
   const camera=host.querySelector('#ground-camera'),quality=host.querySelector('#ground-quality');
+  const study=host.querySelector('#ground-study-link'),studyNote=host.querySelector('#ground-study-note'),studyHost=host.querySelector('#ground-study-comparison');
+  let comparison=null;
+  study.addEventListener('click',event=>{
+    if(!comparison||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    onStudy?.(comparison.playerSeconds,event);
+  });
+  const phaseLabel=value=>String(Number(value.toFixed(6)));
   for(const view of GROUND_CAMERAS){const option=document.createElement('option');option.value=view.id;option.textContent=view.label;camera.append(option);}
   for(const seconds of GROUND_DEMO.frames){const button=document.createElement('button');button.type='button';button.dataset.groundSecond=seconds;button.textContent=`Compare at player ${seconds} s`;button.addEventListener('click',()=>onSeek(seconds));host.querySelector('#ground-keyframes').append(button);}
   camera.addEventListener('change',()=>onCamera(camera.value));
@@ -67,10 +125,16 @@ export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality}){
       }
       host.hidden=!enabled;referenceHost.hidden=!enabled;
       camera.querySelector('[data-unavailable]')?.remove();
-      if(!enabled){identity++;referenceKey=null;referenceHost.replaceChildren();return null;}
+      if(!enabled){identity++;referenceKey=null;referenceHost.replaceChildren();comparison=null;study.removeAttribute('href');studyHost.hidden=true;return null;}
       const validStyle=lightingStyle==='legacy'||formation&&['world-v1','reference-v1','storm-v1','storm-v2'].includes(lightingStyle);
       const state=validStyle?(formation?formationSimulationAt:simulation?funnelSimulationAt:groundViewAt)(seconds,id):{state:'unavailable',camera:null,shape:null,reference:null,reason:'The requested lighting presentation is unavailable. No appearance has been substituted.'};
       state.lightingStyle=validStyle?lightingStyle:'legacy';
+      comparison=formation&&state.state==='synthetic'?formationStudyComparison(document.baseURI,seconds,id,lightingStyle):null;
+      studyHost.hidden=!comparison;
+      if(comparison){
+        study.href=comparison.href;
+        text(studyNote,`Replay shows ${phaseLabel(comparison.requestedPhase)} authored study seconds. Form Study opens paused at ${phaseLabel(comparison.openedPhase)} seconds, rounded to its nearest 0.03 second step. It uses ordinary condensation and its own camera, quality and playback defaults. Change condensation visibility there to compare the same circulation. This is not a historical time or camera match.`);
+      }else study.removeAttribute('href');
       if(id&&!GROUND_CAMERAS.some(view=>view.id===id)){
         const option=document.createElement('option');option.value=id;option.textContent='Unavailable synthetic camera';option.dataset.unavailable='';camera.append(option);
       }

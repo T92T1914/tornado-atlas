@@ -95,17 +95,6 @@ function startupReaderPosition() {
 }
 async function main() {
   const layout = startupReaderPosition();
-  // Remember audit ownership while earlier startup dependencies are pending.
-  // The optional audit consumer takes over these lifecycle events at mount.
-  let auditDocumentActive = true;
-  const auditDeparted = () => { auditDocumentActive = false; };
-  const auditReturned = () => { auditDocumentActive = true; };
-  window.addEventListener('pagehide',auditDeparted);
-  window.addEventListener('pageshow',auditReturned);
-  const retireAuditHandoff = () => {
-    window.removeEventListener('pagehide',auditDeparted);
-    window.removeEventListener('pageshow',auditReturned);
-  };
   const initialHash = location.hash;
   let ownsInitialFragment = true;
   const inputs = ['pointerdown','keydown','wheel','touchstart','hashchange','popstate','pagehide'];
@@ -228,8 +217,7 @@ async function main() {
   layout.update(() => {
   mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places,
     {beforeHistoryChange:replay.prepareSurveyHistory});
-  mountResearchLog(data.documentary,{active:auditDocumentActive});
-  retireAuditHandoff();
+  mountResearchLog(data.documentary);
   });
   const {mountReadingTools}=await import('./footage-view.mjs');
   layout.update(() => mountReadingTools(data.footage));
@@ -248,7 +236,6 @@ async function main() {
     layout.retire();
   });
   } catch (error) {
-    retireAuditHandoff();
     retireInitialFragment();
     layout.update(() => {
       document.body.dataset.exhibitReady = 'error';

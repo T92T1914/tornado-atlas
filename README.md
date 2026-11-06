@@ -109,6 +109,15 @@ context from authored timing. These are synthetic scene improvements, without
 measured sunlight, terrain, atmospheric dynamics or a newly qualified
 historical El Reno interval.
 
+A synthetic formation view also offers a contextual comparison in Form Study.
+It opens the selected presentation paused and shows the requested and opened
+study times. The nearest supported step can differ by at most 0.015 authored
+study seconds. Form uses its own camera and drawing defaults. Its condensation
+comparison changes visibility while retaining the same assumed circulation at
+that opened phase. This link does not match a historical exposure or camera.
+Ordinary navigation preserves Replay time, the selected synthetic camera and
+footage source for browser Back.
+
 The spatial replay keeps selected footage moments and observer times in browser
 history. Back and Forward restore the clock paused. Scrubbing or pausing updates
 the current address, so reloading does not return to an earlier footage choice.
@@ -449,6 +458,13 @@ py -3.11 tools/check_catalogue.py
 ```
 
 Node 20 or newer is needed for the JavaScript checks, but not to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
+
+The El Reno article includes the retained audit as ordinary HTML, with its
+September 21, 2026 check date, all thirteen unresolved source links and an
+explicit link to the complete raw report. It remains readable without
+JavaScript. Publishing checks its counts and source results against that file.
+Opening the article does not start another audit request or renew the check
+date. The recorded access results do not establish historical accuracy.
 
 Optional network audit: install `requests`, then run
 `py -3.11 tools/audit_exhibit_links.py`. The report separates reachable links,

@@ -8,9 +8,10 @@ import argparse
 import hashlib
 import json
 import re
-from datetime import date
+from datetime import date, datetime, timezone
 from html import escape
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 def text(value):
@@ -225,12 +226,73 @@ def rendered_page(template, bundle):
     return template
 
 
+def audit_reading(report):
+    """Render the retained access report without contacting its sources."""
+    stamp = datetime.fromisoformat(report['checked_at'].replace('Z', '+00:00'))
+    if stamp.utcoffset() is None:
+        raise ValueError('The audit date needs an explicit timezone')
+    rows, counts = report['results'], report['counts']
+    statuses = {'reachable', 'access_unresolved', 'missing'}
+    if not isinstance(rows, list) or not isinstance(counts, dict):
+        raise ValueError('Invalid audit results or counts')
+    if any(key not in statuses or type(value) is not int or value < 0
+           for key, value in counts.items()):
+        raise ValueError('Invalid audit counts')
+    measured, seen, unresolved = dict.fromkeys(statuses, 0), set(), []
+    for row in rows:
+        url, access = row['url'], row['access']
+        parsed = urlsplit(url)
+        if (parsed.scheme not in {'http', 'https'} or not parsed.hostname
+                or parsed.username is not None or parsed.password is not None
+                or any(character.isspace() or ord(character) < 32 for character in url)
+                or url in seen or access not in statuses):
+            raise ValueError('Invalid or duplicate audit source')
+        seen.add(url)
+        measured[access] += 1
+        status = row.get('http_status')
+        if status is not None and (type(status) is not int or not 100 <= status <= 599):
+            raise ValueError('Invalid audit HTTP status')
+        if access != 'reachable':
+            error = row.get('error')
+            if status is None and (not isinstance(error, str) or not error):
+                raise ValueError('Unresolved audit source needs its recorded result')
+            result = f'HTTP {status}' if status is not None else error
+            unresolved.append(element('li', link(parsed.hostname, url, target='_blank', rel='noopener')
+                + text(f' · {result} · {url}')))
+    if any(counts.get(key, 0) != value for key, value in measured.items()):
+        raise ValueError('Audit counts disagree with source results')
+    date_label = stamp.astimezone(timezone.utc).date().isoformat()
+    summary = ('Link access checked ' + element('time', text(date_label), datetime=report['checked_at'])
+        + text(f' UTC: {len(rows)} distinct URLs, {measured["reachable"]} reachable, '
+               f'{measured["access_unresolved"]} with unresolved access, '
+               f'{measured["missing"]} returned missing pages. These results cover the '
+               'curated exhibit and museum pages, not every catalogue record.'))
+    content = element('p', summary)
+    if unresolved:
+        content += element('details', element('summary', 'Sources whose access could not be confirmed')
+            + element('ul', ''.join(unresolved)))
+    return content
+
+
+def rendered_audit(template, report):
+    start, end = '<!-- reading:source-audit -->', '<!-- /reading:source-audit -->'
+    if template.count(start) != 1 or template.count(end) != 1:
+        raise ValueError('Expected exactly one generated source audit region')
+    result, count = re.subn(re.escape(start) + r'.*?' + re.escape(end),
+        lambda match: start + audit_reading(report) + end, template, flags=re.S)
+    if count != 1:
+        raise ValueError('Source audit region markers are out of order')
+    return result
+
+
 def publish(root, bundle, check=False):
     article = root / 'web/index.html'
     simulator = root / 'web/reconstruction.html'
     current_article = article.read_text(encoding='utf-8')
     current_simulator = simulator.read_text(encoding='utf-8')
     generated_article = rendered_page(current_article, bundle)
+    report = json.loads((root / 'web/source-audit.json').read_text(encoding='utf-8'))
+    generated_article = rendered_audit(generated_article, report)
     start, end = '<!-- reading:simulator-early-condensation -->', '<!-- /reading:simulator-early-condensation -->'
     generated_simulator, count = re.subn(re.escape(start)+r'.*?'+re.escape(end),
         lambda match: start+simulator_early_region(bundle)+end, current_simulator, flags=re.S)
