@@ -367,8 +367,10 @@ scrub an authored sequence of changing shapes. The
 now has a generic component experiment: choose a load capacity and inspect the
 first sampled exceedance, persistent failure state, and rewind behavior.
 Its inspection actions pause at the highest sampled load or first sampled
-capacity exceedance and open the exact numerical row. These
-are model foundations. They do not reconstruct El Reno's visible evolution or
+capacity exceedance and open the exact numerical row. A selected passage sample
+also shows signed east and north wind components and the direction the air
+moves. A fixed-length arrow shows direction only. These are model foundations.
+They do not reconstruct El Reno's visible evolution or
 predict a specific building's damage.
 
 The [Udall account](https://t92t1914.github.io/tornado-atlas/udall.html) follows the separate later tornado of May 25, 1955. Five county records, a historical damage account and the complete regional forecast document remain individually inspectable. The unmatched boundary, conflicting clock labels and different injury totals stay visible. Udall can serve as a documentary reference beside the labs, with no measured model presets or historical replay.
