@@ -5,6 +5,7 @@ import {attachPassageValues} from './passage-values.mjs';
 import {mountLabContext} from './lab-context.mjs';
 import {EXPERIMENT_FIELDS} from './experiment-state.mjs';
 import {attachContinuousReference} from './wind-reference-view.mjs';
+import {showPassageDirection} from './passage-direction.mjs';
 const el=id=>document.getElementById(id);
 const controls=['travel','offset','threshold','capacity'];
 const clock=new PlaybackClock(24,1);
@@ -19,7 +20,8 @@ function settings() {
   return {peak:n('peak')*MPH,radius:n('radius')*FOOT,background:n('background')*MPH,travel:n('travel')*MPH,offset:n('offset'),area:n('area'),coefficient:n('coefficient')};
 }
 function show() {
-  const index=Math.round(Number(el('passage-time').value)),s=result.samples[index];
+  const index=Math.round(Number(el('passage-time').value)),s=result?.samples[index];
+  if(!showPassageDirection(document,s,field?.offset))return;
   el('passage-cursor').setAttribute('x1',x(index));el('passage-cursor').setAttribute('x2',x(index));
   el('passage-dot').setAttribute('cx',x(index));el('passage-dot').setAttribute('cy',y(s.speed));
   el('passage-center').setAttribute('cx',360+s.center/field.radius*50);
@@ -39,7 +41,8 @@ function show() {
   sampledValues.select(index);
 }
 function rebuild() {
-  pause();field=settings();const threshold=Number(el('threshold').value)*MPH;
+  pause();showPassageDirection(document,null,0);
+  field=settings();const threshold=Number(el('threshold').value)*MPH;
   result=samplePassage(field,{threshold});
   component=componentHistory(result.samples,{...field,capacity:Number(el('capacity').value)*1000});
   continuousReference.update({field,result,component,threshold,capacity:Number(el('capacity').value)*1000});

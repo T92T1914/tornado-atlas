@@ -98,6 +98,25 @@ slider can inspect individual samples. Motion begins paused and stops when
 the view is hidden or moved out of view. Changing any model setting pauses
 the passage and recomputes the graph.
 
+The selected passage sample also shows its signed east component `u` and north
+component `v` in mph. Positive values mean air moving east or north, and negative
+values mean west or south. The existing model evaluates the wind at the fixed
+probe's position relative to the moving center. Travel speed is not added to
+or subtracted from `u` or `v`. The separate stationary probe controls do not
+set this location. Speed remains
+`hypot(u, v)`. With 100 mph swirl and 20 mph eastward background, closest
+approach at offsets +1 R and -1 R gives east components of -80 and +120 mph,
+respectively, with zero north component.
+
+A short arrow beside the passage probe shows the same movement direction. Its
+length is fixed and does not encode speed. North points upward in the plan
+view. A zero vector has no direction and no arrow. Missing, nonfinite or
+inconsistent selected velocities clear these new readings and the arrow.
+Selection, playback, inspection actions and restored links update the direction
+through the existing passage consumer without calculating another grid or
+rewriting table cells. Without scripts, the printed components describe the
+first sample of the stated default experiment.
+
 The sampled-values table provides the same complete 481-point sequence in
 numerical form. It lists model time, wind in mph and m/s, dynamic pressure,
 drag, load relative to capacity and the component state. Its assumptions and

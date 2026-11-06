@@ -77,10 +77,11 @@
       <svg aria-describedby="passage-plan-reading" id="passage-plan" viewBox="0 0 720 420" role="img" aria-label="Plan view of a prescribed vortex moving east along a straight path past a fixed probe.">
         <path d="M60 210H660" stroke="#748477" stroke-dasharray="5 6"/><text x="62" y="193">TRAVEL EAST →</text>
         <circle id="passage-center" cx="60" cy="210" r="50" fill="#72bcb724" stroke="#a6cbc5" stroke-width="2"/>
+        <path id="passage-direction-arrow" class="passage-direction-arrow" d="" visibility="hidden" aria-hidden="true"/>
         <circle id="passage-probe" cx="360" cy="160" r="6" fill="#f2dab6"/><text x="374" y="38">FIXED PROBE: GOLD DOT</text>
         <text x="62" y="394">CIRCLE: CORE RADIUS R</text><text x="490" y="394">PATH SHOWN: 12 R</text>
       </svg>
-      <p class="figure-reading" id="passage-plan-reading"><strong>Plan view.</strong> The center travels east along the dashed line for 12 core radii. The circle marks core radius R. The gold dot is the fixed probe, north or south of the path according to your chosen offset.</p>
+      <p class="figure-reading" id="passage-plan-reading"><strong>Plan view.</strong> The center travels east along the dashed line for 12 core radii. The circle marks core radius R. The gold dot is the fixed probe, north or south of the path according to your chosen offset. Its short gold arrow shows air movement at the selected sample. The arrow has a fixed length and shows direction only.</p>
       <svg aria-describedby="passage-chart-reading" id="passage-chart" viewBox="0 0 720 245" role="img" aria-label="Sampled wind speed at the fixed probe over model time. The dashed line is the chosen comparison speed.">
         <path d="M52 25V200H688" fill="none" stroke="#748477"/>
         <line id="passage-threshold" x1="52" x2="688" stroke="#b69a73" stroke-dasharray="4 5"/>
@@ -100,7 +101,10 @@
       <p class="control-note">Negative values put the probe south of the track. The probe stays fixed during the passage.</p>
       <label for="threshold">Comparison speed <output id="threshold-value"></output></label><input id="threshold" type="range" min="25" max="200" step="5" value="50">
       <p class="control-note">The dashed line is a comparison value you choose. It is not a damage or safety threshold.</p>
-      <dl class="passage-readings"><dt>Wind at this moment</dt><dd id="passage-now"></dd><dt>Drag at this moment</dt><dd id="passage-force"></dd><dt>Highest sampled wind in this passage</dt><dd id="passage-peak"></dd><dt id="passage-range"></dt><dd id="passage-duration"></dd></dl>
+      <dl class="passage-readings"><dt>Wind at this moment</dt><dd id="passage-now"></dd><dt>East component (u)</dt><dd id="passage-east-component">-2.7 mph</dd><dt>North component (v)</dt><dd id="passage-north-component">+16.2 mph</dd><dt>Drag at this moment</dt><dd id="passage-force"></dd><dt>Highest sampled wind in this passage</dt><dd id="passage-peak"></dd><dt id="passage-range"></dt><dd id="passage-duration"></dd></dl>
+      <p class="control-note" id="passage-direction-reading">Air moves westward and northward at this sample.</p>
+      <p class="control-note">These components describe where the air moves at the fixed passage probe. Positive means east or north. Negative means west or south. The values use the same selected sample as the speed, force and component state. Displayed values are rounded.</p>
+      <p class="control-note" id="passage-direction-defaults">The printed direction is sample 1 of the default passage: 100 mph swirl, no background wind and a probe 1 R north of the track, with the center at -6 R. JavaScript updates it when settings or the sample change. Without scripts, these readings stay at those defaults.</p>
     </div>
   </div>
   <p class="wind-caption">This is prescribed translation of an unchanged analytic field, not a fluid simulation. Travel speed is independent of the uniform background wind. The 481 samples cover the center moving from −6 R to +6 R; wind outside that window is omitted. Duration uses interpolation between samples.</p>

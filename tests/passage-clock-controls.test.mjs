@@ -213,3 +213,51 @@ test('actual input updates unrounded force and strict state even when every disp
   assert.ok(Number(peak.cells[6].dataset.value)>1);
   assert.equal(peak.cells[7].textContent,'Failed under this rule');
 });
+
+test('actual passage direction follows paired selection, playback and decisive inspection without rewriting rows',async t=>{
+  const f=await fixture(t),rows=f.ids.get('sampled-values-body').rows;
+  f.ids.get('background').value=20;f.ids.get('wind-controls').fire('input');
+  f.ids.get('passage-time').value=240;f.ids.get('passage-time').fire('input');
+  assert.equal(f.ids.get('passage-east-component').textContent,'-80.0 mph');
+  assert.equal(f.ids.get('passage-north-component').textContent,'0.0 mph');
+  f.ids.get('offset').value=-1;f.ids.get('offset').fire('input');
+  assert.equal(f.index(),240);assert.equal(f.ids.get('passage-east-component').textContent,'+120.0 mph');
+  const writes=()=>rows.map(row=>row.cells.slice(1).map(cell=>[cell.textWrites,cell.dataWrites]));
+  const before=writes();rows[100].focus();
+  f.ids.get('component-time').value=200;f.ids.get('component-time').fire('input');
+  assert.ok(Number(f.ids.get('passage-north-component').dataset.value)>0);
+  f.ids.get('passage-time').value=280;f.ids.get('passage-time').fire('input');
+  assert.ok(Number(f.ids.get('passage-north-component').dataset.value)<0);
+  assert.deepEqual(writes(),before);assert.equal(f.document.activeElement,rows[100]);
+  f.ids.get('component-inspect-peak').fire('click');assert.equal(f.index(),240);
+  assert.equal(f.ids.get('passage-east-component').textContent,'+120.0 mph');
+  assert.equal(f.document.activeElement,rows[240]);
+  f.ids.get('passage-play').fire('click');f.draw(1000);assert.equal(f.index(),260);
+  assert.ok(Number(f.ids.get('passage-north-component').dataset.value)<0);
+  assert.deepEqual(writes(),before);assert.equal(f.document.activeElement,rows[240]);
+  f.ids.get('offset').value=-.7;f.ids.get('capacity').value=1.6;f.ids.get('wind-controls').fire('input');
+  f.ids.get('component-inspect-first').fire('click');assert.equal(f.index(),206);
+  assert.ok(Math.abs(Number(f.ids.get('passage-east-component').dataset.value)-(20+70/1.2125))<1e-10);
+  assert.ok(Math.abs(Number(f.ids.get('passage-north-component').dataset.value)-85/1.2125)<1e-10);
+  assert.equal(f.document.activeElement,rows[206]);f.playing(false);
+  // The separate field form restores this control before the queued passage reset.
+  f.ids.get('background').value=0;
+  f.ids.get('wind-reset').fire('click');await new Promise(resolve=>queueMicrotask(resolve));
+  assert.equal(f.index(),0);assert.equal(f.ids.get('passage-east-component').textContent,'-2.7 mph');
+  assert.equal(f.ids.get('passage-north-component').textContent,'+16.2 mph');
+});
+
+test('a refused actual rebuild clears direction, then recovers through the existing input path',async t=>{
+  const f=await fixture(t);
+  f.ids.get('component-inspect-peak').fire('click');
+  assert.equal(f.ids.get('passage-direction-arrow').attributes.get('visibility'),'visible');
+  f.ids.get('peak').value='NaN';
+  assert.throws(()=>f.ids.get('wind-controls').fire('input'),RangeError);
+  for(const id of ['passage-east-component','passage-north-component'])assert.equal(f.ids.get(id).textContent,'Unavailable');
+  assert.equal(f.ids.get('passage-direction-arrow').attributes.get('d'),'');
+  assert.equal(f.ids.get('passage-direction-arrow').attributes.get('visibility'),'hidden');
+  assert.equal(f.document.activeElement,f.ids.get('sampled-values-body').rows[240]);f.playing(false);
+  f.ids.get('peak').value=100;f.ids.get('wind-controls').fire('input');
+  assert.equal(f.index(),240);assert.equal(f.ids.get('passage-east-component').textContent,'-100.0 mph');
+  assert.equal(f.ids.get('passage-north-component').textContent,'0.0 mph');
+});
