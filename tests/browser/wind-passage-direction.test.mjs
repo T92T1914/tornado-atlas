@@ -73,6 +73,23 @@ for(const [width,appearance] of [[320,'dark'],[320,'light'],[1280,'dark'],[1280,
   await page.waitForFunction(()=>document.getElementById('passage-time').value==='0' && document.getElementById('background').value==='0');
   assert.equal(await page.locator('#passage-east-component').textContent(),'-2.7 mph');
   assert.equal(await page.locator('#passage-north-component').textContent(),'+16.2 mph');
+  await input(page,'background',20);await input(page,'offset',3);await input(page,'passage-time',0);
+  await page.evaluate(async()=>{await document.fonts.ready;});
+  assert.ok(Math.abs(Number(await page.locator('#passage-east-component').getAttribute('data-value'))-40/3)<1e-10);
+  assert.ok(Math.abs(Number(await page.locator('#passage-north-component').getAttribute('data-value'))-40/3)<1e-10);
+  const legend=page.locator('#passage-probe-legend');
+  assert.equal(await legend.count(),1,'Exactly one complete probe legend');
+  assert.equal(await legend.textContent(),'FIXED PROBE: GOLD DOT');
+  assert.equal(await page.locator('#passage-direction-arrow').getAttribute('visibility'),'visible');
+  const geometry=await page.locator('#passage-plan').evaluate(plan=>{
+    const rect=node=>{const b=node.getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom};};
+    return {plan:rect(plan),arrow:rect(plan.querySelector('#passage-direction-arrow')),legend:rect(plan.querySelector('#passage-probe-legend'))};
+  });
+  assert.ok(geometry.arrow.right>geometry.arrow.left && geometry.arrow.bottom>geometry.arrow.top,'The direction arrow must have a visible extent');
+  assert.ok(geometry.arrow.right+4<=geometry.legend.left,'Direction arrow and complete legend need a 4 CSS pixel gap: '+JSON.stringify(geometry));
+  assert.ok(geometry.legend.left>=geometry.plan.left && geometry.legend.right<=geometry.plan.right && geometry.legend.top>=geometry.plan.top && geometry.legend.bottom<=geometry.plan.bottom,'Complete probe legend must fit the plan: '+JSON.stringify(geometry));
+  await page.locator('#wind-reset').click();
+  await page.waitForFunction(()=>document.getElementById('passage-time').value==='0' && document.getElementById('background').value==='0' && document.getElementById('offset').value==='1');
   const passageControls=page.locator('#passage .study-controls').filter({has:page.locator('#passage-east-component')});
   assert.equal(await passageControls.count(),1,'Exactly one passage control panel contains the selected east component');
   await passageControls.evaluate(host=>{
