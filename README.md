@@ -455,11 +455,11 @@ node --check web/survey-photos.mjs
 node --check web/documentary-view.mjs
 node --check web/geography-view.mjs
 node --check web/damage-explanation.mjs
-node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs tests/impact-model.test.mjs tests/documentary-model.test.mjs
+node --test "tests/*.test.mjs"
 py -3.11 tools/check_catalogue.py
 ```
 
-Node 20 or newer is needed for the JavaScript checks, but not to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
+The quoted pattern runs every top-level Node unit test file. It needs Node 22 or newer, because Node 20 cannot expand the pattern itself. CI runs these checks on Node 24. One of the files starts Python through the `PYTHON` environment variable and falls back to `python`, so set `PYTHON` when only the `py` launcher is installed. The browser suite under `tests/browser` is separate, needs `npm ci` and a Playwright browser, and runs with `npm run test:browser`. Node is not needed to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
 
 The El Reno article includes the retained audit as ordinary HTML, with its
 September 21, 2026 check date, all thirteen unresolved source links and an
