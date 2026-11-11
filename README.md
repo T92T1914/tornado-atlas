@@ -422,7 +422,7 @@ py -3.11 -X utf8 -m atlas.exhibit
 
 This reuses a local source after checking its integrity, or downloads it if absent. Add `--refresh` to retrieve the mutable source URL again. If the geometry structure changes, the adapter stops for review. The small exhibit JSON and GeoJSON are included in Git so visitors can run the preview without downloading the research archive.
 
-The nine survey photographs are also included. `py -3.11 -m atlas.damage` verifies them and can restore a missing asset from the recorded source. Changed remote bytes or a corrupt existing asset stop the operation for review. It does not silently replace reviewed images.
+The nine survey photographs are also included. `py -3.11 -m atlas.damage` verifies them and can restore a missing asset from the recorded source. Changed remote bytes or a corrupt existing asset stop the operation for review. It does not silently replace reviewed images. A decoded pixel comparison in the [photograph and survey record join](research/nws-photo-survey-joins-2026-11-11.md) shows that each of the nine is the same photograph as one attached to an NWS Damage Assessment Toolkit survey record, in a separate encoding on the NWS page. The join gives the damaged structure's surveyed point as the DAT records it, not a camera position, so the gallery still carries no camera coordinates or capture times.
 
 ## Why the evidence stays visible
 
