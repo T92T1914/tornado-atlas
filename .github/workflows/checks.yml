@@ -104,7 +104,7 @@ jobs:
           node --check web/damage-view.mjs
           node --check web/photo-view.mjs
           node --check web/tuscaloosa-radar-view.mjs
-          node --test tests/photo-view.test.mjs
+          node --test tests/photo-view.test.mjs tests/photo-byte-check.test.mjs
           node --check web/tuscaloosa-survey-reader.mjs
           node --check web/tuscaloosa-damage-map.mjs
           node --test tests/tuscaloosa-reader-history.test.mjs tests/tuscaloosa-request-contract.test.mjs
@@ -133,7 +133,7 @@ jobs:
           node --check web/footage-view.mjs
           node --test tests/footage-model.test.mjs
           node --test tests/bounded-form.test.mjs tests/documentary-sources.test.mjs tests/study-clock-controls.test.mjs
-          node --test tests/documentary-audit-lifecycle.test.mjs tests/form-toggle-diagnostics.test.mjs
+          node --test tests/documentary-audit-lifecycle.test.mjs tests/form-toggle-diagnostics.test.mjs tests/css-font-readback.test.mjs
           node --test tests/atlas-model.test.mjs tests/vortex-model.test.mjs tests/wind-model.test.mjs tests/wind-reference-view.test.mjs tests/timeline-media.test.mjs tests/component-model.test.mjs tests/evolution-model.test.mjs tests/survey-model.test.mjs tests/playback-model.test.mjs tests/map-navigation.test.mjs tests/impact-model.test.mjs tests/documentary-model.test.mjs
       - name: Verify checked-in exhibit
         run: |
