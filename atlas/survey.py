@@ -108,5 +108,5 @@ def load_survey(geometry):
     return {**result, 'source': manifest,
             'association': 'geographic_overlap_only',
             'note': 'NWS survey points inside or on the published El Reno outline. The archived records have no event ID linking them to this tornado. Geographic overlap alone does not prove that it caused each observation.',
-            'time_note': 'These are surveyed outcomes, not timed impacts. Available DAT attachments are linked to their exact survey records below. The separate nine-photo NWS gallery has not been matched to these points.',
+            'time_note': 'These are surveyed outcomes, not timed impacts. Available DAT attachments are linked to their exact survey records below. Each of the nine photographs in the NWS event-page gallery is the same picture as one of these attachments, matched by decoded pixels. Its record\'s point marks the damaged structure, not the camera.',
             'status_note': 'DAT calls these quality-controlled records preliminary. The event rating remains the final NWS EF3 assessment. Individual point ratings are separate observations.'}

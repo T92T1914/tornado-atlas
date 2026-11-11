@@ -7,7 +7,7 @@ root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
 from atlas.documentary import load_documentary, validate_remembrance_coverage
 from atlas.footage import load_footage
-from atlas.damage import validate_gallery
+from atlas.damage import validate_gallery, validate_survey_links
 from atlas.history import validate_history
 from atlas.reading import validate_reading
 from atlas.observations import validate_notebook
@@ -55,6 +55,8 @@ validate_timeline_media(bundle['timeline_media'], root / 'web')
 validate_notebook(bundle['notebook'], bundle['review_queue'], bundle['exhibit']['id'])
 validate_community(bundle['community'], bundle['exhibit']['id'])
 validate_gallery(bundle['damage'], root / 'web')
+validate_survey_links(bundle['damage'], json.loads((root / 'exhibits/el-reno-2013/survey-response.json').read_bytes()),
+                      bundle['survey'], bundle['survey_media'])
 validate_history(bundle['history'], bundle['storm_photos'], root / 'web')
 validate_remembrance_coverage(bundle['history'], bundle['documentary'])
 validate_reading(bundle['reading'], {key: value for key, value in bundle.items() if key != 'reading'})

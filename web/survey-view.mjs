@@ -325,4 +325,21 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     if(!restoring&&!filtering)refreshLinks();
   });
   restore();
+  // Select one record from elsewhere on the page, such as the NWS gallery.
+  // Filters that would hide it are cleared, and the selection enters history.
+  function showRecord(id) {
+    const point=survey.points.find(p=>p.id===id);
+    if(!point)return false;
+    targetMissing.textContent='';searchBurst=false;
+    if(visible.some(p=>p.id===id))show(id);
+    else {
+      rating.value='';search.value='';
+      if(!media.photos[String(id)]?.length)photosOnly.checked=false;
+      selectedId=id;filter('push');
+    }
+    workspace.scrollIntoView({block:'start'});
+    select.focus({preventScroll:true});
+    return true;
+  }
+  return {showRecord};
 }

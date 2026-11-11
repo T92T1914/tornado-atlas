@@ -6,6 +6,7 @@
   "rights_url": "https://www.weather.gov/disclaimer",
   "introduction": "Nine photographs from the NOAA/NWS damage survey. Compare buildings and infrastructure at different locations along the event. Each rating below is the assessment in the original photograph caption.",
   "location_note": "Locations follow the source captions. Exact camera coordinates and capture times have not been established, so these photographs are not pinned to the timeline.",
+  "survey_link_note": "Each photograph is the same picture as an original attached to one NWS damage survey record, matched by decoded pixels. That record's point is where the survey placed the damaged structure. It is not where the camera stood.",
   "interpretation_note": "These are different sites after the same event, not before and after images. The photographs document damage; they do not supply a wind field or a building failure model.",
   "photos": [
     {
@@ -18,6 +19,13 @@
       "location_description": "Near S. Airport Road and SW 15th Street, about 6.4 miles southwest of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165524,
+        "global_id": "{36553DD3-317E-478C-B2AD-43E6F7734A59}",
+        "attachment_id": 112145,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage01.jpg",
       "asset": "assets/el-reno-2013/damage01.jpg",
@@ -39,6 +47,13 @@
       "location_description": "Near S. Airport Road and SW 15th Street, about 6.4 miles southwest of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165486,
+        "global_id": "{C4E2FA6B-B91B-4237-83E3-2EB69004372B}",
+        "attachment_id": 112129,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage02.jpg",
       "asset": "assets/el-reno-2013/damage02.jpg",
@@ -60,6 +75,13 @@
       "location_description": "Near Rother Road and SW 15th Street, about 6 miles south-southeast of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165638,
+        "global_id": "{81E1CF73-3A74-4E39-B9B4-EEA5947D99B7}",
+        "attachment_id": 112214,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage03.jpg",
       "asset": "assets/el-reno-2013/damage03.jpg",
@@ -81,6 +103,13 @@
       "location_description": "Near Rother Road and SW 15th Street, about 6 miles south-southeast of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165650,
+        "global_id": "{E6BBE8A0-F204-45C0-AC67-BFB2F7AC16CB}",
+        "attachment_id": 112218,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage04.jpg",
       "asset": "assets/el-reno-2013/damage04.jpg",
@@ -102,6 +131,13 @@
       "location_description": "Near Rother Road and SW 15th Street, about 6 miles south-southeast of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165632,
+        "global_id": "{650A7C8C-9982-4245-B726-4544EFD44E40}",
+        "attachment_id": 112210,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage05.jpg",
       "asset": "assets/el-reno-2013/damage05.jpg",
@@ -123,6 +159,13 @@
       "location_description": "Just north of Interstate 40, about 5 miles east-southeast of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165712,
+        "global_id": "{016BDA8E-BB63-4D28-B3FA-A34FBCEB098F}",
+        "attachment_id": 112252,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage06.jpg",
       "asset": "assets/el-reno-2013/damage06.jpg",
@@ -144,6 +187,13 @@
       "location_description": "Near Jensen Road and S. Radio Road, about 4 miles southeast of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165695,
+        "global_id": "{5CDE4603-09CA-48E7-B5CA-C09AA04FE98C}",
+        "attachment_id": 112236,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage07.jpg",
       "asset": "assets/el-reno-2013/damage07.jpg",
@@ -165,6 +215,13 @@
       "location_description": "Canadian Valley Technology Center, about 4.5 miles east-southeast of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165757,
+        "global_id": "{6F3D68FA-2A0B-40EC-AAF2-DAA985C29B0E}",
+        "attachment_id": 112272,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage08.jpg",
       "asset": "assets/el-reno-2013/damage08.jpg",
@@ -186,6 +243,13 @@
       "location_description": "Canadian Valley Technology Center, about 4.5 miles east-southeast of El Reno.",
       "coordinates": null,
       "captured_at": null,
+      "survey_record": {
+        "object_id": 165756,
+        "global_id": "{2F04D0F0-ECB1-4397-8CE0-F11400B20A92}",
+        "attachment_id": 112270,
+        "matched_by": "decoded_pixels",
+        "review": "research/nws-photo-survey-joins-2026-11-11.md"
+      },
       "source_page": "https://www.weather.gov/oun/events-20130531",
       "image_url": "https://www.weather.gov/images/oun/wxevents/20130531/damage/damage09.jpg",
       "asset": "assets/el-reno-2013/damage09.jpg",
