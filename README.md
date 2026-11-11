@@ -203,6 +203,7 @@ help readers find passages and understand timing, viewpoint and rating limits.
 The [footage registration record](research/footage-registration-2026-09-21.md)
 documents what was inspected.
 The [bounded Robinson registration decision](research/robinson-registration-decision-2026-10-04.md) checks two retained clock anchors against the Survey Project's own camera metadata. Sparse positions and directions exist, but the metadata identifies a Vimeo source whose relationship to the selected YouTube upload remains unverified. A continuous appearance interval remains unregistered until video identity, timing, camera calibration and footage inspection are tied together.
+The [Survey paper record](research/seimon-el-reno-survey-2026-11-11.md) reads the full text of Seimon and colleagues (2016) and lists each recording the paper places in time, with its published view, figure and timing route. The paper reports one-frame timing for almost all of the Survey's own clips of 15 seconds or more. It publishes no per-recording clock offset, numerical camera position or reuse grant, so it narrows the candidates without registering one. Tim Marshall's view at 23:14:42 UTC is the strongest, because the retained Marshall camera samples agree with the paper's description.
 
 The [Joplin chapter](https://t92t1914.github.io/tornado-atlas/joplin.html) adds
 the 2011 warning sequence, the original NWS path figure, credited storm and
