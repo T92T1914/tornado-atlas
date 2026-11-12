@@ -52,7 +52,7 @@ still do not establish capture time, photographer or camera position. See
 [the linked-evidence record](linked-evidence-design-2026-09-20.md) and
 [attachment manifest](../exhibits/el-reno-2013/survey-attachments-source.json).
 
-## Follow-up, November 11, 2026
+## Update, November 11, 2026
 
 A decoded pixel comparison now matches each of the nine gallery photographs to
 one of these original attachments, and so to one survey record. This
