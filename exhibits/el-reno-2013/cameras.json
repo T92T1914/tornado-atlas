@@ -12,5 +12,5 @@
   "display_max_age_seconds": 90,
   "credit": "El Reno Survey Project; Tim Marshall camera track.",
   "method": "Published UTC timestamps, latitude, longitude and camera 1 azimuth. Directions are shown clockwise from north, following the source viewer. Camera positions are not interpolated.",
-  "limits": "The marker shows the latest preceding recorded camera location for at most 90 seconds, then disappears. This is a display rule, not a measured error bound. Location, clock and direction uncertainty are not quantified. The arrow has no distance or field-of-view meaning. No photograph or video frame is assigned to this track here."
+  "limits": "The marker shows the latest preceding recorded camera location for at most 90 seconds, then disappears. This is a display rule, not a measured error bound. Location and clock uncertainty are not quantified for these samples. The El Reno Survey paper says view directions were estimated to a precision of plus or minus 10 degrees from road orientations and landscape features. That is a method value, not a measured error for any one sample. The arrow has no distance or field-of-view meaning. No photograph or video frame is assigned to this track here."
 }
