@@ -51,3 +51,13 @@ above. The nine existing gallery photographs remain unmatched. The new joins
 still do not establish capture time, photographer or camera position. See
 [the linked-evidence record](linked-evidence-design-2026-09-20.md) and
 [attachment manifest](../exhibits/el-reno-2013/survey-attachments-source.json).
+
+## Update, November 11, 2026
+
+A decoded pixel comparison now matches each of the nine gallery photographs to
+one of these original attachments, and so to one survey record. This
+supersedes the statement above that they remain unmatched. The
+[photograph and survey record join](nws-photo-survey-joins-2026-11-11.md)
+gives the records, the method and its limits. The joins locate the damaged
+structures as the DAT records them. They still do not establish camera
+position, capture time or photographer.
