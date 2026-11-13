@@ -200,6 +200,25 @@ test('retain an F and JEF case while browsing, with source bounds and provenance
     const evidence=window.__atlasComparisonReading.get(id);
     evidence.activation={summary,disclosure:summary.parentElement,label:summary.textContent.slice(0,160),inputs:[],omitted:0};
    },record.id);
+   // The page sets scroll-behavior:smooth. In WebKit the summary has moved
+   // 43 px between the pointerdown and the pointerup of one click, so the click
+   // landed on the card and the disclosure stayed closed. Place the summary
+   // instantly and wait for the scroll to settle, so the click finds it in view
+   // and has nothing to scroll.
+   const placement=await summary.evaluate(node=>new Promise(resolve=>{
+    node.scrollIntoView({behavior:'instant',block:'center'});
+    let last=scrollY,steady=0,frames=0;
+    const check=()=>{
+     frames++;steady=scrollY===last?steady+1:0;last=scrollY;
+     if(steady>=2||frames>=60){
+      const r=node.getBoundingClientRect();
+      resolve({settled:steady>=2&&r.top>=0&&r.bottom<=innerHeight,frames,scroll_y:scrollY,bounds:[r.top,r.bottom,innerHeight]});
+     }
+     else requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+   }));
+   assert.ok(placement.settled,'Comparison disclosure settles fully in view before its click '+JSON.stringify(placement));
    try{
     await summary.click();
     await page.waitForFunction(id=>{
