@@ -6,7 +6,7 @@ import {fixture,base} from './harness.mjs';
 
 const original = await readFile(new URL('../../web/app.js',import.meta.url),'utf8');
 const sourceHash = createHash('sha256').update(original).digest('hex');
-assert.equal(sourceHash,'a86ab85dd69b2b17e6f2ab7d13c1cea2df9843037a04f0875f841b713a0eb893','The bounded diagnostic uses the reviewed application');
+assert.equal(sourceHash,'6e417f28d99cdbbbc9a079c7a298c9ad1aba8c245e4de1ef6f73405a86d584e5','The bounded diagnostic uses the reviewed application');
 let instrumented = original;
 function once(needle,replacement) {
  assert.equal(instrumented.split(needle).length,2,'One exact diagnostic transformation: '+needle.slice(0,70));

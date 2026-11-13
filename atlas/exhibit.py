@@ -19,7 +19,7 @@ from xml.etree import ElementTree as ET
 from .documentary import load_documentary, validate_remembrance_coverage
 from .sources import ROOT, cached_retrieval, read_object, retrieve
 from .observations import validate_notebook
-from .damage import validate_gallery
+from .damage import validate_gallery, validate_survey_links
 from .history import validate_history
 from .reading import validate_reading
 from .timeline_media import validate_timeline_media
@@ -162,6 +162,8 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     result['community'] = community
     result['survey'] = load_survey(geojson)
     result['survey_media'] = load_survey_attachments(result['survey'])
+    survey_records = json.loads((ROOT / 'exhibits/el-reno-2013/survey-response.json').read_bytes())
+    validate_survey_links(damage, survey_records, result['survey'], result['survey_media'])
     result['cameras'] = load_cameras()
     result['documentary'] = load_documentary(ROOT)
     validate_remembrance_coverage(history, result['documentary'])

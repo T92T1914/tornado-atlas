@@ -212,10 +212,11 @@ async function main() {
   mountReader(data.reading, history.chapters.map(chapter => ({...chapter, map_time:mapTimes.get(chapter.minute)})), selectMinute);
   });
   const { mountDamage } = await import('./damage-view.mjs');
-  layout.update(() => mountDamage(data.damage, openPhoto));
+  let surveyExplorer = null;
+  layout.update(() => mountDamage(data.damage, openPhoto, {showSurveyRecord:id => surveyExplorer?.showRecord(id) ?? false}));
   const { mountSurvey } = await import('./survey-view.mjs');
   layout.update(() => {
-  mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places,
+  surveyExplorer = mountSurvey(data.survey, data.geometry, data.survey_media, openPhoto, memorial.places,
     {beforeHistoryChange:replay.prepareSurveyHistory});
   mountResearchLog(data.documentary);
   });

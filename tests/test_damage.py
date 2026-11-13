@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from atlas.damage import validate_gallery, restore_assets
+from atlas.damage import validate_gallery, validate_survey_links, restore_assets
 from atlas.sources import ROOT
 
 
@@ -23,6 +23,70 @@ class SurveyPhotoTests(unittest.TestCase):
             changed['photos'][0][key] = value
             with self.assertRaisesRegex(ValueError, 'no verified'):
                 validate_gallery(changed)
+
+    def survey_sources(self):
+        # The published bundle's survey and attachments equal the compiled
+        # sources. tools/check_exhibit.py asserts that equality.
+        records = json.loads((ROOT / 'exhibits/el-reno-2013/survey-response.json').read_bytes())
+        bundle = json.loads((ROOT / 'web/data.json').read_text(encoding='utf-8'))
+        return records, bundle['survey'], bundle['survey_media']
+
+    def test_every_photograph_links_its_matched_survey_record(self):
+        records, survey, media = self.survey_sources()
+        validate_survey_links(self.gallery, records, survey, media)
+        self.assertEqual([p['survey_record']['object_id'] for p in self.gallery['photos']],
+                         [165524, 165486, 165638, 165650, 165632, 165712, 165695, 165757, 165756])
+        for photo in self.gallery['photos']:
+            self.assertIsNone(photo['coordinates'])
+            self.assertIsNone(photo['captured_at'])
+
+    def test_link_to_missing_or_mismatched_record_is_rejected(self):
+        records, survey, media = self.survey_sources()
+        cases = [
+            ('object_id', 999999999, 'missing from the retained response'),
+            ('global_id', '{00000000-0000-0000-0000-000000000000}', 'global ID does not match'),
+            ('attachment_id', 112129, 'not an original on that survey record'),
+        ]
+        for key, value, message in cases:
+            with self.subTest(key=key):
+                changed = copy.deepcopy(self.gallery)
+                changed['photos'][0]['survey_record'][key] = value
+                with self.assertRaisesRegex(ValueError, message):
+                    validate_survey_links(changed, records, survey, media)
+
+    def test_link_to_a_record_off_the_survey_map_is_rejected(self):
+        records, survey, media = self.survey_sources()
+        trimmed = {**survey, 'points': [p for p in survey['points'] if p['id'] != 165524]}
+        with self.assertRaisesRegex(ValueError, 'not on the survey map'):
+            validate_survey_links(self.gallery, records, trimmed, media)
+
+    def test_two_photographs_cannot_share_one_record(self):
+        records, survey, media = self.survey_sources()
+        self.gallery['photos'][1]['survey_record'] = copy.deepcopy(self.gallery['photos'][0]['survey_record'])
+        with self.assertRaisesRegex(ValueError, 'Two gallery photographs'):
+            validate_survey_links(self.gallery, records, survey, media)
+
+    def test_link_shape_requires_the_reviewed_pixel_match(self):
+        for key, value in [('matched_by', 'proximity'), ('review', 'research/other.md'),
+                           ('object_id', '165524'), ('global_id', '36553DD3')]:
+            with self.subTest(key=key):
+                changed = copy.deepcopy(self.gallery)
+                changed['photos'][0]['survey_record'][key] = value
+                with self.assertRaises(ValueError):
+                    validate_gallery(changed)
+        missing = copy.deepcopy(self.gallery)
+        del missing['photos'][0]['survey_record']
+        with self.assertRaisesRegex(ValueError, 'survey-record link'):
+            validate_gallery(missing)
+        extra = copy.deepcopy(self.gallery)
+        extra['photos'][0]['survey_record']['camera'] = [-98.0, 35.4]
+        with self.assertRaisesRegex(ValueError, 'survey-record link'):
+            validate_gallery(extra)
+
+    def test_link_note_keeps_the_camera_distinction(self):
+        self.gallery['survey_link_note'] = 'Each photograph is pinned at its survey point.'
+        with self.assertRaisesRegex(ValueError, 'not the camera position'):
+            validate_gallery(self.gallery)
 
     def test_asset_path_cannot_escape_gallery(self):
         self.gallery['photos'][0]['asset'] = '../private.jpg'
