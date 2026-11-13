@@ -27,7 +27,7 @@ async function downloadedComparison(page,action=()=>page.locator('#case-comparis
 }
 test('retained counts, default tornado class and bounded pagination',async t=>{
  const page=await fixture(t);await open(page);
- assert.match(await page.locator('#case-coverage').innerText(),/2,912.*1,576/);
+ assert.match(await page.locator('#case-coverage').innerText(),/2,914.*1,577/);
  assert.equal(await page.locator('[data-case]').count(),20);
  assert.equal(await page.locator('[data-case]').first().getAttribute('data-case'),tornadoes[0].id);
  await page.locator('#case-next-page').click();
@@ -35,9 +35,9 @@ test('retained counts, default tornado class and bounded pagination',async t=>{
  await page.locator('#case-prev-page').click();
  assert.equal(await page.locator('[data-case]').first().getAttribute('data-case'),tornadoes[0].id);
  await page.locator('#case-class').selectOption('6');
- assert.match(await page.locator('#case-results-count').innerText(),/^878 matching cases/);
+ assert.match(await page.locator('#case-results-count').innerText(),/^879 matching cases/);
  await page.locator('#case-class').selectOption('all');
- assert.match(await page.locator('#case-results-count').innerText(),/^2,912 matching cases/);
+ assert.match(await page.locator('#case-results-count').innerText(),/^2,914 matching cases/);
 });
 test('Japanese literal search and rating filters preserve class distinctions',async t=>{
  const page=await fixture(t);await open(page);
