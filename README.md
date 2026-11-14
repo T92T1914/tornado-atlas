@@ -137,11 +137,11 @@ source observation and a link to the original upload. In the gaps, it says
 that appearance is unknown instead of carrying the last frame forward. A
 versioned optional appearance timeline can drive the same clock and form
 renderer for qualified bounded intervals. Its observed, interpolated and
-illustrative states have separate labels; the published El Reno package has
+illustrative states have separate labels. The published El Reno package has
 no such interval. The [appearance package contract](docs/event-replay-packages.md#optional-appearance-timeline)
 sets out the admission requirements and rendering limits.
 
-At three creator-reported Nolte instants, the replay displays the complete
+At three Nolte instants reported by the creator, the replay displays the complete
 permitted JPEG with its caption, credit and item permission. Each selected copy
 is checked before display and can be enlarged through the existing source viewer.
 The fourth still and movie remain external links. Photographs are not held across
@@ -153,7 +153,7 @@ time. Chapter buttons, Previous and Next use published map minutes and stay in
 browser history. The source's wording of the event time remains beside the map seek
 time where they differ. Bulletin issue time is identified separately from any
 earlier observation described in its text. The original account and bulletin
-remain one click away; the new panel does not turn their prose into additional
+remain one click away. The new panel does not turn their prose into additional
 tracked positions or appearance observations.
 
 The replay also opens the existing damage survey beside the historical player.
@@ -162,12 +162,12 @@ linked photographs, and marks its recorded location with an outlined diamond
 in the scene. The survey location stays fixed while the tornado center moves.
 The recorded assessment has no assigned impact time. Direct links, reload and
 browser history retain both the observation and replay moment. The inspector
-opens on request, or when a shared link already names a survey selection;
-unavailable photographs keep the original record and source routes.
+opens on request, or when a shared link already names a survey selection.
+Unavailable photographs keep the original record and source routes.
 
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
-also shows Joplin's research readiness page, with a link to its documentary;
+also shows Joplin's research readiness page, with a link to its documentary.
 Joplin does not yet have a reviewed replay. The [package contract](docs/event-replay-packages.md)
 explains this first reusable boundary and the evidence still required for another
 storm. A package mismatch leaves a visible error instead of mixing revisions.
@@ -239,16 +239,16 @@ From the repository directory:
 py -3.11 -m http.server 8768 --bind 127.0.0.1 --directory web
 ```
 
-Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:8768/index.html#survey-explorer** for the linked El Reno photographs, **http://127.0.0.1:8768/study.html** for the form study, or **http://127.0.0.1:8768/wind.html** for the wind experiment. On macOS or Linux, replace `py -3.11` with `python3`. The museum data, maps, preserved galleries and labs run offline after checkout. Optional USGS reference geography needs a network connection and can be hidden. The 45 linked DAT photographs need access to the original NWS service; failed images leave the assessment and source link usable. Source links open external websites. The 3D view needs WebGL 2; the historical pages and wind lab do not.
+Open **http://127.0.0.1:8768/atlas.html** for the catalogue, **http://127.0.0.1:8768/index.html#survey-explorer** for the linked El Reno photographs, **http://127.0.0.1:8768/study.html** for the form study, or **http://127.0.0.1:8768/wind.html** for the wind experiment. On macOS or Linux, replace `py -3.11` with `python3`. The museum data, maps, preserved galleries and labs run offline after checkout. Optional USGS reference geography needs a network connection and can be hidden. The 45 linked DAT photographs need access to the original NWS service. If an image fails to load, the assessment and source link stay usable. Source links open external websites. The 3D view needs WebGL 2. The historical pages and wind lab do not.
 
-Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Numbered groups open a smaller set of records; clear the selected group to return to the current filters. Each selected record has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account. Scroll to zoom around the pointer, drag to explore, or pinch on a touchscreen. The atlas, historical path and damage survey share these controls. Arrow keys pan a focused map; + and - zoom; Home resets it.
+Filter the atlas by year, reported rating, state or exhibit availability. Search for a locality, source ID or a reviewed name such as Joplin. Select a map point or list entry to inspect the original account and source revision. Numbered groups open a smaller set of records. Clear the selected group to return to the current filters. Each selected record has a direct link that can be bookmarked. The map uses Natural Earth geography without a map service account. Scroll to zoom around the pointer, drag to explore, or pinch on a touchscreen. The atlas, historical path and damage survey share these controls. Arrow keys pan a focused map, + and - zoom, and Home resets it.
 
 Use **Link to this search** to copy or bookmark the filters together with the
 selected record. Reopening the link restores the search, and Back and Forward
 move between selected records. Temporary map groups and zoom are not saved in
 the link. [Try a filtered El Reno search](https://t92t1914.github.io/tornado-atlas/atlas.html?q=El+Reno&year=2013&rating=EF3&state=OKLAHOMA&exhibits=1#record=ncei%3A453682).
 
-Use the shared clock with second resolution to scrub or play the path at 1×, 15×, 60× or 120×. Previous and next still select the 39 published minute positions; movement between them is explicitly labeled interpolation. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
+Use the shared clock with second resolution to scrub or play the path at 1×, 15×, 60× or 120×. Previous and next still select the 39 published minute positions. Movement between them is explicitly labeled interpolation. Search the research collection for a storm or creator. The shaded outline covers the entire event, so moving the marker does not turn it into a changing funnel model.
 
 Compare two survey photographs, enlarge either one, or filter the collection by subject and the rating in the original NWS caption. The files are unchanged government survey photographs. Locations remain descriptive because exact camera positions and capture times have not been established.
 
@@ -309,7 +309,7 @@ The [photograph notes](research/source-photographs-2026-09-21.md) explain why
 these remain unregistered observations. They do not seek the historical clock
 or place a camera on the map, and the copyrighted images remain on their source site.
 
-Form Study opens a paused storm scene over the authored formation schedule. Scrub through its thirty study seconds, turn the camera, compare reduced condensation at unchanged circulation, or switch dust and circulation marks independently. The earlier manual cone, wedge and rope forms and visible-extent control remain available. The drawing has no historical date, physical scale, wind estimate or damage prediction. El Reno's historical appearance reconstruction remains unfinished.
+Form Study opens a paused storm scene over the authored formation schedule. Scrub through its thirty study seconds, turn the camera, compare reduced condensation at unchanged circulation, or switch dust and circulation marks independently. The earlier manual cone, wedge and rope forms remain available, along with the control for visible extent. The drawing has no historical date, physical scale, wind estimate or damage prediction. El Reno's historical appearance reconstruction remains unfinished.
 
 Documentary references load independently of the model. Their updates keep the chosen laboratory control or canvas in place, while scrolling or moving focus releases that position. The [laboratory reading guide](docs/laboratory-reading.md) explains the source and model limits.
 
@@ -336,7 +336,7 @@ Documentary references load independently of the model. Their updates keep the c
 | Community discussions | Three sourced El Reno arguments and overlooked details, with separate evidence checks and open questions |
 | Verification | Python and JavaScript behavior tests, offline bundle and photograph checks, and a GitHub Actions workflow |
 
-This is an early working project. Complete international coverage, documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer for US source coverage. Japanese source cases have a separate browser that preserves their classifications and uncertainty. The video collection records exactly what has been inspected; adding a video does not mean it has been watched or verified in full.
+This is an early working project. Complete international coverage, documentary exhibits, historically registered 3D storm reconstructions and structural damage models are still ahead. The world outline is a navigation layer for US source coverage. Japanese source cases have a separate browser that preserves their classifications and uncertainty. The video collection records exactly what has been inspected. Adding a video does not mean it has been watched or verified in full.
 
 ## Follow the timeline and try the models
 
@@ -370,7 +370,7 @@ first sampled exceedance, persistent failure state, and rewind behavior.
 Its inspection actions pause at the highest sampled load or first sampled
 capacity exceedance and open the exact numerical row. A selected passage sample
 also shows signed east and north wind components and the direction the air
-moves. A fixed-length arrow shows direction only. These are model foundations.
+moves. The arrow has a fixed length and shows direction only. These are model foundations.
 They do not reconstruct El Reno's visible evolution or
 predict a specific building's damage.
 
@@ -378,7 +378,7 @@ The [Udall account](https://t92t1914.github.io/tornado-atlas/udall.html) follows
 
 The [Greensburg account](https://t92t1914.github.io/tornado-atlas/greensburg.html) follows the May 4, 2007 nighttime tornado through its warnings, county records and dated recovery accounts. Conflicting boundary coordinates, clock conventions and differently scoped casualty counts remain visible. Original recovery photographs are linked with their unresolved reuse status. A county damage account can sit beside either laboratory without assigning winds or a reconstructed funnel.
 
-Moore's rescue account includes the complete NWS command-post photograph credited to Bruce Thoren. Udall's directional damage observations and Blackwell's separately located witness sequences add detail without turning reported debris directions or quiet intervals into a recovered wind field.
+Moore's rescue account includes the complete NWS photograph of the command post, credited to Bruce Thoren. Udall's directional damage observations and Blackwell's separately located witness sequences add detail without turning reported debris directions or quiet intervals into a recovered wind field.
 
 Both labs provide native contents for their controls, source context and model limits. The Wind Lab’s tracers with zero background flow follow the circular paths of its stated field, while mixed background flow retains an approximate integrator. The [Moore school account](https://t92t1914.github.io/tornado-atlas/moore.html#schools) distinguishes reported refuge decisions, surveyed building damage and NIST’s interpretation. Those observations do not set the lab’s winds or component capacity.
 
@@ -411,9 +411,9 @@ Retain a record with **Add record to comparison**, then browse and add a second 
 
 The [JMA adapter and publication contract](docs/jma-adapter.md) explain the local workflow. `py -3.11 -X utf8 -m atlas import-jma` retains every source case, while `search --country JP` returns only explicitly classified tornadoes. `jma-cases` keeps the other phenomena queryable. `publish-jma --output web/jma-cases` verifies the retained raw bytes and every normalized case before writing the separate browser's index and immutable details. Use `--data-dir PATH` before a command for a separate catalogue. The existing US exporter still refuses international records before writing files. Its map and coverage below remain unchanged.
 
-The September 20, 2026 import includes all 76 annual source files from 1950 through 2025, totaling 80,318 source records. Of those, 79,142 have a usable reported start or end coordinate; 1,176 remain searchable without a map point. A row can describe one county's segment of a longer tornado. This is not a count of unique tornadoes or a guarantee that every historical event was recorded. Reporting practices and source completeness vary over time.
+The September 20, 2026 import includes all 76 annual source files from 1950 through 2025, totaling 80,318 source records. Of those, 79,142 have a usable reported start or end coordinate. The other 1,176 remain searchable without a map point. A row can describe one county's segment of a longer tornado. This is not a count of unique tornadoes or a guarantee that every historical event was recorded. Reporting practices and source completeness vary over time.
 
-Browsers with native gzip decompression load a 3.5 MB compressed index. A readable JSON fallback is included. Spatial grouping bounds the SVG marker count while preserving individual records in the result list. Detail responses use 256 smaller buckets; old filenames addressed by their content remain valid across rebuilds.
+Browsers with native gzip decompression load a 3.5 MB compressed index. A readable JSON fallback is included. Spatial grouping bounds the SVG marker count while preserving individual records in the result list. Detail responses use 256 smaller buckets. Old filenames addressed by their content remain valid across rebuilds.
 
 Rebuild the exhibit from the preserved NWS source:
 
@@ -460,7 +460,7 @@ node --test "tests/*.test.mjs"
 py -3.11 tools/check_catalogue.py
 ```
 
-The quoted pattern runs every top-level Node unit test file. It needs Node 22 or newer, because Node 20 cannot expand the pattern itself. CI runs these checks on Node 24. One of the files starts Python through the `PYTHON` environment variable and falls back to `python`, so set `PYTHON` when only the `py` launcher is installed. The browser suite under `tests/browser` is separate, needs `npm ci` and a Playwright browser, and runs with `npm run test:browser`. Node is not needed to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
+The quoted pattern runs every Node unit test file directly under the tests folder. It needs Node 22 or newer, because Node 20 cannot expand the pattern itself. CI runs these checks on Node 24. One of the files starts Python through the `PYTHON` environment variable and falls back to `python`, so set `PYTHON` when only the `py` launcher is installed. The browser suite under `tests/browser` is separate, needs `npm ci` and a Playwright browser, and runs with `npm run test:browser`. Node is not needed to serve the museum. Tests cover source corruption, revision replacement, transaction rollback, date and time handling, missing values, rating identity, map bounds, static publication consistency and observation coverage. Synthetic fixtures test the software. They do not validate every historical claim in the source databases.
 
 The El Reno article includes the retained audit as ordinary HTML, with its
 September 21, 2026 check date, all thirteen unresolved source links and an

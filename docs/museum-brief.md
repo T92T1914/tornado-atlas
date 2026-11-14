@@ -17,7 +17,7 @@ Give visitors a sourced account, a chronology they can read without operating
 the animation, actual photographs with credits, damage context, reported human
 impacts, remembrance and a usable source list. A persistent contents list should
 support returning to a particular passage. El Reno now implements this first
-reading template; the archive still needs deeper event-by-event research.
+reading template. The archive still needs deeper research, one event at a time.
 
 The working title is Tornado Atlas. The public museum and repository use that title.
 
@@ -26,7 +26,7 @@ The working title is Tornado Atlas. The public museum and repository use that ti
 1. Explore by location, period, rating system, and available evidence.
 2. Open a storm exhibit with a timeline, source material, and reported impacts.
 3. Play, pause and scrub its documented path where survey geometry is available, with timing gaps visible.
-4. Watch an event-specific reconstruction develop over time, with source footage and assumptions available beside the scene.
+4. Watch a reconstruction built for that event develop over time, with source footage and assumptions available beside the scene.
 5. Compare documented damage locations with the reconstruction without inventing when individual structures failed.
 
 The archive can grow faster than the detailed reconstructions. A storm with only a location and historical account can have a useful record without receiving an invented photorealistic animation. Some events can support an animated map before a reconstruction of their changing appearance. Coverage should be stated for the particular interval and viewpoint, rather than treating the whole storm as either finished or unknown.
@@ -34,7 +34,7 @@ The archive can grow faster than the detailed reconstructions. A storm with only
 ## Delivery and priorities
 
 * The public browser museum and repository are already available on GitHub Pages and GitHub. Local use remains supported.
-* Infamous tornadoes are the first reconstruction priority. Source coverage determines which can be completed next; fame alone does not fill missing observations.
+* Infamous tornadoes are the first reconstruction priority. Source coverage determines which can be completed next. Fame alone does not fill missing observations.
 * Current work uses free public data and existing local tools. No paid service is required by this plan.
 
 One reusable playback system should read separate event packages. Each package
@@ -47,8 +47,8 @@ the entire application. See the [reconstruction plan](reconstruction-plan.md).
 * Implement and verify the catalogue and source history.
 * Publish a searchable map and exhibit pages using real catalogue records. The initial atlas and El Reno page are implemented.
 * Complete the shared event playback design and one limited reconstruction, including an evidence timeline and documented damage layer.
-* Apply the same pipeline to the next well-documented infamous storms, then expand coverage.
-* Add international adapters and deliberate source-record grouping alongside exhibit work. A county segment is not automatically a separate tornado reconstruction.
+* Apply the same pipeline to the next infamous storms that are well documented, then expand coverage.
+* Add international adapters and deliberate grouping of source records alongside exhibit work. A county segment is not automatically a separate tornado reconstruction.
 
 El Reno 2013 is the first implemented geographic exhibit study, with an initial footage notebook. The collection now also has documentary exhibits for Joplin 2011, Blackwell 1955, Tuscaloosa and Birmingham 2011, Newcastle and Moore 2013, and Udall 1955. Their [current event registry](../exhibits/events.json) keeps documentary, chronology and replay availability separate. A documentary exhibit does not establish a reconstructed historical appearance. A weaker event and an international event should also exercise the design.
 
@@ -58,7 +58,7 @@ The initial creator collection is Pecos Hank, TornadoTRX and Swegle Studios, sel
 
 * Keep observed imagery, surveyed damage, reported accounts, and animation assumptions distinguishable.
 * Never assign funnel shape or width from the intensity rating alone.
-* Preserve missing information instead of filling it with convincing-looking precision.
+* Preserve missing information instead of filling it with precision that looks convincing.
 * Keep visible condensation, debris, circulation dimensions, and damage width separate.
 * A time interpolation is not a timed observation. A line between endpoints is not a survey.
 * Historical visualization is separate from experimental damage simulation.

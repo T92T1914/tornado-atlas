@@ -2,11 +2,11 @@
 
 `exhibits/events.json` is the reviewed event index. Each entry links to its
 documentary and either a replay manifest or `null`. A documentary without a
-replay opens a research-readiness page; it never borrows the default event's
+replay opens a page on research readiness. It never borrows the default event's
 geometry. An explicit unknown event produces an error. With no event parameter,
 the index's default is used.
 
-The first package is El Reno. Joplin remains documentary-only. This implements
+The first package is El Reno. Joplin still has only a documentary. This implements
 a reusable selection and loading boundary, not a second historical replay or a
 historical appearance reconstruction.
 
@@ -18,13 +18,13 @@ basis, geographic source URL and SHA-256, and supported coverage. Version 1
 supports published minute positions, linear longitude/latitude interpolation,
 a freely orbiting camera, and an illustrative symbol. Other coverage values
 fail validation. It requires one center path, one closed outline without holes,
-ordered minute positions with source display labels, and the existing single
-footage-source contract. Raw source conversion still preserves polygon holes;
-this renderer rejects them instead of discarding them.
+ordered minute positions with source display labels, and the existing
+contract for a single footage source. Raw source conversion still preserves
+polygon holes, but this renderer rejects them instead of discarding them.
 
 Clock bounds use `YYYY-MM-DDTHH:MM:00Z` or `YYYY-MM-DDTHH:MM:00+00:00`.
 The publication validator and browser accept both UTC suffixes. Compact dates,
-space-separated times, omitted seconds and other offset spellings fail before
+times separated by a space, omitted seconds and other offset spellings fail before
 publication, even when Python can parse them. This keeps a successful build
 from producing a replay that the browser rejects. Raw source time labels remain
 separate from this normalized package boundary.
@@ -33,7 +33,7 @@ Normalized geographic positions and footage anchors also use the expanded date,
 `T` separator, explicit seconds and either UTC suffix. Geographic observations
 remain on whole minutes. Footage anchors retain their recorded whole seconds,
 including values between geographic samples. Fractional anchor times are rejected
-because this viewer selects printed clock readings at one-second resolution.
+because this viewer selects printed clock readings at a resolution of one second.
 Neither timestamp validation nor that display resolution establishes clock accuracy.
 
 Run `python -m atlas.exhibit` to regenerate the El Reno source bundle and the
@@ -48,7 +48,7 @@ Run `python -m atlas.event_package` to validate and publish every package in
 the existing event index from its reviewed configuration and current bundle.
 This command does not fetch or reinterpret historical sources. Each replay
 supplies its own event identity, public bundle path and exact UTF-8 bytes.
-Publication rejects missing or foreign replay inputs, cross-event evidence,
+Publication rejects missing or foreign replay inputs, evidence from another event,
 changed provenance and bundle paths that collide with another registered
 bundle, manifest, chronology or the index. The packet is assembled and
 validated before any output is written. Filesystem writes are individual
@@ -65,31 +65,31 @@ remain valid, including distinct manifest and chronology publication paths.
 Repeat
 `--event` to select more than one event. A selected publication omits the
 event index so it cannot advertise missing assets in a new output directory.
-A documentary-only event with no registered chronology or replay produces
+An event with only a documentary and no registered chronology or replay produces
 no package assets. Its documentary remains the visitor entry point.
 
 `build_event_packages(root, bundles, event_ids=None)` is the admission boundary.
 Its bundle mapping must contain exactly the selected replay identities, with
 each value `(public_path, exact_bytes)`. `replay_inputs` reads those bytes from
-the checked-in museum or accepts an explicit converter override. The existing
+the committed museum or accepts an explicit converter override. The existing
 `publication_artifacts` call remains compatible with the El Reno converter.
 That convenience call supplies the converter's new bytes and reads existing
-bundles for other registered replays. A fresh multi-event build supplies all
+bundles for other registered replays. A fresh build of several events supplies all
 new bundle bytes explicitly to `build_event_packages`.
 Unchanged JSON metadata in the destination keeps its existing bytes. New or
 changed metadata uses indented JSON with LF endings. Replay bundle bytes are
 never reformatted. Metadata comparison preserves JSON value types, so a boolean
 version cannot be retained as an equivalent number. The shared publication
-checker uses the same comparison before the El Reno source-specific checks.
+checker uses the same comparison before the El Reno checks specific to its sources.
 
-The publication tests include an independently authored two-position software
-fixture with a different clock, source identity and bundle path alongside
+The publication tests include an independently authored software fixture
+with two positions, a different clock, source identity and bundle path alongside
 El Reno. It is confined to tests. Its source roles exercise the contract and
 do not represent observations of a historical tornado.
 
 `python tools/check_exhibit.py` checks that generated manifests match source
-configuration and current bundle bytes. Python validates the time-zone identifier
-syntax without requiring a separate time-zone database on Windows. The browser
+configuration and current bundle bytes. Python validates the syntax of the time zone
+identifier without requiring a separate time zone database on Windows. The browser
 loader and its Node test use `Intl.DateTimeFormat` to reject unknown zones.
 
 The loader fetches with cache revalidation, checks schema and supported coverage,
@@ -99,21 +99,21 @@ evidence. This digest is a consistency check, not a signature or independent
 verification of the historical claims. HTTPS or a localhost preview is required
 for the browser's SHA-256 API. See the
 [Web Crypto digest API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest)
-and [display-clock API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
+and [API for the display clock](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
 
 ## Optional appearance timeline
 
 Replay manifest version 2 admits an `appearance_timeline` in the exact
-integrity-checked bundle. Version 1 still rejects that field, including
+bundle that passes the integrity check. Version 1 still rejects that field, including
 `null`, and keeps its illustrative map symbol. The initial El Reno source package
-opted into version 2 for four separately inspected creator-published stills.
+opted into version 2 for four separately inspected stills published by the creator.
 Its appearance windows remain empty. No historical appearance interval has
 been admitted. A built source package does not establish public deployment.
 
 The authoritative sparse declaration is
 `exhibits/el-reno-2013/appearance-timeline.json`. It retains the exact creator
-publication and JPEG locators, acquired response digests, caption-reported UTC
-labels, inspection coverage, qualitative viewpoint, unquantified timing error
+publication and JPEG locators, acquired response digests, UTC labels reported
+in captions, inspection coverage, qualitative viewpoint, unquantified timing error
 and independently worded visible characteristics. The player provides original
 external links and text. It does not copy or display the source photographs,
 and no image reproduction or adaptation grant has been established.
@@ -134,10 +134,10 @@ reports four discrete photo instants in one sequence and zero registered
 intervals. The dossier appearance classification remains unregistered.
 
 Version 2 uses the same geographic clock, player, URL history and source
-selector. Its windows are bounded by whole-second UTC times inside the
+selector. Its windows are bounded by UTC times in whole seconds inside the
 replay, with explicit gaps. Windows cannot overlap within one source.
 Separate source versions can cover the same time for comparison. An
-illustrative window has its own source-free lane, an authored basis and no
+illustrative window has its own lane without a source, an authored basis and no
 historical registration. A visitor selects that lane explicitly. A missing
 window or unmatched source draws no funnel form and displays an unknown
 state.
@@ -149,16 +149,16 @@ position and view with calibration and uncertainties, a rights record and
 an explicit limit statement. Its form keys use the existing normalized
 cone, wedge and rope parameters. Each key must coincide with an inspected
 timing anchor, which supplies a source video position. The key is labeled
-as a source-linked appearance observation. Between keys the view labels
+as an appearance observation linked to its source. Between keys the view labels
 the form as interpolated. Those labels describe the evidence basis of
 the assigned form, not a measurement of physical funnel width, wind or
-damage. Moving-camera intervals need a later reviewed contract rather
+damage. Intervals with a moving camera need a later reviewed contract rather
 than pretending a sparse camera track is fixed.
 
 The Python publication validator and browser loader enforce the same
 admission fields before the form renderer receives a timeline. The shared
 WebGL renderer accepts a resolved form state from the geographic replay's
-`PlaybackClock`; it does not advance historical time itself. It draws a
+`PlaybackClock`. It does not advance historical time itself. It draws a
 grid without funnel particles in unknown gaps. The existing form study
 continues to use that renderer for authored examples. Synthetic fixtures
 exercise continuous playback, gaps, reverse seeking, source switching,
@@ -166,8 +166,8 @@ history and rejected registration. They establish software behavior only.
 The retained [Robinson source decision](../research/robinson-registration-decision-2026-10-04.md)
 does not qualify a real registered window.
 
-The public spatial replay also shows a source-linked appearance evidence
-card for its existing checked paused frames. It links the original source
+The public spatial replay also shows an appearance evidence card linked to
+sources for its existing checked paused frames. It links the original source
 at that moment and leaves other times unknown. The card works without
 WebGL. The form panel appears only for an admitted version 2 timeline,
 and the documentary/source routes remain available without JavaScript.
@@ -183,7 +183,7 @@ survey page.
 
 A selected NWS feature projects its preserved coordinates into the geographic
 scene as an outlined diamond. This is an untimed surveyed outcome. The moving
-center marker retains its separate minute-position and interpolation basis.
+center marker retains its separate basis of minute positions and interpolation.
 Selecting a fatality record clears the survey diamond, preserving the separately
 sourced record rather than assigning it a damage survey identity.
 
@@ -191,8 +191,8 @@ Before a survey action writes browser history, the player captures its running
 clock and pauses. The observation, filters, source choice and moment then share
 one URL. Back, Forward and reload restore them together. Replay seeks refresh
 the observation's share links without replacing its photograph controls. A
-missing photograph leaves its original NWS record and attribution accessible;
-the documentary route remains available if the inspector cannot start.
+missing photograph leaves its original NWS record and attribution accessible.
+The documentary route remains available if the inspector cannot start.
 
 ## Spatial replay navigation
 
@@ -203,7 +203,7 @@ animation frames. Back and Forward restore the selected time paused, updating
 the scene, radar, observer status and footage panel through the same clock.
 During playback the address retains the last saved selection until playback
 pauses or ends. The visible share link continues to identify the displayed whole
-second. Free-orbit settings and the observer toggle are not stored in the URL.
+second. Settings for the free orbit and the observer toggle are not stored in the URL.
 
 Existing links with a known `footage` ID still select that reviewed moment,
 including older links whose `t` value differs. New navigation removes that ID
@@ -222,15 +222,15 @@ physical devices or the historical source registration.
 ## Extending reviewed coverage
 
 Adding an index row alone does not create a replay. A new event needs its own
-reviewed source transforms, documentary, bundle and package; event-specific
-media validators also need review. Clock bounds must agree with actual source
+reviewed source transforms, documentary, bundle and package. Media validators
+specific to the event also need review. Clock bounds must agree with actual source
 positions. Do not populate absent observations to satisfy the loader.
 
-The synthetic second-event fixture exercises identity selection and loading by
+The synthetic fixture for a second event exercises identity selection and loading by
 relabelling test data. It does not establish a separately sourced event or prove
 that every future geography renders correctly. Historical camera registration,
-appearance geometry, continuous footage synchronization and multi-source player
-switching remain outside version 1.
+appearance geometry, continuous footage synchronization and switching the player
+between several sources remain outside version 1.
 
 ## Documentary chronologies
 
@@ -255,7 +255,7 @@ gap. It never interpolates documentary text or positions. Play, pause, rate,
 entry selection, minute seeking and a shareable `t` URL use the existing clock.
 Entry changes create history entries, while scrubbing replaces the current URL.
 Back and forward restore the selected time paused. Hidden pages pause playback.
-Visibility and reduced-motion pauses save the current minute in the existing
+Pauses for visibility and reduced motion save the current minute in the existing
 URL, so reload restores the selected documentary and radar label.
 No media player or external source needs to load for the evidence text to work.
 The documentary page remains a noninteractive alternative.
@@ -278,18 +278,18 @@ of what every observer knew at each moment.
 Chronology version 2 adds one `radar_context` with an exact retained dossier
 reference, a media identity, seven ordered printed UTC minute labels and a
 navigation basis. The reference includes the full logical dossier digest,
-exact file-byte digest and event-specific immutable path. Publication checks
+exact digest of the file bytes and immutable path for the event. Publication checks
 its association in the existing archive history, its actual bytes, the radar
 record's independent statuses and labels, and the complete PNG's byte digest
 and dimensions. The figure, source, creator credit, inspection, account and
 reuse limits come from that dossier. They are not copied into another registry.
 
-The browser loads this pin once through the shared bounded hash-before-parse
-dossier loader. Malformed chronology metadata rejects the package. A separate
-radar request, verification or record-resolution failure shows unavailable
-radar context with documentary and pinned-revision recovery, while retaining
-the valid documentary clock. The radar request and body have a ten-second
-abort deadline. Reload retries the request.
+The browser loads this pin once through the shared bounded dossier loader, which
+hashes before it parses. Malformed chronology metadata rejects the package. A separate
+failure of the radar request, verification or record resolution shows unavailable
+radar context with recovery through the documentary and the pinned revision, while retaining
+the valid documentary clock. The radar request and body have an abort
+deadline of ten seconds. Reload retries the request.
 
 Joplin's 2224, 2229, 2234, 2239, 2243 and 2248 UTC labels select the existing
 clock. Before 2224 it supplies no preceding radar observation. Between labels
@@ -303,13 +303,13 @@ The native picker, documentary controls, playback rate, pause, history and
 shared `t` URL all use the same PlaybackClock. The existing photo viewer opens
 the complete figure with source, credit, caption, failure and retry. Selection
 identifies a printed pair in text. No panel crop, overlay, interpolated radar,
-optical appearance, building-level wind or camera alignment is introduced.
+optical appearance, wind for individual buildings or camera alignment is introduced.
 The existing documentary figure and caption remain readable without scripting.
 
 The chronology passes the resolved derivative's `transformation.sha256` as
 the optional `expectedSha256` selection in that same viewer. It reads at most
 2 MiB and checks the complete response before decoding a Blob made from those
-bytes. The existing figure is 1,222,331 bytes. One ten-second deadline covers
+bytes. The existing figure is 1,222,331 bytes. One deadline of ten seconds covers
 reading, hashing and explicit `img.decode()` completion. A monotonic expiry is
 also checked after asynchronous completions, so delayed timer delivery cannot
 authorize an overdue image. Failed checks retain the description, source,
@@ -334,18 +334,18 @@ The Joplin chronology now carries a version 3 reading declaration. Open
 `reconstruction.html?event=joplin-2011&t=13140` to select warning 30 at the
 reported 5:09 p.m. CDT minute. Its card links the later assessment's distinction
 between that warning and the first siren. At `t=13260`, the reported
-5:11 p.m. first-siren entry also links the account of how some interviewees
+5:11 p.m. entry for the first siren also links the account of how some interviewees
 interpreted the siren stopping.
 
 The original selected account, limits, Table 1 citation on PDF page 8 and
-source-clock qualification remain above the later context. Each contextual
+qualification of the source clock remain above the later context. Each contextual
 account keeps its complete retained limits, a link to the exact observation
 in dossier revision
 `7c592efa31cda80b84ceef2928fa1582b91428f1d0c05e024fa70f6c24e35d68`,
 the original report passage and its static historical chapter section.
-The distinction links PDF page 19 and `joplin.html#warning-context`; cessation
-links PDF page 11 and `joplin.html#siren-response`. Source-card navigation
-stays in the same retained dossier revision.
+The distinction links PDF page 19 and `joplin.html#warning-context`. Cessation
+links PDF page 11 and `joplin.html#siren-response`. Navigation through source
+cards stays in the same retained dossier revision.
 
 These are later assessment accounts, not new observations registered to the
 moving clock. The warning explanation and selected interviews in Section 3
@@ -356,25 +356,25 @@ times, video alignment and coordinates remain null or unregistered. No
 population rate, mortality explanation, survival counterfactual or current
 siren guidance is supplied.
 
-At `t=13440`, the existing latest-earlier rule still selects the first siren.
-This does not create a 5:14 p.m. event or assign a siren-ending time.
+At `t=13440`, the existing rule of the latest earlier entry still selects the first siren.
+This does not create a 5:14 p.m. event or assign a time when the siren ended.
 Other chronology entry IDs receive no context. Previous entry, Next entry,
 the time control, reload and browser history continue to use the same
 `PlaybackClock` and selection path.
 
 Version 3 preserves the seven original entries and radar declaration.
-Its `reading_context` declares exact entry-to-observation associations and
+Its `reading_context` declares exact associations from entry to observation and
 reuses the radar's retained dossier reference. The loader reads that file
-once through the existing bounded, byte-verifying boundary and resolves
-the two optional panels separately. Unavailable or invalid reading context
+once through the existing boundary, which is bounded and verifies bytes. It then
+resolves the two optional panels separately. Unavailable or invalid reading context
 leaves the documentary clock and valid radar usable. A failure of the radar
 record's content check can likewise leave qualified reading available.
-Missing reading context is admitted only in the loader's recovery path;
-default model and publication validation remain strict.
+Missing reading context is admitted only in the loader's recovery path.
+Default model and publication validation remain strict.
 
 The browser checks file consistency and readable structure against the
-declared reference. Publication validation supplies the retained-history and
-logical-digest checks. Neither establishes source authentication or expands
+declared reference. Publication validation supplies the checks of retained history and
+logical digest. Neither establishes source authentication or expands
 historical inspection or rights. Chronology and dossier interaction require
 scripts. Without scripts, the existing historical chapter passages and source
 links remain the documentary reading route. The metadata rebase retains the
@@ -387,13 +387,13 @@ required nullable `partial_form`. Versions 1 and 2 retain their existing fields
 and meanings. Replay manifests remain version 2. The same appearance input,
 bundle build, hashed manifest, browser loader and PlaybackClock are used.
 
-A non-null form names an independently authored visible margin in a normalized
+A form that is not null names an independently authored visible margin in a normalized
 schematic plane, its component, two through 64 finite coordinate pairs, its
 comparison basis, a separate construction/use basis and bounded limits. Closed
 paths, collapsed segments, physical coordinates, duration fields and undeclared
 fields are rejected. Source photographic `shape`, `extent` and all numeric
 camera fields remain null. Schema validation checks the declaration's
-consistency; it does not perform or authenticate its source review.
+consistency. It does not perform or authenticate its source review.
 
 The original version 3 El Reno `wakimoto-visible-margin` sequence used the inspected 2015 PDF edition
 for two reported labels, 23:25:01 and 23:25:09 UTC. Figure 10(a) enlarges the
@@ -403,8 +403,8 @@ expresses the visible southern margin's broad direction and bend. Fine
 scallops, the opposite edge, upper/lower continuation, surface contact, depth,
 physical dimensions and a numerical camera solution remain unestablished.
 
-At that version 3 boundary, `t=1261` and `t=1269` used identical 17-point open
-margins and established no recovered change. The subsequent version 4 source
+At that version 3 boundary, `t=1261` and `t=1269` used identical open margins
+of 17 points and established no recovered change. The subsequent version 4 source
 review replaces the 1261 margin with a separately compared partial body, as
 described below. The 1269 margin retains its original points. The current
 renderer uses an authored landscape display frame for filled forms. The
@@ -417,14 +417,14 @@ measurements or error bounds.
 At `t=1265`, every fractional neighbor and all other unsampled instants, the
 form is null and the player clears the previous line. Seeking, playback,
 source switching and browser history preserve that boundary. A photograph has
-no duration; timing uncertainty does not widen its appearance coverage. Source
+no duration, and timing uncertainty does not widen its appearance coverage. Source
 text and original panel links remain usable when graphics fail. No source
 photograph, raster, traced contour, annotation or figure layout is copied. AMS
-copyright and the absence of a figure-republication grant remain separate from
+copyright and the absence of a grant to republish the figure remain separate from
 the independently authored factual schematic's construction/use record.
 
 The version 3 margin declaration supplied six optical instants across two
-sequences and two partial-form samples. Version 4 adds the separately supported
+sequences and two samples of partial form. Version 4 adds the separately supported
 23:24:41 UTC condensation instant and now also supplies a partial body for the
 existing 23:25:01 UTC observation. Its
 registered continuous video interval count remains
@@ -434,17 +434,17 @@ window have different evidence requirements. No additional interior exposure
 is universally required when every unsupported interior is explicitly unknown.
 
 The source and qualitative comparison are recorded in
-[El Reno partial-margin review](../research/el-reno-partial-margin-2026-10-11.md).
+[El Reno review of partial margins](../research/el-reno-partial-margin-2026-10-11.md).
 
 ## Partial filled condensation at separate reported instants
 
-Appearance timeline version 4 preserves the photographic and open-margin
-contracts and adds `visible_condensation_region`. Replay manifests remain
+Appearance timeline version 4 preserves the contracts for photographic samples and
+open margins and adds `visible_condensation_region`. Replay manifests remain
 version 2. A filled sample must state `closure: display_support_only` and
 `completeness: partial`, with the existing independent authorship, normalized
 schematic plane, component, comparison basis, construction/use basis and
 bounded limits. Three through 64 distinct finite coordinate pairs describe
-an authored display support. Self-intersection, contact between nonadjacent
+an authored display support. A boundary that intersects itself, contact between nonadjacent
 segments, repeated vertices, adjacent doubleback, collapsed segments and
 vanishing area are rejected by Python and the shared JavaScript geometry
 validator. The numeric thresholds concern software/display precision. They
@@ -452,10 +452,10 @@ are not historical resolution or uncertainty.
 
 El Reno adds `wakimoto-visible-condensation`, a single reported 23:24:41 UTC
 sample at offset 1241, linked to Figure 5(a) on PDF page 10. Figure 13(a) on
-page 23 is complementary context with the same whole-second label, without
-claiming camera-original exposure identity or adding another observation.
-The retained full-PDF digest identifies an acquired edition, not an isolated
-photograph or its camera-original bytes.
+page 23 is complementary context with the same label in whole seconds, without
+claiming the identity of the original camera exposure or adding another observation.
+The retained digest of the full PDF identifies an acquired edition, not an isolated
+photograph or its original camera bytes.
 
 Open `reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=wakimoto-visible-condensation`.
 The existing renderer fills the broad partial condensation body in an authored
@@ -475,16 +475,16 @@ restoration follow the existing clock. The source record and original link
 remain useful when graphics are unavailable.
 
 The later 23:25:01 UTC sample, offset 1261, uses Figure 9(a), enlarged in
-Figure 10(a) on PDF page 18. Its separately authored eight-point support
+Figure 10(a) on PDF page 18. Its separately authored support of eight points
 expresses the broad dark body, sloping southern boundary and brighter lower
 left. The opposite margin remains unresolved, upper and right edges are view
 cutoffs, and lower appearance is omitted. The reported 800 m and 500 m widths
-refer to different definitions; neither sizes this uncalibrated display.
+refer to different definitions, and neither sizes this uncalibrated display.
 The source record preserves their roles and the numeric camera fields remain
 null. The [later source/output comparison](../research/el-reno-later-partial-body-2026-10-11.md)
 records the specific inspection and construction basis.
 
-The player provides separate earlier and later partial-view links beside the
+The player provides separate links to the earlier and later partial views beside the
 shared clock. Each selects its own reported time, sequence and source record.
 Browser history, reload and shared moment links retain that selection. The
 existing sequence menu changes the selected source while preserving time.

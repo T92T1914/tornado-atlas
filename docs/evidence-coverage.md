@@ -46,9 +46,9 @@ loads no source media and grants no additional redistribution rights.
 The gaps layer includes published disputed observations whose availability is
 `reviewed_available` or `disputed`, plus selected records with documented
 uncertainties. Their assertion and availability fields remain unchanged. This
-separate disagreement selection does not broaden the ordinary reviewed-item
-filter for damage, media, geography or replay. Research leads, unavailable
-records and non-disputed records with disputed availability gain no admission
+separate disagreement selection does not broaden the ordinary filter of reviewed
+items for damage, media, geography or replay. Research leads, unavailable
+records and records not marked disputed that have disputed availability gain no admission
 through it.
 Its pinned dossier route also exposes limits outside the selected memberships.
 Layer wording follows the admitted package and reviewed memberships. It does
@@ -74,6 +74,7 @@ node --test --test-concurrency=1 tests/browser/evidence-coverage.test.mjs
 The build updates the generated coverage HTML. The archive publication check
 compares its exact bytes with a fresh projection and is already included in the
 repository verification workflow. The browser test uses the existing isolated
-`node:test` and Playwright-library harness. It checks filtering, source routes,
-history, keyboard use, narrow layouts and the no-script path. Browser emulation
-does not establish physical-phone or spoken screen-reader acceptance.
+`node:test` and Playwright library harness. It checks filtering, source routes,
+history, keyboard use, narrow layouts and the path without scripts. Browser
+emulation does not establish acceptance on a physical phone or with a spoken
+screen reader.

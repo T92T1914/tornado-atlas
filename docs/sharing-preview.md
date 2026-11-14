@@ -19,7 +19,7 @@ The adapter reads the maintained source and palette identified in
 records the content, source identity, font faces and PNG bytes. It does not run
 an experiment. The original report graphics and source evidence remain unchanged.
 
-A metadata-only source change can preserve every painted value. The receipt's
+A source change that touches only metadata can preserve every painted value. The receipt's
 `source_revalidation` records such an association refresh only after comparing
 the complete painted content, unchanged renderer and palette inputs, retained
 font evidence and actual PNG bytes. It explicitly records that the renderer was

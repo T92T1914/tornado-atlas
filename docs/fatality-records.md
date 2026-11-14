@@ -25,7 +25,7 @@ The shared browser renderer uses a rose diamond, a written count and a named
 record. The count and shape remain usable without color. The selected account
 provides the location type, names, source and limits. It never changes an
 original survey rating. Links with `?fatality=record-id#survey-explorer` restore
-the human-impact selection; survey links remove that parameter.
+the selected human impact record. Survey links remove that parameter.
 
 A vehicle recovery point is not an exact death location. Several sourced
 locations may refer to the same incident or people, so marker counts must not

@@ -1,6 +1,6 @@
 # Shared playback and bounded form windows
 
-The geographic replay can select among registered source versions without opening competing players. The form study uses the same wall-clock model for its authored sequence and can leave a missing interval empty. These are software capabilities. They do not add historical footage, camera calibration or a completed appearance reconstruction.
+The geographic replay can select among registered source versions without opening competing players. The form study uses the same model, based on the wall clock, for its authored sequence and can leave a missing interval empty. These are software capabilities. They do not add historical footage, camera calibration or a completed appearance reconstruction.
 
 ## Source versions and the historical clock
 
@@ -10,11 +10,11 @@ Selecting a source stops the timeline, closes the previous player and preserves 
 
 The player remains separate from the historical clock. Playing or buffering video pauses the map at the selected checked moment. A source frame is not held as evidence when the timeline moves into an unregistered interval. Late callbacks from a closed player cannot reopen it. The original timestamped source link remains available when the provider refuses playback.
 
-The implementation uses the documented [YouTube iframe API](https://developers.google.com/youtube/iframe_api_reference), its supported seek, pause, destroy and buffering states, and the privacy-enhanced player host. Loading still contacts YouTube. The provider controls availability and may seek to a nearby frame. Compare the displayed camera clock rather than treating a requested seek time as exact frame verification.
+The implementation uses the documented [YouTube iframe API](https://developers.google.com/youtube/iframe_api_reference), its supported seek, pause, destroy and buffering states, and the player host with enhanced privacy. Loading still contacts YouTube. The provider controls availability and may seek to a nearby frame. Compare the displayed camera clock rather than treating a requested seek time as exact frame verification.
 
-The published exhibit still contains one reviewed source version and seven paused samples. The second source in the browser tests is explicitly synthetic. Neither the source-switch test nor a matching clock connects Dan Robinson's footage to Tim Marshall's separate camera track.
+The published exhibit still contains one reviewed source version and seven paused samples. The second source in the browser tests is explicitly synthetic. Neither the test of switching sources nor a matching clock connects Dan Robinson's footage to Tim Marshall's separate camera track.
 
-The archive projection also follows each anchor's source identity. Its original link, creator, rights statement, clock basis and limits come from that source. Alternate uploader and rights-holder identities remain unknown where the register does not establish them. Source ordering does not change those associations. The existing single-source archive documents retain their reviewed identities.
+The archive projection also follows each anchor's source identity. Its original link, creator, rights statement, clock basis and limits come from that source. Alternate identities of uploaders and rights holders remain unknown where the register does not establish them. Source ordering does not change those associations. The existing archive documents for a single source retain their reviewed identities.
 
 ## Authored form coverage
 
@@ -28,30 +28,30 @@ The existing form study retains its original continuous example. Its additional 
 
 These times, shapes and interpolation are authored choices, with no storm, physical scale or measured life cycle assigned. They are not El Reno observations. The validator refuses duplicate window identities, overlapping windows and invalid shape keys. Scrubbing backward restores the same supported window or gap. It never blends across missing coverage.
 
-The sequence uses the existing `PlaybackClock`. Time is evaluated from a wall-clock control anchor rather than accumulated rendered frames. Changing particle detail while paused leaves sequence time unchanged. Changing playback rate uses the current clock position. Leaving the scene, hiding the page or losing its graphics context pauses motion. Context recovery retains controls and does not restart playback.
+The sequence uses the existing `PlaybackClock`. Time is evaluated from a control anchor on the wall clock rather than accumulated rendered frames. Changing particle detail while paused leaves sequence time unchanged. Changing playback rate uses the current clock position. Leaving the scene, hiding the page or losing its graphics context pauses motion. Context recovery retains controls and does not restart playback.
 
 ## Executed checks and remaining evidence
 
-The affected Python checks passed 50 tests after the archive caller correction. The six changed pure-model and component files passed 23 tests. They exercise separate source identities, coincident clock samples, the existing package contract, missing coverage and different frame schedules. A control callback followed by an earlier frame timestamp is also tested against the actual study module.
+The affected Python checks passed 50 tests after the archive caller correction. The six changed files for the pure model and its components passed 23 tests. They exercise separate source identities, coincident clock samples, the existing package contract, missing coverage and different frame schedules. A control callback followed by an earlier frame timestamp is also tested against the actual study module.
 
-Thirty distinct isolated Chromium scenarios have passed across the applicable final checks. Twenty affected source, documentary and history cases passed after independent review corrections. Ten unchanged camera and study cases passed in the preceding run. They include both appearances, 390-pixel and desktop layouts, URL history, a synthetic provider's late callback and refusal, actual WebGL draw calls across a gap, and actual browser graphics-context loss and recovery. External provider requests were blocked by the browser fixture. This is not a live YouTube acceptance test or a physical-phone result.
+Thirty distinct isolated Chromium scenarios have passed across the applicable final checks. Twenty affected source, documentary and history cases passed after independent review corrections. Ten unchanged camera and study cases passed in the preceding run. They include both appearances, layouts at a width of 390 pixels and on desktop, URL history, a synthetic provider's late callback and refusal, actual WebGL draw calls across a gap, and actual loss and recovery of the browser's graphics context. External provider requests were blocked by the browser fixture. This is not a live YouTube acceptance test or a result on a physical phone.
 
-The independent review found source restoration, contradictory URL identities, late hidden-player playback, documentary source attribution and mixed clock sampling defects. Their corrections have adverse tests. An earlier combined browser run failed the gap-history case. A later combined attempt ended before returning an owned-job result. Both records are retained separately from the passing affected checks.
+The independent review found source restoration, contradictory URL identities, late playback from a hidden player, documentary source attribution and mixed clock sampling defects. Their corrections have adverse tests. An earlier combined browser run failed the case for gap history. A later combined attempt ended before returning a result for its owned job. Both records are retained separately from the passing affected checks.
 
-The retained El Reno [photogrammetry review](reconstruction-plan.md#september-27-source-review) establishes three inspected figure times. Original photographs, complete calibration inputs, independently checked timing uncertainty and hosting rights remain unresolved. Those samples cannot establish a continuous 28-second appearance reconstruction. This increment preserves that boundary. A historical interval needs its own supported camera, clock, appearance observations, uncertainty and rights before it can use a reviewed schema or acquire a reconstruction label.
+The retained El Reno [photogrammetry review](reconstruction-plan.md#september-27-source-review) establishes three inspected figure times. Original photographs, complete calibration inputs, independently checked timing uncertainty and hosting rights remain unresolved. Those samples cannot establish a continuous appearance reconstruction of 28 seconds. This increment preserves that boundary. A historical interval needs its own supported camera, clock, appearance observations, uncertainty and rights before it can use a reviewed schema or acquire a reconstruction label.
 
 Firefox webpage journeys require the matching Playwright test binary, which was absent from the existing local cache during this increment. Native Firefox themes are a separate project and acceptance question. No user browser profile, game process, native application setting or graphics driver was changed for these checks.
 
-## October 4 paused-status repair
+## October 4 repair of the paused status
 
 The optional player now replaces its buffering or running message when the
 current source reports that playback is paused. It keeps the historical clock,
 source choice and address unchanged. Unassigned intervals keep their gap
 message, and callbacks from a closed source cannot replace the current status.
 
-The new synthetic-provider regression reproduced the stale buffering message
-on the unchanged source. After the repair, all seven affected isolated Chrome
+The new regression test with a synthetic provider reproduced the stale buffering
+message on the unchanged source. After the repair, all seven affected isolated Chrome
 journeys passed, including source history, gaps, reload and late callbacks.
 External requests were blocked. These checks establish the status transition
-in the fixture, not the cause of a particular original-provider observation,
-normal-speed footage review or new historical registration.
+in the fixture, not the cause of a particular observation from the original
+provider, a review of footage at normal speed or a new historical registration.

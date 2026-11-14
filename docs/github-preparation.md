@@ -2,7 +2,7 @@
 
 Repository: [T92T1914/tornado-atlas](https://github.com/T92T1914/tornado-atlas).
 
-The public repository was created on September 20, 2026. GitHub Pages uses the repository's Actions workflow. Verification runs before deployment and publishes only `web/`. The workflow has read access to source content; its deployment job adds the Pages and identity-token permissions required by GitHub Pages.
+The public repository was created on September 20, 2026. GitHub Pages uses the repository's Actions workflow. Verification runs before deployment and publishes only `web/`. The workflow has read access to source content. Its deployment job adds the Pages and identity token permissions that GitHub Pages requires.
 
 The local checkout's existing Git credential manager supports Git transport. GitHub CLI authentication is not required for that push path. No new credentials were added to the repository.
 
