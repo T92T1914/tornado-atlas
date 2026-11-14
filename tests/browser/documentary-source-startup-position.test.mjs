@@ -51,7 +51,21 @@ for(const width of [320,1280])for(const anchoring of ['native','disabled'])for(c
   assert.ok(point,'The actual source link supplies a visible native hit point');
   await page.mouse.move(point.x,point.y);await snapshot('before_press');
   await page.mouse.down();pointerHeld=true;await snapshot('held_before_startup');
-  if(action==='drag-away')await page.mouse.move(2,2);
+  if(action==='drag-away'){
+   // A held pointer at the viewport edge can start the browser's drag autoscroll,
+   // which scrolls the page with no app call. In headless Chromium it moved the page
+   // up in 42 px steps. Park the pointer on plain content well inside the viewport.
+   const away=await page.evaluate(()=>{
+    const margin=Math.min(160,innerWidth/4);
+    for(let y=200;y<innerHeight-200;y+=10)for(let x=margin;x<innerWidth-margin;x+=10){
+     const hit=document.elementFromPoint(x,y);
+     if(hit&&!hit.closest('a,button,summary,label,input,select,textarea,[tabindex],[role="button"],[data-clip-action],[contenteditable],video,iframe,canvas'))return {x,y};
+    }
+    return null;
+   });
+   assert.ok(away,'A plain point clear of every control and of the viewport edges receives the drag');
+   await page.mouse.move(away.x,away.y);
+  }
   if(action==='cancelled-click'){
    await page.evaluate(label=>addEventListener('click',event=>{
     const anchor=event.target.closest?.('a');
