@@ -3,7 +3,7 @@
 The project can gain useful catalogue coverage before every tornado has a detailed reconstruction. The two should not be presented as the same level of completeness.
 
 The destination is a museum where visitors can watch individual tornadoes unfold,
-using documented paths and event-specific appearance evidence when available.
+using documented paths and appearance evidence specific to each event when available.
 Build the most infamous storms first, then expand toward the wider collection.
 The [reconstruction plan](reconstruction-plan.md) defines the shared
 playback approach, evidence levels and event selection process.
@@ -16,21 +16,21 @@ It preserves their irregular labels and the existing clock interpretation.
 This is a documentary reading increment. The bounded historical appearance
 reconstruction below remains unfinished.
 
-1. Expand the initial five-note El Reno register into continuous shot coverage for both source videos, including cuts, reuse credits and caption corrections.
-2. Locate original footage and research that can establish camera position, direction and historical time.
-3. Establish exact survey locations for the nine included NOAA/NWS photographs. Captions currently supply roads and landmarks only. Do not infer precise failure times or wind fields from a rating.
-4. Build shared event playback around the existing El Reno timeline, then add one limited appearance reconstruction from registered observations. Identify the view and time range it represents.
-5. Deepen the existing historical exhibits and evidence dossiers. Joplin and Blackwell are already part of the collection, alongside El Reno, Tuscaloosa and Birmingham, Newcastle and Moore, and Udall. Confirm reconstruction order after usable path, timing and appearance coverage is reviewed. Historical testimony and later explanations need separate labels.
+1. Expand the initial El Reno register of five notes into continuous shot coverage for both source videos, including cuts, reuse credits and caption corrections.
+2. Locate original footage and research that can establish camera position, direction and historical time. The full text of the Seimon El Reno Survey paper has now been read, though not its figure images. The [record of what it registers](../research/seimon-el-reno-survey-2026-11-11.md) lists the recordings it places in time or space and the inputs it cannot supply.
+3. Establish exact survey locations for the nine included NOAA/NWS photographs. Captions currently supply roads and landmarks only. A [decoded pixel comparison](../research/nws-photo-survey-joins-2026-11-11.md) now matches each photograph to one NWS Damage Assessment Toolkit survey record, and the gallery links each one to that record on the survey map. The surveyed point is the damaged structure. It is not a camera position or a capture time. Do not infer precise failure times or wind fields from a rating.
+4. Build shared event playback around the existing El Reno timeline, then add one limited appearance reconstruction from registered observations. Identify the view and time range it represents. The shared playback is built as software, as its [acceptance record](shared-playback-acceptance.md) describes, and the published register still has one source. The appearance reconstruction is not built.
+5. Deepen the existing historical exhibits and evidence dossiers. Joplin and Blackwell are already part of the collection, alongside El Reno, Tuscaloosa and Birmingham, Newcastle and Moore, Udall, and Greensburg. Confirm reconstruction order after usable path, timing and appearance coverage is reviewed. Historical testimony and later explanations need separate labels.
 
 The [September 20 audience review](../research/audience-notes-2026-09-20.md)
 supports prioritizing registered camera views, understandable map legends,
-source-linked photographs and the human history. The first exhibit now brings
+photographs linked to their sources and the human history. The first exhibit now brings
 its photographs into the opening view. New exhibits need their own verified
-photographs and rights records; a catalogue record alone does not supply them.
+photographs and rights records. A catalogue record alone does not supply them.
 
 ## Catalogue work
 
-* US imports now cover every year from 1950 through 2025. Next, review historical naming and source anomalies while preserving record-versus-event distinctions.
+* US imports now cover every year from 1950 through 2025. Next, review historical naming and source anomalies while keeping records and events distinct.
 * The local JMA adapter and separate source browser retain classifications, sentinel values, ordered source rows and F/JEF intervals. Review source revisions and remaining interpretation limits without merging ambiguous and other gust cases into confirmed tornado counts. The [JMA guide](jma-adapter.md#separate-source-record-browser) explains the existing browser export.
 * Investigate international research datasets and reuse terms before adding further adapters.
 * Group county segments only with supporting identifiers or reviewed reasoning.
@@ -40,10 +40,10 @@ photographs and rights records; a catalogue record alone does not supply them.
 The first procedural 3D form study now runs separately at `web/study.html`. It is an illustration with three adjustable forms, not an event reconstruction or fluid simulation.
 
 * Represent observations, camera models, visibility and uncertainty independently of the renderer.
-* Establish rights for any third-party imagery that will be embedded or redistributed.
+* Establish rights for any imagery from third parties that will be embedded or redistributed.
 * Prototype wind and damage demonstrations as experiments with explicit assumptions. Do not label them reconstructions of an actual building failure unless supported.
 * Include source comparison and uncertainty controls in the visitor experience.
-* Make appearance, motion and supporting observations event-specific data. Reuse the renderer and controls across exhibits.
+* Make appearance, motion and supporting observations data specific to each event. Reuse the renderer and controls across exhibits.
 * Publish bounded completed intervals and expand them as evidence improves. Do not claim complete event reconstruction from one reconstructed shot.
 
 ## GitHub and release work
