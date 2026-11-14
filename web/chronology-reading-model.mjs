@@ -11,7 +11,7 @@ export function validateReadingContext(data,eventId){
   validateDossierReference(context.reference,eventId);
   requireValue(context.event_id===eventId&&text(context.navigation_basis),'Invalid reading event association.');
   requireValue(['file','dossier_sha256','file_sha256'].every(key=>context.reference[key]===data.radar_context?.reference[key]),'Reading context must reuse the retained radar dossier.');
-  const entries=new Set(data.entries.map(row=>row.id)),sources=new Set(data.sources.map(row=>row.id));
+  const entries=new Set(data.entries.map(row=>row.id)),sources=new Set(data.sources.filter(row=>row.archive.endsWith('.pdf')).map(row=>row.id));
   requireValue(Array.isArray(context.observations)&&context.observations.length>0&&context.observations.length<=32,'Reading context needs bounded declared observations.');
   const observations=new Set();
   for(const row of context.observations){

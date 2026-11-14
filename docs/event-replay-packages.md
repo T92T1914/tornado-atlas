@@ -237,16 +237,22 @@ switching remain outside version 1.
 Event index version 2 adds a nullable `chronology` path. Version 1 remains
 readable. A chronology is independent of geographic replay. Joplin now loads
 seven reviewed NWS entries through the shared event selector and PlaybackClock,
-while its geographic replay remains null. Blackwell remains a documentary with
-unresolved clock labels, without a chronology assigned to it.
+while its geographic replay remains null. Tuscaloosa and Birmingham loads four
+entries the same way: the NWS Birmingham survey's approximate start and end and
+the December 2011 assessment's Table 1 interval, with their conflict left open.
+Blackwell remains a documentary with unresolved clock labels, without a
+chronology assigned to it.
 Version 2 rejects assigning both modes to one event. A future combined view must
 explicitly synchronize their evidence before enabling that combination.
 
 `exhibits/joplin-2011/chronology.json` supplies chronology schema version 2.
-Version 1 remains readable without radar context.
-Sources have preserved PDF paths and SHA-256 values checked during publication.
-Entries carry their original clock labels, normalized UTC minute, reported or
-approximate precision, account, limits and source page. Unknown times cannot be
+Version 1 remains readable without radar context, and Tuscaloosa and Birmingham
+uses it. Sources have preserved archive paths and SHA-256 values checked during
+publication. A source is a retained PDF, or the archived text of an undated web
+page kept under the event's exhibit folder. Entries carry their original clock
+labels, normalized UTC minute, reported or approximate precision, account,
+limits and source page. An entry citing archived page text has a null page, and
+only PDF sources can carry the later assessment routes. Unknown times cannot be
 inserted into a timed sequence. Coordinates, camera registration and appearance
 fields are rejected by this schema.
 

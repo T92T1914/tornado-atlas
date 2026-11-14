@@ -536,6 +536,11 @@ def publication(root=ROOT):
     docs = dossiers(root)
     catalogue = read(root / 'web/catalogue/index.json')
     shards = {r['detail_file'].split('/')[-1][:2]: r['detail_file'] for r in catalogue['records']}
+    # The reviewed event index decides which events publish a chronology.
+    # Synthetic archive roots without one publish none.
+    index_path = root / 'exhibits/events.json'
+    chronologies = ({row['id'] for row in read(index_path)['events'] if row.get('chronology')}
+                    if index_path.is_file() else set())
     result = {}; entries = []
     for doc in docs:
         filename = f"archive/{doc['id']}-{digest(doc)[:20]}.json"
@@ -549,7 +554,7 @@ def publication(root=ROOT):
             'history_file': history_file, 'records': [r['id'] for r in doc['records']],
             'evidence': sorted({m['kind'] for m in doc['media'] if m['status']['availability'] == 'reviewed_available'
                                 and m['status']['assertion'] != 'not_researched'} |
-                               ({'chronology'} if doc['id'] == 'joplin-2011' else set()) |
+                               ({'chronology'} if doc['id'] in chronologies else set()) |
                                ({'source_disagreement'} if any(o['status']['assertion'] == 'disputed' for o in doc['observations']) else set())),
             'registered_media': sum(m['status']['availability'] == 'reviewed_available' and
                                     m['status']['temporal'] == 'discrete_anchor' and

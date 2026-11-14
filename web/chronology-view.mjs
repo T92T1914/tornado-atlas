@@ -59,7 +59,7 @@ export function mountChronology(container,data,event,{radarContext=null,readingC
       lastEntry=entry.id;title.textContent=entry.title;account.textContent=entry.account;limits.textContent=entry.limits;
       updateReading(entry.id);
       const record=data.sources.find(row=>row.id===entry.source_id);
-      source.href=`${record.url}#page=${entry.page}`;source.textContent=`${record.title}: ${entry.locator}`;
+      source.href=entry.page===null?record.url:`${record.url}#page=${entry.page}`;source.textContent=`${record.title}: ${entry.locator}`;
       original.textContent=`Source clock: ${entry.source_time}. ${entry.precision==='approximate_minute'?'Approximate time, with no numerical error bound supplied.':'Reported to the minute. Clock accuracy is not established.'}`;
     }
   }

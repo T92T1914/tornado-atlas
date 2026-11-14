@@ -1,0 +1,48 @@
+Archived text of an NWS Birmingham web page
+URL: https://www.weather.gov/bmx/event_04272011tuscbirm
+Retrieved: 2026-11-14T07:05:59Z (HTTP 200, text/html; charset=UTF-8, 79073 bytes)
+SHA-256 of the HTML as served: 90e3cbe55f0520fd0bb19a17698cd54d4ef3ac861cc3b180ae7c60b53c1ad26f
+The page carries no date. Below is the text of its event section, from its heading to its last image caption, with tags removed, HTML entities decoded and runs of spaces joined. Wording, spelling and clock labels are as served.
+
+Tuscaloosa-Birmingham EF-4 Tornado
+April 27, 2011
+Rating:
+( Click for EF Scale )
+EF-4
+Estimated Maximum Wind:
+190 mph
+Injuries/Fatalities:
+1500 Injuries / 65 Fatalities
+Damage Path Length:
+80.68 miles
+Maximum Path Width:
+2600 yards (1.5 miles) when Crossing I-65
+Approximate Start Point/Time:
+33.0297/-87.9350 at 443 pm
+Approximate End Point/Time:
+33.6311/-86.7436 at 614 pm
+National Weather Service meteorologists have surveyed the massive damage associated with this long track violent tornado, by ground and air. The start point is based on aerial survey, while the end location was determined by a ground crew. Detailed damage inspection has revealed a maximum of EF-4 damage east of Holt, near Concord, and the Pleasant Grove areas. This tornado was produced by a supercell thunderstorm that began in Newton County Mississippi at 2:54 pm CDT, and finally dissipated in Macon County, North Carolina at approximately 10:18 pm CDT. So, this supercell existed for about 7 hours and 24 minutes, and traveled approximately 380 miles producing several strong to violent tornadoes along the way.
+The following detailed information was obtained from NWS survey team damage experts. This tornado initially touched down in rural northern Greene County and moved northeast through southern Tuscaloosa and western Jefferson Counties, where it caused devastating damage consistent with a violent EF4 rating to portions of the city of Tuscaloosa and western suburbs of Birmingham, before it lifted northeast of downtown Birmingham. The tornado entered Tuscaloosa County just north of CR 60, west northwest of Ralph, and moved northeast causing tree damage and minor structural damage consistent with an EF2 rating and winds of 125 mph. The tornado strengthened as it crossed the Black Warrior River, north of Interstate 20 and approached Tuscaloosa to a violent EF4 with winds of 170 mph. As the tornado approached Interstate 359, several buildings were destroyed including the Tuscaloosa County Emergency Operations Center. Along 15th St E. and McFarland Blvd E., several small restaurants and stores were destroyed, with only a wall or two still standing. The tornado devastated the Cedar Crest neighborhood just north of 15th St, leveling many cinder block homes and causing at least 3 fatalities. The tornado crossed McFarland Blvd, where destroyed additional stores and restaurants. The tornado crossed University Blvd in the Alberta City community. Alberta Elementary School suffered nearly complete destruction, with only a few portions of walls still standing. A nearby two story apartment building was reduced to rubble sitting on the foundation. The Alberta Park Shopping Center was completely destroyed with no walls standing and a pile of debris on the foundation. Cinder block construction homes in the surrounding neighborhood were completely destroyed, and in a few cases debris was swept away from the site. The tornado continued northeast and struck the Chastain Manor Apartments at the north end of 34th Ave E. Buildings on the east side of this new 2 story apartment complex were completely destroyed, with only a pile of debris remaining and a few walls set into the hillside. A small club house that was anchored to a foundation, but with apparently no interior walls, was completely destroyed and swept from its foundation. Similar devastation to homes and businesses was noted along both sides of CR 45 near 1st St E. and locations to the northeastward. East of Holt, the tornado path width widened from 0.5 mile to around 1 mile. The tornado crossed Holt Peterson Rd just northwest of Clinker Rd, where two homes were completely destroyed. One home on a foundation was swept clean, with only floor joists remaining attached to the foundation. Almost all trees were blown down or snapped in the vicinity, as well as in the bottom of a narrow ravine nearly 100 feet below the house. The tornado continued to Holt Lock and Dam Road near its intersection with Recreation Area Road. Numerous mobile homes and several cinder block homes were destroyed in this area, which resulted in several fatalities. The tornado struck a marina on Holt Lake at the end of Recreation Area Road where it caused significant damage to a restaurant as well as numerous boats. Several injuries were noted in this area. The tornado continued northeastward and weakened to an EF3 rating with winds of 130 mph. As its path narrowed to 0.5 mile, the tornado passed north of Brookwood, near the intersection of Hannah Creek Rd and CR 59. Several mobile homes were destroyed, cinder block homes received heavy damage, and significant tree damage was noted in this area. The tornado moved parallel to Hannah Creek Rd where it caused extensive tree damage and destroyed at least one mobile home. The tornado crossed CR 99 and moved into western Jefferson County, 4 miles north of Abernant.
+In the Concord area, the tornado became violent once again with total destruction noted to a few small retail shops along County Road 46. Only piles of debris were left on the foundation. In addition, several cinder block homes were completely destroyed with debris swept away (EF-4). Numerous other homes in the area were destroyed with only a few interior walls left standing.
+The tornado continued northeastward out of the Concord area and into the Pleasant Grove community. EF-4 damage was prevalent here, with slabs wiped clean, though the debris from each home had not been removed by the winds. The majority of it remained within a couple of yards of the home. It was here in Pleasant Grove where evidence of vehicles being moved by the winds become obvious, though most were only tossed 10 to 15 yards if they were picked up at all. Additionally, wind rowing of debris was evident throughout the Pleasant Grove community which is characteristic of a storm of this magnitude.
+The tornado quickly moved out of the Pleasant Grove area and into the McDonald Chapel community. It was here in McDonald Chapel where evidence of a slight weakening of the tornado became clear. No vehicles were tossed, only pushed slightly from their original p osition. Many homes in this area were constructed by the method of pier and beam foundation, which led to some of the major destruction, as this construction will not withstand winds of this magnitude. A four-sided brick home in the same area only lost a roof and no exterior walls, which is indicative of EF-2 damage. At least one death occurred here.
+After the tornado moved through the McDonald Chapel area, it moved into the area of Smithfield Estates, with significant home damage along Cherry Avenue between Daniel Payne Drive and Veterans Memorial Drive. Numerous homes sustained damage in this area, and a 2-story apartment complex had a large portion of its roof lifted and removed . The Bethel Baptist Church also sustained significant damage to its roof, though the main structure of the building was still intact. The damage sustained in this area is consistent with EF-2 wind damage. Al though not a main damage indicator, there was also evidence of vehicles being moved, but only a couple of feet.
+By the time the tornado reached Interstate 65, it was evident that the storm was losing its energy. The damage in the Fultondale area included folded highway light poles along the interstate, and roof damage to the Days Inn on U.S. Highway 31. To the east of US-31, the damage quickly diminished from EF-2 intensity to EF-1 and EF-0. The tornado lifted just to the west of Alabama Highway 79, about 2 miles north of the city of Tarrant, though the storm was not done. The storm did regenerate itself and eventually put down the EF-4 tornado in the Ohatchee area.
+Tornado Warnings for counties in C entral Alabama were in effect from 338 pm until 800 pm with this supercell.
+Special thanks to Sergeant Rocco Renno of the Hoover Police Department and Officer Chad Allinder of the Jefferson County Sherrif's Department for their assistance with ground damage surveys in the Birmingham area. Also, to Gene Bussell and his crew with the Alabama National Guard for their cooperation with aerial surveys along this track.
+Radar Data
+This is an image of the 0.5 degree reflectivity data from KBMX at 538 pm of the circulation as it crossed over the Tuscaloosa-Jefferson County line. Click to enlarge.
+This is an image of the 0.5 degree storm relative velocity (SRM) data from KBMX at 538 pm of the circulation as it crossed over the Tuscaloosa-Jefferson County line. Click to enlarge.
+Storm Damage Images
+Apartment Complex Leveled
+Train Bridge Demolished
+Aerial View of Scope of Damage Path
+Aerial View of Scope of Damage Path
+Train Cars Derailed & Thrown
+Destruction just north of Birmingham
+NOAA Aerial of Tuscaloosa
+NOAA Aerial of Tuscaloosa
+Homes Destroyed
+Vehicles Stacked up in debris
+Homes Destroyed
+Destruction

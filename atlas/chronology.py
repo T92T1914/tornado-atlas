@@ -26,18 +26,24 @@ def validate_chronology(data, event_id, root=None):
     text(data['clock']['basis'])
     if not isinstance(data['sources'], list) or not data['sources']:
         raise ValueError('Chronology needs sources')
-    sources = set()
+    sources = {}
     for source in data['sources']:
         fields(source, ('id', 'title', 'url', 'archive', 'sha256'), 'chronology source')
         text(source['id'])
         if source['id'] in sources:
             raise ValueError('Duplicate chronology source')
-        sources.add(source['id'])
         text(source['title'])
         source_url(source['url'])
         if urlsplit(source['url']).username or urlsplit(source['url']).password:
             raise ValueError('Source URL must not contain credentials')
-        asset_path(source['archive'], 'pdf')
+        # A retained PDF is cited by page. An undated web page is retained as
+        # archived text and cited by passage, with no page number.
+        if not isinstance(source['archive'], str) or source['archive'].endswith('.txt'):
+            asset_path(source['archive'], 'txt')
+            sources[source['id']] = 'text'
+        else:
+            asset_path(source['archive'], 'pdf')
+            sources[source['id']] = 'pdf'
         if not source['archive'].startswith(f'exhibits/{event_id}/') or not re.fullmatch(r'[a-f0-9]{64}', source['sha256']):
             raise ValueError('Invalid chronology source provenance')
         if root is not None and hashlib.sha256((root / source['archive']).read_bytes()).hexdigest() != source['sha256']:
@@ -58,8 +64,11 @@ def validate_chronology(data, event_id, root=None):
         previous = stamp
         if entry['precision'] not in ('reported_minute', 'approximate_minute'):
             raise ValueError('Unsupported chronology precision')
-        if entry['source_id'] not in sources or type(entry['page']) is not int or entry['page'] < 1:
+        kind = sources.get(entry['source_id']) if isinstance(entry['source_id'], str) else None
+        if kind == 'pdf' and (type(entry['page']) is not int or entry['page'] < 1):
             raise ValueError('Chronology entry needs a known source and PDF page')
+        if kind is None or (kind == 'text' and entry['page'] is not None):
+            raise ValueError('Chronology entry needs a known source, and a text source has no page')
     if version in (2, 3):
         validate_radar_context(data, event_id, root)
     if version == 3:
@@ -154,7 +163,8 @@ def validate_reading_context(data, event_id, root=None):
     if not isinstance(observations, list) or not 0 < len(observations) <= 32:
         raise ValueError('Reading context needs bounded declared observations')
     entries = {row['id'] for row in data['entries']}
-    sources = {row['id']: row for row in data['sources']}
+    # Routes cite a report page, so only PDF sources can carry them.
+    sources = {row['id']: row for row in data['sources'] if row['archive'].endswith('.pdf')}
     seen = set()
     for row in observations:
         fields(row, ('id', 'source_id', 'report_page', 'documentary_anchor'), 'reading observation route')
