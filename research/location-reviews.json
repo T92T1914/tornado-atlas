@@ -157,5 +157,911 @@
     ],
     "reason": "NOAA labels this Nespelem, Washington, but the reported start (48.17, -12.42) is in the North Atlantic. The reported end is 48.22, -118.9. The original CSV and a fresh download agree on these conflicting fields. The place label and coordinates cannot both describe the same location. No corrected starting position has been established.",
     "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10004918": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1989:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1989_c20260323.csv.gz",
+    "source_sha256": "c506ea393bb292824aa8f7925cc07582120f7e5b80313be549c3e5b0d1a29386",
+    "csv_record": 6131,
+    "reported_start": [
+      -88.2,
+      37.27
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Massac, Illinois, but the reported start (37.27, -88.2) lies 0.189 degrees outside the Census 2023 cartographic boundary of Illinois, inside Kentucky. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10005168": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1955:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1955_c20260323.csv.gz",
+    "source_sha256": "c503aadb9ca02fe8f9de0fa67e91218b02b4b8489af4f95c7cdc40d34c72c9cc",
+    "csv_record": 1166,
+    "reported_start": [
+      -84.63,
+      40.1
+    ],
+    "reported_end": [
+      -84.77,
+      40.1
+    ],
+    "reason": "NOAA labels this Randolph, Indiana, but the reported start (40.1, -84.63) lies 0.179 degrees outside the Census 2023 cartographic boundary of Indiana, inside Ohio. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10005328": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1981:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1981_c20260323.csv.gz",
+    "source_sha256": "8321772333a97a516eac12cf7af911e5c566a909f7813318ceaa99fb3a4a3bb0",
+    "csv_record": 2524,
+    "reported_start": [
+      -90.57,
+      41.95
+    ],
+    "reported_end": [
+      -90.48,
+      42.0
+    ],
+    "reason": "NOAA labels this Rock Island, Illinois, but the reported start (41.95, -90.57) lies 0.328 degrees outside the Census 2023 cartographic boundary of Illinois, inside Iowa. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10009712": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1950:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1950_c20260323.csv.gz",
+    "source_sha256": "1e35567c59a1d71795a307409f0a104c0056a8337a071adf97ef0e0d84849c54",
+    "csv_record": 190,
+    "reported_start": [
+      -87.33,
+      41.17
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Kankakee, Illinois, but the reported start (41.17, -87.33) lies 0.197 degrees outside the Census 2023 cartographic boundary of Illinois, inside Indiana. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10010918": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1959:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1959_c20260323.csv.gz",
+    "source_sha256": "16bcd5c858e9564d7740515ea692acb38e9e1843eea93389d19bad9bcfb0e437",
+    "csv_record": 1208,
+    "reported_start": [
+      -87.18,
+      39.0
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Crawford, Illinois, but the reported start (39.0, -87.18) lies 0.335 degrees outside the Census 2023 cartographic boundary of Illinois, inside Indiana. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10013620": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1965:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1965_c20260323.csv.gz",
+    "source_sha256": "d661fa8ce1c797d8c0889d9ffc8996824b2c63134d6dc72d3f74cb0b33ecf4f7",
+    "csv_record": 1461,
+    "reported_start": [
+      -90.58,
+      42.87
+    ],
+    "reported_end": [
+      -90.47,
+      43.17
+    ],
+    "reason": "NOAA labels this Clinton, Iowa, but the reported start (42.87, -90.58) lies 0.267 degrees outside the Census 2023 cartographic boundary of Iowa, inside Wisconsin. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10013899": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1979:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1979_c20260323.csv.gz",
+    "source_sha256": "e004e7908a30d73dfbfa67dbd0ef5f433dfa9d91bc10db962dd23dbec58d7646",
+    "csv_record": 2626,
+    "reported_start": [
+      -93.18,
+      46.15
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Jasper, Iowa, but the reported start (46.15, -93.18) lies 2.650 degrees outside the Census 2023 cartographic boundary of Iowa, inside Minnesota. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10025254": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1964:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1964_c20260323.csv.gz",
+    "source_sha256": "cdf48993d5943d3671b00b60aba888d8cf30cb958420b932c558d98b46e1946f",
+    "csv_record": 2330,
+    "reported_start": [
+      -90.68,
+      38.72
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Morris, Kansas, but the reported start (38.72, -90.68) lies 3.929 degrees outside the Census 2023 cartographic boundary of Kansas, inside Missouri. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10025263": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1964:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1964_c20260323.csv.gz",
+    "source_sha256": "cdf48993d5943d3671b00b60aba888d8cf30cb958420b932c558d98b46e1946f",
+    "csv_record": 1325,
+    "reported_start": [
+      -96.12,
+      30.45
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Lyon, Kansas, but the reported start (30.45, -96.12) lies 6.549 degrees outside the Census 2023 cartographic boundary of Kansas, inside Texas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10025264": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1964:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1964_c20260323.csv.gz",
+    "source_sha256": "cdf48993d5943d3671b00b60aba888d8cf30cb958420b932c558d98b46e1946f",
+    "csv_record": 1326,
+    "reported_start": [
+      -96.08,
+      30.53
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Lyon, Kansas, but the reported start (30.53, -96.08) lies 6.469 degrees outside the Census 2023 cartographic boundary of Kansas, inside Texas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10030692": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1973:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1973_c20260323.csv.gz",
+    "source_sha256": "8ca0e3ff1215904604a94b3b29436815b72d53eb28b1b4482c3a7ea6537864ae",
+    "csv_record": 3886,
+    "reported_start": [
+      -91.25,
+      31.52
+    ],
+    "reported_end": [
+      -91.27,
+      31.55
+    ],
+    "reason": "NOAA labels this Madison, Louisiana, but the reported start (31.52, -91.25) lies 0.165 degrees outside the Census 2023 cartographic boundary of Louisiana, inside Mississippi. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10030693": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1973:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1973_c20260323.csv.gz",
+    "source_sha256": "8ca0e3ff1215904604a94b3b29436815b72d53eb28b1b4482c3a7ea6537864ae",
+    "csv_record": 3887,
+    "reported_start": [
+      -91.27,
+      31.55
+    ],
+    "reported_end": [
+      -91.38,
+      31.9
+    ],
+    "reason": "NOAA labels this East Carroll, Louisiana, but the reported start (31.55, -91.27) lies 0.138 degrees outside the Census 2023 cartographic boundary of Louisiana, inside Mississippi. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10032689": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1953:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1953_c20260323.csv.gz",
+    "source_sha256": "5a16c6cffe429c6de758061888aab7a9867971b67134f3cede591888e802ba14",
+    "csv_record": 476,
+    "reported_start": [
+      -97.33,
+      30.1
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Calcasieu, Louisiana, but the reported start (30.1, -97.33) lies 3.414 degrees outside the Census 2023 cartographic boundary of Louisiana, inside Texas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10033042": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1966:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1966_c20260323.csv.gz",
+    "source_sha256": "fa0ac0cb7966500f211128a686cbfb467ae38744984a0d71f90c427837e0561e",
+    "csv_record": 1478,
+    "reported_start": [
+      -92.97,
+      39.97
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Cameron, Louisiana, but the reported start (39.97, -92.97) lies 6.953 degrees outside the Census 2023 cartographic boundary of Louisiana, inside Missouri. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10047807": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1982:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1982_c20260323.csv.gz",
+    "source_sha256": "6625a14f26a43d874c6e00331eb05e2d02014eec1f090e791344476a90ffeb3a",
+    "csv_record": 2615,
+    "reported_start": [
+      -92.48,
+      44.72
+    ],
+    "reported_end": [
+      -92.45,
+      44.75
+    ],
+    "reason": "NOAA labels this Mower, Minnesota, but the reported start (44.72, -92.48) lies 0.147 degrees outside the Census 2023 cartographic boundary of Minnesota, inside Wisconsin. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10047808": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1982:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1982_c20260323.csv.gz",
+    "source_sha256": "6625a14f26a43d874c6e00331eb05e2d02014eec1f090e791344476a90ffeb3a",
+    "csv_record": 2313,
+    "reported_start": [
+      -92.45,
+      44.75
+    ],
+    "reported_end": [
+      -92.3,
+      44.82
+    ],
+    "reason": "NOAA labels this Fillmore, Minnesota, but the reported start (44.75, -92.45) lies 0.184 degrees outside the Census 2023 cartographic boundary of Minnesota, inside Wisconsin. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10050841": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1969:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1969_c20260323.csv.gz",
+    "source_sha256": "678a98911e5186aa457b68837fef43110b3b7c50dc3cd2ac18d81fa10b0ff5cc",
+    "csv_record": 637,
+    "reported_start": [
+      -89.85,
+      30.15
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Holmes, Mississippi, but the reported start (30.15, -89.85) lies 0.243 degrees outside the Census 2023 cartographic boundary of Mississippi, inside Louisiana. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10058762": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1982:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1982_c20260323.csv.gz",
+    "source_sha256": "6625a14f26a43d874c6e00331eb05e2d02014eec1f090e791344476a90ffeb3a",
+    "csv_record": 897,
+    "reported_start": [
+      -91.35,
+      36.13
+    ],
+    "reported_end": [
+      -91.28,
+      36.2
+    ],
+    "reason": "NOAA labels this Crawford, Missouri, but the reported start (36.13, -91.35) lies 0.367 degrees outside the Census 2023 cartographic boundary of Missouri, inside Arkansas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10058763": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1982:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1982_c20260323.csv.gz",
+    "source_sha256": "6625a14f26a43d874c6e00331eb05e2d02014eec1f090e791344476a90ffeb3a",
+    "csv_record": 898,
+    "reported_start": [
+      -91.28,
+      36.2
+    ],
+    "reported_end": [
+      -91.18,
+      36.3
+    ],
+    "reason": "NOAA labels this Franklin, Missouri, but the reported start (36.2, -91.28) lies 0.297 degrees outside the Census 2023 cartographic boundary of Missouri, inside Arkansas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10065287": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1983:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1983_c20260323.csv.gz",
+    "source_sha256": "46e5be14bcf238fc67e33f25033db311a3a66bdfbc2b6117bc30291f0f1bbd59",
+    "csv_record": 2135,
+    "reported_start": [
+      -102.85,
+      43.63
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Dawes, Nebraska, but the reported start (43.63, -102.85) lies 0.630 degrees outside the Census 2023 cartographic boundary of Nebraska, inside South Dakota. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10069480": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1959:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1959_c20260323.csv.gz",
+    "source_sha256": "16bcd5c858e9564d7740515ea692acb38e9e1843eea93389d19bad9bcfb0e437",
+    "csv_record": 657,
+    "reported_start": [
+      -103.18,
+      40.85
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Cheyenne, Nebraska, but the reported start (40.85, -103.18) lies 0.152 degrees outside the Census 2023 cartographic boundary of Nebraska, inside Colorado. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10079133": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1968:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1968_c20260323.csv.gz",
+    "source_sha256": "b904803e325886c01b2bd10e691fc195621f80ab1d555511a126f58b2dda727c",
+    "csv_record": 1370,
+    "reported_start": [
+      -72.8,
+      43.1
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Hillsborough, New Hampshire, but the reported start (43.1, -72.8) lies 0.304 degrees outside the Census 2023 cartographic boundary of New Hampshire, inside Vermont. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10082804": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1978:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1978_c20260323.csv.gz",
+    "source_sha256": "1b2694a5c29fbceec8b0554deba5ddd7f229f3c4ff46eb31cfbcb586460c642b",
+    "csv_record": 1039,
+    "reported_start": [
+      -97.05,
+      48.92
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Grand Forks, North Dakota, but the reported start (48.92, -97.05) lies 0.135 degrees outside the Census 2023 cartographic boundary of North Dakota, inside Minnesota. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10100462": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1986:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1986_c20260323.csv.gz",
+    "source_sha256": "b3e227369ed8e1a0e6a7b6eeb1ac55ea65ea69e9679b8615baa31a416ac2bf22",
+    "csv_record": 4725,
+    "reported_start": [
+      -84.55,
+      38.58
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Preble, Ohio, but the reported start (38.58, -84.55) lies 0.402 degrees outside the Census 2023 cartographic boundary of Ohio, inside Kentucky. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10110748": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1951:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1951_c20260323.csv.gz",
+    "source_sha256": "1f9df3d6b869fb74283979da2c2ba5c5493b62efe949613296885a5ddc1169ee",
+    "csv_record": 135,
+    "reported_start": [
+      -96.08,
+      44.9
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Codington, South Dakota, but the reported start (44.9, -96.08) lies 0.372 degrees outside the Census 2023 cartographic boundary of South Dakota, inside Minnesota. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10110946": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1969:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1969_c20260323.csv.gz",
+    "source_sha256": "678a98911e5186aa457b68837fef43110b3b7c50dc3cd2ac18d81fa10b0ff5cc",
+    "csv_record": 896,
+    "reported_start": [
+      -99.6,
+      42.6
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Union, South Dakota, but the reported start (42.6, -99.6) lies 0.398 degrees outside the Census 2023 cartographic boundary of South Dakota, inside Nebraska. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10113360": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1962:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1962_c20260323.csv.gz",
+    "source_sha256": "0d425dd3a7e9bc1dfd175410ca05b1b2cf6c9da2bd09a68cba14b42038b74a30",
+    "csv_record": 902,
+    "reported_start": [
+      -110.17,
+      43.02
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Todd, South Dakota, but the reported start (43.02, -110.17) lies 6.117 degrees outside the Census 2023 cartographic boundary of South Dakota, inside Wyoming. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10121091": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1956:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1956_c20260323.csv.gz",
+    "source_sha256": "7e174ff83e01db4e4aa6f3173b868b88e01fe86c661aab8f38f0d9dc7e7edcde",
+    "csv_record": 542,
+    "reported_start": [
+      -97.77,
+      24.57
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Nueces, Texas, but the reported start (24.57, -97.77) lies 1.317 degrees outside the Census 2023 cartographic boundary of Texas, in no state. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10122107": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1959:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1959_c20260323.csv.gz",
+    "source_sha256": "16bcd5c858e9564d7740515ea692acb38e9e1843eea93389d19bad9bcfb0e437",
+    "csv_record": 178,
+    "reported_start": [
+      -94.93,
+      34.05
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Polk, Texas, but the reported start (34.05, -94.93) lies 0.191 degrees outside the Census 2023 cartographic boundary of Texas, inside Oklahoma. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10122284": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1957:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1957_c20260323.csv.gz",
+    "source_sha256": "f01af90a3036c5679bff848ff053018ba8dbec70b6a56dc3a7931816eedbb621",
+    "csv_record": 1447,
+    "reported_start": [
+      -96.97,
+      37.48
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Dallas, Texas, but the reported start (37.48, -96.97) lies 3.185 degrees outside the Census 2023 cartographic boundary of Texas, inside Kansas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10122345": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1961:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1961_c20260323.csv.gz",
+    "source_sha256": "8564329d167cee630df4b2b0b515f47b2cbf75038d021c26fb7d992cfa80215f",
+    "csv_record": 1507,
+    "reported_start": [
+      -108.75,
+      31.32
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Reeves, Texas, but the reported start (31.32, -108.75) lies 2.182 degrees outside the Census 2023 cartographic boundary of Texas, in no state, nearest New Mexico. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10123210": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1981:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1981_c20260323.csv.gz",
+    "source_sha256": "8321772333a97a516eac12cf7af911e5c566a909f7813318ceaa99fb3a4a3bb0",
+    "csv_record": 2132,
+    "reported_start": [
+      -89.97,
+      36.4
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Tipton, Tennessee, but the reported start (36.4, -89.97) lies 0.309 degrees outside the Census 2023 cartographic boundary of Tennessee, inside Missouri. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10125206": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1959:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1959_c20260323.csv.gz",
+    "source_sha256": "16bcd5c858e9564d7740515ea692acb38e9e1843eea93389d19bad9bcfb0e437",
+    "csv_record": 1160,
+    "reported_start": [
+      -90.15,
+      35.72
+    ],
+    "reported_end": [
+      -89.73,
+      35.78
+    ],
+    "reason": "NOAA labels this Lauderdale, Tennessee, but the reported start (35.72, -90.15) lies 0.191 degrees outside the Census 2023 cartographic boundary of Tennessee, inside Arkansas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10129922": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1976:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1976_c20260323.csv.gz",
+    "source_sha256": "cd0d8d4228d81201494e42114c9308baa06fb8137e7c9b6c9073c09b4e30384b",
+    "csv_record": 3026,
+    "reported_start": [
+      -96.33,
+      33.88
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Fannin, Texas, but the reported start (33.88, -96.33) lies 0.116 degrees outside the Census 2023 cartographic boundary of Texas, inside Oklahoma. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10132439": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1967:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1967_c20260323.csv.gz",
+    "source_sha256": "ac380744c276c2ce1faebd5581bdb5259046c6c0285674aa8660f51069d2f098",
+    "csv_record": 2675,
+    "reported_start": [
+      -92.38,
+      28.17
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Refugio, Texas, but the reported start (28.17, -92.38) lies 2.098 degrees outside the Census 2023 cartographic boundary of Texas, in no state, nearest Louisiana. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10133509": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1967:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1967_c20260323.csv.gz",
+    "source_sha256": "ac380744c276c2ce1faebd5581bdb5259046c6c0285674aa8660f51069d2f098",
+    "csv_record": 2501,
+    "reported_start": [
+      -94.17,
+      36.33
+    ],
+    "reported_end": [
+      -94.12,
+      36.33
+    ],
+    "reason": "NOAA labels this Hardin, Texas, but the reported start (36.33, -94.17) lies 2.574 degrees outside the Census 2023 cartographic boundary of Texas, inside Arkansas. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10134824": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1968:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1968_c20260323.csv.gz",
+    "source_sha256": "b904803e325886c01b2bd10e691fc195621f80ab1d555511a126f58b2dda727c",
+    "csv_record": 2829,
+    "reported_start": [
+      -101.7,
+      26.48
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Sherman, Texas, but the reported start (26.48, -101.7) lies 2.249 degrees outside the Census 2023 cartographic boundary of Texas, in no state. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10142713": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1984:20260527",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1984_c20260527.csv.gz",
+    "source_sha256": "869d89d2d56e01a173ce5d26234f04ec153130169ac7efdc5fe8f3de52453f26",
+    "csv_record": 6050,
+    "reported_start": [
+      -96.37,
+      33.95
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Fannin, Texas, but the reported start (33.95, -96.37) lies 0.182 degrees outside the Census 2023 cartographic boundary of Texas, inside Oklahoma. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10144750": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1983:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1983_c20260323.csv.gz",
+    "source_sha256": "46e5be14bcf238fc67e33f25033db311a3a66bdfbc2b6117bc30291f0f1bbd59",
+    "csv_record": 7289,
+    "reported_start": [
+      -96.32,
+      34.15
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Fannin, Texas, but the reported start (34.15, -96.32) lies 0.356 degrees outside the Census 2023 cartographic boundary of Texas, inside Oklahoma. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10148750": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1961:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1961_c20260323.csv.gz",
+    "source_sha256": "8564329d167cee630df4b2b0b515f47b2cbf75038d021c26fb7d992cfa80215f",
+    "csv_record": 2061,
+    "reported_start": [
+      -82.33,
+      39.55
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Ohio, West Virginia, but the reported start (39.55, -82.33) lies 0.602 degrees outside the Census 2023 cartographic boundary of West Virginia, inside Ohio. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:10149563": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1964:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1964_c20260323.csv.gz",
+    "source_sha256": "cdf48993d5943d3671b00b60aba888d8cf30cb958420b932c558d98b46e1946f",
+    "csv_record": 2309,
+    "reported_start": [
+      -118.6,
+      45.9
+    ],
+    "reported_end": [
+      -118.38,
+      45.95
+    ],
+    "reason": "NOAA labels this Walla Walla, Washington, but the reported start (45.9, -118.6) lies 0.101 degrees outside the Census 2023 cartographic boundary of Washington, inside Oregon. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5264264": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:2001:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2001_c20260323.csv.gz",
+    "source_sha256": "77a84aa66aaa9f7f95a15ecb2d18451bc05be801ea10f606d2e83fb44f737e51",
+    "csv_record": 40031,
+    "reported_start": [
+      -87.18333,
+      42.51667
+    ],
+    "reported_end": [
+      -87.18333,
+      42.51667
+    ],
+    "reason": "NOAA labels this Wheeler, Indiana, but the reported start (42.51667, -87.18333) lies 0.836 degrees outside the Census 2023 cartographic boundary of Indiana, in no state, nearest Illinois. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5268078": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:2001:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2001_c20260323.csv.gz",
+    "source_sha256": "77a84aa66aaa9f7f95a15ecb2d18451bc05be801ea10f606d2e83fb44f737e51",
+    "csv_record": 47330,
+    "reported_start": [
+      -115.55,
+      33.98333
+    ],
+    "reported_end": [
+      -115.55,
+      33.98333
+    ],
+    "reason": "NOAA labels this Cal-Nev-Ari, Nevada, but the reported start (33.98333, -115.55) lies 1.368 degrees outside the Census 2023 cartographic boundary of Nevada, inside California. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5334504": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:2003:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2003_c20260323.csv.gz",
+    "source_sha256": "f6d23ba4043394a517c8c6b0db8346f940a1de3fb8cac76eee773c5797243e3c",
+    "csv_record": 8213,
+    "reported_start": [
+      -96.83333,
+      45.38333
+    ],
+    "reported_end": [
+      -96.83333,
+      45.38333
+    ],
+    "reason": "NOAA labels this Clontarf, Minnesota, but the reported start (45.38333, -96.83333) lies 0.126 degrees outside the Census 2023 cartographic boundary of Minnesota, inside South Dakota. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5409819": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:2004:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2004_c20260323.csv.gz",
+    "source_sha256": "b0827cd69b8d0ddc1446d8a322132502a05af19b1193c15eae118f13396844e3",
+    "csv_record": 36465,
+    "reported_start": [
+      -96.66667,
+      44.61667
+    ],
+    "reported_end": [
+      -96.66667,
+      44.63333
+    ],
+    "reason": "NOAA labels this Wilno, Minnesota, but the reported start (44.61667, -96.66667) lies 0.215 degrees outside the Census 2023 cartographic boundary of Minnesota, inside South Dakota. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5543162": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1996:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1996_c20260323.csv.gz",
+    "source_sha256": "518c43aadbffbf7509a2ab20cfa6b54f1d63f196b3d8aedb9ffd7d032968eb45",
+    "csv_record": 42266,
+    "reported_start": [
+      -80.57,
+      34.7
+    ],
+    "reported_end": [
+      -80.57,
+      34.7
+    ],
+    "reason": "NOAA labels this Monroe, North Carolina, but the reported start (34.7, -80.57) lies 0.118 degrees outside the Census 2023 cartographic boundary of North Carolina, inside South Carolina. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5598628": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1997:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
+    "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
+    "csv_record": 12148,
+    "reported_start": [
+      -86.0,
+      42.08
+    ],
+    "reported_end": [
+      -86.0,
+      42.08
+    ],
+    "reason": "NOAA labels this Lagrange, Indiana, but the reported start (42.08, -86.0) lies 0.320 degrees outside the Census 2023 cartographic boundary of Indiana, inside Michigan. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5598629": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1997:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
+    "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
+    "csv_record": 12149,
+    "reported_start": [
+      -85.08,
+      42.27
+    ],
+    "reported_end": [
+      -85.08,
+      42.28
+    ],
+    "reason": "NOAA labels this Angola Airport, Indiana, but the reported start (42.27, -85.08) lies 0.510 degrees outside the Census 2023 cartographic boundary of Indiana, inside Michigan. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5598735": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1997:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
+    "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
+    "csv_record": 30809,
+    "reported_start": [
+      -86.47,
+      42.3
+    ],
+    "reported_end": [
+      -86.47,
+      42.32
+    ],
+    "reason": "NOAA labels this Stone Lake, Indiana, but the reported start (42.3, -86.47) lies 0.540 degrees outside the Census 2023 cartographic boundary of Indiana, in no state, nearest Michigan. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5605850": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1997:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz",
+    "source_sha256": "3fdcaa0a839d8b619161188d7d01b8e24e2688fcfc227ea15a73d7da876b36bc",
+    "csv_record": 4640,
+    "reported_start": [
+      -73.57,
+      42.38
+    ],
+    "reported_end": [
+      -73.55,
+      42.38
+    ],
+    "reason": "NOAA labels this Richmond, Massachusetts, but the reported start (42.38, -73.57) lies 0.159 degrees outside the Census 2023 cartographic boundary of Massachusetts, inside New York. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:5714606": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1999:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1999_c20260323.csv.gz",
+    "source_sha256": "c407d09273bc91d645f0f119bfd7128c153f1acb62c239f34572f483b09aacfb",
+    "csv_record": 20143,
+    "reported_start": [
+      -72.15,
+      44.58
+    ],
+    "reported_end": [
+      -72.13,
+      44.57
+    ],
+    "reason": "NOAA labels this Enfield Center, New Hampshire, but the reported start (44.58, -72.15) lies 0.285 degrees outside the Census 2023 cartographic boundary of New Hampshire, inside Vermont. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:9979842": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1983:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1983_c20260323.csv.gz",
+    "source_sha256": "46e5be14bcf238fc67e33f25033db311a3a66bdfbc2b6117bc30291f0f1bbd59",
+    "csv_record": 1939,
+    "reported_start": [
+      -88.65,
+      33.3
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Tuscaloosa, Alabama, but the reported start (33.3, -88.65) lies 0.344 degrees outside the Census 2023 cartographic boundary of Alabama, inside Mississippi. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:9988744": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1968:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1968_c20260323.csv.gz",
+    "source_sha256": "b904803e325886c01b2bd10e691fc195621f80ab1d555511a126f58b2dda727c",
+    "csv_record": 2033,
+    "reported_start": [
+      -84.3,
+      27.55
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Hardee, Florida, but the reported start (27.55, -84.3) lies 1.484 degrees outside the Census 2023 cartographic boundary of Florida, in no state. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:9991247": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1978:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1978_c20260323.csv.gz",
+    "source_sha256": "1b2694a5c29fbceec8b0554deba5ddd7f229f3c4ff46eb31cfbcb586460c642b",
+    "csv_record": 3398,
+    "reported_start": [
+      -112.2,
+      37.93
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this San Joaquin, California, but the reported start (37.93, -112.2) lies 3.807 degrees outside the Census 2023 cartographic boundary of California, inside Utah. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:9999122": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1991:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1991_c20260323.csv.gz",
+    "source_sha256": "cb46d6324a7f3fd3c3d6039a1350a3df0e005d731656c0657e88b715ff5d8f35",
+    "csv_record": 6576,
+    "reported_start": [
+      -87.5,
+      30.18
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Escambia, Florida, but the reported start (30.18, -87.5) lies 0.102 degrees outside the Census 2023 cartographic boundary of Florida, in no state, nearest Alabama. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
+  },
+  "ncei:9999379": {
+    "status": "disputed",
+    "reviewed": "2026-11-14",
+    "snapshot_id": "ncei:1972:20260323",
+    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1972_c20260323.csv.gz",
+    "source_sha256": "701e402581b90cb3e51bce4cd678fbe4615a0f38360205b55a8f660f6a1e5440",
+    "csv_record": 1038,
+    "reported_start": [
+      -83.33,
+      25.78
+    ],
+    "reported_end": null,
+    "reason": "NOAA labels this Miami-Dade, Florida, but the reported start (25.78, -83.33) lies 1.216 degrees outside the Census 2023 cartographic boundary of Florida, in no state. The retained NOAA row gives the same point. No corrected starting position has been established.",
+    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
   }
 }
