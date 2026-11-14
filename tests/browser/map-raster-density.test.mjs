@@ -92,7 +92,12 @@ test('native geographic image callbacks and failed metadata cannot restore a ret
 
 for(const c of cases)for(const route of ['index.html#path','survey.html'])test('published map caller at CSS'+c.width+' DPR'+c.dpr+' '+route,{timeout:25000},async t=>{
  const page=await fixture(t,{viewport:{width:c.width,height:c.height},deviceScaleFactor:c.dpr,reducedMotion:'reduce',serviceWorkers:'block'}),provider=await mockGeography(page);
- const id=route.startsWith('index')?'map':'survey-map';await page.goto(base+'/'+route);await page.locator('#'+id+'-geography').waitFor();await page.locator('#'+id).scrollIntoViewIfNeeded();
+ const id=route.startsWith('index')?'map':'survey-map';await page.goto(base+'/'+route);await page.locator('#'+id+'-geography').waitFor();
+ // The article scrolls to its shared fragment in a frame after the map mounts. A test scroll is not reader
+ // input, so that late scroll still runs. If it runs before the observer sees the test scroll, the map leaves
+ // view unseen and its lazy raster is never requested. Scroll only after the article reports it is ready.
+ if(route.startsWith('index')){await page.waitForFunction(()=>document.body.dataset.exhibitReady!==undefined);assert.equal(await page.evaluate(()=>document.body.dataset.exhibitReady),'true','Article startup finished');}
+ await page.locator('#'+id).scrollIntoViewIfNeeded();
  let current;
  try{current=await displayed(page,id);}
  catch(error){await reportMapRasterFailure(t,page,{mapId:id,provider},error);throw error;}
