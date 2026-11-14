@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
+PUBLISHED_CATALOGUE = ROOT / "web" / "catalogue" / "index.json"
 NCEI_BASE = "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/"
 NCEI_NAME = re.compile(r"StormEvents_details-ftp_v1\.0_d(\d{4})_c(\d{8})\.csv\.gz")
 USER_AGENT = "TornadoAtlasLocalResearch/0.1 (historical data catalogue)"
@@ -102,13 +103,55 @@ def discover_ncei(years: list[int], data_dir: Path = DATA) -> list[str]:
     return [NCEI_BASE + latest[year][1] for year in sorted(set(years))]
 
 
-def cached_retrieval(url: str, data_dir: Path = DATA) -> dict | None:
-    """Return the last integrity-checked snapshot; callers choose when to refresh."""
+def logged_retrievals(data_dir: Path = DATA) -> list[dict]:
+    """Every retrieval this cache has logged, oldest first."""
     log = data_dir / "retrievals.jsonl"
     if not log.exists():
-        return None
-    matches = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
-    for item in reversed(matches):
+        return []
+    return [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def published_retrievals(index: Path = PUBLISHED_CATALOGUE) -> list[dict]:
+    """The source retrievals the published browser catalogue already cites."""
+    if not index.exists():
+        return []
+    sources = json.loads(index.read_text(encoding="utf-8")).get("sources", {})
+    return [{"url": item["source_url"], "sha256": item["sha256"], "retrieved_at": item["retrieved_at"]}
+            for item in sources.values()]
+
+
+def _instant(value, url: str) -> datetime:
+    try:
+        moment = datetime.fromisoformat(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"Retrieval time is not an ISO 8601 timestamp: {url}") from error
+    if moment.tzinfo is None:
+        raise ValueError(f"Retrieval time needs a UTC offset: {url}")
+    return moment
+
+
+def first_retrieval(metadata: dict, earlier: list[dict]) -> dict:
+    """Keep the first retrieval time when a refetch returns the same bytes.
+
+    Fetching identical bytes from the same URL again observes nothing new, so
+    the source keeps the time it was first retrieved. The refetch time stays in
+    `refetched_at` and in the retrieval log. Different bytes keep their own time.
+    """
+    url, sha = metadata["url"], metadata["sha256"]
+    current = _instant(metadata["retrieved_at"], url)
+    matches = [(_instant(item["retrieved_at"], url), item["retrieved_at"]) for item in earlier
+               if item.get("url") == url and item.get("sha256") == sha]
+    if not matches:
+        return metadata
+    first, recorded = min(matches)
+    if first >= current:
+        return metadata
+    return {**metadata, "retrieved_at": recorded, "refetched_at": metadata["retrieved_at"]}
+
+
+def cached_retrieval(url: str, data_dir: Path = DATA) -> dict | None:
+    """Return the last integrity-checked snapshot; callers choose when to refresh."""
+    for item in reversed(logged_retrievals(data_dir)):
         if item["url"] == url:
             read_object(item, data_dir)
             return item

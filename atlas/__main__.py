@@ -5,7 +5,8 @@ from pathlib import Path
 
 from .catalogue import connect, import_jma, import_ncei, search, search_jma_cases, stats
 from .jma import URL as JMA_URL
-from .sources import DATA, cached_retrieval, discover_ncei, retrieve
+from .sources import (DATA, PUBLISHED_CATALOGUE, cached_retrieval, discover_ncei, first_retrieval,
+                      logged_retrievals, published_retrievals, retrieve)
 
 
 def main():
@@ -16,6 +17,8 @@ def main():
     period=fetch.add_mutually_exclusive_group(required=True)
     period.add_argument("--years", type=int, nargs="+")
     period.add_argument("--year-range",type=int,nargs=2,metavar=("FIRST","LAST"),help="Inclusive range of published years")
+    fetch.add_argument("--published-catalogue", type=Path, default=PUBLISHED_CATALOGUE,
+                       help="Browser index whose cited retrieval times a byte identical refetch keeps")
     jma = commands.add_parser("import-jma", help="Import an already retained JMA source snapshot")
     jma_source = jma.add_mutually_exclusive_group()
     jma_source.add_argument("--metadata", type=Path, help="Retrieval metadata for a raw/sha256 cache object")
@@ -45,9 +48,11 @@ def main():
                     parser.error('Expected an ascending year range from 1950 onward, ending no later than 2100')
                 years=list(range(first,last+1))
             result = []
+            earlier = logged_retrievals(args.data_dir) + published_retrievals(args.published_catalogue)
             for number,url in enumerate(discover_ncei(years, data_dir=args.data_dir),1):
                 print(f'[{number}/{len(set(years))}] {url.rsplit("/",1)[-1]}',file=sys.stderr,flush=True)
                 metadata = cached_retrieval(url, data_dir=args.data_dir) or retrieve(url, data_dir=args.data_dir)
+                metadata = first_retrieval(metadata, earlier)
                 imported = import_ncei(connection, metadata, data_dir=args.data_dir)
                 result.append(imported)
         elif args.command == "import-jma":

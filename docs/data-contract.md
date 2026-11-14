@@ -6,6 +6,8 @@ Each download has its original URL, resolved URL, retrieval time, byte count, re
 
 Each NOAA source revision is imported in one database transaction. An invalid schema, duplicate event ID, incompatible year, or corrupt source rolls back the entire revision. Older revisions remain queryable in the database. Current search selects the latest published revision of each imported annual partition, including removal of records absent from a later revision.
 
+Fetching the same file again does not make it a new source. When `import-ncei` downloads bytes whose URL and SHA-256 match a retrieval in the local log or in the published `web/catalogue/index.json`, the records keep the earliest of those retrieval times. The local snapshot metadata keeps the new fetch time as `refetched_at`. A file whose bytes changed, such as a new NOAA revision, keeps its own retrieval time. This happens when a snapshot first enters a database. A database that already holds the snapshot keeps the time it stored, so a republish that should carry the first times starts from an empty database and can reuse the cached downloads.
+
 The import log retains logical CSV record numbers. These are not physical line numbers, because narratives can span multiple lines. The full original CSV row is retained as JSON beside the normalized record.
 
 ## Fields and interpretation

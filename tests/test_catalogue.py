@@ -1,3 +1,4 @@
+import contextlib
 import csv
 import gzip
 import hashlib
@@ -10,7 +11,7 @@ from pathlib import Path
 
 from atlas.catalogue import connect, import_ncei, search, stats
 from atlas.ncei import iter_records, normalize
-from atlas.sources import read_object
+from atlas.sources import first_retrieval, published_retrievals, read_object
 
 
 def sample(**changes):
@@ -183,6 +184,126 @@ class PersistenceTests(unittest.TestCase):
                 import_ncei(self.db, self.snapshot([raw], '20260920'), self.root)
         self.assertEqual(stats(self.db)['source_snapshots'], 1)
         self.assertEqual(search(self.db)[0]['rating']['reported'], 'EF3')
+
+
+class FirstRetrievalTests(unittest.TestCase):
+    URL = "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2013_c20260323.csv.gz"
+    FIRST = "2026-09-20T08:30:10.335058+00:00"
+    REFETCH = "2026-11-13T21:04:00.000000+00:00"
+
+    def refetch(self, sha="a" * 64, url=URL, retrieved_at=REFETCH):
+        return {"url": url, "sha256": sha, "path": f"raw/{sha}", "retrieved_at": retrieved_at}
+
+    def test_byte_identical_refetch_keeps_first_retrieval_time(self):
+        kept = first_retrieval(self.refetch(), [{"url": self.URL, "sha256": "a" * 64, "retrieved_at": self.FIRST}])
+        self.assertEqual(kept["retrieved_at"], self.FIRST)
+        self.assertEqual(kept["refetched_at"], self.REFETCH)
+
+    def test_changed_bytes_or_another_revision_keep_their_own_time(self):
+        earlier = [{"url": self.URL, "sha256": "a" * 64, "retrieved_at": self.FIRST}]
+        for metadata in (self.refetch(sha="b" * 64), self.refetch(url=self.URL.replace("c20260323", "c20261026"))):
+            with self.subTest(metadata=metadata):
+                self.assertIs(first_retrieval(metadata, earlier), metadata)
+
+    def test_earliest_of_several_matching_retrievals_wins(self):
+        # As text the first entry sorts earlier. As instants the second one is.
+        earlier = [{"url": self.URL, "sha256": "a" * 64, "retrieved_at": "2026-09-20T23:00:00-05:00"},
+                   {"url": self.URL, "sha256": "a" * 64, "retrieved_at": "2026-09-21T01:00:00+00:00"}]
+        self.assertEqual(first_retrieval(self.refetch(), earlier)["retrieved_at"], "2026-09-21T01:00:00+00:00")
+
+    def test_later_matching_entry_does_not_move_the_time(self):
+        metadata = self.refetch(retrieved_at=self.FIRST)
+        earlier = [{"url": self.URL, "sha256": "a" * 64, "retrieved_at": self.REFETCH}]
+        self.assertIs(first_retrieval(metadata, earlier), metadata)
+
+    def test_retrieval_time_without_offset_is_rejected(self):
+        earlier = [{"url": self.URL, "sha256": "a" * 64, "retrieved_at": "2026-09-20T08:30:10"}]
+        with self.assertRaisesRegex(ValueError, "UTC offset"):
+            first_retrieval(self.refetch(), earlier)
+
+    def test_published_index_supplies_cited_retrievals(self):
+        with tempfile.TemporaryDirectory() as folder:
+            index = Path(folder) / "index.json"
+            self.assertEqual(published_retrievals(index), [])
+            index.write_text(json.dumps({"sources": {"ncei:2013:20260323": {
+                "snapshot_id": "ncei:2013:20260323", "source_url": self.URL,
+                "sha256": "a" * 64, "retrieved_at": self.FIRST}}}), encoding="utf-8")
+            self.assertEqual(published_retrievals(index),
+                             [{"url": self.URL, "sha256": "a" * 64, "retrieved_at": self.FIRST}])
+
+    def test_cli_refetch_keeps_published_time_and_a_new_revision_gets_its_own(self):
+        from atlas.__main__ import main
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "raw").mkdir()
+            files = {}
+            for year, revision, rating in (("2012", "20260323", "EF2"), ("2013", "20260323", "EF3"),
+                                           ("2012", "20261026", "EF1")):
+                buffer = io.StringIO(newline="")
+                rows = [sample(EVENT_ID=year, YEAR=year, BEGIN_YEARMONTH=f"{year}07",
+                               END_YEARMONTH=f"{year}07", TOR_F_SCALE=rating)]
+                writer = csv.DictWriter(buffer, fieldnames=list(rows[0]))
+                writer.writeheader()
+                writer.writerows(rows)
+                content = gzip.compress(buffer.getvalue().encode(), mtime=0)
+                sha = hashlib.sha256(content).hexdigest()
+                (root / "raw" / sha).write_bytes(content)
+                url = self.URL.replace("d2013_c20260323", f"d{year}_c{revision}")
+                files[(year, revision)] = {"url": url, "sha256": sha, "path": f"raw/{sha}",
+                                           "bytes": len(content), "retrieved_at": self.REFETCH}
+            index = root / "index.json"
+            index.write_text(json.dumps({"sources": {
+                f"ncei:{year}:{revision}": {"snapshot_id": f"ncei:{year}:{revision}", "source_url": item["url"],
+                                            "sha256": item["sha256"], "retrieved_at": self.FIRST}
+                for (year, revision), item in files.items() if revision == "20260323"}}), encoding="utf-8")
+            current = [files[("2012", "20261026")], files[("2013", "20260323")]]
+            output = io.StringIO()
+            with (patch("sys.argv", ["atlas", "--data-dir", str(root), "import-ncei", "--years", "2012", "2013",
+                                     "--published-catalogue", str(index)]),
+                  patch("atlas.__main__.discover_ncei", return_value=[item["url"] for item in current]),
+                  patch("atlas.__main__.retrieve", side_effect=current),
+                  contextlib.redirect_stdout(output), contextlib.redirect_stderr(io.StringIO())):
+                main()
+            database = connect(root / "catalogue.sqlite3")
+            try:
+                times = {record["year"]: record["provenance"]["retrieved_at"] for record in search(database)}
+            finally:
+                database.close()
+            self.assertEqual(times, {2012: self.REFETCH, 2013: self.FIRST})
+
+    def test_cli_keeps_the_first_logged_time_when_the_cache_returns_a_later_line(self):
+        from atlas.__main__ import main
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "raw").mkdir()
+            buffer = io.StringIO(newline="")
+            writer = csv.DictWriter(buffer, fieldnames=list(sample()))
+            writer.writeheader()
+            writer.writerow(sample())
+            content = gzip.compress(buffer.getvalue().encode(), mtime=0)
+            sha = hashlib.sha256(content).hexdigest()
+            (root / "raw" / sha).write_bytes(content)
+            entry = {"url": self.URL, "sha256": sha, "path": f"raw/{sha}", "bytes": len(content)}
+            (root / "retrievals.jsonl").write_text(
+                json.dumps({**entry, "retrieved_at": self.FIRST}) + "\n\n"
+                + json.dumps({**entry, "retrieved_at": self.REFETCH}) + "\n", encoding="utf-8")
+            with (patch("sys.argv", ["atlas", "--data-dir", str(root), "import-ncei", "--years", "2013",
+                                     "--published-catalogue", str(root / "absent.json")]),
+                  patch("atlas.__main__.discover_ncei", return_value=[self.URL]),
+                  patch("atlas.__main__.retrieve") as retrieval,
+                  contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO())):
+                main()
+            retrieval.assert_not_called()
+            database = connect(root / "catalogue.sqlite3")
+            try:
+                record = search(database)[0]
+                stored = json.loads(database.execute("SELECT metadata FROM snapshots").fetchone()[0])
+            finally:
+                database.close()
+            self.assertEqual(record["provenance"]["retrieved_at"], self.FIRST)
+            self.assertEqual((stored["retrieved_at"], stored["refetched_at"]), (self.FIRST, self.REFETCH))
 
 
 if __name__ == "__main__":
