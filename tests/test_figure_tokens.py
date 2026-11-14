@@ -1,6 +1,7 @@
-"""Every rendered figure draws only Obscur token values."""
+"""Every rendered figure draws the Obscur roles it should, not just any Obscur value."""
 
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -9,32 +10,48 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class FigureTokenTests(unittest.TestCase):
     def setUp(self):
-        self.tokens = json.loads((ROOT / "docs/obscur-tokens.json").read_text(encoding="utf-8"))
-        self.values = set(self.tokens["tokens"].values())
+        data = json.loads((ROOT / "docs/obscur-tokens.json").read_text(encoding="utf-8"))
+        self.source = data["source"]
+        self.tokens = data["tokens"]
+        self.theme = data["themes"]["obscur"]
 
-    def test_theme_roles_come_from_the_token_list(self):
-        theme = self.tokens["themes"]["obscur"]
-        self.assertLessEqual(set(theme.values()), self.values)
+    def test_tokens_record_their_source(self):
+        self.assertEqual(self.source["repository"], "T92T1914/clair-obscur-themes")
+        self.assertRegex(self.source["revision"], r"^[0-9a-f]{40}$")
+        self.assertRegex(self.source["file_sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(len(self.tokens), 17)
+        self.assertTrue(all(re.fullmatch(r"#[0-9a-f]{6}", value) for value in self.tokens.values()))
+
+    def test_figure_theme_maps_each_role_to_its_token(self):
         # A figure card is filled with control and outlined in border.
-        self.assertEqual(theme["panel"], self.tokens["tokens"]["control"])
-        self.assertEqual(theme["border"], self.tokens["tokens"]["border"])
-        self.assertEqual(theme["canvas"], self.tokens["tokens"]["canvas"])
+        expected = dict(canvas="canvas", panel="control", divider="divider", border="border",
+                        text="text", muted="muted", accent="accent", warning="warning")
+        self.assertEqual(self.theme, {role: self.tokens[token] for role, token in expected.items()})
 
-    def test_mechanism_figure_uses_obscur(self):
+    def test_mechanism_figure_uses_obscur_roles(self):
         config = json.loads((ROOT / "docs/mechanism.json").read_text(encoding="utf-8"))
         self.assertEqual(config["adapter"]["source"], "docs/obscur-tokens.json")
-        self.assertLessEqual(set(config["adapter"]["roles"].values()), self.values)
+        self.assertEqual(config["adapter"]["roles"], dict(
+            canvas=self.tokens["canvas"], panel=self.tokens["control"], text=self.tokens["text"],
+            muted=self.tokens["muted"], line=self.tokens["border"]))
         receipt = json.loads((ROOT / "docs/mechanism-rendering.json").read_text(encoding="utf-8"))
         self.assertEqual(receipt["adapter"], config["adapter"])
+        self.assertIn('rounding_size=18"', (ROOT / "tools/render_mechanism.py").read_text(encoding="utf-8"))
 
     def test_sharing_card_uses_obscur_without_italic(self):
         from tools.render_share_preview import check, roles
 
         config = json.loads((ROOT / "docs/sharing-card.json").read_text(encoding="utf-8"))
         self.assertEqual(config["tokens"], "docs/obscur-tokens.json")
-        self.assertLessEqual(set(roles(config).values()), self.values)
+        self.assertEqual(roles(config), self.theme)
+        source = (ROOT / "tools/render_share_preview.py").read_text(encoding="utf-8")
+        self.assertIn("radius=18,", source)
+        self.assertIn('outline=palette.get("border", palette["divider"])', source)
         receipt = check()
-        self.assertNotIn("Italic", " ".join(label["face"] for label in receipt["painted_labels"]))
+        self.assertEqual({label["face"] for label in receipt["painted_labels"]},
+                         {"Inter-Regular", "Inter-SemiBold", "Inter-Bold"})
+        # Pillow sizes are pixels on a 1280 pixel card. 30 px here is the
+        # 42 px of the 1800 pixel wide figure edition at the same proportion.
         self.assertTrue(all(label["size"] >= 30 for label in receipt["painted_labels"]))
 
 

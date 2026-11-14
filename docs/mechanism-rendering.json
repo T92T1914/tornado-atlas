@@ -14,10 +14,10 @@
     }
   },
   "inputs_sha256_lf": {
-    "docs/archive-dossiers.md": "8b2cf8cd2e682731ed668316bb45ab5bcb418bdbe33bb4403f6367946d6fa241",
+    "docs/archive-dossiers.md": "46b5ca9dad473fca3ca4c0eafbb9b6b62941d708a22820f50f2cc8870a494baa",
     "docs/ground-view-reconstruction.md": "7869405377a25a4570c11fa362707a59e0b99f3da0e6b30fa00a4aaa0e3f9be4",
     "docs/mechanism.json": "7bbb307603e859e141ca8074ee0ce0942479b5d8f3174283498f2692e2556915",
-    "docs/obscur-tokens.json": "0fa4838010b62caa9691d8971532e9a8db78a10af8e8b95189ee5a46988fa10f",
+    "docs/obscur-tokens.json": "ed5d464e5b4ff40b532c3a38f0474c7cab5a1c5cb1b97ba85eca3cad51de4f6a",
     "tools/render_mechanism.py": "2cdd5e12d5ecd24eda0e84ac20876b8cbb81246cdf1ec8d0162f92d6b439db94"
   },
   "fonts": {

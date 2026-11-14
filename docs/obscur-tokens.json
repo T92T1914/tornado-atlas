@@ -1,6 +1,15 @@
 {
   "schema_version": 1,
   "name": "Obscur",
+  "source": {
+    "repository": "T92T1914/clair-obscur-themes",
+    "file": "tokens-monochrome.json",
+    "version": "1.0.0",
+    "revision": "4693831b51f2b3fa268d830fd9b977fb70c83e3d",
+    "file_sha256": "65d70318f370d076a9d690cfa491b65d6fe7eee687f93c2fba87be25e07c836c",
+    "theme": "Obscur",
+    "checked": "2026-11-14"
+  },
   "basis": "Monochrome tokens version 1.0.0. Black with white lettering and gray for everything secondary. No hue. Meaning comes from weight, position, line style and labels, never from color alone.",
   "tokens": {
     "canvas": "#000000",

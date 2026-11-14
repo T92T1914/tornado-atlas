@@ -17,15 +17,15 @@
     ],
     "context": "Reviewed dossiers | Sources, creators and uncertainty",
     "footer": "Source records remain distinct from unique tornadoes.",
-    "source_sha256": "8b2cf8cd2e682731ed668316bb45ab5bcb418bdbe33bb4403f6367946d6fa241"
+    "source_sha256": "46b5ca9dad473fca3ca4c0eafbb9b6b62941d708a22820f50f2cc8870a494baa"
   },
   "inputs_sha256_lf": {
-    "tools/render_share_preview.py": "ff8af7828a56a1c4cb35012f9ca9d00193d9013108c6030df7e968475e1fa373",
+    "tools/render_share_preview.py": "60e7a1e892914ce4e6b5077688b3e901d1c930aad3f5dba159baf5d66a78b325",
     "docs/sharing-card.json": "da6ca98d2ef966cd0aa2f6e2c4f1ce582ab6cadee5130f34bd9669e6003abafe",
-    "docs/archive-dossiers.md": "8b2cf8cd2e682731ed668316bb45ab5bcb418bdbe33bb4403f6367946d6fa241",
-    "docs/obscur-tokens.json": "0fa4838010b62caa9691d8971532e9a8db78a10af8e8b95189ee5a46988fa10f"
+    "docs/archive-dossiers.md": "46b5ca9dad473fca3ca4c0eafbb9b6b62941d708a22820f50f2cc8870a494baa",
+    "docs/obscur-tokens.json": "ed5d464e5b4ff40b532c3a38f0474c7cab5a1c5cb1b97ba85eca3cad51de4f6a"
   },
-  "png_sha256": "26d02bd4719b61acfc9eda113dff706506d841bbf064ff2ad6f18a6b262e28f9",
+  "png_sha256": "e4ff0fa66601d561389c610cfee7e6a83deccc1e80a1d1e617b5893e820fbabe",
   "dimensions": [
     1280,
     640

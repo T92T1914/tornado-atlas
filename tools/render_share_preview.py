@@ -208,7 +208,7 @@ def main():
         x = 68 + i * 588
         draw.rounded_rectangle(
             (x, 273, x + 556, 505),
-            radius=16,
+            radius=18,
             fill=palette["panel"],
             outline=palette.get("border", palette["divider"]),
             width=2,
