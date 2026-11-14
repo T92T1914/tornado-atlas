@@ -124,3 +124,70 @@ class ChronologyTests(unittest.TestCase):
         for event in index['events']:
             del event['chronology']
         validate_index(index)
+
+
+class TuscaloosaChronologyTests(unittest.TestCase):
+    """A survey web page can be a source once its text is archived and pinned."""
+
+    def setUp(self):
+        self.event = 'tuscaloosa-birmingham-2011'
+        self.data = json.loads((ROOT / f'exhibits/{self.event}/chronology.json').read_text(encoding='utf-8'))
+
+    def test_archived_sources_and_printed_clocks(self):
+        validate_chronology(self.data, self.event, ROOT)
+        entries = {row['id']: row for row in self.data['entries']}
+        # The survey prints 443 pm and 614 pm. Read as CDT they are the NCEI
+        # CST begin and end, 15:43 and 17:14.
+        self.assertEqual((entries['survey-start']['source_time'], entries['survey-start']['utc']), ('443 pm', '2011-04-27T21:43:00Z'))
+        self.assertEqual((entries['survey-end']['source_time'], entries['survey-end']['utc']), ('614 pm', '2011-04-27T23:14:00Z'))
+        # Table 1 is converted as printed under its Time (CST) column.
+        self.assertEqual(entries['assessment-table-start']['utc'], '2011-04-27T21:50:00Z')
+        self.assertEqual(entries['assessment-table-end']['utc'], '2011-04-27T22:45:00Z')
+        for key in ('assessment-table-start', 'assessment-table-end'):
+            self.assertIn('3:50 – 4:45 p.m.', entries[key]['source_time'])
+            self.assertIn('Time (CST)', entries[key]['source_time'])
+            self.assertIn('disagrees with the survey', entries[key]['limits'])
+            self.assertEqual(entries[key]['page'], 14)
+        for key in ('survey-start', 'survey-end'):
+            self.assertIsNone(entries[key]['page'])
+            self.assertEqual(entries[key]['precision'], 'approximate_minute')
+        # The assessment does not tie its 4:15 p.m. warning to this tornado.
+        self.assertFalse(any('4:15' in json.dumps(row) for row in self.data['entries']))
+        archive = (ROOT / self.data['sources'][0]['archive']).read_text(encoding='utf-8')
+        self.assertIn('33.0297/-87.9350 at 443 pm', archive)
+        self.assertIn('33.6311/-86.7436 at 614 pm', archive)
+        self.assertIn('Retrieved: 2026-11-14T07:05:59Z', archive)
+
+    def test_text_and_pdf_sources_keep_their_citation_forms(self):
+        mutations = [lambda d: d['entries'][0].update(page=1),
+                     lambda d: d['entries'][1].update(page=None),
+                     lambda d: d['sources'][0].update(archive='exhibits/tuscaloosa-birmingham-2011/survey.html'),
+                     lambda d: d['sources'][0].update(archive='exhibits/joplin-2011/survey.txt'),
+                     lambda d: d['sources'][0].update(archive=None),
+                     lambda d: d['sources'].append(copy.deepcopy(d['sources'][0]))]
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                data = copy.deepcopy(self.data)
+                mutate(data)
+                with self.assertRaises(ValueError):
+                    validate_chronology(data, self.event)
+
+    def test_changed_archived_text_is_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            for source in self.data['sources']:
+                path = root / source['archive']
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes((ROOT / source['archive']).read_bytes())
+            validate_chronology(self.data, self.event, root)
+            text = root / self.data['sources'][0]['archive']
+            text.write_bytes(text.read_bytes().replace(b'443 pm', b'433 pm'))
+            with self.assertRaisesRegex(ValueError, 'bytes have changed'):
+                validate_chronology(self.data, self.event, root)
+
+    def test_published_package_and_archive_tag(self):
+        artifacts = publication_artifacts(ROOT, (ROOT / 'web/data.json').read_bytes())
+        self.assertEqual(artifacts[f'events/{self.event}-chronology.json'], self.data)
+        index = json.loads((ROOT / 'web/archive/index.json').read_text(encoding='utf-8'))
+        tagged = {row['id'] for row in index['events'] if 'chronology' in row['evidence']}
+        self.assertEqual(tagged, {'joplin-2011', self.event})

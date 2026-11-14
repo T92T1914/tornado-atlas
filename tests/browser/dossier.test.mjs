@@ -70,8 +70,9 @@ test('discovery distinguishes registered evidence and sparse record coverage',as
   await page.getByRole('combobox',{name:'Evidence available'}).selectOption('chronology');
   await navigate(page,()=>page.getByRole('button',{name:'Search',exact:true}).click());
   await page.waitForFunction(()=>document.body?.dataset.ready==='true');
-  assert.equal(await page.locator('.archive-grid .archive-card').count(),1);
+  assert.equal(await page.locator('.archive-grid .archive-card').count(),2);
   assert.match(await page.locator('.archive-grid').textContent(),/Joplin/);
+  assert.match(await page.locator('.archive-grid').textContent(),/Tuscaloosa/);
   await navigate(page,()=>page.getByRole('link',{name:'Wybark, Oklahoma'}).click());
   await page.waitForFunction(()=>document.body?.dataset.ready==='true');
   assert.match(await page.locator('#content').textContent(),/No reviewed canonical event association/);
