@@ -34,7 +34,7 @@ The existing NOAA revisions and source partitions remain intact. Country filteri
 
 ## Separate source-record browser
 
-`web/japan.html` reads a separate processed index and loads one immutable detail shard when a visitor selects a case. Its retained snapshot contains 2,912 source cases and 1,576 classification-code-1 tornado records. The default view shows code 1. The other phenomenon classes remain available without becoming confirmed tornadoes. Source names and labels retain Japanese text. Missing fields, intervals, minute and angular uncertainties, shared-impact cells and the unresolved wind unit remain readable. No coordinates are placed on an assumed basemap.
+`web/japan.html` reads a separate processed index and loads one immutable detail shard when a visitor selects a case. Its retained snapshot, `jma:20261013T105201Z`, contains 2,914 source cases and 1,577 tornado records with classification code 1. The [revision record](../research/jma-revision-2026-11-13.md) lists the cases added and changed since the September 30 snapshot. The default view shows code 1. The other phenomenon classes remain available without becoming confirmed tornadoes. Source names and labels retain Japanese text. Missing fields, intervals, minute and angular uncertainties, shared-impact cells and the unresolved wind unit remain readable. No coordinates are placed on an assumed basemap.
 
 ```text
 python -m atlas publish-jma --output web/jma-cases
