@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "name": "Obscur",
+  "basis": "Monochrome tokens version 1.0.0. Black with white lettering and gray for everything secondary. No hue. Meaning comes from weight, position, line style and labels, never from color alone.",
+  "tokens": {
+    "canvas": "#000000",
+    "panel": "#000000",
+    "text": "#ffffff",
+    "muted": "#cccccc",
+    "divider": "#505050",
+    "control": "#151515",
+    "hover": "#252525",
+    "selected": "#202020",
+    "border": "#999999",
+    "accent": "#ffffff",
+    "on_accent": "#000000",
+    "focus": "#ffffff",
+    "success": "#ffffff",
+    "warning": "#ffffff",
+    "error": "#ffffff",
+    "code": "#080808",
+    "disabled": "#aaaaaa"
+  },
+  "figure_roles_basis": "A figure card is filled with control and outlined in border, so the figure role panel takes the control value and the role line takes the border value.",
+  "themes": {
+    "obscur": {
+      "canvas": "#000000",
+      "panel": "#151515",
+      "divider": "#505050",
+      "border": "#999999",
+      "text": "#ffffff",
+      "muted": "#cccccc",
+      "accent": "#ffffff",
+      "warning": "#ffffff"
+    }
+  }
+}

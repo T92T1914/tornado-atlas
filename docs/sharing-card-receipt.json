@@ -17,15 +17,15 @@
     ],
     "context": "Reviewed dossiers | Sources, creators and uncertainty",
     "footer": "Source records remain distinct from unique tornadoes.",
-    "source_sha256": "9b9b7159af51b8cd1abdb816ac911ad5fab00c512100ea524adf9cb9de72fb11"
+    "source_sha256": "8b2cf8cd2e682731ed668316bb45ab5bcb418bdbe33bb4403f6367946d6fa241"
   },
   "inputs_sha256_lf": {
-    "tools/render_share_preview.py": "659aed220e79634e83c6b465b77bb4aea894f4a20d3a53deb888bfca917254e2",
-    "docs/sharing-card.json": "7f2701f455e59ce96b4195a84131883a315484cdb1aa75ea073aa8a0969071f7",
-    "docs/archive-dossiers.md": "9b9b7159af51b8cd1abdb816ac911ad5fab00c512100ea524adf9cb9de72fb11",
-    "web/appearance.css": "987883e17708197fd665b011a8a7158f3449e452783aac9c184c7fca7f297c9c"
+    "tools/render_share_preview.py": "ff8af7828a56a1c4cb35012f9ca9d00193d9013108c6030df7e968475e1fa373",
+    "docs/sharing-card.json": "da6ca98d2ef966cd0aa2f6e2c4f1ce582ab6cadee5130f34bd9669e6003abafe",
+    "docs/archive-dossiers.md": "8b2cf8cd2e682731ed668316bb45ab5bcb418bdbe33bb4403f6367946d6fa241",
+    "docs/obscur-tokens.json": "0fa4838010b62caa9691d8971532e9a8db78a10af8e8b95189ee5a46988fa10f"
   },
-  "png_sha256": "7c61b1f678abcd487025418e569350b56f0ec4f91e7fced71de7dafe1f6c59a4",
+  "png_sha256": "26d02bd4719b61acfc9eda113dff706506d841bbf064ff2ad6f18a6b262e28f9",
   "dimensions": [
     1280,
     640
@@ -53,12 +53,6 @@
       "weight": 700,
       "italic": false,
       "sha256": "288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f"
-    },
-    "Italic": {
-      "postscript": "Inter-Italic",
-      "weight": 400,
-      "italic": true,
-      "sha256": "bbc051dd204b5019a1aa0bc0ae2aa8a05ab13e7a3f979fa357631dc7feb6833a"
     }
   },
   "painted_labels": [
@@ -163,12 +157,12 @@
     },
     {
       "text": "Source records remain distinct from unique tornadoes.",
-      "face": "Inter-Italic",
+      "face": "Inter-SemiBold",
       "bounds": [
         68,
         548,
-        844,
-        578
+        859,
+        577
       ],
       "size": 30
     }

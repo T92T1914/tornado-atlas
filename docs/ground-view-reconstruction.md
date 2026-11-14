@@ -1,4 +1,4 @@
-# Ground-view rendering and comparison
+# Ground view rendering and comparison
 
 The spatial replay contains a deliberately selected synthetic camera exercise.
 Open the appearance selector and choose Synthetic ground-view comparison, or
@@ -61,7 +61,7 @@ The Formation and decay study choice adds the same `genesis-v1` scenario used
 by Form Study to the existing ground cameras. Open
 `reconstruction.html?event=el-reno-2013&appearance_view=formation&ground_view=synthetic-front&t=120#replay-appearance`.
 The direct route starts paused at 1x and retains the existing end, restart,
-camera, history and outside-interval behavior. There is no second animation
+camera, history and behavior outside the interval. There is no second animation
 clock. The shared player maps linearly to the study:
 
 ```
@@ -120,8 +120,8 @@ Lighter reduces both particle count and the `world-v1` density raster, to a
 320 by 200 cap. Standard retains the 512 by 320 cap. Both preserve the complete
 camera frame, selected time and scenario parameters. Older lighting links keep
 their earlier density cap. The lower drawing size trades fine spatial detail
-for fewer shaded pixels. Native selected-state checks cover both drawing sizes
-at narrow and wide viewports. The retained software recording is sparse and
+for fewer shaded pixels. Native checks of the selected state cover both drawing
+sizes at narrow and wide viewports. The retained software recording is sparse and
 supplies no hardware performance or smoothness claim.
 
 The ground remains an authored plane. Its shading supplies neither El Reno's
@@ -136,11 +136,11 @@ matched recordings of about twenty seconds. The lit recording has fewer drawing
 completions on isolated SwiftShader software rendering. Its larger display gaps
 remain a limitation rather than a smoothness pass. The blocky frames at index
 101 in the earlier matched formation clips still have an unknown cause.
-A separate fixed-state recording varies after 64 identical observed native
+A separate recording of a fixed state varies after 64 identical observed native
 framebuffers. That bounds the controlled discrepancy after framebuffer
-observation, without identifying its exact stage or recovering the old
-frame-to-draw mapping. Source review, required CI and served acceptance remain
-distinct from these recorded-frame observations.
+observation, without identifying its exact stage or recovering the old mapping
+from frames to draws. Source review, required CI and served acceptance remain
+distinct from these observations of recorded frames.
 
 ## Storm scene and shared transport
 
@@ -180,9 +180,9 @@ Positions, clipping distances and model geometry use authored scene units.
 The existing height 2.6 stays in those units. No surveyed width, geographic
 coordinate or EF rating is converted into a funnel radius or camera position.
 
-Each camera declares position, target and an up vector; complete image width
-and height; focal lengths fx and fy in pixels; principal point cx and cy;
-near and far clipping; and an explicit distortion model. Position, orientation,
+Each camera declares position, target and an up vector, complete image width
+and height, focal lengths fx and fy in pixels, principal point cx and cy,
+near and far clipping, and an explicit distortion model. Position, orientation,
 intrinsics and distortion each retain a measured, reported, fitted or
 illustrative classification. Both demonstration cameras are wholly illustrative.
 Unknown quantities cannot supply a projection. At present only an explicitly
@@ -202,38 +202,43 @@ y = cy - fy * dot(relative, corrected_up) / d
 
 The graphics matrix uses those same declared image bounds, rather than the
 website viewport aspect. The complete source frame is fitted with letterboxing.
-A common backing-buffer scale preserves that frame when either raster cap is
-reached. Point sprites use the focal lengths and fitted raster scale, including
-their per-axis aspect. The source scissor prevents sprites from painting into
-the letterbox. Source fitting uses the canvas client area, excluding its border.
-Client dimensions and raster rounding do not provide subpixel measurements.
-Sprite diameters retain the WebGL implementation's point-size limit. The old authored orbit remains the separate legacy rendering
-path. Geographic orbit controls do not turn the source-locked appearance view.
+A common scale for the backing buffer preserves that frame when either raster
+cap is reached. Point sprites use the focal lengths and fitted raster scale,
+including their aspect on each axis. The source scissor prevents sprites from
+painting into the letterbox. Source fitting uses the canvas client area,
+excluding its border. Client dimensions and raster rounding do not provide
+subpixel measurements. Sprite diameters retain the point size limit of the WebGL
+implementation. The old authored orbit remains the separate legacy rendering
+path. Geographic orbit controls do not turn the appearance view locked to the
+source.
 Schematic partial forms cannot inherit a camera projection.
 
 ## Independent synthetic reference
 
 The six SVGs were constructed separately from the production projector. They
-use scalar camera-basis and pinhole equations, with side-surface tangency for
-an axisymmetric profile. Radius at normalized height h is base + flare * h^1.6;
-height is 2.6 h. Over the authored interval, base changes from 0.18 to 0.83 and
-flare from 0.62 to 0.32. Bend is zero. Top and base joins are declared display
-closures. The reference marks the origin, two ground points at X = -2 and +2,
-and the point at Y = 2.6. No historical pixels are present.
+use scalar equations for the camera basis and the pinhole projection, with
+tangency to the side surface for an axisymmetric profile. Radius at normalized
+height h is base + flare * h^1.6, and height is 2.6 h. Over the authored
+interval, base changes from 0.18 to 0.83 and flare from 0.62 to 0.32. Bend is
+zero. Top and base joins are declared display closures. The reference marks the
+origin, two ground points at X = -2 and +2, and the point at Y = 2.6. No
+historical pixels are present.
 
 Before fitting or rendered inspection, the software comparison criteria are:
 
-* The independently derived reference-point positions constrain axes, signs,
-  principal point, pitch, roll and unequal focal lengths. Float32 matrix
-  comparisons allow 0.01 source-image pixels, a software numeric tolerance.
+* The independently derived positions of the reference points constrain axes,
+  signs, principal point, pitch, roll and unequal focal lengths. Float32 matrix
+  comparisons allow 0.01 pixels in the source image, a software numeric
+  tolerance.
 * Complete source support must remain inside the fitted frame through viewport
-  and pixel-density changes. Ordinary raster rounding is separate from camera
+  and pixel density changes. Ordinary raster rounding is separate from camera
   uncertainty.
 * Actual graphics marks must be painted at the independently predicted image
   locations. A small pixel neighborhood is a raster presence control, without
   a claim of subpixel residual measurement.
-* Shared-time shape and camera parameters must agree after pause, reverse seek,
-  rate or quality changes. Drawing quality changes particle sampling, not time.
+* Shape and camera parameters at the shared time must agree after pause,
+  reverse seek, rate or quality changes. Drawing quality changes particle
+  sampling, not time.
 * Source changes, missing cameras, gaps and late reference callbacks must not
   transfer a previous camera, reference or caption into the selected state.
 
@@ -248,25 +253,27 @@ The El Reno appearance declaration retains eight discrete observations across
 four sequences and no registered continuous window. The best retained
 calibration lead is the late RaXPol photographic sequence in
 [Wakimoto et al. (2015), Section 2](https://doi.org/10.1175/MWR-D-15-0034.1).
-Its photographer locations and horizon targets explain why a source-specific
-camera model matters. Their calibration and uncertainty do not transfer to
+Its photographer locations and horizon targets explain why a camera model tied
+to that source matters. Their calibration and uncertainty do not transfer to
 another exposure, creator, crop or uploaded edit.
 
-The bounded next comparison target is the source-reported 23:24:41 UTC exposure
-in Wakimoto et al. (2015), Figure 5(a). It is a late-life view, not genesis.
-The paper's identity and retained figure interpretation do not establish the
-original exposure or a reusable Atlas camera solution. The source-reported
-23:25:01 exposure in Figures 9(a) and 10(a), and 23:25:09 exposure in Figure
-11(a), are candidate held-out checks after their own qualification. Figures 9
-and 10 show one exposure, not two independent observations.
+The bounded next comparison target is the exposure in Wakimoto et al. (2015),
+Figure 5(a), that the source reports at 23:24:41 UTC. It is a view from late in
+the tornado's life, not genesis. The paper's identity and retained figure
+interpretation do not establish the original exposure or a reusable Atlas
+camera solution. The exposure the source reports at 23:25:01 in Figures 9(a)
+and 10(a), and the one at 23:25:09 in Figure 11(a), are candidates to hold out
+as checks after their own qualification. Figures 9 and 10 show one exposure,
+not two independent observations.
 
-The next deciding input is an original exposure-specific calibration record,
-or an original image with surveyed horizon correspondences, tied to that uniquely
-identified exposure and its documented crop/edit relationship. A changing historical interval would additionally need
-the inspectable sequence, edit and time correspondence, continuous inspection,
-camera-change assessment and item-specific allowed use. No new camera fit,
-pixel residual, held-out result or registered interval is reported. Sparse
-stills do not become an animation through this software demonstration.
+The next deciding input is an original calibration record specific to one
+exposure, or an original image with surveyed horizon correspondences, tied to
+that uniquely identified exposure and its documented crop/edit relationship. A
+changing historical interval would additionally need the inspectable sequence,
+edit and time correspondence, continuous inspection, assessment of camera
+changes and allowed use specific to each item. No new camera fit, pixel
+residual, result of a held out check or registered interval is reported.
+Sparse stills do not become an animation through this software demonstration.
 
 Nolte's permitted full JPEGs remain discrete documentary observations with
 their complete marks. Their first unique correspondence requirement, frozen
