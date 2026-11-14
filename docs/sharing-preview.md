@@ -5,6 +5,8 @@ Its colors come from the Obscur tokens in `docs/obscur-tokens.json`.
 It is an authored summary of retained evidence, not an application screenshot.
 The image is 1280 by 640 pixels and remains below 1 MB. Inter Regular, SemiBold
 and Bold glyphs are rasterized from explicitly verified files.
+No label is smaller than 42 px, which is 30 pt at 100 dpi. Text that does not fit
+moves onto another line, and the renderer stops rather than shrink it.
 No font file or remote font request is part of the image.
 
 Install the optional `requirements-sharing.txt` authoring dependencies, then

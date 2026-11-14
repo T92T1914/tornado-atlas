@@ -13,6 +13,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 CONFIG_PATH = ROOT / "docs/sharing-card.json"
 RECEIPT = ROOT / "docs/sharing-card-receipt.json"
+# Obscur sizes type in absolute points at 100 dpi. Its smallest label, 30 pt,
+# is 42 px on any card, this 1280 px one included. Long text wraps instead.
+MIN_LABEL_PX = 42
+LINE_PITCH = 1.24
 
 
 def digest(path):
@@ -179,52 +183,123 @@ def main():
     files, faces = font_files(config, args.font_dir)
     image = Image.new("RGB", (1280, 640), palette["canvas"])
     draw = ImageDraw.Draw(image)
-    labels = []
 
-    def label(x, y, text, size, face="Regular", color=None, max_width=1144):
-        font = ImageFont.truetype(str(files[face]), size)
-        bounds = draw.textbbox((x, y), text, font=font, anchor="lt")
-        if (
-            bounds[0] < 60
-            or bounds[1] < 40
-            or bounds[2] > 1220
-            or bounds[3] > 602
-            or bounds[2] - bounds[0] > max_width
-        ):
-            raise ValueError("Sharing label leaves its safe region: " + text)
-        draw.text((x, y), text, font=font, fill=color or palette["text"], anchor="lt")
-        labels.append(
-            dict(text=text, face="Inter-" + face, bounds=list(bounds), size=size)
-        )
+    def font(size, face):
+        if size < MIN_LABEL_PX:
+            raise ValueError(f"Sharing label below {MIN_LABEL_PX} px: {size}")
+        return ImageFont.truetype(str(files[face]), size)
 
-    label(68, 52, data["title"], 64, "Bold")
-    label(68, 136, data["subtitle"], 42, "SemiBold", palette["accent"])
-    label(68, 208, data["context"], 30)
+    def width(text, size, face):
+        bounds = draw.textbbox((0, 0), text, font=font(size, face), anchor="lt")
+        return bounds[2] - bounds[0]
+
+    def lines(text, size, face, max_width):
+        # Long text moves onto more lines. Type is never made smaller to fit.
+        if width(text, size, face) <= max_width:
+            return [text]
+        if " | " in text:
+            result = []
+            for part in text.split(" | "):
+                if result and width(result[-1] + " | " + part, size, face) <= max_width:
+                    result[-1] += " | " + part
+                else:
+                    result.append(part)
+            if len(result) <= 2 and all(width(line, size, face) <= max_width for line in result):
+                return result
+        words = text.split()
+        splits = [
+            [" ".join(words[:i]), " ".join(words[i:])]
+            for i in range(1, len(words))
+            if "|" not in (words[i - 1], words[i])
+        ]
+        fitting = [pair for pair in splits if max(width(line, size, face) for line in pair) <= max_width]
+        if not fitting:
+            raise ValueError("Sharing label does not fit on two lines: " + text)
+        return min(fitting, key=lambda pair: max(width(line, size, face) for line in pair))
+
+    def paint(panel_floor, shift):
+        labels = []
+
+        def label(x, y, text, size, face="Regular", color=None, max_width=1144, anchor="lt"):
+            typeface = font(size, face)
+            bounds = draw.textbbox((x, y), text, font=typeface, anchor=anchor)
+            if panel_floor is not None and (
+                bounds[0] < 60
+                or bounds[1] < 40
+                or bounds[2] > 1220
+                or bounds[3] > 602
+                or bounds[2] - bounds[0] > max_width
+            ):
+                raise ValueError("Sharing label leaves its safe region: " + text)
+            if panel_floor is not None:
+                draw.text((x, y), text, font=typeface, fill=color or palette["text"], anchor=anchor)
+            labels.append(
+                dict(text=text, face="Inter-" + face, bounds=list(bounds), size=size)
+            )
+            return bounds
+
+        def block(x, top, text, size, face="Regular", color=None, max_width=1144):
+            bottom = top
+            for line in lines(text, size, face, max_width):
+                bottom = label(x, top, line, size, face, color, max_width)[3]
+                top += round(size * LINE_PITCH)
+            return bottom
+
+        title = label(68, 104 + shift, data["title"], 64, "Bold", anchor="ls")
+        subtitle_x = title[2] + 32
+        if subtitle_x + width(data["subtitle"], 42, "SemiBold") <= 1212:
+            subtitle = label(subtitle_x, 104 + shift, data["subtitle"], 42, "SemiBold", palette["accent"], anchor="ls")
+            bottom = max(title[3], subtitle[3])
+        else:
+            bottom = block(68, title[3] + 20, data["subtitle"], 42, "SemiBold", palette["accent"])
+        bottom = block(68, bottom + 24, data["context"], 42)
+        panel_top = bottom + 32
+        panel_bottom = panel_top
+        if panel_floor is not None:
+            for i in range(len(data["panels"])):
+                x = 68 + i * 588
+                draw.rounded_rectangle(
+                    (x, panel_top, x + 556, panel_floor),
+                    radius=18,
+                    fill=palette["panel"],
+                    outline=palette.get("border", palette["divider"]),
+                    width=2,
+                )
+        # Rows are shared across panels, so values of different sizes sit on
+        # one baseline and the detail lines start level. A wrapped name moves
+        # the whole value row down by its extra lines.
+        name_lines = max(len(lines(name, 42, "SemiBold", 502)) for name, _, _ in data["panels"])
+        baseline = panel_top + 146 + (name_lines - 1) * round(42 * LINE_PITCH)
+        for i, (name, value, detail) in enumerate(data["panels"]):
+            x = 68 + i * 588
+            block(x + 26, panel_top + 24, name, 42, "SemiBold", max_width=502)
+            label(
+                x + 26,
+                baseline,
+                value,
+                68 if len(value) < 10 else 56,
+                "Bold",
+                accents[i],
+                max_width=502,
+                anchor="ls",
+            )
+            detail_bottom = block(x + 26, baseline + 32, detail, 42, max_width=502)
+            panel_bottom = max(panel_bottom, detail_bottom + 30)
+        block(68, panel_bottom + 28, data["footer"], 42, "SemiBold", palette["muted"])
+        return panel_bottom, labels
+
     accents = [palette["accent"], palette.get("warning", palette["muted"])]
     if config["kind"] == "freight":
         series = json.loads((ROOT / config["tokens"]).read_text())["series"]
         accents = [series["model"]["obscur"], series["seasonal_naive"]["obscur"]]
-    for i, (name, value, detail) in enumerate(data["panels"]):
-        x = 68 + i * 588
-        draw.rounded_rectangle(
-            (x, 273, x + 556, 505),
-            radius=18,
-            fill=palette["panel"],
-            outline=palette.get("border", palette["divider"]),
-            width=2,
-        )
-        label(x + 26, 298, name, 32, "SemiBold", max_width=502)
-        label(
-            x + 26,
-            350,
-            value,
-            68 if len(value) < 10 else 56,
-            "Bold",
-            accents[i],
-            max_width=502,
-        )
-        label(x + 26, 451, detail, 30, max_width=502)
-    label(68, 548, data["footer"], 30, "SemiBold", palette["muted"])
+    # The first pass only measures, so each panel can be drawn under its text
+    # before the second pass paints the same positions. The shift centers the
+    # block and may move it up. The second pass enforces the safe region.
+    panel_bottom, measured = paint(None, 0)
+    top = min(item["bounds"][1] for item in measured)
+    bottom = max(item["bounds"][3] for item in measured)
+    shift = (640 - bottom - top) // 2
+    _, labels = paint(panel_bottom + shift, shift)
     output = ROOT / config["output"]
     output.parent.mkdir(parents=True, exist_ok=True)
     image.save(output, optimize=True)
