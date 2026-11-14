@@ -2,7 +2,7 @@
 
 ## Provenance
 
-Each download has its original URL, resolved URL, retrieval time, byte count, response metadata, and SHA-256. Hashes verify that the stored local bytes have not changed; they are not proof that the publisher's scientific account is correct.
+Each download has its original URL, resolved URL, retrieval time, byte count, response metadata, and SHA-256. Hashes verify that the stored local bytes have not changed. They are not proof that the publisher's scientific account is correct.
 
 Each NOAA source revision is imported in one database transaction. An invalid schema, duplicate event ID, incompatible year, or corrupt source rolls back the entire revision. Older revisions remain queryable in the database. Current search selects the latest published revision of each imported annual partition, including removal of records absent from a later revision.
 
@@ -15,18 +15,18 @@ The import log retains logical CSV record numbers. These are not physical line n
 | Normalized field | NOAA field | Interpretation |
 | --- | --- | --- |
 | source_record_id | EVENT_ID | A source event record, potentially one tornado segment |
-| source_episode_id | EPISODE_ID | An episode groups events; it does not identify one tornado |
-| rating | TOR_F_SCALE | Original reported F or EF category; unknown preserved |
-| time.begin/end | Numeric date/time components and CZ_TIMEZONE | Reported local standard time; explicit source offset produces UTC |
+| source_episode_id | EPISODE_ID | An episode groups events and does not identify one tornado |
+| rating | TOR_F_SCALE | Original reported F or EF category, with unknown preserved |
+| time.begin/end | Numeric date/time components and CZ_TIMEZONE | Reported local standard time. An explicit source offset produces UTC |
 | spatial.begin_point/end_point | BEGIN_LAT/LON, END_LAT/LON | Longitude/latitude endpoint pairs, no interpolated path |
 | dimensions.length_m | TOR_LENGTH | Miles converted to meters, scope remains tornado or segment |
-| dimensions.width_m | TOR_WIDTH | Yards converted to meters; not visible funnel width |
+| dimensions.width_m | TOR_WIDTH | Yards converted to meters, not visible funnel width |
 | impacts | Separate direct/indirect casualty columns | Reported values, blanks remain unknown |
 | nominal_usd | DAMAGE_PROPERTY, DAMAGE_CROPS | Parsed K/M/B suffixes, no inflation correction |
 | continuation | TOR_OTHER_* | Source continuation hints, no automatic storm merge |
 | narrative | EVENT_NARRATIVE | Source text, not an independently verified museum account |
 
-The adapter deliberately leaves UTC unresolved when a source timezone lacks an explicit numeric offset. It preserves the local date/time and a quality note. Summer records marked CST-6 remain UTC minus six; the adapter does not silently apply civil daylight-saving rules.
+The adapter deliberately leaves UTC unresolved when a source timezone lacks an explicit numeric offset. It preserves the local date/time and a quality note. Summer records marked CST-6 remain UTC minus six. The adapter does not silently apply civil daylight saving rules.
 
 Bad coordinates, negative dimensions, unrecognized ratings, equal reported start/end times, and replacement characters already present in published narratives produce quality notes. Missing numbers remain null. Reported zero values remain zero.
 
@@ -34,24 +34,24 @@ Bad coordinates, negative dimensions, unrecognized ratings, equal reported start
 
 Adapters must retain original scale, value or interval, authority, language, classification certainty, source record IDs, and time/position uncertainty. F, EF, IF, JEF, and TORRO remain separate scales. Normalization must not manufacture equivalent measured wind speeds.
 
-JMA's CSV has duplicate blank header cells and explicit codes for tornadoes, other gusts, and uncertain phenomena. Its format guide distinguishes -9999 (unset) and -8888 (unknown); retain those meanings in the source record. Some casualty/damage values have shared-count flags. Do not sum those into national totals without reconciling the shared scope.
+JMA's CSV has duplicate blank header cells and explicit codes for tornadoes, other gusts, and uncertain phenomena. Its format guide distinguishes -9999 (unset) and -8888 (unknown). Retain those meanings in the source record. Some casualty/damage values have flags that mark a shared count. Do not sum those into national totals without reconciling the shared scope.
 
-The [local JMA adapter](jma-adapter.md) retains every ordered case in a separate case table. Only explicitly classified tornadoes enter ordinary tornado search. F/JEF intervals, original Japanese labels, reported uncertainty and shared-count scope remain available. It does not update the current static atlas export.
+The [local JMA adapter](jma-adapter.md) retains every ordered case in a separate case table. Only explicitly classified tornadoes enter ordinary tornado search. F/JEF intervals, original Japanese labels, reported uncertainty and the scope of shared counts remain available. It does not update the current static atlas export.
 
 ## Static atlas publication
 
-The browser index selects a reported start point, falling back to an explicitly labeled end point only when the start is missing. Records without either point remain searchable. Neither case creates a track. Search matches source identifiers, locality, state, county and reviewed aliases. Episode narratives are excluded from the browser export because they can describe several storms; the local archive retains them.
+The browser index selects a reported start point, falling back to an explicitly labeled end point only when the start is missing. Records without either point remain searchable. Neither case creates a track. Search matches source identifiers, locality, state, county and reviewed aliases. Episode narratives are excluded from the browser export because they can describe several storms. The local archive retains them.
 
-Reviewed aliases in `research/record-aliases.json` add search names without replacing source titles or ratings. The initial Joplin aliases refer to two separately reviewed county segments. They are not a complete event grouping. F and EF categories are separate filter values; shared map colors indicate only the numeric category.
+Reviewed aliases in `research/record-aliases.json` add search names without replacing source titles or ratings. The initial Joplin aliases refer to two separately reviewed county segments. They are not a complete event grouping. F and EF categories are separate filter values. Shared map colors indicate only the numeric category.
 
 Detail files use content hashes in their filenames. A rebuild writes the details before atomically replacing the index, retaining previous detail files so an already loaded page is not handed different records under an old filename. Source revision and SHA-256 travel with each public detail record. Natural Earth provides modern geographic context, not historical boundaries.
 
 ## Separate exhibit layer
 
-The first exhibit has a stable museum ID, a linked source record with a match rationale, preserved geometry and a footage observation register. The register distinguishes an inspected still from an attributed creator annotation. Video locators are checked against source duration and recorded inspection coverage. Historical times and camera positions remain null. The current schema rejects non-null registration until a future schema can require supporting evidence and uncertainty.
+The first exhibit has a stable museum ID, a linked source record with a match rationale, preserved geometry and a footage observation register. The register distinguishes an inspected still from an attributed creator annotation. Video locators are checked against source duration and recorded inspection coverage. Historical times and camera positions remain null. The current schema rejects any registration value other than null until a future schema can require supporting evidence and uncertainty.
 
 The separate replay package has an optional version 2 appearance timeline with
-its own bounded source, continuous inspection, clock, fixed-view camera,
+its own bounded source, continuous inspection, clock, camera with a fixed view,
 rights and uncertainty requirements. It does not change the notebook's
 unregistered observations or the published El Reno version 1 bundle. Its
 normalized form keys are artistic parameters, not measured dimensions.
@@ -63,8 +63,8 @@ No present catalogue record claims to supply a finished reconstruction or a dama
 
 ## Survey photographs
 
-`exhibits/el-reno-2013/damage.json` is the curated photograph manifest. It ties each original image URL and source photo number to a pinned SHA-256, byte length, dimensions, source-caption paraphrase, reported local damage rating, descriptive location, credit and reuse basis. Source-page and use-policy snapshot hashes identify the archived evidence for those associations.
+`exhibits/el-reno-2013/damage.json` is the curated photograph manifest. It ties each original image URL and source photo number to a pinned SHA-256, byte length, dimensions, paraphrase of the source caption, reported local damage rating, descriptive location, credit and reuse basis. Snapshot hashes of the source page and use policy identify the archived evidence for those associations.
 
-Exact camera coordinates and capture times remain null in this version. The validator rejects invented registration, unreviewed URLs and asset paths outside the selected gallery. It verifies each checked-in image against its pinned bytes. The restoration command can retrieve missing images but rejects changed downloads and existing corruption. It never treats a new remote image as automatically reviewed.
+Exact camera coordinates and capture times remain null in this version. The validator rejects invented registration, unreviewed URLs and asset paths outside the selected gallery. It verifies each image checked into the repository against its pinned bytes. The restoration command can retrieve missing images but rejects changed downloads and existing corruption. It never treats a new remote image as automatically reviewed.
 
 The 3D form study does not read catalogue ratings, path widths or photograph assessments as simulation parameters. Its geometric presets live separately in `web/vortex-model.mjs`. They are explicitly illustrative and supply no historical measurement.

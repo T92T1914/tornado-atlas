@@ -38,7 +38,7 @@ El Reno correspondence. A source visit pauses and saves the current Form Study
 step before ordinary navigation. Back restores that experiment.
 
 The earlier `form-4` and explicit `appearance_style=world-v1` keep their previous
-geometry and material. Versions1 through3, the manual forms, the earlier
+geometry and material. Versions 1 through 3, the manual forms, the earlier
 bounded gap and the six analytic camera references retain their separate
 meanings. Unsupported or repeated versions refuse rather than borrowing the
 new default.
@@ -79,10 +79,11 @@ successful one stays owned until disposal or reinitialization.
 
 ## The historical reconstruction remains unfinished
 
-The bounded changed-input check found no new original exposure, camera solution
-or rights record that qualifies a historical interval. The retained
-source-reported 23:24:41 UTC RaXPol target is a late-life view. Its original-to-crop
-relationship, exposure uncertainty, numerical camera and allowed comparison
+The bounded check of changed inputs found no new original exposure, camera
+solution or rights record that qualifies a historical interval. The retained
+RaXPol target, at 23:24:41 UTC as its source reports, is a view late in the
+tornado's life. The relationship between its original and its crop, its exposure
+uncertainty, numerical camera and allowed comparison
 use remain unresolved. It cannot validate El Reno genesis.
 
 Nolte's first unique match, frozen +22 and prior/reserved +85 remain unchanged.

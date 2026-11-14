@@ -11,7 +11,7 @@ order changes now update the address. Back, Forward and reload restore the
 selected record and controls on both pages. Search typing adds one history
 entry for an edit session and updates that entry as the query changes. A
 filtered result with no matching observations clears the selected point and
-its nearest-line annotation. On the full report, a survey change pauses the
+its annotation of the nearest point on the line. On the full report, a survey change pauses the
 running historical clock and saves that moment before adding a survey entry.
 Fatality records remain separate from survey ratings and photograph filters.
 
@@ -47,5 +47,5 @@ available, and Reset restores it.
 The new NOAA Event Footprint Catalog is a separate source lead. Its public
 description distinguishes DAT footprints from Storm Events geometries that can
 be reconstructed from endpoints. No Event Footprint Catalog geometry is used by
-this inspector. Its processing basis and event-specific payload must be inspected
+this inspector. Its processing basis and its payload for this event must be inspected
 before any new footprint is presented as surveyed evidence.
