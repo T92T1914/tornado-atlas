@@ -42,9 +42,8 @@ parent supercell's times as "2:54 pm CDT" and "approximately 10:18 pm CDT".
 
 [The Historic Tornadoes of April 2011](https://www.weather.gov/media/publications/assessments/historic_tornadoes.pdf)
 answered with HTTP 200 and 4,527,822 bytes, SHA-256
-`bd944284c81192e463a7aa98f671f733a5d1c772440451127bdf3aad271a70f5`, the same
-bytes the lane recorded on November 13. The earlier foundation record notes an
-HTTP 403 on its own attempt. This time the file was saved and is retained as
+`bd944284c81192e463a7aa98f671f733a5d1c772440451127bdf3aad271a70f5`. The earlier
+foundation record notes an HTTP 403 on its own attempt. This time the file was saved and is retained as
 `exhibits/tuscaloosa-birmingham-2011/nws-service-assessment.pdf`.
 
 Table 1 sits on PDF page 14, printed page 6. I rendered the table and read it

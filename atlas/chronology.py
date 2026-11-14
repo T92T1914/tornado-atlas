@@ -163,7 +163,8 @@ def validate_reading_context(data, event_id, root=None):
     if not isinstance(observations, list) or not 0 < len(observations) <= 32:
         raise ValueError('Reading context needs bounded declared observations')
     entries = {row['id'] for row in data['entries']}
-    sources = {row['id']: row for row in data['sources']}
+    # Routes cite a report page, so only PDF sources can carry them.
+    sources = {row['id']: row for row in data['sources'] if row['archive'].endswith('.pdf')}
     seen = set()
     for row in observations:
         fields(row, ('id', 'source_id', 'report_page', 'documentary_anchor'), 'reading observation route')

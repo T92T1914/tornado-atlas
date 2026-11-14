@@ -32,6 +32,16 @@ test('malformed, unregistered and more precise evidence fails closed',()=>{
     const copy=structuredClone(data);mutate(copy);assert.throws(()=>validateChronology(copy,'joplin-2011'));
   }
 });
+const tuscaloosa=JSON.parse(await readFile(new URL('../web/events/tuscaloosa-birmingham-2011-chronology.json',import.meta.url),'utf8'));
+test('an archived web page text is cited without a page and a PDF still needs one',()=>{
+  assert.equal(validateChronology(tuscaloosa,'tuscaloosa-birmingham-2011'),tuscaloosa);
+  assert.equal(chronologyAt(tuscaloosa,0).entry.source_time,'443 pm');
+  assert.equal(chronologyAt(tuscaloosa,0).entry.page,null);
+  for(const mutate of [d=>d.entries[0].page=1,d=>d.entries[1].page=null,d=>d.sources[0].archive='exhibits/tuscaloosa-birmingham-2011/survey.html',
+    d=>d.sources[0].archive='exhibits/joplin-2011/survey.txt']){
+    const copy=structuredClone(tuscaloosa);mutate(copy);assert.throws(()=>validateChronology(copy,'tuscaloosa-birmingham-2011'));
+  }
+});
 
 import {validateReadingContext,resolveReadingContext,readingForEntry} from '../web/chronology-reading-model.mjs';
 import {loadVerifiedDossier} from '../web/dossier-file-model.mjs';
