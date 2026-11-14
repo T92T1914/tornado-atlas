@@ -1,9 +1,10 @@
 # Sharing this project
 
 The public page declares an opaque Obscur sharing image in its initial HTML.
+Its colors come from the Obscur tokens in `docs/obscur-tokens.json`.
 It is an authored summary of retained evidence, not an application screenshot.
-The image is 1280 by 640 pixels and remains below 1 MB. Inter Regular, Semibold,
-Bold and genuine Italic glyphs are rasterized from explicitly verified files.
+The image is 1280 by 640 pixels and remains below 1 MB. Inter Regular, SemiBold
+and Bold glyphs are rasterized from explicitly verified files.
 No font file or remote font request is part of the image.
 
 Install the optional `requirements-sharing.txt` authoring dependencies, then

@@ -13,8 +13,8 @@ figure creates no additional clock, renderer or source correspondence.
 Use the [source dossier](archive-dossiers.md) and
 [ground view contract](ground-view-reconstruction.md) for the actual data and
 limits. Original photographs, radar colors and film pixels remain unchanged.
-The adapter uses the existing project's `web/appearance.css` roles at the recorded
-basis revision. It does not fetch mutable theme definitions.
+The adapter uses the Obscur tokens retained in `docs/obscur-tokens.json`. It does
+not fetch mutable theme definitions.
 
 The page starts in Obscur, including without JavaScript. A saved explicit
 Clair/Obscur/Auto reading choice remains honored by the existing appearance owner.

@@ -26,7 +26,7 @@ L 1296 576
 L 1296 0 
 L 0 0 
 z
-" style="fill: #090909"/>
+"/>
   </g>
   <g id="axes_1">
    <g id="patch_2">
@@ -40,7 +40,7 @@ Q 51.84 447.434062 51.84 434.474062
 L 51.84 185.76 
 Q 51.84 172.8 64.8 172.8 
 z
-" clip-path="url(#pf43045bea9)" style="fill: #151515; stroke: #858585; stroke-width: 2; stroke-linejoin: miter"/>
+" clip-path="url(#pf43045bea9)" style="fill: #151515; stroke: #999999; stroke-width: 2; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 480.96 172.8 
@@ -53,7 +53,7 @@ Q 468 447.434062 468 434.474062
 L 468 185.76 
 Q 468 172.8 480.96 172.8 
 z
-" clip-path="url(#pf43045bea9)" style="fill: #151515; stroke: #858585; stroke-width: 2; stroke-linejoin: miter"/>
+" clip-path="url(#pf43045bea9)" style="fill: #151515; stroke: #999999; stroke-width: 2; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
     <path d="M 897.12 172.8 
@@ -66,11 +66,11 @@ Q 884.16 447.434062 884.16 434.474062
 L 884.16 185.76 
 Q 884.16 172.8 897.12 172.8 
 z
-" clip-path="url(#pf43045bea9)" style="fill: #151515; stroke: #858585; stroke-width: 2; stroke-linejoin: miter"/>
+" clip-path="url(#pf43045bea9)" style="fill: #151515; stroke: #999999; stroke-width: 2; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
     <!-- From observation to replay -->
-    <g style="fill: #f4f4f4" transform="translate(51.84 78.652734) scale(0.4 -0.4)">
+    <g style="fill: #ffffff" transform="translate(51.84 78.652734) scale(0.4 -0.4)">
      <defs>
       <path id="Inter-Bold-89" d="M 422 0 
 L 422 4656 
@@ -448,7 +448,7 @@ z
    </g>
    <g id="text_2">
     <!-- Keep evidence and illustration apart. -->
-    <g style="fill: #bcbcbc" transform="translate(51.84 132.604395) scale(0.3 -0.3)">
+    <g style="fill: #cccccc" transform="translate(51.84 132.604395) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-10f" d="M 563 0 
 L 563 4656 
@@ -870,7 +870,7 @@ z
    </g>
    <g id="text_3">
     <!-- 1  Source record -->
-    <g style="fill: #f4f4f4" transform="translate(72 232.624688) scale(0.32 -0.32)">
+    <g style="fill: #ffffff" transform="translate(72 232.624688) scale(0.32 -0.32)">
      <defs>
       <path id="Inter-SemiBold-53e" d="M 2241 4656 
 L 2241 0 
@@ -1089,7 +1089,7 @@ z
    </g>
    <g id="text_4">
     <!-- Creator + exact -->
-    <g style="fill: #f4f4f4" transform="translate(72 283.423301) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(72 283.423301) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-49" d="M 2447 -63 
 Q 1850 -63 1383 226 
@@ -1178,7 +1178,7 @@ z
    </g>
    <g id="text_5">
     <!-- locator -->
-    <g style="fill: #f4f4f4" transform="translate(72 329.654473) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(72 329.654473) scale(0.3 -0.3)">
      <use xlink:href="#Inter-Regular-2e0"/>
      <use xlink:href="#Inter-Regular-316" transform="translate(24.21875 0)"/>
      <use xlink:href="#Inter-Regular-24a" transform="translate(84.1875 0)"/>
@@ -1190,7 +1190,7 @@ z
    </g>
    <g id="text_6">
     <!-- Source clock and -->
-    <g style="fill: #f4f4f4" transform="translate(72 376.180957) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(72 376.180957) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-18d" d="M 2053 -81 
 Q 1297 -81 850 276 
@@ -1269,7 +1269,7 @@ z
    </g>
    <g id="text_7">
     <!-- limits -->
-    <g style="fill: #f4f4f4" transform="translate(72 422.784785) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(72 422.784785) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-2fe" d="M 494 0 
 L 494 3494 
@@ -1314,16 +1314,16 @@ z
    <g id="patch_5">
     <path d="M 422.478105 302.4 
 Q 439.917317 302.4 454.561443 302.4 
-" style="fill: none; stroke: #f4f4f4; stroke-width: 2.5; stroke-linecap: round"/>
+" style="fill: none; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round"/>
     <path d="M 447.361443 298.8 
 L 454.561443 302.4 
 L 447.361443 306 
 z
-" style="fill: #f4f4f4; stroke: #f4f4f4; stroke-width: 2.5; stroke-linecap: round"/>
+" style="fill: #ffffff; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round"/>
    </g>
    <g id="text_8">
     <!-- 2  Checked context -->
-    <g style="fill: #f4f4f4" transform="translate(488.16 232.624688) scale(0.32 -0.32)">
+    <g style="fill: #ffffff" transform="translate(488.16 232.624688) scale(0.32 -0.32)">
      <defs>
       <path id="Inter-SemiBold-53f" d="M 419 0 
 L 419 600 
@@ -1497,7 +1497,7 @@ z
    </g>
    <g id="text_9">
     <!-- Time and viewpoint -->
-    <g style="fill: #f4f4f4" transform="translate(488.16 280.763145) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(488.16 280.763145) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-19b" d="M 306 4131 
 L 306 4656 
@@ -1561,7 +1561,7 @@ z
    </g>
    <g id="text_10">
     <!-- Unknown stays -->
-    <g style="fill: #f4f4f4" transform="translate(488.16 326.724785) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(488.16 326.724785) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-1a8" d="M 2384 -75 
 Q 1834 -75 1423 140 
@@ -1624,7 +1624,7 @@ z
    </g>
    <g id="text_11">
     <!-- unknown -->
-    <g style="fill: #f4f4f4" transform="translate(488.16 376.047363) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(488.16 376.047363) scale(0.3 -0.3)">
      <use xlink:href="#Inter-Regular-393"/>
      <use xlink:href="#Inter-Regular-305" transform="translate(59.125 0)"/>
      <use xlink:href="#Inter-Regular-2d7" transform="translate(118.203125 0)"/>
@@ -1637,16 +1637,16 @@ z
    <g id="patch_6">
     <path d="M 838.638105 302.4 
 Q 856.077317 302.4 870.721443 302.4 
-" style="fill: none; stroke: #f4f4f4; stroke-width: 2.5; stroke-linecap: round"/>
+" style="fill: none; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round"/>
     <path d="M 863.521443 298.8 
 L 870.721443 302.4 
 L 863.521443 306 
 z
-" style="fill: #f4f4f4; stroke: #f4f4f4; stroke-width: 2.5; stroke-linecap: round"/>
+" style="fill: #ffffff; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round"/>
    </g>
    <g id="text_12">
     <!-- 3  Replay + evidence -->
-    <g style="fill: #f4f4f4" transform="translate(904.32 229.874688) scale(0.32 -0.32)">
+    <g style="fill: #ffffff" transform="translate(904.32 229.874688) scale(0.32 -0.32)">
      <defs>
       <path id="Inter-SemiBold-541" d="M 2034 -63 
 Q 1544 -63 1164 104 
@@ -1882,7 +1882,7 @@ z
    </g>
    <g id="text_13">
     <!-- Inspect source and -->
-    <g style="fill: #f4f4f4" transform="translate(904.32 280.404551) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(904.32 280.404551) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-c5" d="M 1156 4656 
 L 1156 0 
@@ -1914,7 +1914,7 @@ z
    </g>
    <g id="text_14">
     <!-- time -->
-    <g style="fill: #f4f4f4" transform="translate(904.32 330.027129) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(904.32 330.027129) scale(0.3 -0.3)">
      <use xlink:href="#Inter-Regular-379"/>
      <use xlink:href="#Inter-Regular-2b1" transform="translate(32.71875 0)"/>
      <use xlink:href="#Inter-Regular-2fe" transform="translate(56.9375 0)"/>
@@ -1923,7 +1923,7 @@ z
    </g>
    <g id="text_15">
     <!-- Illustration is labeled -->
-    <g style="fill: #f4f4f4" transform="translate(904.32 376.391895) scale(0.3 -0.3)">
+    <g style="fill: #ffffff" transform="translate(904.32 376.391895) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-Regular-242" d="M 2116 -75 
 Q 1784 -75 1581 39 
@@ -1987,7 +1987,7 @@ z
    </g>
    <g id="text_16">
     <!-- Conceptual route, not a storm measurement. -->
-    <g style="fill: #bcbcbc" transform="translate(51.84 521.193457) scale(0.3 -0.3)">
+    <g style="fill: #cccccc" transform="translate(51.84 521.193457) scale(0.3 -0.3)">
      <defs>
       <path id="Inter-SemiBold-5dd" d="M 385 -1197 
 L 660 687 
