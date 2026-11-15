@@ -2467,7 +2467,7 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0/",
       "sha256": "0f345ef666729bd9b86d723772f371f0dde7acf9e7b7016896dfdd8c8db2c494",
       "retrieved_at": "2026-09-20T14:00:15.366312+00:00",
-      "changes": "Original image bytes preserved; scaled by the browser.",
+      "changes": "Original image bytes preserved. Scaled by the browser.",
       "caption": "El Reno tornado, May 31, 2013. Photograph by Daniel Rodriguez.",
       "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
       "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
@@ -2515,7 +2515,7 @@
       "license_url": "https://creativecommons.org/licenses/by/2.0/",
       "sha256": "161e5fd99bb19835ab7d9275602116865f1884bc5437350da36d1eb5220e03e6",
       "retrieved_at": "2026-09-20T14:00:16.451457+00:00",
-      "changes": "Original image bytes preserved; scaled by the browser.",
+      "changes": "Original image bytes preserved. Scaled by the browser.",
       "caption": "El Reno tornado, May 31, 2013. Daniel Rodriguez’s original caption places this view approximately north of Banner Road and 15th Street. Exact camera coordinates, bearing and historical time are not established.",
       "alt": "A broad dark tornado beneath the storm base over the Oklahoma landscape.",
       "timing_note": "Exact historical time and viewing direction are not registered. The camera clock is not used to place this photograph on the map.",
@@ -2563,7 +2563,7 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
       "sha256": "a3cd7a67eb7d3ab91309c71251ce0e9c1c3af71d85147887b9527c438d43e3d5",
       "retrieved_at": "2026-10-12T12:18:43Z",
-      "changes": "Original image bytes preserved; full frame displayed by the browser with no crop or generated content.",
+      "changes": "Original image bytes preserved. Full frame displayed by the browser with no crop or generated content.",
       "caption": "El Reno tornado, May 31, 2013. Nick Nolte’s view shows the broad dark storm above a green field.",
       "alt": "A broad, dark storm and tornado over a green field, with a lighter sky at the left.",
       "timing_note": "The source reports a camera timestamp and approximate viewpoint. Their clock accuracy and calibrated direction are unestablished here. This photograph has no assigned simulator time or measured funnel width.",
@@ -8806,7 +8806,7 @@
         "version_identity": "HTML response inspected on October 10, 2026; exact acquired page digest retained below.",
         "original_locator": "Four creator-published still resources with caption labels 6:10:37, 6:10:59, 6:12:02 and 6:12:55.",
         "sha256": "6b7b6bbe4f61ef30c2383a1a2cb1cbd261e36dea1877c9d10db2c57ec6f631f2",
-        "identity_basis": "The creator article supplied the exact resource links and captions. The retained digest identifies acquired HTML bytes, not camera-original bytes, an independently calibrated clock or a reuse license.",
+        "identity_basis": "The creator article supplied the exact resource links and captions. The retained digest identifies acquired HTML bytes, not bytes from the camera original, an independently calibrated clock or a reuse license.",
         "rights": {
           "reuse": "external_links_only",
           "rights_holder": "Copyright credit names Nick Nolte; full rights ownership is unestablished in the retained evidence.",
@@ -8823,11 +8823,11 @@
         "version_identity": "Retained 27-page PDF edition, SHA-256 recorded below; selected text and original published photograph panels inspected separately.",
         "original_locator": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf",
         "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
-        "identity_basis": "The digest identifies the acquired complete PDF edition. Figure 9(a) and its Figure 10(a) enlargement are one exposure; Figure 11(a) is another. No camera-original photograph, unchanged camera file or isolated photographic-byte digest is claimed. Figure 5(a) provides the separately admitted 23:24:41 UTC observation. Figure 13(a) supplies complementary context at that reported label without establishing camera-original correspondence.",
+        "identity_basis": "The digest identifies the acquired complete PDF edition. Figure 9(a) and its Figure 10(a) enlargement are one exposure, and Figure 11(a) is another. No unchanged camera file, photograph from the camera original or digest of isolated photographic bytes is claimed. Figure 5(a) provides the separately admitted 23:24:41 UTC observation. Figure 13(a) supplies complementary context at that reported label without establishing correspondence with the camera original.",
         "rights": {
           "reuse": "external_links_only",
           "rights_holder": "AMS copyright present; individual photographic ownership not independently established.",
-          "basis": "Original publication and exact PDF panel links only. No source photograph, figure crop, radar overlay or author annotation is copied, hosted or adapted. No figure-republication grant has been established. The independently authored mathematical factual schematic has its own declared construction and use basis."
+          "basis": "Original publication and exact PDF panel links only. No source photograph, figure crop, radar overlay or author annotation is copied, hosted or adapted. No grant to republish any figure has been established. The independently authored mathematical factual schematic has its own declared construction and use basis."
         }
       },
       {
@@ -8840,18 +8840,18 @@
         "version_identity": "Retained 28-page PDF edition, 12115215 bytes; complete PDF page 8 inspected separately.",
         "original_locator": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf",
         "sha256": "7ce3c5d8dc1d643417fecddbd802aef3869a9e32ec60d892c973599104c7be50",
-        "identity_basis": "Digest identifies the complete retained PDF, not isolated photograph bytes or a camera original. Figure 6(a), printed page 1756 / PDF page 8, is one published photographic observation; the other panels are source analyses.",
+        "identity_basis": "Digest identifies the complete retained PDF, not isolated photograph bytes or a camera original. Figure 6(a), printed page 1756 / PDF page 8, is one published photographic observation. The other panels are source analyses.",
         "rights": {
           "reuse": "external_links_only",
           "rights_holder": "AMS copyright 2016; NOAA rights metadata Other.",
-          "basis": "Original publication links only. No photograph, crop, texture, traced edge, source annotation or figure layout is hosted. The independent mathematical factual schematic has a separate specific construction and output review; no figure-republication grant is established."
+          "basis": "Original publication links only. No photograph, crop, texture, traced edge, source annotation or figure layout is hosted. The independent mathematical factual schematic has a separate specific construction and output review. No grant to republish any figure is established."
         }
       }
     ],
     "photo_sequences": [
       {
         "id": "nolte-reported-stills",
-        "basis": "Four discrete creator-published stills at reported labels 23:10:37, 23:10:59, 23:12:02 and 23:12:55 UTC. The 22, 63 and 53 second interiors remain uninspected. The 138 second span is context only, with no inferred persistence, held appearance, interpolation or continuous coverage. All historical geometry remains null.",
+        "basis": "Four discrete stills, published by the creator, at reported labels 23:10:37, 23:10:59, 23:12:02 and 23:12:55 UTC. The 22, 63 and 53 second interiors remain uninspected. The 138 second span is context only, with no inferred persistence, held appearance, interpolation or continuous coverage. All historical geometry remains null.",
         "samples": [
           {
             "id": "nolte-231037",
@@ -8861,25 +8861,25 @@
               "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231037-1024x576.jpg",
               "panel_locator": "231037-1024x576.jpg; creator caption reports 18:10:37 CDT.",
               "sha256": "3c0df58df73db28707c564f3d34f3d9324ab2c82b0e13125d1b297f2a81d1ebb",
-              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the 1024 x 576 resource URL the creator published. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and bytes from the camera original were not recovered."
             },
             "reported_utc": "2013-05-31T23:10:37Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Creator caption interpreted as 18:10:37 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:10:37Z. The visible minute overlay May 31 2013 23:10Z is consistent with this conversion. Whole-second labels are reported source representations.",
+              "basis": "Creator caption interpreted as 18:10:37 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:10:37Z. The visible minute overlay May 31 2013 23:10Z is consistent with this conversion. Labels to the whole second are reported source representations.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy. The related full-size published JPEG contains the literal IPTC time 231037-0600, while its visible overlay says 23:10Z. The field writer and clock basis are not authenticated. This conflict is retained without converting the tag into a replacement reported time."
+              "uncertainty_basis": "Independent calibration of the camera clock, quantified error in exposure time and alignment with the clock behind the NWS minute positions are unestablished. Exact software selection at the reported label does not establish historical accuracy to the second. The related published JPEG at full size contains the literal IPTC time 231037-0600, while its visible overlay says 23:10Z. The field writer and clock basis are not authenticated. This conflict is retained without converting the tag into a replacement reported time."
             },
             "inspection": {
               "status": "still_pixels_inspected",
-              "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231037-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+              "pixels": "All displayed pixels of the 1024 x 576 still the creator published, 231037-1024x576.jpg. No intervening recording or camera original was inspected.",
               "reviewed_on": "2026-10-10",
-              "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity. A separate review on October 13, 2026 inspected the related full-size published JPEG, https://nnwx.us/wp-content/uploads/2018/02/231037.jpg: 1920 by 1080 pixels, 216698 bytes, SHA-256 e9ad30c4fdcb6a28340bbb0e422b80cbc937ef248b497092246c7bff51fd4847. Its file tags report GoPro Hero 3 Black Edition and later Lightroom processing. These are recorded tags, not an authenticated capture-camera or clip/frame extraction chain."
+              "basis": "Root reviewed each full retained capture after acquisition. Independent pixel review of four frames qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity. A separate review on October 13, 2026 inspected the related published JPEG at full size, https://nnwx.us/wp-content/uploads/2018/02/231037.jpg: 1920 by 1080 pixels, 216698 bytes, SHA-256 e9ad30c4fdcb6a28340bbb0e422b80cbc937ef248b497092246c7bff51fd4847. Its file tags report GoPro Hero 3 Black Edition and later Lightroom processing. These are recorded tags, not an authenticated chain from the capture camera or through clip/frame extraction."
             },
             "viewpoint": {
               "mode": "qualitative_text",
               "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only.",
-              "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+              "basis": "Attributed location and direction from the creator account, supplemented by the visible foreground and occlusion in the frame. No measured position, bearing, lens or projection is supplied.",
               "coordinates": null,
               "bearing_degrees": null,
               "pitch_degrees": null,
@@ -8967,25 +8967,25 @@
               "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231059-1024x576.jpg",
               "panel_locator": "231059-1024x576.jpg; creator caption reports 18:10:59 CDT.",
               "sha256": "9d94ad105d7f9fdb23f5c6f590017df894ddc653575abfc0b76155e453f72364",
-              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the 1024 x 576 resource URL the creator published. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and bytes from the camera original were not recovered."
             },
             "reported_utc": "2013-05-31T23:10:59Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Creator caption interpreted as 18:10:59 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:10:59Z. The visible minute overlay May 31 2013 23:10Z is consistent with this conversion. Whole-second labels are reported source representations.",
+              "basis": "Creator caption interpreted as 18:10:59 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:10:59Z. The visible minute overlay May 31 2013 23:10Z is consistent with this conversion. Labels to the whole second are reported source representations.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+              "uncertainty_basis": "Independent calibration of the camera clock, quantified error in exposure time and alignment with the clock behind the NWS minute positions are unestablished. Exact software selection at the reported label does not establish historical accuracy to the second."
             },
             "inspection": {
               "status": "still_pixels_inspected",
-              "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231059-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+              "pixels": "All displayed pixels of the 1024 x 576 still the creator published, 231059-1024x576.jpg. No intervening recording or camera original was inspected.",
               "reviewed_on": "2026-10-10",
-              "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+              "basis": "Root reviewed each full retained capture after acquisition. Independent pixel review of four frames qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
             },
             "viewpoint": {
               "mode": "qualitative_text",
               "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only.",
-              "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+              "basis": "Attributed location and direction from the creator account, supplemented by the visible foreground and occlusion in the frame. No measured position, bearing, lens or projection is supplied.",
               "coordinates": null,
               "bearing_degrees": null,
               "pitch_degrees": null,
@@ -9073,25 +9073,25 @@
               "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231202-1024x576.jpg",
               "panel_locator": "231202-1024x576.jpg; creator caption reports 18:12:02 CDT.",
               "sha256": "82ac179c316dc9889d51d84ede70ae6dd0cbae203371e82b6f311c12ae979d0c",
-              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the 1024 x 576 resource URL the creator published. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and bytes from the camera original were not recovered."
             },
             "reported_utc": "2013-05-31T23:12:02Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Creator caption interpreted as 18:12:02 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:12:02Z. The visible minute overlay May 31 2013 23:12Z is consistent with this conversion. Whole-second labels are reported source representations.",
+              "basis": "Creator caption interpreted as 18:12:02 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:12:02Z. The visible minute overlay May 31 2013 23:12Z is consistent with this conversion. Labels to the whole second are reported source representations.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+              "uncertainty_basis": "Independent calibration of the camera clock, quantified error in exposure time and alignment with the clock behind the NWS minute positions are unestablished. Exact software selection at the reported label does not establish historical accuracy to the second."
             },
             "inspection": {
               "status": "still_pixels_inspected",
-              "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231202-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+              "pixels": "All displayed pixels of the 1024 x 576 still the creator published, 231202-1024x576.jpg. No intervening recording or camera original was inspected.",
               "reviewed_on": "2026-10-10",
-              "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+              "basis": "Root reviewed each full retained capture after acquisition. Independent pixel review of four frames qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
             },
             "viewpoint": {
               "mode": "qualitative_text",
               "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only.",
-              "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+              "basis": "Attributed location and direction from the creator account, supplemented by the visible foreground and occlusion in the frame. No measured position, bearing, lens or projection is supplied.",
               "coordinates": null,
               "bearing_degrees": null,
               "pitch_degrees": null,
@@ -9101,7 +9101,7 @@
               "lens_calibration": null
             },
             "characteristics": [
-              "A foreground person obscures part of the lower-left scene. A diffuse gray region occupies the lower center beneath a large dark underside.",
+              "A foreground person obscures part of the scene at lower left. A diffuse gray region occupies the lower center beneath a large dark underside.",
               "Darkness extends to and beyond the right image boundary."
             ],
             "boundary_limits": [
@@ -9144,25 +9144,25 @@
               "original_url": "https://nnwx.us/wp-content/uploads/2018/02/231255_GOPRO-1024x576.jpg",
               "panel_locator": "231255_GOPRO-1024x576.jpg; creator caption reports 18:12:55 CDT.",
               "sha256": "b9a3b470d53c4af1f3603ae780e18a2d0d974e92cb42a5b723ba92cf7674528a",
-              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the creator-published 1024 x 576 resource URL. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and camera-original bytes were not recovered."
+              "identity_basis": "Exact JPEG response bytes acquired on October 10, 2026, at the 1024 x 576 resource URL the creator published. Full displayed still inspected through a retained capture. This digest is not the screenshot digest, and bytes from the camera original were not recovered."
             },
             "reported_utc": "2013-05-31T23:12:55Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Creator caption interpreted as 18:12:55 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:12:55Z. The visible minute overlay May 31 2013 23:12Z is consistent with this conversion. Whole-second labels are reported source representations.",
+              "basis": "Creator caption interpreted as 18:12:55 CDT on May 31, 2013 near El Reno, giving 2013-05-31T23:12:55Z. The visible minute overlay May 31 2013 23:12Z is consistent with this conversion. Labels to the whole second are reported source representations.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Independent camera-clock calibration, quantified exposure-time error and alignment with the NWS minute-position clock are unestablished. Exact software selection at the reported label does not establish second-level historical accuracy."
+              "uncertainty_basis": "Independent calibration of the camera clock, quantified error in exposure time and alignment with the clock behind the NWS minute positions are unestablished. Exact software selection at the reported label does not establish historical accuracy to the second."
             },
             "inspection": {
               "status": "still_pixels_inspected",
-              "pixels": "All displayed pixels of the creator-published 1024 x 576 still 231255_GOPRO-1024x576.jpg. No intervening recording or camera-original file was inspected.",
+              "pixels": "All displayed pixels of the 1024 x 576 still the creator published, 231255_GOPRO-1024x576.jpg. No intervening recording or camera original was inspected.",
               "reviewed_on": "2026-10-10",
-              "basis": "Root reviewed each full retained capture after acquisition. Independent four-frame pixel review qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
+              "basis": "Root reviewed each full retained capture after acquisition. Independent pixel review of four frames qualified limited visible margins, framing and obscuration without complete geometry. This declaration records that still inspection, not footage continuity."
             },
             "viewpoint": {
               "mode": "qualitative_text",
-              "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only. The caption identifies this still as a GoPro frame; a common pose with the other photographs is not established.",
-              "basis": "Attributed location and direction from the creator account, supplemented by per-frame visible foreground and occlusion. No measured position, bearing, lens or projection is supplied.",
+              "description": "The creator reports a roadside stop near 15th Street SW and Country Club Road with the storm to the west near 6:10 PM. The foreground provides qualitative setting only. The caption identifies this still as a GoPro frame. A common pose with the other photographs is not established.",
+              "basis": "Attributed location and direction from the creator account, supplemented by the visible foreground and occlusion in the frame. No measured position, bearing, lens or projection is supplied.",
               "coordinates": null,
               "bearing_degrees": null,
               "pitch_degrees": null,
@@ -9187,7 +9187,7 @@
       },
       {
         "id": "wakimoto-visible-margin",
-        "basis": "Two separately inspected published exposures at source-reported 23:25:01 and 23:25:09 UTC. The first guides an independently authored coarse filled partial body and sloping southern opening. The second retains its independently reviewed open southern margin. The eight-second interior and every fractional neighbor remain unknown. Figure 10(a) enlarges the first exposure and adds no exposure. Different interpretations do not establish continuous motion, physical growth or a recovered camera projection.",
+        "basis": "Two separately inspected published exposures at 23:25:01 and 23:25:09 UTC as the source reports them. The first guides an independently authored coarse filled partial body and sloping southern opening. The second retains its independently reviewed open southern margin. The eight second interior and every fractional neighbor remain unknown. Figure 10(a) enlarges the first exposure and adds no exposure. Different interpretations do not establish continuous motion, physical growth or a recovered camera projection.",
         "samples": [
           {
             "id": "wakimoto-232501",
@@ -9197,25 +9197,25 @@
               "original_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=18",
               "panel_locator": "Figure 9(a), same exposure enlarged in Figure 10(a), PDF page 18.",
               "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
-              "identity_basis": "Digest of the complete retained PDF edition, not isolated photograph or camera-original bytes. The named complete source page was visually inspected again on October 11, 2026 UTC; enlargement does not create another exposure."
+              "identity_basis": "Digest of the complete retained PDF edition, not isolated bytes of the photograph or the camera original. The named complete source page was visually inspected again on October 11, 2026 UTC. Enlargement does not create another exposure."
             },
             "reported_utc": "2013-05-31T23:25:01Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Whole-second UTC label printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC; exact software selection represents that source label.",
+              "basis": "UTC label to the whole second, printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC. Exact software selection represents that source label.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Capture-clock error and alignment error relative to the NWS minute-position clock are not independently quantified. The paper's angular-method error is not clock uncertainty and is not transferred here."
+              "uncertainty_basis": "Error in the capture clock and alignment error relative to the clock behind the NWS minute positions are not independently quantified. The error of the paper's angular method is not clock uncertainty and is not transferred here."
             },
             "inspection": {
               "status": "still_pixels_inspected",
               "pixels": "Complete retained rendering of PDF page 18, including Figure 10(a), an enlargement of the Figure 9(a) exposure.",
               "reviewed_on": "2026-10-11",
-              "basis": "Root and an independent reviewer inspected the complete Figure 10(a) source page and three unique complete rendered comparison captures on October 11, 2026 UTC. A fourth return capture was byte-identical to the first. The earlier five-capture margin comparison remains a separate record, rather than acceptance of this new body. This declares one published photographic view, not original-camera inspection, calibrated shape or continuous footage."
+              "basis": "Root and an independent reviewer inspected the complete Figure 10(a) source page and three unique complete rendered comparison captures on October 11, 2026 UTC. A fourth return capture was identical to the first, byte for byte. The earlier margin comparison of five captures remains a separate record, rather than acceptance of this new body. This declares one published photographic view, not calibrated shape, continuous footage or inspection of the camera original."
             },
             "viewpoint": {
               "mode": "qualitative_text",
-              "description": "Named published photographic view near the radar and I-40/Banner Road setting discussed in the paper. The interpretation concerns the broad partial condensation, visible southern transition and brighter lower-left opening in this view only.",
-              "basis": "The source paper supplies qualitative site and view context with printed horizon and angular annotations. Atlas has no numeric lens, crop, pose or physical projection solution. The authored landscape display frame is not a recovered camera view; the printed grid does not calibrate it.",
+              "description": "Named published photographic view near the radar and I-40/Banner Road setting discussed in the paper. The interpretation concerns the broad partial condensation, visible southern transition and brighter opening at lower left in this view only.",
+              "basis": "The source paper supplies qualitative site and view context with printed horizon and angular annotations. Atlas has no numeric lens, crop, pose or physical projection solution. The authored landscape display frame is not a recovered camera view. The printed grid does not calibrate it.",
               "coordinates": null,
               "bearing_degrees": null,
               "pitch_degrees": null,
@@ -9225,7 +9225,7 @@
               "lens_calibration": null
             },
             "characteristics": [
-              "A broad dark condensation region continues through the upper and right limits of the published view. Its southern transition slopes toward a conspicuous bright lower-left opening.",
+              "A broad dark condensation region continues through the upper and right limits of the published view. Its southern transition slopes toward a conspicuous bright opening at lower left.",
               "Foreground and obscuration interrupt the lower appearance. The opposite outline, ground contact and upper continuation remain unresolved. Fine scallops, texture and foreground objects are omitted."
             ],
             "boundary_limits": [
@@ -9235,7 +9235,7 @@
               "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
               "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
               "The authors' approximately 800 m diameter belongs to their 23:24:54-23:25:06 analysis. It does not determine this drawing's dimensions or calibrate its projection.",
-              "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+              "One reported label to the whole second has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
               "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
             ],
             "shape": null,
@@ -9244,7 +9244,7 @@
               "kind": "visible_condensation_region",
               "authorship": "independently_authored",
               "coordinate_space": "normalized_schematic_plane",
-              "component": "Broad partial condensation and sloping southern transition above a bright lower-left opening.",
+              "component": "Broad partial condensation and sloping southern transition above a bright opening at lower left.",
               "points": [
                 [
                   0.34,
@@ -9281,8 +9281,8 @@
               ],
               "closure": "display_support_only",
               "completeness": "partial",
-              "basis": "Independently authored eight-vertex mathematical support based on the broad dark body, sloping southern transition and bright lower-left opening in the inspected Figure 10(a), at the reported 23:25:01 UTC label. Root and an independent reviewer compared the complete original source page and the specific rendered output on October 11, 2026 UTC. This differs from the earlier 23:24:41 interpretation. No image pixels, measured contour, traced boundary, transferred angular plane or 800/500 enlargement generated these points.",
-              "use_basis": "Original mathematical factual schematic with source attribution and the original panel link. Its specific construction and rendered output were reviewed independently. No source raster, texture, sampled colors, traced contour, dotted annotation, grid, radar or figure layout is copied into the drawing. AMS photograph and figure copyright remains recorded, without a figure-republication grant. No photograph or source figure is copied or hosted.",
+              "basis": "Independently authored mathematical support with eight vertices, based on the broad dark body, sloping southern transition and bright opening at lower left in the inspected Figure 10(a), at the reported 23:25:01 UTC label. Root and an independent reviewer compared the complete original source page and the specific rendered output on October 11, 2026 UTC. This differs from the earlier 23:24:41 interpretation. No image pixels, measured contour, traced boundary, transferred angular plane or 800/500 enlargement generated these points.",
+              "use_basis": "Original mathematical factual schematic with source attribution and the original panel link. Its specific construction and rendered output were reviewed independently. No source raster, texture, sampled colors, traced contour, dotted annotation, grid, radar or figure layout is copied into the drawing. AMS photograph and figure copyright remains recorded, without a grant to republish the figure. No photograph or source figure is copied or hosted.",
               "limits": [
                 "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
                 "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
@@ -9290,7 +9290,7 @@
                 "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
                 "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
                 "The authors' approximately 800 m diameter belongs to their 23:24:54-23:25:06 analysis. It does not determine this drawing's dimensions or calibrate its projection.",
-                "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+                "One reported label to the whole second has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
                 "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
               ]
             }
@@ -9303,20 +9303,20 @@
               "original_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=21",
               "panel_locator": "Figure 11(a), PDF page 21.",
               "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
-              "identity_basis": "Digest of the complete retained PDF edition, not isolated photograph or camera-original bytes. The named complete source page was visually inspected again on October 11, 2026 UTC; enlargement does not create another exposure."
+              "identity_basis": "Digest of the complete retained PDF edition, not isolated bytes of the photograph or the camera original. The named complete source page was visually inspected again on October 11, 2026 UTC. Enlargement does not create another exposure."
             },
             "reported_utc": "2013-05-31T23:25:09Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Whole-second UTC label printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC; exact software selection represents that source label.",
+              "basis": "UTC label to the whole second, printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC. Exact software selection represents that source label.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Capture-clock error and alignment error relative to the NWS minute-position clock are not independently quantified. The paper's angular-method error is not clock uncertainty and is not transferred here."
+              "uncertainty_basis": "Error in the capture clock and alignment error relative to the clock behind the NWS minute positions are not independently quantified. The error of the paper's angular method is not clock uncertainty and is not transferred here."
             },
             "inspection": {
               "status": "still_pixels_inspected",
               "pixels": "Complete retained rendering of PDF page 21, including Figure 11(a).",
               "reviewed_on": "2026-10-11",
-              "basis": "Root and independent agent inspected each complete named source-page raster and all five actual private comparison captures. This declares two published photograph observations, not original-camera inspection or continuous footage."
+              "basis": "Root and independent agent inspected the raster of each complete named source page and all five actual private comparison captures. This declares two published photograph observations, not continuous footage or inspection of the camera original."
             },
             "viewpoint": {
               "mode": "qualitative_text",
@@ -9419,7 +9419,7 @@
                 ]
               ],
               "basis": "Independently authored cubic Bezier interpretation of the inspected published photographs' broad direction and bend. Two original panels and both mathematical variants were compared visually by root and an independent agent on October 11, 2026 UTC. The simpler bend is the conservative default. No image raster, measurements, tracing or author annotation generated these points.",
-              "use_basis": "Original mathematical factual schematic with source attribution and original panel links. It contains no source photograph texture, traced contour, angular grid, dotted annotation, radar overlay or figure layout. This specific construction and output were reviewed independently. AMS photograph/figure copyright and the absence of a figure-republication grant remain separate; no photograph is copied or hosted.",
+              "use_basis": "Original mathematical factual schematic with source attribution and original panel links. It contains no source photograph texture, traced contour, angular grid, dotted annotation, radar overlay or figure layout. This specific construction and output were reviewed independently. AMS photograph/figure copyright and the absence of a grant to republish the figures remain separate. No photograph is copied or hosted.",
               "limits": [
                 "Only the coarse visible southern margin is interpreted. The upper and lower continuations, opposite margin, surface contact and depth remain unknown.",
                 "Numeric camera pose, lens calibration, physical dimensions and transferred projection are unestablished. The centered isotropic display plane is authored.",
@@ -9434,7 +9434,7 @@
       },
       {
         "id": "wakimoto-visible-condensation",
-        "basis": "One separately inspected source-reported photograph at 23:24:41 UTC. Its coarse partial condensation is shown only at this exact label. Figure 13(a) is complementary southern context at the same reported whole-second time, not an additional admitted exposure. Physical geometry and camera calibration remain unknown, and this still has no duration.",
+        "basis": "One separately inspected photograph at 23:24:41 UTC, the time the source reports. Its coarse partial condensation is shown only at this exact label. Figure 13(a) is complementary southern context at the same reported time to the whole second, not an additional admitted exposure. Physical geometry and camera calibration remain unknown, and this still has no duration.",
         "samples": [
           {
             "id": "wakimoto-232441",
@@ -9444,20 +9444,20 @@
               "original_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=10",
               "panel_locator": "Figure 5(a), PDF page 10. Figure 13(a), PDF page 23, supplies complementary southern context at the same reported whole-second label.",
               "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9",
-              "identity_basis": "Digest of the complete retained PDF edition, not isolated photograph or camera-original bytes. The complete named page 10 and complementary page 23 were inspected. Figure 13(a) is context rather than an additional registered exposure or independently established camera-original correspondence."
+              "identity_basis": "Digest of the complete retained PDF edition, not isolated bytes of the photograph or the camera original. The complete named page 10 and complementary page 23 were inspected. Figure 13(a) is context rather than an additional registered exposure or independently established correspondence with the camera original."
             },
             "reported_utc": "2013-05-31T23:24:41Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Whole-second UTC label printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC; exact software selection represents that source label.",
+              "basis": "UTC label to the whole second, printed with the published photograph on May 31, 2013. Its offset is measured from the existing replay start 23:04:00 UTC. Exact software selection represents that source label.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Capture-clock error and alignment error relative to the NWS minute-position clock are not independently quantified. The paper's angular-method error is not clock uncertainty and is not transferred here."
+              "uncertainty_basis": "Error in the capture clock and alignment error relative to the clock behind the NWS minute positions are not independently quantified. The error of the paper's angular method is not clock uncertainty and is not transferred here."
             },
             "inspection": {
               "status": "still_pixels_inspected",
               "pixels": "Complete retained rendering of PDF page 10, including the original Figure 5(a) photograph. Complete page 23, Figure 13(a), was inspected separately for complementary southern context.",
               "reviewed_on": "2026-10-11",
-              "basis": "Root and independent reviewer inspected the original whole source pages and both actual refined private output captures. The specific independent construction and bounded qualitative appearance correspondence were accepted separately. No original-camera file or continuous video was inspected."
+              "basis": "Root and independent reviewer inspected the original whole source pages and both actual refined private output captures. The specific independent construction and bounded qualitative appearance correspondence were accepted separately. No original camera file or continuous video was inspected."
             },
             "viewpoint": {
               "mode": "qualitative_text",
@@ -9482,8 +9482,8 @@
               "The northern outline remains unresolved. The darker right context and soft transition are authored display choices, not a recovered exterior or hidden condensation boundary.",
               "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
               "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
-              "The approximately 500 m reference at 2 degrees elevation belongs to the authors' source-defined analysis slice. It does not calibrate this drawing or determine a ground diameter.",
-              "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+              "The approximately 500 m reference at 2 degrees elevation belongs to the authors' analysis slice, as their source defines it. It does not calibrate this drawing or determine a ground diameter.",
+              "One reported label to the whole second has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
               "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
             ],
             "shape": null,
@@ -9529,16 +9529,16 @@
               ],
               "closure": "display_support_only",
               "completeness": "partial",
-              "basis": "Independently authored eight-vertex mathematical display support informed by broad factual relations in the inspected Figure 5(a), with Figure 13(a) as complementary context. Root and an independent reviewer compared the complete source pages with the broader display, narrower bright southern opening and darker northern context. Proportions, clipping, tones, smooth lower fade and soft transitions remain authored choices. No source contour or camera projection is digitized.",
-              "use_basis": "Original mathematical factual schematic, attributed and linked to the original publication. No photograph raster, texture, sampled color, traced contour, dotted source boundary, angular grid, arrows, radar overlay or figure layout is copied. This specific construction and output received separate independent source-use and qualitative-appearance decisions. AMS copyright and absent photograph/figure republication permission remain separate. No source photograph is hosted.",
+              "basis": "Independently authored mathematical display support with eight vertices, informed by broad factual relations in the inspected Figure 5(a), with Figure 13(a) as complementary context. Root and an independent reviewer compared the complete source pages with the broader display, narrower bright southern opening and darker northern context. Proportions, clipping, tones, smooth lower fade and soft transitions remain authored choices. No source contour or camera projection is digitized.",
+              "use_basis": "Original mathematical factual schematic, attributed and linked to the original publication. No photograph raster, texture, sampled color, traced contour, dotted source boundary, angular grid, arrows, radar overlay or figure layout is copied. This specific construction and output received separate independent decisions on source use and qualitative appearance. AMS copyright and absent photograph/figure republication permission remain separate. No source photograph is hosted.",
               "limits": [
                 "Upper continuation is outside the supported view. The top and right drawing boundaries are authored view cutoffs, not recovered tornado edges.",
                 "Lower appearance is omitted because the original foreground obscures it. Ground contact remains unresolved. The display fade does not depict cloud dissipation.",
                 "The northern outline remains unresolved. The darker right context and soft transition are authored display choices, not a recovered exterior or hidden condensation boundary.",
                 "Height, depth, physical radius profile, numeric camera pose, lens and projection remain unknown. Physical shape and extent stay null.",
                 "Support vertices, palette, opacity and softness are display choices, not observed lighting, optical density or quantified uncertainty.",
-                "The approximately 500 m reference at 2 degrees elevation belongs to the authors' source-defined analysis slice. It does not calibrate this drawing or determine a ground diameter.",
-                "One reported whole-second label has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
+                "The approximately 500 m reference at 2 degrees elevation belongs to the authors' analysis slice, as their source defines it. It does not calibrate this drawing or determine a ground diameter.",
+                "One reported label to the whole second has no duration. Every adjacent fractional instant and intervening motion remains unknown. No hold, interpolation or extrapolation is assigned.",
                 "Fine irregularities and foreground objects are omitted. This is a coarse partial depiction, not the complete tornado."
               ]
             }
@@ -9547,7 +9547,7 @@
       },
       {
         "id": "wakimoto-early-extension",
-        "basis": "One independently inspected photographic observation at the source-reported 23:05:10 UTC label. The partial display has no duration or calibrated camera and does not connect the earlier reported-minute study to later views.",
+        "basis": "One independently inspected photographic observation at the 23:05:10 UTC label the source reports. The partial display has no duration or calibrated camera and does not connect the earlier study, timed to a reported minute, to later views.",
         "samples": [
           {
             "id": "wakimoto-2016-230510",
@@ -9557,25 +9557,25 @@
               "original_url": "https://repository.library.noaa.gov/view/noaa/32144/noaa_32144_DS1.pdf#page=8",
               "panel_locator": "Figure 6(a), printed page 1756 / PDF page 8.",
               "sha256": "7ce3c5d8dc1d643417fecddbd802aef3869a9e32ec60d892c973599104c7be50",
-              "identity_basis": "Complete retained PDF edition digest, not camera-original or isolated photograph bytes. Complete rendered page and embedded composite inspected; author overlays are separate from the photographic component."
+              "identity_basis": "Complete retained PDF edition digest, not bytes of the camera original or the isolated photograph. Complete rendered page and embedded composite inspected. Author overlays are separate from the photographic component."
             },
             "reported_utc": "2013-05-31T23:05:10Z",
             "timing": {
               "method": "source_reported",
-              "basis": "Whole-second UTC label printed with Figure 6. Software offset 70 represents that label relative to the existing 23:04:00 replay start; it is not an independently measured clock correction.",
+              "basis": "UTC label to the whole second, printed with Figure 6. Software offset 70 represents that label relative to the existing 23:04:00 replay start. It is not an independently measured clock correction.",
               "uncertainty_seconds": null,
-              "uncertainty_basis": "Capture-clock and inter-source alignment errors are not independently quantified. Beam widths and source photogrammetric errors are not clock accuracy."
+              "uncertainty_basis": "Errors in the capture clock and in alignment between sources are not independently quantified. Beam widths and source photogrammetric errors are not clock accuracy."
             },
             "inspection": {
               "status": "still_pixels_inspected",
-              "pixels": "Complete retained PDF page 8 / printed page 1756 and embedded Figure 6 composite; photo, analytical panels and annotations inspected separately.",
+              "pixels": "Complete retained PDF page 8 / printed page 1756 and embedded Figure 6 composite. Photo, analytical panels and annotations inspected separately.",
               "reviewed_on": "2026-10-16",
-              "basis": "Root and independent agent inspected the complete source and specific refined private outputs at narrow and wide sizes. The earlier October 10 complete-preset comparison remains retained. No camera-original photograph or raw video was acquired."
+              "basis": "Root and independent agent inspected the complete source and specific refined private outputs at narrow and wide sizes. The earlier October 10 comparison of complete presets remains retained. No raw video or photograph from the camera original was acquired."
             },
             "viewpoint": {
               "mode": "qualitative_text",
               "description": "The publication reports photographs collocated with RaXPol at site 1 near Jensen and Country Club Roads.",
-              "basis": "Source-reported site context in Section 2 and Figure 1; Figure 6 reported early view. This is distinct from the later I-40/Banner Road site. No numeric Atlas camera solution is transferred.",
+              "basis": "Site context as the source reports it in Section 2 and Figure 1, and the early view reported in Figure 6. This is distinct from the later I-40/Banner Road site. No numeric Atlas camera solution is transferred.",
               "coordinates": null,
               "bearing_degrees": null,
               "pitch_degrees": null,
@@ -9585,18 +9585,18 @@
               "lens_calibration": null
             },
             "characteristics": [
-              "A darker extension descends roughly upright below broader cloud, with a locally narrowing image-right transition against paler dust or haze.",
-              "The image-left boundary merges into less distinct context; upper continuation and lowest termination are not fully exposed.",
+              "A darker extension descends roughly upright below broader cloud, with a locally narrowing transition on the right of the image against paler dust or haze.",
+              "The boundary on the left of the image merges into less distinct context. Upper continuation and lowest termination are not fully exposed.",
               "The authors describe one apparent funnel in this photograph. That does not establish only one vortex throughout the broader circulation."
             ],
             "boundary_limits": [
-              "The upper connection, opposite outline and lowest termination are unresolved. Dark image-left context leaves that boundary unassigned; it is not a recovered cloud exterior.",
+              "The upper connection, opposite outline and lowest termination are unresolved. Dark context on the left of the image leaves that boundary unassigned. It is not a recovered cloud exterior.",
               "Top and bottom fades omit unsupported continuations. They do not depict cloud dissipation, a complete cone tip, ground contact or measured vertical extent.",
-              "Only the broad downward dark extension and locally tapering image-right transition are interpreted. Pale dust on image-right, foreground objects and fine irregularities are omitted.",
+              "Only the broad downward dark extension and locally tapering transition on the right of the image are interpreted. Pale dust on the right of the image, foreground objects and fine irregularities are omitted.",
               "Support points, framing, tones, opacity and softness are authored display choices, not measured edges, photometry or numerical uncertainty.",
               "Numeric camera pose, lens calibration, depth, physical dimensions and radius profile remain unknown. Shape and extent stay null.",
               "The 255.5 degree ray, 175 m annotation, beam circles and scales belong to the authors’ analysis. None calibrates this display or supplies its photographic edge.",
-              "The reported whole-second label has no duration. Neighboring instants, motion to later views and continuous geometry remain unknown."
+              "The reported label to the whole second has no duration. Neighboring instants, motion to later views and continuous geometry remain unknown."
             ],
             "shape": null,
             "extent": null,
@@ -9604,7 +9604,7 @@
               "kind": "visible_condensation_region",
               "authorship": "independently_authored",
               "coordinate_space": "normalized_schematic_plane",
-              "component": "Partial dark downward extension and its locally tapering image-right transition; opposite boundary and both continuations unassigned.",
+              "component": "Partial dark downward extension and its locally tapering transition on the right of the image. Opposite boundary and both continuations unassigned.",
               "points": [
                 [
                   0.46,
@@ -9641,16 +9641,16 @@
               ],
               "closure": "display_support_only",
               "completeness": "partial",
-              "basis": "Independent eight-point mathematical display support. The retained October 10 cone/wedge/rope comparison already stopped short of a full fit. A separate October 16 output comparison informed this partial extension, omitted upper/lower continuations and unassigned image-left context. No numerical fit, tracing, source pixel sampling or recovered projection.",
-              "use_basis": "Original mathematical factual schematic with attribution and an exact original panel link. No source raster, crop, texture, traced contour, sampled color, beam graphic, radar overlay or figure layout is copied. This specific output received independent source-use and qualitative correspondence review. AMS copyright and absent figure-republication permission remain separate.",
+              "basis": "Independent mathematical display support with eight points. The retained October 10 cone/wedge/rope comparison already stopped short of a full fit. A separate October 16 output comparison informed this partial extension, omitted upper/lower continuations and unassigned context on the left of the image. No numerical fit, tracing, source pixel sampling or recovered projection.",
+              "use_basis": "Original mathematical factual schematic with attribution and an exact original panel link. No source raster, crop, texture, traced contour, sampled color, beam graphic, radar overlay or figure layout is copied. This specific output received independent review of source use and qualitative correspondence. AMS copyright and absent permission to republish the figure remain separate.",
               "limits": [
-                "The upper connection, opposite outline and lowest termination are unresolved. Dark image-left context leaves that boundary unassigned; it is not a recovered cloud exterior.",
+                "The upper connection, opposite outline and lowest termination are unresolved. Dark context on the left of the image leaves that boundary unassigned. It is not a recovered cloud exterior.",
                 "Top and bottom fades omit unsupported continuations. They do not depict cloud dissipation, a complete cone tip, ground contact or measured vertical extent.",
-                "Only the broad downward dark extension and locally tapering image-right transition are interpreted. Pale dust on image-right, foreground objects and fine irregularities are omitted.",
+                "Only the broad downward dark extension and locally tapering transition on the right of the image are interpreted. Pale dust on the right of the image, foreground objects and fine irregularities are omitted.",
                 "Support points, framing, tones, opacity and softness are authored display choices, not measured edges, photometry or numerical uncertainty.",
                 "Numeric camera pose, lens calibration, depth, physical dimensions and radius profile remain unknown. Shape and extent stay null.",
                 "The 255.5 degree ray, 175 m annotation, beam circles and scales belong to the authors’ analysis. None calibrates this display or supplies its photographic edge.",
-                "The reported whole-second label has no duration. Neighboring instants, motion to later views and continuous geometry remain unknown."
+                "The reported label to the whole second has no duration. Neighboring instants, motion to later views and continuous geometry remain unknown."
               ]
             }
           }
