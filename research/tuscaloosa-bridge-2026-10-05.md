@@ -1,4 +1,4 @@
-# A railway-infrastructure aftermath photograph
+# An aftermath photograph of railway infrastructure
 
 The [NWS Birmingham survey](https://www.weather.gov/bmx/event_04272011tuscbirm)
 links [2.JPG](https://www.weather.gov/images/bmx/significant_events/2011/042711/tuscbirm/2.JPG)
@@ -6,8 +6,9 @@ under the caption "Train Bridge Demolished." Two agents inspected the complete
 800 by 600 image on October 5, 2026 UTC. The elevated view shows separated
 lattice/truss bridge sections beside or partly over a narrow waterway, damaged
 and fallen trees, and a bridge section remaining at the left. It adds a
-transport-infrastructure subject beside the neighborhood and apartment-complex
-photographs. The train-bridge description comes from the source caption.
+subject of transport infrastructure beside the photographs of the neighborhood
+and the apartment complex. The description as a train bridge comes from the
+source caption.
 
 ## Source, attribution and reuse
 
@@ -19,10 +20,11 @@ its caption at line 841. That HTML is 78,940 bytes, SHA-256
 It is a current retrieved page, not a recovered 2011 revision.
 
 The [NWS use policy](https://www.weather.gov/disclaimer), inspected earlier
-on the same date, gives agency material a public-domain default unless marked
-otherwise and separately reserves third-party products. The visible agency
+on the same date, treats agency material as public domain by default unless
+marked otherwise and separately reserves products of third parties. The visible agency
 credit, exact official context and absence of a contrary item credit or
-restriction support a narrow agency-material hosting inference. The unnamed
+restriction support a narrow inference that the image can be hosted as agency
+material. The unnamed
 photographer's employment remains unknown. Missing Artist and Copyright tags
 are not the rights basis. This decision does not clear the other survey
 images or imply government endorsement.
@@ -35,9 +37,10 @@ images or imply government endorsement.
 | Publication copy | 148,308 | `1abcd76e5b905f157c39da7d3ee39b0b1e4966810211f16410c5a21f097a8a59` |
 | Main entropy scan, excluding markers | 147,938 | `fbbad686acb0172ec2a986ae717f49e2f8a8cce22ec3590163897fdb7ff329a2` |
 
-One bounded original-image request returned HTTP 200 `image/jpeg`, without
+One bounded request for the original image returned HTTP 200 `image/jpeg`, without
 redirects or retries. Only the EXIF APP1 segment at `[20,9496)` was removed
-for the private publication copy. Independent read-only comparison confirmed
+for the private publication copy. An independent comparison that only read the
+files confirmed
 the exact byte splice, identical retained JPEG coding segments and scan, and
 equal decoded 800 by 600 RGB pixels with orientation 1. The decoded RGB
 SHA-256 is
@@ -71,13 +74,13 @@ preserved. The immediate predecessor is
 from source revision `6c5706cdf9e8419e7ea71dd77f41fe871b6f0dd1`.
 Earlier immutable snapshots remain retained.
 
-The authored JSON uses one-space indentation and compact separators to keep
-the source below its existing 50,000-byte limit. This is a whitespace change,
+The authored JSON uses indentation of one space and compact separators to keep
+the source below its existing limit of 50,000 bytes. This is a whitespace change,
 separate from the added source/media records and bridge provenance. It changes
 no prior evidence values. The preceding publication review remains in the
-retained apartment-complex snapshot. The fresh review identifies the notes-free
-candidate wrapper based on that predecessor, rather than an image hash. This
-standalone input was updated directly; no curator-promotion operation or new
+retained snapshot for the apartment complex. The fresh review identifies the
+candidate wrapper without notes, based on that predecessor, rather than an image hash. This
+standalone input was updated directly. No curator promotion operation or new
 overlay is claimed. The existing local image link, caption, source
 links and viewer are reused. Source and copy qualification do not establish
 acceptance of the final composition, browser, deployment or physical device.
