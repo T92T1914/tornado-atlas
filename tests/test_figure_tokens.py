@@ -50,9 +50,16 @@ class FigureTokenTests(unittest.TestCase):
         receipt = check()
         self.assertEqual({label["face"] for label in receipt["painted_labels"]},
                          {"Inter-Regular", "Inter-SemiBold", "Inter-Bold"})
-        # Pillow sizes are pixels on a 1280 pixel card. 30 px here is the
-        # 42 px of the 1800 pixel wide figure edition at the same proportion.
-        self.assertTrue(all(label["size"] >= 30 for label in receipt["painted_labels"]))
+        # Obscur sizes type in absolute points at 100 dpi, so its smallest
+        # label, 30 pt, is 42 px on this 1280 pixel card too.
+        from tools.render_share_preview import MIN_LABEL_PX
+
+        self.assertEqual(MIN_LABEL_PX, 42)
+        for label in receipt["painted_labels"]:
+            self.assertGreaterEqual(label["size"], MIN_LABEL_PX, label["text"])
+            left, top, right, bottom = label["bounds"]
+            self.assertTrue(60 <= left < right <= 1220 and 40 <= top < bottom <= 602, label["text"])
+        self.assertIn("Type is never made smaller to fit.", source)
 
 
 if __name__ == "__main__":
