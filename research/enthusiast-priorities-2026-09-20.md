@@ -1,20 +1,20 @@
 # What to add for readers interested in tornado history
 
 This is a focused review of examples and community discussion, not a survey of
-all tornado enthusiasts. Forum comments show particular interests and problems;
-they do not establish how common those preferences are. Priorities below are
+all tornado enthusiasts. Forum comments show particular interests and problems.
+They do not establish how common those preferences are. Priorities below are
 editorial recommendations for this museum.
 
 ## The next additions
 
 | Priority | Addition | Why it belongs here | Evidence and implementation boundary |
 | --- | --- | --- | --- |
-| 1 | Roads, towns and optional terrain beneath the path | People should recognize where a photograph or incident occurred without opening another map. | Retain the clean survey view and source geometry. Select a basemap with suitable attribution and service terms; modern roads and buildings must not silently represent 2013 conditions. |
+| 1 | Roads, towns and optional terrain beneath the path | People should recognize where a photograph or incident occurred without opening another map. | Retain the clean survey view and source geometry. Select a basemap with suitable attribution and service terms. Modern roads and buildings must not silently represent 2013 conditions. |
 | 2 | A synchronized evidence viewer | One clock should connect the storm position, available radar, warning history and verified camera views. | Expand the existing clock with explicitly timed evidence. Unknown times stay unknown. A reconstruction or interpolated frame must remain distinguishable from an observation. |
 | 3 | Before and after pairs with original photo records | Readers can inspect what changed at a known place. | Require the same location, dates, credit, original links and usable rights. Do not use generated imagery as historical evidence. |
 | 4 | A closer explanation of individual damage assessments | Explain the structure, recorded damage indicator, degree of damage and the limits of an EF inference beside the photograph. | Preserve the NWS assessment. An enthusiastic unofficial analysis can be discussed with attribution, without replacing that record. |
 | 5 | The forecast and warning sequence | Show what was known before the tornado and how information changed during the event. | Use original SPC/NWS products and issue times. Forecast environment, warning polygon, tornado route and reconstructed winds are different layers. |
-| 6 | A dated corrections and research log | Readers should be able to follow a disputed claim to its evidence and see why an exhibit changed. | Build on the existing sourced discussion entries. Require source links for corrections; do not publish unreviewed accusations or personal location claims. |
+| 6 | A dated corrections and research log | Readers should be able to follow a disputed claim to its evidence and see why an exhibit changed. | Build on the existing sourced discussion entries. Require source links for corrections. Do not publish unreviewed accusations or personal location claims. |
 
 The first two would most improve the current experience. The larger documentary
 should then grow through specific places, photographs and source accounts.
@@ -30,7 +30,7 @@ a claim about visitor satisfaction.
 [Official page](https://www.weather.gov/lzk/tordatabase.htm), full page accessed.
 
 **Maas and colleagues, 2024:** the abstract, methodology excerpts and online
-interface section of the NOAA-hosted Tornado Archive paper were inspected.
+interface section of the Tornado Archive paper hosted by NOAA were inspected.
 The work describes detailed filters, environmental reanalysis, attribution and
 inconsistent international coverage. These are useful examples for outbreak
 context and future worldwide coverage. The whole paper and every figure were
@@ -64,7 +64,7 @@ survey record, not to a named fatality record.
 
 The TWISTEX account instead uses the published research location and the three
 sourced names already preserved in the exhibit. The map now presents that
-account as **TWISTEX, 3 deaths**. The nearby survey entry links to it with an
+account as the TWISTEX entry with 3 deaths. The nearby survey entry links to it with an
 explicit statement that proximity does not identify the photographed vehicle.
 
 [Full DAT record query](https://services.dat.noaa.gov/arcgis/rest/services/nws_damageassessmenttoolkit/DamageViewer/MapServer/0/query?f=json&objectIds=165661&outFields=*&returnGeometry=true&outSR=4326).

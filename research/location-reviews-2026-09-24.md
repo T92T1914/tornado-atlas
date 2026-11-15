@@ -16,9 +16,9 @@ Reviewed September 24, 2026. Three linked records prompted a bounded screen that
 
 The Goshen 1969 record lies in the Caribbean by its coordinates. The two Nespelem 1997 starts lie in the North Atlantic, while both end positions are reported in Washington. The other reviewed Wyoming labels also conflict with Caribbean coordinates, and the Bulloch, Georgia label conflicts with a Hawaii coordinate. These contradictions establish an unresolved location, not a replacement point. A missing longitude digit or mistaken place label may be a lead, but neither is promoted to a correction.
 
-The screen checked mainland-labelled records against a deliberately broad geographic envelope and then inspected the nine source rows listed above. Six were additional to the three supplied links. This is not a complete audit of state boundaries, coastal records, county attribution or all 80,318 records. The existing Apple Vly review remains separate.
+The screen checked records with mainland labels against a deliberately broad geographic envelope and then inspected the nine source rows listed above. Six were additional to the three supplied links. This is not a complete audit of state boundaries, coastal records, county attribution or all 80,318 records. The existing Apple Vly review remains separate.
 
-`location-reviews.json` binds each review to its source URL, release, hash, logical CSV record and exact start/end fields. The source-driven publication retains the coordinates and source identity. Disputed starts are excluded from ordinary groups and fitted views, remain searchable, and can be revealed explicitly. No duplicate-event assumption is made for the two Nespelem rows. Their source narratives describe two tornadoes.
+`location-reviews.json` binds each review to its source URL, release, hash, logical CSV record and exact start/end fields. The publication follows the source and retains the coordinates and source identity. Disputed starts are excluded from ordinary groups and fitted views, remain searchable, and can be revealed explicitly. The two Nespelem rows are not assumed to duplicate one event. Their source narratives describe two tornadoes.
 
 A simplified land outline can also omit small islands. That separate basemap limitation is not evidence that a particular event coordinate is wrong and was not used to decide these flags.
 

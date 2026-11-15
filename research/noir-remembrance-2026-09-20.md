@@ -21,8 +21,8 @@ that distinction before offering a link to the paper.
 The coordinate is taken from the later journal account by Wurman and colleagues,
 [The Role of Multiple-Vortex Tornado Structure in Causing Storm Researcher
 Fatalities](https://doi.org/10.1175/BAMS-D-13-00221.1), printed pages 38 to 40,
-the storm-chasing teams account and Figures 6 and 9. The indexed primary-source
-location paragraph was inspected. Direct publisher access failed and the full
+the storm-chasing teams account and Figures 6 and 9. The indexed location
+paragraph in the primary source was inspected. Direct publisher access failed and the full
 figure was not visually reviewed. The exhibit states this access limit.
 
 The [preliminary conference paper](https://ams.confex.com/ams/36Radar/webprogram/Manuscript/Paper229323/AMS-Radar-2013-ROTATE13r.pdf)
@@ -35,7 +35,7 @@ other five people named in remembrance.
 
 The [NWS service assessment](https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf)
 was read for the environment, tornado and flooding context, and public response.
-The environment appears on printed page 5; the May 31 impacts and response are
+The environment appears on printed page 5. The May 31 impacts and response are
 discussed on printed pages 27 to 36. Traffic problems in the wider region should
 not be assigned as the cause of the TWISTEX fatalities.
 

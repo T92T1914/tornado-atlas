@@ -13,8 +13,8 @@ has not been independently checked.
 
 The following samples were inspected while paused, with the player position
 and printed historical clock checked together in Chrome. The offsets identify
-this upload only. The display rounds source position to minutes and seconds;
-the manifest retains the observed fractional player positions.
+this upload only. The display rounds source position to minutes and seconds.
+The manifest retains the observed fractional player positions.
 
 | Video seconds | Printed CDT | Assigned UTC |
 | ---: | --- | --- |
@@ -27,7 +27,7 @@ the manifest retains the observed fractional player positions.
 | 781.290509 | 6:29:12 PM | 2013-05-31T23:29:12Z |
 
 This is a description and seven sampled frames, not a continuous visual or
-audio review. Initial in-app browser samples showed a mismatch between seek
+audio review. Initial samples from the browser inside the app showed a mismatch between seek
 state and advancing rendered video. They were discarded and the listed
 positions checked in Chrome. A requested seek is not proof that the displayed
 frame belongs to that position.
@@ -35,7 +35,7 @@ frame belongs to that position.
 The sampled clocks do not justify one constant offset across the upload.
 The viewer therefore exposes individual moments and leaves gaps unassigned.
 The historical clock is preserved to the printed second, without claiming
-subsecond historical accuracy. YouTube can seek to a nearby frame; the visible
+subsecond historical accuracy. YouTube can seek to a nearby frame. The visible
 clock remains available for the visitor to compare. Playing the video does not
 advance the map through unreviewed footage.
 
@@ -64,8 +64,8 @@ and [viewer code](https://el-reno-survey.net/ted/ted-elreno.js) describe a globa
 start at 22:30 UTC with specially aligned Vimeo edits. Their offsets cannot
 be reused on another upload.
 
-* Tim Marshall's linked Vimeo player, `143033121`, displayed an unavailable-video
-  message during direct inspection.
+* Tim Marshall's linked Vimeo player, `143033121`, displayed a message that the
+  video was unavailable during direct inspection.
 * Skip Talbot's linked Vimeo player, `142010192`, displayed the same message.
 * Robinson's old event page and September 2013 FAQ now lead to a site closure
   notice. They must not be treated as currently readable full accounts.
@@ -104,13 +104,13 @@ Local checks passed: 109 Python tests, 75 JavaScript tests, exhibit integrity,
 catalogue integrity and browser module syntax. Browser inspection covered the
 original embed at two checked moments, link restoration, hiding the view across
 an unregistered second, removal of the iframe on close, report search, both
-Clair and Obscur, and a 390-pixel phone viewport. Rendered internal links had
+Clair and Obscur, and a phone viewport 390 pixels wide. Rendered internal links had
 no missing targets or duplicate IDs. This is browser QA, not a visitor study
 or an independent validation of the creator's GPS claim.
 
 The remembrance update identifies Richard Charles Henderson explicitly and
 links all unresolved victim location accounts from both maps. A separate
 completeness check requires all eight names to have exactly one location status.
-It protects against omission and duplication; it does not independently prove
+It protects against omission and duplication. It does not independently prove
 the underlying historical sources. The precise Henderson incident location
 remains unresolved.
