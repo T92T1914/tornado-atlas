@@ -21,7 +21,7 @@
       "url": "https://www.reddit.com/r/tornado/comments/1mso0pl/did_you_know_that_the_2013_el_reno_tornado_nearly/",
       "role": "community",
       "access": "text_reviewed",
-      "coverage": "Post and returned comment text inspected. The house claim was checked in the survey paper; the post's other claims about trees, gravel and wind speeds were not all independently checked."
+      "coverage": "Post and returned comment text inspected. The house claim was checked in the survey paper. The post's other claims about trees, gravel and wind speeds were not all independently checked."
     },
     {
       "id": "width-thread",
@@ -30,7 +30,7 @@
       "url": "https://www.reddit.com/r/tornado/comments/1b6e4wc/el_reno_2013_tornado_event/",
       "role": "community",
       "access": "text_reviewed",
-      "coverage": "Post and returned comment text inspected. The 4.3-mile claim links to Matthew Gove's blog; commenters offer several explanations that have not been adopted here."
+      "coverage": "Post and returned comment text inspected. The claim of 4.3 miles links to Matthew Gove's blog. Commenters offer several explanations that have not been adopted here."
     },
     {
       "id": "width-blog",
@@ -57,7 +57,7 @@
       "url": "https://www.weather.gov/oun/events-20130531",
       "role": "primary",
       "access": "text_reviewed",
-      "coverage": "Official event account, final EF3 rating, reported 2.6-mile maximum width and explanation of the radar and damage evidence."
+      "coverage": "Official event account, final EF3 rating, reported maximum width of 2.6 miles and explanation of the radar and damage evidence."
     },
     {
       "id": "ef-scale",
@@ -75,7 +75,7 @@
       "url": "https://doi.org/10.1175/BAMS-D-13-00221.1",
       "role": "primary",
       "access": "selected_sections_reviewed",
-      "coverage": "Indexed primary-source passages on velocity-threshold width and vehicle recovery reviewed. Direct publisher access and the institutional PDF were unavailable in this review; figures were not visually inspected. The journal location supersedes the differing preliminary conference latitude."
+      "coverage": "Indexed passages of the primary source on width defined by a velocity threshold and on vehicle recovery reviewed. Direct publisher access and the institutional PDF were unavailable in this review, and figures were not visually inspected. The journal location supersedes the differing preliminary conference latitude."
     }
   ],
   "entries": [
@@ -88,14 +88,14 @@
       "discussion_sources": [
         "rating-thread"
       ],
-      "check": "NWS retains EF3. The survey paper reports extreme radar velocities where the strongest subvortices missed structures. Radar sampling and the EF scale's reference gust also differ; neither measurement should silently substitute for the other.",
+      "check": "NWS retains EF3. The survey paper reports extreme radar velocities where the strongest subvortices missed structures. Radar sampling and the EF scale's reference gust also differ. Neither measurement should silently substitute for the other.",
       "evidence_sources": [
         "nws-event",
         "ground-survey",
         "ef-scale"
       ],
       "conclusion": "The debate is worth explaining. It does not establish a revised official rating, and EF3 should not be read as a measured ceiling on every wind within the tornado.",
-      "remaining": "A proposed alternative rating needs a stated method and treatment of measurement height, sampling duration and damage evidence. An imagined strike on a better-built house cannot supply the missing observation.",
+      "remaining": "A proposed alternative rating needs a stated method and treatment of measurement height, sampling duration and damage evidence. An imagined strike on a house that was better built cannot supply the missing observation.",
       "exhibit_links": [
         {
           "label": "Explore mapped survey photographs",
@@ -121,7 +121,7 @@
       "discussion_sources": [
         "house-thread"
       ],
-      "check": "Section 4.2 describes a house with every wall down, initially a candidate for EF4. Missing nuts and washers left the walls unanchored to the foundation. The surveyors assigned EF3; Figure 13 documents the case.",
+      "check": "Section 4.2 describes a house with every wall down, initially a candidate for EF4. Missing nuts and washers left the walls unanchored to the foundation. The surveyors assigned EF3, and Figure 13 documents the case.",
       "evidence_sources": [
         "ground-survey"
       ],
@@ -139,13 +139,13 @@
       ],
       "analysis": [
         "The house example is valuable because it offers a specific claim that can be checked. The survey account explains what failed and what the investigators found at the foundation. That is a stronger chain of evidence than an impression from a wide photograph.",
-        "The construction finding changes the interpretation of that building. It does not identify the maximum wind everywhere in the tornado, and it does not establish that every similar-looking ruin had the same weakness.",
+        "The construction finding changes the interpretation of that building. It does not identify the maximum wind everywhere in the tornado, and it does not establish that every ruin that looked similar had the same weakness.",
         "A fuller account should identify the exact survey record and original photographs before connecting this example to a map pin. Nearby photographs with similar damage are not interchangeable. The mapped browser provides source identifiers so that a future match can be recorded and checked."
       ]
     },
     {
       "id": "el-reno-width-claim",
-      "title": "Where does the 4.3-mile width claim come from?",
+      "title": "Where does the width claim of 4.3 miles come from?",
       "status": "unresolved",
       "reviewed": "2026-09-20",
       "claim": "A discussion links the larger figure to a September 2013 blog post. That article says a recent research paper increased the width from 2.6 to 4.3 miles, but the accessible text does not name the paper.",
@@ -160,7 +160,7 @@
         "multiple-vortex"
       ],
       "conclusion": "Keep 2.6 miles in the historical record. Preserve 4.3 miles as an unresolved claim with its source trail, not as a second confirmed measurement.",
-      "remaining": "The journal supplies a potentially relevant 7-kilometer velocity-threshold extent. The blog’s specific citation and equivalence to the official width are still unconfirmed.",
+      "remaining": "The journal supplies a potentially relevant extent of 7 kilometers defined by a velocity threshold. The blog’s specific citation and equivalence to the official width are still unconfirmed.",
       "exhibit_links": [
         {
           "label": "Inspect the published outline",
@@ -169,7 +169,7 @@
       ],
       "analysis": [
         "The first question is what “width” means in the claim. A photographed funnel, a damage swath and a radar velocity threshold can give different boundaries. Converting units cannot resolve a difference in definition.",
-        "A 4.3-mile figure is approximately 7 kilometers. Wurman and colleagues discuss a 7-kilometer extent under a particular velocity-threshold definition. This is a potentially relevant research lead, not proof that the blog used that study or that the official damage width should be replaced.",
+        "A figure of 4.3 miles is approximately 7 kilometers. Wurman and colleagues discuss an extent of 7 kilometers under a particular definition based on a velocity threshold. This is a potentially relevant research lead, not proof that the blog used that study or that the official damage width should be replaced.",
         "To close the claim, the blog’s underlying reference still needs to be established. Then its threshold, height, time and direction of measurement can be compared with the official figure. Until that comparison is documented, the alternate number belongs in the discussion rather than the headline facts."
       ]
     }

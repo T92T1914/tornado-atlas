@@ -21,7 +21,7 @@ async function account(page){
   assert.equal(await reading.isVisible(),true);
   const text=await reading.textContent();
   for(const expected of ['23:15:19 UTC','May 31, 2013','2315 UTC','121 C km',
-    'first two milliseconds','does not establish a 19-second difference',
+    'first two milliseconds','does not establish a difference of 19 seconds',
     'not identified an independent optical exposure'])assert.ok(text.includes(expected),expected);
   assert.equal(await reading.getByRole('link',{name:'Lang and colleagues: original Figure 7, PDF page 11',exact:true}).getAttribute('href'),original);
   assert.equal(await reading.locator('img,video,iframe,object,embed').count(),0);

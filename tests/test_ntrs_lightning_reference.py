@@ -116,7 +116,7 @@ class NtrsLightningReferenceTests(unittest.TestCase):
             self.assertIn(target, parsed.links)
         self.assertFalse(any('20140011687' in json.dumps(row) for row in parsed.embeds))
         for expected in ('121 C km', '2315 UTC', 'first two milliseconds',
-                         'does not establish a 19-second difference',
+                         'does not establish a difference of 19 seconds',
                          'not identified an independent optical exposure'):
             self.assertIn(expected, page)
 
