@@ -791,24 +791,6 @@
     "reason": "NOAA labels this Ohio, West Virginia, but the reported start (39.55, -82.33) lies 0.602 degrees outside the Census 2023 cartographic boundary of West Virginia, inside Ohio. The retained NOAA row gives the same point. No corrected starting position has been established.",
     "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
   },
-  "ncei:10149563": {
-    "status": "disputed",
-    "reviewed": "2026-11-14",
-    "snapshot_id": "ncei:1964:20260323",
-    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1964_c20260323.csv.gz",
-    "source_sha256": "cdf48993d5943d3671b00b60aba888d8cf30cb958420b932c558d98b46e1946f",
-    "csv_record": 2309,
-    "reported_start": [
-      -118.6,
-      45.9
-    ],
-    "reported_end": [
-      -118.38,
-      45.95
-    ],
-    "reason": "NOAA labels this Walla Walla, Washington, but the reported start (45.9, -118.6) lies 0.101 degrees outside the Census 2023 cartographic boundary of Washington, inside Oregon. The retained NOAA row gives the same point. No corrected starting position has been established.",
-    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
-  },
   "ncei:5264264": {
     "status": "disputed",
     "reviewed": "2026-11-14",
@@ -1032,21 +1014,6 @@
     ],
     "reported_end": null,
     "reason": "NOAA labels this San Joaquin, California, but the reported start (37.93, -112.2) lies 3.807 degrees outside the Census 2023 cartographic boundary of California, inside Utah. The retained NOAA row gives the same point. No corrected starting position has been established.",
-    "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
-  },
-  "ncei:9999122": {
-    "status": "disputed",
-    "reviewed": "2026-11-14",
-    "snapshot_id": "ncei:1991:20260323",
-    "source_url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1991_c20260323.csv.gz",
-    "source_sha256": "cb46d6324a7f3fd3c3d6039a1350a3df0e005d731656c0657e88b715ff5d8f35",
-    "csv_record": 6576,
-    "reported_start": [
-      -87.5,
-      30.18
-    ],
-    "reported_end": null,
-    "reason": "NOAA labels this Escambia, Florida, but the reported start (30.18, -87.5) lies 0.102 degrees outside the Census 2023 cartographic boundary of Florida, in no state, nearest Alabama. The retained NOAA row gives the same point. No corrected starting position has been established.",
     "display_policy": "Preserve the original source fields and searchable record. Exclude the disputed start from ordinary map groups and fitted views. Reveal it only through the explicitly labeled reported-position action. Do not substitute an end position or a place centroid."
   },
   "ncei:9999379": {

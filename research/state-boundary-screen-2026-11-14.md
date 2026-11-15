@@ -1,6 +1,6 @@
 # State boundary screen of catalogue positions
 
-Screened November 14, 2026. I tested every begin and end position in the published catalogue of 80,318 NOAA records against the polygon of the state its record names. 127 positions on 102 records lie more than 0.1 degrees outside that polygon, and each one matches its row in the retained NOAA annual file. 66 of those records have a flagged start. They are now disputed in `location-reviews.json`. 56 are new, and the other 10 were reviewed in September and stay as they were. The 15 records whose only flagged position is an end, and the 21 records whose flagged positions sit just outside their own state, are listed below and not marked.
+Screened November 14, 2026. I tested every begin and end position in the published catalogue of 80,318 NOAA records against the polygon of the state its record names. 127 positions on 102 records lie more than 0.1 degrees outside that polygon, and each one matches its row in the retained NOAA annual file. 66 of those records have a flagged start. 64 of them are now disputed in `location-reviews.json`. 54 are new, and the other 10 were reviewed in September and stay as they were. The 2 starts that clear the threshold by less than the boundary file resolves, the 15 records whose only flagged position is an end, and the 21 records whose flagged positions sit just outside their own state are listed below and not marked.
 
 The [September 24 review](location-reviews-2026-09-24.md) used a broad mainland envelope and said it was not an audit of state boundaries. This screen is that audit for one question only: does a reported position fall inside the state its record names?
 
@@ -24,11 +24,13 @@ Every counted position was then read from its row in the retained NOAA annual fi
 
 A disputed review excludes the start from ordinary map groups and fitted views and shows it only through the explicitly labeled reported position action. The review model has no way to exclude only an end. Marking a record whose start passed the screen would hide a start that nothing contradicts. So the records in groups 1 and 3 with a flagged start are disputed, and everything else is listed here and left as published.
 
+One more rule decides the starts closest to the line. A start is disputed only when it clears the 0.1 degree threshold by at least 0.01 degrees. A margin smaller than that is finer than a 1:500,000 boundary file resolves, and the museum should not dispute a start its evidence cannot place. Two starts fall under this rule. They have their own table below.
+
 Each new entry binds the review to the source URL, release, SHA-256, logical CSV row and both reported positions, like the September entries. Its reason names the label, the flagged start, its distance outside the labeled state and where it lies. No coordinate is corrected and no position is substituted.
 
 ## Disputed starts
 
-The 66 records with a start more than 0.1 degrees outside their labeled state, in group 1 or group 3. The 10 marked as already reviewed keep their September entries. 18 of these records also have a flagged end, which is not listed separately. So the 127 positions are these 66 starts, those 18 ends, the 15 ends in the second table and the 28 positions in the third.
+The 64 records with a start at least 0.11 degrees outside their labeled state, in group 1 or group 3. The 10 marked as already reviewed keep their September entries. 18 of these records also have a flagged end, which is not listed separately. So the 127 positions are these 64 starts, those 18 ends, the 2 starts at the threshold, the 15 ends in the third table and the 28 positions in the fourth.
 
 "In no state" does not always mean water. By the Natural Earth country outline the site already draws, the starts for Nueces, Reeves and Sherman in Texas fall on land in Mexico.
 
@@ -38,7 +40,6 @@ The 66 records with a start more than 0.1 degrees outside their labeled state, i
 | `ncei:5599610` (already reviewed) | Apple Vly Arpt, California | 34.6 / -12.18 | 101.952 | in no state | [1997 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz), row 23731 |
 | `ncei:9991247` | San Joaquin, California | 37.93 / -112.2 | 3.807 | inside Utah | [1978 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1978_c20260323.csv.gz), row 3398 |
 | `ncei:9988744` | Hardee, Florida | 27.55 / -84.3 | 1.484 | in no state | [1968 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1968_c20260323.csv.gz), row 2033 |
-| `ncei:9999122` | Escambia, Florida | 30.18 / -87.5 | 0.102 | in no state, nearest Alabama | [1991 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1991_c20260323.csv.gz), row 6576 |
 | `ncei:9999379` | Miami-Dade, Florida | 25.78 / -83.33 | 1.216 | in no state | [1972 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1972_c20260323.csv.gz), row 1038 |
 | `ncei:9993463` (already reviewed) | Bulloch, Georgia | 20.85 / -156.0 | 71.642 | in no state | [1974 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1974_c20260323.csv.gz), row 2530 |
 | `ncei:10004918` | Massac, Illinois | 37.27 / -88.2 | 0.189 | inside Kentucky | [1989 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1989_c20260323.csv.gz), row 6131 |
@@ -90,7 +91,6 @@ The 66 records with a start more than 0.1 degrees outside their labeled state, i
 | `ncei:10134824` | Sherman, Texas | 26.48 / -101.7 | 2.249 | in no state | [1968 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1968_c20260323.csv.gz), row 2829 |
 | `ncei:10142713` | Fannin, Texas | 33.95 / -96.37 | 0.182 | inside Oklahoma | [1984 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1984_c20260527.csv.gz), row 6050 |
 | `ncei:10144750` | Fannin, Texas | 34.15 / -96.32 | 0.356 | inside Oklahoma | [1983 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1983_c20260323.csv.gz), row 7289 |
-| `ncei:10149563` | Walla Walla, Washington | 45.9 / -118.6 | 0.101 | inside Oregon | [1964 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1964_c20260323.csv.gz), row 2309 |
 | `ncei:5606609` (already reviewed) | Nespelem, Washington | 48.17 / -12.42 | 104.519 | in no state | [1997 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz), row 9014 |
 | `ncei:5606610` (already reviewed) | Nespelem, Washington | 48.17 / -12.42 | 104.519 | in no state | [1997 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1997_c20260323.csv.gz), row 9015 |
 | `ncei:10148750` | Ohio, West Virginia | 39.55 / -82.33 | 0.602 | inside Ohio | [1961 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1961_c20260323.csv.gz), row 2061 |
@@ -100,6 +100,17 @@ The 66 records with a start more than 0.1 degrees outside their labeled state, i
 | `ncei:10161755` (already reviewed) | Goshen, Wyoming | 18.3 / -66.1 | 44.224 | inside Puerto Rico | [1969 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1969_c20260323.csv.gz), row 2055 |
 | `ncei:10161769` (already reviewed) | Goshen, Wyoming | 18.2 / -65.3 | 44.964 | in no state | [1969 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1969_c20260323.csv.gz), row 2069 |
 | `ncei:10162873` (already reviewed) | Platte, Wyoming | 18.4 / -67.25 | 43.189 | in no state | [1972 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1972_c20260323.csv.gz), row 1417 |
+
+## Starts at the threshold, not marked
+
+The 2 records whose start lies more than 0.1 degrees outside the labeled state, in group 1 or group 3, but by a margin of less than 0.01 degrees. Neither record has a flagged end.
+
+`ncei:10149563` lies south of Washington where the state line follows the 46th parallel, so its distance to the actual state line is 0.100 degrees and the extra 0.001 comes from the generalized boundary. `ncei:9999122` lies in water near the Alabama line, which is the shoreline case described under Limits.
+
+| Source record | Source place label | Reported start, latitude / longitude | Degrees outside | Where it lies | Annual release and logical CSV record |
+| --- | --- | --- | --- | --- | --- |
+| `ncei:9999122` | Escambia, Florida | 30.18 / -87.5 | 0.102 | in no state, nearest Alabama | [1991 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1991_c20260323.csv.gz), row 6576 |
+| `ncei:10149563` | Walla Walla, Washington | 45.9 / -118.6 | 0.101 | inside Oregon | [1964 release](https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d1964_c20260323.csv.gz), row 2309 |
 
 ## Flagged ends, not marked
 
@@ -164,7 +175,7 @@ A degree is a screening unit, not a ground distance. 0.1 degrees of latitude is 
 
 A 1:500,000 cartographic file generalizes rivers and coastlines and clips states at the shoreline. Positions on a coast, a bay or a lake fall outside every state for that reason alone, which is why group 2 is listed and not disputed.
 
-Two disputed starts pass the threshold by less than the boundary file can resolve. `ncei:10149563`, Walla Walla, Washington, at 45.9 / -118.6, is 0.101 degrees inside Oregon, where the state line follows the 46th parallel, so its true distance is 0.100. `ncei:9999122`, Escambia, Florida, at 30.18 / -87.5, is 0.102 degrees out in water near the Alabama line, which is the shoreline case above. They meet the rule as the screen applies it, so they are disputed, but a reviewer could fairly move either one to the unmarked lists. The third decimal in these tables is the screen's arithmetic, not the precision of the boundaries.
+The third decimal in these tables is the screen's arithmetic, not the precision of the boundaries. That is why a start must clear the threshold by at least 0.01 degrees before it is disputed. The two starts that miss that margin are listed and not marked. The margin is a judgment about a generalized file, not a measured accuracy of the boundaries, and it moves no other record: the next closest disputed start is 0.116 degrees outside.
 
 A start that lies on the wrong side of a state line by less than 0.1 degrees is not flagged. A start inside the right state but in the wrong county is not tested. County attribution, the order of a record's two positions and the distance between them are outside this screen.
 
@@ -174,4 +185,4 @@ Records with no reported position are not screened. They stay searchable as befo
 
 ## Publication
 
-The browser catalogue was exported again from the same database as the 2012 revision. Exporting with the earlier reviews reproduced the published files byte for byte before the new entries were added. With them, 56 index rows gain `location_quality` `disputed`, the 51 detail files that hold those records are written under new names beside the existing ones, and the archive index points to the new detail files. No record is added or removed, and no source value changes.
+The browser catalogue was exported again from the same database as the 2012 revision. Exporting with the earlier reviews reproduced the published files byte for byte before the new entries were added. With them, 54 index rows gain `location_quality` `disputed`, the 49 detail files that hold those records are written under new names beside the existing ones, and the archive index points to the new detail files. The two starts at the threshold sit in detail files that no new entry touches, so those files keep their published names. No record is added or removed, and no source value changes.
