@@ -4,11 +4,11 @@
   "dossier_sha256": "22697c0e0b3bcdf5fce7b4ff7fb4e73e05186ae129d5fa65dc4830b982fe591e",
   "survey": {
     "sha256": "3a9ed08ced2485b3e64ec7fa1ae6da5d4e9c84a1226a7c906407de04989000c6",
-    "basis": "Maintained NWS Birmingham agency map with all198 untimed accounts and8 separately identified estimated areas. Composite item/layer/FID identities, original fields, repeated coordinates, outside records and unknown units remain separate. No replay, impact clock, funnel boundary or calibrated historical wind/damage model."
+    "basis": "Maintained NWS Birmingham agency map with all 198 untimed accounts and 8 separately identified estimated areas. Composite item/layer/FID identities, original fields, repeated coordinates, outside records and unknown units remain separate. No replay, impact clock, funnel boundary or calibrated historical wind/damage model."
   },
   "layers": {
     "geography": {
-      "basis": "Approximate reported endpoints, county associations and later satellite context retain their source scope. They do not supply a surveyed continuous route or minute-by-minute positions. The independently qualified NWS estimated footprint is linked separately from the retained county endpoints. Static surveyed extent adds no geographic replay or camera registration. The2022 paper reports a camera location and approximate distance to the damage-path centerline. This source context remains distinct from calibrated frame viewpoint and independently surveyed accuracy.",
+      "basis": "Approximate reported endpoints, county associations and later satellite context retain their source scope. They do not supply a surveyed continuous route or a position for each minute. The independently qualified NWS estimated footprint is linked separately from the retained county endpoints. Static surveyed extent adds no geographic replay or camera registration. The 2022 paper reports a camera location and approximate distance to the centerline of the damage path. This source context remains distinct from calibrated frame viewpoint and independently surveyed accuracy.",
       "observations": [
         "one-track-many-records",
         "survey-start",
@@ -23,7 +23,7 @@
       ]
     },
     "appearance": {
-      "basis": "The complete published three-panel Figure6 preserves actual Tuscaloosa tornado video frames with estimated time labels. These documentary views have no registered historical interval, camera calibration or physical scale. The existing John Brown and Jason Rosolowski recordings retain their separate documentary context. Aftermath and satellite images retain their different roles. Four2022 paper-selected Rosolowski panels retain printed relative labels, an editorial7degree correction for b, and unknown current-edition exposure correspondence. No2022illustration is hosted or UTC alignment added.",
+      "basis": "The complete published Figure 6, in three panels, preserves actual Tuscaloosa tornado video frames with estimated time labels. These documentary views have no registered historical interval, camera calibration or physical scale. The existing John Brown and Jason Rosolowski recordings retain their separate documentary context. Aftermath and satellite images retain their different roles. Four Rosolowski panels selected in the 2022 paper retain printed relative labels, an editorial correction of 7 degrees for b, and unknown exposure correspondence with the current edition. No 2022 illustration is hosted or UTC alignment added.",
       "observations": [
         "rosolowski-2022-panel-a",
         "rosolowski-2022-panel-b",
@@ -35,7 +35,7 @@
       ]
     },
     "damage": {
-      "basis": "Written survey progression, field-study methods and aftermath images retain distinct capture and event clocks. The field-survey collection clock is not tornado arrival time. The source-derived map and198 individual accounts preserve local ratings, coincident identities and outside-footprint records. Existing aftermath photographs are not attached to accounts by proximity.",
+      "basis": "Written survey progression, methods of the field study and aftermath images retain distinct capture and event clocks. The collection clock of the field survey is not tornado arrival time. The 198 individual accounts and the map derived from the source preserve local ratings, coincident identities and records outside the footprint. Existing aftermath photographs are not attached to accounts by proximity.",
       "observations": [
         "tuscaloosa-damage-progression",
         "holt-brookwood-progression",

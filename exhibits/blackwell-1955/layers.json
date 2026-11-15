@@ -12,12 +12,12 @@
       ]
     },
     "appearance": {
-      "basis": "No reviewed storm-time visual sequence is linked in this dossier. Its damage map, warning bulletins and later memorial retain their documentary roles.",
+      "basis": "No reviewed visual sequence from the time of the storm is linked in this dossier. Its damage map, warning bulletins and later memorial retain their documentary roles.",
       "observations": [],
       "media": []
     },
     "damage": {
-      "basis": "Keep the interpreted damage map, debris-direction account, archive captions and separately inspected small online versions distinct. A caption record does not establish pixel inspection. The preview records describe visible aftermath without surveyed damage classification or historical registration.",
+      "basis": "Keep the interpreted damage map, account of debris direction, archive captions and separately inspected small online versions distinct. A caption record does not establish pixel inspection. The preview records describe visible aftermath without surveyed damage classification or historical registration.",
       "observations": [
         "blackwell-debris-directions",
         "ou-flora62-railroad-yard-caption",
@@ -30,7 +30,7 @@
       ]
     },
     "gaps": {
-      "basis": "Reported clock and injury disagreements remain unresolved. The Flora captions were qualified as text on October 6, 2026. The complete returned small online versions were inspected on October 10, 2026. Complete original-print coverage, capture clocks, precise scene locations and camera geometry remain unresolved. Permission to host or alter the images is not established. A source date label is not a calibrated capture clock.",
+      "basis": "Reported clock and injury disagreements remain unresolved. The Flora captions were qualified as text on October 6, 2026. The complete returned small online versions were inspected on October 10, 2026. Complete coverage of the original prints, capture clocks, precise scene locations and camera geometry remain unresolved. Permission to host or alter the images is not established. A source date label is not a calibrated capture clock.",
       "observations": [
         "ou-flora62-railroad-yard-caption",
         "ou-flora67-fire-response-caption",

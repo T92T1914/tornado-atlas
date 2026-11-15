@@ -10,12 +10,12 @@
       "media": []
     },
     "appearance": {
-      "basis": "The two inspected photographs show the following-day aftermath. They do not establish storm-time appearance, a registered camera or a historical appearance interval. No appearance layer is classified by this record.",
+      "basis": "The two inspected photographs show the aftermath on the following day. They do not establish appearance at the time of the storm, a registered camera or a historical appearance interval. No appearance layer is classified by this record.",
       "observations": [],
       "media": []
     },
     "damage": {
-      "basis": "The limited NIST reconnaissance keeps teacher interviews, surveyed building outcomes and proposed structural explanations distinct. The two agency survey photographs retain their following-day context and item-specific inspection and rights records. The Briarwood photograph is not registered to Building 400 or its refuge spaces. These records supply no measured local wind, calibrated failure sequence, exact collapse time or shelter certification.",
+      "basis": "The limited NIST reconnaissance keeps teacher interviews, surveyed building outcomes and proposed structural explanations distinct. The two agency survey photographs retain their context from the following day and their inspection and rights records for each item. The Briarwood photograph is not registered to Building 400 or its refuge spaces. These records supply no measured local wind, calibrated failure sequence, exact collapse time or shelter certification.",
       "observations": [
         "facility-reconnaissance-scope",
         "medical-center-function",
@@ -29,7 +29,7 @@
       ]
     },
     "gaps": {
-      "basis": "The unsynchronized siren computer, Briarwood's site-rating revision, differing classifications of the earlier Newcastle damage and following-day survey-photo provenance retain their separate source scopes. No clock offset, additional tornado, revised whole-track maximum, camera calibration or transferred image permission is inferred. The current pinned dossier preserves all other recorded limits.",
+      "basis": "The unsynchronized siren computer, the revision of Briarwood's site rating, differing classifications of the earlier Newcastle damage and the provenance of the survey photographs from the following day retain their separate source scopes. No clock offset, additional tornado, revised maximum for the whole track, camera calibration or transferred image permission is inferred. The current pinned dossier preserves all other recorded limits.",
       "observations": [
         "reported-siren-clock",
         "briarwood-rating-revision",
