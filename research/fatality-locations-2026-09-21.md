@@ -42,7 +42,7 @@ The original NWS assessment and source link remain attached. No rating or
 photograph attribution has been changed.
 
 The reusable relationship uses survey points with photographs within 250 meters,
-ordered by distance. This radius supports navigation; it is not an uncertainty
+ordered by distance. This radius supports navigation. It is not an uncertainty
 radius for the incident or proof of photographic identity. Damage filters do
 not suppress evidence in an already selected fatality card.
 
@@ -52,10 +52,10 @@ Local checks passed: 110 Python tests, 76 JavaScript tests and exhibit integrity
 The new tests cover the spatial photo association without mutating survey
 identity, and require source details in location reviews. Browser checks
 confirmed the photograph loads, opens at full size and retains its context.
-The 390-pixel phone check exposed excess space around landscape photographs in
+The phone check at 390 pixels exposed excess space around landscape photographs in
 the enlarged viewer. Images now keep their natural aspect ratio within the
 height limit, leaving more room for their captions. Clair and Obscur both use
 the active theme background.
 Link audit coverage is 510 distinct URLs: 498 reachable, 12 access unresolved,
-none confirmed missing. This was an incremental audit; each entry retains its
+none confirmed missing. This was an incremental audit, and each entry retains its
 own check time. Reachability is not source validation.

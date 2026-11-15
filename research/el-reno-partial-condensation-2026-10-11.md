@@ -4,17 +4,17 @@
 
 The source is Wakimoto and colleagues' 2015 photogrammetric analysis,
 [DOI 10.1175/MWR-D-15-0034.1](https://doi.org/10.1175/MWR-D-15-0034.1).
-The inspected 27-page eScholarship PDF is 9,933,086 bytes with SHA-256
+The inspected eScholarship PDF has 27 pages and is 9,933,086 bytes with SHA-256
 `b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9`.
-This identifies the acquired publication edition, not a camera-original file
+This identifies the acquired publication edition, not an original camera file
 or the bytes of an isolated photograph.
 
 On October 11, 2026 UTC, root and an independent reviewer inspected the complete
 retained rendering of Figure 5(a) on PDF page 10 and complementary Figure 13(a)
 on page 23. Figure 5(a) reports 23:24:41 UTC on May 31, 2013. Its label gives
 offset 1241 from the existing 23:04 UTC replay start. Figure 13(a) carries the
-same whole-second label. This does not establish that both are the same
-camera-original exposure. The sample uses Figure 5(a); Figure 13(a) supplies
+same label to the whole second. This does not establish that both are the same
+original camera exposure. The sample uses Figure 5(a). Figure 13(a) supplies
 complementary context rather than another admitted observation.
 
 The photograph resolves a broad dark central/right condensation body and a
@@ -25,10 +25,10 @@ discern, with an interpreted dotted line. Atlas does not treat that annotation
 as a resolved contour or reproduce it. Figure 13's illuminated dust/debris
 context does not determine closed particle boundaries or their velocities.
 
-The source's approximately 500 m estimate at the 2-degree level belongs to the
+The source's estimate of approximately 500 m at the 2 degree level belongs to the
 reported 23:24:38 to 23:24:50 UTC comparison, not every pixel of this view. Atlas
 has not recovered the original photographic files, all calibration inputs or
-an independently checked capture-clock error. Published center range and
+an independently checked error in the capture clock. Published center range and
 angular method accuracy do not supply a complete camera projection, height,
 depth or a measured display contour.
 
@@ -70,8 +70,8 @@ numeric historical camera fields remain null. The renderer uses no ground grid,
 particle funnel, historical camera projection or orbit dependence in this mode.
 
 The Python publication validator and shared JavaScript geometry validator reject
-invalid version/field combinations, full-contour claims, repeated or collapsed
-vertices, self-intersection, nonadjacent contact, doubleback, nonfinite values
+invalid version/field combinations, claims of a full contour, repeated or collapsed
+vertices, an outline that crosses itself, nonadjacent contact, doubleback, nonfinite values
 and vanishing display area. Those checks establish software admission, not source
 authentication or historical correspondence. Replay manifest version 2 remains
 unchanged.
@@ -84,8 +84,8 @@ source reading and original links remain useful without graphics.
 ## Executed private checks and remaining acceptance
 
 The affected model/package checks passed 52 Python tests, 192 Node tests and four
-script syntax checks. Two earlier attempts failed a stale current-coverage count;
-those failures were retained and corrected to seven photos, three sequences and
+script syntax checks. Two earlier attempts failed a stale count of current coverage.
+Those failures were retained and corrected to seven photos, three sequences and
 three partial forms without changing the other synthetic fixtures.
 
 The first integrated Chrome run passed 24 affected browser cases, including four
@@ -95,35 +95,35 @@ was approximately 4.01:1, and the omitted lower region was transparent. Source
 and limits reading at doubled computed text size, exact/fractional gaps, history,
 reload, playback clearing and graphics loss/restoration passed. The renderer
 issued filled triangles with zero grid lines or particles. Actual interior pixels
-were checked separately from draw-call counts.
+were checked separately from counts of draw calls.
 
-A second integrated Chrome run, including the new article-to-replay entry,
+A second integrated Chrome run, including the new entry from the article into the replay,
 passed all 24 affected cases without skips. Independent review accepted the
-current integrated output for the same bounded source-use, coarse appearance
-and inspected reading scope. Exact-revision CI, main/Pages and frozen public
+current integrated output for the same bounded scope of source use, coarse appearance
+and inspected reading. CI at the exact revision, main/Pages and frozen public
 acceptance remain required.
-No real visitor feedback, physical phone use, spoken screen-reader operation or
-whole-page appearance correspondence was established. Automated widths and text
+No real visitor feedback, physical phone use, operation with spoken screen reader output or
+appearance correspondence for the whole page was established. Automated widths and text
 checks are browser evidence.
 
-At the first filled-view boundary, coverage was seven sparse optical instants
-across three sequences, with two partial margins and this one partial filled body. Continuous registered
-interval count remains zero; the dossier appearance classification remains
+At the boundary of the first filled view, coverage was seven sparse optical instants
+across three sequences, with two partial margins and this one partial filled body. The count of continuous registered
+intervals remains zero. The dossier appearance classification remains
 unregistered. A complete evolving likeness, the first defensible appearance
 interval and a historically supported damage model remain required outcomes.
 
-## Specific source-use basis
+## Specific basis for source use
 
-AMS copyright remains recorded, with no figure-republication or blanket derivative
-grant established. The original figures stay at the external publication. This
+AMS copyright remains recorded, with no grant established for republishing figures
+or for blanket derivatives. The original figures stay at the external publication. This
 change publishes independently authored factual mathematical interpretation and
 attributed source links, with its specific construction and actual output reviewed.
 It does not host the source figures or private comparison captures. This decision
 does not authorize other expressive figure uses. The original NWS aftermath
-photograph and source-qualified size estimates retain their separately reviewed
+photograph and size estimates qualified against their sources retain their separately reviewed
 hosting, definitions and uncertainty.
 
 The subsequent [second partial body](el-reno-later-partial-body-2026-10-11.md)
 retains this first observation and replaces the 23:25:01 margin with its own
-source-compared partial body. The 23:25:09 margin remains. Those separate
+partial body compared against the source. The 23:25:09 margin remains. Those separate
 interpretations supply no recovered motion between photographs.

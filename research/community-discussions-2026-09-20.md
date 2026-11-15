@@ -29,17 +29,18 @@ user profiles were copied into the exhibit, and no messages were posted.
 The primary paper is a 2014 AMS conference manuscript by Marshall and
 colleagues. Selected sections were read, not every figure or page continuously.
 The source URL and precise coverage are stored in the exhibit data. Its Figure
-1 also offers a promising timed ground-photo lead for future registration;
-reuse rights and camera geometry still need work before a local reproduction.
+1 also offers a promising lead to a timed photograph from the ground for future
+registration. Reuse rights and camera geometry still need work before a local
+reproduction.
 
 ## Editorial rules for the next exhibits
 
 Community posts, videos and eyewitness accounts can contribute different kinds
 of evidence. A creator's original recording can establish a visible feature
-within the inspected shot; the creator's rating opinion is a separate claim.
-Record the video timestamp, historical-clock alignment, viewpoint, edits and
-inspection coverage. Do not attribute a statement to a creator because a
-commenter says they made it. A transcript alone does not verify the image.
+within the inspected shot. The creator's rating opinion is a separate claim.
+Record the video timestamp, alignment with the historical clock, viewpoint,
+edits and inspection coverage. Do not attribute a statement to a creator because
+a commenter says they made it. A transcript alone does not verify the image.
 
 Follow specific leads to survey reports, original footage, measurement methods
 or identifiable eyewitness testimony. Track disagreement and access failures.
@@ -50,11 +51,12 @@ Do not promote a claim merely because it sounds plausible or is often repeated.
 Keep useful uncertainty visible. Correct the factual history only when the
 supporting record warrants it, preserving the previous claim and reason for
 revision. The source validation code checks citation structure and access
-status; it cannot establish that an editorial conclusion is scientifically true.
+status. It cannot establish that an editorial conclusion is scientifically true.
 
 ## Software checks
 
-Six tests cover collection integrity, wrong-event data, unsupported conclusion
-labels, forum-only evidence, missing or unread citations, duplicate references,
-unsafe URLs and review dates. Discussion rendering uses text nodes and curated
-HTTPS links. No discussion text becomes HTML or executable instructions.
+Six tests cover collection integrity, data from the wrong event, unsupported
+conclusion labels, evidence found only in forums, missing or unread citations,
+duplicate references, unsafe URLs and review dates. Discussion rendering uses
+text nodes and curated HTTPS links. No discussion text becomes HTML or
+executable instructions.

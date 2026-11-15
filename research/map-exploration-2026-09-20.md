@@ -2,8 +2,8 @@
 
 ## What changed
 
-The atlas, historical path and damage survey now share pointer-centered wheel
-zoom, dragging, pinch gestures and keyboard navigation. Zoom buttons remain
+The atlas, historical path and damage survey now share wheel zoom centered on
+the pointer, dragging, pinch gestures and keyboard navigation. Zoom buttons remain
 available. A drag does not select the point underneath it. Ctrl plus wheel
 remains available for browser zoom. Path points now seek the timeline to their
 published time, and their size stays readable as the viewport or map scale
@@ -29,10 +29,10 @@ A contents list links all eleven sections.
 
 | Source | Access used for this update | Use and limit |
 | --- | --- | --- |
-| [Bluestein and colleagues, 2019](https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf) | Consensus abstract, then the NOAA-hosted paper's abstract and opening methods | Describes the observed sequence of near-ground circulation and a deeper vortex. This is not a claim that every section or figure was reviewed. |
+| [Bluestein and colleagues, 2019](https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf) | Consensus abstract, then the abstract and opening methods of the paper hosted by NOAA | Describes the observed sequence of circulation near the ground and a deeper vortex. This is not a claim that every section or figure was reviewed. |
 | [Bluestein and colleagues, 2018](https://doi.org/10.1175/MWR-D-18-0073.1) | Consensus abstract and indexed publisher metadata | Describes sampled secondary vortices and the stated axisymmetry assumption. Direct publisher full text was not available in this session. |
 | [Wakimoto and colleagues, 2016](https://doi.org/10.1175/MWR-D-15-0367.1) | Complete opening sentences of a truncated Consensus abstract | Supports the connection between an aerial damage swath, photographs and radar. No conclusion was reconstructed from the truncated text. |
-| [NWS May 31 event account](https://www.weather.gov/oun/events-20130531) | Event page | Separates the eight direct El Reno tornado deaths from the event's later flash-flood deaths. |
+| [NWS May 31 event account](https://www.weather.gov/oun/events-20130531) | Event page | Separates the eight direct El Reno tornado deaths from the event's later flash flood deaths. |
 | [Wikipedia overview](https://en.wikipedia.org/wiki/2013_El_Reno_tornado) | Article | A reference trail and overview. Its numbers and times do not silently replace records with different scope or conflicting endpoints. |
 | [TornadoTRX documentary](https://www.youtube.com/watch?v=Ppw0W5IXNAI) | Returned English caption text, about 29,800 characters | The text lacks segment timestamps, has inconsistent names and ends abruptly. It was reviewed as a partial transcript, not a complete audiovisual viewing. No precise photo or camera alignment is derived from it. |
 

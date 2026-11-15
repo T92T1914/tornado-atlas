@@ -6,7 +6,7 @@ labs. It does not finish a historical reconstruction or a structural simulator.
 ## The evidence that can move with the clock
 
 The [NWS event page](https://www.weather.gov/oun/events-20130531) publishes an
-[NWRT phased-array reflectivity animation](https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif).
+[NWRT phased array reflectivity animation](https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif).
 The retrieved GIF contains 242 frames at 597 by 599 pixels. Twelve full frames
 were exported without cropping or recoloring, preserving the printed filename
 and reflectivity legend. Each selected label was visually read, not inferred
@@ -68,7 +68,7 @@ every tornado follows those stages. It does not solve fluid motion.
 
 ## The component experiment
 
-The wind lab now evaluates a user-assumed load capacity alongside its existing
+The wind lab now evaluates a load capacity the user assumes alongside its existing
 moving Rankine field. At each sampled time it computes
 `F = 0.5 * density * speed^2 * area * drag_coefficient`. Failure occurs at the
 first sample where `F > capacity`, and remains set for all later samples. Equality
@@ -81,14 +81,14 @@ coefficient. The capacity rule and its default of 1 kN are our explicit teaching
 assumptions. There is no measured building type behind that default.
 
 The [NIST TN 2242 publication abstract](https://www.nist.gov/publications/tornado-wind-speed-maps-building-design-research-and-development-tornado-risk)
-describes probabilistic load and resistance modeling with 44 three-dimensional
-residential models and broad wind-speed distributions. The abstract was read;
-the full technical note was not reviewed in this pass. It gives context for how
+describes probabilistic load and resistance modeling with 44 residential models
+in three dimensions and broad wind speed distributions. The abstract was read.
+The full technical note was not reviewed in this pass. It gives context for how
 much more a validated structural model requires, not validation of our rule.
 
 The experiment omits pressure coupling, deformation, fatigue, changing exposed
 area and debris impacts. It begins with an intact component at the first sample
-and can miss between-sample peaks. The detached-panel drawing is a state symbol,
+and can miss peaks between samples. The drawing of a detached panel is a state symbol,
 not a calculated debris trajectory. No EF category or structural safety outcome
 is inferred from it.
 

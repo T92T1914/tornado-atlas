@@ -19,17 +19,18 @@ is credited as compiler, not established photographer of these selected images.
 | Joplin High School | [KXXgtHdF_en4ssVYWzmEc.jpeg](https://www.arcgis.com/sharing/rest/content/items/d64c8d41c28949bd87478f252ac7e378/resources/KXXgtHdF_en4ssVYWzmEc.jpeg) | 1024 by 768 | `34121880416d15911ec9cc29957eb04a4961dcfb4528a597b63f729c39678da1` |
 
 The hospital item is image node `n-rqrZkA`, resource `r-i9Qn1h`, in carousel
-`n-ZMxKzt` and guided-tour place 1. The school item is node `n-LgSNwt`, resource
+`n-ZMxKzt` and place 1 of the guided tour. The school item is node `n-LgSNwt`, resource
 `r-p5Yzjt`, in carousel `n-wC0TX4` and place 3. Both belong to tour `n-ZjUQlo`
 under story root `n-sibz0D`. The retained selected resource, image, carousel and
 place records contain no separate credit or rights override.
 
 The metadata was retained on October 13, 2026, with SHA256
 `df78c412cad3084025e47bd5a9873640f3d39bf55d62d747a09003d3128b313b`.
-The source-data SHA256 is
+The SHA256 of the source data is
 `158c90db79ff889f6b3ceb6b12e139bb76248e61d5976717f99cf7186efe6bc1`.
 Agents inspected both complete saved images and their selected ancestry.
-This is not a new full StoryMap review or camera-file authentication.
+This is not a new full review of the StoryMap or an authentication of camera
+files.
 
 ## What each view can explain
 
@@ -40,18 +41,18 @@ had no structural damage comes from the separate NIST investigation, which
 also preserves its missing occupancy evidence. The agency's adjacent bus
 account is not a visible feature of this selected photograph.
 
-The hospital image shows damaged windows and roof-level structures behind
+The hospital image shows damaged windows and structures at roof level behind
 wrecked and overturned vehicles and debris. It supplies wider aftermath
 context. It cannot establish the condition of internal services, generator
 failure, the order of failures or an occupant outcome. NIST's findings about
 structure, enclosure and function remain separately attributed.
 
 These views are not a controlled comparison of construction or wind exposure.
-Neither is a wind measurement, timed collapse record or tornado-body image.
+Neither is a wind measurement, timed collapse record or image of the tornado itself.
 
 ## Reuse and publication
 
-The agency metadata declares NOAA-produced data public domain in the United
+The agency metadata declares data produced by NOAA public domain in the United
 States and dedicated worldwide through [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 The selected uncredited resources were qualified on that declared basis.
 Other StoryMap material explicitly credited to Tim Marshall or the City of
@@ -62,7 +63,7 @@ implied.
 Atlas preserves the complete published JPEG bytes under `.jpg` asset names.
 The filenames change, but the image bytes do not. No crop, resize, enhancement,
 recoloring, metadata removal or recompression is performed. These are preserved
-agency-published resources, not authenticated camera originals.
+resources published by the agency, not authenticated camera originals.
 
 ## Clocks, position and reconstruction
 

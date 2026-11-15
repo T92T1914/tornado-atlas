@@ -1,9 +1,9 @@
 # Historical playback and recorded camera viewpoints
 
-The El Reno exhibit now uses one second-level historical clock for the path,
-radar panel and a selected camera track. It begins paused. Playback rates are
-1×, 15×, 60× and 120×, with 60× selected initially. At 60×, the 38-minute map
-interval takes 38 seconds. Scrubbing, selecting a chapter or camera sample,
+The El Reno exhibit now uses one historical clock, resolved to the second, for
+the path, radar panel and a selected camera track. It begins paused. Playback rates are
+1×, 15×, 60× and 120×, with 60× selected initially. At 60×, the map interval of 38
+minutes takes 38 seconds. Scrubbing, selecting a chapter or camera sample,
 opening the timeline image viewer, and hiding the tab pause playback.
 
 ## What the camera source supplies
@@ -20,14 +20,15 @@ Seventeen occur within the NWS map interval, 23:04 through 23:42 UTC. Camera
 The selected literal is preserved in `camera-marshall-literal.txt`. Its hash,
 the full metadata response hash, retrieval date, locator and attribution are
 in `cameras.json`. The importer reads a bounded array as data, without running
-downloaded JavaScript. CI validates the checked-in excerpt without network
-access. The browser receives derived sample objects in `web/data.json`.
+downloaded JavaScript. CI validates the excerpt checked into the repository
+without network access. The browser receives derived sample objects in `web/data.json`.
 
-The source viewer's `ted-elreno.js` assigns camera azimuth to a forward-arrow
-rotation. This exhibit displays clockwise north bearings on its north-up map.
+The source viewer's `ted-elreno.js` assigns camera azimuth to the rotation of a
+forward arrow. This exhibit displays bearings clockwise from north on its map,
+which has north at the top.
 This is an interpretation of the published fields and viewer, not an
 independent check of the camera's angular calibration. The arrow is a screen
-symbol with no distance, field-of-view or visibility meaning.
+symbol with no meaning for distance, field of view or visibility.
 
 ## Display rules and gaps
 
@@ -36,7 +37,7 @@ adjacent NWS minute positions. Published observations and interpolated positions
 have different labels. The source GeoJSON stays unchanged, and the browser
 does not extrapolate before the first or after the last position. The complete
 event outline remains a static survey outline, not the tornado's instantaneous
-size or shape. Second-level display precision is not second-level source accuracy.
+size or shape. Display precision to the second is not source accuracy to the second.
 
 The camera marker uses only the latest preceding sample. It stays at that
 recorded location and displays its age for at most 90 seconds. That interval is
@@ -46,7 +47,7 @@ future samples. Missing periods remain visibly empty.
 
 For example, the 6:24:20 PM sample is too old at 6:26. The next sample is not
 until 6:27:31. This track therefore cannot provide a camera position for the
-6:26 photo discussed in the earlier survey-paper research. The metadata's
+6:26 photo discussed in the earlier research on the survey paper. The metadata's
 Schyma track only spans an early interval and has not been used to place the
 later Pecos Hank notebook clips. No ground photograph or video frame has been
 matched to the Marshall track in this update.
@@ -65,21 +66,21 @@ and seek, exact endpoints, no extrapolation, preservation of all published
 positions, exact camera sample seeks, rejected malformed data and source
 tampering, camera gaps and azimuth orientation. Local browser checks cover
 keyboard scrubbing, coupled sliders, ending playback, missing camera periods,
-image-node preservation and a 390-pixel viewport.
+preservation of image nodes and a viewport 390 pixels wide.
 
-The next reconstruction step is a small, explicitly registered ground-view
-sequence with usable source footage, permission for any reproduced frames,
+The next reconstruction step is a small, explicitly registered sequence of
+ground views with usable source footage, permission for any reproduced frames,
 and stated timing and viewpoint uncertainty. A camera track alone cannot
 supply the visible funnel, rain curtain or debris evolution.
 
 ## Shared spatial replay context, September 24
 
-The spatial replay now uses the same observer-selection model as the documentary
-map. The layer begins hidden. Choosing one of the 17 in-window samples enables
+The spatial replay now uses the same model for selecting observers as the
+documentary map. The layer begins hidden. Choosing one of the 17 samples within the window enables
 it and pauses the shared historical clock at that exact second. A square marks
 the published location, with an arrow for the reported bearing. Turning the
 scene changes the arrow's projected direction. Its fixed screen length has no
-distance or field-of-view meaning.
+meaning for distance or field of view.
 
 The controls distinguish an exact sample from a held sample, an expired sample
 and a hidden layer. They show the source time, bearing and age. Camera positions
@@ -103,7 +104,7 @@ rate changes and long frame gaps. Projection checks include north/east bearings,
 orbit changes, fixed symbol length and a close view where a visible observer's
 direction crosses the near plane. The browser tests exercise both appearances
 at 1280 and 390 pixels, keyboard focus, sample selection during playback, layer
-switching, a camera-free package and the documentary map's matching age rules.
+switching, a package without camera data and the documentary map's matching age rules.
 They run in isolated headless browsers with external requests blocked. This
-checks the local interface, not physical-phone behavior, screen-reader output,
-source-host availability or historical camera calibration.
+checks the local interface, not behavior on a physical phone, output from a screen
+reader, availability of the source host or historical camera calibration.

@@ -1,6 +1,6 @@
 # Nonzero background wind and one assumed connection
 
-This benchmark checks the existing moving-vortex and component functions against independent algebra. A 20 mph eastward background adds to the swirl south of the track and subtracts from it north of the track. The same chosen component can exceed its capacity on one side and stay below it on the other. This is an implementation check for assumed inputs, not a calibrated historical damage model.
+This benchmark checks the existing functions for the moving vortex and the component against independent algebra. A 20 mph eastward background adds to the swirl south of the track and subtracts from it north of the track. The same chosen component can exceed its capacity on one side and stay below it on the other. This is an implementation check for assumed inputs, not a calibrated historical damage model.
 
 ## Reproduce the visitor case
 
@@ -8,11 +8,11 @@ Open the wind study. Keep peak swirl at 100 mph, core radius at 500 ft, travel a
 
 At the default 480 steps, the southern case first exceeds capacity at sample index 206. Index 205 remains below capacity. Rewinding to 205 restores the earlier intact state. The northern case never exceeds capacity in the sampled window. Both passage sliders inspect the same clock.
 
-The separate comparison-speed control defaults to 50 mph. Its reported duration measures time above that chosen speed. It does not measure the time force exceeds 1.6 kN. Nor does the component's persistent failed state measure that exceedance interval.
+The separate control for comparison speed defaults to 50 mph. Its reported duration measures time above that chosen speed. It does not measure the time force exceeds 1.6 kN. Nor does the component's persistent failed state measure that exceedance interval.
 
 ## Independent reference
 
-Let V be peak swirl, B the eastward background, R the core radius, U travel speed, beta the signed cross-track offset in core radii, and s = -Ut/R. The selected beta values have magnitude below 1. The squared speed is:
+Let V be peak swirl, B the eastward background, R the core radius, U travel speed, beta the signed offset across the track in core radii, and s = -Ut/R. The selected beta values have magnitude below 1. The squared speed is:
 
 ~~~text
 Inside the core:  v² = (B - V beta)² + V² s²
@@ -31,15 +31,15 @@ Use SI values V=44.704m/s, B=8.9408m/s, R=152.4m, U=13.4112m/s, density=1.225kg/
 
 The southern exceedance occupies two open intervals, approximately (-9.7083177752,-6.0053443962) and (6.0053443962,9.7083177752) seconds from closest approach. A sampled persistent failure starts at the first failing sample and stays failed thereafter.
 
-The test independently evaluates every speed and force at 480, 960, 1,920 and 3,840 steps on both sides, with 14,408 sample pairs in total. It checks the first failing index, sampled peak, persistent state, onset lag and interpolated exceedance duration. The first sampled failure may lag the continuous onset by at most one grid spacing. Its error need not decrease strictly at every refinement. Duration bounds come from the interpolation bracket and derivative bounds, with a one-cell fallback across the core kink. Continuous peaks differ from sampled peaks.
+The test independently evaluates every speed and force at 480, 960, 1,920 and 3,840 steps on both sides, with 14,408 sample pairs in total. It checks the first failing index, sampled peak, persistent state, onset lag and interpolated exceedance duration. The first sampled failure may lag the continuous onset by at most one grid spacing. Its error need not decrease strictly at every refinement. Duration bounds come from the interpolation bracket and derivative bounds, with a fallback of one cell across the core kink. Continuous peaks differ from sampled peaks.
 
 The reference equations and threshold roots were fixed independently of production outputs. They verify implementation of the same assumed model. They are not independent measurements of a tornado or a published physical benchmark.
 
 ## Consumer verification and scope
 
-Four native keyboard-control cases at 320 and 1280 pixels compare both sides, all 481 unrounded table rows and their six numerical cells against the independent equations. They also retain the existing same-engine pure-model/table checks. The southern 205/206 rewind and northern intact state have explicit assertions.
+Four native cases using keyboard controls at 320 and 1280 pixels compare both sides, all 481 unrounded table rows and their six numerical cells against the independent equations. They also retain the existing checks of the pure model against the table on the same engine. The southern 205/206 rewind and northern intact state have explicit assertions.
 
-Private numerical and local consumer checks passed before this repository integration. The integrated candidate still requires its own executed checks, review, exact-revision CI and affected deployed acceptance. Earlier receipts remain historical evidence.
+Private numerical and local consumer checks passed before this repository integration. The integrated candidate still requires its own executed checks, review, CI on the exact revision and affected deployed acceptance. Earlier receipts remain historical evidence.
 
 ~~~text
 node --test tests/wind-model.test.mjs tests/component-model.test.mjs tests/passage-clock-controls.test.mjs tests/passage-values.test.mjs tests/wind-numeric-acceptance.test.mjs
