@@ -5,7 +5,7 @@ The initial source collection is Pecos Hank, TornadoTRX and Swegle Studios. Each
 ## Organize around the event
 
 1. Record the video's stable ID, original title, uploader and URL. Keep the exact subject and event date unresolved until checked. El Reno 2011 and El Reno 2013 are separate events.
-2. Connect it to an event exhibit. One documentary can cover several tornadoes; one tornado can appear in many films. An outbreak is a separate grouping.
+2. Connect it to an event exhibit. One documentary can cover several tornadoes. One tornado can appear in many films. An outbreak is a separate grouping.
 3. Inspect the description, credits, corrections, citations and available captions. Record exactly what was accessed. Captions can be wrong and do not count as an audio audit.
 4. Review the film in bounded passages. Record elapsed video time, scene cuts, credited camera operator, location, viewpoint and visible features. Preserve uncertainty in each field.
 5. Match shots to independently supported historical times. Playback time can change through cuts, time lapse, slow motion and repeated footage. Do not align a whole documentary to the event with one constant offset.
@@ -15,11 +15,11 @@ The initial source collection is Pecos Hank, TornadoTRX and Swegle Studios. Each
 
 ## Review status
 
-* `metadata_only`: title or listing located; no watched-content claim.
+* `metadata_only`: title or listing located. No claim about watched content.
 * `description_checked`: event or other metadata checked on the watch page.
 * `partial_review`: specific text or visual intervals examined, with coverage recorded.
-* `full_review`: the entire specified video version examined; unresolved claims may remain.
-* `discrete_clock_anchors`: particular paused samples have a recorded source time and visible historical clock. This is temporal registration only; it does not establish camera location or continuous coverage.
+* `full_review`: the entire specified video version examined. Unresolved claims may remain.
+* `discrete_clock_anchors`: particular paused samples have a recorded source time and visible historical clock. This is temporal registration only. It does not establish camera location or continuous coverage.
 * `registered_observations`: particular shots have defensible temporal and spatial placement.
 
 These statuses describe work performed. They are not confidence scores or a quality ranking of creators.
@@ -44,7 +44,7 @@ The [2014 El Reno Survey Project abstract](https://ams.confex.com/ams/27SLS/webp
 ## Initial comparison cases
 
 * El Reno 2013: Pecos Hank footage and TornadoTRX's documentary, alongside NWS geographic evidence. The first preview implements the path, not a completed appearance reconstruction.
-* Blackwell 1955: Swegle's watch-page description confirms the subject. TornadoTRX's Blackwell title is a related lead. Compare historical testimony carefully before visualizing reported light phenomena.
+* Blackwell 1955: the description on Swegle's watch page confirms the subject. TornadoTRX's Blackwell title is a related lead. Compare historical testimony carefully before visualizing reported light phenomena.
 * Pilger: keep multiple vortices and tornado identities separate.
-* Argentina: find exact events from the footage before making country-level catalogue claims.
+* Argentina: find exact events from the footage before making catalogue claims at the country level.
 * Wizard of Oz: a possible visual methods reference, explicitly fictional.

@@ -41,7 +41,7 @@ The ground adds irregular parcels and boundary lines using the existing ground n
 
 The new replay presentation fits its complete 16:9 synthetic camera frame. It does not crop or recalibrate that camera. A larger active drawing region can cost more even when the backing dimensions remain capped. The earlier `storm-v1` framing remains attached to its explicit URL.
 
-The renderer computes constant exponential pullback factors on the CPU for each new-version draw and uploads them as Float32 uniforms. The surface and volume passes each upload these factors. Rotation, the spatial derivative and material sampling remain in the shader. This removes repeated exponential evaluations from the density probes, but does not establish an overall speed improvement. Comparable dispatch, completion and readback boundaries must be measured separately from capture cadence and encoding.
+The renderer computes constant exponential pullback factors on the CPU for each draw of the new version and uploads them as Float32 uniforms. The surface and volume passes each upload these factors. Rotation, the spatial derivative and material sampling remain in the shader. This removes repeated exponential evaluations from the density probes, but does not establish an overall speed improvement. Comparable dispatch, completion and readback boundaries must be measured separately from capture cadence and encoding.
 
 ## One analytic flow for material detail
 
@@ -76,7 +76,7 @@ The maximum primary budget remains 48 samples through the shared body region and
 alpha = 1 - exp(-3.6 * density * delta_s)
 ```
 
-Changing bin placement therefore also changes `delta_s`. Treating all nonuniform bins as if they had one equal length would assign the wrong optical thickness. Samples below the density cutoff and sufficiently opaque accumulated rays can end work early. The budget is a maximum, not a convergence or rendering-cost guarantee.
+Changing bin placement therefore also changes `delta_s`. Treating all nonuniform bins as if they had one equal length would assign the wrong optical thickness. Samples below the density cutoff and sufficiently opaque accumulated rays can end work early. The budget is a maximum, not a guarantee of convergence or rendering cost.
 
 The locally sampled cloud stops at the existing camera's far segment. A separate analytic tail represents the filtered mean cloud beyond that segment. The distant texture filter tends toward 0.5, and the central Gaussian lowering tends toward zero, giving a mean cloud base of 3.10. The vertical density rises with `smoothstep(2.84, 3.58, y)` and falls with `1 - smoothstep(4.9, 5.6, y)`. The lower support fade is already one over this interval. Its mean optical coefficient includes the same 0.6 cloud weight used by local integration and is approximately 0.18517.
 
@@ -84,7 +84,7 @@ The two transition regions do not overlap. Their vertical profile has an exact p
 
 Local material color blends smoothly toward that same coarse color between ray distances 18 and 45 scene units from the local ray origin. Density, bin length and the exponential opacity calculation remain unchanged by this color blend. It supplies a common distant radiance limit without adding another opacity field.
 
-The parallel branch is selected only when `ray.y == 0.0`. An exactly horizontal ray outside the mean profile has no tail. One with positive profile density uses a large finite length of 1,000,000 scene units to represent a saturated distant limit. Nonzero rays retain their directional integral, with extremely large lengths capped at that same saturated limit. No near-horizontal epsilon reclassifies a nonzero ray as parallel.
+The parallel branch is selected only when `ray.y == 0.0`. An exactly horizontal ray outside the mean profile has no tail. One with positive profile density uses a large finite length of 1,000,000 scene units to represent a saturated distant limit. Nonzero rays retain their directional integral, with extremely large lengths capped at that same saturated limit. No epsilon for nearly horizontal rays reclassifies a nonzero ray as parallel.
 
 The mean tail is a rendering approximation with declared profile, density and color. It does not recover distant cloud structure or historical horizon conditions. The local footprint filter, finite quadrature, opacity cutoff, coarse tail and nearby lighting probes each introduce approximation. Their combined image error is not bounded by the R8 value quantization bound. A fixed sample count does not establish equal cost, numerical convergence or a hardware frame rate.
 
@@ -98,7 +98,7 @@ These auxiliary samples temporarily change the shader's material coordinate and 
 
 The storm scene has an opaque sky and synthetic ground surface with fixed authored exposure. Clair and Obscur change the surrounding reading interface. They do not select a new storm illumination, material palette or transparent background. The camera, selected time and scene settings keep their meaning when reading appearance changes. Historical photographs retain their original colors and complete content.
 
-Clear sky, distant local material and the analytic cloud tail meet at one horizontal radiance, `[0.48, 0.51, 0.52]`. The sky gradient starts at that value for horizontal and downward rays. This makes the clear and cloud-filled limits agree near the horizon. The ground is an analytic forward surface, with its existing distance blend, rather than a surface that disappears at the local volume's far clip. These choices remove artificial boundary rules without adding fog, changing camera geometry or increasing the volume sample budget. They do not supply calibrated atmospheric radiance or terrain.
+Clear sky, distant local material and the analytic cloud tail meet at one horizontal radiance, `[0.48, 0.51, 0.52]`. The sky gradient starts at that value for horizontal and downward rays. This makes the clear limit and the limit filled with cloud agree near the horizon. The ground is an analytic forward surface, with its existing distance blend, rather than a surface that disappears at the local volume's far clip. These choices remove artificial boundary rules without adding fog, changing camera geometry or increasing the volume sample budget. They do not supply calibrated atmospheric radiance or terrain.
 
 Dust stays a separate visibility response even though it participates in the shared density integration. Its low support, optical strength and brown material response are authored. A lifted component uses the term `1.25 * exp(-r*r/0.38 - 3.5*y)` before the patch and support masks, with the hard vertical support still limited to Y = 0 through 0.52. This is a chosen density profile without a physical altitude or debris mass. Turning off dust removes that contribution while retaining the condensation and circulation settings. The storm branch has no separate particle drawing pass. Earlier presentations keep their existing particle behavior.
 
@@ -110,6 +110,6 @@ The existing controls start paused, allow explicit playback and backward seeking
 
 This document describes the implementation and its assumptions. Visual review, motion at normal speed, raw framebuffer behavior, browser controls, numerical checks, required CI and served visitor acceptance need evidence tied to their actual revision. Earlier `reference-v1`, `world-v1` and procedural recordings retain their original scope. They do not establish acceptance for a changed storm scene. Determinism and an analytic flow do not establish convincing appearance or a historical reconstruction.
 
-The scene adds no qualified historical appearance interval, calibrated El Reno camera, physical scale, time match to a source, condensation extent, boundary of damaging winds or damage simulation. The [ground-view contract](ground-view-reconstruction.md#historical-admission-remains-separate) keeps the original exposure and camera requirements explicit.
+The scene adds no qualified historical appearance interval, calibrated El Reno camera, physical scale, time match to a source, condensation extent, boundary of damaging winds or damage simulation. The [ground view contract](ground-view-reconstruction.md#historical-admission-remains-separate) keeps the original exposure and camera requirements explicit.
 
 Nolte's three permitted full JPEGs remain discrete documentary observations with their complete marks. The first unique correspondence requirement, frozen +22 comparison and recorded +85 disposition remain unchanged. The fourth still and film have no inherited grant. This scene changes no source asset, attribution, permission or documentary registration.

@@ -11,7 +11,7 @@ own contents.
 El Reno's essential historical reading is generated into `web/index.html` from
 the same exhibit records supplied to its interactive tools. The introduction,
 historical context and complete report, warning sequence, chronological account,
-photographs, questions, footage-reading guide, impact figures, named remembrance, discrepancies and
+photographs, questions, guide to reading footage, impact figures, named remembrance, discrepancies and
 source register remain available when scripts or the exhibit data cannot load.
 Their existing anchors remain intact. The path player, source filtering and
 photograph viewer enhance this reading when their dependencies are available.
@@ -62,8 +62,8 @@ source links and CC BY 2.0 license links. Smaller JPEG versions at 640, 1280 and
 JPEG compressed at quality 82. The original retains its SHA-256 identity and
 dimensions. Each reading version has separate byte counts, dimensions and a
 SHA-256 record in the existing photograph data.
-The page uses responsive versions for reading and preserves original-file links
-and enlargement. The photograph captions identify the resizing and compression.
+The page uses responsive versions for reading and preserves links to the original
+files and enlargement. The photograph captions identify the resizing and compression.
 
 Regeneration requires Pillow:
 
@@ -84,10 +84,11 @@ not been registered by making reading versions.
 The reading tests compare the visible historical paragraphs, names and source
 counts with their records. They exercise the collection entrance, narrow and
 wide reading, ordinary enlargement and connected focus, clock selection and
-reload, no-script reading, source filtering, failed data and module responses,
+reload, reading without scripts, source filtering, failed data and module responses,
 failed photograph responses, and doubled computed text at 320 pixels.
 Controlled failures and browser emulation have their stated scope. They do not
-establish physical phone behavior or spoken screen-reader acceptance.
+establish physical phone behavior or acceptance with a screen reader's spoken
+output.
 
 An isolated expert walkthrough provides rendered observations. Human visitor
 feedback is a separate evidence category. None has been collected for this
@@ -105,6 +106,6 @@ private store paths. Curator API requests remain on its private loopback origin.
 
 ## Shared article presentation
 
-The four documentary articles use the scoped `museum-article` treatment in `museum.css`. They share reading gutters, title and date hierarchy, caption and source-note scale, and native contents styling while retaining their existing document order and evidence. Media remains full-frame and may be wider than the body text. No image, credit, source link or unknown is removed to make the layouts match.
+The four documentary articles use the scoped `museum-article` treatment in `museum.css`. They share reading gutters, title and date hierarchy, the scale of captions and source notes, and native contents styling while retaining their existing document order and evidence. Media remains full frame and may be wider than the body text. No image, credit, source link or unknown is removed to make the layouts match.
 
 A final optional experiment entry links each dossier to the Form Study and Wind Lab with that documentary reference selected. These links carry context only. The laboratories keep all model assumptions explicit and independent of the selected tornado. Generated El Reno reading regions and immutable archive/media objects remain under their existing authorities.

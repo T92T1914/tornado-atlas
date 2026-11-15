@@ -54,10 +54,11 @@ node --test tests/evidence-comparison.test.mjs
 node --test --test-concurrency=1 tests/browser/evidence-comparison.test.mjs
 ```
 
-The model checks selection bounds, exact item/source identity, retained-version
-behavior, route identity and preservation of recorded status and clock fields.
+The model checks selection bounds, exact item/source identity, behavior across
+retained versions, route identity and preservation of recorded status and clock fields.
 The isolated browser checks exercise keyboard selection, native history,
 source routes, unknown/error recovery, narrow and enlarged layouts, and the
 existing documentary and coverage fallback. The dossier remains useful through
 those reading routes when JavaScript or retained metadata is unavailable.
-Browser emulation does not establish physical-phone or spoken-reader acceptance.
+Browser emulation does not establish acceptance on a physical phone or with a
+spoken reader.

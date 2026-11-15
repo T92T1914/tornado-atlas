@@ -6,13 +6,13 @@
   "footer": "Conceptual route, not a storm measurement.",
   "output_prefix": "web/mechanism-obscur",
   "adapter": {
-    "source": "web/appearance.css",
+    "source": "docs/obscur-tokens.json",
     "roles": {
-      "canvas": "#090909",
+      "canvas": "#000000",
       "panel": "#151515",
-      "text": "#f4f4f4",
-      "muted": "#bcbcbc",
-      "line": "#858585"
+      "text": "#ffffff",
+      "muted": "#cccccc",
+      "line": "#999999"
     }
   },
   "source_paths": [
