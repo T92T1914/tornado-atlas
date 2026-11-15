@@ -120,13 +120,18 @@ invented between endpoints.
 
 `research/location-reviews.json` records reviewed conflicts separately from raw
 source values. Publication checks the source revision, hash, logical CSV row,
-URL and both endpoints. A changed source requires renewed review. Currently
-`ncei:5599610` retains the Atlantic start coordinate of the original record
-labelled California. The original CSV and a fresh download agree. The available record
-does not establish a corrected start. It is excluded from ordinary map groups
-and fitted bounds. Only the explicit action that shows the reported position reveals its
-marker, a question mark. This single review is not an audit of geographic
-accuracy across the collection.
+URL and both endpoints. A changed source requires renewed review. It now holds
+64 disputed starts. Ten come from the September 2026 reviews. One of them,
+`ncei:5599610`, retains the Atlantic start coordinate of the original record
+labelled California. The original CSV and a fresh download agree, and the
+available record does not establish a corrected start. The other 54 come from
+the [state boundary screen](../research/state-boundary-screen-2026-11-14.md),
+which tests every reported position against the polygon of the state its
+record names. A disputed start is excluded from ordinary map groups and fitted
+bounds. Only the explicit action that shows the reported position reveals its
+marker, a question mark. The screen tests states and not counties, and it marks
+only starts, so these reviews are not an audit of geographic accuracy across
+the collection.
 
 `python -m atlas.explorer` generates `web/catalogue/media.json` from existing
 reviewed record aliases and exhibit manifests. It verifies original asset
