@@ -2,7 +2,7 @@
   {
     "id": "question-rating",
     "question": "Why is the official rating EF3?",
-    "answer": "The final damage survey supports EF3. NWS explains that the strongest radar-observed small vortices did not strike structures that could provide evidence for a higher damage rating. A wide tornado, an intense radar measurement and an EF damage rating describe different things.",
+    "answer": "The final damage survey supports EF3. NWS explains that the strongest small vortices observed by radar did not strike structures that could provide evidence for a higher damage rating. A wide tornado, an intense radar measurement and an EF damage rating describe different things.",
     "sources": [
       {
         "label": "NWS El Reno account",
@@ -17,7 +17,7 @@
   {
     "id": "question-width",
     "question": "Does 2.6 miles describe the visible funnel?",
-    "answer": "It is the reported maximum tornado width. NWS used radar to help distinguish the tornado from a wider area of damaging downdraft winds. A photograph shows cloud and debris from one viewpoint; its visible dark shape is not a measurement of that entire circulation.",
+    "answer": "It is the reported maximum tornado width. NWS used radar to help distinguish the tornado from a wider area of damaging downdraft winds. A photograph shows cloud and debris from one viewpoint. Its visible dark shape is not a measurement of that entire circulation.",
     "sources": [
       {
         "label": "NWS width explanation",
@@ -43,7 +43,7 @@
   {
     "id": "question-reconstruction",
     "question": "Can we see exactly what it looked like at each moment?",
-    "answer": "Not at each moment. Selected paused footage samples have documented clock correspondences, and separate published stills support coarse interpretations at reported labels. An earlier Reid photograph has a reported minute only and stays outside the exact replay clock. The two preserved Daniel Rodriguez photographs have no assigned historical minute or registered viewing direction. No continuously inspected and camera-registered appearance interval is established. The form study and wind lab remain separate illustrations; they do not recreate the recorded El Reno wind field or the damage to individual buildings.",
+    "answer": "Not at each moment. Selected paused footage samples have documented clock correspondences, and separate published stills support coarse interpretations at reported labels. An earlier Reid photograph has a reported minute only and stays outside the exact replay clock. The two preserved Daniel Rodriguez photographs have no assigned historical minute or registered viewing direction. No appearance interval that is continuously inspected and registered to a camera is established. The form study and wind lab remain separate illustrations. They do not recreate the recorded El Reno wind field or the damage to individual buildings.",
     "sources": [
       {
         "label": "Our reconstruction and review record",

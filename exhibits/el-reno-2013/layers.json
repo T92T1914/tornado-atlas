@@ -4,18 +4,18 @@
   "dossier_sha256": "3a4374318d08b471b95970693f1ef0d5c3a31f8935d978fd8ca39709987a93a9",
   "survey": {
     "sha256": "9debefd1218685e3f91562622d05e5dba24148de588c2064f44f8f30f5241b1c",
-    "basis": "The existing source-checked NWS survey selection retains 336 outcomes inside or on the published outline. Its storm and survey dates do not establish individual impact times."
+    "basis": "The existing NWS survey selection, checked against its source, retains 336 outcomes inside or on the published outline. Its storm and survey dates do not establish individual impact times."
   },
   "layers": {
     "geography": {
-      "basis": "The replay supplies reviewed minute positions. The linked aerial-survey account describes a damage envelope, not visible funnel geometry.",
+      "basis": "The replay supplies reviewed minute positions. The linked account of the aerial survey describes a damage envelope, not visible funnel geometry.",
       "observations": [
         "intake-wakimoto-aerial-envelope-2016"
       ],
       "media": []
     },
     "appearance": {
-      "basis": "Source-linked photographs and reported published samples remain discrete documentary records. No intermediate visual observation or registered appearance interval is supplied. Two original-movie contexts retain readable source-clock labels near separately reported photo instants. Exact shared exposure is unknown and no appearance between samples is supplied.",
+      "basis": "Reported published samples and photographs linked to their sources remain discrete documentary records. No intermediate visual observation or registered appearance interval is supplied. Two contexts from original movies retain readable clock labels from the source near separately reported photo instants. Exact shared exposure is unknown and no appearance between samples is supplied.",
       "observations": [
         "photogrammetry-figure-samples",
         "wakimoto-2016-dust-feature-radar-comparison"
@@ -32,7 +32,7 @@
       ]
     },
     "damage": {
-      "basis": "Keep the mapped survey outcomes, aerial damage-envelope interpretation and individual roof-loss photograph separate from storm-time optical appearance. The field-scouring account compares an approximate passage and a reported radar observation with later aerial evidence, without coordinates or individual failure times.",
+      "basis": "Keep the mapped survey outcomes, the aerial interpretation of the damage envelope and the individual photograph of roof loss separate from optical appearance at storm time. The account of field scouring compares an approximate passage and a reported radar observation with later aerial evidence, without coordinates or individual failure times.",
       "observations": [
         "intake-wakimoto-aerial-envelope-2016",
         "intake-wakimoto-field-scouring-2312"
@@ -42,7 +42,7 @@
       ]
     },
     "gaps": {
-      "basis": "Keep the inherited figure-inspection record, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits. The field example keeps radar time, approximate passage and later aerial collection distinct. The roadside opening and creator’s later description remain external documentary context with unregistered timing and viewpoint. The Figure 7 lightning event retains separate flash and radar clock precision, with no identified independent optical exposure or calibrated camera correspondence.",
+      "basis": "Keep the inherited record of figure inspection, discrete visual samples and aerial damage interpretation separate from an admitted appearance interval or visible funnel width. The full pinned dossier retains the other source and registration limits. The field example keeps radar time, approximate passage and later aerial collection distinct. The roadside opening and creator’s later description remain external documentary context with unregistered timing and viewpoint. The Figure 7 lightning event retains separate flash and radar clock precision, with no identified independent optical exposure or calibrated camera correspondence.",
       "observations": [
         "photogrammetry-figure-samples",
         "intake-wakimoto-aerial-envelope-2016",

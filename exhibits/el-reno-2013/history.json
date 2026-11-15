@@ -16,7 +16,7 @@
     },
     {
       "title": "A separate flooding disaster",
-      "text": "NWS records 14 flash-flood deaths across Oklahoma during May 31 and June 1. These are separate from the eight El Reno tornado deaths.",
+      "text": "NWS records 14 flash flood deaths across Oklahoma during May 31 and June 1. These are separate from the eight El Reno tornado deaths.",
       "source": "https://www.weather.gov/oun/events-20130531"
     }
   ],
@@ -67,7 +67,7 @@
       "minute": 42,
       "time": "6:42 / 6:44 PM CDT",
       "title": "The ending remains inconsistent",
-      "text": "The narrative and last map position end at 6:42; the source table and event record give 6:44.",
+      "text": "The narrative and last map position end at 6:42. The source table and event record give 6:44.",
       "source": "https://www.weather.gov/oun/events-20130531"
     }
   ],
@@ -81,14 +81,14 @@
     "snapshot": "ncei:2013:20260323",
     "sha256": "4fa4036ed1c7ea9a779d5a5841d18de08596c423920189a9e6173488d1a98260",
     "scope": "Direct deaths and injuries in NOAA Storm Events record 453682. These are the published record's figures, not a new estimate of everyone affected.",
-    "note": "Injuries includes people hurt; wounded is not an additional category to add. Casualties is an umbrella term for deaths and injuries, so it is not counted again.",
+    "note": "Injuries includes people hurt. Wounded is not an additional category to add. Casualties is an umbrella term for deaths and injuries, so it is not counted again.",
     "discrepancy": "Contemporary reporting also cites 115 people treated by Oklahoma City area hospitals. That is a hospital and regional reporting scope, not a reconciled total for this tornado. Other widely repeated injury figures remain unverified here.",
     "discrepancy_source": "https://www.fox6now.com/news/breakdown-of-the-storm-fatalities-in-oklahoma"
   },
   "remembrance": {
     "title": "Remembering the people who died",
     "introduction": "Eight lives were lost in the El Reno tornado. We remember them here, together.",
-    "scope": "El Reno tornado, May 31, 2013. This section does not yet catalogue the separate flash-flood victims.",
+    "scope": "El Reno tornado, May 31, 2013. This section does not yet catalogue the separate flash flood victims.",
     "people": [
       {
         "name": "Dustin Heath Bridges",
@@ -144,7 +144,7 @@
         ]
       }
     ],
-    "source_note": "Names are transcribed from public NOAA statements, contemporary reporting and an obituary. Early articles contain superseded storm ratings and conflicting ages; their names are used here without repeating those ages or ratings. This is an independently assembled remembrance, not a family-approved or official memorial.",
+    "source_note": "Names are transcribed from public NOAA statements, contemporary reporting and an obituary. Early articles contain superseded storm ratings and conflicting ages. Their names are used here without repeating those ages or ratings. This is an independently assembled remembrance. It is not an official memorial or a memorial approved by the families.",
     "places": [
       {
         "id": "twistex-recovery",
@@ -162,10 +162,10 @@
           "Carl Young"
         ],
         "account": "Wurman and colleagues give this approximate location for the recovered vehicle occupied by Tim Samaras, Paul Samaras and Carl Young. Their account places the initial impact about 530 meters west of the road intersection and describes an inferred route to the resting place. This diamond identifies the recovery location, not the exact place of death.",
-        "precision_note": "Coordinates are reproduced as approximate in the published paper. No positional error radius is supplied. The diamond has no physical extent. A preliminary conference account gives a different latitude; this exhibit follows the later journal account.",
+        "precision_note": "Coordinates are reproduced as approximate in the published paper. No positional error radius is supplied. The diamond has no physical extent. A preliminary conference account gives a different latitude. This exhibit follows the later journal account.",
         "time_note": "The location stays fixed through playback. No exact time of death is assigned.",
         "source": "https://doi.org/10.1175/BAMS-D-13-00221.1",
-        "source_locator": "Wurman et al., BAMS 95 (2014), pp. 38–40, “Tornado impacts storm-chasing teams,” Figures 6 and 9. Location paragraph checked in indexed primary-source text; the full figure has not been visually verified in this review.",
+        "source_locator": "Wurman et al., BAMS 95 (2014), pp. 38 to 40, “Tornado impacts storm-chasing teams,” Figures 6 and 9. Location paragraph checked in indexed text of the primary source. The full figure has not been visually verified in this review.",
         "category": "fatalities",
         "deaths": 3,
         "map_label": "TWISTEX"
@@ -197,7 +197,7 @@
       ],
       "sources": [
         {
-          "label": "Bluestein and colleagues, 2019: early evolution (NOAA-hosted PDF)",
+          "label": "Bluestein and colleagues, 2019: early evolution (PDF hosted by NOAA)",
           "url": "https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf"
         }
       ]
@@ -207,11 +207,11 @@
       "title": "The circulation was larger than one visible funnel",
       "paragraphs": [
         "A useful reconstruction has to distinguish the condensation funnel, the larger circulation and smaller vortices moving through it. Wurman and colleagues describe rapidly moving subvortices and very large differences in their motion. A single cone following the center line would hide that complexity.",
-        "The path player below shows published center positions. Between those observations, the moving point is an interpolation. The shaded outline describes the whole event footprint. Neither is a measured, second-by-second outline of the visible funnel. Read the linked radar and photographs as observations with their own times and viewing positions."
+        "The path player below shows published center positions. Between those observations, the moving point is an interpolation. The shaded outline describes the whole event footprint. Neither is a measured outline that follows the visible funnel second by second. Read the linked radar and photographs as observations with their own times and viewing positions."
       ],
       "sources": [
         {
-          "label": "Wurman and colleagues, multiple-vortex analysis",
+          "label": "Wurman and colleagues, multiple vortex analysis",
           "url": "https://doi.org/10.1175/BAMS-D-13-00221.1"
         }
       ]
@@ -235,7 +235,7 @@
       "title": "What a damaged building can tell us",
       "paragraphs": [
         "A photograph records a result. Interpreting it requires knowing what stood there before, how it was built and what connections failed. A collapsed wall in a wide shot does not reveal every foundation connection. This is why the survey account and close photographs matter alongside a dramatic overview.",
-        "The mapped survey browser keeps each source feature attached to its own photographs. Select a point, read the reported damage indicator and degree of damage, and then inspect the original attachment. Its map position belongs to the survey feature; it does not automatically identify where the photographer stood. If the source has no photographer or capture time, the exhibit says so.",
+        "The mapped survey browser keeps each source feature attached to its own photographs. Select a point, read the reported damage indicator and degree of damage, and then inspect the original attachment. Its map position belongs to the survey feature. It does not automatically identify where the photographer stood. If the source has no photographer or capture time, the exhibit says so.",
         "The local gallery and mapped attachments are separate collections. A caption that says EF3 is a claim about that damage example. It is not a measurement of every wind the storm produced. Likewise, a point outside a familiar drawing of the path cannot be reassigned to El Reno merely because it is nearby.",
         "The NWS captions offer a concrete comparison near Rother Road and SW 15th Street. Photo 3 describes all walls collapsed and assigns EF3. Photo 4 describes large roof sections removed while most walls remained standing and assigns EF2. These are different houses after the event. The captions do not establish identical construction or wind exposure, and the pair is not a before and after sequence."
       ],
@@ -249,7 +249,7 @@
           "url": "https://ams.confex.com/ams/27SLS/webprogram/Manuscript/Paper254342/ElReno-FINAL.pdf"
         },
         {
-          "label": "Inspect the roof-loss photograph, credit and missing camera registration",
+          "label": "Inspect the roof loss photograph, its credit and the missing camera registration",
           "url": "https://t92t1914.github.io/tornado-atlas/dossier.html?event=el-reno-2013&media=nws-el-reno-roof-loss-04#media-nws-el-reno-roof-loss-04"
         }
       ]
@@ -272,13 +272,13 @@
       "id": "human-consequences",
       "title": "People, vehicles and the limits of the map",
       "paragraphs": [
-        "The NWS assessment records all eight direct tornado fatalities in vehicles; four people were storm chasing. It also distinguishes the tornado losses from the later flooding. Those are different events in the same dangerous evening, and combining their totals would obscure what happened.",
+        "The NWS assessment records all eight direct tornado fatalities in vehicles. Four people were storm chasing. It also distinguishes the tornado losses from the later flooding. Those are different events in the same dangerous evening, and combining their totals would obscure what happened.",
         "The remembrance below names the eight people using public records. A name does not require a map pin. We add a place only when a source locates something specific, such as an impact area or a recovery site. Those labels matter because a vehicle can move after it is struck. The map does not infer a person’s final position from a memorial, a roadside marker or a damage photograph.",
-        "The current place record is a research-reported vehicle recovery location. The source does not establish the precise place or instant of each occupant’s death. The other fatal incidents remain unmapped here. That is a limit of this exhibit’s verified location evidence, not a suggestion that their histories matter less."
+        "The current place record is a vehicle recovery location reported in research. The source does not establish the precise place or instant of each occupant’s death. The other fatal incidents remain unmapped here. That is a limit of this exhibit’s verified location evidence, not a suggestion that their histories matter less."
       ],
       "sources": [
         {
-          "label": "NWS assessment, storm chasing and fatalities, printed pages 27–30",
+          "label": "NWS assessment, storm chasing and fatalities, printed pages 27 to 30",
           "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf"
         }
       ]
@@ -334,7 +334,7 @@
       "id": "reading-films-and-encyclopedias",
       "title": "Reading the documentaries alongside the records",
       "paragraphs": [
-        "TornadoTRX builds its El Reno documentary around the changing circulation and the people trying to understand and escape it. That makes a useful route into the history. Its English transcript also contains inconsistent spellings of names and detailed claims about conversations, routes and exact intervals. Captions help locate questions to investigate; they do not establish those details on their own.",
+        "TornadoTRX builds its El Reno documentary around the changing circulation and the people trying to understand and escape it. That makes a useful route into the history. Its English transcript also contains inconsistent spellings of names and detailed claims about conversations, routes and exact intervals. Captions help locate questions to investigate. They do not establish those details on their own.",
         "Pecos Hank provides another route through the event with footage and commentary. The footage notebook below records the limited passages already inspected. Neither an edited film nor its elapsed running time is automatically a continuous storm clock. Matching a scene to the map still requires a location and a defensible historical time.",
         "The Wikipedia article is a useful overview and a way to find further references. Where summaries disagree with a source record, this exhibit keeps the disagreement visible. The reported ending time and the scope of injury totals need that treatment. We do not average conflicting numbers or turn the most repeated number into a new measurement.",
         "TornadoCentral’s published genesis and intensification recording adds another route into the early storm. Its opening card names Jeff Snyder as the copyright claimant. This exhibit has inspected that card and two later paused field views. The whole video and audio remain unreviewed, and its running time has not been matched to the historical clock. Camera geometry and visible dimensions remain unregistered."
@@ -362,9 +362,9 @@
       "id": "tracked-feature-radar",
       "title": "When a visible feature can constrain motion",
       "paragraphs": [
-        "Wakimoto and colleagues give a worked example in Figures 22 and 23 of their 2016 study. They track a dust/debris pocket over four author-labeled times, 23:24:52–23:24:55 UTC, using a specified photographic plane. Their earlier horizontal and vertical estimates are 19.0 and 3.7 m/s; later estimates are 39.8 and 15.7 m/s. Edge selection contributes a reported 2–3 m/s velocity uncertainty. These are the authors’ results, not measurements made by Atlas.",
-        "The radar comparison uses a spatially filtered dual-Doppler field at 23:24:54, including roughly 20 m/s tornado-relative radial inflow near the feature. That radial inflow and the later photo-plane horizontal speed are different quantities. The comparison is qualitative consistency, not numerical equality. Particle-following assumptions and camera geometry matter; the velocity uncertainty is not clock accuracy.",
-        "This shows the kind of relationship needed for reconstruction: an identifiable feature, a defensible camera model and an independent comparison that could disagree. Atlas has not acquired the underlying raw video and calibration package. This source-specific geometry cannot calibrate Nolte’s camera, and the example adds no registered appearance interval."
+        "Wakimoto and colleagues give a worked example in Figures 22 and 23 of their 2016 study. They track a dust/debris pocket across four times labeled by the authors, from 23:24:52 to 23:24:55 UTC, using a specified photographic plane. Their earlier horizontal and vertical estimates are 19.0 and 3.7 m/s. Later estimates are 39.8 and 15.7 m/s. Edge selection contributes a reported velocity uncertainty of 2 to 3 m/s. These are the authors’ results, not measurements made by Atlas.",
+        "The radar comparison uses a spatially filtered dual Doppler field at 23:24:54, including roughly 20 m/s of radial inflow relative to the tornado near the feature. That radial inflow and the later horizontal speed in the photo plane are different quantities. The comparison is qualitative consistency, not numerical equality. Camera geometry and assumptions about particle following matter. The velocity uncertainty is not clock accuracy.",
+        "This shows the kind of relationship needed for reconstruction: an identifiable feature, a defensible camera model and an independent comparison that could disagree. Atlas has not acquired the underlying raw video and calibration package. This geometry belongs to that source and cannot calibrate Nolte’s camera, and the example adds no registered appearance interval."
       ],
       "sources": [
         {
@@ -377,9 +377,9 @@
       "id": "early-downward-extension",
       "title": "An early view with an unresolved outline",
       "paragraphs": [
-        "Figure 6(a) in Wakimoto and colleagues’ 2016 paper shows a dark downward extension at the reported 23:05:10 UTC label. Its image-right transition narrows locally against paler dust or haze. The opposite boundary, upper connection and lowest termination are not fully exposed. The authors report the photographer collocated with RaXPol near Jensen and Country Club Roads. This is a different site from the later I-40/Banner Road views.",
-        "The player now offers one independently authored partial interpretation at that reported label. Dark image-left context leaves the opposite edge unassigned, and top and bottom fades omit unsupported continuations. These display choices do not recover a complete silhouette, physical width or camera projection. The source’s beam graphics and scale annotations are not used as photographic geometry. Open the original panel to compare what the display includes and omits.",
-        "This observation is independent of Nolte’s creator account, but its reported clock has unquantified error. It supplies no interval between photographs, no calibrated UTC correction for another camera and no continuous reconstruction. Reid’s earlier reported-minute study remains separate, as do Nolte’s original correspondence criteria."
+        "Figure 6(a) in Wakimoto and colleagues’ 2016 paper shows a dark downward extension at the reported 23:05:10 UTC label. Its transition on the right of the image narrows locally against paler dust or haze. The opposite boundary, upper connection and lowest termination are not fully exposed. The authors report the photographer collocated with RaXPol near Jensen and Country Club Roads. This is a different site from the later I-40/Banner Road views.",
+        "The player now offers one independently authored partial interpretation at that reported label. Dark context on the left of the image leaves the opposite edge unassigned, and top and bottom fades omit unsupported continuations. These display choices do not recover a complete silhouette, physical width or camera projection. The source’s beam graphics and scale annotations are not used as photographic geometry. Open the original panel to compare what the display includes and omits.",
+        "This observation is independent of Nolte’s creator account, but its reported clock has unquantified error. It supplies no interval between photographs, no calibrated UTC correction for another camera and no continuous reconstruction. Reid’s earlier study, timed to a reported minute, remains separate, as do Nolte’s original correspondence criteria."
       ],
       "sources": [
         {
@@ -392,7 +392,7 @@
       "id": "lightning-reports-and-video",
       "title": "Why a lightning report is not always a video match",
       "paragraphs": [
-        "In a 2015 University of Oklahoma REU final paper, James Coy and Kristin Calhoun compare lightning networks with El Reno video. They report a 22:59:06 UTC strike visible in video and OKLMA but absent from NLDN and ENTLN. A high-current report at 23:13:30 UTC was not confirmed in the video.",
+        "In a 2015 University of Oklahoma REU final paper, James Coy and Kristin Calhoun compare lightning networks with El Reno video. They report a 22:59:06 UTC strike visible in video and OKLMA but absent from NLDN and ENTLN. A report of high current at 23:13:30 UTC was not confirmed in the video.",
         "A reported detection and an optical match are different evidence. The paper is not asserted here to be peer reviewed. Its 30 fps rendering does not establish camera accuracy. Atlas has no original rows or film from this study and derives no clock correction."
       ],
       "sources": [
@@ -406,9 +406,9 @@
       "id": "lightning-figure-clock-labels",
       "title": "One flash, two time labels",
       "paragraphs": [
-        "A 2014 conference paper by Timothy Lang and colleagues, archived by NASA, gives a concrete example of how these records need to be read. Its Figure 7 labels a positive cloud-to-ground flash at 23:15:19 UTC on May 31, 2013. The radar background carries the shorter label 2315 UTC. The flash label has whole-second precision. The radar label leaves its seconds unknown, so subtracting the two does not establish a 19-second difference. The accuracy of the flash clock is also unknown here.",
-        "The paper reports 121 C km of impulse charge moment change for this event. Its methods describe this electrical quantity over the first two milliseconds of a return stroke. Those two milliseconds are an integration interval, not the flash’s complete duration or a measure of camera-clock accuracy. The value is not a peak-current reading or a scale for photographic brightness.",
-        "The figure combines lightning-network analysis with radar. Its labelled latitude and longitude define vertical cross-sections through the median location of the plotted OKLMA sources. They do not locate a camera or give Atlas an exact ground-strike coordinate.",
+        "A 2014 conference paper by Timothy Lang and colleagues, archived by NASA, gives a concrete example of how these records need to be read. Its Figure 7 labels a positive cloud to ground flash at 23:15:19 UTC on May 31, 2013. The radar background carries the shorter label 2315 UTC. The flash label is precise to the whole second. The radar label leaves its seconds unknown, so subtracting the two does not establish a difference of 19 seconds. The accuracy of the flash clock is also unknown here.",
+        "The paper reports 121 C km of impulse charge moment change for this event. Its methods describe this electrical quantity over the first two milliseconds of a return stroke. Those two milliseconds are an integration interval, not the flash’s complete duration or a measure of the accuracy of a camera clock. The value is not a reading of peak current or a scale for photographic brightness.",
+        "The figure combines lightning network analysis with radar. Its labelled latitude and longitude define vertical cross sections through the median location of the plotted OKLMA sources. They do not locate a camera or give Atlas an exact coordinate for the ground strike.",
         "Read the original Figure 7 beside these distinctions. Atlas has not identified an independent optical exposure of this particular event or recovered its underlying measurement rows. The reported flash is therefore a documentary reference, with no fitted camera offset, registered appearance or filled gap between photographs."
       ],
       "sources": [

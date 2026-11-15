@@ -7,7 +7,7 @@
   "introduction": "Nine photographs from the NOAA/NWS damage survey. Compare buildings and infrastructure at different locations along the event. Each rating below is the assessment in the original photograph caption.",
   "location_note": "Locations follow the source captions. Exact camera coordinates and capture times have not been established, so these photographs are not pinned to the timeline.",
   "survey_link_note": "Each photograph is the same picture as an original attached to one NWS damage survey record, matched by decoded pixels. That record's point is where the survey placed the damaged structure. It is not where the camera stood.",
-  "interpretation_note": "These are different sites after the same event, not before and after images. The photographs document damage; they do not supply a wind field or a building failure model.",
+  "interpretation_note": "These are different sites after the same event, not before and after images. The photographs document damage. They do not supply a wind field or a building failure model.",
   "photos": [
     {
       "id": "nws-el-reno-damage-01",
@@ -35,7 +35,7 @@
       "width": 1280,
       "height": 960,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-02",
@@ -63,7 +63,7 @@
       "width": 1280,
       "height": 960,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-03",
@@ -91,7 +91,7 @@
       "width": 1280,
       "height": 960,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-04",
@@ -119,7 +119,7 @@
       "width": 1280,
       "height": 960,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-05",
@@ -147,7 +147,7 @@
       "width": 1280,
       "height": 960,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-06",
@@ -175,7 +175,7 @@
       "width": 1280,
       "height": 960,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-07",
@@ -203,7 +203,7 @@
       "width": 960,
       "height": 1280,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-08",
@@ -231,7 +231,7 @@
       "width": 960,
       "height": 1280,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     },
     {
       "id": "nws-el-reno-damage-09",
@@ -259,7 +259,7 @@
       "width": 960,
       "height": 1280,
       "credit": "NOAA / National Weather Service survey personnel",
-      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public-domain government material under the NWS use policy; original image bytes preserved."
+      "rights_basis": "The NWS event page identifies this set as photographs taken by NWS/NOAA survey personnel. Public domain government material under the NWS use policy. Original image bytes preserved."
     }
   ],
   "source_page_snapshot": {

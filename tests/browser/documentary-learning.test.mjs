@@ -95,7 +95,7 @@ test('alternate reviewed WebM plays when MP4 is unavailable',async t=>{
 
 test('scientific method reading reaches its attributed observation and returns',async t=>{
  const page=await fixture(t,{viewport:{width:320,height:900},reducedMotion:'reduce'});await page.goto(base+'/index.html#tracked-feature-radar');
- const chapter=page.locator('#tracked-feature-radar');for(const text of ['19.0','3.7','39.8','15.7','2–3 m/s','20 m/s','qualitative consistency','not clock accuracy','not acquired'])assert.ok((await chapter.textContent()).includes(text),text);
+ const chapter=page.locator('#tracked-feature-radar');for(const text of ['19.0','3.7','39.8','15.7','2 to 3 m/s','20 m/s','qualitative consistency','not clock accuracy','not acquired'])assert.ok((await chapter.textContent()).includes(text),text);
  const action=chapter.getByRole('link',{name:'Inspect the feature-tracking observation and limits'});await action.focus();await page.keyboard.press('Enter');
  const record=page.locator('#observation-wakimoto-2016-dust-feature-radar-comparison');await record.waitFor();assert.match(await record.textContent(),/not Atlas measurements/);assert.match(await record.textContent(),/not clock accuracy/);
  await page.goBack();await chapter.waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
