@@ -7811,7 +7811,7 @@
     "display_max_age_seconds": 90,
     "credit": "El Reno Survey Project; Tim Marshall camera track.",
     "method": "Published UTC timestamps, latitude, longitude and camera 1 azimuth. Directions are shown clockwise from north, following the source viewer. Camera positions are not interpolated.",
-    "limits": "The marker shows the latest preceding recorded camera location for at most 90 seconds, then disappears. This is a display rule, not a measured error bound. Location and clock uncertainty are not quantified for these samples. The El Reno Survey paper says view directions were estimated to a precision of plus or minus 10 degrees from road orientations and landscape features. That is a method value, not a measured error for any one sample. The arrow has no distance or field-of-view meaning. No photograph or video frame is assigned to this track here.",
+    "limits": "The marker shows the latest preceding recorded camera location for at most 90 seconds, then disappears. This is a display rule, not a measured error bound. Location and clock uncertainty are not quantified for these samples. The El Reno Survey paper says view directions were estimated to a precision of plus or minus 10 degrees from road orientations and landscape features. That is a method value, not a measured error for any one sample. The arrow says nothing about distance or field of view. No photograph or video frame is assigned to this track here.",
     "samples": [
       {
         "utc": "2013-05-31T22:51:49Z",
@@ -9668,14 +9668,14 @@
         "title": "May 31, 2013: El Reno, Oklahoma tornado",
         "publisher": "William T. Reid / Stormbruiser",
         "url": "https://stormbruiser.com/chase/2013/05/31/may-31-2013-el-reno-ok-tornado/",
-        "use": "Complete published 4178 photograph and the creator’s 6:04 PM CDT caption inspected. Supports a specific independently authored, coarse light taper schematic. The reported minute is not an exact exposure second or replay interval. Camera pose, lens and crop remain unregistered; earlier group optics are not transferred. Copyright photograph is linked at its original publication, not copied into the exhibit."
+        "use": "Complete published 4178 photograph and the creator’s 6:04 PM CDT caption inspected. Supports a specific independently authored, coarse light taper schematic. The reported minute is not an exact exposure second or replay interval. Camera pose, lens and crop remain unregistered. Earlier group optics are not transferred. Copyright photograph is linked at its original publication, not copied into the exhibit."
       },
       {
         "group": "Original photographs and accounts",
         "title": "Storm Chase May 31, 2013: El Reno, Oklahoma Tornado",
         "publisher": "William T. Hark",
         "url": "https://www.harkphoto.com/05312013.html",
-        "use": "Two inspected photographs with separate visual notes and attributed caption times and named places. Their clocks and camera positions remain unregistered; copyright images are linked, not copied."
+        "use": "Two inspected photographs with separate visual notes and attributed caption times and named places. Their clocks and camera positions remain unregistered. Copyright images are linked, not copied."
       },
       {
         "group": "Official records",
@@ -9689,7 +9689,7 @@
         "title": "May 31 to June 1, 2013 tornado and flash flooding event",
         "publisher": "NWS Norman",
         "url": "https://www.weather.gov/oun/events-20130531",
-        "use": "The event account, path chronology, final EF3 rating, maximum reported width and damage photograph captions. Its narrative and summary table give different ending times; both remain visible in this exhibit."
+        "use": "The event account, path chronology, final EF3 rating, maximum reported width and damage photograph captions. Its narrative and summary table give different ending times, and both remain visible in this exhibit."
       },
       {
         "group": "Meteorology and reconstruction",
@@ -9703,14 +9703,14 @@
         "title": "El Reno final tornado path file (KMZ download)",
         "publisher": "NWS Norman",
         "url": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz",
-        "use": "The original outline, center path and 39 time-labeled positions used by the map. A whole-event outline does not describe the funnel shape at each minute."
+        "use": "The original outline, center path and 39 positions used by the map, each with a time label. An outline of the whole event does not describe the funnel shape at each minute."
       },
       {
         "group": "Official records",
         "title": "Storm Events 2013 data, record 453682 (CSV.gz download)",
         "publisher": "NOAA NCEI",
         "url": "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2013_c20260323.csv.gz",
-        "use": "The preserved March 23, 2026 revision supplies the event record and its direct fatality and injury figures. County-level source records are not necessarily distinct tornadoes."
+        "use": "The preserved March 23, 2026 revision supplies the event record and its direct fatality and injury figures. Source records at county level are not necessarily distinct tornadoes."
       },
       {
         "group": "Official records",
@@ -9724,7 +9724,7 @@
         "title": "El Reno wedge photograph, May 31, 2013",
         "publisher": "Daniel Rodriguez / Wikimedia Commons",
         "url": "https://commons.wikimedia.org/wiki/File:El_Reno_EF-5_Tornado_Wedge.jpg",
-        "use": "Original photograph, attribution and CC BY 2.0 reuse terms. Its historical filename retains an EF5 label; the final official damage rating is EF3. Exact time and viewpoint are not registered here."
+        "use": "Original photograph, attribution and CC BY 2.0 reuse terms. Its historical filename retains an EF5 label. The final official damage rating is EF3. Exact time and viewpoint are not registered here."
       },
       {
         "group": "Photographs",
@@ -9773,14 +9773,14 @@
         "title": "Locating and synchronizing storm imagery",
         "publisher": "American Meteorological Society",
         "url": "https://ams.confex.com/ams/27SLS/webprogram/Paper254094.html",
-        "use": "A conference abstract describing the registration of chaser imagery. It guides the proposed method; it does not establish that this exhibit has already registered its photographs or reconstructed the storm."
+        "use": "A conference abstract describing the registration of chaser imagery. It guides the proposed method. It does not establish that this exhibit has already registered its photographs or reconstructed the storm."
       },
       {
         "group": "Imagery and methods",
         "title": "Published NWRT phased-array radar animation",
         "publisher": "NOAA / National Weather Service",
         "url": "https://www.weather.gov/images/oun/wxevents/20130531/radar/NWRT_20130531_ElReno.gif",
-        "use": "Original animation for twelve time-linked regional reflectivity frames. Printed filename times are interpreted as UTC, as stated beside the timeline."
+        "use": "Original animation for twelve regional reflectivity frames, each tied to a time. Printed filename times are interpreted as UTC, as stated beside the timeline."
       },
       {
         "group": "Survey research",
@@ -9801,14 +9801,14 @@
         "title": "May 2013 Oklahoma tornadoes and flash flooding: service assessment",
         "publisher": "National Weather Service",
         "url": "https://www.weather.gov/media/publications/assessments/13oklahoma_tornadoes.pdf",
-        "use": "Storm environment, public response and vehicle fatality context. Event overview and storm-chasing sections inspected."
+        "use": "Storm environment, public response and vehicle fatality context. Sections on the event overview and storm chasing inspected."
       },
       {
         "group": "Research and reconstruction",
         "title": "The Role of Multiple-Vortex Tornado Structure in Causing Storm Researcher Fatalities",
         "publisher": "Wurman, Kosiba, Robinson and Marshall, 2014",
         "url": "https://doi.org/10.1175/BAMS-D-13-00221.1",
-        "use": "Recovery-site coordinates and the distinction between circulation boundaries. Indexed selected passages checked; figures not inspected."
+        "use": "Coordinates of recovery sites and the distinction between circulation boundaries. Indexed selected passages checked. Figures not inspected."
       },
       {
         "group": "Research and reconstruction",
@@ -9822,21 +9822,21 @@
         "title": "Tornadogenesis and Early Tornado Evolution in the El Reno, Oklahoma, Supercell on 31 May 2013",
         "publisher": "American Meteorological Society / Monthly Weather Review",
         "url": "https://repository.library.noaa.gov/view/noaa/32207/noaa_32207_DS1.pdf",
-        "use": "Found through Consensus, then checked against the NOAA-hosted primary PDF abstract and selected opening methods. Supports the formation account. Full figures and the complete analysis have not been audited here."
+        "use": "Found through Consensus, then checked against the abstract and selected opening methods of the primary PDF hosted by NOAA. Supports the formation account. Full figures and the complete analysis have not been audited here."
       },
       {
         "group": "Meteorology and reconstruction",
         "title": "The Multiple-Vortex Structure of the El Reno, Oklahoma, Tornado on 31 May 2013",
         "publisher": "American Meteorological Society / Monthly Weather Review",
         "url": "https://doi.org/10.1175/MWR-D-18-0073.1",
-        "use": "Consensus full abstract record read; publisher metadata checked. Supports the secondary-vortex summary. Direct full-text access failed in this review; no numerical tracks were extracted."
+        "use": "Consensus full abstract record read and publisher metadata checked. Supports the summary of secondary vortices. Direct access to the full text failed in this review, and no numerical tracks were extracted."
       },
       {
         "group": "Meteorology and reconstruction",
         "title": "Aerial Damage Survey of the 2013 El Reno Tornado Combined with Mobile Radar Data",
         "publisher": "American Meteorological Society / Monthly Weather Review",
         "url": "https://doi.org/10.1175/MWR-D-15-0367.1",
-        "use": "Consensus returned a truncated abstract. Only its complete opening claims support the field-swath, imagery and radar discussion. Publisher full text was unavailable in that earlier abstract review; the unfinished conclusion was not used. Later, on October 1, 2026 UTC, selected NOAA-hosted PDF text on pages 1 to 4 and complete rendered pages 3 and 4 were inspected, including the aerial method and Figures 1 and 2. Other pages and figures remain outside that inspection. The event dossier records the exact PDF identity and copyright limits. October 16: retained original PDF identity and complete page 8 / Figure 6 inspected for the reported 23:05:10 UTC dark downward component. A separately reviewed independent partial schematic leaves camera geometry, opposite outline, both continuations and all intervening instants unknown. No figure is hosted."
+        "use": "Consensus returned a truncated abstract. Only its complete opening claims support the discussion of field swaths, imagery and radar. Publisher full text was unavailable in that earlier abstract review, and the unfinished conclusion was not used. Later, on October 1, 2026 UTC, selected text on pages 1 to 4 of the PDF hosted by NOAA and complete rendered pages 3 and 4 were inspected, including the aerial method and Figures 1 and 2. Other pages and figures remain outside that inspection. The event dossier records the exact PDF identity and copyright limits. October 16: retained original PDF identity and complete page 8 / Figure 6 inspected for the reported 23:05:10 UTC dark downward component. A separately reviewed independent partial schematic leaves camera geometry, opposite outline, both continuations and all intervening instants unknown. No figure is hosted."
       },
       {
         "group": "Geography and imagery",
@@ -9850,7 +9850,7 @@
         "title": "Before and after satellite comparison",
         "publisher": "Scott Bachmeier / UW–Madison CIMSS",
         "url": "https://cimss.ssec.wisc.edu/satellite-blog/archives/13130",
-        "use": "The June 2 update compares May 14 and June 2 Terra MODIS imagery at 250-meter source resolution. The old article retains an early EF5 label; it is not the source of the final official rating here."
+        "use": "The June 2 update compares May 14 and June 2 Terra MODIS imagery at a source resolution of 250 meters. The old article retains an early EF5 label. It is not the source of the final official rating here."
       },
       {
         "group": "Geography and imagery",
@@ -9864,21 +9864,21 @@
         "title": "El Reno vehicle discussion",
         "publisher": "Stormtrack participants",
         "url": "https://stormtrack.org/threads/el-reno-question.27366/",
-        "use": "First page and firsthand replies inspected. Clock alignment and vehicle identities are contested. Original videos have not been fully reviewed here; this does not establish a named fatality coordinate."
+        "use": "First page and firsthand replies inspected. Clock alignment and vehicle identities are contested. Original videos have not been fully reviewed here, and this does not establish a named fatality coordinate."
       },
       {
         "group": "Community research leads",
         "title": "Footage from behind TWISTEX",
         "publisher": "Reddit community",
         "url": "https://www.reddit.com/r/tornado/comments/1931iok/",
-        "use": "A route to attributed original footage, not independently verified movement or a death-site coordinate. Post discussion inspected; full video not reviewed."
+        "use": "A route to attributed original footage, not independently verified movement or the coordinate of a death site. Post discussion inspected. Full video not reviewed."
       },
       {
         "group": "Original footage and registration",
         "title": "Original El Reno dashcam sequence",
         "publisher": "Dan Robinson / Storm Highway",
         "url": "https://www.youtube.com/watch?v=MxgU1QcFMJM",
-        "use": "Original creator upload and visible CDT clock, checked at discrete paused moments. The video is linked to the historical clock only at those observations. No continuous synchronization, camera-coordinate reconstruction or independent GPS audit is claimed."
+        "use": "Original creator upload and visible CDT clock, checked at discrete paused moments. The video is linked to the historical clock only at those observations. No continuous synchronization, reconstruction of camera coordinates or independent GPS audit is claimed."
       },
       {
         "group": "Original footage and registration",
@@ -9906,21 +9906,21 @@
         "title": "5/31/13 - Genesis and Intensification of the El Reno tornado",
         "publisher": "TornadoCentral",
         "url": "https://www.youtube.com/watch?v=EFwJAlg0qWc",
-        "use": "Watch-page metadata, the opening copyright card and separate paused player positions near 75 and 145 seconds inspected on October 11, 2026 UTC. The opening card attributes copyright to Jeff Snyder; camera operation and original-file lineage remain unverified. The whole video and audio have not been reviewed. No UTC alignment, calibrated camera, visible width or continuous appearance interval is supplied. Ordinary external watch link only; source video and inspection screenshots are not hosted."
+        "use": "Metadata on the watch page, the opening copyright card and separate paused player positions near 75 and 145 seconds inspected on October 11, 2026 UTC. The opening card attributes copyright to Jeff Snyder. Camera operation and the lineage of the original file remain unverified. The whole video and audio have not been reviewed. No UTC alignment, calibrated camera, visible width or continuous appearance interval is supplied. Ordinary external watch link only. Source video and inspection screenshots are not hosted."
       },
       {
         "group": "Photographs",
         "title": "Nick Nolte’s El Reno photograph, May 31, 2013",
         "publisher": "Nick Nolte / Wikimedia Commons",
         "url": "https://commons.wikimedia.org/wiki/File:El_Reno,_OK_EF3_Tornado_2013-05-31.jpg",
-        "use": "Original-work attribution and CC BY-SA 3.0 source notice inspected. Complete original photograph inspected and preserved unchanged. Source camera-clock and approximate viewpoint labels are unregistered here."
+        "use": "Attribution as original work and the CC BY-SA 3.0 source notice inspected. Complete original photograph inspected and preserved unchanged. Source labels for the camera clock and the approximate viewpoint are unregistered here."
       },
       {
         "group": "Original photographs and accounts",
         "title": "May 31st, 2013 El Reno tornado",
         "publisher": "David Conrady, YouTube publication account",
         "url": "https://www.youtube.com/watch?v=s-W92EOU138",
-        "use": "Opening paused presentation inspected: road, white SUV, storm beyond and overhead obstruction. The creator’s later-travel account is attributed separately, not inspected as footage. A requested later sample did not settle. Complete film and audio remain unreviewed, and historical timing and viewpoint are unregistered. Ordinary original watch link only; source video, frames and audio are not hosted."
+        "use": "Opening paused presentation inspected: road, white SUV, storm beyond and overhead obstruction. The creator’s account of later travel is attributed separately, not inspected as footage. A requested later sample did not settle. Complete film and audio remain unreviewed, and historical timing and viewpoint are unregistered. Ordinary original watch link only. Source video, frames and audio are not hosted."
       },
       {
         "group": "Scientific studies",
@@ -9934,14 +9934,14 @@
         "publisher": "James J. Coy and Kristin M. Calhoun, 2015 OU REU final paper",
         "title": "A Comparison of Lightning Flashes Observed by Ground-Based Detection Networks and Video",
         "url": "https://caps.ou.edu/reu/reu15/finalpapers/Coy-finalpaper.pdf#page=6",
-        "use": "Reported detection and video-confirmation comparison. Selected original pages inspected. Underlying film and rows remain unacquired. No figures reproduced or Atlas clock correction derived."
+        "use": "Comparison of reported detections with video confirmation. Selected original pages inspected. Underlying film and rows remain unacquired. No figures reproduced or Atlas clock correction derived."
       },
       {
         "group": "Research and storm observations",
         "title": "Large Charge Moment Change Lightning in an Oklahoma Mesoscale Convective System",
         "publisher": "Timothy J. Lang and colleagues, 2014 conference paper; NASA NTRS archive",
         "url": "https://ntrs.nasa.gov/api/citations/20140011687/downloads/20140011687.pdf#page=11",
-        "use": "Figure 7 reported lightning event and distinct flash/radar time labels. Methods define the first-two-milliseconds electrical integration. Selected-page inspection, with no independent optical match, camera calibration or hosted source figure."
+        "use": "Figure 7 reported lightning event and distinct flash/radar time labels. Methods define the electrical integration over the first two milliseconds. Inspection of selected pages, with no independent optical match, camera calibration or hosted source figure."
       }
     ]
   },
