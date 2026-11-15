@@ -189,7 +189,7 @@ class EvidenceCoverageTests(unittest.TestCase):
                     self.assertEqual(link.fragment, 'observation-' + identifier)
         self.assertEqual(row['layers']['appearance']['items'], [])
         basis = row['layers']['gaps']['basis']
-        for anchor in ('October 6, 2026', 'October 10, 2026', 'Complete original-print coverage',
+        for anchor in ('October 6, 2026', 'October 10, 2026', 'Complete coverage of the original prints',
                        'remain unresolved', 'Permission to host or alter the images is not established'):
             self.assertIn(anchor, basis)
 

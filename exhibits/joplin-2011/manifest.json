@@ -2,7 +2,7 @@
   "schema_version": 1,
   "event": "Joplin, Missouri, May 22, 2011",
   "reviewed": "2026-09-21",
-  "status": "documentary foundation; reconstruction and individual fatality locations unverified",
+  "status": "documentary foundation, with reconstruction and individual fatality locations unverified",
   "assets": [
     {
       "path": "exhibits/joplin-2011/nws-service-assessment.pdf",
@@ -18,7 +18,7 @@
       "credit": "Daniel Friskey",
       "license": "CC BY-SA 4.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "transformation": "None; original image bytes preserved",
+      "transformation": "None. Original image bytes preserved",
       "location": null,
       "registered_time": null
     },
@@ -28,7 +28,7 @@
       "source": "https://commons.wikimedia.org/wiki/File:22_May_2011_Joplin_tornado_damage.jpg",
       "credit": "NWS Springfield, via Wikimedia Commons",
       "license": "Public domain according to Commons PD-US-NOAA-NWS notice",
-      "transformation": "None; original image bytes preserved",
+      "transformation": "None. Original image bytes preserved",
       "location": null,
       "registered_time": null,
       "date_note": "EXIF says May 23, 2011 at 13:19; description uses May 22 event date. Camera clock and time zone unverified."
@@ -38,8 +38,8 @@
       "sha256": "70a01692b96dd25a23c8718449b95db06ba8547b657ff67d36db6f3b5e6de8ef",
       "source": "https://www.weather.gov/media/publications/assessments/Joplin_tornado.pdf#page=7",
       "credit": "NWS Central Region service assessment, Figure 1",
-      "transformation": "Original embedded image extracted from PDF page 7, image object 40; no new georeferencing",
-      "rights_note": "Report figure may include third-party basemap components; not licensed under this repository's software license"
+      "transformation": "Original embedded image extracted from PDF page 7, image object 40. No new georeferencing",
+      "rights_note": "Report figure may include basemap components from third parties. It is not licensed under this repository's software license"
     }
   ],
   "fatality_accounts": [
@@ -48,5 +48,5 @@
     {"source": "City of Joplin remembrance", "total": 161, "scope": "People remembered at Cunningham Park"}
   ],
   "fatality_locations": [],
-  "count_reconciliation": "Not established at individual-record level; do not combine these accounts"
+  "count_reconciliation": "Not established at the level of individual records. Do not combine these accounts"
 }
