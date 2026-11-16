@@ -104,7 +104,12 @@ for(const [width,appearance]of [[390,'dark'],[1280,'light']])test('Joplin seven 
  await play(page).click();await shown(page,0);await play(page).click();await shown(page,0);assert.equal(await play(page).getAttribute('aria-pressed'),'false');
 
  await page.emulateMedia({reducedMotion:'no-preference'});await play(page).click();assert.equal(await play(page).getAttribute('aria-pressed'),'true');
- await page.emulateMedia({reducedMotion:'reduce'});await shown(page,0);assert.equal(await play(page).getAttribute('aria-pressed'),'false');assert.match(await status(page).textContent(),/reduced motion/);
+ // The browser sends the media query change event in a later rendering update,
+ // which can come after emulateMedia resolves. Frame 0 is already shown while
+ // playing, so wait for the stop that the change handler makes.
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.waitForFunction(()=>{const root=document.querySelector('[data-recorded-observations="joplin-nist-seven"]');return root?.querySelector('[data-observation-play]')?.getAttribute('aria-pressed')==='false'&&/reduced motion/.test(root.querySelector('[data-observation-status]')?.textContent||'');});
+ await shown(page,0);assert.equal(await play(page).getAttribute('aria-pressed'),'false');assert.match(await status(page).textContent(),/reduced motion/);
  await play(page).click();await page.evaluate(()=>scrollTo(0,0));
  await page.waitForFunction(()=>document.querySelector('[data-observation-play]')?.getAttribute('aria-pressed')==='false');assert.match(await status(page).textContent(),/out of view/);
 
