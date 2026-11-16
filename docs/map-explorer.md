@@ -133,6 +133,19 @@ marker, a question mark. The screen tests states and not counties, and it marks
 only starts, so these reviews are not an audit of geographic accuracy across
 the collection.
 
+Note dated November 16, 2026. The
+[county boundary screen](../research/county-boundary-screen-2026-11-15.md)
+tested reported positions against the polygon of the county each record names.
+The NOAA annual releases for 2001 and 2003 to 2006 place the start of 9.6 to
+16.1 percent of their records more than 0.05 degrees outside the labeled county,
+against 0.2 percent of records from 2007 on. A jump that sharp from one annual
+file to the next points at how those files were made, but the cause is not
+established. A flagged position shows that the county label and the coordinates
+disagree. It does not show which field is wrong, so no start is disputed on this
+screen alone and the catalogue keeps NOAA's label. Read starts from those five
+releases with that in mind. The record lists every flagged position and
+describes the positions it could not screen.
+
 `python -m atlas.explorer` generates `web/catalogue/media.json` from existing
 reviewed record aliases and exhibit manifests. It verifies original asset
 hashes and keeps source, creator, license and registration limits. These
