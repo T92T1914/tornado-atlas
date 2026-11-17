@@ -120,9 +120,9 @@ test('formation replay restores native state across reverse seek, quality, histo
   await page.locator('#replay-appearance-mode').selectOption('simulation');
   await nativeState(page,{value:130,seconds:130,genesis:false});
   await page.locator('#replay-appearance-mode').selectOption('formation');
-  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v2');
+  assert.equal(new URL(page.url()).searchParams.get('appearance_style'),'storm-v3');
   assert.equal(await page.locator('#ground-camera').inputValue(),'synthetic-front');
-  await sceneFrame(page,{value:130,seconds:15,camera:'synthetic-front',style:'storm-v2'});
+  await sceneFrame(page,{value:130,seconds:15,camera:'synthetic-front',style:'storm-v3'});
   await page.locator('#replay-time').fill('145');
   assert.match(await page.locator('#replay-appearance-state').textContent(),/Outside/);
   assert.equal(await page.locator('#replay-appearance-canvas').isVisible(),false);

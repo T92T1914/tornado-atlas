@@ -2,12 +2,12 @@
 
 The storm presentations give the illustrative formation study a continuing cloud layer, a changing condensation body and low dust whose spatial detail follows one declared flow. They use the existing `genesis-v1` schedule and camera controls. Their dimensions, visibility, light and transport are authored in scene units. No conversion to metres, measured wind or historical El Reno clock is assigned.
 
-Fresh Form Study experiments use `form-7`, with `model=genesis-v1`, `coverage=storm-detail` and `presentation=storm-v2`. They open paused. When running this checkout, open `study.html` or select **Storm scene and ground detail**. The complete experiment link retains the selected view, sequence position, condensation comparison, dust switch, flow cue and drawing detail. Select the earlier storm presentation to compare `storm-v1` under the same study clock and controls.
+Fresh Form Study experiments use `form-8`, with `model=genesis-v1`, `coverage=storm-integrated` and `presentation=storm-v3`. They open paused. When running this checkout, open `study.html` or select **Storm scene and cloud detail**. The complete experiment link retains the selected view, sequence position, condensation comparison, dust switch, flow cue and drawing detail. Select the earlier storm presentation to compare `storm-v1` under the same study clock and controls.
 
 The replay uses the same renderer through its existing declared ground cameras. One explicit example is:
 
 ```text
-reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v2&ground_view=synthetic-front&t=130#replay-appearance
+reconstruction.html?event=el-reno-2013&appearance_view=formation&appearance_style=storm-v3&ground_view=synthetic-front&t=130#replay-appearance
 ```
 
 The existing player maps seconds 120 through 140 to study seconds 0 through 30:
@@ -26,12 +26,29 @@ Older links retain their declared presentation:
 
 | Form link | Presentation |
 | --- | --- |
+| `form-8`, `coverage=storm-integrated`, `presentation=storm-v3` | A funnel that widens into a lowered cloud base, denser cloud sampling and capped bright margins |
 | `form-7`, `coverage=storm-detail`, `presentation=storm-v2` | Broader material structure, unequal funnel margins and illustrative ground parcels |
 | `form-6`, `coverage=storm`, `presentation=storm-v1` | Continuing storm scene with shared material transport and fixed opaque exposure |
 | `form-5`, `coverage=reference`, `presentation=reference-v1` | Earlier broad form informed by documentary photographs |
 | `form-4`, `coverage=formation`, `lighting=world-v1` | Earlier formation view with scene lighting and a synthetic ground surface |
 
 The earlier `form-1`, `form-2` and `form-3` links, manual forms, bounded sequence gap and six analytic camera references retain their own contracts. Explicit replay `appearance_style=reference-v1` and `appearance_style=world-v1` also remain available. A formation replay URL without a style retains its earlier lighting. Unknown or repeated style values leave that selection unavailable. The [form study notes](visual-form-study.md) describe saving and restoration, and the [reference notes](reference-form-study.md) preserve the earlier presentation's source and material boundaries.
+
+## The funnel joins the cloud base
+
+In `storm-v2` the condensation body fades out level between heights 2.50 and 2.70, and the cloud is a separate field above it. Over the funnel the base of that field sits near 2.40 and its noise can lift it to 2.86. From the low default camera the funnel therefore ends in a flat cut, and the lighter horizon can show between the funnel and the cloud.
+
+`storm-v3` gives both fields one footprint. It is centered on the funnel axis at the top of the column, scaled by that height's section and measured in units of the top radius. Inside 0.85 of that radius the cloud base comes down to about 2.34, unless it is already lower. From 0.85 to 2.4 radii it rises smoothly back to the wider layer. The upper body widens by up to 30 percent between 0.80 and 1.10 of the column height of 2.6, and it now fades out between 1.02 and 1.22 of that height, inside the lowered cloud. Within 1.3 radii the cloud coverage has a floor near 0.92, which fades out by 2.6 radii, so the base over the funnel has no thin holes. Beyond 2.6 radii the cloud matches `storm-v2`.
+
+The lowered base follows the funnel axis as the shape and bend change through the thirty seconds. It is there before the funnel condenses and stays after the funnel weakens, so the funnel comes down from it and withdraws into it. The body box rises from 2.71 to 3.2 and widens from 3.3 to 4.6, so the outermost lobes of the flared top are sampled too. The body keeps its 48 samples. These shapes are authored for the illustration. They do not model a wall cloud's dynamics, a measured cloud base height or an El Reno observation.
+
+## Cloud sampling and material response
+
+`storm-v3` also raises the total exterior cloud budget from 16 to 32 samples. Exterior samples still use squared bin boundaries and each bin's actual optical length. Changing their count also changes the footprint filter, so any reduction in repeated cloud bands belongs to that combined choice.
+
+Its local material response keeps the shadow range but caps the bright endpoint at the distant cloud radiance, so thin edges are no brighter than the far cloud. This is an authored exposure choice, without calibrated scattering or sunlight. Earlier `storm-v1` and `storm-v2` links keep their 16 sample exterior budget and material response.
+
+The larger cloud budget and the taller body box can cost more to draw. No frame rate or GPU timing has been measured for this version. Standard keeps its 512 by 320 raster cap and Lighter its 320 by 200 cap. Some soft detail and repeated structure remain.
 
 ## Ground detail and broader material structure
 
@@ -70,7 +87,7 @@ The texture comes from the existing periodic R8 reference lattice. A sample bin'
 
 [`funnel-simulation-model.mjs`](../web/funnel-simulation-model.mjs) integrates condensation, cloud and enabled dust together through the shared body region. The storm branch uses a sampling box spanning `[-3.3, 3.3]` on X and Z and `[0, 2.71]` on Y. This bounds the region where the media overlap. The continuing cloud has no radial rim and is separately supported between Y = 1.8 and Y = 5.6.
 
-The maximum primary budget remains 48 samples through the shared body region and 16 total across the exterior cloud segments. Cloud before, within and after the body is composed in depth order along the ray. The body segment uses uniform bins. Exterior cloud segments use squared normalized bin boundaries, concentrating samples near each segment's start. Each bin uses its actual length in the exponential opacity response:
+The body ceiling remains 48 primary samples. The exterior cloud ceiling is 32 total for `storm-v3` and 16 for the retained earlier presentations. Cloud before, within and after the body is composed in depth order along the ray. The body segment uses uniform bins. Exterior cloud segments use squared normalized bin boundaries, concentrating samples near each segment's start. Each bin uses its actual length in the exponential opacity response:
 
 ```text
 alpha = 1 - exp(-3.6 * density * delta_s)
@@ -102,7 +119,7 @@ Clear sky, distant local material and the analytic cloud tail meet at one horizo
 
 Dust stays a separate visibility response even though it participates in the shared density integration. Its low support, optical strength and brown material response are authored. A lifted component uses the term `1.25 * exp(-r*r/0.38 - 3.5*y)` before the patch and support masks, with the hard vertical support still limited to Y = 0 through 0.52. This is a chosen density profile without a physical altitude or debris mass. Turning off dust removes that contribution while retaining the condensation and circulation settings. The storm branch has no separate particle drawing pass. Earlier presentations keep their existing particle behavior.
 
-Standard drawing is capped at 512 by 320 pixels and Lighter at 320 by 200. One scale preserves the complete camera frame while CSS retains the reading size. The primary integration budgets stay fixed. Lighter reduces shaded pixels and fine detail without assigning a different scenario time or camera. The storm quality labels describe drawing dimensions rather than an active particle count.
+Standard drawing is capped at 512 by 320 pixels and Lighter at 320 by 200. One scale preserves the complete camera frame while CSS retains the reading size. The primary integration budgets stay fixed within each version. Lighter reduces shaded pixels and fine detail without assigning a different scenario time or camera. The storm quality labels describe drawing dimensions rather than an active particle count.
 
 The existing controls start paused, allow explicit playback and backward seeking, and respond to reduced motion and page visibility. Graphics failure remains explicit, with documentary reading and source links available. These are implementation contracts to verify against the actual candidate. Behavior on physical devices and native recovery need their own evidence.
 

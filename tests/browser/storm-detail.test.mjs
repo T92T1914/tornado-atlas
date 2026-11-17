@@ -72,19 +72,19 @@ test('native storm-v2 compiles and submits independently specified pullback fact
   assert.equal(result.frames[5].repeated,true,'A repeated complete render restores every raw RGBA byte');
 });
 
-for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`storm-v2 Form and Replay preserve opaque native state and complete framing at ${width} ${theme}`,async t=>{
+for(const [style,scenario,formRoute]of [['storm-v2','storm-detail',form7],['storm-v3','storm-integrated',form7.replaceAll('form-7','form-8').replaceAll('storm-detail','storm-integrated').replaceAll('storm-v2','storm-v3')]])for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`${style} Form and Replay preserve opaque native state and complete framing at ${width} ${theme}`,async t=>{
   const page=await fixture(t,{viewport:{width,height:1000},deviceScaleFactor:1,reducedMotion:'reduce'});
   for(const study of [true,false]){
-    await page.goto(base+'/'+(study?'study.html':replay));
+    await page.goto(base+'/'+(study?formRoute:replay.replace('storm-v2',style)));
     await page.locator(study?'#lab-context[data-experiment-ready="true"]':'#replay-time:not([disabled])').waitFor();
     if(study){
-      assert.equal(await page.locator('#sequence-coverage').inputValue(),'storm-detail');
-      assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),'storm-v2');
+      assert.equal(await page.locator('#sequence-coverage').inputValue(),scenario);
+      assert.equal(await page.locator('#scene').getAttribute('data-lighting-style'),style);
       assert.equal(await page.locator('#sequence-enabled').isChecked(),true);
     }
     await page.locator('#reading-appearance').selectOption(theme);
-    const before=await sceneFrame(page,{study,style:'storm-v2',retain:'detail-before'}),ui=await readingState(page);
-    if(study)await page.waitForURL(base+'/'+form7);
+    const before=await sceneFrame(page,{study,style,retain:'detail-before'}),ui=await readingState(page);
+    if(study)await page.waitForURL(base+'/'+formRoute);
     const saved=page.url();
     if(before){
       assert.deepEqual(before.state,[1,0,1,1]);assert.deepEqual(before.alpha,[255,255]);
@@ -105,39 +105,39 @@ for(const [width,theme]of [[320,'light'],[1280,'dark']])test(`storm-v2 Form and 
       }
       assert.equal(await page.locator('#footage-source').inputValue(),'robinson-dashcam');
     }
-    const changed=await sceneFrame(page,{study,style:'storm-v2',trigger:'#reading-appearance',event:'change',compare:'detail-before',
+    const changed=await sceneFrame(page,{study,style,trigger:'#reading-appearance',event:'change',compare:'detail-before',
       action:()=>page.locator('#reading-appearance').selectOption(theme==='light'?'dark':'light')});
     const changedUI=await readingState(page);assert.notEqual(changedUI.background,ui.background);assert.notEqual(changedUI.text,ui.text);assert.equal(page.url(),saved);
     if(before){sameScenario(changed,before);assert.equal(changed.rawEqual,true);assert.equal(changed.hash,before.hash);}
     if(study){
       const old=await sceneFrame(page,{study:true,style:'storm-v1',trigger:'#sequence-coverage',event:'change',action:()=>page.locator('#sequence-coverage').selectOption('storm')});
       if(before){sameScenario(old,before);assert.notEqual(old.hash,before.hash);}
-      const detail=await sceneFrame(page,{study:true,style:'storm-v2',trigger:'#sequence-coverage',event:'change',compare:'detail-before',action:()=>page.locator('#sequence-coverage').selectOption('storm-detail')});
+      const detail=await sceneFrame(page,{study:true,style,trigger:'#sequence-coverage',event:'change',compare:'detail-before',action:()=>page.locator('#sequence-coverage').selectOption(scenario)});
       if(before)assert.equal(detail.rawEqual,true);
-      const noDust=await sceneFrame(page,{study:true,style:'storm-v2',trigger:'#dust',action:()=>page.locator('#dust').uncheck()});
+      const noDust=await sceneFrame(page,{study:true,style,trigger:'#dust',action:()=>page.locator('#dust').uncheck()});
       if(before){sameScenario(noDust,before);assert.equal(noDust.dust,false);assert.notEqual(noDust.hash,before.hash);}
-      const dust=await sceneFrame(page,{study:true,style:'storm-v2',trigger:'#dust',compare:'detail-before',action:()=>page.locator('#dust').check()});
+      const dust=await sceneFrame(page,{study:true,style,trigger:'#dust',compare:'detail-before',action:()=>page.locator('#dust').check()});
       if(before)assert.equal(dust.rawEqual,true);
-      await page.locator('#lab-share').click();assert.equal(page.url(),base+'/'+form7);
+      await page.locator('#lab-share').click();assert.equal(page.url(),base+'/'+formRoute);
       const link=new URL(await page.locator('.formation-context a[href*="reconstruction.html"]').getAttribute('href'),page.url());
-      assert.equal(link.searchParams.get('appearance_style'),'storm-v2');
+      assert.equal(link.searchParams.get('appearance_style'),style);
     }else{
-      const lower=await sceneFrame(page,{style:'storm-v2',trigger:'#ground-quality',event:'change',lighter:true,action:()=>page.locator('#ground-quality').selectOption('1600')});
+      const lower=await sceneFrame(page,{style,trigger:'#ground-quality',event:'change',lighter:true,action:()=>page.locator('#ground-quality').selectOption('1600')});
       if(before){
         sameScenario(lower,before);
         if(before.buffer[0]>320||before.buffer[1]>200)assert.notDeepEqual(lower.buffer,before.buffer);
         else{assert.deepEqual(lower.buffer,before.buffer);assert.equal(lower.hash,before.hash,'A canvas already below both raster caps keeps its complete pixels');}
       }
-      const standard=await sceneFrame(page,{style:'storm-v2',trigger:'#ground-quality',event:'change',compare:'detail-before',action:()=>page.locator('#ground-quality').selectOption('3200')});
+      const standard=await sceneFrame(page,{style,trigger:'#ground-quality',event:'change',compare:'detail-before',action:()=>page.locator('#ground-quality').selectOption('3200')});
       if(before)assert.equal(standard.rawEqual,true);
     }
     await page.reload();await page.locator(study?'#lab-context[data-experiment-ready="true"]':'#replay-time:not([disabled])').waitFor();
     assert.equal(await page.locator(study?'#sequence-time':'#replay-time').inputValue(),study?'0.5':'130');
     assert.equal(await page.locator(study?'#motion':'#replay-play').textContent(),study?'Play motion':'Play timeline');
-    const restored=await sceneFrame(page,{study,style:'storm-v2'});if(before)assert.equal(restored.hash,before.hash);
+    const restored=await sceneFrame(page,{study,style});if(before)assert.equal(restored.hash,before.hash);
     const params=new URL(page.url()).searchParams;
-    if(study){assert.equal(params.get('experiment'),'form-7');assert.equal(params.get('coverage'),'storm-detail');assert.equal(params.get('presentation'),'storm-v2');}
-    else{assert.equal(params.get('appearance_style'),'storm-v2');assert.equal(params.get('t'),'130');assert.equal(params.get('ground_view'),'synthetic-front');assert.equal(params.get('footage_source'),'robinson-dashcam');}
+    if(study){assert.equal(params.get('experiment'),style==='storm-v3'?'form-8':'form-7');assert.equal(params.get('coverage'),scenario);assert.equal(params.get('presentation'),style);}
+    else{assert.equal(params.get('appearance_style'),style);assert.equal(params.get('t'),'130');assert.equal(params.get('ground_view'),'synthetic-front');assert.equal(params.get('footage_source'),'robinson-dashcam');}
     await enlargeText(page);await reflow(page);
   }
 });

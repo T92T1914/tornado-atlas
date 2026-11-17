@@ -52,12 +52,12 @@ export function formationSimulationAt(seconds,id){
 // This transfers an authored phase, not a historical instant or camera fit.
 // Form links retain the existing .001 position grid and its complete defaults.
 export function formationStudyComparison(href,seconds,id,lightingStyle='legacy'){
-  if(!Number.isFinite(seconds)||!['legacy','world-v1','reference-v1','storm-v1','storm-v2'].includes(lightingStyle))return null;
+  if(!Number.isFinite(seconds)||!['legacy','world-v1','reference-v1','storm-v1','storm-v2','storm-v3'].includes(lightingStyle))return null;
   const source=formationSimulationAt(seconds,id);
   if(source.state!=='synthetic')return null;
   const position=Math.round((seconds-GROUND_DEMO.start)/(GROUND_DEMO.end-GROUND_DEMO.start)*1000)/1000;
   const phase=position*30;
-  const coverage={'legacy':'formation','world-v1':'formation','reference-v1':'reference','storm-v1':'storm','storm-v2':'storm-detail'}[lightingStyle];
+  const coverage={'legacy':'formation','world-v1':'formation','reference-v1':'reference','storm-v1':'storm','storm-v2':'storm-detail','storm-v3':'storm-integrated'}[lightingStyle];
   const state={...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage,position,phase,visibility:'ordinary',flow:true};
   if(lightingStyle==='world-v1')state.lighting=lightingStyle;
   else if(lightingStyle!=='legacy')state.presentation=lightingStyle;
