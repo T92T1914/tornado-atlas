@@ -4,7 +4,8 @@ import unittest
 
 from atlas.catalogue import import_ncei
 from atlas.ncei import normalize
-from atlas.publication import export_catalogue, select_index, location_review, json_bytes
+from atlas.publication import (SITE_BUDGET_BYTES, check_site_budget, export_catalogue, json_bytes,
+                               location_review, select_index)
 import test_catalogue as fixtures
 from test_catalogue import sample
 
@@ -109,10 +110,10 @@ class StaticPublicationTests(unittest.TestCase):
     def tearDown(self):
         self.fixture.tearDown()
 
-    def publish(self, rows, revision='20260323', aliases=None):
+    def publish(self, rows, revision='20260323', aliases=None, archive=None):
         metadata = self.fixture.snapshot(rows, revision)
         import_ncei(self.fixture.db, metadata, self.fixture.root)
-        result = export_catalogue(self.fixture.db, self.output, aliases or {})
+        result = export_catalogue(self.fixture.db, self.output, aliases or {}, archive=archive)
         index = json.loads((self.output / 'index.json').read_text(encoding='utf-8'))
         return result,index
 
@@ -158,6 +159,52 @@ class StaticPublicationTests(unittest.TestCase):
         self.assertEqual(detail.pop('location_review'), review)
         self.assertEqual(detail, original)
 
+    def details(self):
+        return {f'details/{path.name}' for path in (self.output/'details').glob('*.json')}
+
+    def named(self, index):
+        return {row['detail_file'] for row in index['records']}
+
+    def test_three_exports_leave_only_two_generations(self):
+        _, first = self.publish([sample(), sample(EVENT_ID='2')])
+        _, second = self.publish([sample(TOR_F_SCALE='EF2'), sample(EVENT_ID='2')], '20260920')
+        self.assertEqual(self.details(), self.named(first) | self.named(second))
+        result, third = self.publish([sample(TOR_F_SCALE='EF3'), sample(EVENT_ID='2')], '20261001')
+        oldest = self.named(first) - self.named(second) - self.named(third)
+        self.assertTrue(oldest)
+        self.assertEqual(self.details(), self.named(second) | self.named(third))
+        self.assertEqual(result['removed_detail_files'], len(oldest))
+
+    def test_a_file_the_archive_names_is_never_removed(self):
+        archive = self.fixture.root / 'archive'
+        _, first = self.publish([sample()], archive=archive)
+        kept = first['records'][0]['detail_file']
+        archive.mkdir()
+        (archive/'index.json').write_text(json.dumps({'record_shards': {kept[8:10]: kept}}), encoding='utf-8')
+        (archive/'event-0123456789abcdef0123.json').write_text('{}', encoding='utf-8')
+        self.publish([sample(TOR_F_SCALE='EF2')], '20260920', archive=archive)
+        _, third = self.publish([sample(TOR_F_SCALE='EF3')], '20261001', archive=archive)
+        self.assertIn(kept, self.details())
+        self.assertNotIn(kept, self.named(third))
+
+    def test_an_unchanged_index_starts_no_generation(self):
+        _, first = self.publish([sample()])
+        self.publish([sample(TOR_F_SCALE='EF2')], '20260920')
+        before = self.details()
+        result = export_catalogue(self.fixture.db, self.output, {})
+        self.assertEqual(result['removed_detail_files'], 0)
+        self.assertEqual(self.details(), before)
+        self.assertTrue(self.named(first) <= before)
+
+    def test_an_unreadable_previous_index_removes_nothing(self):
+        stray = self.output / 'details/ff-0123456789abcdef0123.json'
+        stray.parent.mkdir(parents=True)
+        stray.write_text('{}', encoding='utf-8')
+        (self.output/'index.json').write_text('existing', encoding='utf-8')
+        result, _ = self.publish([sample()])
+        self.assertEqual(result['removed_detail_files'], 0)
+        self.assertTrue(stray.is_file())
+
     def test_unknown_alias_cannot_create_a_fake_record(self):
         result,index = self.publish([sample()],aliases={'ncei:99':{'names':['Imaginary']}})
         self.assertEqual(result['unmatched_aliases'],['ncei:99'])
@@ -169,6 +216,26 @@ class StaticPublicationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             export_catalogue(self.fixture.db,self.output,{})
         self.assertEqual((self.output/'index.json').read_text(),'existing')
+
+
+
+class PublicationBudgetTests(unittest.TestCase):
+    def test_budget_stays_under_the_pages_limit(self):
+        self.assertEqual(SITE_BUDGET_BYTES, 900 * 1024 * 1024)
+        self.assertLess(SITE_BUDGET_BYTES, 1_000_000_000)
+
+    def test_a_padded_tree_fails_the_budget(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as directory:
+            web = Path(directory) / 'web'
+            (web/'catalogue/details').mkdir(parents=True)
+            (web/'index.html').write_bytes(b'x' * 600)
+            (web/'catalogue/details/00-0123456789abcdef0123.json').write_bytes(b'x' * 400)
+            self.assertEqual(check_site_budget(web, 1000), 1000)
+            (web/'catalogue/padding.bin').write_bytes(b'x')
+            with self.assertRaises(ValueError):
+                check_site_budget(web, 1000)
 
 
 if __name__ == '__main__':
