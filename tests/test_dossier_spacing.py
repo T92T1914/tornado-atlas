@@ -19,8 +19,8 @@ from spacing_continuation_support import (REVIEW_KEYS, SPACING_PROMOTIONS, canon
 from text_spacing_support import joined_words
 
 ROOT = Path(__file__).resolve().parents[1]
-# The other current dossiers and the catalogue detail notes join once their own spaced versions exist.
-CHECKED = ('tuscaloosa-birmingham-2011', 'moore-2013')
+# Every current dossier that held a joined word reached its present version through a spacing edge.
+SPACED = ('tuscaloosa-birmingham-2011', 'moore-2013', 'el-reno-2013', 'joplin-2011', 'blackwell-1955', 'udall-1955')
 # Identifiers, links and digests are names, not text a reader reads.
 IDENTIFIER_KEYS = {'id', 'source_id', 'parent', 'creator', 'uploader', 'rights_holder', 'url', 'href',
                    'asset', 'file', 'sha256', 'parent_sha256', 'source_sha256'}
@@ -61,28 +61,33 @@ class DossierSpacingTests(unittest.TestCase):
     def setUpClass(cls):
         cls.docs = {doc['id']: doc for doc in dossiers(ROOT)}
 
-    def edge(self, event):
-        spec = SPACING_PROMOTIONS[event]
-        previous = json.loads((ROOT / 'web' / spec['previous_file']).read_bytes())
-        view = copy.deepcopy(self.docs[event])
-        for key in REVIEW_KEYS:
-            view['provenance']['publication_review'][key] = previous['provenance']['publication_review'][key]
-        return previous, [(leaf(previous, path), leaf(view, path)) for path in spacing_paths(self, previous, view)]
+    def edges(self, event):
+        """Each spacing edge of an event, oldest first, with its changed strings and their current text."""
+        found = []
+        for spec in SPACING_PROMOTIONS[event]:
+            previous = json.loads((ROOT / 'web' / spec['previous_file']).read_bytes())
+            view = json.loads((ROOT / 'web' / spec['current_file']).read_bytes())
+            for key in REVIEW_KEYS:
+                view['provenance']['publication_review'][key] = previous['provenance']['publication_review'][key]
+            found.append((spec, [(leaf(previous, path), leaf(view, path), leaf(self.docs[event], path))
+                                 for path in spacing_paths(self, previous, view)]))
+        return found
 
-    def test_current_checked_dossiers_have_no_word_joined_to_a_number(self):
-        for event in CHECKED:
-            for path, text in reader_strings(self.docs[event]):
+    def test_no_current_dossier_has_a_word_joined_to_a_number(self):
+        self.assertEqual(len(self.docs), 7)
+        for event, doc in self.docs.items():
+            for path, text in reader_strings(doc):
                 with self.subTest(event=event, path='/'.join(map(str, path))):
                     self.assertEqual(joined_words(text), [])
 
     def test_every_spaced_string_held_a_join_and_holds_none_now(self):
-        for event in CHECKED:
-            _, pairs = self.edge(event)
-            self.assertEqual(len(pairs), SPACING_PROMOTIONS[event]['strings'])
-            for old, new in pairs:
-                with self.subTest(event=event, text=old[:60]):
-                    self.assertNotEqual(joined_words(old), [])
-                    self.assertEqual(joined_words(new), [])
+        for event in SPACED:
+            for spec, pairs in self.edges(event):
+                self.assertEqual(len(pairs), spec['strings'])
+                for old, new, now in pairs:
+                    with self.subTest(event=event, edge=spec['current'][:12], text=old[:60]):
+                        self.assertNotEqual(joined_words(old), [])
+                        self.assertEqual(joined_words(now), [])
 
     def test_identifiers_written_joined_are_not_flagged(self):
         for text in ('Video 5ohIVzIZLuQ at 04:22 MM:SS', 'An EF4 rating and an F5 rating', 'Header WFUS54 KBMX',
@@ -95,11 +100,14 @@ class DossierSpacingTests(unittest.TestCase):
     def test_joined_words_are_flagged(self):
         for text, word in (('See Table2.', 'Table2.'), ('Issued at2:40p.m.CDT today', 'at2:40p.m.CDT'),
                            ('Published December2022', 'December2022'), ('Figures 5,8 show it', '5,8'),
-                           ('About 150m away', '150m'), ('It was 23pages long', '23pages')):
+                           ('About 150m away', '150m'), ('It was 23pages long', '23pages'),
+                           ('Exact public uploadEm5HbYt0Fsk and title', 'upload...'),
+                           ('Video 5ohIVzIZLuQand more', '...and'), ('ID 9KjWtBrEYHY2011', '...2011'),
+                           ('Issued 2:40a.m. today', '2:40a.m.')):
             with self.subTest(text=text):
                 self.assertIn(word, joined_words(text))
 
-    def test_an_injected_join_in_a_checked_dossier_is_found(self):
+    def test_an_injected_join_in_a_current_dossier_is_found(self):
         doc = copy.deepcopy(self.docs['tuscaloosa-birmingham-2011'])
         doc['observations'][0]['account'] += ' See Table2.'
         found = [joined_words(text) for _, text in reader_strings(doc) if joined_words(text)]
@@ -108,54 +116,62 @@ class DossierSpacingTests(unittest.TestCase):
     def test_no_published_page_shows_a_word_this_edge_spaced_in_its_joined_form(self):
         pages = {path.relative_to(ROOT).as_posix(): path.read_text(encoding='utf-8') for path in published_files()}
         self.assertIn('web/coverage.html', pages)
-        # A joined word that another current dossier still carries belongs to that dossier's own check.
-        elsewhere = ' '.join(text for event, doc in self.docs.items() if event not in CHECKED
-                             for _, text in reader_strings(doc))
         tested = 0
-        for event in CHECKED:
-            _, pairs = self.edge(event)
+        for event in SPACED:
+            pairs = [pair for _, found in self.edges(event) for pair in found]
             shown = 0
-            for old, new in pairs:
+            for old, new, now in pairs:
                 new_words = new.split(' ')
                 words = {word.strip(EDGE) for word in old.split(' ') if word not in new_words}
                 for word in sorted(words - {''}):
-                    if word in elsewhere:
-                        continue
                     tested += 1
                     for name, text in pages.items():
                         with self.subTest(event=event, page=name, word=word):
                             self.assertFalse(any(form in text for form in shown_forms(word)))
-                shown += any(form in pages['web/coverage.html'] for form in shown_forms(new))
-            self.assertGreater(shown, 0, 'The coverage page shows spaced text from ' + event)
-        self.assertGreater(tested, 50)
+                shown += any(form in pages['web/coverage.html'] for form in shown_forms(now))
+            if event != 'udall-1955':
+                self.assertGreater(shown, 0, 'The coverage page shows spaced text from ' + event)
+        self.assertGreater(tested, 100)
 
-    def test_catalogue_details_of_checked_events_have_no_joined_words(self):
+    def test_no_exhibit_reading_list_has_a_joined_word(self):
+        lists = sorted((ROOT / 'exhibits').glob('*/reading.json'))
+        self.assertGreater(len(lists), 0)
+        for path in lists:
+            strings = list(reader_strings(json.loads(path.read_bytes())))
+            self.assertGreater(len(strings), 100)
+            for where, text in strings:
+                with self.subTest(file=path.parent.name, path='/'.join(map(str, where))):
+                    self.assertEqual(joined_words(text), [])
+
+    def test_no_current_catalogue_detail_note_has_a_joined_word(self):
         folder = ROOT / 'web/catalogue'
-        index = {row['id']: row for row in json.loads((folder / 'index.json').read_bytes())['records']}
-        details = {}
+        rows = json.loads((folder / 'index.json').read_bytes())['records']
+        details = {name: json.loads((folder / name).read_bytes()) for name in sorted({row['detail_file'] for row in rows})}
         checked = 0
-        for event in CHECKED:
-            for record in self.docs[event]['records']:
-                row = index[record['id']]
-                if row['detail_file'] not in details:
-                    details[row['detail_file']] = json.loads((folder / row['detail_file']).read_bytes())
-                detail = details[row['detail_file']][record['id']]
-                self.assertEqual(detail['curation']['basis'], record['basis'])
+        for name, records in details.items():
+            for record_id, detail in records.items():
                 for field in ('curation', 'location_review'):
                     for path, text in reader_strings(detail.get(field) or {}, (field,)):
                         checked += 1
-                        with self.subTest(record=record['id'], path='/'.join(map(str, path))):
+                        with self.subTest(record=record_id, path='/'.join(map(str, path))):
                             self.assertEqual(joined_words(text), [])
-        self.assertGreater(checked, 0)
+        for doc in self.docs.values():
+            for record in doc['records']:
+                row = next(row for row in rows if row['id'] == record['id'])
+                self.assertEqual(details[row['detail_file']][record['id']]['curation']['basis'], record['basis'])
+        self.assertGreater(checked, 400)
 
     def test_spacing_edges_return_the_exact_predecessors(self):
-        self.assertEqual(set(SPACING_PROMOTIONS), set(CHECKED))
-        for event, spec in SPACING_PROMOTIONS.items():
+        self.assertEqual(set(SPACING_PROMOTIONS), set(SPACED))
+        for event, specs in SPACING_PROMOTIONS.items():
             with self.subTest(event=event):
                 previous, entry = spacing_boundary(self, self.docs[event])
-                self.assertEqual(canonical(previous), spec['previous'])
-                self.assertEqual(entry['dossier_sha256'], spec['previous'])
-                self.assertEqual(canonical(self.docs[event]), spec['current'])
+                self.assertEqual(canonical(previous), specs[0]['previous'])
+                self.assertEqual(entry['dossier_sha256'], specs[0]['previous'])
+                self.assertEqual(canonical(self.docs[event]), specs[-1]['current'])
+                for older, newer in zip(specs, specs[1:]):
+                    self.assertEqual((newer['previous'], newer['previous_index_sha256']),
+                                     (older['current'], older['current_index_sha256']))
         self.assertEqual(canonical(response_predecessor(self, self.docs['moore-2013'])),
                          '5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85')
         self.assertEqual(canonical(reviewed_predecessor(self, self.docs['tuscaloosa-birmingham-2011'])),
@@ -172,7 +188,8 @@ class DossierSpacingTests(unittest.TestCase):
     def test_any_other_change_fails_the_edge(self):
         base = {'id': 'event451537', 'title': 'Event451537', 'count': 2, 'rows': [{'id': 'a1', 'limits': 'Page10'}],
                 'locator': 'DOI 10.1175/BAMS-D-20-0251.1 at 04:22 MM:SS from https://example.org/a2b',
-                'time': {'capture': {'reported': 'at2207UTC'}, 'publication': '2019-11-16'},
+                'time': {'capture': {'reported': 'at23:24:55UTC', 'precision': 'second'},
+                         'alignment': {'reported': 'at2207UTC'}, 'publication': '2019-11-16'},
                 'provenance': {'summary': 'Page10', 'inputs': {'note.md': 'abc'}}}
         changes = {
             'a changed digit': (lambda doc: doc.__setitem__('title', 'Event 451538'), 'may only put spaces back'),
@@ -185,8 +202,10 @@ class DossierSpacingTests(unittest.TestCase):
                                    'cannot change provenance'),
             'a provenance summary': (lambda doc: doc['provenance'].__setitem__('summary', 'Page 10'),
                                      'cannot change provenance'),
-            'a capture time': (lambda doc: doc['time']['capture'].__setitem__('reported', 'at 2207 UTC'),
-                               'capture, alignment or video time'),
+            'an alignment time': (lambda doc: doc['time']['alignment'].__setitem__('reported', 'at 2207 UTC'),
+                                  'alignment or video time'),
+            'a capture precision': (lambda doc: doc['time']['capture'].__setitem__('precision', 'sec ond'),
+                                    'only change reader prose'),
             'a split clock': (lambda doc: doc.__setitem__('locator', doc['locator'].replace('04:22', '04: 22')),
                               'cannot split'),
             'a split DOI': (lambda doc: doc.__setitem__('locator', doc['locator'].replace('1175/BAMS', '1175/ BAMS')),
@@ -195,12 +214,21 @@ class DossierSpacingTests(unittest.TestCase):
                              'cannot split'),
             'a split date': (lambda doc: doc['time'].__setitem__('publication', '2019- 11-16'), 'cannot split'),
             'a leading space': (lambda doc: doc.__setitem__('title', ' Event451537'), 'cannot split'),
+            'a doubled space': (lambda doc: doc.__setitem__('title', 'Event  451537'), 'one space at a time'),
+            'a space inside a word': (lambda doc: doc.__setitem__('title', 'Eve nt 451537'), 'ran together'),
+            'a space beside a space': (lambda doc: doc.__setitem__('locator', doc['locator'].replace(' at ', '  at ')),
+                                       'ran together'),
+            'a split enum': (lambda doc: doc['rows'][0].__setitem__('limits', 'Pa ge10'), 'ran together'),
+            'a capture space away from the zone': (lambda doc: doc['time']['capture'].__setitem__(
+                'reported', 'at 23:24:55 UTC'), 'before its zone'),
         }
         self.assertEqual(spacing_paths(self, base, copy.deepcopy(base)), [])
         spaced = copy.deepcopy(base)
         spaced['title'] = 'Event 451537'
         spaced['rows'][0]['limits'] = 'Page 10'
-        self.assertEqual(spacing_paths(self, base, spaced), [('title',), ('rows', 0, 'limits')])
+        spaced['time']['capture']['reported'] = 'at23:24:55 UTC'
+        self.assertEqual(spacing_paths(self, base, spaced),
+                         [('title',), ('rows', 0, 'limits'), ('time', 'capture', 'reported')])
         hashed = {'revision': 'SHA256' + 'd4' * 32}
         self.assertEqual(spacing_paths(self, hashed, {'revision': 'SHA256 ' + 'd4' * 32}), [('revision',)])
         for label, (change, message) in changes.items():
@@ -211,7 +239,7 @@ class DossierSpacingTests(unittest.TestCase):
                     spacing_paths(self, base, after)
 
     def test_a_mutated_current_dossier_is_not_a_spacing_edge(self):
-        for event in CHECKED:
+        for event in SPACED:
             changes = {
                 'one more space': lambda doc: doc['sources'][0].__setitem__('title', doc['sources'][0]['title'] + ' '),
                 'a changed rights line': lambda doc: doc['sources'][0].__setitem__('rights', 'Unreviewed replacement'),

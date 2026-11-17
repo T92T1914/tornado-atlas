@@ -8,6 +8,7 @@ from pathlib import Path
 
 from atlas.chronology import validate_chronology
 from atlas.archive import digest,dossiers,dossier_history
+from spacing_continuation_support import spacing_predecessor
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -52,7 +53,8 @@ class RadarChronologyTests(unittest.TestCase):
         retained={version['dossier_sha256'] for version in history['versions']}
         self.assertIn(reference['dossier_sha256'],retained)
         self.assertIn(metadata_sha,retained)
-        self.assertEqual(current['media'][:len(rebased['media'])],rebased['media'])
+        # A later spacing edge is validated exactly before its predecessor is compared.
+        self.assertEqual(spacing_predecessor(self,current)['media'][:len(rebased['media'])],rebased['media'])
         self.assertEqual([row['id'] for row in current['media'][len(rebased['media']):]],
                          ['piotrowski-joplin-original', 'nws-joplin-st-johns-aftermath',
                           'nws-joplin-high-school-aftermath'])

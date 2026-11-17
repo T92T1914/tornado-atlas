@@ -6,8 +6,9 @@ from pathlib import Path
 import unittest
 from tempfile import TemporaryDirectory
 
-from reviewed_continuation_support import PROMOTIONS, canonical, reviewed_predecessor
+from reviewed_continuation_support import PROMOTIONS, _bound as reviewed_bound, canonical, reviewed_predecessor
 from response_continuation_support import response_predecessor
+from spacing_continuation_support import SPACING_PROMOTIONS
 from atlas.archive import digest, dossiers
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -263,10 +264,14 @@ class ExactReviewedContinuationControls(unittest.TestCase):
 
     def isolated_publication(self, destination, event):
         spec = PROMOTIONS[event]
-        for field in ('previous_file', 'current_file', 'history_file'):
-            path = destination / 'web' / spec[field]
+        files = [spec[field] for field in ('previous_file', 'current_file', 'history_file')]
+        # A later spacing edge reads its own immutable files before this edge.
+        for later in SPACING_PROMOTIONS.get(event, ()):
+            files += [later['current_file'], later['history_file']]
+        for file in files:
+            path = destination / 'web' / file
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes((ROOT / 'web' / spec[field]).read_bytes())
+            path.write_bytes((ROOT / 'web' / file).read_bytes())
         index = json.loads((ROOT / 'web/archive/index.json').read_bytes())
         entry = next(row for row in index['events'] if row['id'] == event)
         (destination / 'web/archive/index.json').write_text(
@@ -282,8 +287,14 @@ class ExactReviewedContinuationControls(unittest.TestCase):
                 reviewed_predecessor(self, self.docs[event], isolated)
                 path = isolated / 'web' / PROMOTIONS[event][field]
                 path.write_bytes(path.read_bytes() + b'\n')
-                with self.assertRaisesRegex(AssertionError, 'Immutable reviewed publication bytes changed'):
+                # The current file and history of this edge are also the later spacing edge's
+                # predecessor bytes, so that guard fires first. The reviewed guard must refuse them too.
+                guard = 'publication' if field == 'previous_file' else 'spacing'
+                with self.assertRaisesRegex(AssertionError, f'Immutable reviewed {guard} bytes changed'):
                     reviewed_predecessor(self, self.docs[event], isolated)
+                wire = PROMOTIONS[event][field.replace('_file', '_wire')]
+                with self.assertRaisesRegex(AssertionError, 'Immutable reviewed publication bytes changed'):
+                    reviewed_bound(self, isolated, PROMOTIONS[event][field], wire)
 
     def test_current_index_must_keep_the_new_association_and_exact_identity(self):
         event = 'joplin-2011'

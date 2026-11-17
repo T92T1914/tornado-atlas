@@ -4,6 +4,7 @@ from pathlib import Path
 from atlas.archive import dossiers,digest
 from atlas.event_package import validate_appearance_timeline,utc
 from atlas.evidence_coverage import validate_hosted_photo_joins
+from spacing_continuation_support import spacing_predecessor
 ROOT=Path(__file__).resolve().parents[1]
 T=json.loads((ROOT/'exhibits/el-reno-2013/appearance-timeline.json').read_bytes())
 C=json.loads((ROOT/'exhibits/el-reno-2013/replay.json').read_bytes())
@@ -27,7 +28,9 @@ class NolteFullDocumentaryTests(unittest.TestCase):
  def test_older_comparisons_commons_and_metadata_records_unchanged(self):
   old=json.loads((ROOT/'web/archive/el-reno-2013-e987d46a1c95d8536c0f.json').read_bytes())
   ids=['nolte-timecoded-context-231037','nolte-timecoded-context-231059','nolte-el-reno-documentary-photo']
-  for identity in ids:self.assertEqual(next(m for m in self.doc['media']if m['id']==identity),next(m for m in old['media']if m['id']==identity))
+  # A later spacing edge is validated exactly before these older records are compared.
+  retained=spacing_predecessor(self,self.doc)
+  for identity in ids:self.assertEqual(next(m for m in retained['media']if m['id']==identity),next(m for m in old['media']if m['id']==identity))
   for sample in T['photo_sequences'][0]['samples'][:2]:
    prior=next(m for m in old['media']if m['id']=='nolte-timecoded-context-'+sample['id'].split('-')[-1])
    self.assertEqual(sample['source_comparison'],prior['review']['source_comparison'])

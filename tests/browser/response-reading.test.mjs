@@ -13,11 +13,11 @@ const stories=[
  {event:'moore-2013',digest:'5c2ac0ec0006b1eee3e08e0fd8fbf4402ee284c51bded881707e51e7a950ce72',article:'moore.html',section:'weather-support-after-the-tornado',observation:'moore-response-weather-support',source:'nws-event-hub',original:'https://www.weather.gov/oun/events-20130520',
   file:'archive/moore-2013-5c2ac0ec0006b1eee3e0.json',wire:'b00333f3cc740e24dd9e8760e00f5ff640518b3ea543f4e7595ab42063c3965b',bytes:57970,
   facts:[/Warren Theater parking lot/,/May 21/,/7 a\.m\. to 7 p\.m\./,/Tuesday through Saturday/],limits:/printed shift hours have no separate time-zone label/},
- {event:'udall-1955',digest:'33163d1731a0f30fae5e138ab18b67c7f97121ef229a7748a79f9a6b517ba802',article:'udall.html',section:'damage-and-aftermath',observation:'udall-directional-damage-comparison',source:'nws-wichita-storm-report',original:'https://www.weather.gov/ict/udall_stormreport',
-  file:'archive/udall-1955-33163d1731a0f30fae5e.json',wire:'8296d1156ba922652b7e8a708a7e3e267fec69a923f2a8aec360fbf5494d70cc',bytes:37573,
+ {event:'udall-1955',digest:'38073d38c17d165d603c0d4522981f61ff42813ecbbae0fee43b4a84241331c1',article:'udall.html',section:'damage-and-aftermath',observation:'udall-directional-damage-comparison',source:'nws-wichita-storm-report',original:'https://www.weather.gov/ict/udall_stormreport',
+  file:'archive/udall-1955-38073d38c17d165d603c.json',wire:'f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76',bytes:37569,
   facts:[/water tower toward the southwest/,/another group remained on the siding/,/free edge pointed northeast/],limits:/not a newly measured wind field/},
- {event:'blackwell-1955',digest:'dcb7f27027e6e619290215f8ae554e38ab2a45a51aff59861427b8d3285e6ae2',article:'blackwell.html',section:'observations',observation:'blackwell-witness-weather-sequences',source:'nws-wichita',original:'https://www.weather.gov/ict/udall_stormreport',
-  file:'archive/blackwell-1955-dcb7f27027e6e6192902.json',wire:'d14d75d302f1236b507e7e583420ff9c6ac7a6c0ee2c7807efa37f3fd3a62cd5',bytes:55792,
+ {event:'blackwell-1955',digest:'de028afdf56eed787a3e666c7e3364acbd20bcda152dabf194f499ed99db55a5',article:'blackwell.html',section:'observations',observation:'blackwell-witness-weather-sequences',source:'nws-wichita',original:'https://www.weather.gov/ict/udall_stormreport',
+  file:'archive/blackwell-1955-de028afdf56eed787a3e.json',wire:'7c44f21d1f8279ec4e3988f167361a34db6612e5caab96300f72f2e5cd5f1030',bytes:55966,
   facts:[/southern Blackwell/,/north-side account/,/Arkansas City/,/do not establish an eye or a safe interval/],limits:/Kansas accounts are not moved into Blackwell/}
 ];
 const asset='assets/moore-2013/bruce_command.jpg',imageSHA='b08b9dea73be54a692887caf361d262858561e8e8f4d912518a8dc8737e78281';
