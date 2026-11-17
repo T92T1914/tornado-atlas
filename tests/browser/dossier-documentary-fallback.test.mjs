@@ -57,7 +57,7 @@ async function appearanceState(page,{choice,enabled,background}){
   assert.equal(await page.locator('html').getAttribute('data-appearance'),choice==='system'?null:choice);
   const colors=await page.evaluate(()=>({variable:getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(),body:getComputedStyle(document.body).backgroundColor}));
   assert.equal(colors.variable,background);
-  assert.equal(colors.body,background==='#090909'?'rgb(9, 9, 9)':'rgb(248, 247, 243)');
+  assert.equal(colors.body,background==='#000000'?'rgb(0, 0, 0)':'rgb(255, 255, 255)');
 }
 
 for(const appearance of ['dark','light'])test(`documentary fallback works without JavaScript at 320px in ${appearance}`,{timeout:30000},async t=>{
@@ -68,7 +68,7 @@ for(const appearance of ['dark','light'])test(`documentary fallback works withou
   assert.equal(await page.locator('#documentary-js-required').isVisible(),true);
   assert.equal(await page.locator('#content > p').textContent(),'Browse the evidence archive or read a current documentary chapter below.');
   assert.match(await page.locator('#documentary-js-required').textContent(),/search, evidence cards and revision metadata require JavaScript/);
-  await appearanceState(page,{choice:'dark',enabled:false,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:false,background:'#000000'});
   const sizes=()=>section.locator('h2,p,nav a').evaluateAll(nodes=>nodes.map(node=>parseFloat(getComputedStyle(node).fontSize)));
   const before=await sizes();
   // Inline styles do not depend on a stylesheet load event in a no-script page.
@@ -89,7 +89,7 @@ for(const appearance of ['dark','light'])test(`documentary fallback works withou
   await page.goBack();await fallback(page);
   await page.goto(base+'/dossier.html?event='+entry.id+'&revision='+retained.dossier_sha256);
   const direct=await fallback(page);
-  await appearanceState(page,{choice:'dark',enabled:false,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:false,background:'#000000'});
   assert.equal(await page.locator('#documentary-js-required').isVisible(),true);
   assert.equal(await page.locator('#content .archive-card').count(),0);
   assert.equal(new URL(page.url()).searchParams.get('revision'),retained.dossier_sha256);
@@ -106,7 +106,7 @@ for(const appearance of ['dark','light'])test(`a blocked appearance script retai
   await page.goto(base+'/dossier.html?event='+entry.id);await dossierReady(page);
   const section=await fallback(page);
   assert.equal(scriptRequested,true);
-  await appearanceState(page,{choice:'dark',enabled:false,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:false,background:'#000000'});
   assert.match(await page.locator('#content').textContent(),/current published dossier/);
   await keyboardFollow(page,section.getByRole('link',{name:'Tuscaloosa and Birmingham, 2011',exact:true}));
   assert.equal(new URL(page.url()).pathname,'/tuscaloosa.html');
@@ -116,39 +116,39 @@ for(const appearance of ['dark','light'])test(`a blocked appearance script retai
 test('initialized appearance restores saved choices and changes the actual palette',{timeout:30000},async t=>{
   const page=await fixture(t,{colorScheme:'light'});
   await page.goto(base+'/dossier.html');await dossierReady(page);
-  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#000000'});
   // Native selection dispatches the production change handler, not a test copy.
   await page.locator('#reading-appearance').selectOption('light');
-  await appearanceState(page,{choice:'light',enabled:true,background:'#f8f7f3'});
+  await appearanceState(page,{choice:'light',enabled:true,background:'#ffffff'});
   assert.equal(await page.evaluate(()=>localStorage.getItem('tornado-atlas-appearance')),'light');
   await page.reload();await dossierReady(page);
-  await appearanceState(page,{choice:'light',enabled:true,background:'#f8f7f3'});
+  await appearanceState(page,{choice:'light',enabled:true,background:'#ffffff'});
   await page.locator('#reading-appearance').selectOption('system');
-  await appearanceState(page,{choice:'system',enabled:true,background:'#f8f7f3'});
+  await appearanceState(page,{choice:'system',enabled:true,background:'#ffffff'});
   assert.equal(await page.evaluate(()=>localStorage.getItem('tornado-atlas-appearance')),'system');
   await page.emulateMedia({colorScheme:'dark'});
-  await appearanceState(page,{choice:'system',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'system',enabled:true,background:'#000000'});
   await page.reload();await dossierReady(page);
-  await appearanceState(page,{choice:'system',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'system',enabled:true,background:'#000000'});
   await page.locator('#reading-appearance').selectOption('dark');
   assert.equal(await page.evaluate(()=>localStorage.getItem('tornado-atlas-appearance')),'dark');
   await page.emulateMedia({colorScheme:'light'});
-  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#000000'});
   await page.reload();await dossierReady(page);
-  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#000000'});
 });
 
 test('appearance controls remain functional when preference storage is unavailable',{timeout:30000},async t=>{
   const page=await fixture(t,{colorScheme:'light'});
   await page.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new DOMException('Storage unavailable','SecurityError');}}));
   await page.goto(base+'/dossier.html');await dossierReady(page);
-  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#000000'});
   await page.locator('#reading-appearance').selectOption('light');
-  await appearanceState(page,{choice:'light',enabled:true,background:'#f8f7f3'});
+  await appearanceState(page,{choice:'light',enabled:true,background:'#ffffff'});
   await page.locator('#reading-appearance').selectOption('system');
-  await appearanceState(page,{choice:'system',enabled:true,background:'#f8f7f3'});
+  await appearanceState(page,{choice:'system',enabled:true,background:'#ffffff'});
   await page.reload();await dossierReady(page);
-  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#000000'});
 });
 
 test('a missing dossier module leaves the native documentary route usable',{timeout:30000},async t=>{
@@ -157,7 +157,7 @@ test('a missing dossier module leaves the native documentary route usable',{time
   await page.route('**/dossier.mjs',route=>{moduleRequested=true;return route.fulfill({status:503,contentType:'text/javascript',body:''});});
   await page.goto(base+'/dossier.html?event='+entry.id+'&revision='+retained.dossier_sha256);
   const section=await fallback(page);
-  await appearanceState(page,{choice:'dark',enabled:true,background:'#090909'});
+  await appearanceState(page,{choice:'dark',enabled:true,background:'#000000'});
   assert.equal(moduleRequested,true);
   assert.equal(await page.locator('#content > p').textContent(),'Browse the evidence archive or read a current documentary chapter below.');
   assert.equal(await page.locator('#content .archive-card').count(),0);

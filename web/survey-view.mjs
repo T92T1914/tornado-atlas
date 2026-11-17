@@ -105,7 +105,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
     const item=el('span',label==='N/A'?'N/A or unknown':label);
     item.style.setProperty('--swatch',color); legend.append(item);
   }
-  const fatalityKey=el('span','◆ Fatalities','fatality-legend');fatalityKey.style.setProperty('--swatch','var(--fatality)');legend.append(fatalityKey);
+  const fatalityKey=el('span','◆ Fatalities','fatality-legend');legend.append(fatalityKey);
   mapPanel.append(legend,el('p','Scroll to zoom around the pointer. Drag to explore, or pinch on a touchscreen. Keyboard: arrows to pan, + and - to zoom, Home for the whole path. The map shows surveyed features, not camera positions.','fineprint'));
   const lineContext=el('p',null,'fineprint');lineContext.id='survey-line-context';lineContext.setAttribute('role','status');mapPanel.append(lineContext);
   const controls=el('div',null,'survey-controls'), label=el('label','Observation ');

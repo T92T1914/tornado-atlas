@@ -165,7 +165,7 @@ async function figureKeys(page){
  const stops=gradient.match(/rgb\(\d+,\s*\d+,\s*\d+\)/g)?.map(s=>s.replace(/\s/g,''))??[];
  const scheme=await page.locator('html').evaluate(node=>getComputedStyle(node).colorScheme);
  assert.ok(['dark','light'].includes(scheme));
- const expected=scheme==='dark'?['rgb(164,164,164)','rgb(244,244,244)']:['rgb(100,98,92)','rgb(36,36,36)'];
+ const expected=scheme==='dark'?['rgb(153,153,153)','rgb(255,255,255)']:['rgb(102,102,102)','rgb(0,0,0)'];
  assert.deepEqual(stops,expected,'The relative field key has the reviewed appearance endpoints and no unrelated midpoint');
  assert.match(await page.locator('.wind-key small').innerText(),/relative.*not EF ratings/);
  for(const [figure,explanation,terms] of [

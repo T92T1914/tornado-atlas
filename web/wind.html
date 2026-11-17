@@ -75,19 +75,19 @@
   <div class="passage-layout">
     <div>
       <svg aria-describedby="passage-plan-reading" id="passage-plan" viewBox="0 0 720 420" role="img" aria-label="Plan view of a prescribed vortex moving east along a straight path past a fixed probe.">
-        <path d="M60 210H660" stroke="#748477" stroke-dasharray="5 6"/><text x="62" y="193">TRAVEL EAST →</text>
-        <circle id="passage-center" cx="60" cy="210" r="50" fill="#72bcb724" stroke="#a6cbc5" stroke-width="2"/>
+        <path d="M60 210H660" stroke="#999999" stroke-dasharray="5 6"/><text x="62" y="193">TRAVEL EAST →</text>
+        <circle id="passage-center" cx="60" cy="210" r="50" fill="#ffffff24" stroke="#cccccc" stroke-width="2"/>
         <path id="passage-direction-arrow" class="passage-direction-arrow" d="" visibility="hidden" aria-hidden="true"/>
-        <circle id="passage-probe" cx="360" cy="160" r="6" fill="#f2dab6"/><text id="passage-probe-legend" x="430" y="38">FIXED PROBE: GOLD DOT</text>
+        <circle id="passage-probe" cx="360" cy="160" r="6" fill="#ffffff"/><text id="passage-probe-legend" x="430" y="38">FIXED PROBE: FILLED DOT</text>
         <text x="62" y="394">CIRCLE: CORE RADIUS R</text><text x="490" y="394">PATH SHOWN: 12 R</text>
       </svg>
-      <p class="figure-reading" id="passage-plan-reading"><strong>Plan view.</strong> The center travels east along the dashed line for 12 core radii. The circle marks core radius R. The gold dot is the fixed probe, north or south of the path according to your chosen offset. Its short gold arrow shows air movement at the selected sample. The arrow has a fixed length and shows direction only.</p>
+      <p class="figure-reading" id="passage-plan-reading"><strong>Plan view.</strong> The center travels east along the dashed line for 12 core radii. The circle marks core radius R. The filled dot is the fixed probe, north or south of the path according to your chosen offset. Its short arrow shows air movement at the selected sample. The arrow has a fixed length and shows direction only.</p>
       <svg aria-describedby="passage-chart-reading" id="passage-chart" viewBox="0 0 720 245" role="img" aria-label="Sampled wind speed at the fixed probe over model time. The dashed line is the chosen comparison speed.">
-        <path d="M52 25V200H688" fill="none" stroke="#748477"/>
-        <line id="passage-threshold" x1="52" x2="688" stroke="#b69a73" stroke-dasharray="4 5"/>
-        <path id="passage-line" fill="none" stroke="#a6cbc5" stroke-width="2"/>
-        <line id="passage-cursor" y1="25" y2="200" stroke="#f2dab6" opacity=".65"/>
-        <circle id="passage-dot" r="4" fill="#f2dab6"/>
+        <path d="M52 25V200H688" fill="none" stroke="#999999"/>
+        <line id="passage-threshold" x1="52" x2="688" stroke="#cccccc" stroke-dasharray="4 5"/>
+        <path id="passage-line" fill="none" stroke="#ffffff" stroke-width="2"/>
+        <line id="passage-cursor" y1="25" y2="200" stroke="#ffffff" opacity=".65"/>
+        <circle id="passage-dot" r="4" fill="#ffffff"/>
         <text id="passage-top" x="52" y="17"></text><text x="30" y="204">0</text>
         <text id="passage-start" x="52" y="225"></text><text x="340" y="225">0 s</text><text id="passage-end" x="688" y="225" text-anchor="end"></text>
       </svg>
@@ -115,9 +115,9 @@
     <p>Try the checked opposite-side case: keep peak swirl at 100 mph, radius at 500 ft and travel at 30 mph. Set eastward background to 20 mph and capacity to 1.6 kN. Keep area at 1 m² and drag coefficient at 1.2. Compare offsets of -0.7 and +0.7. The sampled rule fails south of the track and stays below capacity north of it. These chosen values check the model, without claiming a real building or historical tornado. The duration above the separate chosen wind speed is a different quantity.</p>
     <div class="passage-layout">
       <div><svg aria-describedby="component-diagram-reading" id="component-diagram" viewBox="0 0 450 180" role="img" aria-label="Schematic test component and its connections.">
-        <path d="M85 145H320M120 145V30M280 145V30" fill="none" stroke="#778879" stroke-width="6"/>
-        <rect id="component-panel" x="100" y="40" width="200" height="80" rx="5" fill="#5b847b" stroke="#bed0bf" stroke-width="2"/>
-        <g id="component-connections" fill="#f2dab6"><circle cx="120" cy="55" r="5"/><circle cx="280" cy="55" r="5"/><circle cx="120" cy="105" r="5"/><circle cx="280" cy="105" r="5"/></g>
+        <path d="M85 145H320M120 145V30M280 145V30" fill="none" stroke="#999999" stroke-width="6"/>
+        <rect id="component-panel" x="100" y="40" width="200" height="80" rx="5" fill="#505050" stroke="#cccccc" stroke-width="2"/>
+        <g id="component-connections" fill="#ffffff"><circle cx="120" cy="55" r="5"/><circle cx="280" cy="55" r="5"/><circle cx="120" cy="105" r="5"/><circle cx="280" cy="105" r="5"/></g>
         <text x="15" y="170">SCHEMATIC ONLY / NO DEBRIS TRAJECTORY</text>
       </svg><p class="figure-reading" id="component-diagram-reading"><strong>Schematic component.</strong> The panel and its four connections indicate the sampled capacity rule. This drawing has no physical dimensions and does not predict a debris trajectory.</p><p id="component-state" class="component-state"></p>
       <label for="component-time">Explore the same passage <output id="component-time-value"></output></label><input id="component-time" type="range" min="0" max="480" step="1" value="0"><button id="component-play">Play passage</button></div>

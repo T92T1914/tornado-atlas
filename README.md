@@ -263,11 +263,12 @@ ID. Blank event identifiers still prevent a direct event join for the underlying
 regional survey, so the map retains its caveat about geographic selection. No capture
 times, camera positions or photographer names are invented.
 
-The museum pages offer Clair, Obscur and System appearances. Clair pairs warm
-ivory with charcoal text. Obscur uses black, white and gray for the interface.
-Fatality records have their own rose diamond and written death count. Support for forced colors and text alternatives
-remain available for map markers. Photographs and radar
-colors are not recolored. The wind field and its speed legend use the selected appearance together. Changing appearance redraws a paused field without advancing its tracers or changing the sampled values. Community entries link back to the relevant map or
+The museum pages offer Clair, Obscur and System appearances. Clair is white
+with black text and Obscur is black with white text. Both use gray for
+everything secondary and no hue in the reading colors. A fatality record shows
+a diamond and a written death count together, so neither depends on color.
+Forced colors and text alternatives remain available for map markers. Photographs, radar
+and the labeled EF rating colors are not recolored. The wind field and its speed legend use the selected appearance together. Changing appearance redraws a paused field without advancing its tracers or changing the sampled values. Community entries link back to the relevant map or
 gallery. The [design and research review](research/linked-evidence-design-2026-09-20.md)
 explains the ArcGIS reference, the evidence model and the remaining work.
 

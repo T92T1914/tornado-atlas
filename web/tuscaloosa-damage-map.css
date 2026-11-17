@@ -4,12 +4,12 @@ html:has(.damage-survey-section) {scroll-behavior:auto}
 .damage-source-overview {margin:1.5rem 0}
 .damage-source-overview svg {display:block;width:100%;height:auto;background:var(--panel,var(--bg));border:1px solid var(--line);border-radius:4px}
 .damage-overall {fill:var(--text);fill-opacity:.035;stroke:var(--text);stroke-width:2;vector-effect:non-scaling-stroke}
-.damage-local {fill:#ad577d;fill-opacity:.2;stroke:#ad577d;stroke-dasharray:6 4;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.damage-local {fill:var(--muted);fill-opacity:.2;stroke:var(--muted);stroke-dasharray:6 4;stroke-width:1.5;vector-effect:non-scaling-stroke}
 .damage-point {fill:var(--text)}
 #damage-interactive-map {height:420px;border:1px solid var(--line);margin:1rem 0;background:var(--bg)}
 #damage-interactive-map[hidden] {display:none}
 .survey-estimated-overall {stroke:var(--text);fill:var(--text)}
-.survey-estimated-local {stroke:#ad577d;fill:#ad577d}
+.survey-estimated-local {stroke:var(--muted);fill:var(--muted)}
 #damage-interactive-map .context-land {fill:var(--panel);stroke:var(--muted);fill-opacity:1}
 #damage-interactive-map .catalogue-cluster {display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#242424;color:#fff;font:700 11px var(--interface-font);box-shadow:0 1px 5px #0009}
 #damage-interactive-map .catalogue-cluster:hover {background:#555;outline:3px solid #fff}
