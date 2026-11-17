@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 from response_continuation_support import RESPONSE_PROMOTIONS, response_boundary, response_index_entry
+from spacing_continuation_support import SPACING_PROMOTIONS
 
 ROOT = Path(__file__).resolve().parents[1]
 # Independently reviewed immutable old/current publications, not runtime adapter
@@ -158,7 +159,7 @@ def retained_index_entry(case, entry, root=ROOT):
     test-local historical view, never an index rewrite or an application input.
     """
     event = entry['id']
-    chained = event in RESPONSE_PROMOTIONS
+    chained = event in RESPONSE_PROMOTIONS or event in SPACING_PROMOTIONS
     entry = response_index_entry(case, entry, root)
     if event not in PROMOTIONS:
         return entry

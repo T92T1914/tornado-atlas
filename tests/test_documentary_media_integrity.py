@@ -246,7 +246,7 @@ class DocumentaryMediaIntegrityTests(unittest.TestCase):
                             self.assertIn('estimated', item['time']['event'])
                             self.assertEqual(item['time']['publication'], '2019-11-16')
                             figure_source = next(source for source in self.docs[event]['sources'] if source['id'] == item['source_id'])
-                            self.assertIn('CC BY4.0', figure_source['rights'])
+                            self.assertIn('CC BY 4.0', figure_source['rights'])
                             self.assertIn('This does not license the complete original recordings', figure_source['rights'])
                     elif identity == 'bohac-archived-extended-film':
                         self.assertEqual(item['kind'], 'video')

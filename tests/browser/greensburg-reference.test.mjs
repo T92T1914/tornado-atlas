@@ -18,7 +18,7 @@ const GREEN={event:'greensburg-2007',observation:'kiowa-town-impact',source:'nce
  rights:'Attributed paraphrase and original source links. No source photograph, figure, audio or film is copied or licensed by this record.'};
 const MOORE={asset:'assets/moore-2013/IMG_9287-800.jpg',bytes:339582,
  sha256:'f10b6b33fbcecd2c228632d2d681bbef47e58876246b753a04721dda3a58c6bb',
- revision:'d7a6ec9d4ca0081f368bd2703c2b65ac3ba6e05dcabfc333029f42af87c1f654'};
+ revision:'5c2ac0ec0006b1eee3e08e0fd8fbf4402ee284c51bded881707e51e7a950ce72'};
 const host='#lab-reference-evidence';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const read=path=>readFile(new URL('../../web/'+path,import.meta.url));

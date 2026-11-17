@@ -269,7 +269,7 @@ class EvidenceCoverageTests(unittest.TestCase):
 
     def test_moore_coverage_links_existing_outcomes_and_unresolved_source_roles(self):
         doc = self.docs['moore-2013']
-        identity = 'd7a6ec9d4ca0081f368bd2703c2b65ac3ba6e05dcabfc333029f42af87c1f654'
+        identity = '5c2ac0ec0006b1eee3e08e0fd8fbf4402ee284c51bded881707e51e7a950ce72'
         self.assertEqual(digest(doc), identity)
         self.assertEqual({item['id'] for item in doc['observations']}, {
             'one-track-two-records', 'reported-path-and-dimensions', 'county-impacts',

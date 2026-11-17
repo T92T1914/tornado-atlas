@@ -50,7 +50,7 @@ class TuscaloosaSourceRelationshipTests(unittest.TestCase):
         self.assertIn('d495402ae2f2b6b883ba4517c89fa83d8158c7a969fad26a5e56b8417f06161a', s['revision'])
         self.assertIn('one publication stream', s['agent_processing'])
         self.assertIn('does not grant Atlas', s['rights'])
-        self.assertIn('No2022figure', s['rights'])
+        self.assertIn('No 2022 figure', s['rights'])
 
     def test_four_published_samples_have_no_player_bounds_or_historical_alignment(self):
         for panel, label in zip('abcd', ('04:22', '04:27', '04:30', '04:32')):
