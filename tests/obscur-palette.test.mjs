@@ -125,5 +125,8 @@ test('No visible text names a hue the stylesheets no longer draw', () => {
   const wind = read('wind.html'), figures = wind.slice(wind.indexOf('id="passage-plan"'), wind.indexOf('id="component-diagram-reading"'));
   const hued = colors(figures).filter(color => !color.gray).map(color => color.literal);
   assert.deepEqual(hued, []);
-  assert.match(figures, /FIXED PROBE: FILLED DOT/);
+  // The probe legend sets its two words on two lines, so read its text and not its markup.
+  const legend = figures.match(/<text id="passage-probe-legend"[^>]*>([\s\S]*?)<\/text>/);
+  assert.ok(legend, 'The plan keeps its probe legend');
+  assert.equal(legend[1].replace(/<[^>]+>/g, ''), 'FIXED PROBE: FILLED DOT');
 });
