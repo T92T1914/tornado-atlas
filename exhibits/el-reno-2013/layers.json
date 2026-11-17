@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "el-reno-2013",
-  "dossier_sha256": "be9fdcbfb14a0da6b8507ca6f885f917a9173d5a73643d48d2876f658a024fcb",
+  "dossier_sha256": "43a94910978a0feaddcc816509e8bba20dc681f35d6753454155b7a72bbd877a",
   "survey": {
     "sha256": "9debefd1218685e3f91562622d05e5dba24148de588c2064f44f8f30f5241b1c",
     "basis": "The existing NWS survey selection, checked against its source, retains 336 outcomes inside or on the published outline. Its storm and survey dates do not establish individual impact times."

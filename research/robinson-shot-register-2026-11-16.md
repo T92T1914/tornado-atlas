@@ -127,3 +127,7 @@ The road names are the creator's labels. They are not map coordinates, and this 
 ## What this record did not do
 
 It did not review the audio. It did not place a camera, measure a bearing or match a view to a map, and it did not decide which caption basis is right. Between boundaries it read every 15th frame, so a splice that removed less than about a second inside a passage would not move the whole second labels enough to show. It did not inspect Vimeo `145291664`. It did not change `exhibits/el-reno-2013/footage.json`. The El Reno dossier pins that file's bytes among its reviewed inputs, so admitting these passages into the exhibit needs a new reviewed dossier version of its own.
+
+## Later change
+
+On 2026-11-17 `exhibits/el-reno-2013/footage.json` took this register, and the El Reno dossier got a reviewed version of its own. The published notes of `robinson-04` and `robinson-05` now name the rear camera, so the `rear-1` note in the JSON register no longer says they do not. Nothing else in the register changed.

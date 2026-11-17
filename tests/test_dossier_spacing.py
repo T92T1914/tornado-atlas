@@ -12,6 +12,7 @@ from pathlib import Path
 import unittest
 
 from atlas.archive import dossiers
+from footage_continuation_support import footage_boundary, footage_predecessor
 from reviewed_continuation_support import reviewed_predecessor
 from response_continuation_support import response_predecessor
 from spacing_continuation_support import (REVIEW_KEYS, SPACING_PROMOTIONS, canonical, spaces_inserted,
@@ -168,7 +169,8 @@ class DossierSpacingTests(unittest.TestCase):
                 previous, entry = spacing_boundary(self, self.docs[event])
                 self.assertEqual(canonical(previous), specs[0]['previous'])
                 self.assertEqual(entry['dossier_sha256'], specs[0]['previous'])
-                self.assertEqual(canonical(self.docs[event]), specs[-1]['current'])
+                # El Reno has a later footage register edge. Every other event ends at its last spacing edge.
+                self.assertEqual(canonical(footage_predecessor(self, self.docs[event])), specs[-1]['current'])
                 for older, newer in zip(specs, specs[1:]):
                     self.assertEqual((newer['previous'], newer['previous_index_sha256']),
                                      (older['current'], older['current_index_sha256']))
@@ -245,12 +247,15 @@ class DossierSpacingTests(unittest.TestCase):
                 'a changed rights line': lambda doc: doc['sources'][0].__setitem__('rights', 'Unreviewed replacement'),
                 'a different basis': lambda doc: doc['provenance']['publication_review'].__setitem__('basis', 'Spacing.'),
             }
+            # El Reno's later footage register edge would refuse these first, so the
+            # spacing edge gets the document and index entry that edge retained.
+            base, entry = footage_boundary(self, self.docs[event])
             for label, change in changes.items():
                 with self.subTest(event=event, change=label):
-                    current = copy.deepcopy(self.docs[event])
+                    current = copy.deepcopy(base)
                     change(current)
                     with self.assertRaisesRegex(AssertionError, 'Only the exact reviewed continuation'):
-                        spacing_boundary(self, current)
+                        spacing_boundary(self, current, ROOT, entry)
 
 
 if __name__ == '__main__':

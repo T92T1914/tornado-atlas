@@ -75,7 +75,7 @@
       "camera": "rear",
       "start": {"video_seconds": 354.555, "clock_label": "6:22:46 PM CDT", "utc": "2013-05-31T23:22:46Z"},
       "end": {"video_seconds": 628.361, "clock_label": "6:27:15 PM CDT", "utc": "2013-05-31T23:27:15Z"},
-      "note": "Rear camera through the rear window. Its yellow stamp at the top left is rotated half a turn, which suggests the picture was turned over in the edit, and it is dated 2012/07/23. The stamp keeps one offset from the caption, but its date shows it was never set for the event, so the caption is the only clock here. Anchors robinson-04 and robinson-05 lie here, although their published notes do not say the view faces backward."
+      "note": "Rear camera through the rear window. Its yellow stamp at the top left is rotated half a turn, which suggests the picture was turned over in the edit, and it is dated 2012/07/23. The stamp keeps one offset from the caption, but its date shows it was never set for the event, so the caption is the only clock here. Anchors robinson-04 and robinson-05 lie here."
     },
     {
       "id": "forward-2",
