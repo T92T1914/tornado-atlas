@@ -81,20 +81,30 @@ const SPACED_PUBLICATIONS={
     "wire": "f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76"
   }
 };
-// A later footage register edge gave El Reno one more version. It changed the
-// Robinson rows only, so its reference item and that item's source stay exact.
-const FOOTAGE_PUBLICATIONS={
-  "el-reno-2013": {
-    "previous_file": "el-reno-2013-be9fdcbfb14a0da6b850.json",
-    "previous_wire": "5b3c010a2440b44ed667108a4a8e986d82077eeebf49b3e459d97bc21019ae9a",
-    "file": "el-reno-2013-43a94910978a0feaddcc.json",
-    "wire": "30e49dada90e17051f8b3631d96d5233982ab636a79a69d6a44713934c748b6a"
-  }
+// Later edges gave El Reno two more versions, oldest first. The footage register
+// edge changed the Robinson rows only, and a later spacing edge put spaces back
+// in two other source notes, so its reference item and that item's source stay exact.
+const LATER_PUBLICATIONS={
+  "el-reno-2013": [
+    {
+      "previous_file": "el-reno-2013-be9fdcbfb14a0da6b850.json",
+      "previous_wire": "5b3c010a2440b44ed667108a4a8e986d82077eeebf49b3e459d97bc21019ae9a",
+      "file": "el-reno-2013-43a94910978a0feaddcc.json",
+      "wire": "30e49dada90e17051f8b3631d96d5233982ab636a79a69d6a44713934c748b6a"
+    },
+    {
+      "previous_file": "el-reno-2013-43a94910978a0feaddcc.json",
+      "previous_wire": "30e49dada90e17051f8b3631d96d5233982ab636a79a69d6a44713934c748b6a",
+      "file": "el-reno-2013-f36f10f672a9e2e0a999.json",
+      "wire": "2c32832275b12e084d4c31bc7610218776b362930fae3a070de93293c78c5752"
+    }
+  ]
 };
+const newestOf=event=>LATER_PUBLICATIONS[event]?.at(-1);
 const CURRENT_REFERENCES={...REFERENCES};
 const currentIndex=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
 for(const[event,promotion]of Object.entries(REVIEWED_PUBLICATIONS)){
- const previous=REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event),spaced=FOOTAGE_PUBLICATIONS[event]??SPACED_PUBLICATIONS[event];
+ const previous=REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event),spaced=newestOf(event)??SPACED_PUBLICATIONS[event];
  assert.equal(entry.file,'archive/'+(spaced?.file??promotion.file));assert.equal(entry.file_sha256,spaced?.wire??promotion.wire);
  const beforeBytes=await readFile(new URL('../../web/archive/'+previous.file,import.meta.url));
  const afterBytes=await readFile(new URL('../../web/archive/'+promotion.file,import.meta.url));
@@ -107,7 +117,7 @@ for(const[event,promotion]of Object.entries(REVIEWED_PUBLICATIONS)){
  CURRENT_REFERENCES[event]={...previous,file:promotion.file};
 }
 for(const[event,spaced]of Object.entries(SPACED_PUBLICATIONS)){
- const previous=CURRENT_REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event),newest=FOOTAGE_PUBLICATIONS[event]??spaced;
+ const previous=CURRENT_REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event),newest=newestOf(event)??spaced;
  assert.equal(previous.file,spaced.previous_file);
  assert.equal(entry.file,'archive/'+newest.file);assert.equal(entry.file_sha256,newest.wire);
  const beforeBytes=await readFile(new URL('../../web/archive/'+spaced.previous_file,import.meta.url));
@@ -121,19 +131,22 @@ for(const[event,spaced]of Object.entries(SPACED_PUBLICATIONS)){
  assert.ok(!spacedOnly(beforeItem,{...afterItem,id:afterItem.id+'x'}),'The comparison refuses a changed identifier');
  CURRENT_REFERENCES[event]={...previous,file:spaced.file};
 }
-for(const[event,footage]of Object.entries(FOOTAGE_PUBLICATIONS)){
- const previous=CURRENT_REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event);
- assert.equal(previous.file,footage.previous_file);
- assert.equal(entry.file,'archive/'+footage.file);assert.equal(entry.file_sha256,footage.wire);
- const beforeBytes=await readFile(new URL('../../web/archive/'+footage.previous_file,import.meta.url));
- const afterBytes=await readFile(new URL('../../web/archive/'+footage.file,import.meta.url));
- assert.equal(createHash('sha256').update(beforeBytes).digest('hex'),footage.previous_wire);
- assert.equal(createHash('sha256').update(afterBytes).digest('hex'),footage.wire);
- const before=JSON.parse(beforeBytes.toString('utf8')),after=JSON.parse(afterBytes.toString('utf8'));
- const beforeItem=before.media.find(row=>row.id===previous.media),afterItem=after.media.find(row=>row.id===previous.media);
- assert.ok(beforeItem&&afterItem);assert.deepEqual(afterItem,beforeItem,'The footage register edge keeps the reference item of '+event);
- assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),before.sources.find(row=>row.id===beforeItem.source_id));
- CURRENT_REFERENCES[event]={...previous,file:footage.file};
+for(const[event,steps]of Object.entries(LATER_PUBLICATIONS)){
+ const entry=currentIndex.events.find(row=>row.id===event),newest=steps.at(-1);
+ assert.equal(entry.file,'archive/'+newest.file);assert.equal(entry.file_sha256,newest.wire);
+ for(const later of steps){
+  const previous=CURRENT_REFERENCES[event];
+  assert.equal(previous.file,later.previous_file);
+  const beforeBytes=await readFile(new URL('../../web/archive/'+later.previous_file,import.meta.url));
+  const afterBytes=await readFile(new URL('../../web/archive/'+later.file,import.meta.url));
+  assert.equal(createHash('sha256').update(beforeBytes).digest('hex'),later.previous_wire);
+  assert.equal(createHash('sha256').update(afterBytes).digest('hex'),later.wire);
+  const before=JSON.parse(beforeBytes.toString('utf8')),after=JSON.parse(afterBytes.toString('utf8'));
+  const beforeItem=before.media.find(row=>row.id===previous.media),afterItem=after.media.find(row=>row.id===previous.media);
+  assert.ok(beforeItem&&afterItem);assert.deepEqual(afterItem,beforeItem,'A later edge keeps the reference item of '+event);
+  assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),before.sources.find(row=>row.id===beforeItem.source_id));
+  CURRENT_REFERENCES[event]={...previous,file:later.file};
+ }
 }
 const ABORTED=/Target page, context or browser has been closed|Request with the provided ID does not exist|Invalid InterceptionId|No resource with given identifier|interception.*(?:not found|cancelled|canceled)|request.*(?:cancelled|canceled|aborted)|Route is already handled/i;
 const NATIVE_ABORT=/abort|cancel|NS_BINDING_ABORTED/i;
