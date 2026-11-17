@@ -15,7 +15,7 @@
   },
   "inputs_sha256_lf": {
     "docs/archive-dossiers.md": "46b5ca9dad473fca3ca4c0eafbb9b6b62941d708a22820f50f2cc8870a494baa",
-    "docs/ground-view-reconstruction.md": "179d0888bc3f91e7c4b14da7740fff9e07919b7b9d83db136bced51975787107",
+    "docs/ground-view-reconstruction.md": "3dd15ddece69c8b8bbfeca81cb3c7f10041ac3176dfd80d3d82d03ebeb05fa56",
     "docs/mechanism.json": "7bbb307603e859e141ca8074ee0ce0942479b5d8f3174283498f2692e2556915",
     "docs/obscur-tokens.json": "ed5d464e5b4ff40b532c3a38f0474c7cab5a1c5cb1b97ba85eca3cad51de4f6a",
     "tools/render_mechanism.py": "2cdd5e12d5ecd24eda0e84ac20876b8cbb81246cdf1ec8d0162f92d6b439db94"

@@ -315,15 +315,16 @@ void main(){
 #if REFERENCE_FORM
   radius=2.75;
 #endif
-  float bodyTop=2.71;
 #if STORM_SCENE
   radius=3.3;
 #endif
 #if STORM_SCENE >= 3
   // The flared top continues into the lowered cloud base.
-  radius=4.6;bodyTop=3.2;
+  radius=4.6;
+  vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,3.2,radius));
+#else
+  vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,2.71,radius));
 #endif
-  vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,bodyTop,radius));
   vec2 cloudOffset=vec2(.12*sin(.11*time),.12*cos(.09*time));
   vec2 cloudRange=intersectBox(origin,ray,length(segment),vec3(cloudOffset.x-2.8,2.05,cloudOffset.y-2.8),vec3(cloudOffset.x+2.8,3.5,cloudOffset.y+2.8));
 #if STORM_SCENE
@@ -337,26 +338,40 @@ void main(){
   }
 #endif
 #if STORM_SCENE >= 3
-  const int exteriorCloudSamples=32;
-#else
-  const int exteriorCloudSamples=16;
-#endif
   vec4 combined;
   if(bodyRange.y<=bodyRange.x){
-    combined=integrateRegion(origin,ray,cloudRange,true,exteriorCloudSamples);
+    combined=integrateRegion(origin,ray,cloudRange,true,32);
   }else{
-    // Keep 48 shared body samples and the versioned exterior budget. Split
+    // Keep at most 48 shared body samples and 32 exterior cloud samples. Split
     // the cloud at the body interval so composition always follows ray depth.
     vec2 before=vec2(cloudRange.x,min(cloudRange.y,bodyRange.x));
     vec2 after=vec2(max(cloudRange.x,bodyRange.y),cloudRange.y);
     float frontLength=max(0.0,before.y-before.x),backLength=max(0.0,after.y-after.x);
-    int frontSamples=frontLength<=0.0?0:backLength<=0.0?exteriorCloudSamples:int(clamp(floor(float(exteriorCloudSamples)*frontLength/(frontLength+backLength)),1.0,float(exteriorCloudSamples-1)));
-    int backSamples=backLength<=0.0?0:exteriorCloudSamples-frontSamples;
+    int frontSamples=frontLength<=0.0?0:backLength<=0.0?32:int(clamp(floor(32.0*frontLength/(frontLength+backLength)),1.0,31.0));
+    int backSamples=backLength<=0.0?0:32-frontSamples;
     vec4 front=integrateRegion(origin,ray,before,true,frontSamples);
     vec4 body=integrateRegion(origin,ray,bodyRange,false,48);
     vec4 back=integrateRegion(origin,ray,after,true,backSamples);
     combined=front+(1.0-front.a)*(body+(1.0-body.a)*back);
   }
+#else
+  vec4 combined;
+  if(bodyRange.y<=bodyRange.x){
+    combined=integrateRegion(origin,ray,cloudRange,true,16);
+  }else{
+    // Keep at most 48 shared body samples and 16 exterior cloud samples. Split
+    // the cloud at the body interval so composition always follows ray depth.
+    vec2 before=vec2(cloudRange.x,min(cloudRange.y,bodyRange.x));
+    vec2 after=vec2(max(cloudRange.x,bodyRange.y),cloudRange.y);
+    float frontLength=max(0.0,before.y-before.x),backLength=max(0.0,after.y-after.x);
+    int frontSamples=frontLength<=0.0?0:backLength<=0.0?16:int(clamp(floor(16.0*frontLength/(frontLength+backLength)),1.0,15.0));
+    int backSamples=backLength<=0.0?0:16-frontSamples;
+    vec4 front=integrateRegion(origin,ray,before,true,frontSamples);
+    vec4 body=integrateRegion(origin,ray,bodyRange,false,48);
+    vec4 back=integrateRegion(origin,ray,after,true,backSamples);
+    combined=front+(1.0-front.a)*(body+(1.0-body.a)*back);
+  }
+#endif
   if(combined.a<.002)discard;
   outputColor=vec4(combined.rgb/combined.a,combined.a);
 }`;

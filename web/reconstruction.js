@@ -526,7 +526,7 @@ async function start(){
     formCanvas.dataset.sourceCamera=appearanceState.sourceCamera?.id??'';
     el('replay-ground-comparison').className=groundSelected?`ground-active${simulationSelected?' simulation-active':''}`:'';
     el('replay-appearance-canvas').dataset.sceneFrame=['storm-v2','storm-v3'].includes(appearanceState.lightingStyle)?'complete-synthetic':'';
-    el('ground-render-caption').textContent=formationSelected?(['storm-v2','storm-v3'].includes(appearanceState.lightingStyle)?'Storm scene and illustrative ground detail':appearanceState.lightingStyle==='storm-v1'?'Storm scene and shared transport':appearanceState.lightingStyle==='reference-v1'?'Source-informed broad form':'Illustrative formation and decay'):simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
+    el('ground-render-caption').textContent=formationSelected?(appearanceState.lightingStyle==='storm-v3'?'Storm scene with the funnel joined to its cloud base':appearanceState.lightingStyle==='storm-v2'?'Storm scene and illustrative ground detail':appearanceState.lightingStyle==='storm-v1'?'Storm scene and shared transport':appearanceState.lightingStyle==='reference-v1'?'Source-informed broad form':'Illustrative formation and decay'):simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
     el('ground-render-caption').hidden=!groundSelected;
     formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground-view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
     // Unknown or documentary-only states retain their controls and source text

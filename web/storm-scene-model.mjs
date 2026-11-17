@@ -96,6 +96,8 @@ float stormJoinDistance(vec2 xz){
   vec2 q=(xz-referenceAxis(1.0,shape,time))/referenceSection(1.0,time);
   return length(q)/(1.24*referenceRadius(1.0,shape));
 }
+// Set once per cloud sample and read by the base height and coverage.
+float stormJoin;
 #endif
 float stormCloudHeight(vec2 q){
   vec2 local=q/vec2(1.55,1.25);
@@ -106,13 +108,14 @@ float stormCloudHeight(vec2 q){
   float broad=stormNoise(vec3(.60,.75,.60),vec3(0));
   float folded=stormNoise(vec3(1.35,.65,1.35),vec3(5.2,1.1,8.4));
 #endif
-  float base=3.10-.70*exp(-dot(local,local))+.64*(broad-.5)+.28*(folded-.5);
 #if STORM_SCENE >= 3
   // The base comes down to the funnel and rises back to the wider layer.
+  float base=3.10-.70*exp(-dot(local,local))+.64*(broad-.5)+.28*(folded-.5);
   float lowered=2.34+.10*(broad-.5)+.06*(folded-.5);
-  base=mix(min(lowered,base),base,smoothstep(.85,2.4,stormJoinDistance(q)));
+  return mix(min(lowered,base),base,smoothstep(.85,2.4,stormJoin));
+#else
+  return 3.10-.70*exp(-dot(local,local))+.64*(broad-.5)+.28*(folded-.5);
 #endif
-  return base;
 }
 float stormBody(vec3 p,vec3 shape,float t,float ex){
   float h=p.y/2.6;
@@ -166,17 +169,21 @@ float stormCloud(vec3 p,float t){
   float n=stormNoise(vec3(.75,1.1,.75),vec3(0));
   float detail=stormNoise(vec3(1.75,2.3,1.75),vec3(7.2,2.4,3.8));
 #endif
+#if STORM_SCENE >= 3
+  stormJoin=stormJoinDistance(p.xz);
+#endif
   float base=stormCloudHeight(p.xz);
   float vertical=smoothstep(base-.26,base+.48,p.y)*smoothstep(1.8,1.95,p.y)*(1.0-smoothstep(4.9,5.6,p.y));
   // No radial rim. The bounded camera sees a continuing storm-base layer.
-  float cover=.06+.80*smoothstep(.25,.70,n)+.35*detail;
 #if STORM_SCENE >= 3
   // Near the funnel the lowered base is filled, so no sky shows between them.
-  cover=mix(max(cover,.92+.20*(detail-.5)),cover,smoothstep(1.3,2.6,stormJoinDistance(p.xz)));
-#endif
+  float cover=.06+.80*smoothstep(.25,.70,n)+.35*detail;
+  cover=mix(max(cover,.92+.20*(detail-.5)),cover,smoothstep(1.3,2.6,stormJoin));
   return .44*vertical*cover;
+#else
+  return .44*vertical*(.06+.80*smoothstep(.25,.70,n)+.35*detail);
+#endif
 }
-
 float stormDust(vec3 p,float t){
   if(p.y<0.0||p.y>.52)return 0.0;
   float r=length(p.xz);

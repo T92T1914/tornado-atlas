@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {DEFAULT_EXPERIMENTS,experimentURL,readExperiment,validateExperimentState} from '../web/experiment-state.mjs';
 import {funnelVolumeFragment} from '../web/funnel-simulation-model.mjs';
 import {formationAt} from '../web/formation-model.mjs';
+import {createHash} from 'node:crypto';
 const state=(presentation,coverage)=>({...DEFAULT_EXPERIMENTS.form,model:'genesis-v1',sequence:true,coverage,visibility:'ordinary',flow:true,presentation,position:.5,phase:15});
 test('integrated cloud experiments preserve complete v8 and earlier v7 identities',()=>{
   for(const [presentation,coverage,version] of [['storm-v3','storm-integrated','form-8'],['storm-v2','storm-detail','form-7']]){
@@ -43,29 +44,48 @@ const smooth=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3
 const part=(source,start)=>{const from=source.indexOf(start);assert.notEqual(from,-1,start);return source.slice(from,source.indexOf('\n}\n',from)+2);};
 const number=(source,pattern)=>{const match=source.match(pattern);assert.ok(match,String(pattern));return match.slice(1).map(Number);};
 
+test('earlier presentations compile from the same shader text as before storm-v3',()=>{
+  // Taken from main before storm-v3 was added, for the legacy, storm-v1 and
+  // storm-v2 resolutions of the complete volume fragment.
+  const before={0:'8c16c05277e353e2bc6a9488030f63c05a82fc8f0ccb7a0718c7428b196f4b9b',
+    1:'f6ce631ecc4a7bb0e313d7b576d9732f52092aad6c2cdc467de01f72bd5d41ae',2:'3bd688c86e9a04f71b0a7f547e9712c1f05c859299972b381dc8b53ddbef2515'};
+  for(const [version,digest] of Object.entries(before))assert.equal(createHash('sha256').update(stormSource(Number(version))).digest('hex'),digest,'version '+version);
+});
+
 test('storm-v2 keeps its level funnel top and separate cloud base',()=>{
   const v2=stormSource(2),body=part(v2,'float stormBody(');
   assert.doesNotMatch(v2,/stormJoinDistance/);
   assert.match(body,/if\(ex<=0\.0\|\|h<0\.0\|\|h>1\.04\)return 0\.0;/);
   assert.match(body,/float ends=smoothstep\(1\.0-ex-\.02,1\.0-ex\+\.045,h\)\*\(1\.0-smoothstep\(\.96,1\.04,h\)\);\n(?!\s*ends=)/);
-  assert.match(v2,/radius=3\.3;\n/);assert.match(v2,/float bodyTop=2\.71;/);assert.doesNotMatch(v2,/bodyTop=3\.2/);
+  assert.match(v2,/radius=3\.3;\n/);assert.match(v2,/vec3\(radius,2\.71,radius\)\);/);assert.doesNotMatch(v2,/vec3\(radius,3\.2,radius\)/);
 });
 
 test('storm-v3 widens the funnel into a lowered base and samples the whole flared top',()=>{
   const v3=stormSource(3),body=part(v3,'float stormBody('),height=part(v3,'float stormCloudHeight(');
   const [lowered]=number(height,/float lowered=([\d.]+)\+\.10\*\(broad-\.5\)\+\.06\*\(folded-\.5\);/);
-  const [inner,outer]=number(height,/base=mix\(min\(lowered,base\),base,smoothstep\(([\d.]+),([\d.]+),stormJoinDistance\(q\)\)\);/);
+  const [inner,outer]=number(height,/return mix\(min\(lowered,base\),base,smoothstep\(([\d.]+),([\d.]+),stormJoin\)\);/);
   const [cutoff]=number(body,/if\(ex<=0\.0\|\|h<0\.0\|\|h>([\d.]+)\)return 0\.0;/);
   const [flare,flareStart,flareEnd]=number(body,/radius\*=1\.0\+([\d.]+)\*smoothstep\(([\d.]+),([\d.]+),h\);/);
   const [fadeStart,fadeEnd]=number(body,/\n\s*ends=smoothstep\(1\.0-ex-\.02,1\.0-ex\+\.045,h\)\*\(1\.0-smoothstep\(([\d.]+),([\d.]+),h\)\);/);
-  const [box,top]=number(v3,/radius=([\d.]+);bodyTop=([\d.]+);/);
-  assert.match(part(v3,'float stormCloud('),/cover=mix\(max\(cover,\.92\+\.20\*\(detail-\.5\)\),cover,smoothstep\(1\.3,2\.6,stormJoinDistance\(p\.xz\)\)\);/);
+  const [box,top]=number(v3,/radius=([\d.]+);\n\s*vec2 bodyRange=intersectBox\(origin,ray,length\(segment\),vec3\(-radius,0\.0,-radius\),vec3\(radius,([\d.]+),radius\)\);/);
+  assert.match(part(v3,'float stormCloud('),/cover=mix\(max\(cover,\.92\+\.20\*\(detail-\.5\)\),cover,smoothstep\(1\.3,2\.6,stormJoin\)\);/);
+  assert.match(part(v3,'float stormCloud('),/stormJoin=stormJoinDistance\(p\.xz\);/);
   // The lowered base, even at its highest noise, lies below the start of the
   // top fade, so the funnel ends inside cloud rather than in clear air.
   assert.ok(lowered+.05+.03<2.6*fadeStart);
   assert.ok(inner<1&&outer>1);assert.equal(fadeEnd,cutoff);assert.ok(top>=2.6*cutoff);
   // Every point of the flared body with any density stays inside the body box.
-  // The envelope ends at 1.16 of the radius and the largest lobe is 1.2.
+  // The envelope ends at 1.16 of the radius and the largest lobe is 1.2. The
+  // radius, section and axis below are read from the shader as written, so a
+  // change to any of them fails here first. The bound uses the schedule's own
+  // shapes, which never pair the largest base with the largest bend.
+  const field=part(v3,'vec2 referenceAxis(')+part(v3,'vec2 referenceSection(')+part(v3,'float referenceRadius(');
+  for(const piece of ['return vec2(.09*h+.11*h*(1.0-h)*sin(.21*t)+.55*s.z*h*h,','-.10*h+.13*h*(1.0-h)*cos(.17*t));',
+    'return vec2(1.10+.06*sin(2.0*h-.13*t),.88+.05*cos(2.7*h+.11*t));','return .62+.95*s.x+.24*smoothstep(.05,.95,h)+.10*h;'])
+    assert.ok(field.includes(piece),piece);
+  for(const piece of ['radius=referenceRadius(h,shape)*(.82+.42*h*h);','float lobe=1.0+.14*sin(2.0*theta+.9*h)+.12*(bulk-.5);',
+    'edge=mix(.14,.055,smoothstep(.25,.72,bulk));','float envelope=1.0-smoothstep(.94-edge,1.02+edge,relative);'])
+    assert.ok(body.includes(piece),piece);
   let widest=0;
   for(let seconds=0;seconds<=30;seconds+=.25){
     const shape=formationAt(seconds).shape;

@@ -161,8 +161,9 @@ The scene has an opaque sky and synthetic ground surface with fixed exposure.
 Clair and Obscur change the surrounding reading interface. Standard remains
 capped at 512 by 320 pixels and Lighter at 320 by 200, preserving the complete
 camera frame. The storm branch has no separate particle draw, so its quality
-labels describe raster dimensions. The primary budget remains 48 shared body
-samples and 16 exterior cloud samples. The [storm scene notes](storm-scene-study.md)
+labels describe raster dimensions. The primary budget is 48 shared body samples,
+with 32 exterior cloud samples in `storm-v3` and 16 in the earlier storm
+presentations. The [storm scene notes](storm-scene-study.md)
 describe the actual bin lengths and analytic mean tail beyond the local camera
 clip, together with the limits of those approximations.
 
