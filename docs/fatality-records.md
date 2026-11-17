@@ -21,8 +21,9 @@ It rejects unsupported categories, bad counts, duplicate names, unknown names,
 invalid coordinates and missing source details. It does not independently
 verify the truth of a supplied source. Editorial review remains necessary.
 
-The shared browser renderer uses a rose diamond, a written count and a named
-record. The count and shape remain usable without color. The selected account
+The shared browser renderer uses a diamond, a written count and a named
+record. They are drawn in the reading text color, so the count and shape carry
+the meaning without a hue. The selected account
 provides the location type, names, source and limits. It never changes an
 original survey rating. Links with `?fatality=record-id#survey-explorer` restore
 the selected human impact record. Survey links remove that parameter.

@@ -62,8 +62,9 @@
 .catalogue-pin {background:var(--text);border:3px solid var(--bg);border-radius:50%;box-shadow:0 0 0 1px var(--text)}
 .catalogue-pin:hover {outline:3px solid var(--text)}
 .map-selected {stroke:var(--text);filter:drop-shadow(0 0 2px var(--bg));stroke-width:4}
-.disputed-pin {font:bold 18px var(--interface-font);text-align:center;background:#8f214b;color:#fff;border:2px solid #fff;border-radius:4px}
-.map-selected.disputed {stroke:#f08bb2}
+/* A disputed position keeps its question mark and a dashed outline in place of a hue. */
+.disputed-pin {font:bold 18px var(--interface-font);text-align:center;background:var(--bg);color:var(--text);border:2px dashed var(--text);border-radius:4px}
+.map-selected.disputed {stroke:var(--text);stroke-dasharray:6 4}
 .leaflet-control-attribution,.leaflet-control-scale-line {background:var(--panel)!important;color:var(--text)!important;font-size:10px!important}
 .atlas-explorer .leaflet-control-scale-line {border-color:var(--control-line);text-shadow:none}
 .leaflet-control-attribution a {color:var(--text)!important;text-decoration:underline}
@@ -90,7 +91,7 @@
 #detail .record-date {font-size:16px}
 #detail dl {font-size:13px}#detail dt {color:var(--muted);margin-top:12px}#detail dd {margin:3px 0;overflow-wrap:anywhere}
 #detail details {margin:14px 0}#detail details p {font-size:13px}
-.location-warning {border-left:4px solid var(--fatality);padding:10px;background:var(--control);font-size:13px}
+.location-warning {border-left:4px solid var(--text);padding:10px;background:var(--control);font-size:13px}
 .detail-actions a,.exhibit-link {display:inline-block;padding:10px;border:1px solid var(--control-line);border-radius:6px;min-height:44px;font-size:14px}
 .photo-strip {display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .photo-strip button {padding:6px;font-size:12px;text-align:left}

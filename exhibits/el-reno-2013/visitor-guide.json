@@ -32,7 +32,7 @@
   {
     "id": "question-map",
     "question": "What does the moving point on the map show?",
-    "answer": "At published minute times, the marker shows an NWS center position. Between those times, it follows a labeled linear interpolation. The line traces the center path, while the shaded outline covers the whole event and does not resize with time. The cyan arrow is a separate recorded camera sample, with its age and evidence limits shown below the map.",
+    "answer": "At published minute times, the marker shows an NWS center position. Between those times, it follows a labeled linear interpolation. The line traces the center path, while the shaded outline covers the whole event and does not resize with time. The arrow is a separate recorded camera sample, with its age and evidence limits shown below the map.",
     "sources": [
       {
         "label": "NWS map and centroid times",

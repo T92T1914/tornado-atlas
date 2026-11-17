@@ -55,8 +55,8 @@
 /* Reading furniture follows Clair/Obscur; evidence pixels and scientific keys
    retain their own colors. Essential plot explanations also exist as HTML. */
 .laboratory-page .scene-wrap {background:radial-gradient(ellipse at 50% 32%,#3c3c3c,#1b1b1b 58%,#101010)}
-:root[data-appearance=light] .laboratory-page .scene-wrap {background:radial-gradient(ellipse at 50% 32%,#faf9f5,#dfddd5 58%,#c7c4ba)}
-@media(prefers-color-scheme:light){:root:not([data-appearance]) .laboratory-page .scene-wrap{background:radial-gradient(ellipse at 50% 32%,#faf9f5,#dfddd5 58%,#c7c4ba)}}
+:root[data-appearance=light] .laboratory-page .scene-wrap {background:radial-gradient(ellipse at 50% 32%,#ffffff,#e0e0e0 58%,#aaaaaa)}
+@media(prefers-color-scheme:light){:root:not([data-appearance]) .laboratory-page .scene-wrap{background:radial-gradient(ellipse at 50% 32%,#ffffff,#e0e0e0 58%,#aaaaaa)}}
 .laboratory-page .scene-overlay {position:static;inset:auto;padding:14px 18px;background:var(--panel);color:var(--muted);font-size:14px;line-height:1.6;letter-spacing:0;text-shadow:none;flex-wrap:wrap;pointer-events:auto}
 .laboratory-page .scene-bar {font-size:12px;letter-spacing:.08em}
 .laboratory-page .wind-key {font-size:15px;gap:10px;padding:16px 18px}
@@ -77,8 +77,8 @@
 .laboratory-page #lab-reference-retry {margin-top:12px}
 
 /* The illustrative field and its key use the same reading palette. */
-.laboratory-page {--wind-slow-rgb:164,164,164;--wind-fast-rgb:244,244,244}
-:root[data-appearance=light] .laboratory-page {--wind-slow-rgb:100,98,92;--wind-fast-rgb:36,36,36}
-@media(prefers-color-scheme:light){:root:not([data-appearance]) .laboratory-page{--wind-slow-rgb:100,98,92;--wind-fast-rgb:36,36,36}}
+.laboratory-page {--wind-slow-rgb:153,153,153;--wind-fast-rgb:255,255,255}
+:root[data-appearance=light] .laboratory-page {--wind-slow-rgb:102,102,102;--wind-fast-rgb:0,0,0}
+@media(prefers-color-scheme:light){:root:not([data-appearance]) .laboratory-page{--wind-slow-rgb:102,102,102;--wind-fast-rgb:0,0,0}}
 .laboratory-page #wind-field {background:var(--bg);color:var(--text)}
 .laboratory-page .wind-key i {background:linear-gradient(90deg,rgb(var(--wind-slow-rgb)),rgb(var(--wind-fast-rgb)))}

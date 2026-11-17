@@ -20,7 +20,7 @@ export function mountSurveyImpacts(places, svg, project, host, navigation, onOpe
     button.addEventListener('click',()=>show(place));controls.append(button);
   }
   enabled.addEventListener('change',()=>layer.setAttribute('display',enabled.checked?'inline':'none'));
-  controls.append(make('p','Rose diamonds identify documented fatality records. A recovery point is not an exact place of death. These records stay separate from EF ratings and photograph filters.','fineprint'));
+  controls.append(make('p','Diamonds identify documented fatality records. A recovery point is not an exact place of death. These records stay separate from EF ratings and photograph filters.','fineprint'));
   const coverage=make('div');coverage.setAttribute('data-remembrance-coverage','');controls.append(coverage);
   host.prepend(controls);
   return {show};
