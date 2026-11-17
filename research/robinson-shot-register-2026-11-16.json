@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "source_id": "robinson-dashcam",
+  "video_id": "MxgU1QcFMJM",
+  "reviewed": "2026-11-16",
+  "record": "research/robinson-shot-register-2026-11-16.md",
+  "reference_copy": {
+    "formats": "616+140",
+    "video": "VP9, 1920x1080, 30000/1001 frames per second, 26,017 frames, stream duration 868.100 s",
+    "audio": "AAC, stream duration 868.194104 s",
+    "bytes": 366105439,
+    "sha256": "2f317aafc5db7caee57ad7497838001c739c74e08e5315669340770810aecb6d",
+    "video_seconds": 868.1,
+    "retrieved_utc": "2026-11-16T22:44:55Z",
+    "use": "Private reference copy for reading clocks and cuts. It is not committed, hosted or published, and no frame from it is republished."
+  },
+  "positions": "Every position is the presentation time in seconds of one frame of the reference copy, as the container stores it in units of 1/16000 s, written to the millisecond. Its video stream lasts 868.100 s against the 868.161 s player duration. Each frame was decoded with ffmpeg as the first frame at or after the requested time.",
+  "clock_rate": {
+    "value": 0.9826,
+    "tolerance": 0.002,
+    "method": "Least squares slope of the caption clock against the player position, from caption OCR on every 15th frame (1,735 samples), after dropping samples more than 1.5 s off the fitted line. The three long passages give 0.98228, 0.98251 and 0.98312 clock seconds per player second, and the forward camera stamp gives 0.9826 over its first passage. The upload therefore shows about 0.98 s of clock time per second of playback."
+  },
+  "cut_review": {
+    "start_seconds": 0.0,
+    "end_seconds": 868.067,
+    "method": "Scene scores from the ffmpeg scene filter over every frame, caption clock OCR and camera classification on every 15th frame, a contact sheet of every 120th frame, and frame by frame reading at every boundary those found. A transition runs from the last frame of the passage before it to the first frame of the passage after it, and the two fades run from the first frame and to the last frame of the upload. No reuse credit, title card or end card was found, though a credit shorter than four seconds outside the caption box could fall between the sampled frames. Audio was not reviewed."
+  },
+  "transitions": [
+    {
+      "id": "opening-fade",
+      "kind": "fade_in",
+      "start_seconds": 0.0,
+      "end_seconds": 2.002,
+      "note": "The upload opens on black and fades in over about two seconds. The caption clock is legible but dim from 0.133 s, reading 6:16:58, then 6:16:59 from 0.634 s and 6:17:00 from 1.635 s."
+    },
+    {
+      "id": "switch-to-rear",
+      "kind": "dissolve",
+      "start_seconds": 353.12,
+      "end_seconds": 354.555,
+      "note": "The forward camera dissolves into the rear camera under the caption \"Switch to rear-facing camera\". A least squares mixture of the two pictures places the mixed frames from 353.153 s to 354.521 s. The caption clock reads 6:22:45 before and 6:22:46 after, so the edit presents the two cameras as simultaneous. That pairing rests on the caption alone, because the rear stamp was never set to the event date."
+    },
+    {
+      "id": "cut-to-forward",
+      "kind": "hard_cut",
+      "start_seconds": 628.361,
+      "end_seconds": 628.394,
+      "note": "The rear camera at 6:27:15 cuts straight to the forward camera at 6:26:32. The caption clock steps back 43 s, so the next passage repeats storm time already shown from the rear. The caption \"Front camera, starting before rear window blowout\" follows."
+    },
+    {
+      "id": "caption-step",
+      "kind": "caption_jump",
+      "start_seconds": 646.312,
+      "end_seconds": 646.346,
+      "note": "The caption clock steps from 6:26:49 to 6:27:00 between consecutive frames. The forward picture runs on without a cut, and the forward camera stamp reads 18:30:39 on both sides, so the caption changes its basis by 11 s inside one camera passage."
+    },
+    {
+      "id": "closing-fade",
+      "kind": "fade_out",
+      "start_seconds": 867.066,
+      "end_seconds": 868.067,
+      "note": "Picture and caption fade to black from 867.100 s. The last legible label is 6:30:37 at 867.900 s, and black frames run from 867.934 s to the last frame at 868.067 s."
+    }
+  ],
+  "passages": [
+    {
+      "id": "forward-1",
+      "camera": "forward",
+      "start": {"video_seconds": 2.002, "clock_label": "6:17:00 PM CDT", "utc": "2013-05-31T23:17:00Z"},
+      "end": {"video_seconds": 353.12, "clock_label": "6:22:45 PM CDT", "utc": "2013-05-31T23:22:45Z"},
+      "note": "Forward camera while driving, south on S Choctaw and then east on NW 10th/Reuter by the upload's own captions. The camera stamp runs 273 s ahead of the caption throughout. Anchors robinson-01, robinson-02 and robinson-03 lie here."
+    },
+    {
+      "id": "rear-1",
+      "camera": "rear",
+      "start": {"video_seconds": 354.555, "clock_label": "6:22:46 PM CDT", "utc": "2013-05-31T23:22:46Z"},
+      "end": {"video_seconds": 628.361, "clock_label": "6:27:15 PM CDT", "utc": "2013-05-31T23:27:15Z"},
+      "note": "Rear camera through the rear window. Its yellow stamp at the top left is rotated half a turn, which suggests the picture was turned over in the edit, and it is dated 2012/07/23. The stamp keeps one offset from the caption, but its date shows it was never set for the event, so the caption is the only clock here. Anchors robinson-04 and robinson-05 lie here, although their published notes do not say the view faces backward."
+    },
+    {
+      "id": "forward-2",
+      "camera": "forward",
+      "start": {"video_seconds": 628.394, "clock_label": "6:26:32 PM CDT", "utc": "2013-05-31T23:26:32Z"},
+      "end": {"video_seconds": 646.312, "clock_label": "6:26:49 PM CDT", "utc": "2013-05-31T23:26:49Z"},
+      "note": "Forward camera again after the cut, with the vehicle on Reuter Road and the driver side inset from about 639.1 s. The camera stamp runs 229 to 230 s ahead of the caption, 44 s less than in forward-1."
+    },
+    {
+      "id": "forward-3",
+      "camera": "forward",
+      "start": {"video_seconds": 646.346, "clock_label": "6:27:00 PM CDT", "utc": "2013-05-31T23:27:00Z"},
+      "end": {"video_seconds": 867.066, "clock_label": "6:30:36 PM CDT", "utc": "2013-05-31T23:30:36Z"},
+      "note": "The same forward picture after the caption step. The camera stamp runs 219 s ahead of the caption, 54 s less than in forward-1. Anchors robinson-06 and robinson-07 lie here."
+    }
+  ],
+  "anchor_reads": [
+    {"anchor_id": "robinson-01", "video_seconds": 5.005, "clock_label": "6:17:03 PM CDT"},
+    {"anchor_id": "robinson-02", "video_seconds": 86.821, "clock_label": "6:18:23 PM CDT"},
+    {"anchor_id": "robinson-03", "video_seconds": 260.46, "clock_label": "6:21:14 PM CDT"},
+    {"anchor_id": "robinson-04", "video_seconds": 434.067, "clock_label": "6:24:04 PM CDT"},
+    {"anchor_id": "robinson-05", "video_seconds": 607.674, "clock_label": "6:26:55 PM CDT"},
+    {"anchor_id": "robinson-06", "video_seconds": 694.494, "clock_label": "6:27:47 PM CDT"},
+    {"anchor_id": "robinson-07", "video_seconds": 781.314, "clock_label": "6:29:12 PM CDT"}
+  ],
+  "stamp_comparisons": [
+    {"video_seconds": 5.005, "camera": "forward", "stamp": "2013/05/31- 18:21:36", "clock_label": "6:17:03 PM CDT"},
+    {"video_seconds": 150.017, "camera": "forward", "stamp": "2013/05/31- 18:23:58", "clock_label": "6:19:25 PM CDT"},
+    {"video_seconds": 300.0, "camera": "forward", "stamp": "2013/05/31- 18:26:26", "clock_label": "6:21:53 PM CDT"},
+    {"video_seconds": 350.016, "camera": "forward", "stamp": "2013/05/31- 18:27:15", "clock_label": "6:22:42 PM CDT"},
+    {"video_seconds": 360.027, "camera": "rear", "stamp": "2012/07/23- 09:52:54", "clock_label": "6:22:52 PM CDT"},
+    {"video_seconds": 500.033, "camera": "rear", "stamp": "2012/07/23- 09:55:12", "clock_label": "6:25:09 PM CDT"},
+    {"video_seconds": 620.019, "camera": "rear", "stamp": "2012/07/23- 09:57:10", "clock_label": "6:27:07 PM CDT"},
+    {"video_seconds": 629.528, "camera": "forward", "stamp": "2013/05/31- 18:30:22", "clock_label": "6:26:33 PM CDT"},
+    {"video_seconds": 640.006, "camera": "forward", "stamp": "2013/05/31- 18:30:32", "clock_label": "6:26:43 PM CDT"},
+    {"video_seconds": 646.012, "camera": "forward", "stamp": "2013/05/31- 18:30:38", "clock_label": "6:26:49 PM CDT"},
+    {"video_seconds": 646.312, "camera": "forward", "stamp": "2013/05/31- 18:30:39", "clock_label": "6:26:49 PM CDT"},
+    {"video_seconds": 646.513, "camera": "forward", "stamp": "2013/05/31- 18:30:39", "clock_label": "6:27:00 PM CDT"},
+    {"video_seconds": 646.813, "camera": "forward", "stamp": "2013/05/31- 18:30:39", "clock_label": "6:27:00 PM CDT"},
+    {"video_seconds": 700.0, "camera": "forward", "stamp": "2013/05/31- 18:31:31", "clock_label": "6:27:52 PM CDT"},
+    {"video_seconds": 860.026, "camera": "forward", "stamp": "2013/05/31- 18:34:09", "clock_label": "6:30:30 PM CDT"}
+  ],
+  "overlay_method": "Caption edges are the first and last of every 15th frame on which a detector found the caption box. Captions fade in and out beyond them by up to about a second and a half. The inset edges are the first and last frames, half a second apart, on which it was seen by eye.",
+  "overlays": [
+    {"kind": "caption", "start_seconds": 4.505, "end_seconds": 8.008, "text": "Southbound on S Choctaw (near Jensen)"},
+    {"kind": "caption", "start_seconds": 56.556, "end_seconds": 62.563, "text": "Turning east on NW 10th/Reuter from S Choctaw"},
+    {"kind": "caption", "start_seconds": 135.135, "end_seconds": 141.642, "text": "NW 10th/Reuter & Highway 81"},
+    {"kind": "caption", "start_seconds": 228.228, "end_seconds": 231.731, "text": "NW 10th/Reuter & S Alfadale"},
+    {"kind": "caption", "start_seconds": 311.811, "end_seconds": 316.817, "text": "NW 10th/Reuter & S Radio"},
+    {"kind": "caption", "start_seconds": 354.855, "end_seconds": 358.359, "text": "Switch to rear-facing camera"},
+    {"kind": "caption", "start_seconds": 401.401, "end_seconds": 404.904, "text": "NW 10th/Reuter & S Evans"},
+    {"kind": "caption", "start_seconds": 629.629, "end_seconds": 634.134, "text": "Front camera, starting before rear window blowout"},
+    {"kind": "inset", "start_seconds": 639.105, "end_seconds": 752.819, "text": "Driver side camera, shown as an inset at lower right"},
+    {"kind": "caption", "start_seconds": 639.639, "end_seconds": 643.142, "text": "Driver side camera inset"},
+    {"kind": "caption", "start_seconds": 705.705, "end_seconds": 706.706, "text": "Running for south ditch on Reuter Rd."},
+    {"kind": "caption", "start_seconds": 720.22, "end_seconds": 723.222, "text": "Rear window blowout"}
+  ]
+}
