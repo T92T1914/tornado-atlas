@@ -166,8 +166,14 @@ def _footage_edge(case, current, spec, root, index_entry):
 def footage_boundary(case, current, root=ROOT, index_entry=None):
     """Return (retained document, retained index entry) after exact validation.
 
-    Events without a footage register edge come back unchanged with the entry supplied.
+    Events without a footage register edge come back unchanged with the entry
+    supplied. Without an entry, the current document first passes the spacing
+    edges newer than this one, and this edge reads the entry they retained.
     """
+    if index_entry is None:
+        # Imported here because the spacing module imports this one.
+        from spacing_continuation_support import late_spacing_boundary
+        current, index_entry = late_spacing_boundary(case, current, root)
     spec = FOOTAGE_PROMOTIONS.get(current['id'])
     if spec is None:
         return copy.deepcopy(current), index_entry
@@ -180,6 +186,8 @@ def footage_predecessor(case, current, root=ROOT):
 
 def footage_index_entry(case, entry, root=ROOT):
     """A historical index view only. The real current index stays as it is."""
+    from spacing_continuation_support import late_spacing_index_entry
+    entry = late_spacing_index_entry(case, entry, root)
     spec = FOOTAGE_PROMOTIONS.get(entry['id'])
     if spec is None:
         return entry

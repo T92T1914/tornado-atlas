@@ -1,8 +1,9 @@
 """Exact spacing edges over the retained publications of six dossiers.
 
 Text extraction removed the space between some words and numbers in these
-dossiers, so their pages read Table2, at2:40p.m.CDT and May31,2013. Each edge
-here admits
+dossiers, so their pages read Table2, at2:40p.m.CDT and May31,2013. A later El
+Reno edge does the same for words run into other words, such as exactID and
+autoplayoff. Each edge here admits
 the new version only when every changed string is its predecessor with spaces
 put back, nothing else changed apart from the publication review, and the index
 and the history name exactly this step. Every other edit and every later
@@ -18,7 +19,7 @@ from pathlib import Path
 import re
 
 from footage_continuation_support import footage_boundary, footage_index_entry
-from text_spacing_support import PROTECTED
+from text_spacing_support import LOWER_SPLIT_AT, NAMES_ONLY, PROTECTED
 
 ROOT = Path(__file__).resolve().parents[1]
 BASIS = 'Text extraction defect. '
@@ -152,6 +153,29 @@ SPACING_PROMOTIONS = {
         },
     ],
 }
+# Spacing edges newer than the El Reno footage register edge. That edge peels
+# them first, so it and every older edge read what they retained. The El Reno
+# one puts back the spaces between words that had run into other words.
+LATE_SPACING_PROMOTIONS = {
+    'el-reno-2013': [
+        {
+            'previous_file': 'archive/el-reno-2013-43a94910978a0feaddcc.json',
+            'previous_wire': '30e49dada90e17051f8b3631d96d5233982ab636a79a69d6a44713934c748b6a',
+            'previous': '43a94910978a0feaddcc816509e8bba20dc681f35d6753454155b7a72bbd877a',
+            'current_file': 'archive/el-reno-2013-f36f10f672a9e2e0a999.json',
+            'current_wire': '2c32832275b12e084d4c31bc7610218776b362930fae3a070de93293c78c5752',
+            'current': 'f36f10f672a9e2e0a999262a0a461f7c5dbadebc89a39f1d6fa41bad7823eefe',
+            'previous_history_file': 'archive/el-reno-2013-history-bcb92a1086aff33a4bc4.json',
+            'previous_history_wire': '1aaa05c48bad2f154cc8ce3c91f2d712f5952df8237b83f0d17a74c532f86d10',
+            'history_file': 'archive/el-reno-2013-history-df96498eb66dcba0f8cc.json',
+            'history_wire': 'de0581d074f5b4a65490d32ce4fbd62f8b640381f2910228b86575ab356b6418',
+            'previous_index_sha256': '97e6bcd61ae3ea5eef20ea485b882d912e66d0883be2f1d0765fa3c97abcc616',
+            'current_index_sha256': '5fc168fcd2820be85660ba62f8c50acb2ae35e561bc1402421497f62d713a640',
+            'candidate_sha256': '70fb69e7911087e456089937b8db058c258605cfd6738fe2b32c092b45ebb6a5',
+            'strings': 4,
+        },
+    ],
+}
 # Only strings under these reader prose keys may gain a space, one at a time and
 # only where two tokens ran together. Every protected token of the old string
 # survives byte for byte, no space may split a number or a clock, and alignment
@@ -223,8 +247,11 @@ def opens_a_join(before, position):
 
     That is a letter and a digit, a list comma and a digit, a.m. or p.m. and a
     capital, a lower case letter and a capital, an acronym and a lower case word,
-    a word and a lone panel letter, a word and a held identifier, or SHA256 and
-    its hash. A space beside another space, or inside a word, is not one.
+    a word and a lone panel letter, a word and a held identifier, SHA256 and
+    its hash, or two lower case words read and listed as run together. A space
+    beside another space, or inside a word, is not one. A held camel case name
+    counts only through the letter before it, so a space after punctuation in
+    front of one is refused.
     """
     left, right = before[position - 1], before[position]
     if ' ' in (left, right):
@@ -241,7 +268,10 @@ def opens_a_join(before, position):
         return True
     if before[:position].endswith('SHA256') and HASH.match(before, position):
         return True
-    return any(match.start() == position for match in PROTECTED.finditer(before))
+    if any(match.start() == position for match in LOWER_SPLIT_AT.finditer(before)):
+        return True
+    return any(match.start() == position for match in PROTECTED.finditer(before)
+               if not NAMES_ONLY.fullmatch(match.group()))
 
 
 def spacing_paths(case, before, after, path=()):
@@ -348,8 +378,8 @@ def spacing_boundary(case, current, root=ROOT, index_entry=None):
     The edges of a dossier are peeled newest first, and each older edge reads
     the index entry the newer one retained. Events without a spacing edge come
     back unchanged with the entry supplied. Without an entry, the current
-    document first passes its later footage register edge, and the spacing
-    edges then read the entry that edge retained.
+    document first passes its later footage register edge and the spacing edges
+    newer than that, and the edges here then read the entry they retained.
     """
     current = copy.deepcopy(current)
     if index_entry is None:
@@ -357,6 +387,27 @@ def spacing_boundary(case, current, root=ROOT, index_entry=None):
     for spec in reversed(SPACING_PROMOTIONS.get(current['id'], ())):
         current, index_entry = _spacing_edge(case, current, spec, root, index_entry)
     return current, index_entry
+
+
+def late_spacing_boundary(case, current, root=ROOT, index_entry=None):
+    """Return (retained document, retained index entry) after the spacing edges newer than the footage edge.
+
+    Events without one come back unchanged with the entry supplied.
+    """
+    current = copy.deepcopy(current)
+    for spec in reversed(LATE_SPACING_PROMOTIONS.get(current['id'], ())):
+        current, index_entry = _spacing_edge(case, current, spec, root, index_entry)
+    return current, index_entry
+
+
+def late_spacing_index_entry(case, entry, root=ROOT):
+    """A historical index view only. The real current index stays as it is."""
+    specs = LATE_SPACING_PROMOTIONS.get(entry['id'])
+    if not specs:
+        return entry
+    spec = specs[-1]
+    current = _bound(case, root, spec['current_file'], spec['current_wire'], spec['current'])
+    return late_spacing_boundary(case, current, root, entry)[1]
 
 
 def spacing_predecessor(case, current, root=ROOT):
