@@ -163,8 +163,9 @@ grid without funnel particles in unknown gaps. The existing form study
 continues to use that renderer for authored examples. Synthetic fixtures
 exercise continuous playback, gaps, reverse seeking, source switching,
 history and rejected registration. They establish software behavior only.
-The retained [Robinson source decision](../research/robinson-registration-decision-2026-10-04.md)
-does not qualify a real registered window.
+Neither the retained [Robinson source decision](../research/robinson-registration-decision-2026-10-04.md)
+nor the [Marshall decision](../research/marshall-qualification-2026-11-16.md)
+qualifies a real registered window.
 
 The public spatial replay also shows an appearance evidence card linked to
 sources for its existing checked paused frames. It links the original source

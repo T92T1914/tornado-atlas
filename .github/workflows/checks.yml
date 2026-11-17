@@ -470,8 +470,17 @@ jobs:
           actual_sha="$(git rev-parse HEAD)"
           test "$actual_sha" = "$ATLAS_EXPECTED_SHA"
           printf 'ATLAS_SOURCE_IDENTITY sha=%s tree=%s web_tree=%s\n' "$actual_sha" "$(git rev-parse 'HEAD^{tree}')" "$(git rev-parse HEAD:web)"
+      # The pages group admits deploy jobs in arrival order, not merge order.
+      # Publish only while this revision is still the head of main.
+      - name: Skip publication when main has moved on
+        id: pages_head
+        env:
+          ATLAS_EXPECTED_SHA: ${{ github.sha }}
+        run: python3 tools/pages_head.py "$ATLAS_EXPECTED_SHA"
       - uses: actions/configure-pages@v5
+        if: ${{ steps.pages_head.outputs.publish == 'true' }}
       - name: Require the exact checked-out web tree for publication
+        if: ${{ steps.pages_head.outputs.publish == 'true' }}
         env:
           ATLAS_EXPECTED_SHA: ${{ github.sha }}
         run: |
@@ -481,11 +490,13 @@ jobs:
           test -z "$(git ls-files --others -- web)"
           printf 'ATLAS_PAGES_SOURCE sha=%s web_tree=%s\n' "$actual_sha" "$(git rev-parse HEAD:web)"
       - uses: actions/upload-pages-artifact@v4
+        if: ${{ steps.pages_head.outputs.publish == 'true' }}
         with:
           # A retry must not leave deploy-pages choosing between same-name artifacts.
           name: github-pages-${{ github.run_attempt }}
           path: web
       - uses: actions/deploy-pages@v4
         id: deployment
+        if: ${{ steps.pages_head.outputs.publish == 'true' }}
         with:
           artifact_name: github-pages-${{ github.run_attempt }}

@@ -133,6 +133,32 @@ marker, a question mark. The screen tests states and not counties, and it marks
 only starts, so these reviews are not an audit of geographic accuracy across
 the collection.
 
+Note dated November 16, 2026. The
+[county boundary screen](../research/county-boundary-screen-2026-11-15.md)
+tested reported positions against the polygon of the county each record names.
+The NOAA annual releases for 2001 and 2003 to 2006 place the start of 9.6 to
+16.1 percent of their records more than 0.05 degrees outside the labeled county,
+against 0.2 percent of records from 2007 on. A jump that sharp from one annual
+file to the next points at how those files were made, but the cause is not
+established. A flagged position shows that the county label and the coordinates
+disagree. It does not show which field is wrong, so no start is disputed on this
+screen alone and the catalogue keeps NOAA's label. Read starts from those five
+releases with that in mind. The record lists every flagged position and
+describes the positions it could not screen.
+
+A later
+[comparison with the begin location text](../research/noaa-begin-text-2026-11-16.md)
+placed 755 of the 989 flagged 2001 to 2006 starts from their NOAA range,
+direction and place name with the Census place gazetteer. In the five releases
+it placed 750. For 671 of them the text falls inside the labeled county while
+the published start lies more than 20 km away, so there the coordinate is the
+wrong field and the label is right. 514 of the 713 placed starts lying more
+than 20 km from their text sit at the begin text of another event in the same
+NOAA episode. NCEI's FAQ says coordinates
+from 1996 to 2006 were calculated from the range and direction, and none of the
+NCEI documents the record read explains the misplaced points. No start is
+disputed on that record yet either.
+
 `python -m atlas.explorer` generates `web/catalogue/media.json` from existing
 reviewed record aliases and exhibit manifests. It verifies original asset
 hashes and keeps source, creator, license and registration limits. These
