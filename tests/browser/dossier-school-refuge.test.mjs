@@ -5,6 +5,7 @@ import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fixture, base} from './harness.mjs';
 import {readDossierDownload} from './dossier-download-helper.mjs';
+import {spacedOnly} from './spacing-support.mjs';
 
 const oldFile = 'archive/joplin-2011-c080b55cf2dfa5efc278.json';
 const eastId = 'intake-nist-east-middle-refuge-2014';
@@ -15,6 +16,12 @@ const beforeContext = JSON.parse(beforeContextBytes.toString('utf8'));
 const reviewedBytes = await readFile(new URL('../../web/archive/joplin-2011-47a506c259e731b4c8e8.json', import.meta.url));
 assert.equal(createHash('sha256').update(reviewedBytes).digest('hex'), '4515786871b2e983092685ffcf9bc327fa15874fd8dc455af0f3f62f2b3188f9');
 const reviewed = JSON.parse(reviewedBytes.toString('utf8'));
+// A later spacing edge put back extraction spaces in a few established rows.
+// The current download is that exact version, which differs from the
+// reviewed one by inserted spaces only.
+const spacedBytes = await readFile(new URL('../../web/archive/joplin-2011-bbea762ba1a842484b4f.json', import.meta.url));
+assert.equal(createHash('sha256').update(spacedBytes).digest('hex'), 'b9eabfcd3d794e438f7c43d5bc8618ce04685aa24bf0bf4c0dff2b2ec604f5a0');
+const spaced = JSON.parse(spacedBytes.toString('utf8'));
 // Exact reviewed three-segment continuation; earlier two-record publications stay pinned above.
 const currentPublicationBytes = await readFile(new URL('../../web/archive/joplin-2011-287b0f5e3036c9f76549.json', import.meta.url));
 assert.equal(createHash('sha256').update(currentPublicationBytes).digest('hex'), '9133b8b962c879c395a9125e78567d47dae2cd8c5f4b221b8da06ebbf0c52dc0');
@@ -75,7 +82,9 @@ for (const width of [308, 390, 1280]) for (const appearance of ['dark', 'light']
     assert.deepEqual(reviewed.media.map(row => row.id), ['nist-joplin-survivor-interview', 'nist-west-tower', 'nist-west-tower-south-windows', 'nist-home-depot-roof', 'nist-joplin-radar-sequence']);
     for (const field of ['observations', 'sources', 'media', 'creators']) {
       const retainedIds = new Set(reviewed[field].map(row => row.id));
-      assert.deepEqual(exported[field].filter(row => retainedIds.has(row.id)), reviewed[field],
+      const established = spaced[field].filter(row => retainedIds.has(row.id));
+      assert.ok(spacedOnly(reviewed[field], established), `Only inserted spaces separate the established ${field} records`);
+      assert.deepEqual(exported[field].filter(row => retainedIds.has(row.id)), established,
         `The current download preserves every complete established ${field} record`);
     }
     assert.deepEqual(exported.records, currentRecords, 'The download includes the exact reviewed initial Newton segment');

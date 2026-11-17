@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {fixture,base} from './harness.mjs';
+import {spacedOnly} from './spacing-support.mjs';
 
 // These literal published identities are independent of the viewport adapter.
 // Full bytes, rights, marks, real drawing and paused tracer coordinates also
@@ -80,21 +81,6 @@ const SPACED_PUBLICATIONS={
     "wire": "f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76"
   }
 };
-function spacedOnly(before,after){
- if(typeof before==='string'&&typeof after==='string'){
-  if(before===after)return true;
-  let at=0;
-  for(let index=0;index<after.length;index++){if(at<before.length&&after[index]===before[at])at++;else if(after[index]!==' ')return false;}
-  return at===before.length;
- }
- if(Array.isArray(before))return Array.isArray(after)&&after.length===before.length&&before.every((value,index)=>spacedOnly(value,after[index]));
- if(before&&typeof before==='object'){
-  if(!after||typeof after!=='object'||Array.isArray(after))return false;
-  const keys=Object.keys(before);
-  return Object.keys(after).length===keys.length&&keys.every(key=>Object.hasOwn(after,key)&&spacedOnly(before[key],after[key]));
- }
- return Object.is(before,after);
-}
 const CURRENT_REFERENCES={...REFERENCES};
 const currentIndex=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
 for(const[event,promotion]of Object.entries(REVIEWED_PUBLICATIONS)){
