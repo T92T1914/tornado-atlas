@@ -39,20 +39,45 @@ const REVIEWED_PUBLICATIONS={
     "previous_wire": "e97e0a32c9888a7dfc359ef8a1d954e0c092ea900d69d031e3c1464c1cc07f63"
   }
 };
-// Two later spacing edges put back the spaces text extraction removed. Their
-// reference items may differ from the earlier ones by inserted spaces only.
+// Later spacing edges put back the spaces text extraction removed, two of them
+// for Tuscaloosa. Their reference items may differ from the earlier ones by
+// inserted spaces only.
 const SPACED_PUBLICATIONS={
   "tuscaloosa-birmingham-2011": {
     "previous_file": "tuscaloosa-birmingham-2011-22697c0e0b3bcdf5fce7.json",
     "previous_wire": "fd8a0deb7a5dc0a7cf239a364dd46624b86a354e67a84cab110cf8bf1bcd353c",
-    "file": "tuscaloosa-birmingham-2011-a387d9b26b6ab7c237d9.json",
-    "wire": "c95ccb3915fe0b11582e4394a149c579a1715d2e7842b91363b291f1c26170a0"
+    "file": "tuscaloosa-birmingham-2011-8f81c2eb355da5d9dc72.json",
+    "wire": "22b204454d86d3b7891bc307aa5b90395278d893db4ac25f4aeb852798da0d5d"
   },
   "moore-2013": {
     "previous_file": "moore-2013-d7a6ec9d4ca0081f368b.json",
     "previous_wire": "1541685e18bc57b125e1779658c39c5858dc05e2e4bad71af193b06f2ae3145f",
     "file": "moore-2013-5c2ac0ec0006b1eee3e0.json",
     "wire": "b00333f3cc740e24dd9e8760e00f5ff640518b3ea543f4e7595ab42063c3965b"
+  },
+  "el-reno-2013": {
+    "previous_file": "el-reno-2013-3a4374318d08b471b959.json",
+    "previous_wire": "fda8f908acffe9b264a19c3a6f1303dd709533138c20c97cdfee641e11503813",
+    "file": "el-reno-2013-be9fdcbfb14a0da6b850.json",
+    "wire": "5b3c010a2440b44ed667108a4a8e986d82077eeebf49b3e459d97bc21019ae9a"
+  },
+  "joplin-2011": {
+    "previous_file": "joplin-2011-287b0f5e3036c9f76549.json",
+    "previous_wire": "9133b8b962c879c395a9125e78567d47dae2cd8c5f4b221b8da06ebbf0c52dc0",
+    "file": "joplin-2011-bbea762ba1a842484b4f.json",
+    "wire": "b9eabfcd3d794e438f7c43d5bc8618ce04685aa24bf0bf4c0dff2b2ec604f5a0"
+  },
+  "blackwell-1955": {
+    "previous_file": "blackwell-1955-dcb7f27027e6e6192902.json",
+    "previous_wire": "d14d75d302f1236b507e7e583420ff9c6ac7a6c0ee2c7807efa37f3fd3a62cd5",
+    "file": "blackwell-1955-de028afdf56eed787a3e.json",
+    "wire": "7c44f21d1f8279ec4e3988f167361a34db6612e5caab96300f72f2e5cd5f1030"
+  },
+  "udall-1955": {
+    "previous_file": "udall-1955-33163d1731a0f30fae5e.json",
+    "previous_wire": "8296d1156ba922652b7e8a708a7e3e267fec69a923f2a8aec360fbf5494d70cc",
+    "file": "udall-1955-38073d38c17d165d603c.json",
+    "wire": "f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76"
   }
 };
 function spacedOnly(before,after){

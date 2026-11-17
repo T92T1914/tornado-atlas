@@ -7,6 +7,7 @@ from pathlib import Path
 import unittest
 
 from reviewed_continuation_support import reviewed_predecessor
+from spacing_continuation_support import spacing_predecessor
 from atlas.archive import digest, dossier_history, dossiers, publication, validate_dossier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,9 +99,13 @@ class JoplinDebrisCoordinationTests(unittest.TestCase):
             self.assertEqual(retained[field], self.prior[field], field)
         for field in ('sources','media','observations','creators','routes'):
             self.assertEqual(retained[field][:len(debris[field])],debris[field],field)
-        self.assertEqual(debris['sources'][len(self.prior['sources']):], [self.source])
-        self.assertEqual(debris['media'][len(self.prior['media']):], [self.media])
-        self.assertEqual(debris['observations'][len(self.prior['observations']):], [self.observation])
+        # The rows this stage added, as the current dossier held them before its exactly validated spacing edge.
+        unspaced = spacing_predecessor(self, self.doc)
+        added = {kind: next(row for row in unspaced[kind] if row['id'] == identity)
+                 for kind, identity in (('sources', SOURCE), ('media', MEDIA), ('observations', OBSERVATION))}
+        self.assertEqual(debris['sources'][len(self.prior['sources']):], [added['sources']])
+        self.assertEqual(debris['media'][len(self.prior['media']):], [added['media']])
+        self.assertEqual(debris['observations'][len(self.prior['observations']):], [added['observations']])
         self.assertEqual([row['id'] for row in debris['creators'][len(self.prior['creators']):]], ['andrew-stamer'])
         self.assertEqual(debris['routes'][len(self.prior['routes']):], [
             {'label':'Debris removal and quality assurance', 'href':'joplin.html#debris-removal'}])

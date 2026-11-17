@@ -258,8 +258,7 @@ class ResponseReadingTests(unittest.TestCase):
     def isolated_response_publication(self, destination, event):
         spec = RESPONSE_PROMOTIONS[event]
         files = [spec[key] for key in ('previous_file', 'current_file', 'previous_history_file', 'history_file')]
-        if event in SPACING_PROMOTIONS:
-            later = SPACING_PROMOTIONS[event]
+        for later in SPACING_PROMOTIONS.get(event, ()):
             files += [later['current_file'], later['history_file']]
         for file in files:
             path = destination / 'web' / file
