@@ -16,7 +16,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .actions {display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0}
 details {margin:20px 0}
 summary {cursor:pointer;font-weight:600}
-#error {border:2px solid #bd654e;padding:14px;white-space:pre-wrap}
+#error {border:2px solid var(--text);padding:14px;white-space:pre-wrap}
 #status,#revision,#target-context {overflow-wrap:anywhere}
 #recovery-state {overflow-wrap:anywhere}
 #record-results {max-height:320px;overflow:auto;margin-top:12px}

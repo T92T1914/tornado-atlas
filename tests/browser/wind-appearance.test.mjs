@@ -5,7 +5,7 @@ import path from 'node:path';
 import {fixture,base} from './harness.mjs';
 
 // These literal colors express the intended Clair and Obscur reading contract.
-const palettes={dark:{slow:[164,164,164],fast:[244,244,244]},light:{slow:[100,98,92],fast:[36,36,36]}};
+const palettes={dark:{slow:[153,153,153],fast:[255,255,255]},light:{slow:[102,102,102],fast:[0,0,0]}};
 const fields=['peak','radius','background','probe-x','probe-y','area','coefficient','travel','offset','threshold','capacity'];
 const readouts=['probe-speed','probe-si','probe-pressure','probe-force','passage-now','passage-force','component-now','component-first','component-state','reference-maximum-wind','reference-maximum-drag'];
 const query='experiment=wind-1&event=moore-2013&peak=100&radius=500&background=0&probe-x=1&probe-y=0&area=1&coefficient=1.2&travel=30&offset=-0.7&threshold=50&capacity=1.6&sample=206';
