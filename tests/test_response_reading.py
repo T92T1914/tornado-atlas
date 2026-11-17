@@ -10,6 +10,7 @@ from tempfile import TemporaryDirectory
 from atlas.archive import dossiers, validate_dossier
 from response_continuation_support import RESPONSE_PROMOTIONS, response_predecessor
 from reviewed_continuation_support import reviewed_predecessor
+from spacing_continuation_support import SPACING_PROMOTIONS, spacing_boundary, spacing_predecessor
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTE = 'research/response-reading-2026-10-30.md'
@@ -121,18 +122,22 @@ class ResponseReadingTests(unittest.TestCase):
     def test_exact_current_delta_keeps_all_old_evidence_and_grants(self):
         for event in BASELINES:
             with self.subTest(event=event):
-                self.assert_preserved_delta(event, self.docs[event])
+                # A later spacing edge is validated exactly before its predecessor is compared.
+                self.assert_preserved_delta(event, spacing_predecessor(self, self.docs[event]))
                 self.assertEqual(self.docs[event]['reconstruction'], self.previous(event)['reconstruction'])
 
     def test_other_three_current_dossiers_and_their_complete_bytes_are_unchanged(self):
         index = json.loads((ROOT / 'web/archive/index.json').read_bytes())
         entries = {row['id']: row for row in index['events']}
         for event, (file, wire, logical) in UNCHANGED.items():
+            # Only an exact later spacing edge may stand between these and the current dossier.
+            doc, retained = spacing_boundary(self, self.docs[event])
+            entry = retained or entries[event]
             raw = (ROOT / 'web' / file).read_bytes()
             self.assertEqual(hashlib.sha256(raw).hexdigest(), wire)
-            self.assertEqual(canonical(self.docs[event]), canonical(json.loads(raw)))
-            self.assertEqual(hashlib.sha256(canonical(self.docs[event])).hexdigest(), logical)
-            self.assertEqual((entries[event]['file'], entries[event]['file_sha256'], entries[event]['dossier_sha256']), (file, wire, logical))
+            self.assertEqual(canonical(doc), canonical(json.loads(raw)))
+            self.assertEqual(hashlib.sha256(canonical(doc)).hexdigest(), logical)
+            self.assertEqual((entry['file'], entry['file_sha256'], entry['dossier_sha256']), (file, wire, logical))
 
     def test_complete_new_image_has_the_independently_retained_original_identity(self):
         self.assert_photo_contract(self.docs['moore-2013'])
@@ -213,8 +218,8 @@ class ResponseReadingTests(unittest.TestCase):
         self.assertEqual(set(RESPONSE_PROMOTIONS), {'moore-2013', 'udall-1955', 'blackwell-1955'})
         for event, spec in RESPONSE_PROMOTIONS.items():
             with self.subTest(event=event):
-                current = self.docs[event]
-                retained = response_predecessor(self, current)
+                current = spacing_predecessor(self, self.docs[event])
+                retained = response_predecessor(self, self.docs[event])
                 self.assertEqual(retained, self.previous(event))
                 self.assertEqual(hashlib.sha256(canonical(current)).hexdigest(), spec['current'])
                 self.assertEqual(hashlib.sha256(canonical(retained)).hexdigest(), BASELINES[event][2])
@@ -252,10 +257,14 @@ class ResponseReadingTests(unittest.TestCase):
 
     def isolated_response_publication(self, destination, event):
         spec = RESPONSE_PROMOTIONS[event]
-        for key in ('previous_file', 'current_file', 'previous_history_file', 'history_file'):
-            path = destination / 'web' / spec[key]
+        files = [spec[key] for key in ('previous_file', 'current_file', 'previous_history_file', 'history_file')]
+        if event in SPACING_PROMOTIONS:
+            later = SPACING_PROMOTIONS[event]
+            files += [later['current_file'], later['history_file']]
+        for file in files:
+            path = destination / 'web' / file
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes((ROOT / 'web' / spec[key]).read_bytes())
+            path.write_bytes((ROOT / 'web' / file).read_bytes())
         path = destination / NOTE
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes((ROOT / NOTE).read_bytes())
@@ -272,7 +281,7 @@ class ResponseReadingTests(unittest.TestCase):
                     response_predecessor(self, self.docs[event], isolated)
                     path = isolated / 'web' / spec[key]
                     path.write_bytes(path.read_bytes() + b'\n')
-                    with self.assertRaisesRegex(AssertionError, 'Immutable reviewed response bytes changed'):
+                    with self.assertRaisesRegex(AssertionError, 'Immutable reviewed (spacing|response) bytes changed'):
                         response_predecessor(self, self.docs[event], isolated)
 
     def test_response_index_and_provenance_cannot_point_at_another_valid_boundary(self):
@@ -287,7 +296,7 @@ class ResponseReadingTests(unittest.TestCase):
                     index['events'][0][field] = {'file': spec['previous_file'], 'dossier_sha256': spec['previous'],
                         'history_file': spec['previous_history_file'], 'registered_media': 1}[field]
                     path.write_text(json.dumps(index), encoding='utf8')
-                    with self.assertRaisesRegex(AssertionError, 'Exact current response index entry'):
+                    with self.assertRaisesRegex(AssertionError, 'Exact current (spacing|response) index entry'):
                         response_predecessor(self, self.docs[event], isolated)
             with self.subTest(event=event, field='source note'), TemporaryDirectory() as temporary:
                 isolated = Path(temporary)

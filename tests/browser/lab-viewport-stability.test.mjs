@@ -39,11 +39,42 @@ const REVIEWED_PUBLICATIONS={
     "previous_wire": "e97e0a32c9888a7dfc359ef8a1d954e0c092ea900d69d031e3c1464c1cc07f63"
   }
 };
+// Two later spacing edges put back the spaces text extraction removed. Their
+// reference items may differ from the earlier ones by inserted spaces only.
+const SPACED_PUBLICATIONS={
+  "tuscaloosa-birmingham-2011": {
+    "previous_file": "tuscaloosa-birmingham-2011-22697c0e0b3bcdf5fce7.json",
+    "previous_wire": "fd8a0deb7a5dc0a7cf239a364dd46624b86a354e67a84cab110cf8bf1bcd353c",
+    "file": "tuscaloosa-birmingham-2011-a387d9b26b6ab7c237d9.json",
+    "wire": "c95ccb3915fe0b11582e4394a149c579a1715d2e7842b91363b291f1c26170a0"
+  },
+  "moore-2013": {
+    "previous_file": "moore-2013-d7a6ec9d4ca0081f368b.json",
+    "previous_wire": "1541685e18bc57b125e1779658c39c5858dc05e2e4bad71af193b06f2ae3145f",
+    "file": "moore-2013-5c2ac0ec0006b1eee3e0.json",
+    "wire": "b00333f3cc740e24dd9e8760e00f5ff640518b3ea543f4e7595ab42063c3965b"
+  }
+};
+function spacedOnly(before,after){
+ if(typeof before==='string'&&typeof after==='string'){
+  if(before===after)return true;
+  let at=0;
+  for(let index=0;index<after.length;index++){if(at<before.length&&after[index]===before[at])at++;else if(after[index]!==' ')return false;}
+  return at===before.length;
+ }
+ if(Array.isArray(before))return Array.isArray(after)&&after.length===before.length&&before.every((value,index)=>spacedOnly(value,after[index]));
+ if(before&&typeof before==='object'){
+  if(!after||typeof after!=='object'||Array.isArray(after))return false;
+  const keys=Object.keys(before);
+  return Object.keys(after).length===keys.length&&keys.every(key=>Object.hasOwn(after,key)&&spacedOnly(before[key],after[key]));
+ }
+ return Object.is(before,after);
+}
 const CURRENT_REFERENCES={...REFERENCES};
 const currentIndex=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
 for(const[event,promotion]of Object.entries(REVIEWED_PUBLICATIONS)){
- const previous=REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event);
- assert.equal(entry.file,'archive/'+promotion.file);assert.equal(entry.file_sha256,promotion.wire);
+ const previous=REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event),spaced=SPACED_PUBLICATIONS[event];
+ assert.equal(entry.file,'archive/'+(spaced?.file??promotion.file));assert.equal(entry.file_sha256,spaced?.wire??promotion.wire);
  const beforeBytes=await readFile(new URL('../../web/archive/'+previous.file,import.meta.url));
  const afterBytes=await readFile(new URL('../../web/archive/'+promotion.file,import.meta.url));
  assert.equal(createHash('sha256').update(beforeBytes).digest('hex'),promotion.previous_wire);
@@ -53,6 +84,21 @@ for(const[event,promotion]of Object.entries(REVIEWED_PUBLICATIONS)){
  assert.ok(beforeItem&&afterItem);assert.deepEqual(afterItem,beforeItem,'Exact reference, timing, rights and image identity survive '+event);
  assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),before.sources.find(row=>row.id===beforeItem.source_id));
  CURRENT_REFERENCES[event]={...previous,file:promotion.file};
+}
+for(const[event,spaced]of Object.entries(SPACED_PUBLICATIONS)){
+ const previous=CURRENT_REFERENCES[event],entry=currentIndex.events.find(row=>row.id===event);
+ assert.equal(previous.file,spaced.previous_file);
+ assert.equal(entry.file,'archive/'+spaced.file);assert.equal(entry.file_sha256,spaced.wire);
+ const beforeBytes=await readFile(new URL('../../web/archive/'+spaced.previous_file,import.meta.url));
+ const afterBytes=await readFile(new URL('../../web/archive/'+spaced.file,import.meta.url));
+ assert.equal(createHash('sha256').update(beforeBytes).digest('hex'),spaced.previous_wire);
+ assert.equal(createHash('sha256').update(afterBytes).digest('hex'),spaced.wire);
+ const before=JSON.parse(beforeBytes.toString('utf8')),after=JSON.parse(afterBytes.toString('utf8'));
+ const beforeItem=before.media.find(row=>row.id===previous.media),afterItem=after.media.find(row=>row.id===previous.media);
+ assert.ok(beforeItem&&afterItem);assert.ok(spacedOnly(beforeItem,afterItem),'Only inserted spaces separate the reference items of '+event);
+ assert.ok(spacedOnly(before.sources.find(row=>row.id===beforeItem.source_id),after.sources.find(row=>row.id===beforeItem.source_id)));
+ assert.ok(!spacedOnly(beforeItem,{...afterItem,id:afterItem.id+'x'}),'The comparison refuses a changed identifier');
+ CURRENT_REFERENCES[event]={...previous,file:spaced.file};
 }
 const ABORTED=/Target page, context or browser has been closed|Request with the provided ID does not exist|Invalid InterceptionId|No resource with given identifier|interception.*(?:not found|cancelled|canceled)|request.*(?:cancelled|canceled|aborted)|Route is already handled/i;
 const NATIVE_ABORT=/abort|cancel|NS_BINDING_ABORTED/i;

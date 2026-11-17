@@ -10,6 +10,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from spacing_continuation_support import spacing_boundary, spacing_index_entry
+
 ROOT = Path(__file__).resolve().parents[1]
 NOTE = 'research/response-reading-2026-10-30.md'
 NOTE_SHA = '737393e5e55620425019d3b083dede378c8431858639be6388d37bc3eabc95bc'
@@ -108,11 +110,17 @@ def _bound(case, root, file, wire, logical=None):
     return doc
 
 
-def response_boundary(case, current, root=ROOT):
-    """Return (retained document, retained index entry) after exact validation."""
+def response_boundary(case, current, root=ROOT, index_entry=None):
+    """Return (retained document, retained index entry) after exact validation.
+
+    Without an index entry the current document first passes its later spacing
+    edge, and this edge then reads the entry that spacing edge retained.
+    """
     event = current['id']
+    if index_entry is None:
+        current, index_entry = spacing_boundary(case, current, root)
     if event not in RESPONSE_PROMOTIONS:
-        return copy.deepcopy(current), None
+        return copy.deepcopy(current), index_entry
     spec = RESPONSE_PROMOTIONS[event]
     previous = _bound(case, root, spec['previous_file'], spec['previous_wire'], spec['previous'])
     frozen = _bound(case, root, spec['current_file'], spec['current_wire'], spec['current'])
@@ -148,10 +156,12 @@ def response_boundary(case, current, root=ROOT):
     case.assertEqual(expected, frozen, 'Named response additions must explain every current field')
     case.assertEqual(canonical(expected), spec['current'], 'Response delta preserves exact JSON types')
 
-    index = json.loads((root / 'web/archive/index.json').read_bytes())
-    entries = [row for row in index['events'] if row['id'] == event]
-    case.assertEqual(len(entries), 1)
-    entry = entries[0]
+    if index_entry is None:
+        index = json.loads((root / 'web/archive/index.json').read_bytes())
+        entries = [row for row in index['events'] if row['id'] == event]
+        case.assertEqual(len(entries), 1)
+        index_entry = entries[0]
+    entry = index_entry
     case.assertEqual(canonical(entry), spec['current_index_sha256'], 'Exact current response index entry')
     case.assertEqual((entry['file'], entry['file_sha256'], entry['dossier_sha256'], entry['history_file']),
                      (spec['current_file'], spec['current_wire'], spec['current'], spec['history_file']))
@@ -179,9 +189,10 @@ def response_predecessor(case, current, root=ROOT):
 
 def response_index_entry(case, entry, root=ROOT):
     """A historical index view only; the real current index remains unchanged."""
+    entry = spacing_index_entry(case, entry, root)
     if entry['id'] not in RESPONSE_PROMOTIONS:
         return entry
     spec = RESPONSE_PROMOTIONS[entry['id']]
     case.assertEqual(canonical(entry), spec['current_index_sha256'], 'Exact supplied response index entry')
     current = _bound(case, root, spec['current_file'], spec['current_wire'], spec['current'])
-    return response_boundary(case, current, root)[1]
+    return response_boundary(case, current, root, entry)[1]
