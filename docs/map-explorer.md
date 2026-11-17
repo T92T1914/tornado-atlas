@@ -121,17 +121,20 @@ invented between endpoints.
 `research/location-reviews.json` records reviewed conflicts separately from raw
 source values. Publication checks the source revision, hash, logical CSV row,
 URL and both endpoints. A changed source requires renewed review. It now holds
-64 disputed starts. Ten come from the September 2026 reviews. One of them,
+733 disputed starts. Ten come from the September 2026 reviews. One of them,
 `ncei:5599610`, retains the Atlantic start coordinate of the original record
 labelled California. The original CSV and a fresh download agree, and the
-available record does not establish a corrected start. The other 54 come from
+available record does not establish a corrected start. The next 54 come from
 the [state boundary screen](../research/state-boundary-screen-2026-11-14.md),
 which tests every reported position against the polygon of the state its
-record names. A disputed start is excluded from ordinary map groups and fitted
+record names. The other 669 come from the comparison with the begin location
+text described below, which also adds its finding to two of the state screen's
+reviews. A disputed start is excluded from ordinary map groups and fitted
 bounds. Only the explicit action that shows the reported position reveals its
-marker, a question mark. The screen tests states and not counties, and it marks
-only starts, so these reviews are not an audit of geographic accuracy across
-the collection.
+marker, a question mark. The state screen tests states and not counties. Only
+the begin text comparison reaches counties, and only for 2001 to 2006. Every
+review marks only starts, so these reviews are not an audit of geographic
+accuracy across the collection.
 
 Note dated November 16, 2026. The
 [county boundary screen](../research/county-boundary-screen-2026-11-15.md)
@@ -156,8 +159,11 @@ wrong field and the label is right. 514 of the 713 placed starts lying more
 than 20 km from their text sit at the begin text of another event in the same
 NOAA episode. NCEI's FAQ says coordinates
 from 1996 to 2006 were calculated from the range and direction, and none of the
-NCEI documents the record read explains the misplaced points. No start is
-disputed on that record yet either.
+NCEI documents the record read explains the misplaced points. Since November
+17, 2026 those 671 starts are disputed, each citing that record, 669 of them
+for the first time. The 42 far starts whose text also falls outside the labeled
+county, the 37 near ones and the five near starts from 2002 stay listed in the
+record and are not marked.
 
 `python -m atlas.explorer` generates `web/catalogue/media.json` from existing
 reviewed record aliases and exhibit manifests. It verifies original asset
