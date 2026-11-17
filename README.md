@@ -408,7 +408,7 @@ py -3.11 -X utf8 -m atlas export
 py -3.11 -X utf8 -m atlas.publication
 ```
 
-The first import requires a network connection. It discovers the latest publisher revision for each requested year. Raw downloads and the local database live in `data/`, which is excluded from Git. The CLI export goes into `outputs/`. `atlas.publication` builds the browser files in `web/catalogue/` and retrieves the Natural Earth map if it is not cached. Its index is published only after every referenced detail file exists. Old detail filenames remain valid across rebuilds.
+The first import requires a network connection. It discovers the latest publisher revision for each requested year. Raw downloads and the local database live in `data/`, which is excluded from Git. The CLI export goes into `outputs/`. `atlas.publication` builds the browser files in `web/catalogue/` and retrieves the Natural Earth map if it is not cached. Its index is published only after every referenced detail file exists. The export keeps the detail files that the new index and the one before it name, plus any the archive names, and removes the rest.
 
 The [Japan source record browser](https://t92t1914.github.io/tornado-atlas/japan.html) presents 2,914 retained JMA cases, of which 1,577 are explicitly classified as tornadoes. They come from the revision JMA last modified on October 13, 2026, and the [revision record](research/jma-revision-2026-11-13.md) lists what changed from the September 30 revision. The browser's default view shows those tornado records. Other gusts and uncertain phenomena remain available through the phenomenon filter. Japanese place names, F/JEF intervals, missing states and scope of shared counts remain distinct. Search, selected records and the phone's results/record view can be bookmarked. Coordinates remain source fields without an assumed map datum or reconstructed track. These are counts of source records, not unique physical storms or complete national coverage.
 
@@ -418,7 +418,7 @@ The [JMA adapter and publication contract](docs/jma-adapter.md) explain the loca
 
 The September 20, 2026 import includes all 76 annual source files from 1950 through 2025, totaling 80,318 source records. Of those, 79,142 have a usable reported start or end coordinate. The other 1,176 remain searchable without a map point. A row can describe one county's segment of a longer tornado. This is not a count of unique tornadoes or a guarantee that every historical event was recorded. Reporting practices and source completeness vary over time.
 
-Browsers with native gzip decompression load a 3.5 MB compressed index. A readable JSON fallback is included. Spatial grouping bounds the SVG marker count while preserving individual records in the result list. Detail responses use 256 smaller buckets. Old filenames addressed by their content remain valid across rebuilds.
+Browsers with native gzip decompression load a 3.5 MB compressed index. A readable JSON fallback is included. Spatial grouping bounds the SVG marker count while preserving individual records in the result list. Detail responses use 256 smaller buckets. A filename addressed by its content stays valid for the rebuild that follows it, so a page that is already open keeps working. `tools/check_catalogue.py` fails once `web/` passes 900 MiB, under the 1 GB GitHub Pages allows.
 
 Rebuild the exhibit from the preserved NWS source:
 
