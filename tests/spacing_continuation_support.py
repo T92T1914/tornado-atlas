@@ -17,6 +17,7 @@ import json
 from pathlib import Path
 import re
 
+from footage_continuation_support import footage_boundary, footage_index_entry
 from text_spacing_support import PROTECTED
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -346,9 +347,13 @@ def spacing_boundary(case, current, root=ROOT, index_entry=None):
 
     The edges of a dossier are peeled newest first, and each older edge reads
     the index entry the newer one retained. Events without a spacing edge come
-    back unchanged with the entry supplied.
+    back unchanged with the entry supplied. Without an entry, the current
+    document first passes its later footage register edge, and the spacing
+    edges then read the entry that edge retained.
     """
     current = copy.deepcopy(current)
+    if index_entry is None:
+        current, index_entry = footage_boundary(case, current, root)
     for spec in reversed(SPACING_PROMOTIONS.get(current['id'], ())):
         current, index_entry = _spacing_edge(case, current, spec, root, index_entry)
     return current, index_entry
@@ -360,6 +365,7 @@ def spacing_predecessor(case, current, root=ROOT):
 
 def spacing_index_entry(case, entry, root=ROOT):
     """A historical index view only. The real current index stays as it is."""
+    entry = footage_index_entry(case, entry, root)
     if entry['id'] not in SPACING_PROMOTIONS:
         return entry
     spec = SPACING_PROMOTIONS[entry['id']][-1]

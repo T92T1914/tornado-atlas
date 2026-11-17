@@ -98,8 +98,34 @@ class ShotRegisterTests(unittest.TestCase):
         self.assertEqual([t['kind'] for t in self.register['transitions']],
                          ['fade_in', 'dissolve', 'hard_cut', 'caption_jump', 'fade_out'])
 
-    def test_published_footage_register_carries_no_shot_register_yet(self):
-        self.assertNotIn('shot_register', load_footage())
+    def test_published_footage_register_carries_the_reviewed_register(self):
+        # The exhibit holds the reviewed research register itself, so the two cannot drift apart.
+        self.assertEqual({'schema': 1, **load_footage()['shot_register']}, self.register)
+
+    def test_published_samples_name_their_camera_and_the_open_caption_basis(self):
+        published = load_footage()
+        notes = {anchor['id']: anchor['note'] for anchor in published['anchors']}
+        found = {}
+        for read in self.register['anchor_reads']:
+            passage = next(p for p in self.register['passages']
+                           if p['start']['video_seconds'] <= read['video_seconds'] <= p['end']['video_seconds'])
+            found[read['anchor_id']] = passage['id']
+            with self.subTest(anchor=read['anchor_id']):
+                self.assertEqual('rear camera' in notes[read['anchor_id']], passage['camera'] == 'rear')
+        self.assertEqual(found, {'robinson-01': 'forward-1', 'robinson-02': 'forward-1', 'robinson-03': 'forward-1',
+                                 'robinson-04': 'rear-1', 'robinson-05': 'rear-1',
+                                 'robinson-06': 'forward-3', 'robinson-07': 'forward-3'})
+        for identity in ('robinson-06', 'robinson-07'):
+            # The 54 s against the first samples is a change of basis only under the one camera assumption.
+            self.assertIn('If one forward camera keeping one clock recorded the first forward passage and this one',
+                          notes[identity])
+            self.assertIn('which basis matches the true time is open', notes[identity])
+        for limit in ('Which basis matches the true time is open', 'this review did not test that',
+                      'a splice that removed less than about a second', 'a credit shorter than four seconds',
+                      'The audio was not reviewed.'):
+            self.assertIn(limit, published['coverage'])
+        rear = next(p for p in published['shot_register']['passages'] if p['id'] == 'rear-1')
+        self.assertTrue(rear['note'].endswith('Anchors robinson-04 and robinson-05 lie here.'))
 
     def test_two_passages_cannot_touch_without_a_transition(self):
         self.drop_transition('switch-to-rear')

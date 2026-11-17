@@ -128,7 +128,11 @@ The documentary and spatial replay now share selection of the source version and
 restoration. Switching a source closes its player and leaves gaps unassigned.
 The form study also has two bounded authored windows separated by an empty gap,
 using the same wall clock model as geographic playback. The published historical
-register remains one source and seven paused samples. See the
+register remains one source and seven paused samples. It now also carries a
+[shot register](research/robinson-shot-register-2026-11-16.md) of that source's
+four passages, read from a cut review of the whole upload. The passages follow the
+upload's caption clock. That clock changes its basis at least once, and which basis
+matches the true time is open. See the
 [shared playback acceptance record](docs/shared-playback-acceptance.md) for
 the software checks and the evidence still needed for historical appearance.
 
