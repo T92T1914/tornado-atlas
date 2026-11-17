@@ -181,11 +181,30 @@ class StaticPublicationTests(unittest.TestCase):
         kept = first['records'][0]['detail_file']
         archive.mkdir()
         (archive/'index.json').write_text(json.dumps({'record_shards': {kept[8:10]: kept}}), encoding='utf-8')
-        (archive/'event-0123456789abcdef0123.json').write_text('{}', encoding='utf-8')
         self.publish([sample(TOR_F_SCALE='EF2')], '20260920', archive=archive)
         _, third = self.publish([sample(TOR_F_SCALE='EF3')], '20261001', archive=archive)
         self.assertIn(kept, self.details())
         self.assertNotIn(kept, self.named(third))
+
+    def test_a_file_an_archived_page_names_is_never_removed(self):
+        archive = self.fixture.root / 'archive'
+        _, first = self.publish([sample()], archive=archive)
+        kept = first['records'][0]['detail_file']
+        archive.mkdir()
+        (archive/'event-0123456789abcdef0123.json').write_text(
+            json.dumps({'records': [{'id': 'ncei:1', 'detail': f'catalogue/{kept}'}]}), encoding='utf-8')
+        self.publish([sample(TOR_F_SCALE='EF2')], '20260920', archive=archive)
+        self.publish([sample(TOR_F_SCALE='EF3')], '20261001', archive=archive)
+        self.assertIn(kept, self.details())
+
+    def test_the_published_index_survives_local_exports_that_never_published(self):
+        _, live = self.publish([sample()])
+        published = self.named(live)
+        for revision, rating in (('20260920', 'EF2'), ('20261001', 'EF3')):
+            metadata = self.fixture.snapshot([sample(TOR_F_SCALE=rating)], revision)
+            import_ncei(self.fixture.db, metadata, self.fixture.root)
+            export_catalogue(self.fixture.db, self.output, {}, keep=published)
+        self.assertTrue(published <= self.details())
 
     def test_an_unchanged_index_starts_no_generation(self):
         _, first = self.publish([sample()])

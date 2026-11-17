@@ -7,6 +7,7 @@ import re
 import gzip
 import json
 import os
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -211,6 +212,16 @@ def indexed_detail_files(content: bytes | None) -> set[str] | None:
         return None
 
 
+def published_detail_files(root: Path, ref: str = 'origin/main') -> set[str]:
+    """Detail files the index on the published branch names, or none when Git cannot say."""
+    try:
+        content = subprocess.run(['git', 'show', f'{ref}:web/catalogue/index.json'], cwd=root,
+                                 capture_output=True, check=True, timeout=120).stdout
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    return indexed_detail_files(content) or set()
+
+
 def prune_details(destination: Path, current: set[str], previous: set[str], protected: set[str]) -> list[str]:
     """Remove detail files that neither of the last two generations nor the archive names."""
     keep = current | previous | protected
@@ -224,7 +235,7 @@ def prune_details(destination: Path, current: set[str], previous: set[str], prot
 
 
 def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict | None = None,
-                     archive: Path | None = None) -> dict:
+                     archive: Path | None = None, keep: set[str] | None = None) -> dict:
     reviews = reviews or {}
     coverage = stats(connection)
     count = coverage['current_source_records']
@@ -280,7 +291,8 @@ def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict
     previous = indexed_detail_files(previous_bytes)
     removed = []
     if previous is not None and previous_bytes != index_bytes:
-        removed = prune_details(destination, current, previous, archived_detail_files(archive))
+        protected = archived_detail_files(archive) | set(keep or ())
+        removed = prune_details(destination, current, previous, protected)
     return {'records': count, 'detail_files': detail_count, 'unmatched_aliases': unmatched,
             'located': sum(record['point'] is not None for record in index),
             'removed_detail_files': len(removed)}
@@ -309,7 +321,9 @@ def build() -> dict:
     connection = connect()
     try:
         reviews = json.loads((ROOT / 'research/location-reviews.json').read_text(encoding='utf-8'))
-        result = export_catalogue(connection, ROOT / 'web/catalogue', aliases, reviews, ROOT / 'web/archive')
+        # The index on disk may be a local export that never published, so the live one is kept too.
+        result = export_catalogue(connection, ROOT / 'web/catalogue', aliases, reviews, ROOT / 'web/archive',
+                                  published_detail_files(ROOT))
     finally:
         connection.close()
     result['land'] = export_land(ROOT / 'web/land.json')
