@@ -6,6 +6,8 @@ For most of those starts the text agrees with the county label and the coordinat
 
 Nothing is marked disputed in this change, and `location-reviews.json` is unchanged.
 
+Note dated November 17, 2026. The 671 starts whose text falls inside the labeled county while the published start lies more than 20 km away are now disputed in `location-reviews.json`, each citing this record. Two of them were already disputed by the state screen, and their reviews now add this finding. The 42 far starts whose text also falls outside the county, the 37 near ones and the five near starts from 2002 stay listed here and are not marked. `tests/test_begin_text_disputes.py` holds the reviews to exactly that group.
+
 ## Inputs
 
 The place gazetteer is the Census Bureau's 2023 national places file, [`2023_Gaz_place_national.zip`](https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_place_national.zip), 1,220,953 bytes, SHA-256 `3c8b23c0dcdb15c0ebd16fee7373e032466e6b585650aa219bc1bee5ac8bd58f`. It was retrieved on November 16, 2026 at 23:15 UTC, and the server reported Last-Modified `Tue, 26 Sep 2023 13:32:25 GMT`. It lists 32,329 incorporated places and census designated places, each with an internal point.
