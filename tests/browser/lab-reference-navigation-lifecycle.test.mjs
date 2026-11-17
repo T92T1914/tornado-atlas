@@ -128,7 +128,7 @@ async function checkedMooreWidget(page){
 const SAVED_FORM_PARAMETERS={experiment:'form-6',event:'moore-2013',model:'genesis-v1',shape:'cone',condensation:'100',
   azimuth:'25',elevation:'12',distance:'7',dust:'1',quality:'7200',sequence:'1',
   coverage:'storm',rate:'1',position:'0',phase:'0',visibility:'ordinary',flow:'1',presentation:'storm-v1'};
-const DEFAULT_FORM_PARAMETERS={...SAVED_FORM_PARAMETERS,experiment:'form-7',coverage:'storm-detail',presentation:'storm-v2'};
+const DEFAULT_FORM_PARAMETERS={...SAVED_FORM_PARAMETERS,experiment:'form-8',coverage:'storm-integrated',presentation:'storm-v3'};
 async function savedMooreExperiment(page,parameters=DEFAULT_FORM_PARAMETERS){
   const url=new URL(await page.locator('#lab-share').getAttribute('href'),base);
   assert.equal(url.origin,new URL(base).origin);assert.equal(url.pathname,'/study.html');

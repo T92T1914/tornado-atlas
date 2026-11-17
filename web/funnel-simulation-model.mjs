@@ -266,7 +266,7 @@ void main(){
   if(surfacePass){
     if(!worldLighting)discard;
 #if STORM_SCENE
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
     // Evaluate derivatives before the sky/ground branch. Every fragment in a
     // quad participates, including sky rays beside the horizon.
     vec3 filterPoint=origin+ray*(-origin.y/min(-.00001,ray.y));
@@ -282,7 +282,7 @@ void main(){
     float groundLight=nearbyTransmission(groundPoint+vec3(0,.01,0),worldLight());
     float grain=.008*(materialNoise(groundPoint*1.5)-.5);
     vec3 groundColor=vec3(.19,.22,.18)*(.72+.28*groundLight)+grain;
-#if STORM_SCENE == 2
+#if STORM_SCENE >= 2
     // Illustrative parcels supply perspective scale, not historical geography.
     // Reuse the existing ground texture sample; this adds no texture probe.
     vec2 field=mat2(.94,.34,-.34,.94)*groundPoint.xz+vec2(.18,-.12)*(grain/.008);
@@ -318,7 +318,13 @@ void main(){
 #if STORM_SCENE
   radius=3.3;
 #endif
+#if STORM_SCENE >= 3
+  // The flared top continues into the lowered cloud base.
+  radius=4.6;
+  vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,3.2,radius));
+#else
   vec2 bodyRange=intersectBox(origin,ray,length(segment),vec3(-radius,0.0,-radius),vec3(radius,2.71,radius));
+#endif
   vec2 cloudOffset=vec2(.12*sin(.11*time),.12*cos(.09*time));
   vec2 cloudRange=intersectBox(origin,ray,length(segment),vec3(cloudOffset.x-2.8,2.05,cloudOffset.y-2.8),vec3(cloudOffset.x+2.8,3.5,cloudOffset.y+2.8));
 #if STORM_SCENE
@@ -331,6 +337,24 @@ void main(){
     cloudRange=vec2(max(0.0,min(lower,upper)),min(length(segment),max(lower,upper)));
   }
 #endif
+#if STORM_SCENE >= 3
+  vec4 combined;
+  if(bodyRange.y<=bodyRange.x){
+    combined=integrateRegion(origin,ray,cloudRange,true,32);
+  }else{
+    // Keep at most 48 shared body samples and 32 exterior cloud samples. Split
+    // the cloud at the body interval so composition always follows ray depth.
+    vec2 before=vec2(cloudRange.x,min(cloudRange.y,bodyRange.x));
+    vec2 after=vec2(max(cloudRange.x,bodyRange.y),cloudRange.y);
+    float frontLength=max(0.0,before.y-before.x),backLength=max(0.0,after.y-after.x);
+    int frontSamples=frontLength<=0.0?0:backLength<=0.0?32:int(clamp(floor(32.0*frontLength/(frontLength+backLength)),1.0,31.0));
+    int backSamples=backLength<=0.0?0:32-frontSamples;
+    vec4 front=integrateRegion(origin,ray,before,true,frontSamples);
+    vec4 body=integrateRegion(origin,ray,bodyRange,false,48);
+    vec4 back=integrateRegion(origin,ray,after,true,backSamples);
+    combined=front+(1.0-front.a)*(body+(1.0-body.a)*back);
+  }
+#else
   vec4 combined;
   if(bodyRange.y<=bodyRange.x){
     combined=integrateRegion(origin,ray,cloudRange,true,16);
@@ -347,6 +371,7 @@ void main(){
     vec4 back=integrateRegion(origin,ray,after,true,backSamples);
     combined=front+(1.0-front.a)*(body+(1.0-body.a)*back);
   }
+#endif
   if(combined.a<.002)discard;
   outputColor=vec4(combined.rgb/combined.a,combined.a);
 }`;

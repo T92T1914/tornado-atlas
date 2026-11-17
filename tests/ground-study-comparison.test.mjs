@@ -67,15 +67,15 @@ test('an off-grid Replay phase is disclosed and serialized at the nearest suppor
   }
 });
 
-test('each accepted presentation keeps its existing experiment version without admitting held storm-v3',()=>{
-  for(const [style,version,coverage] of [['legacy','form-3','formation'],['world-v1','form-4','formation'],['reference-v1','form-5','reference'],['storm-v1','form-6','storm'],['storm-v2','form-7','storm-detail']]){
+test('each accepted presentation keeps its existing experiment version and an unknown one is refused',()=>{
+  for(const [style,version,coverage] of [['legacy','form-3','formation'],['world-v1','form-4','formation'],['reference-v1','form-5','reference'],['storm-v1','form-6','storm'],['storm-v2','form-7','storm-detail'],['storm-v3','form-8','storm-integrated']]){
     const link=formationStudyComparison(origin,130,'synthetic-oblique',style),parsed=read(link),url=new URL(link.href);
     assert.equal(parsed.status,'restored');assert.equal(url.searchParams.get('experiment'),version);assert.equal(parsed.state.coverage,coverage);
     if(style==='world-v1')assert.equal(parsed.state.lighting,style);
     else if(style!=='legacy')assert.equal(parsed.state.presentation,style);
     else assert.equal('presentation' in parsed.state||'lighting' in parsed.state,false);
   }
-  for(const style of ['storm-v3','unknown',null,'',{},'world-v1&presentation=storm-v2'])assert.equal(formationStudyComparison(origin,130,'synthetic-front',style),null);
+  for(const style of ['storm-v4','unknown',null,'',{},'world-v1&presentation=storm-v2'])assert.equal(formationStudyComparison(origin,130,'synthetic-front',style),null);
 });
 
 test('missing cameras and unsupported intervals cannot manufacture a comparison',()=>{

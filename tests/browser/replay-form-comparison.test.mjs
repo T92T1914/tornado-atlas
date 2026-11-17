@@ -61,7 +61,7 @@ for(const [width,appearance,keyboard] of [[320,'dark',false],[1280,'light',true]
 
 test('comparison refuses unavailable or unrelated states and preserves the displayed playing snapshot',{timeout:60000},async t=>{
   const page=await fixture(t,{viewport:{width:320,height:1000}});
-  for(const route of [replay.replace('synthetic-oblique','missing-camera'),replay.replace('&ground_view=synthetic-oblique',''),replay.replace('storm-v2','storm-v3'),replay+'&appearance_style=storm-v2',replay.replace('t=130.011','t=145'),replay.replace('appearance_view=formation','appearance_view=simulation')]){
+  for(const route of [replay.replace('synthetic-oblique','missing-camera'),replay.replace('&ground_view=synthetic-oblique',''),replay.replace('storm-v2','storm-v4'),replay+'&appearance_style=storm-v2',replay.replace('t=130.011','t=145'),replay.replace('appearance_view=formation','appearance_view=simulation')]){
     await page.goto(base+'/'+route);await ready(page);
     assert.equal(await page.locator('#ground-study-comparison').isVisible(),false);
     assert.equal(await page.locator('#ground-study-link').getAttribute('href'),null);

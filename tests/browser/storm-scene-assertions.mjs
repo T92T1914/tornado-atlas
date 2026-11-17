@@ -56,8 +56,8 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
       const shaders=(gl.getAttachedShaders(program)??[]).map(shader=>{
         const source=gl.getShaderSource(shader);
         return {type:gl.getShaderParameter(shader,gl.SHADER_TYPE)===gl.VERTEX_SHADER?'vertex':'fragment',
-          reference:/^#define REFERENCE_FORM 1$/m.test(source),storm:/^#define STORM_SCENE [12]$/m.test(source),
-          stormVersion:Number(source.match(/^#define STORM_SCENE ([12])$/m)?.[1]??0)};
+          reference:/^#define REFERENCE_FORM 1$/m.test(source),storm:/^#define STORM_SCENE [123]$/m.test(source),
+          stormVersion:Number(source.match(/^#define STORM_SCENE ([123])$/m)?.[1]??0)};
       });
       const inverse=array('inverseCamera'),surface=uniform('surfacePass');
       const role=args[0]===gl.POINTS?'particles':args[0]===gl.LINES?'grid':args[0]===gl.TRIANGLES&&inverse!==null?(surface===true?'surface':surface===false?'volume':'unknown-volume'):'other';
@@ -94,7 +94,7 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
     await page.waitForFunction(()=>window.stormSceneProbe?.done===true);
     const observed=await page.evaluate(()=>window.stormSceneProbe.read());
     assert.equal(observed.error,0);assert.equal(observed.lost,false);assert.equal(observed.omitted,0);assert.equal(observed.initiatingEvent?.type,event);
-    const {final}=observed,storm=['storm-v1','storm-v2'].includes(style),stormVersion=style==='storm-v2'?2:storm?1:0,
+    const {final}=observed,storm=['storm-v1','storm-v2','storm-v3'].includes(style),stormVersion=style==='storm-v3'?3:style==='storm-v2'?2:storm?1:0,
       volumes=observed.draws.filter(draw=>draw.role==='volume'),surfaces=observed.draws.filter(draw=>draw.role==='surface'),grids=observed.draws.filter(draw=>draw.role==='grid'),points=observed.draws.filter(draw=>draw.role==='particles');
     assert.equal(volumes.length,1);assert.equal(surfaces.length,1);assert.ok(grids.length>=1);
     assert.equal(points.length,storm?0:1,'The new scene has no separate particle pass');
@@ -115,7 +115,7 @@ export async function sceneFrame(page,{study=false,value=study ? .5 : 130,second
         assert.equal(shader.reference,shader.type==='fragment');assert.equal(shader.storm,storm&&shader.type==='fragment');
         assert.equal(shader.stormVersion,shader.type==='fragment'?stormVersion:0,'The actual submitted shader uses the requested version');
       }
-      if(stormVersion===2){
+      if(stormVersion>=2){
         const vertical=Math.exp(-.036*seconds);
         assert.deepEqual(pass.pullback,Array.from(new Float32Array([vertical,Math.exp(.018*seconds),(.08/.036)*(vertical-1),0])),
           'Actual per-draw factors follow the independently specified authored transport');
