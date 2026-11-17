@@ -1,18 +1,40 @@
-"""Find words that text extraction joined to numbers in dossier prose.
+"""Find words that text extraction joined to numbers or to other words in dossier prose.
 
 The rule looks for a letter run straight into a digit, a digit run straight
 into a word or into a lone m for meters, a clock run into a.m. or p.m., a.m. or
 p.m. run into a capital letter, a list comma with no space after it and a word
-or number run straight into an identifier on either side. Tokens that are written joined on purpose are
-held aside first: links, DOIs,
+or number run straight into an identifier on either side. It also looks for a
+lower case letter run straight into a capital, as in exactID or
+remainsJeffSnyder, and for an acronym run straight into a lower case word.
+Two lower case words run together leave no pattern to find, so each one found
+by reading is listed in LOWER_JOINS with the place its space belongs.
+
+Tokens that are written joined on purpose are held aside first: links, DOIs,
 hashes, file names, video, channel and photo IDs, product and message codes,
 media types, codecs, a camera model, license names, station names, archive and
 article identifiers, ordinals, grouped thousands, timestamps, page labels, release
 stamps, panel letters, coordinate arrays, half open intervals and rating
-labels.
+labels. So are the names written in camel case on purpose, which no pattern can
+tell from a join. Each one in NAMES was read in its sentence and found to be a
+channel, company, product, program, format, unit, license tag, bot or field
+name, and a Mc or Mac surname needs no entry. A new camel case word is flagged until it is read and
+either spaced or added here.
 """
 import re
 
+# Camel case written on purpose, each read in its sentence: channels and
+# companies, products and programs, file formats, units and color spaces, a
+# license tag, a bot, and three field names quoted from the systems that use
+# them.
+NAMES = ('ArcGIS', 'DoW', 'FlickreviewR', 'FlowFrames', 'GeoEye', 'GoPro', 'GovInfo', 'NickNolteWx', 'RaXPol',
+         'SevereStudios', 'StoryMap', 'SuDoc', 'TornadoCentral', 'TwisterChasers', 'USGov', 'WebM', 'WebP', 'WikiSal',
+         'YouTube', 'dBZ', 'eScholarship', 'sRGB', 'DateTime', 'currentTime', 'playableInEmbed')
+NAMED = r'\bMa?c[A-Z][a-z]+\b|\b(?:' + '|'.join(NAMES) + r')\b'
+# Lower case words found run together by reading, each with its space put back.
+LOWER_JOINS = {'autoplayoff': 'autoplay off'}
+# The text before and after each such space, and where that space falls inside a whole word.
+LOWER_SPLITS = tuple((spaced.split(' ')[0], join[spaced.index(' '):]) for join, spaced in LOWER_JOINS.items())
+LOWER_SPLIT = '|'.join(rf'(?<=\b{re.escape(left)})(?={re.escape(right)}\b)' for left, right in LOWER_SPLITS)
 PROTECTED = re.compile(r'''
     https?://\S+
   | \b10\.\d{4,}/[^\s,;)]+
@@ -37,7 +59,9 @@ PROTECTED = re.compile(r'''
   | \b(?:FLORA\d+|FY\d{4}|PMC\d+|PMID\d+|oldid\d+)\b
   | \bnws-[a-z-]+\d+\b
   | \bFOX\d+\b
+  | ''' + NAMED + r'''
 ''', re.X)
+NAMES_ONLY = re.compile(NAMED)
 JOINS = re.compile(r'''
     (?<=[A-Za-z])(?=\d)
   | (?<=\d)(?=[A-Za-z]{2})
@@ -47,7 +71,11 @@ JOINS = re.compile(r'''
   | ,(?=\d)
   | (?<=[A-Za-z])(?=\ue000)
   | (?<=\ue000)(?=[A-Za-z0-9])
+  | (?<=[a-z])(?=[A-Z])
+  | (?<=[A-Z]{2})(?=[a-z]{2})
+  | ''' + LOWER_SPLIT + r'''
 ''', re.X)
+LOWER_SPLIT_AT = re.compile(LOWER_SPLIT)
 HELD = '\ue000'
 
 

@@ -285,8 +285,18 @@ def dossiers(root=ROOT, *, include_curated=True):
                     basis='Retained original upload attribution.'))
                 count = sum(anchor['source_id'] == film['id'] for anchor in footage['anchors'])
                 samples = 'sample' if count == 1 else 'samples'
-                locator = ('Seven retained paused clock samples; no continuous audit.' if legacy and count == 7
-                    else f'{count} retained paused clock {samples}; no continuous audit.')
+                # A reviewed shot register reads the whole upload for its edit. It does not
+                # turn the samples into an interval, so they are still counted on their own.
+                register = footage.get('shot_register')
+                if register is not None and register['source_id'] == film['id']:
+                    passages = len(register['passages'])
+                    words = ('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')
+                    passages = words[passages - 1] if 1 <= passages <= 9 else str(passages)
+                    audit = f' and {passages} passages from a cut review of the whole upload.'
+                else:
+                    audit = '; no continuous audit.'
+                locator = ('Seven retained paused clock samples' if legacy and count == 7
+                    else f'{count} retained paused clock {samples}') + audit
                 doc['sources'].append(source(film['id'], film['title'], film['url'], locator,
                     footage['coverage'] + ' ' + film['limits'], 'Reviewed ' + footage['reviewed'], film['rights']))
             for anchor in footage['anchors']:

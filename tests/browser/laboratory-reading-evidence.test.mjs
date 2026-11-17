@@ -9,7 +9,7 @@ import {fixture,base} from './harness.mjs';
 // These expectations do not import the reference adapter or its generated map.
 const references=[
  {event:'el-reno-2013',media:'nolte-231037-full-documentary',source:'nolte-three-permitted-full-exports',
-  revision:'be9fdcbfb14a0da6b8507ca6f885f917a9173d5a73643d48d2876f658a024fcb',
+  revision:'f36f10f672a9e2e0a999262a0a461f7c5dbadebc89a39f1d6fa41bad7823eefe',
   asset:'assets/el-reno-2013/nolte-231037-full.jpg',sha:'e9ad30c4fdcb6a28340bbb0e422b80cbc937ef248b497092246c7bff51fd4847',width:1920,height:1080,
   original:'https://nnwx.us/blog/2013/07/15/may-31-2013-the-el-reno-ef-5/',item:'https://nnwx.us/wp-content/uploads/2018/02/231037.jpg',
   story:'index.html#documentary-nolte-231037',role:/creator-reported instant/,credit:'creator: Nick Nolte',
