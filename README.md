@@ -66,10 +66,13 @@ together before the searchable collection. The spatial replay places El Reno's
 39 published minute positions on a stage in three dimensions, with orbit controls,
 a following camera, a shared clock, available radar and optional recorded observer
 context. The route comes from
-the source record. The funnel is a drawing symbol, and the ground is flat.
+the source record. The funnel is an illustration, an outline of the joined storm
+funnel of the form study drawn at one fixed size and labeled as not a
+reconstruction, and the ground is flat.
 It is a starting point for the historical reconstruction, not a claim to have
 recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
-record the tested behavior and remaining gaps.
+record the tested behavior and remaining gaps of the first version, which drew
+the funnel as a cloud of dots.
 
 The replay also has an explicitly selected
 [synthetic ground-view comparison](https://t92t1914.github.io/tornado-atlas/reconstruction.html?event=el-reno-2013&appearance_view=ground&ground_view=synthetic-front&t=120#replay-appearance).

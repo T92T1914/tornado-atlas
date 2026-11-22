@@ -20,7 +20,7 @@
     <p id="replay-readiness" role="status" hidden>Geographic timing and source registration still need review. No appearance reconstruction is assigned to this event.</p>
     <section id="replay-chronology" aria-label="Documentary chronology" hidden></section>
     <div id="replay-content" hidden>
-    <p class="replay-boundary"><strong>The route is historical. The funnel symbol is illustrative.</strong> Its shape, height, width and rotation are drawing choices. The outline covers the whole event; it is not the tornado's size at the selected time. Ground is flat, with no modeled buildings or terrain.</p>
+    <p class="replay-boundary"><strong>The route is historical. The funnel is an illustration, not a reconstruction.</strong> It is an outline of the joined storm funnel of the form study, held still and drawn at one fixed size. Its shape, height and width are drawing choices and come from no rating. The path outline covers the whole event. It is not the tornado's size at the selected time. Ground is flat, with no modeled buildings or terrain.</p>
     <div class="replay-layout">
       <div class="replay-main">
         <section id="replay-appearance" class="replay-appearance" aria-labelledby="replay-appearance-heading">
@@ -57,7 +57,9 @@
         </section>
       <section id="replay-path-stage" class="replay-stage" aria-label="Historical path scene">
         <div class="replay-bar"><strong>Geographic position and recorded path</strong><span>GROUND REFERENCE</span></div>
+        <div class="replay-scene-frame">
         <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status replay-damage-status" aria-label="Three-dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
+        <p id="replay-funnel-label" class="replay-funnel-label" hidden>Funnel illustration, not a reconstruction</p></div>
         <p id="replay-basis" class="replay-caption"></p>
         <p id="replay-camera-key" class="replay-caption" hidden>Square and arrow: recorded observer.</p>
         <p id="replay-camera-offscreen" class="replay-caption" hidden>The recorded observer is outside this view. Whole path restores the overview. The sample's time and bearing remain available in the observer controls.</p>
@@ -73,8 +75,8 @@
         <label for="replay-elevation">View elevation <output id="replay-elevation-value"></output></label><input id="replay-elevation" type="range" min="10" max="80" value="48">
         <label for="replay-distance">View distance <output id="replay-distance-value"></output></label><input id="replay-distance" type="range" min="3" max="60" value="8" step=".25">
         <label class="replay-check"><input id="replay-follow" type="checkbox" checked> Follow the center position</label>
-        <label class="replay-check"><input id="replay-funnel" type="checkbox" checked> Show the illustrative funnel symbol</label>
-        <p id="replay-funnel-help" class="replay-help">Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.</p>
+        <label class="replay-check"><input id="replay-funnel" type="checkbox" checked> Show the funnel illustration</label>
+        <p id="replay-funnel-help" class="replay-help">Turning this off leaves a position marker. Neither the funnel nor the marker measures the wind field. Orbit views are not recorded chaser viewpoints.</p>
         <section id="replay-camera" class="replay-observer" aria-labelledby="replay-camera-name" hidden>
           <h3 id="replay-camera-name">Recorded observer</h3>
           <label class="replay-check"><input id="replay-camera-enabled" type="checkbox"> Show recorded observer position and bearing</label>
