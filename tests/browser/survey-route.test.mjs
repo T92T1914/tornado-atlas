@@ -77,7 +77,7 @@ for(const [width,appearance] of [[390,'dark'],[1280,'light']]) {
     const readableComparison=await page.locator('#survey-line-detail').textContent();
     assert.ok(readableComparison.includes(`${position.coordinates[1].toFixed(3)}°N`));
     assert.ok(readableComparison.includes('2.5 km from this surveyed feature'));
-    assert.equal(await connector.evaluate(node=>getComputedStyle(node).stroke),appearance==='dark'?'rgb(244, 244, 244)':'rgb(36, 36, 36)');
+    assert.equal(await connector.evaluate(node=>getComputedStyle(node).stroke),appearance==='dark'?'rgb(255, 255, 255)':'rgb(0, 0, 0)');
     await page.locator('#survey-zoom-in').click();
     const markerBox=await marker.boundingBox();
     assert.ok(Math.abs(markerBox.width-initialMarkerBox.width)<.1,`Nearest-point marker keeps its rendered size after zoom: ${markerBox.width} CSS px`);

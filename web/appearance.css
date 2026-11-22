@@ -1,22 +1,27 @@
 /* Reading colors are independent of historical images and radar legends. */
+/* Obscur by default and Clair for the light appearance. Each value is a token
+   from tokens-monochrome.json. --panel takes the control value, the fill a card
+   uses, and --line, --control-line, --green and --gold take divider, border,
+   text and accent. No reading color carries a hue, so meaning comes from
+   shape, line style and written labels. */
 :root {
   color-scheme:dark;
-  --bg:#090909;--panel:#151515;--line:#494949;
-  --text:#f4f4f4;--muted:#bcbcbc;--green:#dedede;--gold:#ffffff;
-  --fatality:#f08bb2;--control:#252525;--control-hover:#373737;--selected:#333333;--control-line:#858585;
+  --bg:#000000;--panel:#151515;--line:#505050;
+  --text:#ffffff;--muted:#cccccc;--green:#ffffff;--gold:#ffffff;
+  --control:#151515;--control-hover:#252525;--selected:#202020;--control-line:#999999;
 }
 :root[data-appearance=light] {
   color-scheme:light;
-  --bg:#f8f7f3;--panel:#ffffff;--line:#b8b6ae;
-  --text:#242424;--muted:#595854;--green:#383833;--gold:#35332d;
-  --fatality:#a52b60;--control:#ecebe6;--control-hover:#e0ded7;--selected:#e7e4da;--control-line:#85837c;
+  --bg:#ffffff;--panel:#f0f0f0;--line:#aaaaaa;
+  --text:#000000;--muted:#444444;--green:#000000;--gold:#000000;
+  --control:#f0f0f0;--control-hover:#e0e0e0;--selected:#e8e8e8;--control-line:#666666;
 }
 @media(prefers-color-scheme:light) {
   :root:not([data-appearance]) {
     color-scheme:light;
-    --bg:#f8f7f3;--panel:#ffffff;--line:#b8b6ae;
-    --text:#242424;--muted:#595854;--green:#383833;--gold:#35332d;
-    --fatality:#a52b60;--control:#ecebe6;--control-hover:#e0ded7;--selected:#e7e4da;--control-line:#85837c;
+    --bg:#ffffff;--panel:#f0f0f0;--line:#aaaaaa;
+    --text:#000000;--muted:#444444;--green:#000000;--gold:#000000;
+    --control:#f0f0f0;--control-hover:#e0e0e0;--selected:#e8e8e8;--control-line:#666666;
   }
 }
 .reading-appearance {display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;margin:24px 0 0}
@@ -66,9 +71,10 @@ button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--se
 .wind-panel,.wind-readings>div {background:var(--panel)}
 .wind-readings strong,.passage-readings dd,.passage output,.component-state {color:var(--text)}
 .component-experiment {border-color:var(--line)}
-.passage svg,#component-diagram {background:#111111;border-color:var(--line)}
-.passage svg text,#component-diagram text {fill:#bcbcbc}
-.scene-overlay {color:#dddddd}
+/* The wind figures draw in fixed Obscur values, so they keep its canvas in both appearances. */
+.passage svg,#component-diagram {background:#000000;border-color:var(--line)}
+.passage svg text,#component-diagram text {fill:#cccccc}
+.scene-overlay {color:#cccccc}
 .appearance-bar {padding:0 0 22px;margin:20px 0 0}
 /* Scientific wind keys, radar, source photos and canvas renderings keep their
    original colors. Never apply a blanket grayscale filter to historical media. */
@@ -79,9 +85,9 @@ button[aria-pressed=true],.result-button[aria-pressed=true] {background:var(--se
 .report-links {display:flex;gap:12px 24px;flex-wrap:wrap;font-size:14px}
 .place-controls {margin:22px 0;padding:18px;border:1px solid var(--line)}
 .place-controls label {display:flex;gap:12px;align-items:center;min-height:44px}
-.incident-marker {fill:var(--fatality);stroke:var(--text);stroke-width:2.5;cursor:pointer}
-.impact-symbol {color:var(--fatality);font-size:1.3em;margin-right:.5em}
-.impact-card {border-left:3px solid var(--fatality);padding:8px 18px;margin:18px 0}
+.incident-marker {fill:var(--text);stroke:var(--bg);stroke-width:2.5;cursor:pointer}
+.impact-symbol {color:var(--text);font-size:1.3em;margin-right:.5em}
+.impact-card {border-left:3px solid var(--text);padding:8px 18px;margin:18px 0}
 .impact-card h4 {margin:8px 0}
 .impact-controls label {display:flex;align-items:center;gap:10px;min-height:44px}
 .impact-controls button {text-align:left}
@@ -110,7 +116,7 @@ input,select {font-size:16px}
 @media(forced-colors:active) {
   :root[data-appearance],:root:not([data-appearance]) {--bg:Canvas;--panel:Canvas;--line:CanvasText;--text:CanvasText;--muted:CanvasText;
     --green:LinkText;--gold:Highlight;--control:ButtonFace;--control-hover:ButtonFace;
-    --selected:Canvas;--control-line:ButtonText;--fatality:CanvasText}
+    --selected:Canvas;--control-line:ButtonText}
   #map,#survey-map {background:Canvas;--text:CanvasText;--muted:CanvasText;--gold:Highlight}
   .map-outline {fill:Canvas;stroke:CanvasText}
   .map-path {stroke:CanvasText}
@@ -120,22 +126,23 @@ input,select {font-size:16px}
   .camera-marker {stroke:CanvasText;fill:Canvas}
   .incident-marker {fill:Highlight;stroke:CanvasText}
   .fatality-map-label {fill:CanvasText;stroke:Canvas}
-  .fatality-record {--fatality:CanvasText}
   .map-position {fill:CanvasText;stroke:Canvas}
   svg text {fill:CanvasText}
   a {color:LinkText}
 }
 
-/* Human impact has its own key, outside the EF color scale. */
-.fatality-map-label {fill:var(--fatality);stroke:var(--bg);stroke-width:3px;paint-order:stroke;stroke-linejoin:round;font-family:var(--interface-font);font-weight:600;pointer-events:none}
-.incident-marker:focus-visible {outline:none;stroke:var(--fatality);stroke-width:4;fill:var(--bg)}
-.fatality-badge {color:var(--fatality);font:600 13px/1.5 var(--interface-font);letter-spacing:.03em}
+/* Human impact has its own key, outside the EF color scale. A fatality shows
+   its diamond and its written label together and never depends on a color. */
+.fatality-map-label {fill:var(--text);stroke:var(--bg);stroke-width:3px;paint-order:stroke;stroke-linejoin:round;font-family:var(--interface-font);font-weight:600;pointer-events:none}
+.incident-marker:focus-visible {outline:none;stroke:var(--text);stroke-width:4;fill:var(--bg)}
+.fatality-badge {color:var(--text);font:600 13px/1.5 var(--interface-font);letter-spacing:.03em}
+.fatality-badge::before {content:'\25C6';content:'\25C6' / '';margin-right:.5em}
 .fatality-names {padding-left:20px;line-height:1.8}
 .fatality-legend {display:inline-flex;align-items:center;gap:6px}
 .survey-legend .fatality-legend::before {display:none}
-.survey-legend .fatality-legend {color:var(--fatality);font-weight:600}
-.impact-controls {border:1px solid var(--line);border-left:3px solid var(--fatality);padding:16px;margin:0 0 18px;background:var(--panel)}
+.survey-legend .fatality-legend {color:var(--text);font-weight:600}
+.impact-controls {border:1px solid var(--line);border-left:3px solid var(--text);padding:16px;margin:0 0 18px;background:var(--panel)}
 .impact-controls h4 {margin:0 0 8px;font:600 16px/1.5 var(--interface-font)}
 .impact-controls label {font-weight:600}
-.nearby-fatality {padding:14px;border-left:3px solid var(--fatality);margin:18px 0;background:var(--panel)}
-.nearby-fatality button {text-align:left;color:var(--fatality)}
+.nearby-fatality {padding:14px;border-left:3px solid var(--text);margin:18px 0;background:var(--panel)}
+.nearby-fatality button {text-align:left;color:var(--text)}

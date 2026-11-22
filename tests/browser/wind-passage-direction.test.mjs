@@ -79,7 +79,7 @@ for(const [width,appearance] of [[320,'dark'],[320,'light'],[1280,'dark'],[1280,
   assert.ok(Math.abs(Number(await page.locator('#passage-north-component').getAttribute('data-value'))-40/3)<1e-10);
   const legend=page.locator('#passage-probe-legend');
   assert.equal(await legend.count(),1,'Exactly one complete probe legend');
-  assert.equal(await legend.textContent(),'FIXED PROBE: GOLD DOT');
+  assert.equal(await legend.textContent(),'FIXED PROBE: FILLED DOT');
   assert.equal(await page.locator('#passage-direction-arrow').getAttribute('visibility'),'visible');
   const geometry=await page.locator('#passage-plan').evaluate(plan=>{
     const rect=node=>{const b=node.getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom};};
