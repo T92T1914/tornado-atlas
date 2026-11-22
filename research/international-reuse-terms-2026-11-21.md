@@ -66,7 +66,7 @@ What this means for the museum. CC BY 4.0 allows copying, redistribution and ada
 2. A recorded date such as `2018-03-04/2018-03-05` "indicates the approximate date range when the tornado occurred, not the duration of the tornado".
 3. Start and end times are text in UTC+8, including words such as "afternoon" and "night", and must stay as recorded.
 4. The README does not say who assigned the EF rating of each case or on what evidence.
-5. The yearbook is published by others. The license covers the authors' compilation. Whether the Chinese damage descriptions copied from the yearbook carry other terms is not settled here.
+5. The yearbook is published by others. The license covers the authors' compilation. Whether the Chinese damage descriptions copied from the yearbook carry other terms is not settled here. The [yearbook reuse terms record](yearbook-reuse-terms-2026-11-22.md) of 2026-11-22 reads what the yearbook's publisher states.
 
 The data file itself was not downloaded, so its row count and columns are not checked in this record.
 
