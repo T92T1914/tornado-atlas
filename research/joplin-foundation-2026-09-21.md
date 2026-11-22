@@ -43,7 +43,9 @@ extracted text. This does not claim every page was visually inspected.
   It is a historical report figure, not a new geographic dataset. It is not
   stretched into a georeferenced layer. The report and underlying map may
   contain components from third parties. The software's license does not cover
-  them.
+  them. On November 22, 2026 the figure left the site, since no record gave a
+  basis for hosting it. The page now links to it in the report and shows a map
+  the museum draws from the three Storm Events segments.
 
 ## Community leads
 

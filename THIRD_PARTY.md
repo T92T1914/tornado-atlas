@@ -170,11 +170,14 @@ which identifies it as public-domain government work. Its original NOAA link
 is unavailable. The unchanged copy retains the source and the capture-date
 qualification shown on the page.
 
-`nws-track.png` is Figure 1 extracted from the preserved July 2011 NWS service
-assessment in `exhibits/joplin-2011/`. The report includes third-party imagery,
-and the map's underlying components are not separately licensed here. Neither
-the figure nor the PDF is placed under the software's MIT license. Their source,
-hashes and extraction details are in the adjacent manifest.
+The preserved July 2011 NWS service assessment in `exhibits/joplin-2011/`
+includes third party imagery. It is not placed under the software's MIT
+license, and its source and hash are in the adjacent manifest. Its Figure 1
+track map is no longer hosted, because the report does not say who holds the
+rights to the map beneath it. The page links to that figure in the NWS report
+instead. The Joplin segment map that replaces it is drawn by this project from
+three NOAA NCEI Storm Events records, as `docs/joplin-segments-rendering.json`
+records.
 
 ## Moore response photograph
 

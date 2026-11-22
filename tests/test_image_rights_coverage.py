@@ -12,6 +12,7 @@ finds, so a gap can be closed but never added quietly.
 import json
 import pathlib
 import unittest
+from unittest import mock
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 WEB = ROOT / 'web'
@@ -27,6 +28,9 @@ PROJECT_MADE = {
     'mechanism-obscur-wide.png': ('docs/mechanism-rendering.json', 'web/mechanism-obscur-wide.png'),
     'mechanism-obscur-wide.svg': ('docs/mechanism-rendering.json', 'web/mechanism-obscur-wide.svg'),
     'share-preview.png': ('docs/sharing-card.json', 'web/share-preview.png'),
+    **{f'assets/joplin-2011/segments-obscur-{layout}.{ext}':
+       ('docs/joplin-segments-rendering.json', f'web/assets/joplin-2011/segments-obscur-{layout}.{ext}')
+       for layout in ('wide', 'narrow') for ext in ('png', 'svg')},
     **{f'assets/ground-view-demo/synthetic-{camera}-{second}.svg':
        (f'web/assets/ground-view-demo/synthetic-{camera}-{second}.svg',
         f'Camera synthetic-{camera}, shared-player second {second}. No historical source image')
@@ -35,11 +39,7 @@ PROJECT_MADE = {
 
 # Served images whose only record names them without a rights basis. Each one
 # is an open defect, not an accepted state.
-KNOWN_GAPS = {
-    'assets/joplin-2011/nws-track.png':
-        'The manifest says the report figure may hold third party basemap parts and is not licensed here, '
-        'but records no basis for hosting it.',
-}
+KNOWN_GAPS = {}
 
 
 def _text(value):
@@ -151,12 +151,25 @@ class ImageRightsCoverageTests(unittest.TestCase):
         self.assertTrue(any(line.startswith(name) for line in unstated))
 
     def test_a_warning_note_is_not_a_rights_statement(self):
-        manifest = _load(ROOT / 'exhibits' / 'joplin-2011' / 'manifest.json')['assets']
-        track = next(asset for asset in manifest if asset['path'] == 'web/assets/joplin-2011/nws-track.png')
-        self.assertIn('rights_note', track)
-        self.assertNotIn('license', track)
-        labels = [rights for name, _, rights in rights_records() if name == 'assets/joplin-2011/nws-track.png']
+        note = {'path': 'web/assets/joplin-2011/warned.png', 'credit': 'A report figure',
+                'rights_note': 'May include third party parts. Not licensed here'}
+        manifest = _load(ROOT / 'exhibits' / 'joplin-2011' / 'manifest.json')
+        manifest['assets'].append(note)
+        real_load = globals()['_load']
+
+        def load(path):
+            return manifest if path.name == 'manifest.json' and path.parent.name == 'joplin-2011' else real_load(path)
+
+        with mock.patch(f'{__name__}._load', side_effect=load):
+            labels = [rights for name, _, rights in rights_records() if name == 'assets/joplin-2011/warned.png']
         self.assertEqual(labels, [False])
+
+    def test_the_joplin_report_figure_is_not_served(self):
+        # The NWS figure left the site because nothing recorded a basis for hosting it.
+        self.assertFalse((WEB / 'assets' / 'joplin-2011' / 'nws-track.png').exists())
+        page = (WEB / 'joplin.html').read_text(encoding='utf-8')
+        self.assertNotIn('nws-track.png', page)
+        self.assertIn('Joplin_tornado.pdf#page=7', page)
 
 
 if __name__ == '__main__':

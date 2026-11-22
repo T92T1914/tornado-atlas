@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "kind": "catalogue segment map",
+  "basis": "reported_segment_endpoints",
+  "survey": false,
+  "adapter": {
+    "source": "docs/obscur-tokens.json",
+    "roles": {
+      "canvas": "#000000",
+      "panel": "#151515",
+      "text": "#ffffff",
+      "muted": "#cccccc",
+      "line": "#999999"
+    }
+  },
+  "inputs_sha256_lf": {
+    "docs/joplin-segments.json": "7d929ef88042a614c215feeb63e050e762ab6b99adf3a8f5be152592afb96f69",
+    "docs/obscur-tokens.json": "ed5d464e5b4ff40b532c3a38f0474c7cab5a1c5cb1b97ba85eca3cad51de4f6a",
+    "tools/render_joplin_segments.py": "67ec898f6b4e70727a9d013978ec22a691fba15ccae6764e89d5e1474ef824d5"
+  },
+  "fonts": {
+    "Regular": {
+      "filename": "Inter-Regular.ttf",
+      "weight": 400,
+      "sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82"
+    },
+    "SemiBold": {
+      "filename": "Inter-SemiBold.ttf",
+      "weight": 600,
+      "sha256": "78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3"
+    },
+    "Bold": {
+      "filename": "Inter-Bold.ttf",
+      "weight": 700,
+      "sha256": "288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f"
+    }
+  },
+  "renderer": {
+    "matplotlib": "3.11.1",
+    "fonttools": "4.63.0",
+    "backend": "Agg"
+  },
+  "layouts": {
+    "wide": {
+      "width": 1800,
+      "height": 1394,
+      "pixels_per_km": 47.692827,
+      "map": [
+        72,
+        226.635,
+        1656,
+        530.753
+      ],
+      "segments": [
+        {
+          "id": "ncei:296616",
+          "begin_px": [
+            112.0,
+            355.62
+          ],
+          "end_px": [
+            209.891,
+            336.635
+          ]
+        },
+        {
+          "id": "ncei:296617",
+          "begin_px": [
+            209.891,
+            336.635
+          ],
+          "end_px": [
+            886.227,
+            345.073
+          ]
+        },
+        {
+          "id": "ncei:296620",
+          "begin_px": [
+            886.227,
+            345.073
+          ],
+          "end_px": [
+            1688.0,
+            717.388
+          ]
+        }
+      ],
+      "rendered_key_lines": [
+        [
+          "Newton County, EF2",
+          "16:34 to 16:40 CST-6"
+        ],
+        [
+          "Jasper County, EF5",
+          "16:40 to 17:00 CST-6"
+        ],
+        [
+          "Newton County, EF2",
+          "17:00 to 17:20 CST-6"
+        ]
+      ],
+      "rendered_footer_lines": [
+        "Not the surveyed path, its width or its intensity boundaries. Source: NOAA NCEI",
+        "Storm Events entries by NWS Springfield, events 296616, 296617 and 296620."
+      ],
+      "minimum_font_points": 30.0
+    },
+    "narrow": {
+      "width": 960,
+      "height": 1596,
+      "pixels_per_km": 23.725366,
+      "map": [
+        48,
+        370.59,
+        864,
+        339.41
+      ],
+      "segments": [
+        {
+          "id": "ncei:296616",
+          "begin_px": [
+            88.0,
+            490.034
+          ],
+          "end_px": [
+            136.697,
+            480.59
+          ]
+        },
+        {
+          "id": "ncei:296617",
+          "begin_px": [
+            136.697,
+            480.59
+          ],
+          "end_px": [
+            473.149,
+            484.787
+          ]
+        },
+        {
+          "id": "ncei:296620",
+          "begin_px": [
+            473.149,
+            484.787
+          ],
+          "end_px": [
+            872.0,
+            670.0
+          ]
+        }
+      ],
+      "rendered_key_lines": [
+        [
+          "Newton County, EF2",
+          "16:34 to 16:40 CST-6"
+        ],
+        [
+          "Jasper County, EF5",
+          "16:40 to 17:00 CST-6"
+        ],
+        [
+          "Newton County, EF2",
+          "17:00 to 17:20 CST-6"
+        ]
+      ],
+      "rendered_footer_lines": [
+        "Not the surveyed path, its width or its",
+        "intensity boundaries. Source: NOAA",
+        "NCEI Storm Events entries by NWS",
+        "Springfield, events 296616, 296617",
+        "and 296620."
+      ],
+      "minimum_font_points": 33.0
+    }
+  },
+  "outputs_sha256": {
+    "web/assets/joplin-2011/segments-obscur-wide.png": "3784cdd63258b4e9158a8d5bd67d131b980aa71bcbec0c68c14b8480547553ec",
+    "web/assets/joplin-2011/segments-obscur-wide.svg": "268e9c37bc282ef6c1539666e546d30bc66a7593886bb2b9db2f5f09a3060aa4",
+    "web/assets/joplin-2011/segments-obscur-narrow.png": "c2eae773f0c4ff589e1ec06d94576db5be7afdc23596d8e841023310a2e1047b",
+    "web/assets/joplin-2011/segments-obscur-narrow.svg": "f52c636ade6aeb290ccbdf48d9c5e6ee0e333631ed15ee102fdd594026af3988"
+  }
+}
