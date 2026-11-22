@@ -73,7 +73,8 @@ for(const width of [320,1280])test('Museum navigation remains exclusive and link
   await page.goto(base+'/index.html');
   await activate(page,'Explore');await only(page,'Explore');
   await activate(page,'Sources','Space');await only(page,'Sources');
-  assert.equal(await group(page,'Sources').locator('a').count(),5);
+  assert.deepEqual(await group(page,'Sources').locator('a').evaluateAll(links=>links.map(link=>link.getAttribute('href'))),
+    ['dossier.html','coverage.html','survey.html','radar-source.html','japan.html','china.html']);
   await activate(page,'Exhibits');await only(page,'Exhibits');
   assert.deepEqual(await group(page,'Exhibits').locator('a').evaluateAll(links=>links.map(link=>[link.getAttribute('href'),link.textContent.trim()])),[['index.html','El Reno · 2013'],['joplin.html','Joplin · 2011'],['blackwell.html','Blackwell · 1955'],['tuscaloosa.html','Tuscaloosa and Birmingham · 2011'],['moore.html','Newcastle and Moore · 2013'],['udall.html','Udall · 1955'],['greensburg.html','Greensburg · 2007']]);await reflow(page);
   await activate(page,'Explore');
