@@ -222,7 +222,7 @@ jobs:
           import stat
 
           mirror = Path('/etc/apt/apt-mirrors.txt')
-          azure_uri = b'http://azure.archive.ubuntu.com/ubuntu/'
+          http_scheme = b'http://'
           archive_uri = b'https://archive.ubuntu.com/ubuntu/'
           identity = lambda item: (item.st_dev, item.st_ino, item.st_size, item.st_mtime_ns)
           initial = mirror.lstat()
@@ -241,7 +241,7 @@ jobs:
               first_token = lambda line: line.split()[0] if line.split() else None
               if not any(first_token(line) == archive_uri for line in lines):
                   raise SystemExit('The existing exact HTTPS Ubuntu archive fallback is missing.')
-              revised = b''.join(line for line in lines if first_token(line) != azure_uri)
+              revised = b''.join(line for line in lines if not (first_token(line) or b'').startswith(http_scheme))
               if revised != mirror_bytes:
                   current = mirror.lstat()
                   if not stat.S_ISREG(current.st_mode) or identity(current) != identity(opened) or identity(os.fstat(descriptor)) != identity(opened):
@@ -254,7 +254,7 @@ jobs:
                           raise OSError('Ubuntu mirror write made no progress.')
                       written += amount
                   os.ftruncate(descriptor, len(revised))
-              print(f'Removed {len(lines) - len(revised.splitlines(keepends=True))} exact Azure HTTP mirror entries. Retained existing HTTPS fallbacks.')
+              print(f'Removed {len(lines) - len(revised.splitlines(keepends=True))} plain HTTP mirror entries. Retained existing HTTPS fallbacks.')
           finally:
               os.close(descriptor)
           ATLAS_APT_MIRROR_PY
@@ -350,7 +350,7 @@ jobs:
           import stat
 
           mirror = Path('/etc/apt/apt-mirrors.txt')
-          azure_uri = b'http://azure.archive.ubuntu.com/ubuntu/'
+          http_scheme = b'http://'
           archive_uri = b'https://archive.ubuntu.com/ubuntu/'
           identity = lambda item: (item.st_dev, item.st_ino, item.st_size, item.st_mtime_ns)
           initial = mirror.lstat()
@@ -369,7 +369,7 @@ jobs:
               first_token = lambda line: line.split()[0] if line.split() else None
               if not any(first_token(line) == archive_uri for line in lines):
                   raise SystemExit('The existing exact HTTPS Ubuntu archive fallback is missing.')
-              revised = b''.join(line for line in lines if first_token(line) != azure_uri)
+              revised = b''.join(line for line in lines if not (first_token(line) or b'').startswith(http_scheme))
               if revised != mirror_bytes:
                   current = mirror.lstat()
                   if not stat.S_ISREG(current.st_mode) or identity(current) != identity(opened) or identity(os.fstat(descriptor)) != identity(opened):
@@ -382,7 +382,7 @@ jobs:
                           raise OSError('Ubuntu mirror write made no progress.')
                       written += amount
                   os.ftruncate(descriptor, len(revised))
-              print(f'Removed {len(lines) - len(revised.splitlines(keepends=True))} exact Azure HTTP mirror entries. Retained existing HTTPS fallbacks.')
+              print(f'Removed {len(lines) - len(revised.splitlines(keepends=True))} plain HTTP mirror entries. Retained existing HTTPS fallbacks.')
           finally:
               os.close(descriptor)
           ATLAS_APT_MIRROR_PY
