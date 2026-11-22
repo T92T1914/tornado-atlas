@@ -89,9 +89,15 @@ blog tables or figures from the survey paper. Source titles remain attributable
 to their publishers. The review scope is stored in `community.json` and the
 [community methods note](research/community-discussions-2026-09-20.md).
 
+## Mainland China source cases
+
+`web/china-cases/index.json` is adapted from Zhang, Y., G. Fang, W. Pang, J. Cao, S. Cao and Y. Ge, *Tornado database in China mainland from 2003 to 2019*, version 2, 4TU.ResearchData, [doi:10.4121/19801633.v2](https://doi.org/10.4121/19801633.v2), under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The creators are Yi Zhang, Genshen Fang, Weichiang Pang, Jinxin Cao, Shuyang Cao and Yaojun Ge.
+
+Changes: the Data sheet's case label, recorded date, start and end time, geocoded position and EF value are kept. The time notes, the Chinese and English locations and both damage description columns are left out. The dataset's Parameters sheet says they come from the Yearbook of Meteorological Disasters in China, the English locations by translation, and the yearbook's own terms have not been read. Clock times stored as fractions of a day are shown as hours and minutes. This is not a publication of the dataset's authors or an endorsement by them. The [record of reuse terms](research/international-reuse-terms-2026-11-21.md) holds the license reading.
+
 ## Preserved source downloads
 
-Raw NOAA NCEI and JMA downloads remain outside version control in `data/`. Their provenance is preserved locally. The software's license is not a license for arbitrary third-party content discovered during research.
+Raw NOAA NCEI and JMA downloads remain outside version control in `data/`. The mainland China source file is not committed either. Its MD5 and SHA-256 are recorded in `atlas/china.py`, and `publish-china` refuses any other bytes. Their provenance is preserved locally. The software's license is not a license for arbitrary third-party content discovered during research.
 # NWS damage survey attributes
 
 `exhibits/el-reno-2013/survey-response.json` preserves a bounded public response

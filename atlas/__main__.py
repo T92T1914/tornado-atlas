@@ -28,6 +28,9 @@ def main():
     cases.add_argument("--limit", type=int, default=20)
     publish_jma = commands.add_parser("publish-jma", help="Publish reviewed Japanese source cases separately from the US map")
     publish_jma.add_argument("--output", type=Path, default=Path("outputs/jma-cases"))
+    publish_china = commands.add_parser("publish-china", help="Publish the mainland China cases from the retained version 2 file")
+    publish_china.add_argument("--source", type=Path, required=True, help="The retained version 2 .xls file")
+    publish_china.add_argument("--output", type=Path, default=Path("web/china-cases"))
     commands.add_parser("stats")
     find = commands.add_parser("search")
     find.add_argument("query", nargs="?", default="")
@@ -67,6 +70,9 @@ def main():
         elif args.command == "publish-jma":
             from .jma_publication import export_jma_cases
             result = export_jma_cases(connection, args.output, data_dir=args.data_dir)
+        elif args.command == "publish-china":
+            from .china_publication import export_china_cases
+            result = export_china_cases(args.source, args.output)
         elif args.command == "stats":
             result = stats(connection)
         elif args.command == "search":

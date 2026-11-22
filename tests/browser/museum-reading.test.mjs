@@ -72,7 +72,7 @@ async function reading(page){
 }
 test('principal routes expose the same seven-account navigation at narrow width',async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false});
-  for(const route of ['atlas.html','index.html','joplin.html','blackwell.html','tuscaloosa.html','moore.html','udall.html','greensburg.html','dossier.html','coverage.html','reconstruction.html','survey.html','radar-source.html','study.html','wind.html','japan.html','curator.html']){
+  for(const route of ['atlas.html','index.html','joplin.html','blackwell.html','tuscaloosa.html','moore.html','udall.html','greensburg.html','dossier.html','coverage.html','reconstruction.html','survey.html','radar-source.html','study.html','wind.html','japan.html','china.html','curator.html']){
     await page.goto(base+'/'+route,{waitUntil:'load'});
     const summary=page.locator('.museum-nav details').first().locator('summary');
     await summary.focus();await page.keyboard.press('Enter');
