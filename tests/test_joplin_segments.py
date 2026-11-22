@@ -73,6 +73,14 @@ class JoplinSegmentMapTests(unittest.TestCase):
             with self.subTest(layout=name):
                 self.assertGreaterEqual(layout['minimum_font_points'], 30)
 
+    def test_the_figure_draws_with_obscur_roles(self):
+        tokens = json.loads((ROOT / 'docs/obscur-tokens.json').read_text(encoding='utf-8'))['tokens']
+        self.assertEqual(self.config['adapter']['source'], 'docs/obscur-tokens.json')
+        self.assertEqual(self.config['adapter']['roles'], dict(
+            canvas=tokens['canvas'], panel=tokens['control'], text=tokens['text'],
+            muted=tokens['muted'], line=tokens['border']))
+        self.assertEqual(self.receipt['adapter'], self.config['adapter'])
+
     def test_the_page_shows_both_editions_with_their_limits(self):
         page = (ROOT / 'web/joplin.html').read_text(encoding='utf-8')
         narrow = self.receipt['layouts']['narrow']
@@ -81,6 +89,8 @@ class JoplinSegmentMapTests(unittest.TestCase):
                       f'height="{narrow["height"]}"', page)
         self.assertIn('href="assets/joplin-2011/segments-obscur-wide.svg"', page)
         self.assertIn('so it is not the surveyed path', page)
+        # No other passage may point readers to a survey figure the page no longer shows.
+        self.assertNotIn('NWS survey figure above', page)
 
 
 if __name__ == '__main__':

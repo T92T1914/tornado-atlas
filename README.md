@@ -225,7 +225,7 @@ The [Tuscaloosa and Birmingham account](https://t92t1914.github.io/tornado-atlas
 
 The Joplin chapter now includes a dated NASA Terra/ASTER aftermath display,
 with its false color interpretation and cloud obstruction explained beside
-the NWS survey figure. Tuscaloosa adds a separate USGS Landsat scar rendering.
+a link to the NWS survey figure and a map of the three Storm Events segments. Tuscaloosa adds a separate USGS Landsat scar rendering.
 Its missing acquisition date, legend, scale and registration remain visible.
 Both images use the existing enlargement and source routes, with local image
 links and readable explanations available without JavaScript. The
