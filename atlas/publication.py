@@ -7,6 +7,7 @@ import re
 import gzip
 import json
 import os
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -14,6 +15,9 @@ from .catalogue import connect, search, stats
 from .sources import ROOT, cached_retrieval, read_object, retrieve
 
 LAND_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson'
+# GitHub Pages publishes a site of at most 1 GB. Stop well before it.
+SITE_BUDGET_BYTES = 900 * 1024 * 1024
+DETAIL_NAME = re.compile(r'details/[0-9a-f]{2}-[0-9a-f]{20}\.json')
 
 
 def json_bytes(data) -> bytes:
@@ -175,7 +179,63 @@ def select_index(record: dict, aliases: dict, detail_file: str, reviews: dict | 
     return result
 
 
-def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict | None = None) -> dict:
+def site_bytes(web: Path) -> int:
+    """Count every file the Pages artifact would carry."""
+    return sum(path.stat().st_size for path in web.rglob('*') if path.is_file())
+
+
+def check_site_budget(web: Path, limit: int = SITE_BUDGET_BYTES) -> int:
+    size = site_bytes(web)
+    if size > limit:
+        raise ValueError(f'{web} holds {size} bytes, over the {limit} byte publication budget')
+    return size
+
+
+def archived_detail_files(archive: Path | None) -> set[str]:
+    """Detail files that the archive index or an archived page names."""
+    if archive is None or not archive.is_dir():
+        return set()
+    names = set()
+    for path in archive.rglob('*'):
+        if path.is_file():
+            names.update(DETAIL_NAME.findall(path.read_text(encoding='utf-8', errors='replace')))
+    return names
+
+
+def indexed_detail_files(content: bytes | None) -> set[str] | None:
+    """Detail files a published index names, or None when it cannot be read."""
+    if content is None:
+        return None
+    try:
+        return {row['detail_file'] for row in json.loads(content)['records']}
+    except (ValueError, KeyError, TypeError):
+        return None
+
+
+def published_detail_files(root: Path, ref: str = 'origin/main') -> set[str]:
+    """Detail files the index on the published branch names, or none when Git cannot say."""
+    try:
+        content = subprocess.run(['git', 'show', f'{ref}:web/catalogue/index.json'], cwd=root,
+                                 capture_output=True, check=True, timeout=120).stdout
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    return indexed_detail_files(content) or set()
+
+
+def prune_details(destination: Path, current: set[str], previous: set[str], protected: set[str]) -> list[str]:
+    """Remove detail files that neither of the last two generations nor the archive names."""
+    keep = current | previous | protected
+    removed = []
+    for path in sorted((destination / 'details').glob('*.json')):
+        relative = f'details/{path.name}'
+        if DETAIL_NAME.fullmatch(relative) and relative not in keep:
+            path.unlink()
+            removed.append(relative)
+    return removed
+
+
+def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict | None = None,
+                     archive: Path | None = None, keep: set[str] | None = None) -> dict:
     reviews = reviews or {}
     coverage = stats(connection)
     count = coverage['current_source_records']
@@ -217,14 +277,25 @@ def export_catalogue(connection, destination: Path, aliases: dict, reviews: dict
         'unmatched_aliases': unmatched, 'records': index,
     }
     detail_count = len(groups)
+    current = set(lookup.values())
     # Narratives and detail payloads are no longer needed when encoding the index.
     del records, groups, lookup, identifiers, group, encoded
+    index_path = destination/'index.json'
+    previous_bytes = index_path.read_bytes() if index_path.is_file() else None
     # Publish the index last, after all its immutable detail files exist.
     index_bytes = json_bytes(payload)
     write_bytes(destination/'index.json.gz',gzip.compress(index_bytes,mtime=0))
-    write_bytes(destination/'index.json',index_bytes)
+    write_bytes(index_path,index_bytes)
+    # A loaded page reads only the index it loaded, which is this one or the one before it.
+    # An unchanged index starts no new generation, and an unreadable one leaves every file.
+    previous = indexed_detail_files(previous_bytes)
+    removed = []
+    if previous is not None and previous_bytes != index_bytes:
+        protected = archived_detail_files(archive) | set(keep or ())
+        removed = prune_details(destination, current, previous, protected)
     return {'records': count, 'detail_files': detail_count, 'unmatched_aliases': unmatched,
-            'located': sum(record['point'] is not None for record in index)}
+            'located': sum(record['point'] is not None for record in index),
+            'removed_detail_files': len(removed)}
 
 
 def export_land(destination: Path) -> dict:
@@ -250,7 +321,9 @@ def build() -> dict:
     connection = connect()
     try:
         reviews = json.loads((ROOT / 'research/location-reviews.json').read_text(encoding='utf-8'))
-        result = export_catalogue(connection, ROOT / 'web/catalogue', aliases, reviews)
+        # The index on disk may be a local export that never published, so the live one is kept too.
+        result = export_catalogue(connection, ROOT / 'web/catalogue', aliases, reviews, ROOT / 'web/archive',
+                                  published_detail_files(ROOT))
     finally:
         connection.close()
     result['land'] = export_land(ROOT / 'web/land.json')
