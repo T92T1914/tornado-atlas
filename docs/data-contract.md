@@ -46,7 +46,9 @@ The browser index selects a reported start point, falling back to an explicitly 
 
 Reviewed aliases in `research/record-aliases.json` add search names without replacing source titles or ratings. The initial Joplin aliases refer to two separately reviewed county segments. They are not a complete event grouping. F and EF categories are separate filter values. Shared map colors indicate only the numeric category.
 
-Detail files use content hashes in their filenames. A rebuild writes the details before atomically replacing the index, retaining previous detail files so an already loaded page is not handed different records under an old filename. Source revision and SHA-256 travel with each public detail record. Natural Earth provides modern geographic context, not historical boundaries.
+Detail files use content hashes in their filenames. A rebuild writes the details before atomically replacing the index, so an already loaded page is never handed different records under an old filename. A loaded page reads only the index it loaded, which is the current one or the one before it. After the new index is written, the export keeps the detail files those two indexes name and removes the rest. The index on disk can be a local export that never published, so the export also keeps every file named by the index on `origin/main`, which is the one the site serves after the last fetch. It never removes a file that `web/archive/index.json` or an archived page names. A rebuild that writes the same index again starts no new generation and removes nothing, and so does a previous index it cannot read. A removed file stays in the history of the repository. Source revision and SHA-256 travel with each public detail record. Natural Earth provides modern geographic context, not historical boundaries.
+
+GitHub Pages publishes a site of at most 1 GB. `tools/check_catalogue.py` counts every file under `web/` and fails once the tree passes 900 MiB, which is 943,718,400 bytes.
 
 ## Separate exhibit layer
 

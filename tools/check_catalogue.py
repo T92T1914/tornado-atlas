@@ -7,7 +7,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
-from atlas.publication import location_review, load_catalogue_aliases
+from atlas.publication import check_site_budget, location_review, load_catalogue_aliases
 
 annotations = load_catalogue_aliases(root)
 reviews = json.loads((root/'research/location-reviews.json').read_text(encoding='utf-8'))
@@ -48,4 +48,6 @@ for row in records:
     counts[str(row['year'])] = counts.get(str(row['year']),0)+1
 assert counts == index['coverage']['by_year']
 assert sum(len(value) for value in cache.values()) == len(records), 'Unindexed details in current shards'
+size = check_site_budget(root / 'web')
 print(f'Static catalogue verified: {len(records)} records, {len(cache)} immutable detail files.')
+print(f'Published tree: {size} bytes, inside the publication budget.')
