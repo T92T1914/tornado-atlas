@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" data-appearance="dark"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>China source records | Tornado Atlas</title>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="appearance.css"><link rel="stylesheet" href="jma.css"><link rel="stylesheet" href="china.css">
+<script src="appearance.js"></script><script type="module" src="china.js"></script>
+<link rel="stylesheet" href="museum.css">
+</head><body class="jma-browser china-browser">
+<a class="skip" href="#china-query">Skip to source search</a>
+<header><a class="brand" href="atlas.html">TORNADO ATLAS</a><!-- museum-navigation --><nav class="museum-nav" aria-label="Museum navigation"><a href="atlas.html">Collection</a><details name="museum-navigation"><summary>Exhibits <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="index.html">El Reno · 2013</a><a href="joplin.html">Joplin · 2011</a><a href="blackwell.html">Blackwell · 1955</a><a href="tuscaloosa.html">Tuscaloosa and Birmingham · 2011</a><a href="moore.html">Newcastle and Moore · 2013</a><a href="udall.html">Udall · 1955</a><a href="greensburg.html">Greensburg · 2007</a></div></details><details name="museum-navigation"><summary>Explore <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="atlas.html#catalogue">Map and catalogue</a><a href="reconstruction.html">El Reno spatial replay</a><a href="study.html">Form study</a><a href="wind.html">Wind laboratory</a></div></details><details name="museum-navigation"><summary>Sources <span aria-hidden="true">▾</span></summary><div class="museum-menu"><a href="dossier.html">Event dossiers</a><a href="coverage.html">Reconstruction coverage</a><a href="survey.html">Damage survey</a><a href="radar-source.html">Radar source reader</a><a href="japan.html">Japan source records</a><a href="china.html" aria-current="page">China source records</a></div></details></nav><!-- /museum-navigation --><div class="reading-appearance"><label for="reading-appearance">Appearance</label><select id="reading-appearance" disabled><option value="dark" selected>Obscur</option><option value="light">Clair</option><option value="system">System</option></select></div></header>
+<main>
+<p class="eyebrow">MAINLAND CHINA, 2003 TO 2019</p><h1>China: source records.</h1>
+<p>Read the tornado cases of a research database for mainland China, with their recorded dates, times, positions and ratings. Each case keeps the database's own label.</p>
+<p id="china-coverage" role="status">Loading the published source cases...</p>
+<details class="jma-source-note" open><summary>What this collection can establish</summary>
+<p>These are source cases from version 2 of a research database, not a complete count of tornadoes in China. Each position is the authors' geocoded point for a place description. It is not a survey position or a path, so no case is drawn on the map.</p>
+<p>A date range gives the approximate dates of occurrence, not how long the tornado lasted. Times are UTC+8 as recorded, and words such as afternoon stay as they were written. No time is converted to UTC.</p>
+<p>The database says its place names, time notes and damage descriptions come from the Yearbook of Meteorological Disasters in China. The yearbook's own terms have not been read, so those columns are left out here. Ratings are shown as the database reports them and do not become wind speeds.</p>
+</details>
+<form id="china-filters" aria-label="China source filters"><label class="jma-query">Year, date or case label<input id="china-query" type="search" placeholder="Try 2016, 2019-07-03 or China_tornado_12"></label>
+<label>Reported rating<select id="china-rating"><option value="">All ratings</option><option value="EF0">EF0</option><option value="EF1">EF1</option><option value="EF2">EF2</option><option value="EF3">EF3</option><option value="EF4">EF4</option><option value="EF5">EF5</option><option value="unrated">Unrated</option></select></label>
+<button type="submit">Search</button><button type="reset">Clear filters</button></form>
+<p id="china-load-error" role="alert" hidden></p>
+<section aria-label="Source case results"><h2>Source cases</h2><p id="china-results-count" aria-live="polite"></p><p class="jma-fine">Ordered by year, newest first, then by the database's case number.</p>
+<div id="china-results" class="china-results"></div>
+<div class="jma-pagination"><button id="china-prev-page" type="button">Previous page</button><output id="china-page-count"></output><button id="china-next-page" type="button">Next page</button></div></section>
+<details id="china-provenance" class="jma-source-note"><summary>Source, changes and reuse</summary><div id="china-source"></div></details>
+</main>
+<footer><span>TORNADO ATLAS</span><p>Source: Zhang, Y., G. Fang, W. Pang, J. Cao, S. Cao and Y. Ge, Tornado database in China mainland from 2003 to 2019, version 2, 4TU.ResearchData, under CC BY 4.0. Tornado Atlas leaves out the place names, time notes and damage descriptions and shows clock times as hours and minutes. This is not a publication of the dataset's authors or an endorsement by them.</p><a href="china-cases/index.json">Published source cases</a> · <a href="https://doi.org/10.4121/19801633.v2" target="_blank" rel="noopener noreferrer">Dataset record</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></footer>
+</body></html>

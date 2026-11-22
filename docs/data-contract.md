@@ -36,6 +36,8 @@ Adapters must retain original scale, value or interval, authority, language, cla
 
 JMA's CSV has duplicate blank header cells and explicit codes for tornadoes, other gusts, and uncertain phenomena. Its format guide distinguishes -9999 (unset) and -8888 (unknown). Retain those meanings in the source record. Some casualty/damage values have flags that mark a shared count. Do not sum those into national totals without reconciling the shared scope.
 
+The mainland China database of Zhang and colleagues is a fixed version 2 file, so `atlas/china.py` reads it directly after checking its MD5 and SHA-256, with no snapshot table. Positions are the authors' geocoded points for a place description and carry no datum. A date range stays an approximate range. Times stay UTC+8 as recorded and are never converted. The time notes, both location columns and both damage description columns come from the yearbook the dataset names, so they are read only to confirm the row shape and are never published.
+
 The [local JMA adapter](jma-adapter.md) retains every ordered case in a separate case table. Only explicitly classified tornadoes enter ordinary tornado search. F/JEF intervals, original Japanese labels, reported uncertainty and the scope of shared counts remain available. It does not update the current static atlas export.
 
 ## Static atlas publication

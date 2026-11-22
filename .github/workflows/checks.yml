@@ -39,6 +39,9 @@ jobs:
         run: |
           node --check web/jma.js
           node --test tests/jma-model.test.mjs
+          node --check web/china.js
+          node --check web/china-model.mjs
+          node --test tests/china-model.test.mjs
           node --check web/dossier.mjs
           node --check web/dossier-file-model.mjs
           node --test tests/dossier-file-model.test.mjs
@@ -144,6 +147,7 @@ jobs:
           python tools/check_catalogue.py
           python tools/check_archive.py
           python tools/check_jma_cases.py
+          python tools/check_china_cases.py
       - name: Require unchanged tracked source inputs
         if: ${{ !cancelled() }}
         env:
