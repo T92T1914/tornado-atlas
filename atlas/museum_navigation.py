@@ -5,7 +5,7 @@ from pathlib import Path
 from .museum_reading import element, link, text
 
 ROUTES = ('atlas', 'index', 'joplin', 'blackwell', 'tuscaloosa', 'moore', 'udall', 'greensburg', 'dossier', 'coverage',
-          'reconstruction', 'survey', 'radar-source', 'study', 'wind', 'japan', 'curator')
+          'reconstruction', 'survey', 'radar-source', 'study', 'wind', 'japan', 'china', 'curator')
 PUBLIC_MUSEUM = 'https://t92t1914.github.io/tornado-atlas/'
 
 
@@ -25,7 +25,7 @@ def navigation(root, route):
     evidence = ''.join(entry(label, destination) for label, destination in [
         ('Event dossiers', 'dossier.html'), ('Reconstruction coverage', 'coverage.html'),
         ('Damage survey', 'survey.html'), ('Radar source reader', 'radar-source.html'),
-        ('Japan source records', 'japan.html')])
+        ('Japan source records', 'japan.html'), ('China source records', 'china.html')])
     def menu(label, content):
         return element('details', element('summary', text(label)+' '+element('span', '▾', aria_hidden='true')) + element('div', content, class_='museum-menu'), name='museum-navigation')
     return element('nav', entry('Collection', 'atlas.html') + menu('Exhibits', exhibits)
