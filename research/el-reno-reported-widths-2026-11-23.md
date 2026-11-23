@@ -77,5 +77,9 @@ wind field.
 7. At the default playback rate of 60 each period lasts about a fifth of a
    second on screen. The list of sourced lengths under the scene links to the
    start of each one.
-8. At the whole path view the circle is a few pixels wide and sits inside the
-   center marker. The tag and the caption still name it.
+8. At the whole path view the circle is small. On a phone it is a few pixels
+   wide and sits inside the center marker. The tag and the caption still name
+   it.
+9. While the timeline runs faster than real time only the tag shows. The
+   caption with the source, the definition and the placement shows when the
+   timeline is paused or running at its real rate.

@@ -22,7 +22,7 @@ _ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 # Plain addresses only, so the build and the browser read them the same way.
 _ADDRESS = re.compile(r"https://[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?:/[A-Za-z0-9._~%+/-]*)?")
 _FRAGMENT = re.compile(r"[A-Za-z0-9=&._-]+")
-_UNREADABLE = re.compile("[\u0000-\u001f\u007f\ud800-\udfff\ufeff]")
+_UNREADABLE = re.compile("[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202f\u2060\ud800-\udfff\ufeff]")
 
 
 def _text(value):
@@ -88,9 +88,9 @@ def validate_reported_widths(data, event_id, start, end):
             raise ValueError("A reported width needs its statement, limits and locator")
         # The statement is what the visitor reads, so it has to carry the size as
         # an approximate figure and the whole period that the drawing uses, in order.
-        size = re.compile(rf"(?:^|[^A-Za-z0-9.])[Aa]bout {width['metres']} m(?![A-Za-z0-9])")
+        size = re.compile(rf"(?:^|[^A-Za-z0-9.])[Aa]bout {width['metres']} m(?=[ ,.]|$)")
         period = re.compile(rf"(?:^|[^0-9:]){re.escape(width['start_utc'][11:19])} to "
-                            rf"{re.escape(width['end_utc'][11:19])} UTC(?![A-Za-z0-9])")
+                            rf"{re.escape(width['end_utc'][11:19])} UTC(?=[ ,.]|$)")
         if not size.search(width["statement"]) or not period.search(width["statement"]):
             raise ValueError("A reported width statement must name its approximate size and its period")
         # The locator points to a place inside the retained copy whose digest the source carries.

@@ -182,10 +182,19 @@ test('the center text keeps its own place when no width is drawn, even outside t
   await seekTo(page,1244,first.id);
   const away=await expectedCircle(page,1244,first.metres);
   assert.ok(away.west.x>away.view.width,`The circle is outside the scene, from ${away.west.x.toFixed(0)} px.`);
+  assert.equal(await page.locator('#replay-scene').getAttribute('data-reported-width'),first.id);
   assert.equal((await frameOf(page)).dashed.length,1);
   assert.equal(await page.locator('#replay-width-label').isVisible(),false);
   assert.equal((await page.locator('#replay-width-status').textContent()).trim(),reportedWidthCaption(record,first,{inView:false}));
   assert.match(await page.locator('#replay-width-status').textContent(),/The circle is outside this view\.$/);
+  // Turned so that the circle is at or behind the camera, the caption still belongs to the clock.
+  await page.locator('#replay-distance').fill('3');
+  await page.locator('#replay-azimuth').fill('90');
+  await painted(page);
+  assert.deepEqual((await frameOf(page)).dashed,[]);
+  assert.equal(await page.locator('#replay-scene').getAttribute('data-reported-width'),first.id);
+  assert.equal(await page.locator('#replay-width-label').isVisible(),false);
+  assert.equal((await page.locator('#replay-width-status').textContent()).trim(),reportedWidthCaption(record,first,{inView:false}));
 });
 
 test('the whole second the clock shows decides, as in the link to this moment',async t=>{
@@ -205,6 +214,31 @@ test('the whole second the clock shows decides, as in the link to this moment',a
   }
 });
 
+test('the caption waits while the timeline runs faster than real time, and shows at the real rate',async t=>{
+  const page=await fixture(t,{viewport:{width:390,height:900}});
+  await watchScene(page);
+  await open(page,'/reconstruction.html?event=el-reno-2013&t=1230');
+  const playing=id=>page.waitForFunction(({id,shown})=>{
+    const scene=document.querySelector('#replay-scene'),caption=document.querySelector('#replay-width-status');
+    return document.querySelector('#replay-play').textContent==='Pause timeline'&&scene.dataset.reportedWidth===id&&
+      !document.querySelector('#replay-width-label').hidden&&caption.hidden===!shown;
+  },id);
+  // At 15 times the first period lasts under a second. The tag shows and the caption does not.
+  await page.locator('#replay-rate').selectOption('15');
+  await page.locator('#replay-play').click();
+  await playing({id:first.id,shown:false});
+  await page.locator('#replay-play').click();
+  await page.waitForFunction(()=>document.querySelector('#replay-play').textContent==='Play timeline');
+  // Paused inside a period, or running at the real rate, the caption is there to read.
+  await seekTo(page,1240,first.id);
+  assert.equal((await page.locator('#replay-width-status').textContent()).trim(),reportedWidthCaption(record,first));
+  await page.locator('#replay-rate').selectOption('1');
+  await page.locator('#replay-play').click();
+  await playing({id:first.id,shown:true});
+  await page.locator('#replay-play').click();
+  await page.waitForFunction(()=>document.querySelector('#replay-play').textContent==='Play timeline'&&!document.querySelector('#replay-width-status').hidden);
+});
+
 test('photograph mode and a study mode keep only the center marker inside a reported period',async t=>{
   const page=await fixture(t);
   await watchScene(page);
@@ -213,6 +247,7 @@ test('photograph mode and a study mode keep only the center marker inside a repo
     await page.locator('#replay-scene').waitFor();
     await page.waitForFunction(()=>document.querySelector('#replay-funnel').disabled&&document.querySelector('#replay-scene').hasAttribute('data-reported-width'));
     await painted(page);
+    assert.equal(Number(await page.locator('#replay-time').inputValue()),1241,mode);
     assert.equal(await page.locator('#replay-scene').getAttribute('data-reported-width'),'',mode);
     assert.deepEqual((await frameOf(page)).dashed,[],mode);
     assert.equal(await page.locator('#replay-width-label').isVisible(),false,mode);

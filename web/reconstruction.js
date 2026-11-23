@@ -49,8 +49,8 @@ const widthLabel=el('replay-width-label'),widthStatus=el('replay-width-status');
 // A reported width has a short tag inside the scene and its full text in a
 // caption under the scene, so the scene stays readable on a small screen.
 // Both are page text. The tag shows while part of the circle is in the scene.
-// The caption shows whenever a width is drawn, and says so when the circle is
-// outside the view.
+// The caption shows whenever a width applies to the clock and the timeline is
+// paused or running in real time, and says so when the circle is outside the view.
 function showReportedWidth(tag,caption){
   if(widthLabel.hidden===Boolean(tag))widthLabel.hidden=!tag;
   setText(widthLabel,tag);
@@ -648,11 +648,15 @@ async function start(){
       context.beginPath();widthRing.forEach((p,i)=>{if(i)context.lineTo(p.x,p.y);else context.moveTo(p.x,p.y);});
       context.closePath();context.stroke();context.setLineDash([]);
     }
-    const widthId=widthDrawn?reported.id:'';
+    const widthId=reported?reported.id:'';
     if(canvas.dataset.reportedWidth!==widthId)canvas.dataset.reportedWidth=widthId;
     const widthInView=widthDrawn&&widthRing.some(p=>p.x>=0&&p.x<=rect.width&&p.y>=0&&p.y<=rect.height);
+    // The caption is several lines long. While the timeline runs faster than
+    // real time a period passes in a fraction of a second, so only the tag
+    // shows then and the page under the scene keeps still.
+    const widthRead=Boolean(reported)&&(!clock.playing||clock.rate===1);
     showReportedWidth(widthInView?reportedWidthTag(reported):'',
-      widthDrawn?reportedWidthCaption(reportedWidths,reported,{published:current.published,inView:widthInView}):'');
+      widthRead?reportedWidthCaption(reportedWidths,reported,{published:current.published,inView:widthInView}):'');
     if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',widthBox?Math.max(marker.x+12,widthBox.right+6):marker.x+12,marker.y+4);}
     const glyph=observer?.visible?observerGlyph(observer.sample,origin,camera,rect.width,rect.height):null;
     canvas.dataset.observerVisible=String(Boolean(glyph));

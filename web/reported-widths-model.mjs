@@ -14,7 +14,7 @@ const WIDTH_FIELDS=['approximate','end_utc','id','limits','locator','locator_url
 // Readable text: bounded, with a letter in it, no control characters and no
 // characters outside the basic plane, which the two validators would count differently.
 const text=value=>typeof value==='string'&&value.length>=1&&value.length<=600&&/[A-Za-z]/.test(value)&&
-  !/[\u0000-\u001f\u007f\ud800-\udfff\ufeff]/.test(value);
+  !/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202f\u2060\ud800-\udfff\ufeff]/.test(value);
 const clockLabel=utc=>utc.slice(11,19);
 const escaped=value=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const fields=(value,names)=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).sort().join('|')===names.join('|');
@@ -56,8 +56,8 @@ export function validateReportedWidths(manifest,eventId,clock){
     for(const key of ['statement','limits','locator'])if(!text(width[key]))fail('A reported width needs its statement, limits and locator.');
     // The statement is what the visitor reads, so it has to carry the size as an
     // approximate figure and the whole period that the drawing uses, in order.
-    const size=new RegExp(`(?:^|[^A-Za-z0-9.])[Aa]bout ${width.metres} m(?![A-Za-z0-9])`);
-    const period=new RegExp(`(?:^|[^0-9:])${escaped(clockLabel(width.start_utc))} to ${escaped(clockLabel(width.end_utc))} UTC(?![A-Za-z0-9])`);
+    const size=new RegExp(`(?:^|[^A-Za-z0-9.])[Aa]bout ${width.metres} m(?=[ ,.]|$)`);
+    const period=new RegExp(`(?:^|[^0-9:])${escaped(clockLabel(width.start_utc))} to ${escaped(clockLabel(width.end_utc))} UTC(?=[ ,.]|$)`);
     if(!size.test(width.statement)||!period.test(width.statement))fail('A reported width statement must name its approximate size and its period.');
     // The locator points to a place inside the retained copy whose digest the source carries.
     const place=typeof width.locator_url==='string'&&width.locator_url.startsWith(source.retained_copy+'#')?

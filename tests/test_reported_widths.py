@@ -126,6 +126,14 @@ class ReportedWidthTests(unittest.TestCase):
             ("a statement with a larger size that ends the same", "approximate size and its period"):
                 statement("about 500 m", "about 1500 m"),
             ("a statement in another unit", "approximate size and its period"): statement("about 500 m", "about 500 miles"),
+            ("a statement that turns the size into a speed", "approximate size and its period"):
+                statement("about 500 m at", "about 500 m/s at"),
+            ("a statement that moves the period to another zone", "approximate size and its period"):
+                statement("23:24:50 UTC.", "23:24:50 UTC+1."),
+            ("a note with a character that does not show", "stated placement"):
+                lambda record: record.__setitem__("placement_note", "Placed\u200bhere"),
+            ("a note with a control character of the second range", "stated placement"):
+                lambda record: record.__setitem__("placement_note", "Placed\u0085here"),
             ("a statement that drops about", "approximate size and its period"): statement("about 500 m", "500 m"),
             ("a statement with another period", "approximate size and its period"): statement("23:24:50", "23:25:50"),
             ("a statement with its period turned round", "approximate size and its period"):

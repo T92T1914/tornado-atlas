@@ -1,4 +1,4 @@
-// Preserve sourced widths and recorded outcomes. Only the declared radar comparison seeks the existing clock.
+// Preserve sourced widths and recorded outcomes. The declared radar comparison and the two reported width links seek the existing clock.
 export function mountReplayScaleImpact(data,openPhoto,seek){
   if(data.exhibit?.id!=='el-reno-2013')return;
   const byId=id=>document.getElementById(id),section=byId('replay-scale-impact');

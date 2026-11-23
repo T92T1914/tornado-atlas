@@ -246,9 +246,12 @@ player draws a width while the whole second of the clock is one of the
 period's seconds, both ends included, and draws none at any other clock. The
 mark is a dashed circle of that diameter on the ground of the path scene,
 centered on the replay's center position for that clock. A short tag inside
-the scene names it. A caption under the scene gives the statement, the limits,
-the placement note and one more sentence: the circle shows the size at the
+the scene names it. A caption under the scene gives the statement, the limits
+and the placement note, and then says that the circle shows the size at the
 scale of the scene and is not a footprint, a damage width or a wind field.
+It adds that the circle is outside the view when it is. The caption shows
+while the timeline is paused or running in real time. At faster rates only
+the tag shows, so the page under the scene does not move.
 Photograph mode and the study modes keep only the center marker. A package
 without the record draws nothing and needs no change.
 
