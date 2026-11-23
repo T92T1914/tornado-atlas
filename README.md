@@ -69,6 +69,11 @@ context. The route comes from
 the source record. The funnel is an illustration, an outline of the joined storm
 funnel of the form study drawn at one fixed size and labeled as not a
 reconstruction, and the ground is flat.
+For two short periods the scene also draws the visible funnel widths that
+Wakimoto and colleagues report, about 500 m and then about 800 m, as dashed
+circles on the ground around the replay's center position. They are there for
+scale and are not footprints. Each is labeled with its source, its definition
+and how it was placed.
 It is a starting point for the historical reconstruction, not a claim to have
 recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
 record the tested behavior and remaining gaps of the first version, which drew

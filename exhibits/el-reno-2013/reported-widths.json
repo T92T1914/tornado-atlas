@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "event": "el-reno-2013",
+  "placement": "replay_center_position",
+  "placement_note": "The circle's center is interpolated between the NWS minute positions and was not observed.",
+  "placement_note_published": "The circle's center is the NWS minute position for this clock, not a place taken from the paper.",
+  "sources": [
+    {
+      "id": "wakimoto-2015",
+      "citation": "Wakimoto and colleagues, 2015",
+      "url": "https://doi.org/10.1175/MWR-D-15-0034.1",
+      "retained_copy": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf",
+      "sha256": "b0d7b4b2e8aabf3e214ddbc23ca4b4bb7822b99fd389bcfb30e9422e0a8c14e9"
+    }
+  ],
+  "widths": [
+    {
+      "id": "wakimoto-2015-funnel-232438",
+      "source_id": "wakimoto-2015",
+      "quantity": "visible_funnel_width",
+      "metres": 500,
+      "approximate": true,
+      "start_utc": "2013-05-31T23:24:38Z",
+      "end_utc": "2013-05-31T23:24:50Z",
+      "statement": "Wakimoto and colleagues give a visible funnel width of about 500 m at 2° elevation for 23:24:38 to 23:24:50 UTC.",
+      "limits": "They found its northern edge difficult to discern.",
+      "locator": "Section 4a, PDF page 12 of the retained copy",
+      "locator_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=12",
+      "reviewed_on": "2026-11-23"
+    },
+    {
+      "id": "wakimoto-2015-funnel-232454",
+      "source_id": "wakimoto-2015",
+      "quantity": "visible_funnel_width",
+      "metres": 800,
+      "approximate": true,
+      "start_utc": "2013-05-31T23:24:54Z",
+      "end_utc": "2013-05-31T23:25:06Z",
+      "statement": "Wakimoto and colleagues give a visible funnel diameter of about 800 m for 23:24:54 to 23:25:06 UTC.",
+      "limits": "That passage names no elevation.",
+      "locator": "Section 4b, PDF page 20 of the retained copy",
+      "locator_url": "https://escholarship.org/content/qt1md9s51b/qt1md9s51b_noSplash_116f4892f819852acb1afb94a8cb3b15.pdf#page=20",
+      "reviewed_on": "2026-11-23"
+    }
+  ]
+}

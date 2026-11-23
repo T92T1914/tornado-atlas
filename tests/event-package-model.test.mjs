@@ -118,13 +118,26 @@ test('synthetic second event uses the shared loader without historical claims',a
   delete data.appearance_timeline;
   next.schema_version=1;next.default_event='synthetic-test';next.events=[{id:'synthetic-test',title:'Synthetic fixture',documentary:'fixture.html',replay:'events/synthetic-test.json'}];
   manifest.event_id='synthetic-test';manifest.clock.time_zone='UTC';
-  data.exhibit.id='synthetic-test';data.timeline_media.event='synthetic-test';data.footage.event='synthetic-test';data.cameras.event='synthetic-test';
+  data.exhibit.id='synthetic-test';data.timeline_media.event='synthetic-test';data.footage.event='synthetic-test';data.cameras.event='synthetic-test';data.reported_widths.event='synthetic-test';
   const bytes=Buffer.from(JSON.stringify(data));
   manifest.bundle_sha256=Buffer.from(await webcrypto.subtle.digest('SHA-256',bytes)).toString('hex');
   const result=await loadEventPackage(null,fixture({'events.json':JSON.stringify(next),'events/synthetic-test.json':JSON.stringify(manifest),'data.json':bytes}));
   assert.equal(result.event.id,'synthetic-test');assert.match(displayClock('UTC')(manifest.clock.start_utc),/11:04:00 PM UTC/);
 });
 
+test('reported widths that belong to another event stop the package before it reaches the player',async()=>{
+  const manifest=structuredClone(config),data=JSON.parse(bundle);
+  data.reported_widths.event='joplin-2011';
+  const bytes=Buffer.from(JSON.stringify(data));
+  manifest.bundle_sha256=Buffer.from(await webcrypto.subtle.digest('SHA-256',bytes)).toString('hex');
+  await assert.rejects(loadEventPackage('el-reno-2013',fixture({'events/el-reno-2013.json':JSON.stringify(manifest),'data.json':bytes})),/Reported widths belong to a different event/);
+  // A package with no such record still loads.
+  delete data.reported_widths;
+  const plain=Buffer.from(JSON.stringify(data));
+  manifest.bundle_sha256=Buffer.from(await webcrypto.subtle.digest('SHA-256',plain)).toString('hex');
+  const loaded=await loadEventPackage('el-reno-2013',fixture({'events/el-reno-2013.json':JSON.stringify(manifest),'data.json':plain}));
+  assert.equal(Object.hasOwn(loaded.data,'reported_widths'),false);
+});
 
 test('chronology failure leaves no borrowed replay or partially accepted documentary data',async()=>{
   await assert.rejects(loadEventPackage('joplin-2011',fixture({'events/joplin-2011-chronology.json':null})),/Could not load/);

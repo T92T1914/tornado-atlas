@@ -17,7 +17,7 @@ def appearance_fixture(config, bundle, *, registered=False):
     config['event_id'] = 'synthetic-appearance'
     config['coverage']['appearance'] = 'bounded_timeline'
     bundle['exhibit']['id'] = config['event_id']
-    for field in ('timeline_media', 'footage', 'cameras'):
+    for field in ('timeline_media', 'footage', 'cameras', 'reported_widths'):
         bundle[field]['event'] = config['event_id']
     source = {
         'id': 'synthetic-camera', 'video_id': 'abcdefghijk',
@@ -93,7 +93,7 @@ class EventPackageTests(unittest.TestCase):
         self.config['event_id'] = 'synthetic-fixture'
         self.config['clock']['time_zone'] = 'UTC'
         self.bundle['exhibit']['id'] = 'synthetic-fixture'
-        for field in ('timeline_media', 'footage', 'cameras'):
+        for field in ('timeline_media', 'footage', 'cameras', 'reported_widths'):
             self.bundle[field]['event'] = 'synthetic-fixture'
         validate_replay(self.config, self.bundle)
 
@@ -120,7 +120,7 @@ class EventPackageTests(unittest.TestCase):
                     validate_replay(config, self.bundle)
 
     def test_mixed_event_evidence_is_rejected(self):
-        for field in ('exhibit', 'timeline_media', 'footage', 'cameras'):
+        for field in ('exhibit', 'timeline_media', 'footage', 'cameras', 'reported_widths'):
             bundle = copy.deepcopy(self.bundle)
             bundle[field]['id' if field == 'exhibit' else 'event'] = 'another-event'
             with self.subTest(field=field), self.assertRaises(ValueError):
