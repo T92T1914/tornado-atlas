@@ -8,7 +8,8 @@ the most infamous and working toward the wider historical collection.
 This is the development plan. The current site has an El Reno geographic
 timeline, a spatial replay of that path, an illustrative form study and a separate
 wind experiment. The spatial replay follows the historical clock with a freely
-orbiting camera and an optional drawing symbol for the funnel. It does not yet
+orbiting camera and an optional funnel illustration, an outline of the joined
+storm funnel of the form study at one fixed size. It does not yet
 have a completed historical 3D reconstruction of the storm's appearance.
 
 ## One playback system, many event packages

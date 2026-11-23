@@ -12,9 +12,11 @@ async function inspectScene(page,disableGraphics){
    if(disable&&this.id==='replay-appearance-canvas'&&kind==='webgl2')return null;
    const context=get.call(this,kind,...args);
    if(this.id!=='replay-scene'||kind!=='2d'||!context)return context;
-   const arc=context.arc,fill=context.fillRect;
-   context.fillRect=function(...args){if(args[0]===0&&args[1]===0)window.pathSceneDraws={particleArcs:0,centerRings:0};return fill.apply(this,args);};
-   context.arc=function(...args){const record=window.pathSceneDraws;if(record){if(Math.abs(this.globalAlpha-.09)<.00001)record.particleArcs++;if(args[2]===7&&this.globalAlpha===1)record.centerRings++;}return arc.apply(this,args);};
+   const arc=context.arc,fill=context.fillRect,paint=context.fill;
+   context.fillRect=function(...args){if(args[0]===0&&args[1]===0)window.pathSceneDraws={funnelFills:0,centerRings:0};return fill.apply(this,args);};
+   // Only the rings of the funnel illustration fill a path below full opacity.
+   context.fill=function(...args){const record=window.pathSceneDraws;if(record&&this.globalAlpha<1)record.funnelFills++;return paint.apply(this,args);};
+   context.arc=function(...args){const record=window.pathSceneDraws;if(record&&args[2]===7&&this.globalAlpha===1)record.centerRings++;return arc.apply(this,args);};
    return context;
   };
  },disableGraphics);
@@ -24,7 +26,7 @@ async function expectCenterOnly(page){
  assert.equal(await page.locator('#replay-funnel').isDisabled(),true);
  assert.equal(await page.locator('#replay-stage-kind').textContent(),'SOURCE APPEARANCE / CENTER POSITION');
  const actual=await page.evaluate(()=>window.pathSceneDraws);
- assert.equal(actual.particleArcs,0);
+ assert.equal(actual.funnelFills,0);
  assert.equal(actual.centerRings,1);
  assert.match(await page.locator('#replay-basis').textContent(),/center marker/);
  return actual;
@@ -73,13 +75,13 @@ for(const width of [320,1280])for(const unavailable of [false,true])test('primar
  await page.locator('#replay-appearance-mode').selectOption('source');await painted(page);
  assert.equal(await page.locator('#replay-funnel').isDisabled(),false);
  assert.equal(await page.locator('#replay-funnel').isChecked(),true);
- assert.ok((await page.evaluate(()=>window.pathSceneDraws.particleArcs))>0);
+ assert.ok((await page.evaluate(()=>window.pathSceneDraws.funnelFills))>0);
  await page.locator('#replay-funnel').uncheck();await painted(page);
  await page.locator('#replay-appearance-mode').selectOption('photo:wakimoto-visible-condensation');await expectCenterOnly(page);
  assert.equal(await page.locator('#replay-funnel').isChecked(),false);
  await page.locator('#replay-appearance-mode').selectOption('source');await painted(page);
  assert.equal(await page.locator('#replay-funnel').isChecked(),false);
- assert.equal(await page.evaluate(()=>window.pathSceneDraws.particleArcs),0);
+ assert.equal(await page.evaluate(()=>window.pathSceneDraws.funnelFills),0);
  await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=1241&appearance_view=photo&appearance_photo=undeclared');
  await page.locator('#replay-time:not([disabled])').waitFor();await expectCenterOnly(page);
  assert.match(await page.locator('#replay-appearance-state').textContent(),/selection unavailable/);

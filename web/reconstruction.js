@@ -2,7 +2,7 @@ import {mountChronology} from './chronology-view.mjs';
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
 import {frameAt} from './timeline-media-model.mjs';
 import {loadEventPackage,displayClock} from './event-package-model.mjs';
-import {localPoint, sceneProject, replaySeconds, replayURL, funnelGlyph, observerGlyph} from './reconstruction-model.mjs';
+import {localPoint, sceneProject, replaySeconds, replayURL, replayFunnel, observerGlyph} from './reconstruction-model.mjs';
 import {mountFootage} from './footage-view.mjs';
 import {mountReplayCamera} from './replay-camera-view.mjs';
 import {anchorAt,sourceLink} from './footage-model.mjs';
@@ -19,12 +19,36 @@ import {mountGroundView,mountGroundStudyReturn} from './ground-view.mjs';
 import {GROUND_MARKS} from './ground-view-model.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
+const funnelLabel=el('replay-funnel-label');
+let funnelLabelSize=null;
+// The label is page text beside the drawn funnel, so it can be read and
+// enlarged like any other text. It shows while any of the funnel body is in
+// the scene and stays inside the scene at every width. The recorded base is
+// empty only when no funnel is drawn.
+function placeFunnelLabel(base,body,rect){
+  const recorded=base?`${base.x.toFixed(2)},${base.y.toFixed(2)}`:'';
+  if(canvas.dataset.funnelBase!==recorded)canvas.dataset.funnelBase=recorded;
+  const shown=Boolean(body)&&body.right>=0&&body.left<=rect.width&&body.bottom>=0&&body.top<=rect.height;
+  if(funnelLabel.hidden===shown){funnelLabel.hidden=!shown;funnelLabelSize=null;}
+  if(!shown)return;
+  funnelLabelSize??={width:funnelLabel.offsetWidth,height:funnelLabel.offsetHeight};
+  const {width,height}=funnelLabelSize;
+  // Anchor on the base, or on the nearest point of the scene when the base has left it.
+  const anchor=base??{x:(body.left+body.right)/2,y:body.bottom};
+  const anchorX=Math.max(0,Math.min(rect.width,anchor.x)),anchorY=Math.max(0,Math.min(rect.height,anchor.y));
+  const x=Math.max(8,Math.min(rect.width-width-8,anchorX+12));
+  const below=anchorY+10,y=below+height+8<=rect.height?below:Math.max(8,anchorY-14-height);
+  const transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+  if(funnelLabel.style.transform!==transform)funnelLabel.style.transform=transform;
+}
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
 const groundStudyReturn=mountGroundStudyReturn();
 let drawPending=null, frame=null, clock=null, redraw=()=>{}, refresh=()=>{}, syncLocation=()=>{};
 const failedRadar=new Set();
 const requestDraw=()=>{if(drawPending===null) drawPending=requestAnimationFrame(()=>{drawPending=null;redraw();});};
+// Measure the label again whenever its own box changes, for example when text is enlarged.
+new ResizeObserver(()=>{funnelLabelSize=null;requestDraw();}).observe(funnelLabel);
 function pause(){clock?.pause(performance.now());if(frame!==null) cancelAnimationFrame(frame);frame=null;el('replay-play').textContent='Play timeline';}
 function resetView(){const distance=Math.min(60,Math.max(24,43.2*canvas.clientHeight/canvas.clientWidth));for(const [key,value] of Object.entries({azimuth:0,elevation:48,distance}))el(`replay-${key}`).value=value;el('replay-follow').checked=false;requestDraw();}
 
@@ -569,13 +593,31 @@ async function start(){
     el('replay-damage-offscreen').hidden=!selectedSurvey||Boolean(surveyed);
     for(const point of positions){const p=project(localPoint(point.geometry.coordinates,origin));if(!p)continue;context.beginPath();context.arc(p.x,p.y,2.5,0,Math.PI*2);context.fillStyle=text;context.fill();}
     const marker=project(center);
+    let funnelBase=null,funnelBody=null;
     if(el('replay-funnel').checked&&!separateAppearance()){
-      // The glyph's dimensions are deliberately fixed artwork, never inferred from the path envelope.
-      const particles=funnelGlyph(clock.seconds/12).map(p=>project(p.map((v,i)=>v+center[i]))).filter(Boolean).sort((a,b)=>b.depth-a.depth);
+      // An outline of the form study's joined funnel as fixed artwork. Its size
+      // and shape never follow a rating, a width record or the path envelope.
+      // One ink color at low opacity, so the order of the rings does not change
+      // the picture.
+      const funnel=replayFunnel();
       context.fillStyle=text;
-      for(const p of particles){context.globalAlpha=.09;context.beginPath();context.arc(p.x,p.y,Math.max(1,Math.min(12,p.scale*.07)),0,Math.PI*2);context.fill();}
+      for(const ring of funnel.rings){
+        const outline=ring.points.map(p=>project(p.map((v,i)=>v+center[i])));
+        if(outline.some(p=>!p))continue;
+        context.globalAlpha=(ring.part==='body'?.045:.26)*ring.weight;
+        context.beginPath();outline.forEach((p,i)=>{if(i)context.lineTo(p.x,p.y);else context.moveTo(p.x,p.y);});
+        context.closePath();context.fill();
+        if(ring.part!=='body')continue;
+        funnelBody??={left:Infinity,right:-Infinity,top:Infinity,bottom:-Infinity};
+        for(const p of outline){
+          funnelBody.left=Math.min(funnelBody.left,p.x);funnelBody.right=Math.max(funnelBody.right,p.x);
+          funnelBody.top=Math.min(funnelBody.top,p.y);funnelBody.bottom=Math.max(funnelBody.bottom,p.y);
+        }
+      }
       context.globalAlpha=1;
+      funnelBase=project(funnel.base.map((v,i)=>v+center[i]));
     }
+    placeFunnelLabel(funnelBase,funnelBody,rect);
     if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',marker.x+12,marker.y+4);}
     const glyph=observer?.visible?observerGlyph(observer.sample,origin,camera,rect.width,rect.height):null;
     canvas.dataset.observerVisible=String(Boolean(glyph));
@@ -618,7 +660,7 @@ async function start(){
     updateAppearance();
     el('replay-funnel').disabled=separateAppearance();
     setText(el('replay-stage-kind'),groundView()?'SYNTHETIC APPEARANCE / HISTORICAL PATH':photoView()?'SOURCE APPEARANCE / CENTER POSITION':'DOCUMENTED PATH / ILLUSTRATIVE FUNNEL');
-    setText(el('replay-funnel-help'),groundView()?'The synthetic camera exercise above has no geographic or historical registration. This path view keeps only the separately recorded center marker.':photoView()?'Photograph mode keeps only the center marker in the geographic scene, including unknown appearance times. The source form above is a separate authored display plane. Neither marks a wind field or a recorded orbit viewpoint.':'Turning this off leaves a position marker. Neither marker measures the wind field. Orbit views are not recorded chaser viewpoints.');
+    setText(el('replay-funnel-help'),groundView()?'The synthetic camera exercise above has no geographic or historical registration. This path view keeps only the separately recorded center marker.':photoView()?'Photograph mode keeps only the center marker in the geographic scene, including unknown appearance times. The source form above is a separate authored display plane. Neither marks a wind field or a recorded orbit viewpoint.':'Turning this off leaves a position marker. Neither the funnel nor the marker measures the wind field. Orbit views are not recorded chaser viewpoints.');
     el('replay-link').href=momentURL(location.href,separateAppearance()?clock.seconds:Math.floor(clock.seconds)).href;
     el('replay-time').step=separateAppearance()?'any':'1';
     el('replay-time').value=separateAppearance()?clock.seconds:Math.round(clock.seconds);
@@ -627,7 +669,7 @@ async function start(){
     const time=localStamp(current.utc);el('replay-clock').textContent=time;
     el('replay-time').setAttribute('aria-valuetext',time);
     el('replay-basis').textContent=current.published?
-      (separateAppearance()?'Published source minute position. The geographic scene shows only the center marker.':'Published source minute position. The funnel remains an illustrative symbol.'):
+      (separateAppearance()?'Published source minute position. The geographic scene shows only the center marker.':'Published source minute position. The funnel is an illustration, not a reconstruction.'):
       `Position interpolated between ${positions[current.before].properties.display_time} and ${positions[current.after].properties.display_time}. ${separateAppearance()?'Only the center marker is shown; no photographic appearance is assigned by the path.':'Funnel appearance is not registered.'}`;
     const media=data.timeline_media;
     const reader=el('replay-radar-reader');

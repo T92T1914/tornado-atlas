@@ -1,3 +1,5 @@
+import {formationAt} from './formation-model.mjs';
+
 // Local geographic stage, in kilometers. Flat ground is a display assumption.
 export function localPoint(coordinates, origin) {
   if (![...coordinates, ...origin].every(Number.isFinite) || coordinates.length !== 2 || origin.length !== 2) throw new RangeError('Invalid geographic point');
@@ -72,7 +74,9 @@ export function observerGlyph(sample,origin,camera,width,height){
   return {x:start.x,y:start.y,dx:length>1e-8?dx/length*30:0,dy:length>1e-8?dy/length*30:0};
 }
 
-// A drawing glyph, not a measured funnel. Its parameters never come from EF rating.
+// The particle symbol the replay drew before the funnel outline below. It is
+// kept only so the pinned earlier replay script of the share link proof still
+// loads. The replay no longer draws it. Its parameters never come from EF rating.
 export function funnelGlyph(seconds, count=480) {
   if (!Number.isFinite(seconds) || !Number.isInteger(count) || count < 1 || count > 2000) throw new RangeError('Invalid glyph');
   return Array.from({length:count},(_,i)=>{
@@ -83,4 +87,78 @@ export function funnelGlyph(seconds, count=480) {
     const radius=(.14+.40*h*h)*Math.sqrt(unit(977));
     return [Math.cos(angle)*radius, Math.sin(angle)*radius, .85*h];
   });
+}
+
+// A reduced outline of the joined funnel of the form study's storm-v3
+// presentation. The shape numbers are copied from that shader and a test
+// compares the two. The outline keeps the radius, axis, section, flare, top
+// fade and lowered cloud base. It leaves out the shader's soft lobed edge, its
+// fade at the ground and the cloud that continues past the filled cover. The
+// stage and the size are drawing choices. Nothing here comes from a rating, a
+// width record or the path envelope.
+export const REPLAY_FUNNEL=Object.freeze({
+  presentation:'storm-v3',
+  // The developed stage of the formation study, held still.
+  stageSeconds:15,
+  // Shader height of the funnel column and the height that column is drawn at,
+  // which is the height of the particle symbol. The flared top and the cloud
+  // base rise above the column, to about 1.0 km.
+  columnUnits:2.6,columnKilometers:.85,
+  // The upper body widens into the cloud and fades out inside it.
+  flare:.30,flareFrom:.80,flareTo:1.10,fadeFrom:1.02,fadeTo:1.22,
+  // One join unit is the funnel's top radius times this factor.
+  joinRadius:1.24,
+  // The cloud base comes down to this height over the funnel, rises back to
+  // the wider layer between these join distances and is filled out to these.
+  loweredBase:2.34,baseInner:.85,baseOuter:2.4,coverInner:1.3,coverOuter:2.6,
+  wideBase:3.10,wideDip:.70,wideScale:Object.freeze([1.55,1.25]),
+});
+const smoothstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);};
+// These three follow referenceRadius, referenceAxis and referenceSection with
+// the shader clock held at zero, so the drawing does not sway or turn.
+const funnelRadius=(h,shape)=>(.62+.95*shape.base+.24*smoothstep(.05,.95,h)+.10*h)*(.82+.42*h*h)*
+  (1+REPLAY_FUNNEL.flare*smoothstep(REPLAY_FUNNEL.flareFrom,REPLAY_FUNNEL.flareTo,h));
+const funnelAxis=(h,shape)=>[.09*h+.55*shape.bend*h*h,-.10*h+.13*h*(1-h)];
+const funnelSection=h=>[1.10+.06*Math.sin(2*h),.88+.05*Math.cos(2.7*h)];
+const cachedFunnels=new Map();
+
+// Rings in kilometers east, north and up from the ground point the funnel
+// stands on. A ring's weight is how much of the drawing's ink it carries.
+export function replayFunnel(levels=40,segments=24){
+  if(!Number.isInteger(levels)||levels<8||levels>80||!Number.isInteger(segments)||segments<8||segments>48)throw new RangeError('Invalid funnel drawing resolution');
+  const key=`${levels}:${segments}`;
+  if(cachedFunnels.has(key))return cachedFunnels.get(key);
+  const F=REPLAY_FUNNEL,shape=formationAt(F.stageSeconds).shape,scale=F.columnKilometers/F.columnUnits;
+  const around=build=>Object.freeze(Array.from({length:segments},(_,i)=>{
+    const angle=i/segments*Math.PI*2;
+    return Object.freeze(build(Math.cos(angle),Math.sin(angle)).map(value=>value*scale));
+  }));
+  const rings=[];
+  for(let level=0;level<levels;level++){
+    const h=level/levels*F.fadeTo,weight=1-smoothstep(F.fadeFrom,F.fadeTo,h);
+    const radius=funnelRadius(h,shape),axis=funnelAxis(h,shape),section=funnelSection(h);
+    rings.push(Object.freeze({part:'body',weight,
+      points:around((cos,sin)=>[axis[0]+radius*section[0]*cos,axis[1]+radius*section[1]*sin,F.columnUnits*h])}));
+  }
+  // The lowered base shares the footprint of the funnel top. Its flat part
+  // inside baseInner lies within the body, so the discs start where the cover
+  // begins to thin. Each disc is flat at the height of its rim and carries the
+  // share of the cloud cover that ends before the next one.
+  const top=funnelAxis(1,shape),topSection=funnelSection(1);
+  const unit=F.joinRadius*(.62+.95*shape.base+.24+.10);
+  const cover=distance=>1-smoothstep(F.coverInner,F.coverOuter,distance);
+  const discs=12;
+  for(let disc=0;disc<discs;disc++){
+    const distance=F.coverInner+(F.coverOuter-F.coverInner)*disc/discs;
+    const next=F.coverInner+(F.coverOuter-F.coverInner)*(disc+1)/discs;
+    rings.push(Object.freeze({part:'cloud-base',weight:cover(distance)-cover(next),points:around((cos,sin)=>{
+      const x=top[0]+distance*unit*topSection[0]*cos,z=top[1]+distance*unit*topSection[1]*sin;
+      const wide=F.wideBase-F.wideDip*Math.exp(-((x/F.wideScale[0])**2+(z/F.wideScale[1])**2));
+      const rise=smoothstep(F.baseInner,F.baseOuter,distance);
+      return [x,z,Math.min(F.loweredBase,wide)*(1-rise)+wide*rise];
+    })}));
+  }
+  const funnel=Object.freeze({base:Object.freeze([0,0,0]),rings:Object.freeze(rings)});
+  cachedFunnels.set(key,funnel);
+  return funnel;
 }
