@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {preparePositions,positionAt} from '../web/playback-model.mjs';
 import {frameAt} from '../web/timeline-media-model.mjs';
-import {localPoint,sceneProject,initialSeconds,replaySeconds,replayURL,funnelGlyph,replayFunnel,REPLAY_FUNNEL} from '../web/reconstruction-model.mjs';
+import {localPoint,sceneProject,initialSeconds,replaySeconds,replayURL,funnelGlyph,replayFunnel,REPLAY_FUNNEL,centerLabelX} from '../web/reconstruction-model.mjs';
 import {funnelVolumeFragment} from '../web/funnel-simulation-model.mjs';
 import {formationAt} from '../web/formation-model.mjs';
 
@@ -208,4 +208,23 @@ test('checked-in exhibit supplies the documented scene and bounded radar interva
     const local=localPoint(position.coordinates,points[0].geometry.coordinates);
     assert.ok(local.every(Number.isFinite));
   }
+});
+
+test('the center text stays inside the scene beside its marker',()=>{
+  // Right of the marker where it fits, as before.
+  assert.equal(centerLabelX(100,85,348),112);
+  // Near the right edge it moves to the marker's left side.
+  assert.equal(centerLabelX(260,85,348),163);
+  // Right of a reported width circle where that fits, left of it where not.
+  assert.equal(centerLabelX(100,85,348,{left:60,right:140}),146);
+  assert.equal(centerLabelX(200,85,348,{left:150,right:270}),59);
+  // Where the circle leaves no room, it keeps clear of the marker.
+  assert.equal(centerLabelX(330,85,348,{left:50,right:610}),233);
+  assert.equal(centerLabelX(40,85,348,{left:-200,right:360}),52);
+  assert.equal(centerLabelX(170,85,348,{left:20,right:320}),182);
+  // Where neither side fits, it is held inside the scene.
+  assert.equal(centerLabelX(60,85,120),31);
+  // A marker outside the scene keeps its text beside it.
+  assert.equal(centerLabelX(-30,85,348),-18);
+  assert.equal(centerLabelX(400,85,348),412);
 });

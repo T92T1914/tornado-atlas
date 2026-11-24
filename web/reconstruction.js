@@ -2,7 +2,7 @@ import {mountChronology} from './chronology-view.mjs';
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
 import {frameAt} from './timeline-media-model.mjs';
 import {loadEventPackage,displayClock} from './event-package-model.mjs';
-import {localPoint, sceneProject, replaySeconds, replayURL, replayFunnel, observerGlyph} from './reconstruction-model.mjs';
+import {localPoint, sceneProject, replaySeconds, replayURL, replayFunnel, observerGlyph, centerLabelX} from './reconstruction-model.mjs';
 import {reportedWidthAt, groundCircle, reportedWidthTag, reportedWidthCaption} from './reported-widths-model.mjs';
 import {mountFootage} from './footage-view.mjs';
 import {mountReplayCamera} from './replay-camera-view.mjs';
@@ -114,7 +114,7 @@ async function start(){
   const openReplayPhoto=photo=>(sharedPhotoViewer??=mountPhotoViewer())(photo);
   mountReplayScaleImpact(data,openReplayPhoto,seek);
   el('replay-content').hidden=false;
-  canvas.setAttribute('aria-label',`Three-dimensional view of the documented ${event.title} path. Drag or use arrow keys to turn the scene. The following controls provide the same options.`);
+  canvas.setAttribute('aria-label',`Three dimensional view of the documented ${event.title} path. Drag or use arrow keys to turn the scene. The following controls provide the same options.`);
   const positions=preparePositions(features.filter(f=>f.geometry.type==='Point'));
   const path=features.find(f=>f.geometry.type==='LineString').geometry.coordinates;
   const boundary=features.find(f=>f.geometry.type==='Polygon').geometry.coordinates[0];
@@ -641,7 +641,7 @@ async function start(){
     const widthRing=reported?groundCircle(center,reported.metres).map(project):[];
     const widthDrawn=Boolean(reported)&&widthRing.every(Boolean);
     // The funnel label and the center text start clear of the circle.
-    const widthBox=widthDrawn?{top:Math.min(...widthRing.map(p=>p.y)),right:Math.max(...widthRing.map(p=>p.x)),bottom:Math.max(...widthRing.map(p=>p.y))}:null;
+    const widthBox=widthDrawn?{top:Math.min(...widthRing.map(p=>p.y)),left:Math.min(...widthRing.map(p=>p.x)),right:Math.max(...widthRing.map(p=>p.x)),bottom:Math.max(...widthRing.map(p=>p.y))}:null;
     placeFunnelLabel(funnelBase,funnelBody,rect,widthBox);
     if(widthDrawn){
       context.setLineDash([6,4]);context.strokeStyle=text;context.lineWidth=1.5;
@@ -657,7 +657,7 @@ async function start(){
     const widthRead=Boolean(reported)&&(!clock.playing||clock.rate===1);
     showReportedWidth(widthInView?reportedWidthTag(reported):'',
       widthRead?reportedWidthCaption(reportedWidths,reported,{published:current.published,inView:widthInView}):'');
-    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',widthBox?Math.max(marker.x+12,widthBox.right+6):marker.x+12,marker.y+4);}
+    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',centerLabelX(marker.x,context.measureText('Center position').width,rect.width,widthBox),marker.y+4);}
     const glyph=observer?.visible?observerGlyph(observer.sample,origin,camera,rect.width,rect.height):null;
     canvas.dataset.observerVisible=String(Boolean(glyph));
     if(glyph){
