@@ -97,7 +97,7 @@ jobs:
           node --test tests/appearance-timeline.test.mjs
           node --test tests/photo-observations.test.mjs tests/partial-photo-forms.test.mjs tests/partial-margin-geometry.test.mjs tests/partial-condensation.test.mjs tests/source-photo-context.test.mjs tests/nolte-full-documentary.test.mjs
           node --test tests/replay-context.test.mjs
-          node --test tests/reconstruction-model.test.mjs tests/reconstruction-share-consumer.test.mjs
+          node --test tests/reconstruction-model.test.mjs tests/reconstruction-share-consumer.test.mjs tests/reported-widths-model.test.mjs
           node --check web/wind.js
           node --check web/wind-tracer.mjs
           node --test tests/wind-tracer.test.mjs tests/wind-spatial-interpretation.test.mjs

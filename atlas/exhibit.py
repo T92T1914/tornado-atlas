@@ -172,6 +172,10 @@ def build(*, refresh=False, destination: Path = ROOT / "web" / "data.json") -> d
     result['appearance_timeline'] = json.loads(
         (ROOT / 'exhibits/el-reno-2013/appearance-timeline.json').read_text(encoding='utf-8')
     )
+    from .reported_widths import load_reported_widths
+    widths = load_reported_widths(ROOT, 'el-reno-2013')
+    if widths is not None:
+        result['reported_widths'] = widths
     reading = json.loads((ROOT / "exhibits/el-reno-2013/reading.json").read_text(encoding="utf-8"))
     validate_reading(reading, result)
     result['reading'] = reading

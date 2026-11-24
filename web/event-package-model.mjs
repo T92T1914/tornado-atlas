@@ -1,6 +1,7 @@
 import {validateChronology} from './chronology-model.mjs';
 import {validateCamera} from './camera-model.mjs';
 import {validateAppearanceTimeline} from './appearance-timeline-model.mjs';
+import {validateReportedWidths} from './reported-widths-model.mjs';
 import {loadVerifiedDossier} from './dossier-file-model.mjs';
 import {resolveRadarContext} from './chronology-radar-model.mjs';
 import {resolveReadingContext} from './chronology-reading-model.mjs';
@@ -90,6 +91,7 @@ export async function loadEventPackage(requested=null,{fetcher=globalThis.fetch,
   if(config.schema_version===1)requireValue(!Object.hasOwn(data,'appearance_timeline'),'Version 1 replay cannot publish an appearance timeline.');
   else validateAppearanceTimeline(data.appearance_timeline,event.id,config.clock,data.footage);
   if(data.cameras!=null)validateCamera(data.cameras,event.id);
+  if(data.reported_widths!=null)validateReportedWidths(data.reported_widths,event.id,config.clock);
   requireValue(Object.entries(config.geography_source).every(([key,value])=>data.geometry?.source?.[key]===value),'Geography provenance differs from the reviewed package.');
   const points=data.geometry.features.filter(f=>f.geometry.type==='Point');
   requireValue(points.length>=2&&Date.parse(points[0].properties.utc)===Date.parse(config.clock.start_utc)&&Date.parse(points.at(-1).properties.utc)===Date.parse(config.clock.end_utc),'Historical positions differ from the declared coverage.');

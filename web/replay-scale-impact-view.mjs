@@ -1,4 +1,4 @@
-// Preserve sourced widths and recorded outcomes. Only the declared radar comparison seeks the existing clock.
+// Preserve sourced widths and recorded outcomes. The declared radar comparison and the two reported width links seek the existing clock.
 export function mountReplayScaleImpact(data,openPhoto,seek){
   if(data.exhibit?.id!=='el-reno-2013')return;
   const byId=id=>document.getElementById(id),section=byId('replay-scale-impact');
@@ -10,6 +10,20 @@ export function mountReplayScaleImpact(data,openPhoto,seek){
     if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
     event.preventDefault();seek(488,{fragment:'replay-ground-scouring'});
   });
+  // Each width leads to the start of its own reported period, where the scene
+  // draws it. Photograph and study modes keep only the center marker, so there
+  // the plain link loads the path view.
+  if(seek)for(const width of data.reported_widths?.widths??[]){
+    const link=byId('replay-width-show-'+width.id);
+    link?.addEventListener('click',event=>{
+      if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+      if(['photo','ground','simulation','formation'].includes(new URL(location.href).searchParams.get('appearance_view')))return;
+      event.preventDefault();seek(Number(new URL(link.href).searchParams.get('t')),{fragment:'replay-path-stage'});
+      // Focus after the frame that draws the circle, so the scene's description is already written.
+      const scene=byId('replay-scene');scene.scrollIntoView({block:'center'});
+      requestAnimationFrame(()=>scene.focus({preventScroll:true}));
+    });
+  }
   const photo=data.damage?.event==='el-reno-2013'&&data.damage.photos.find(row=>row.id==='nws-el-reno-damage-04');
   if(!photo){byId('replay-impact-example').hidden=true;return;}
   const image=byId('replay-impact-image');

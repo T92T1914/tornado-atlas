@@ -73,6 +73,11 @@ It is a starting point for the historical reconstruction, not a claim to have
 recreated the storm's changing appearance. The [implementation and review notes](research/spatial-replay-2026-09-21.md)
 record the tested behavior and remaining gaps of the first version, which drew
 the funnel as a cloud of dots.
+For two short periods the scene also draws the visible funnel widths that
+Wakimoto and colleagues report, about 500 m and then about 800 m, as dashed
+circles on the ground around the replay's center position. They are there for
+scale and are not footprints. Each is labeled with its source, its definition
+and how it was placed.
 
 The replay also has an explicitly selected
 [synthetic ground-view comparison](https://t92t1914.github.io/tornado-atlas/reconstruction.html?event=el-reno-2013&appearance_view=ground&ground_view=synthetic-front&t=120#replay-appearance).

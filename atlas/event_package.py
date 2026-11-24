@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 
 from .history import source_url
 from .cameras import validate_camera_context
+from .reported_widths import validate_reported_widths
 
 COVERAGE = {"positions": "published_minute_samples",
             "between_positions": "linear_longitude_latitude",
@@ -673,6 +674,8 @@ def validate_replay(config, bundle):
     if config["schema_version"] == 2:
         validate_appearance_timeline(bundle.get("appearance_timeline"), config["event_id"], start, end,
                                      bundle["footage"]["sources"])
+    if bundle.get("reported_widths") is not None:
+        validate_reported_widths(bundle["reported_widths"], config["event_id"], start, end)
 
 
 def reviewed_index(root: Path):

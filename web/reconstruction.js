@@ -3,6 +3,7 @@ import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs'
 import {frameAt} from './timeline-media-model.mjs';
 import {loadEventPackage,displayClock} from './event-package-model.mjs';
 import {localPoint, sceneProject, replaySeconds, replayURL, replayFunnel, observerGlyph} from './reconstruction-model.mjs';
+import {reportedWidthAt, groundCircle, reportedWidthTag, reportedWidthCaption} from './reported-widths-model.mjs';
 import {mountFootage} from './footage-view.mjs';
 import {mountReplayCamera} from './replay-camera-view.mjs';
 import {anchorAt,sourceLink} from './footage-model.mjs';
@@ -24,8 +25,9 @@ let funnelLabelSize=null;
 // The label is page text beside the drawn funnel, so it can be read and
 // enlarged like any other text. It shows while any of the funnel body is in
 // the scene and stays inside the scene at every width. The recorded base is
-// empty only when no funnel is drawn.
-function placeFunnelLabel(base,body,rect){
+// empty only when no funnel is drawn. A reported width circle around the same
+// point is left uncovered, so the label starts below it, or above it.
+function placeFunnelLabel(base,body,rect,clear=null){
   const recorded=base?`${base.x.toFixed(2)},${base.y.toFixed(2)}`:'';
   if(canvas.dataset.funnelBase!==recorded)canvas.dataset.funnelBase=recorded;
   const shown=Boolean(body)&&body.right>=0&&body.left<=rect.width&&body.bottom>=0&&body.top<=rect.height;
@@ -37,11 +39,24 @@ function placeFunnelLabel(base,body,rect){
   const anchor=base??{x:(body.left+body.right)/2,y:body.bottom};
   const anchorX=Math.max(0,Math.min(rect.width,anchor.x)),anchorY=Math.max(0,Math.min(rect.height,anchor.y));
   const x=Math.max(8,Math.min(rect.width-width-8,anchorX+12));
-  const below=anchorY+10,y=below+height+8<=rect.height?below:Math.max(8,anchorY-14-height);
+  const below=Math.max(anchorY+10,clear?clear.bottom+6:0),above=Math.min(anchorY-14,clear?clear.top-6:Infinity)-height;
+  const y=below+height+8<=rect.height?below:Math.max(8,above);
   const transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
   if(funnelLabel.style.transform!==transform)funnelLabel.style.transform=transform;
 }
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
+const widthLabel=el('replay-width-label'),widthStatus=el('replay-width-status');
+// A reported width has a short tag inside the scene and its full text in a
+// caption under the scene, so the scene stays readable on a small screen.
+// Both are page text. The tag shows while part of the circle is in the scene.
+// The caption shows whenever a width applies to the clock and the timeline is
+// paused or running in real time, and says so when the circle is outside the view.
+function showReportedWidth(tag,caption){
+  if(widthLabel.hidden===Boolean(tag))widthLabel.hidden=!tag;
+  setText(widthLabel,tag);
+  if(widthStatus.hidden===Boolean(caption))widthStatus.hidden=!caption;
+  setText(widthStatus,caption);
+}
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
 const groundStudyReturn=mountGroundStudyReturn();
 let drawPending=null, frame=null, clock=null, redraw=()=>{}, refresh=()=>{}, syncLocation=()=>{};
@@ -143,7 +158,7 @@ async function start(){
   }
   function restore(){lastText=null;restoreAppearanceMode();seek(selectedSeconds(location.search),{mode:null});syncLocation();}
   el('replay-time').max=clock.duration;el('replay-time').disabled=false;el('replay-play').disabled=false;
-  let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null, selectedSurvey=null;
+  let current=positionAt(positions,clock.seconds), observer=null, lastText=null, radarFile=null, selectedSurvey=null, reportedNow=null;
   const footageCreators=[...new Set(data.footage.sources.map(source=>source.creator))].join(' and ');
   const updateObserver=mountReplayCamera(data.cameras,positions[0].stamp,positions.at(-1).stamp,seek,localStamp,footageCreators);
   if(data.cameras&&!data.footage.sources.length)el('replay-camera-separation').textContent='This recorded observer track is separate from any photographic declarations. A matching clock does not connect their sources. No video source is declared in this package.';
@@ -209,6 +224,7 @@ async function start(){
     el('replay-chapter-next').disabled=!adjacentChapter(mappedChapters,clock.seconds,1);
   }
   const appearanceTimeline=data.appearance_timeline??null;
+  const reportedWidths=data.reported_widths??null;
   const photoSequences=appearanceTimeline?.photo_sequences??[];
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
   let appearanceRenderer=null,appearanceState={state:'unknown'},rendererQuality=3200;
@@ -617,8 +633,31 @@ async function start(){
       context.globalAlpha=1;
       funnelBase=project(funnel.base.map((v,i)=>v+center[i]));
     }
-    placeFunnelLabel(funnelBase,funnelBody,rect);
-    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',marker.x+12,marker.y+4);}
+    // A width that a source reports is drawn only inside its own period, as a
+    // dashed circle of that diameter on the ground. Its center is the replay's
+    // center position for this clock, which is not taken from the width's source.
+    // Photograph and study modes keep only the center marker.
+    const reported=separateAppearance()?null:reportedNow;
+    const widthRing=reported?groundCircle(center,reported.metres).map(project):[];
+    const widthDrawn=Boolean(reported)&&widthRing.every(Boolean);
+    // The funnel label and the center text start clear of the circle.
+    const widthBox=widthDrawn?{top:Math.min(...widthRing.map(p=>p.y)),right:Math.max(...widthRing.map(p=>p.x)),bottom:Math.max(...widthRing.map(p=>p.y))}:null;
+    placeFunnelLabel(funnelBase,funnelBody,rect,widthBox);
+    if(widthDrawn){
+      context.setLineDash([6,4]);context.strokeStyle=text;context.lineWidth=1.5;
+      context.beginPath();widthRing.forEach((p,i)=>{if(i)context.lineTo(p.x,p.y);else context.moveTo(p.x,p.y);});
+      context.closePath();context.stroke();context.setLineDash([]);
+    }
+    const widthId=reported?reported.id:'';
+    if(canvas.dataset.reportedWidth!==widthId)canvas.dataset.reportedWidth=widthId;
+    const widthInView=widthDrawn&&widthRing.some(p=>p.x>=0&&p.x<=rect.width&&p.y>=0&&p.y<=rect.height);
+    // The caption is several lines long. While the timeline runs faster than
+    // real time a period passes in a fraction of a second, so only the tag
+    // shows then and the page under the scene keeps still.
+    const widthRead=Boolean(reported)&&(!clock.playing||clock.rate===1);
+    showReportedWidth(widthInView?reportedWidthTag(reported):'',
+      widthRead?reportedWidthCaption(reportedWidths,reported,{published:current.published,inView:widthInView}):'');
+    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',widthBox?Math.max(marker.x+12,widthBox.right+6):marker.x+12,marker.y+4);}
     const glyph=observer?.visible?observerGlyph(observer.sample,origin,camera,rect.width,rect.height):null;
     canvas.dataset.observerVisible=String(Boolean(glyph));
     if(glyph){
@@ -655,6 +694,8 @@ async function start(){
   };
   refresh=()=>{
     current=positionAt(positions,clock.seconds);observer=updateObserver(current.utc);requestDraw();
+    // The whole second of the clock decides, the second its label shows.
+    reportedNow=reportedWidthAt(reportedWidths,config.clock.start_utc,clock.seconds);
     const key=`${Math.floor(clock.seconds)}:${current.published}:${new URL(location.href).searchParams.get('footage_source')}:${new URL(location.href).searchParams.get('footage')}`;
     if(key!==lastText)updateFootage(current.utc);
     updateAppearance();

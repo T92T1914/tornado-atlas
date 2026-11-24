@@ -21,6 +21,8 @@ check_event_packages(root)
 bundle = json.loads((root / 'web/data.json').read_text(encoding='utf-8'))
 appearance = json.loads((root / 'exhibits/el-reno-2013/appearance-timeline.json').read_text(encoding='utf-8'))
 assert same_json(bundle['appearance_timeline'], appearance), 'Stale bundle: appearance_timeline'
+from atlas.reported_widths import load_reported_widths
+assert same_json(bundle.get('reported_widths'), load_reported_widths(root, 'el-reno-2013')), 'Stale bundle: reported_widths'
 geo = json.loads((root / 'exhibits/el-reno-2013/path.geojson').read_text(encoding='utf-8'))
 assert bundle['geometry'] == geo, 'Preview geometry differs from exhibit geometry'
 assert bundle['survey'] == load_survey(geo), 'Stale or invalid survey bundle'

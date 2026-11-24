@@ -220,6 +220,41 @@ isolated local pages with external requests blocked and cover both appearances
 at desktop and narrow widths. They do not validate the external video host,
 physical devices or the historical source registration.
 
+## Reported widths in the scene
+
+A package may carry `reported_widths`, a record of widths that a source states
+for a period of the replay clock. El Reno has one,
+`exhibits/el-reno-2013/reported-widths.json`, with the two visible funnel
+widths of Wakimoto and colleagues. Its source check is in the
+[dated record](../research/el-reno-reported-widths-2026-11-23.md).
+
+The record names its own sources, each with a citation, its address, the
+retained copy that was read and that copy's SHA-256. Each width has an
+identity, a `source_id` that names one of those sources, whole metres marked as
+approximate, a period in whole second UTC inside the replay clock, a
+statement, its limits, a review date and a locator that must point to a place
+inside the retained copy. Periods are ordered and do not touch. The statement
+is what the visitor reads, so both validators refuse one that does not give
+its own size as `about` that many metres or does not name its own period from
+its first second to its last. `placement` has one accepted value,
+`replay_center_position`. `placement_note` says in words where the circle is
+put when that position is interpolated, and `placement_note_published` says it
+for a clock that falls on a published position.
+
+The source prints its periods to the second and so does the replay clock. The
+player draws a width while the whole second of the clock is one of the
+period's seconds, both ends included, and draws none at any other clock. The
+mark is a dashed circle of that diameter on the ground of the path scene,
+centered on the replay's center position for that clock. A short tag inside
+the scene names it. A caption under the scene gives the statement, the limits
+and the placement note, and then says that the circle shows the size at the
+scale of the scene and is not a footprint, a damage width or a wind field.
+It adds that the circle is outside the view when it is. The caption shows
+while the timeline is paused or running in real time. At faster rates only
+the tag shows, so the page under the scene does not move.
+Photograph mode and the study modes keep only the center marker. A package
+without the record draws nothing and needs no change.
+
 ## Extending reviewed coverage
 
 Adding an index row alone does not create a replay. A new event needs its own
