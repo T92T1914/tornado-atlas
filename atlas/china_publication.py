@@ -19,8 +19,8 @@ CHANGES = ("Tornado Atlas reads the Data sheet, keeps the case label, recorded d
 LIMITS = ("Each position is the dataset authors' geocoded point for a place description, not a survey position "
           "or a path. A date range gives the approximate dates of occurrence, not a duration. Times are UTC+8 "
           "as recorded and are not converted. The dataset says its place names, time notes and damage "
-          "descriptions come from the Yearbook of Meteorological Disasters in China, whose terms are not read, "
-          "so they are not shown. Cases are source records, not a complete count of tornadoes in China.")
+          "descriptions come from the Yearbook of Meteorological Disasters in China. No reuse terms for the "
+          "yearbook were found, so they are not shown. Cases are source records, not a complete count of tornadoes in China.")
 
 
 def encoded(value) -> bytes:
