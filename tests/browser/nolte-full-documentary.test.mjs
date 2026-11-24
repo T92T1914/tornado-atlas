@@ -3,15 +3,51 @@ import assert from 'node:assert/strict';
 import {readFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-import {fixture,base,withNavigationDiagnostics} from './harness.mjs';
+import {fixture as isolatedFixture,base,withNavigationDiagnostics} from './harness.mjs';
 const timeline=JSON.parse(await readFile(new URL('../../exhibits/el-reno-2013/appearance-timeline.json',import.meta.url)));
 const samples=timeline.photo_sequences[0].samples;
 const names=['231037','231059','231202'];
 const expected=['e9ad30c4fdcb6a28340bbb0e422b80cbc937ef248b497092246c7bff51fd4847','10de8e092a55e9f4e87650f6731fb70e0829ba90246335f48c484ce3bca47a8c','2232f9f7276c1a59f96464720e5295d8cad6d8a0f1ef3289d9a111a1a1a27e36'];
 const player=(at=397)=>base+'/reconstruction.html?event=el-reno-2013&t='+at+'&appearance_view=photo&appearance_photo=nolte-reported-stills#replay-appearance';
+// Each scripted page of this file notes where its last click landed, so
+// pressFull can name a press that misses its link at once.
+const tests=new WeakMap();
+async function fixture(t,options){
+ const page=await isolatedFixture(t,options);tests.set(page,t);
+ await page.addInitScript(()=>addEventListener('click',event=>{const node=event.target;window.nolteLastClick=(node.id?'#'+node.id:node.localName)+' at '+Math.round(event.clientX)+','+Math.round(event.clientY);},true));
+ return page;
+}
 async function ready(page){await page.locator('#replay-time:not([disabled])').waitFor();}
+// The checked photograph above the record is shown some time after its sample
+// is selected, and the record moves down when it appears. A press on the link
+// that begins before that and ends after it lands beside the link and opens
+// nothing. Playwright checks its target only as the pointer goes down, so it
+// does not press again. The link is pressed only once that photograph has
+// settled. That means shown or refused, or retired with its page where the
+// caller says so. The page gives up its own check after 10 s, so this wait
+// outlasts it.
+async function pressFull(page,index,{retired=false}={}){
+ const settled=['ready','unavailable',...(retired?['retired']:[])].map(state=>'#replay-documentary-image[data-sample-id="'+samples[index].id+'"][data-state="'+state+'"]').join(',');
+ await page.locator(settled).waitFor({state:'attached',timeout:12000});
+ // An earlier press on the same page leaves its note, so it is cleared first.
+ await page.evaluate(()=>{window.nolteLastClick=null;});
+ await page.locator('#replay-photo-full').click();
+ assert.match(await page.evaluate(()=>window.nolteLastClick),/^#replay-photo-full /,'The press lands on the link it began on');
+}
 async function shown(page,index){
- await page.waitForFunction(()=>{const img=document.getElementById('photo-full');return document.getElementById('photo-dialog').open&&!img.hidden&&img.naturalWidth===1920&&img.naturalHeight===1080;});
+ try{await page.waitForFunction(()=>{const img=document.getElementById('photo-full');return document.getElementById('photo-dialog').open&&!img.hidden&&img.naturalWidth===1920&&img.naturalHeight===1080;});}
+ catch(error){
+  // A dialog that never shows is reported with what the page held when the
+  // wait gave up. A page that no longer answers is given 500 ms and no more.
+  let timer;
+  const held=await Promise.race([new Promise(resolve=>{timer=setTimeout(()=>resolve({unreadable:'The page did not answer within 500 ms.'}),500);}),page.evaluate(()=>{
+   const dialog=document.getElementById('photo-dialog'),img=document.getElementById('photo-full'),inline=document.getElementById('replay-documentary-image');
+   return {dialog_open:dialog?.open??null,image_hidden:img?.hidden??null,image_width:img?.naturalWidth??null,
+    status:document.getElementById('photo-status')?.textContent??null,retry_hidden:document.getElementById('photo-retry')?.hidden??null,
+    inline_state:inline?.dataset.state??null,inline_sample:inline?.dataset.sampleId??null,last_click:window.nolteLastClick??null,url:location.href};
+  })]).catch(failure=>({unreadable:String(failure.message).slice(0,256)})).finally(()=>clearTimeout(timer));
+  tests.get(page).diagnostic('NOLTE_DIALOG_FAILURE '+JSON.stringify(held));throw error;
+ }
  assert.equal(await page.locator('#photo-title').textContent(),'Nick Nolte / '+names[index]+'.jpg');
  assert.equal(await page.locator('#photo-source').getAttribute('href'),samples[index].hosted_image.original_url);
  assert.equal(await page.locator('#photo-original').getAttribute('href'),samples[index].hosted_image.asset);
@@ -101,12 +137,12 @@ test('Nolte no-script full frame reading retains all marks and native original l
 });
 test('Nolte native history retires only its selected dialog and unknown gaps clear the full action',async t=>{
  const page=await fixture(t,{viewport:{width:390,height:900}});await page.goto(player());await ready(page);
- await page.locator('[data-photo-sample="nolte-231059"]').click();await page.locator('#replay-photo-full').click();await shown(page,1);
+ await page.locator('[data-photo-sample="nolte-231059"]').click();await pressFull(page,1);await shown(page,1);
  await page.goBack();await page.waitForFunction(()=>!document.getElementById('photo-dialog').open&&document.getElementById('replay-time').value==='397');
  assert.equal(await page.locator('#photo-full').getAttribute('src'),null);assert.equal(await page.locator('#replay-photo-full').getAttribute('href'),samples[0].hosted_image.asset);
  assert.equal(await page.evaluate(()=>document.activeElement?.isConnected),true);
  await page.goForward();await page.waitForFunction(()=>document.getElementById('replay-time').value==='419');
- await page.locator('#replay-photo-full').click();await shown(page,1);
+ await pressFull(page,1);await shown(page,1);
  // History traversal above is native; this adverse mode change exercises an open-modal retirement.
  await page.locator('#replay-appearance-mode').selectOption('source');await page.waitForFunction(()=>!document.getElementById('photo-dialog').open);
  assert.equal(await page.locator('#photo-full').getAttribute('src'),null);
@@ -123,13 +159,13 @@ test('Nolte rejects a valid sibling JPEG and retries only the selected full orig
  assert.equal(await page.locator('#replay-documentary-photo').getAttribute('src'),null);
  assert.equal(await page.locator('#replay-documentary-image figure>a').getAttribute('href'),null);
  assert.equal(requests,1,'The inline consumer independently rejects the sibling JPEG');
- await page.locator('#replay-photo-full').click();await page.locator('#photo-retry').waitFor();
+ await pressFull(page,0);await page.locator('#photo-retry').waitFor();
  assert.equal(await page.locator('#photo-full').getAttribute('src'),null);assert.equal(await page.locator('#photo-full').isVisible(),false);
  assert.match(await page.locator('#photo-status').textContent(),/does not match/);assert.equal(requests,2,'The dialog independently rejects the sibling JPEG');
  correct=true;await page.locator('#photo-retry').click();await shown(page,0);assert.equal(requests,3);
  assert.equal(await page.locator('#replay-documentary-image').getAttribute('data-state'),'unavailable','Dialog retry does not retry the separate inline consumer');
  await capture(page,'nolte-retried-exact-231037',page.locator('#photo-full'));
- await page.keyboard.press('Escape');await page.locator('[data-photo-sample="nolte-231202"]').click();await page.locator('#replay-photo-full').click();await shown(page,2);
+ await page.keyboard.press('Escape');await page.locator('[data-photo-sample="nolte-231202"]').click();await pressFull(page,2);await shown(page,2);
  assert.match(await page.locator('#photo-caption').textContent(),/23:12Z/);assert.doesNotMatch(await page.locator('#photo-caption').textContent(),/23:10:37Z/);
 });
 test('Nolte enlarged reading and dialog retain full image and reachable source links',async t=>{
@@ -154,7 +190,7 @@ test('Nolte page retirement closes its dialog before document history restoratio
  await page.waitForFunction(()=>document.body?.dataset.exhibitReady==='true');
  mark('nolte-retirement-native-player-entry',player());
  await page.locator('#documentary-nolte-231037 a').filter({hasText:'Read this reported instant'}).click();await ready(page);
- await page.locator('#replay-photo-full').click();await shown(page,0);
+ await pressFull(page,0);await shown(page,0);
  mark('nolte-retirement-back',base+'/index.html#documentary-nolte-231037');await page.goBack();await page.locator('#nolte-documentary-photographs').waitFor();
  mark('nolte-retirement-forward',player());await page.goForward();await ready(page);
  assert.equal(await page.locator('#photo-dialog').evaluate(d=>d.open),false);
@@ -164,12 +200,12 @@ test('Nolte page retirement closes its dialog before document history restoratio
  assert.ok(await page.locator('#photo-status').count()<=1);
  for(const text of await page.locator('#photo-status').allTextContents())assert.equal(text,'');
  t.diagnostic('Actual restored pageshow observations: '+JSON.stringify(await page.evaluate(()=>window.noltePageShows)));
- await page.locator('#replay-photo-full').click();await shown(page,0);
+ await pressFull(page,0);await shown(page,0);
  // Explicit lifecycle-event control also decides synchronous cleanup when a
  // host preserves the document. It is not proof that this engine used BFCache.
  await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true})));
  assert.equal(await page.locator('#photo-dialog').evaluate(d=>d.open),false);
  assert.equal(await page.locator('#photo-full').getAttribute('src'),null);assert.equal(await page.locator('#photo-status').textContent(),'');
- await page.locator('#replay-photo-full').click();await shown(page,0);
+ await pressFull(page,0,{retired:true});await shown(page,0);
  });
 });
