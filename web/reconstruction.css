@@ -88,11 +88,14 @@
 #replay-documentary-image h3 {font-size:18px;margin:0 0 12px}
 #replay-documentary-image figure {margin:0}
 #replay-documentary-image figure>a {display:block}
+#replay-documentary-image:is([data-state="loading"],[data-state="unavailable"]) figure>a {box-sizing:border-box;border:1px solid var(--line);aspect-ratio:auto var(--photo-ratio)}
 #replay-documentary-photo {display:block;box-sizing:border-box;width:100%;height:auto;object-fit:contain;border:1px solid var(--line)}
 #replay-documentary-photo[hidden] {display:none}
 #replay-documentary-image figcaption {font-size:13px;line-height:1.6}
 #replay-documentary-image figcaption p {margin:10px 0}
-#replay-documentary-status {font-size:13px;line-height:1.6}
+#replay-documentary-image .replay-documentary-status-box {display:grid;margin:0 0 13px}
+#replay-documentary-image .replay-documentary-status-box>p {grid-area:1/1;margin:0;font-size:13px;line-height:1.6}
+#replay-documentary-image .replay-documentary-status-sizer {visibility:hidden}
 #replay-documentary-retry {min-height:44px;font:inherit}
 .replay-radar {border-top:1px solid var(--line);margin-top:22px;padding-top:10px}
 .replay-radar h3 {font-size:15px}

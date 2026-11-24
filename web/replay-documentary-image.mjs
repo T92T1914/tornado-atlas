@@ -1,6 +1,7 @@
 import {checkedPhotoBytes,documentaryPhoto} from './photo-view.mjs';
 
 const DEADLINE_MS=10000;
+const SHOWN_TEXT='The complete displayed photograph matches the reviewed file. This is one creator-reported instant, without calibrated geometry or continuous appearance.';
 const element=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
 
 // A checked documentary copy belongs to one exact selected sample. It never
@@ -25,6 +26,9 @@ export function mountReplayDocumentaryImage(host,openPhoto){
     host.hidden=false;host.dataset.state='loading';host.dataset.sampleId=sample.id;host.setAttribute('aria-busy','true');
     const title=element('h3','Complete photograph at this reported instant');title.id='replay-documentary-title';
     const figure=element('figure'),link=element('a');
+    // While the photograph is checked, and if it is refused, its link keeps
+    // the recorded shape, so the record under it stays where it is.
+    link.style.setProperty('--photo-ratio',version.width+' / '+version.height);
     link.setAttribute('aria-label','Enlarge the complete photograph: '+photo.title);
     link.addEventListener('click',event=>{
       if(!owns()||host.dataset.state!=='ready'){event.preventDefault();return;}
@@ -37,8 +41,12 @@ export function mountReplayDocumentaryImage(host,openPhoto){
     const caption=element('figcaption');caption.append(element('p',photo.caption),element('p',photo.credit));
     figure.append(link,caption);
     const status=element('p','Checking the complete photograph...');status.id='replay-documentary-status';status.setAttribute('role','status');
+    // A hidden copy of the longest ordinary status gives the line its height
+    // from the start. A failure message may still be longer.
+    const statusBox=element('div'),sizer=element('p',SHOWN_TEXT);statusBox.className='replay-documentary-status-box';
+    sizer.className='replay-documentary-status-sizer';sizer.setAttribute('aria-hidden','true');sizer.style.visibility='hidden';statusBox.append(sizer,status);
     const retryButton=element('button','Retry photograph');retryButton.type='button';retryButton.id='replay-documentary-retry';retryButton.hidden=true;
-    host.append(title,figure,status,retryButton);
+    host.append(title,figure,statusBox,retryButton);
     const owned={active:true,controller:new AbortController(),timer:null,image,link,url:null,deadline:performance.now()+DEADLINE_MS};attempt=owned;
     const owns=()=>attempt===owned&&owned.active&&selected===sample&&host.isConnected;
     function failed(error){
@@ -63,7 +71,7 @@ export function mountReplayDocumentaryImage(host,openPhoto){
       if(!live())return;
       if(image.naturalWidth!==version.width||image.naturalHeight!==version.height){failed(Error('The checked dimensions do not match the selected record.'));return;}
       clearTimeout(owned.timer);link.href=photo.asset;image.hidden=false;host.dataset.state='ready';host.setAttribute('aria-busy','false');
-      status.textContent='The complete displayed photograph matches the reviewed file. This is one creator-reported instant, without calibrated geometry or continuous appearance.';
+      status.textContent=SHOWN_TEXT;
     },{once:true});
     image.addEventListener('error',()=>failed(Error('The checked photograph could not be displayed.')),{once:true});
     owned.timer=setTimeout(()=>failed(Error('The image check took too long.')),DEADLINE_MS);

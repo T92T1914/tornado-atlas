@@ -19,7 +19,7 @@ async function fixture(t,options){
 }
 async function ready(page){await page.locator('#replay-time:not([disabled])').waitFor();}
 // The checked photograph above the record is shown some time after its sample
-// is selected, and the record moves down when it appears. A press on the link
+// is selected. The record used to move down when it appeared. A press on the link
 // that begins before that and ends after it lands beside the link and opens
 // nothing. Playwright checks its target only as the pointer goes down, so it
 // does not press again. The link is pressed only once that photograph has
