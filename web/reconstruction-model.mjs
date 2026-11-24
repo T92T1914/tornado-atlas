@@ -162,3 +162,20 @@ export function replayFunnel(levels=40,segments=24){
   cachedFunnels.set(key,funnel);
   return funnel;
 }
+
+// Where the canvas text beside the center marker starts. It sits 12 px right
+// of the marker, or right of a reported width circle, and moves to the left of
+// both when the right side would cross the scene's edge. Where a circle leaves
+// no room on either side, the text still keeps clear of the marker. While the
+// marker is in the scene the text never leaves it. A marker outside the scene
+// keeps its text beside it.
+export function centerLabelX(markerX,textWidth,sceneWidth,clear=null){
+  const gap=12,margin=4;
+  const right=clear?Math.max(markerX+gap,clear.right+6):markerX+gap;
+  if(markerX<0||markerX>sceneWidth||right+textWidth<=sceneWidth-margin)return right;
+  const left=(clear?Math.min(markerX-gap,clear.left-6):markerX-gap)-textWidth;
+  if(left>=margin)return left;
+  if(markerX+gap+textWidth<=sceneWidth-margin)return markerX+gap;
+  if(markerX-gap-textWidth>=margin)return markerX-gap-textWidth;
+  return Math.max(margin,sceneWidth-margin-textWidth);
+}
