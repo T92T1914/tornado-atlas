@@ -184,6 +184,7 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   function showFatality(place) {
     targetMissing.textContent='';
     pageOptions.onObservationSelect?.(null);
+    pageOptions.onFatalitySelect?.(place);
     selectedId='fatality:'+place.id;select.value=selectedId;previous.disabled=next.disabled=true;
     halo.setAttribute('visibility','hidden');compareLine(null);
     for(const button of strip.querySelectorAll('button')) button.setAttribute('aria-pressed','false');
@@ -327,7 +328,8 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
   restore();
   // Select one record from elsewhere on the page, such as the NWS gallery.
   // Filters that would hide it are cleared, and the selection enters history.
-  function showRecord(id) {
+  // A caller that keeps the visitor where they are passes reveal as false.
+  function showRecord(id, {reveal = true} = {}) {
     const point=survey.points.find(p=>p.id===id);
     if(!point)return false;
     targetMissing.textContent='';searchBurst=false;
@@ -337,9 +339,17 @@ export function mountSurvey(survey, geometry, media, openPhoto, places = [], pag
       if(!media.photos[String(id)]?.length)photosOnly.checked=false;
       selectedId=id;filter('push');
     }
-    workspace.scrollIntoView({block:'start'});
-    select.focus({preventScroll:true});
+    if(reveal){workspace.scrollIntoView({block:'start'});select.focus({preventScroll:true});}
     return true;
   }
-  return {showRecord};
+  // Select one fatality record from elsewhere on the page.
+  function showFatalityRecord(id, {reveal = true} = {}) {
+    const place=places.find(item=>item.id===id);
+    if(!place)return false;
+    targetMissing.textContent='';searchBurst=false;
+    impactUI.show(place);
+    if(reveal){workspace.scrollIntoView({block:'start'});select.focus({preventScroll:true});}
+    return true;
+  }
+  return {showRecord,showFatality:showFatalityRecord};
 }

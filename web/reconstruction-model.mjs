@@ -179,3 +179,84 @@ export function centerLabelX(markerX,textWidth,sceneWidth,clear=null){
   if(markerX-gap-textWidth>=margin)return markerX-gap-textWidth;
   return Math.max(margin,sceneWidth-margin-textWidth);
 }
+
+// Survey records and fatality records as marks of the scene. Only a record
+// whose point projects inside the scene gets a mark. A mark is the recorded
+// point and nothing more. It has no size, no time and no rating drawn into it.
+// The order runs across the scene from left to right, so a keyboard can step
+// through what is in view.
+export function sceneMarks(points,places,origin,camera,width,height){
+  const marks=[];
+  const add=(kind,id,coordinates)=>{
+    const p=sceneProject(localPoint(coordinates,origin),camera,width,height);
+    if(p&&p.x>=0&&p.x<=width&&p.y>=0&&p.y<=height)marks.push({kind,id,x:p.x,y:p.y});
+  };
+  for(const point of points)add('survey',point.id,point.coordinates);
+  for(const place of places)add('fatality',place.id,place.coordinates);
+  const key=mark=>mark.kind+':'+mark.id;
+  return marks.sort((a,b)=>a.x-b.x||a.y-b.y||(key(a)<key(b)?-1:key(a)>key(b)?1:0));
+}
+
+// Half the width of the filled diamond of a fatality record, in scene pixels.
+export const FATALITY_MARK_HALF=6;
+
+// The mark a pointer at this place means. A fatality record's filled diamond
+// is drawn over the small marks around it, so a pointer on that diamond means
+// that record. Anywhere else it is the nearest mark within reach, or none.
+export function markAt(marks,x,y,reach=12){
+  if(![x,y,reach].every(Number.isFinite)||reach<=0)throw new RangeError('Invalid mark reach');
+  let best=null,nearest=Infinity,covering=null,closest=Infinity;
+  for(const mark of marks){
+    const distance=Math.hypot(mark.x-x,mark.y-y);
+    if(distance<=reach&&distance<nearest){best=mark;nearest=distance;}
+    if(mark.kind==='fatality'&&Math.abs(mark.x-x)+Math.abs(mark.y-y)<=FATALITY_MARK_HALF&&distance<closest){covering=mark;closest=distance;}
+  }
+  return covering??best;
+}
+
+// The marks of one kind that share a place with this one, in order across the
+// scene. Records with the same coordinates can only be told apart this way.
+export function markStack(marks,mark,within=1.5){
+  if(!Number.isFinite(within)||within<0)throw new RangeError('Invalid mark distance');
+  return marks.filter(other=>other.kind===mark.kind&&Math.hypot(other.x-mark.x,other.y-mark.y)<=within);
+}
+
+// How far above or below its mark a label may be moved to find a free place.
+export const MARK_LABEL_REACH=70;
+
+// Where the written label of a mark goes. It tries above and below the mark,
+// first to its right and then to its left, and takes the first place that
+// stays inside the scene, leaves the mark itself uncovered and touches no box
+// that is already taken. When the places beside the mark are taken it moves
+// farther above and below in steps, so a label as wide as a narrow scene can
+// still find a free row. Among the free places it takes the one that covers
+// the fewest of the given points, which are the other marks of the scene, and
+// the nearer one when two cover as few. Boxes listed as soft are given up
+// first when no place is clear of everything. With no place clear of the
+// taken boxes it stays above the mark, inside the scene. The answer says how
+// many points the label covers there. A caller whose scene is moving passes
+// the offset the label had from its mark, and the label keeps that place for
+// as long as it is free, so it does not hop between places that are nearly as
+// good.
+export function markLabelPlace(mark,size,scene,taken=[],soft=[],points=[],gap=8,keep=null){
+  if(![mark.x,mark.y,size.width,size.height,scene.width,scene.height,gap].every(Number.isFinite)||size.width<=0||size.height<=0||gap<0)
+    throw new RangeError('Invalid mark label');
+  const inside=(x,y)=>({x:Math.max(gap,Math.min(scene.width-size.width-gap,x)),y:Math.max(gap,Math.min(scene.height-size.height-gap,y))});
+  const own={left:mark.x-gap,right:mark.x+gap,top:mark.y-gap,bottom:mark.y+gap};
+  const clear=boxes=>place=>boxes.every(box=>!box||place.x>=box.right||place.x+size.width<=box.left||place.y>=box.bottom||place.y+size.height<=box.top);
+  const covers=place=>points.reduce((count,point)=>count+(point!==mark&&point.x>place.x&&point.x<place.x+size.width&&point.y>place.y&&point.y<place.y+size.height?1:0),0);
+  if(keep&&Number.isFinite(keep.dx)&&Number.isFinite(keep.dy)){
+    const held=inside(mark.x+keep.dx,mark.y+keep.dy);
+    if(clear([own,...taken,...soft])(held))return {...held,covers:covers(held)};
+  }
+  const places=[];
+  for(let away=0;away<=MARK_LABEL_REACH;away+=14)
+    for(const x of [mark.x+gap+2,mark.x-size.width-gap-2])
+      for(const y of [mark.y-size.height-gap-away,mark.y+gap+away])places.push(inside(x,y));
+  const least=boxes=>{
+    let best=null;
+    for(const place of places.filter(clear(boxes))){const count=covers(place);if(!best||count<best.covers)best={...place,covers:count};}
+    return best;
+  };
+  return least([own,...taken,...soft])??least([own,...taken])??{...places[0],covers:covers(places[0])};
+}

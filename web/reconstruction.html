@@ -58,15 +58,19 @@
       <section id="replay-path-stage" class="replay-stage" aria-label="Historical path scene">
         <div class="replay-bar"><strong>Geographic position and recorded path</strong><span>GROUND REFERENCE</span></div>
         <div class="replay-scene-frame">
-        <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status replay-damage-status replay-width-status" aria-label="Three dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
+        <canvas id="replay-scene" tabindex="0" role="img" aria-describedby="replay-basis replay-camera-status replay-damage-status replay-fatality-status replay-width-status replay-marks-count" aria-label="Three dimensional view of the documented El Reno path. Drag or use arrow keys to turn the scene. The following controls provide the same options."></canvas>
         <p id="replay-funnel-label" class="replay-funnel-label" hidden>Funnel illustration, not a reconstruction</p>
-        <p id="replay-width-label" class="replay-width-label" hidden></p></div>
+        <p id="replay-width-label" class="replay-width-label" hidden></p>
+        <div id="replay-fatality-labels"></div></div>
         <p id="replay-basis" class="replay-caption"></p>
         <p id="replay-width-status" class="replay-caption" hidden></p>
         <p id="replay-camera-key" class="replay-caption" hidden>Square and arrow: recorded observer.</p>
         <p id="replay-camera-offscreen" class="replay-caption" hidden>The recorded observer is outside this view. Whole path restores the overview. The sample's time and bearing remain available in the observer controls.</p>
         <p id="replay-damage-status" class="replay-caption" hidden></p>
+        <p id="replay-fatality-status" class="replay-caption" hidden></p>
         <p id="replay-damage-offscreen" class="replay-caption" hidden>The selected surveyed feature is outside this view. Whole path restores the overview; its record remains below.</p>
+        <p id="replay-marks-count" class="replay-caption" hidden></p>
+        <p id="replay-mark-status" class="replay-caption" role="status" hidden></p>
         <p class="replay-help">Drag to orbit. Scroll to zoom. Keyboard: arrows turn the view, + and - zoom, Home restores the whole path. Playback pauses when the page is hidden.</p>
       </section>
       </div>
