@@ -433,10 +433,10 @@ test('phone touch and enlarged-text keyboard downloads preserve pair and view st
   await page.setViewportSize({width,height:844});await open(page,comparisonQuery(pair)+'&q='+encodeURIComponent(query)+'#case='+encodeURIComponent(pair[0].id));
   await page.locator('#reading-appearance').selectOption(appearance);for(const record of pair)await comparisonReady(page,record);
   await page.addStyleTag({content:'html{font-size:150%}'});
-  const control=page.locator('#case-comparison-download');await control.scrollIntoViewIfNeeded();
+  const control=page.locator('#case-comparison-download');
   const metrics=await control.evaluate(node=>({height:node.getBoundingClientRect().height,right:node.getBoundingClientRect().right,scroll:document.documentElement.scrollWidth,width:innerWidth}));
   assert.ok(metrics.height>=44&&metrics.right<=width);assert.ok(metrics.scroll<=width);
-  const exported=await downloadedComparison(page,()=>control.tap());
+  const exported=await downloadedComparison(page,()=>pressAtRest(control,{tap:true}));
   assert.equal(new URL(exported.value.view_path,page.url()).searchParams.get('q'),query);
   assert.equal(exported.value.cases[1].detail.confirmed_tornado,false);
   assert.deepEqual(exported.value.cases[1].detail,await original(pair[1]));

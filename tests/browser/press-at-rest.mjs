@@ -17,20 +17,24 @@ import assert from 'node:assert/strict';
 // pressAtRest takes the scroll out of the press. It centers the element with
 // an instant scroll, and again if late content pushes it out, waits until its
 // whole box has stayed inside the viewport without moving for three frames,
-// and only then presses. The press is Playwright's ordinary trusted click, and
-// the helper adds no retry of its own. If the element moves again before the
-// pointer goes down, Playwright's attempts scroll as before, and the read
-// after the press is what catches a miss. A click that lands outside the
-// element and leaves the document in place fails here, at the press, and names
-// what it landed on. A press that replaces the document takes the note with
-// it, and the caller's own wait judges where it went.
+// and only then presses. The press is Playwright's ordinary trusted click, or
+// its tap when `tap` is true, sent with `scroll: 'none'` so the press itself
+// never scrolls. The helper adds no retry of its own. If the element leaves
+// the viewport completely before the pointer goes down, Playwright waits for
+// it without scrolling and the press fails at its timeout with the locator in
+// its call log. If any part of it stays in view, Playwright presses the middle
+// of that part, and the read after the press is what catches a miss. A press
+// that lands outside the element and leaves the document in place fails here
+// and names what it landed on. A press that replaces the document takes the
+// note with it, and the caller's own wait judges where it went.
 //
 // The whole box has to fit inside the viewport, so this is for links and
 // controls, not for anything taller or wider than the screen. `timeout` bounds
-// the wait for rest and the press, each on its own, and 0 means no limit.
+// the wait for rest and the press, each on its own, and 0 means no limit. With
+// 0, a press on an element that has left the viewport waits for good.
 const STILL_FRAMES = 3;
 
-export async function pressAtRest(locator, {timeout = 10000} = {}) {
+export async function pressAtRest(locator, {timeout = 10000, tap = false} = {}) {
   const page = locator.page();
   await locator.evaluate((node, {timeout, frames}) => new Promise((resolve, reject) => {
     const center = () => node.scrollIntoView({behavior: 'instant', block: 'center', inline: 'nearest'});
@@ -75,7 +79,7 @@ export async function pressAtRest(locator, {timeout = 10000} = {}) {
     center();
     requestAnimationFrame(frame);
   }), {timeout, frames: STILL_FRAMES}, {timeout});
-  await locator.click({timeout});
+  await (tap ? locator.tap({timeout, scroll: 'none'}) : locator.click({timeout, scroll: 'none'}));
   let note;
   try {
     note = await page.evaluate(() => window.atlasPressAtRest ?? null);
