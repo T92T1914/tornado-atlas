@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {preparePositions,positionAt} from '../web/playback-model.mjs';
 import {frameAt} from '../web/timeline-media-model.mjs';
-import {localPoint,sceneProject,initialSeconds,replaySeconds,replayURL,funnelGlyph,replayFunnel,REPLAY_FUNNEL,centerLabelX} from '../web/reconstruction-model.mjs';
+import {localPoint,sceneProject,initialSeconds,replaySeconds,replayURL,funnelGlyph,replayFunnel,REPLAY_FUNNEL,centerLabelX,sceneMarks,markAt,markStack,markLabelPlace,FATALITY_MARK_HALF,MARK_LABEL_REACH} from '../web/reconstruction-model.mjs';
 import {funnelVolumeFragment} from '../web/funnel-simulation-model.mjs';
 import {formationAt} from '../web/formation-model.mjs';
 
@@ -227,4 +227,124 @@ test('the center text stays inside the scene beside its marker',()=>{
   // A marker outside the scene keeps its text beside it.
   assert.equal(centerLabelX(-30,85,348),-18);
   assert.equal(centerLabelX(400,85,348),412);
+});
+
+test('scene marks are the records whose points project into the scene, in order across it',()=>{
+  const data=JSON.parse(readFileSync(new URL('../web/data.json',import.meta.url),'utf8'));
+  const path=data.geometry.features.find(feature=>feature.geometry.type==='LineString').geometry.coordinates;
+  const origin=[0,1].map(axis=>(Math.min(...path.map(point=>point[axis]))+Math.max(...path.map(point=>point[axis])))/2);
+  const points=data.survey.points,places=data.history.remembrance.places.filter(place=>place.category==='fatalities');
+  assert.equal(points.length,336);assert.equal(places.length,1);
+  for(const [camera,width,height] of [[{azimuth:0,elevation:48,distance:48,focus:[0,0,0]},348,390],
+    [{azimuth:0,elevation:48,distance:24,focus:[0,0,0]},868,520],[{azimuth:40,elevation:25,distance:6,focus:[2,1,0]},868,520]]){
+    const marks=sceneMarks(points,places,origin,camera,width,height);
+    // Counted here without the function: every record whose own projection is inside.
+    const inside=record=>{const p=sceneProject(localPoint(record.coordinates,origin),camera,width,height);return Boolean(p)&&p.x>=0&&p.x<=width&&p.y>=0&&p.y<=height;};
+    assert.equal(marks.filter(mark=>mark.kind==='survey').length,points.filter(inside).length);
+    assert.equal(marks.filter(mark=>mark.kind==='fatality').length,places.filter(inside).length);
+    assert.deepEqual(marks.filter(mark=>mark.kind==='survey').map(mark=>mark.id).sort((a,b)=>a-b),points.filter(inside).map(point=>point.id).sort((a,b)=>a-b));
+    for(const mark of marks){
+      const record=mark.kind==='survey'?points.find(point=>point.id===mark.id):places.find(place=>place.id===mark.id);
+      const p=sceneProject(localPoint(record.coordinates,origin),camera,width,height);
+      assert.equal(mark.x,p.x);assert.equal(mark.y,p.y);
+      assert.deepEqual(Object.keys(mark).sort(),['id','kind','x','y'],'A mark carries its identity and its place, and no rating.');
+    }
+    for(let i=1;i<marks.length;i++)assert.ok(marks[i-1].x<marks[i].x||(marks[i-1].x===marks[i].x&&marks[i-1].y<=marks[i].y),'Marks run from left to right.');
+  }
+  // The whole path view holds every record, and a close view holds fewer.
+  const whole=sceneMarks(points,places,origin,{azimuth:0,elevation:48,distance:48,focus:[0,0,0]},348,390);
+  const close=sceneMarks(points,places,origin,{azimuth:0,elevation:48,distance:4,focus:[0,0,0]},348,390);
+  assert.ok(whole.length>close.length&&whole.length>300,`${whole.length} against ${close.length}`);
+  assert.deepEqual(sceneMarks([],[],origin,{azimuth:0,elevation:48,distance:8,focus:[0,0,0]},348,390),[]);
+});
+
+test('a pointer means the nearest mark within reach and nothing beyond it',()=>{
+  const marks=[{kind:'survey',id:1,x:100,y:100},{kind:'survey',id:2,x:108,y:100},{kind:'fatality',id:'place',x:200,y:50}];
+  assert.equal(markAt(marks,101,100).id,1);
+  assert.equal(markAt(marks,105,100).id,2);
+  assert.equal(markAt(marks,104,100).id,1,'At the same distance the first mark across the scene is kept.');
+  assert.equal(markAt(marks,200,62).id,'place');
+  assert.equal(markAt(marks,200,62.5),null);
+  assert.equal(markAt(marks,150,100),null);
+  assert.equal(markAt([],10,10),null);
+  assert.equal(markAt(marks,120,100,12.01).id,2);
+  for(const bad of [[NaN,0,12],[0,Infinity,12],[0,0,0],[0,0,-1]])assert.throws(()=>markAt(marks,...bad),RangeError);
+  // A fatality record's filled diamond lies over the small marks beside it,
+  // so a pointer on the diamond means that record even when a survey mark is nearer.
+  assert.equal(FATALITY_MARK_HALF,6);
+  const crowded=[{kind:'survey',id:7,x:201,y:50},{kind:'fatality',id:'place',x:200,y:50},{kind:'survey',id:8,x:203,y:52}];
+  assert.equal(markAt(crowded,201,50).id,'place');
+  assert.equal(markAt(crowded,203,52).id,'place');
+  assert.equal(markAt(crowded,203,53).id,'place','3 across and 3 down is on the edge of the diamond.');
+  assert.equal(markAt(crowded,204,53).id,8,'Outside the diamond the nearest mark is meant.');
+  assert.equal(markAt(crowded,207,50).id,8);
+});
+
+test('the written label of a mark stays in the scene, off its mark and off every taken box',()=>{
+  const scene={width:348,height:390},size={width:200,height:34};
+  const overlaps=(place,box)=>!(place.x>=box.right||place.x+size.width<=box.left||place.y>=box.bottom||place.y+size.height<=box.top);
+  const inScene=place=>place.x>=8&&place.y>=8&&place.x+size.width<=scene.width-8&&place.y+size.height<=scene.height-8;
+  // With nothing in the way the label sits above its mark, to the right.
+  const mark={x:100,y:200},free=markLabelPlace(mark,size,scene);
+  assert.deepEqual(free,{x:110,y:158,covers:0});
+  // A box over that place sends it below the mark, and a second one to the left.
+  const above={left:90,right:340,top:150,bottom:195},below={left:90,right:340,top:205,bottom:250};
+  assert.deepEqual(markLabelPlace(mark,size,scene,[above]),{x:110,y:208,covers:0});
+  // With both rows beside the mark taken it moves farther above, in steps of 14 px, to the first free row.
+  assert.deepEqual(markLabelPlace(mark,size,scene,[above,below]),{x:110,y:116,covers:0});
+  assert.equal(MARK_LABEL_REACH,70);
+  const tall={left:0,right:348,top:60,bottom:320},held=markLabelPlace(mark,size,scene,[tall]);
+  assert.deepEqual(held,{x:110,y:158,covers:0},'A box that takes every row within reach leaves the label above its mark.');
+  const left=markLabelPlace({x:300,y:200},size,scene,[{left:290,right:340,top:100,bottom:300}]);
+  assert.deepEqual(left,{x:90,y:158,covers:0});
+  for(const taken of [[],[above],[above,below],[null,above]]){
+    const place=markLabelPlace(mark,size,scene,taken);
+    assert.ok(inScene(place),JSON.stringify(place));
+    assert.equal(overlaps(place,{left:mark.x-8,right:mark.x+8,top:mark.y-8,bottom:mark.y+8}),false,'The mark stays uncovered.');
+  }
+  // Near an edge the label is held inside the scene and still leaves the mark uncovered.
+  for(const edge of [{x:4,y:4},{x:344,y:6},{x:340,y:386},{x:2,y:380},{x:174,y:10},{x:174,y:384}]){
+    const place=markLabelPlace(edge,size,scene);
+    assert.ok(inScene(place),JSON.stringify([edge,place]));
+    assert.equal(overlaps(place,{left:edge.x-8,right:edge.x+8,top:edge.y-8,bottom:edge.y+8}),false,JSON.stringify([edge,place]));
+  }
+  // With every place taken it stays above the mark, inside the scene.
+  const everywhere=[{left:0,right:348,top:0,bottom:390}];
+  assert.deepEqual(markLabelPlace(mark,size,scene,everywhere),{x:110,y:158,covers:0});
+  // A soft box is avoided while a place is free and given up before a taken one.
+  assert.deepEqual(markLabelPlace(mark,size,scene,[],[above]),{x:110,y:208,covers:0});
+  assert.deepEqual(markLabelPlace(mark,size,scene,[below],everywhere),{x:110,y:158,covers:0});
+  assert.deepEqual(markLabelPlace(mark,size,scene,[above],everywhere),{x:110,y:208,covers:0});
+  for(const bad of [[{x:NaN,y:0},size,scene],[mark,{width:0,height:10},scene],[mark,size,{width:Infinity,height:390}]])
+    assert.throws(()=>markLabelPlace(...bad),RangeError);
+  assert.throws(()=>markLabelPlace(mark,size,scene,[],[],[],-1),RangeError);
+  // Among free places it takes the one that covers the fewest other marks,
+  // and the nearer one when two cover as few. The mark itself is not counted.
+  const crowd=[mark,{x:150,y:170},{x:200,y:180},{x:160,y:220}];
+  assert.deepEqual(markLabelPlace(mark,size,scene,[],[],crowd),{x:110,y:222,covers:0},'Marks above and below send it one step farther down, where it covers none.');
+  assert.deepEqual(markLabelPlace(mark,size,scene,[],[],[mark,{x:150,y:170}]),{x:110,y:208,covers:0},'One mark above sends it below.');
+  // While the scene moves the label keeps the place it had beside its mark, as long as that place is free.
+  assert.deepEqual(markLabelPlace(mark,size,scene,[],[],crowd,8,{dx:10,dy:-42}),{x:110,y:158,covers:2},'A kept place is kept even where another covers fewer.');
+  assert.deepEqual(markLabelPlace(mark,size,scene,[above],[],crowd,8,{dx:10,dy:-42}),{x:110,y:222,covers:0},'A kept place that is taken is given up.');
+  assert.deepEqual(markLabelPlace(mark,size,scene,[],[],crowd,8,{dx:NaN,dy:0}),{x:110,y:222,covers:0},'An offset that is not a number is ignored.');
+  assert.deepEqual(markLabelPlace(mark,size,scene,[],[],crowd,8,null),{x:110,y:222,covers:0});
+  const field=[];
+  for(let x=4;x<348;x+=8)for(let y=4;y<390;y+=8)field.push({x,y});
+  const packed=markLabelPlace(mark,size,scene,[],[],field);
+  assert.ok(packed.covers>0&&inScene(packed),'In a field of marks every place covers some, and the answer says how many.');
+  assert.equal(packed.covers,field.filter(point=>point.x>packed.x&&point.x<packed.x+size.width&&point.y>packed.y&&point.y<packed.y+size.height).length);
+});
+
+test('marks that share a place form a stack in order across the scene',()=>{
+  const marks=[{kind:'survey',id:1,x:100,y:100},{kind:'survey',id:2,x:100,y:100},{kind:'survey',id:3,x:101,y:101},
+    {kind:'fatality',id:'place',x:100,y:100},{kind:'survey',id:4,x:103,y:100}];
+  assert.deepEqual(markStack(marks,marks[0]).map(mark=>mark.id),[1,2,3],'Within 1.5 px, of the same kind only.');
+  assert.deepEqual(markStack(marks,marks[3]).map(mark=>mark.id),['place']);
+  assert.deepEqual(markStack(marks,marks[4]).map(mark=>mark.id),[4]);
+  assert.deepEqual(markStack(marks,marks[0],0).map(mark=>mark.id),[1,2]);
+  assert.throws(()=>markStack(marks,marks[0],-1),RangeError);
+  // The two survey records of the exhibit that share one place.
+  const data=JSON.parse(readFileSync(new URL('../web/data.json',import.meta.url),'utf8'));
+  const twins=data.survey.points.filter(point=>[589148,589149].includes(point.id));
+  assert.equal(twins.length,2);assert.deepEqual(twins[0].coordinates,twins[1].coordinates);
 });

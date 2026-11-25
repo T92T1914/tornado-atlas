@@ -188,6 +188,36 @@ center marker retains its separate basis of minute positions and interpolation.
 Selecting a fatality record clears the survey diamond, preserving the separately
 sourced record rather than assigning it a damage survey identity.
 
+Every NWS feature whose point projects into the scene is drawn there as a small
+open diamond, and each fatality record as a filled diamond with its written
+label beside it as page text. The fatality diamond is drawn after the small
+marks and after the outline of a selected feature, so neither covers it. A mark shows no rating,
+no time and no extent.
+
+The label uses the record's own short name, death count and location label. It
+stays inside the scene and leaves its own diamond uncovered. Of the places
+beside the mark, and then up to 70 px above or below it, it takes one that is
+off the funnel label, the width tag and the center text, leaves the reported
+width circle clear where a place allows, and covers the fewest marks. The
+caption under the scene says how many marks the label covers. With no free
+place it stays above its mark. While the view is changing the label keeps its
+place beside its mark for as long as that place is free, and it chooses again
+when the view comes to rest.
+
+A press that does not drag selects the mark the pointer went down on. That is
+the nearest mark within 12 px, the fatality record on its diamond or on its
+label, and the next survey record in turn where several share a place. A finger or a
+pen may move 10 px and a mouse 4 px before the press counts as a drag. Period
+and comma move a ring across the marks in view from left to right, Enter
+selects the ringed mark and Escape puts the ring away. A selection made in the
+scene opens the inspector, clears a filter that would hide the record, does not
+scroll the page or move focus, and writes browser history as any other survey
+selection does. A selected fatality record has a second outline around its
+diamond and its own status line under the scene, which says so when the
+diamond is outside the view. Photograph mode and the study modes draw no marks,
+apart from the diamond and label of a fatality record selected in the
+inspector. Other events have none.
+
 Before a survey action writes browser history, the player captures its running
 clock and pauses. The observation, filters, source choice and moment then share
 one URL. Back, Forward and reload restore them together. Replay seeks refresh

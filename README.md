@@ -175,8 +175,19 @@ linked photographs, and marks its recorded location with an outlined diamond
 in the scene. The survey location stays fixed while the tornado center moves.
 The recorded assessment has no assigned impact time. Direct links, reload and
 browser history retain both the observation and replay moment. The inspector
-opens on request, or when a shared link already names a survey selection.
+opens on request, when a mark is selected in the scene, or when a shared link
+already names a survey selection.
 Unavailable photographs keep the original record and source routes.
+
+The scene also marks every survey record in view with a small open diamond,
+336 at the whole path, and the one located fatality record with a filled
+diamond and a written label in the record's own words. A press on a mark, or
+on that label, selects its record in the inspector and leaves the visitor in
+the scene. Survey records that share a place take turns. From the keyboard, period
+and comma move a ring across the marks and Enter selects the ringed one. A
+mark is a recorded location. It shows no rating, no time and no extent.
+Photograph and study modes leave the marks out, apart from a fatality record
+selected in the inspector.
 
 The replay now opens events through a versioned evidence package. Its clock,
 source identity and bundle must agree before the scene loads. The event selector
