@@ -245,7 +245,7 @@ async function start(){
     return mountedGround?.update(enabled,...args)??null;
   }};
   if(event.id==='el-reno-2013'){
-    const option=document.createElement('option');option.value='ground';option.textContent='Synthetic ground-view comparison';mode.append(option);
+    const option=document.createElement('option');option.value='ground';option.textContent='Synthetic ground view comparison';mode.append(option);
     const simulation=document.createElement('option');simulation.value='simulation';simulation.textContent='Procedural funnel simulation';mode.append(simulation);
     const formation=document.createElement('option');formation.value='formation';formation.textContent='Formation and decay study';mode.append(formation);
     el('replay-ground-link').hidden=false;
@@ -369,7 +369,7 @@ async function start(){
     field('Image digest',sample.image.sha256??'Not established.');
     field('Reported UTC label',sample.reported_utc);
     field(`Reported local label (${config.clock.time_zone})`,localStamp(sample.reported_utc));
-    field('Source-reported timing basis',sample.timing.basis);
+    field('Timing basis reported by the source',sample.timing.basis);
     field('Timing uncertainty',sample.timing.uncertainty_seconds===null?'Unquantified.':`±${sample.timing.uncertainty_seconds} seconds.`);
     field('Timing uncertainty basis',sample.timing.uncertainty_basis);
     field('Viewpoint description',sample.viewpoint.description);
@@ -386,7 +386,7 @@ async function start(){
       field('Display coordinates',condensation?
         'An authored landscape plane. Support points, colors, opacity and soft transitions are presentation choices, not measured dimensions, lighting, optical density or uncertainty.':
         'An authored isotropic plane. Its points, line width and softness are presentation choices, not measured dimensions or uncertainty.');
-      if(condensation)field('Support closure and completeness',photoDisplayForm({state:'photo_observed',partialForm:sample.partial_form,sourceId:source.id,sample})?.display_preset==='dark_downward_region'?'Closed for display filling only. The opposite outline and both continuations remain unassigned. Dark image-left context and top/bottom fades are omission conventions, not recovered optical boundaries.':'Closed for display filling only. The optical outline remains partial. Top and right drawing edges are view cutoffs, not recovered tornado boundaries.');
+      if(condensation)field('Support closure and completeness',photoDisplayForm({state:'photo_observed',partialForm:sample.partial_form,sourceId:source.id,sample})?.display_preset==='dark_downward_region'?'Closed for display filling only. The opposite outline and both continuations remain unassigned. Dark context at the left of the image and top/bottom fades are omission conventions, not recovered optical boundaries.':'Closed for display filling only. The optical outline remains partial. Top and right drawing edges are view cutoffs, not recovered tornado boundaries.');
     }
     details.append(record);
     for(const [label,values] of [['Declared visible characteristics',sample.characteristics],['Boundary limits',sample.boundary_limits],
@@ -402,7 +402,7 @@ async function start(){
     if(sample.hosted_image){
       const image=sample.hosted_image,report=image.creator_report;
       const section=document.createElement('section'),heading=document.createElement('h4');
-      section.id='replay-photo-documentary';heading.textContent='Creator-attributed discrete documentary observation';
+      section.id='replay-photo-documentary';heading.textContent='Discrete documentary observation attributed to its creator';
       section.append(heading);
       const view=document.createElement('a');view.id='replay-photo-full';view.href=image.asset;
       view.textContent='View the complete photograph';view.className='source-record-link';
@@ -416,7 +416,7 @@ async function start(){
       }
       const movie=document.createElement('a'),url=new URL(report.movie_url);
       url.searchParams.set('t',report.movie_seconds+'s');movie.href=url.href;movie.target='_blank';movie.rel='noopener';
-      movie.id='replay-photo-creator-guide';movie.textContent='Creator-reported movie guide '+report.movie_locator+' (not a frame identifier)';
+      movie.id='replay-photo-creator-guide';movie.textContent='Movie guide reported by the creator: '+report.movie_locator+' (not a frame identifier)';
       const sourceLink=document.createElement('a');sourceLink.href='dossier.html?event=el-reno-2013&media='+image.record_id+'#media-'+image.record_id;
       sourceLink.textContent='Inspect this full image, source and item permission';sourceLink.className='source-record-link';
       const story=document.createElement('a');story.href='index.html#documentary-'+sample.id;story.textContent='Return to this image in the El Reno story';
@@ -510,7 +510,7 @@ async function start(){
     const status=el('replay-appearance-state'),detail=el('replay-appearance-detail'),link=el('replay-appearance-source');
     let statusText,detailText,linkTarget='',linkText='';
     if(groundSelected){
-      statusText=groundState.state==='synthetic'?(simulationSelected?'Procedural funnel simulation. No El Reno appearance is registered.':'Synthetic ground-view rendering. No El Reno appearance is registered.'):groundState.state==='gap'?'Outside the synthetic demonstration interval.':'Synthetic camera unavailable.';
+      statusText=groundState.state==='synthetic'?(simulationSelected?'Procedural funnel simulation. No El Reno appearance is registered.':'Synthetic ground view rendering. No El Reno appearance is registered.'):groundState.state==='gap'?'Outside the synthetic demonstration interval.':'Synthetic camera unavailable.';
       detailText=groundState.reason;
     }else if(photoSelected){
       if(!sequence){
@@ -521,7 +521,7 @@ async function start(){
         statusText=condensation?'Independently authored partial condensation at this reported instant.':
           appearanceState.partialForm?'Independently authored partial margin at this reported instant.':
           'Declared photographic observation at this reported instant.';
-        detailText=(photoDisplayForm(appearanceState)?.display_preset==='dark_downward_region'?'An independently authored partial downward extension. The image-left outline and both continuations remain unassigned. Dark left context and top/bottom fades are display conventions.':condensation?'An independently authored interpretation of one photograph. Lower appearance is omitted where foreground obscures it. Top and right edges are display cutoffs. The dark northern area is context.':
+        detailText=(photoDisplayForm(appearanceState)?.display_preset==='dark_downward_region'?'An independently authored partial downward extension. The outline at the left of the image and both continuations remain unassigned. Dark left context and top/bottom fades are display conventions.':condensation?'An independently authored interpretation of one photograph. Lower appearance is omitted where foreground obscures it. Top and right edges are display cutoffs. The dark northern area is context.':
           appearanceState.partialForm?'An independently authored interpretation of the visible margin in one photograph. Unseen edges remain unresolved.':'No particle form is drawn.')+
           ' Physical shape, dimensions and camera geometry are unassigned. Ground contact, depth and motion between photographs remain unknown. This still has no duration. Clock accuracy is unverified.';
         linkTarget=appearanceState.source.url;
@@ -544,7 +544,7 @@ async function start(){
         if(anchor&&source){linkTarget=sourceLink(source,anchor);linkText='Open the checked original frame';}
       }
     }else{
-      statusText={observed:'Source-linked appearance anchor',interpolated:'Interpolated appearance between source anchors',illustrative:'Illustrative authored form'}[appearanceState.state];
+      statusText={observed:'Appearance anchor linked to a source',interpolated:'Interpolated appearance between source anchors',illustrative:'Illustrative authored form'}[appearanceState.state];
       const registration=appearanceState.registration;
       detailText=`${appearanceState.label}. ${appearanceState.basis} ${registration?`Timing uncertainty: ±${registration.timing.uncertainty_seconds} seconds. ${registration.uncertainty} `:''}The normalized form is not a measured funnel dimension or wind field.`;
       if(registration&&source){
@@ -566,9 +566,9 @@ async function start(){
     formCanvas.dataset.sourceCamera=appearanceState.sourceCamera?.id??'';
     el('replay-ground-comparison').className=groundSelected?`ground-active${simulationSelected?' simulation-active':''}`:'';
     el('replay-appearance-canvas').dataset.sceneFrame=['storm-v2','storm-v3'].includes(appearanceState.lightingStyle)?'complete-synthetic':'';
-    el('ground-render-caption').textContent=formationSelected?(appearanceState.lightingStyle==='storm-v3'?'Storm scene with the funnel joined to its cloud base':appearanceState.lightingStyle==='storm-v2'?'Storm scene and illustrative ground detail':appearanceState.lightingStyle==='storm-v1'?'Storm scene and shared transport':appearanceState.lightingStyle==='reference-v1'?'Source-informed broad form':'Illustrative formation and decay'):simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
+    el('ground-render-caption').textContent=formationSelected?(appearanceState.lightingStyle==='storm-v3'?'Storm scene with the funnel joined to its cloud base':appearanceState.lightingStyle==='storm-v2'?'Storm scene and illustrative ground detail':appearanceState.lightingStyle==='storm-v1'?'Storm scene and shared transport':appearanceState.lightingStyle==='reference-v1'?'Broad form informed by sources':'Illustrative formation and decay'):simulationSelected?'Procedural funnel simulation':'Synthetic camera render';
     el('ground-render-caption').hidden=!groundSelected;
-    formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground-view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
+    formCanvas.setAttribute('aria-label',groundSelected?'Synthetic ground view scene through the explicitly selected camera. Not an El Reno reconstruction.':'Normalized appearance form for the selected evidence state');
     // Unknown or documentary-only states retain their controls and source text
     // without reserving an empty drawing area. Supported partial forms remain.
     formCanvas.hidden=!appearanceRenderer||!Boolean(appearanceState.partialForm||appearanceState.shape);

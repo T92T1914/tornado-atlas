@@ -1,7 +1,7 @@
 # Ground view rendering and comparison
 
 The spatial replay contains a deliberately selected synthetic camera exercise.
-Open the appearance selector and choose Synthetic ground-view comparison, or
+Open the appearance selector and choose Synthetic ground view comparison, or
 use its direct link in the appearance evidence panel. Choose the front or
 oblique camera, then use the existing Play, playback speed and time controls.
 The demonstration starts paused at 1x when opened directly. Its authored form
@@ -40,7 +40,7 @@ The camera remains locked while geographic orbit controls turn only the path
 scene. Changing particle quality does not change the selected time, camera or
 body parameters.
 
-The original Synthetic ground-view comparison remains an explicit compatibility
+The original Synthetic ground view comparison remains an explicit compatibility
 path. It still uses the earlier particle geometry, all six SVGs and their
 unchanged analytic profile. The new procedural view has no analytic reference
 image. It clears and hides the old reference panel instead of showing a guide

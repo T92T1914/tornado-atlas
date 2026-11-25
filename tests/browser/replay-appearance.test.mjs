@@ -89,7 +89,7 @@ test('one replay clock drives synthetic source comparison, gaps, rate, pause and
   await page.goto(base+'/reconstruction.html?event=el-reno-2013&t=60');
   await page.locator('#replay-time:not([disabled])').waitFor();
   const state=page.locator('#replay-appearance-state'),time=page.locator('#replay-time');
-  assert.match(await state.textContent(),/Source-linked appearance anchor/);
+  assert.match(await state.textContent(),/Appearance anchor linked to a source/);
   assert.equal(await page.locator('#replay-appearance-canvas').getAttribute('data-evidence-state'),'observed');
   const graphics=await page.locator('#replay-appearance-canvas').evaluate(canvas=>{
     const gl=canvas.getContext('webgl2');if(!gl)return false;
@@ -137,7 +137,7 @@ test('one replay clock drives synthetic source comparison, gaps, rate, pause and
   await page.waitForTimeout(120);
   assert.equal(Number(await time.inputValue()),paused);
   await time.fill('60');
-  assert.match(await state.textContent(),/Source-linked appearance anchor/);
+  assert.match(await state.textContent(),/Appearance anchor linked to a source/);
   await page.goBack();
   assert.equal(await page.locator('#footage-source').inputValue(),'synthetic-a');
   assert.equal(await time.inputValue(),'65');
@@ -177,6 +177,6 @@ test('changing form mode during playback records the displayed clock in history'
   await page.goBack();
   assert.equal(await page.locator('#replay-appearance-mode').inputValue(),'source');
   assert.equal(await page.locator('#replay-time').inputValue(),'60');
-  assert.match(await page.locator('#replay-appearance-state').textContent(),/Source-linked appearance anchor/);
+  assert.match(await page.locator('#replay-appearance-state').textContent(),/Appearance anchor linked to a source/);
   assert.equal(new URL(await page.locator('#survey-share').getAttribute('href')).searchParams.has('appearance_view'),false);
 });
