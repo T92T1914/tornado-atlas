@@ -29,12 +29,30 @@ async function openContents(page){
   const summary=page.locator('#article-contents');
   if(!await summary.evaluate(node=>node.parentElement.open))await summary.click();
 }
+// page.waitForFunction checks its condition once, then again on each animation
+// frame of the page's own script world. WebKit and Chrome run none of those
+// frames while scripts are disabled, so there the first check is the only one.
+// WebKit also scrolls to a newly focused element from a zero delay timer after
+// focus() returns. Check again from the test until the page reports ok, and keep
+// the last state the page reported for the failure message. Use it within one
+// document only, because an evaluate across a navigation rejects at once.
+async function settle(page,read,arg,message){
+  const deadline=performance.now()+10000;
+  let state=await page.evaluate(read,arg),checks=1;
+  while(!state.ok&&performance.now()<deadline){
+    await new Promise(resolve=>setTimeout(resolve,50));
+    state=await page.evaluate(read,arg);checks++;
+  }
+  assert.ok(state.ok,message+' after '+checks+' checks '+JSON.stringify(state));
+}
 async function focusedInView(page,selector){
   await page.locator(selector).focus();
-  await page.waitForFunction(selector=>{
+  await settle(page,selector=>{
     const node=document.querySelector(selector),r=node?.getBoundingClientRect();
-    return node===document.activeElement&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;
-  },selector);
+    const focused=Boolean(node)&&node===document.activeElement;
+    const inView=Boolean(r)&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;
+    return {ok:focused&&inView,focused,top:r?.top,bottom:r?.bottom,left:r?.left,right:r?.right,innerWidth,innerHeight,scrollY};
+  },selector,'The focused link '+selector+' is in view');
 }
 async function fragment(page,id){
   await openContents(page);
@@ -64,7 +82,7 @@ async function warning(page,loaded=true){
   assert.match(caption,/unidentified|unknown|not identified/i);
   await image.scrollIntoViewIfNeeded();
   if(loaded){
-    await page.waitForFunction(()=>{const image=document.querySelector('#udall-regional-forecast img');return image.complete&&image.naturalWidth===608&&image.naturalHeight===436;});
+    await settle(page,()=>{const image=document.querySelector('#udall-regional-forecast img');return {ok:image.complete&&image.naturalWidth===608&&image.naturalHeight===436,complete:image.complete,width:image.naturalWidth,height:image.naturalHeight};},undefined,'The regional forecast document loads at its recorded size');
     const layout=await image.evaluate(node=>{
       const r=node.getBoundingClientRect(),clips=[];
       for(let p=node.parentElement;p&&p!==document.body;p=p.parentElement){
@@ -77,7 +95,7 @@ async function warning(page,loaded=true){
     assert.notEqual(layout.fit,'cover');
     assert.deepEqual(layout.clips,[],'No ancestor cuts off the lower document caption');
   }else{
-    await page.waitForFunction(()=>{const image=document.querySelector('#udall-regional-forecast img');return image.complete&&image.naturalWidth===0;});
+    await settle(page,()=>{const image=document.querySelector('#udall-regional-forecast img');return {ok:image.complete&&image.naturalWidth===0,complete:image.complete,width:image.naturalWidth};},undefined,'The failed regional forecast document reports no image');
   }
 }
 async function checkRecords(page){
@@ -248,6 +266,36 @@ for(const {width,scheme} of contexts)test('Udall no-script article and honest ev
   const fallback=page.locator('#documentary-chapters a[href="udall.html"]');assert.equal(await fallback.count(),1);
   await fallback.focus();await fallback.press('Enter');await page.waitForURL('**/udall.html');
   await assertReadingReflow(page,'Udall no-script reading '+width);
+});
+test('Udall focus wait without scripts sees a link that scrolls into view after its first check',{timeout:45000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false,colorScheme:'dark',reducedMotion:'reduce'});
+  await openArticle(page,'dark',false);
+  const selector='.documentary-contents a[href="#records"]';
+  // Give every engine the timing WebKit can give a focus scroll: focus without a
+  // scroll, and scroll only after each wait below has made its first check.
+  await page.evaluate(selector=>document.querySelector(selector).focus({preventScroll:true}),selector);
+  assert.equal(await page.evaluate(selector=>document.activeElement===document.querySelector(selector),selector),true,'The records link has focus');
+  assert.equal(await page.evaluate(selector=>document.querySelector(selector).getBoundingClientRect().top>innerHeight,selector),true,'The records link starts below the first screen');
+  // The control reports what page.waitForFunction does in this engine and how
+  // often it checked. It is not asserted.
+  const control=page.waitForFunction(selector=>{
+    window.controlChecks=(window.controlChecks||0)+1;
+    const node=document.querySelector(selector),r=node.getBoundingClientRect();
+    return node===document.activeElement&&r.top>=-1&&r.bottom<=innerHeight+1;
+  },selector,{timeout:2000}).then(()=>'saw the link',error=>error.name);
+  const polled=settle(page,selector=>{
+    window.settleChecks=(window.settleChecks||0)+1;
+    const node=document.querySelector(selector),r=node.getBoundingClientRect(),focused=node===document.activeElement;
+    return {ok:focused&&r.top>=-1&&r.bottom<=innerHeight+1,focused,top:r.top,bottom:r.bottom};
+  },selector,'The polled wait sees the link after a late scroll');
+  const scrolled=(async()=>{
+    await settle(page,()=>({ok:window.controlChecks>=1&&window.settleChecks>=1,control:window.controlChecks,settle:window.settleChecks}),undefined,'Both waits made a first check');
+    await page.evaluate(selector=>document.querySelector(selector).scrollIntoView({block:'center'}),selector);
+  })();
+  await Promise.all([polled,scrolled]);
+  const outcome=await control,checks=await page.evaluate(()=>({control:window.controlChecks,settle:window.settleChecks}));
+  assert.ok(checks.settle>1,'The polled wait checked again after the scroll');
+  t.diagnostic('page.waitForFunction without scripts after a late focus scroll: '+outcome+' after '+checks.control+' checks');
 });
 test('Udall failed regional image retains the account, caption and exact source actions',{timeout:45000},async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},colorScheme:'dark',reducedMotion:'reduce'});
