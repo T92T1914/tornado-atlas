@@ -80,7 +80,7 @@ scale and are not footprints. Each is labeled with its source, its definition
 and how it was placed.
 
 The replay also has an explicitly selected
-[synthetic ground-view comparison](https://t92t1914.github.io/tornado-atlas/reconstruction.html?event=el-reno-2013&appearance_view=ground&ground_view=synthetic-front&t=120#replay-appearance).
+[synthetic ground view comparison](https://t92t1914.github.io/tornado-atlas/reconstruction.html?event=el-reno-2013&appearance_view=ground&ground_view=synthetic-front&t=120#replay-appearance).
 Two declared cameras project the same authored changing form through an explicit
 pinhole lens. The existing clock drives it, with complete analytic reference
 images at three comparison instants. This exercises camera lock, source framing
