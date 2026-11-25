@@ -1,7 +1,7 @@
 import {checkedPhotoBytes,documentaryPhoto} from './photo-view.mjs';
 
 const DEADLINE_MS=10000;
-const SHOWN_TEXT='The complete displayed photograph matches the reviewed file. This is one creator-reported instant, without calibrated geometry or continuous appearance.';
+const SHOWN_TEXT='The complete displayed photograph matches the reviewed file. This is one instant the creator reported, without calibrated geometry or continuous appearance.';
 const element=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
 
 // A checked documentary copy belongs to one exact selected sample. It never
