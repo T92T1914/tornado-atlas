@@ -52,7 +52,7 @@ export function mountGroundStudyReturn(doc=document,win=window){
 }
 
 export function mountGroundView({host,referenceHost,onCamera,onSeek,onQuality,onStudy}){
-  host.innerHTML=`<h3>Synthetic ground-view comparison</h3>
+  host.innerHTML=`<h3>Synthetic ground view comparison</h3>
     <p class="ground-boundary">This is a synthetic camera exercise, not recorded El Reno appearance. The authored interval uses player seconds 120 through 140 to exercise the existing shared clock. It has no historical time correspondence.</p>
     <div class="ground-options"><label>Source camera <select id="ground-camera"><option value="">Choose a synthetic camera</option></select></label>
     <label>Drawing quality <select id="ground-quality"><option value="1600">1600 particles</option><option value="3200" selected>3200 particles</option></select></label></div>
