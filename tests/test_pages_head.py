@@ -135,5 +135,48 @@ class WorkflowTests(unittest.TestCase):
                          ['- uses: actions/deploy-pages@v4'])
 
 
+class ArtifactWaitTests(unittest.TestCase):
+    """deploy-pages starts only after the run lists the artifact the job uploaded."""
+    NAME = 'github-pages-${{ github.run_attempt }}'
+
+    def setUp(self):
+        self.steps = [' '.join(step) for step in deploy_steps(WORKFLOW.read_text(encoding='utf-8'))]
+
+    def index(self, needle):
+        found = [i for i, step in enumerate(self.steps) if needle in step]
+        self.assertEqual(len(found), 1, needle)
+        return found[0]
+
+    def test_the_wait_sits_between_the_upload_and_the_deployment(self):
+        upload = self.index('actions/upload-pages-artifact')
+        wait = self.index('tools/pages_artifact_wait.mjs')
+        deploy = self.index('actions/deploy-pages')
+        self.assertEqual((wait, deploy), (upload + 1, upload + 2))
+
+    def test_all_three_steps_name_the_same_artifact(self):
+        upload = self.steps[self.index('actions/upload-pages-artifact')]
+        wait = self.steps[self.index('tools/pages_artifact_wait.mjs')]
+        deploy = self.steps[self.index('actions/deploy-pages')]
+        self.assertIn(f'name: {self.NAME}', upload)
+        self.assertIn(f'ATLAS_PAGES_ARTIFACT: {self.NAME}', wait)
+        self.assertIn(f'artifact_name: {self.NAME}', deploy)
+
+    def test_the_wait_runs_in_an_action_and_can_stop_the_deployment(self):
+        step = self.steps[self.index('tools/pages_artifact_wait.mjs')]
+        # Only an action receives the runtime token the artifact service needs.
+        self.assertIn('uses: actions/github-script@', step)
+        self.assertIn(GATE, step)
+        # A failed wait must fail the job, so deploy-pages never runs on a guess.
+        self.assertNotIn('continue-on-error', step)
+        deploy = self.steps[self.index('actions/deploy-pages')]
+        self.assertNotIn('always()', deploy)
+        self.assertNotIn('failure()', deploy)
+
+    def test_the_module_is_checked_and_tested_in_the_workflow(self):
+        text = WORKFLOW.read_text(encoding='utf-8')
+        self.assertIn('node --check tools/pages_artifact_wait.mjs', text)
+        self.assertIn('node --test tests/pages-artifact-wait.test.mjs', text)
+
+
 if __name__ == '__main__':
     unittest.main()

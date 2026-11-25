@@ -81,6 +81,8 @@ jobs:
           node --check web/ground-view.mjs
           node --test tests/source-camera-model.test.mjs tests/ground-view-probe.test.mjs tests/ground-study-comparison.test.mjs tests/funnel-simulation-model.test.mjs
           node --test tests/form-renderer-resource-ownership.test.mjs
+          node --check tools/pages_artifact_wait.mjs
+          node --test tests/pages-artifact-wait.test.mjs
           node --check web/documentary-appearance.mjs
           node --check web/documentary-media.mjs
           node --check web/reconstruction.js
@@ -502,6 +504,17 @@ jobs:
           # A retry must not leave deploy-pages choosing between same-name artifacts.
           name: github-pages-${{ github.run_attempt }}
           path: web
+      # deploy-pages looks the artifact up once. Twice on 2026-11-25 that lookup
+      # came within a second of the upload and did not see it yet.
+      - name: Wait until this run lists its Pages artifact
+        if: ${{ steps.pages_head.outputs.publish == 'true' }}
+        uses: actions/github-script@v8
+        env:
+          ATLAS_PAGES_ARTIFACT: github-pages-${{ github.run_attempt }}
+        with:
+          script: |
+            const { main } = await import('${{ github.workspace }}/tools/pages_artifact_wait.mjs')
+            await main(process.env, core)
       - uses: actions/deploy-pages@v4
         id: deployment
         if: ${{ steps.pages_head.outputs.publish == 'true' }}
