@@ -31,9 +31,9 @@ test('retained counts, default tornado class and bounded pagination',async t=>{
  assert.match(await page.locator('#case-coverage').innerText(),/2,914.*1,577/);
  assert.equal(await page.locator('[data-case]').count(),20);
  assert.equal(await page.locator('[data-case]').first().getAttribute('data-case'),tornadoes[0].id);
- await page.locator('#case-next-page').click();
+ await pressAtRest(page.locator('#case-next-page'));
  assert.equal(await page.locator('[data-case]').first().getAttribute('data-case'),tornadoes[20].id);
- await page.locator('#case-prev-page').click();
+ await pressAtRest(page.locator('#case-prev-page'));
  assert.equal(await page.locator('[data-case]').first().getAttribute('data-case'),tornadoes[0].id);
  await page.locator('#case-class').selectOption('6');
  assert.match(await page.locator('#case-results-count').innerText(),/^879 matching cases/);
@@ -47,12 +47,12 @@ test('Japanese literal search and rating filters preserve class distinctions',as
  await page.locator('#case-query').press('Enter');
  assert.equal(await page.locator('[data-case]').count(),1);
  assert.equal(await caseButton(page,target.id).locator('strong').getAttribute('lang'),'ja');
- await caseButton(page,target.id).click();await ready(page,target);
- await page.locator('#case-back').click();
+ await pressAtRest(caseButton(page,target.id));await ready(page,target);
+ await pressAtRest(page.locator('#case-back'));
  await page.locator('#case-query').fill('no such place [not a regex]');
  await page.locator('#case-query').press('Enter');
  assert.match(await page.locator('#case-results').innerText(),/No source cases match/);
- await page.getByRole('button',{name:'Clear filters',exact:true}).click();
+ await pressAtRest(page.getByRole('button',{name:'Clear filters',exact:true}));
  await page.locator('#case-rating').selectOption(target.rating);
  assert.match(await page.locator('[data-case]').first().innerText(),new RegExp(target.rating));
  assert.equal(await page.locator('#case-class').inputValue(),'1');
@@ -60,7 +60,7 @@ test('Japanese literal search and rating filters preserve class distinctions',as
 test('details retain reported fields, uncertainty and full source provenance',async t=>{
  const page=await fixture(t);const target=tornadoes.find(r=>r.rating?.startsWith('JEF'));const detail=await original(target);
  await open(page,'#case='+encodeURIComponent(target.id));await ready(page,target);
- for(const summary of await page.locator('#case-detail summary').all())await summary.click();
+ for(const summary of await page.locator('#case-detail summary').all())await pressAtRest(summary);
  const text=await page.locator('#case-detail').innerText();
  assert.ok(text.includes(detail.classification_reported));
  assert.ok(text.includes('Timezone')&&text.includes('Unresolved in this adapter'));
@@ -72,15 +72,15 @@ test('details retain reported fields, uncertainty and full source provenance',as
 });
 test('selection on a later page survives list view reload and Back/Forward',async t=>{
  const page=await fixture(t,{viewport:{width:390,height:844}});await open(page);
- await page.locator('#case-next-page').click();const target=tornadoes[20];
- await caseButton(page,target.id).click();await ready(page,target);
- await page.locator('#case-back').click();
+ await pressAtRest(page.locator('#case-next-page'));const target=tornadoes[20];
+ await pressAtRest(caseButton(page,target.id));await ready(page,target);
+ await pressAtRest(page.locator('#case-back'));
  assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'list');
  await page.reload();await page.waitForFunction(()=>document.body.dataset.ready==='true');await ready(page,target);
  assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'list');
  assert.equal(await caseButton(page,target.id).getAttribute('aria-pressed'),'true');
- await page.locator('#case-record-view').click();
- await page.locator('#case-next').click();await ready(page,tornadoes[21]);
+ await pressAtRest(page.locator('#case-record-view'));
+ await pressAtRest(page.locator('#case-next'));await ready(page,tornadoes[21]);
  await page.goBack();await ready(page,target);
  await page.goForward();await ready(page,tornadoes[21]);
  assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'detail');
@@ -101,8 +101,8 @@ test('old detail success cannot replace a newer selected record',async t=>{
  const first=tornadoes[0],second=tornadoes.slice(1,20).find(r=>r.detail_file!==first.detail_file);
  await page.route('**/jma-cases/'+first.detail_file,async route=>{started();await held;await route.continue();});
  t.after(()=>release());
- await open(page);await caseButton(page,first.id).click();await seen;
- await caseButton(page,second.id).click();await ready(page,second);
+ await open(page);await pressAtRest(caseButton(page,first.id));await seen;
+ await pressAtRest(caseButton(page,second.id));await ready(page,second);
  release();
  await page.waitForResponse(response=>response.url().endsWith(first.detail_file));
  await page.waitForTimeout(50);
@@ -111,10 +111,10 @@ test('old detail success cannot replace a newer selected record',async t=>{
 test('failed detail can retry while original source remains usable',async t=>{
  const page=await fixture(t);const target=tornadoes[0];let fail=true;
  await page.route('**/jma-cases/'+target.detail_file,route=>fail?route.fulfill({status:503,body:'unavailable'}):route.continue());
- await open(page);await caseButton(page,target.id).click();
+ await open(page);await pressAtRest(caseButton(page,target.id));
  await page.getByRole('button',{name:'Retry this case'}).waitFor();
  assert.equal(await page.getByRole('link',{name:'Original JMA source',exact:true}).getAttribute('href'),index.source.url);
- fail=false;await page.getByRole('button',{name:'Retry this case'}).click();await ready(page,target);
+ fail=false;await pressAtRest(page.getByRole('button',{name:'Retry this case'}));await ready(page,target);
  assert.equal(await page.getByRole('button',{name:'Retry this case'}).count(),0);
 });
 test('failed collection keeps official sources and offers a successful reload',async t=>{
@@ -122,10 +122,10 @@ test('failed collection keeps official sources and offers a successful reload',a
  await page.route('**/jma-cases/index.json',route=>fail?route.fulfill({status:503,body:'unavailable'}):route.continue());
  await page.goto(base+'/japan.html');await page.locator('#case-load-error').waitFor();
  assert.equal(await page.locator('#case-query').isEnabled(),false);
- await page.locator('.jma-source-note').first().locator('summary').click();
+ await pressAtRest(page.locator('.jma-source-note').first().locator('summary'));
  assert.equal(await page.getByRole('link',{name:'JMA database and collection criteria'}).isVisible(),true);
  fail=false;
- await Promise.all([page.waitForEvent('domcontentloaded'),page.locator('#case-reload').click()]);
+ await Promise.all([page.waitForEvent('domcontentloaded'),pressAtRest(page.locator('#case-reload'))]);
  await page.waitForFunction(()=>document.body?.dataset.ready==='true');
  assert.equal(await page.locator('#case-query').isEnabled(),true);
  assert.equal(await page.locator('[data-case]').count(),20);
@@ -135,14 +135,14 @@ test('phone widths in Clair and Obscur preserve readable record and controls',as
  for(const width of [320,390])for(const appearance of ['dark','light']){
   await page.setViewportSize({width,height:844});await open(page);
   await page.locator('#reading-appearance').selectOption(appearance);
-  await caseButton(page,tornadoes[0].id).click();await ready(page,tornadoes[0]);
+  await pressAtRest(caseButton(page,tornadoes[0].id));await ready(page,tornadoes[0]);
   const metrics=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
    panel:document.getElementById('case-panel').getBoundingClientRect().width,
    controls:[...document.querySelectorAll('#case-panel button')].map(n=>({height:n.getBoundingClientRect().height,right:n.getBoundingClientRect().right}))}));
   assert.ok(metrics.scroll<=width,'No horizontal overflow at '+width+'/'+appearance);
   assert.ok(metrics.panel>0&&metrics.panel<=width);
   assert.ok(metrics.controls.every(n=>n.height>=44&&n.right<=width));
-  await page.locator('#case-back').click();
+  await pressAtRest(page.locator('#case-back'));
   assert.equal(await page.locator('#case-browse').isVisible(),true);
   assert.equal(await page.locator('#case-panel').isVisible(),false);
  }
@@ -150,10 +150,10 @@ test('phone widths in Clair and Obscur preserve readable record and controls',as
 test('retain an F and JEF case while browsing, with source bounds and provenance',async t=>{
  const page=await fixture(t),jef=tornadoes.find(r=>r.rating?.startsWith('JEF')),f=tornadoes.find(r=>r.rating==='F1');
  await open(page,'#case='+encodeURIComponent(jef.id));await ready(page,jef);
- await page.locator('#case-compare-add').click();await comparisonReady(page,jef);
- await page.locator('#case-back').click();await page.locator('#case-query').fill(f.case_id);await page.locator('#case-query').press('Enter');
- await caseButton(page,f.id).click();await ready(page,f);
- await page.locator('#case-compare-add').click();await comparisonReady(page,f);
+ await pressAtRest(page.locator('#case-compare-add'));await comparisonReady(page,jef);
+ await pressAtRest(page.locator('#case-back'));await page.locator('#case-query').fill(f.case_id);await page.locator('#case-query').press('Enter');
+ await pressAtRest(caseButton(page,f.id));await ready(page,f);
+ await pressAtRest(page.locator('#case-compare-add'));await comparisonReady(page,f);
  assert.equal(await page.locator('[data-comparison-case]').count(),2);
  assert.equal(await page.locator('#case-compare-add').isEnabled(),false);
  assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),[jef.id,f.id]);
@@ -280,17 +280,17 @@ test('comparison survives filters, selected record, reload and removal history',
  const page=await fixture(t,{viewport:{width:390,height:844}}),first=tornadoes[0],second=tornadoes[1];
  await open(page,comparisonQuery([first,second])+'&class=6#case='+encodeURIComponent(first.id));
  await comparisonReady(page,first);await comparisonReady(page,second);
- await page.locator('#case-back').click();await page.locator('#case-class').selectOption('all');
+ await pressAtRest(page.locator('#case-back'));await page.locator('#case-class').selectOption('all');
  await page.reload();await page.waitForFunction(()=>document.body.dataset.ready==='true');
  await comparisonReady(page,first);await comparisonReady(page,second);
  assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'list');
- await compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}).click();
+ await pressAtRest(compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}));
  assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),[first.id]);
  await page.goBack();await comparisonReady(page,second);
  assert.equal(await page.locator('[data-comparison-case]').count(),2);
  await page.goForward();await comparisonReady(page,first);
  assert.equal(await page.locator('[data-comparison-case]').count(),1);
- await page.locator('#case-comparison-clear').click();assert.equal(await page.locator('#case-comparison').isVisible(),false);
+ await pressAtRest(page.locator('#case-comparison-clear'));assert.equal(await page.locator('#case-comparison').isVisible(),false);
  assert.equal(new URL(page.url()).searchParams.has('compare'),false);
 });
 test('uncertain and unavailable comparison cases remain separate and removable',async t=>{
@@ -300,7 +300,7 @@ test('uncertain and unavailable comparison cases remain separate and removable',
  assert.ok((await compared(page,uncertain.id).innerText()).includes('Unset (-9999)'));
  assert.equal(await compared(page,missing.id).getAttribute('data-state'),'unavailable');
  assert.ok((await compared(page,missing.id).innerText()).includes('Source case not found'));
- await compared(page,missing.id).getByRole('button',{name:'Remove case '+missing.id+' from comparison',exact:true}).click();
+ await pressAtRest(compared(page,missing.id).getByRole('button',{name:'Remove case '+missing.id+' from comparison',exact:true}));
  assert.equal(await page.locator('[data-comparison-case]').count(),1);
  assert.equal(await page.locator('#case-layout').getAttribute('data-panel'),'list');
 });
@@ -330,7 +330,7 @@ test('failed or mismatched comparison detail retries without losing the other so
  await open(page,comparisonQuery([first,second]));await comparisonReady(page,first);
  const card=compared(page,second.id);assert.equal(await card.getAttribute('data-state'),'failed');
  assert.equal(await card.getByRole('link',{name:'Original JMA source',exact:true}).getAttribute('href'),index.source.url);
- const firstSource=compared(page,first.id).getByText('Case provenance and parser notes',{exact:true});await firstSource.click();
+ const firstSource=compared(page,first.id).getByText('Case provenance and parser notes',{exact:true});await pressAtRest(firstSource);
  const retry=card.getByRole('button',{name:'Retry comparison case '+second.case_id,exact:true});
  mode='mismatched';await retry.focus();await retry.press('Enter');
  await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='failed',second.id);
@@ -347,7 +347,7 @@ test('removed comparison cannot return when its old request completes',async t=>
  const held=new Promise(r=>release=r),seen=new Promise(r=>started=r);t.after(()=>release());
  await page.route('**/jma-cases/'+second.detail_file,async route=>{started();await held;await route.continue();});
  await page.goto(base+'/japan.html'+comparisonQuery([first,second]));await seen;await comparisonReady(page,first);
- await compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}).click();
+ await pressAtRest(compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}));
  const response=page.waitForResponse(response=>response.url().endsWith(second.detail_file));release();await response;
  await page.waitForFunction(()=>document.body.dataset.ready==='true');
  assert.equal(await compared(page,second.id).count(),0);
@@ -371,10 +371,10 @@ test('two comparison cards keep keyboard controls and both appearances at phone 
 test('download an exact ordered F and JEF pair after browsing and reload',async t=>{
  const page=await fixture(t,{acceptDownloads:true}),jef=tornadoes.find(record=>record.rating?.startsWith('JEF')),f=tornadoes.find(record=>record.rating==='F1');
  await open(page,'#case='+encodeURIComponent(jef.id));await ready(page,jef);
- await page.locator('#case-compare-add').click();await comparisonReady(page,jef);
+ await pressAtRest(page.locator('#case-compare-add'));await comparisonReady(page,jef);
  assert.equal(await page.locator('#case-comparison-download').isEnabled(),false);
- await page.locator('#case-back').click();await page.locator('#case-query').fill(f.case_id);await page.locator('#case-query').press('Enter');
- await caseButton(page,f.id).click();await ready(page,f);await page.locator('#case-compare-add').click();await comparisonReady(page,f);
+ await pressAtRest(page.locator('#case-back'));await page.locator('#case-query').fill(f.case_id);await page.locator('#case-query').press('Enter');
+ await pressAtRest(caseButton(page,f.id));await ready(page,f);await pressAtRest(page.locator('#case-compare-add'));await comparisonReady(page,f);
  const exported=await downloadedComparison(page),pair=[jef,f];
  assert.equal(exported.filename,'jma-comparison-'+pair.map(record=>record.case_id).join('-')+'.json');
  assert.deepEqual(exported.value.source,index.source);assert.equal(exported.value.attribution,index.attribution);
@@ -401,7 +401,7 @@ test('download remains disabled through failure mismatch missing slot and recove
  await open(page,comparisonQuery([first,second]));await comparisonReady(page,first);
  const control=page.locator('#case-comparison-download'),retry=compared(page,second.id).getByRole('button',{name:'Retry comparison case '+second.case_id,exact:true});
  assert.equal(await control.isEnabled(),false);assert.match(await page.locator('#case-comparison-download-note').innerText(),/cannot be exported as a partial pair/);
- mode='mismatched';await retry.click();await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='failed',second.id);
+ mode='mismatched';await pressAtRest(retry);await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='failed',second.id);
  assert.equal(await control.isEnabled(),false);assert.match(await compared(page,second.id).innerText(),/does not match/);
  mode='ready';await retry.focus();await retry.press('Enter');await comparisonReady(page,second);
  assert.equal(await control.isEnabled(),true);assert.equal(await compared(page,second.id).evaluate(node=>document.activeElement===node),true);
@@ -417,11 +417,11 @@ test('a removed pending source cannot enable download or contaminate its replace
  await page.route('**/jma-cases/'+second.detail_file,async route=>{started();await held;await route.continue();});
  await page.goto(base+'/japan.html'+comparisonQuery([first,second]));await seen;await comparisonReady(page,first);
  assert.equal(await page.locator('#case-comparison-download').isEnabled(),false);
- await compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}).click();
+ await pressAtRest(compared(page,second.id).getByRole('button',{name:'Remove case '+second.case_id+' from comparison',exact:true}));
  const response=page.waitForResponse(response=>response.url().endsWith(second.detail_file));release();await response;await page.waitForFunction(()=>document.body.dataset.ready==='true');
  assert.equal(await page.locator('#case-comparison-download').isEnabled(),false);
  assert.equal(await compared(page,second.id).count(),0);
- await caseButton(page,third.id).click();await ready(page,third);await page.locator('#case-compare-add').click();
+ await pressAtRest(caseButton(page,third.id));await ready(page,third);await pressAtRest(page.locator('#case-compare-add'));
  for(const record of [first,third])await comparisonReady(page,record);
  assert.deepEqual((await downloadedComparison(page)).value.cases.map(entry=>entry.index_record.id),[first.id,third.id]);
 });
@@ -442,7 +442,7 @@ test('phone touch and enlarged-text keyboard downloads preserve pair and view st
   assert.deepEqual(exported.value.cases[1].detail,await original(pair[1]));
   await control.focus();const keyboard=await downloadedComparison(page,()=>control.press('Enter'));
   assert.deepEqual(keyboard.bytes,exported.bytes);assert.equal(await control.evaluate(node=>document.activeElement===node),true);
-  await page.locator('#case-back').click();assert.equal(await page.locator('#case-browse').isVisible(),true);
+  await pressAtRest(page.locator('#case-back'));assert.equal(await page.locator('#case-browse').isVisible(),true);
   assert.deepEqual(new URL(page.url()).searchParams.getAll('compare'),pair.map(record=>record.id));
  }
 });
