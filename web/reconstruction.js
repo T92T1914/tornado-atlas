@@ -2,7 +2,8 @@ import {mountChronology} from './chronology-view.mjs';
 import {PlaybackClock, preparePositions, positionAt} from './playback-model.mjs';
 import {frameAt} from './timeline-media-model.mjs';
 import {loadEventPackage,displayClock} from './event-package-model.mjs';
-import {localPoint, sceneProject, replaySeconds, replayURL, replayFunnel, observerGlyph, centerLabelX} from './reconstruction-model.mjs';
+import {localPoint, sceneProject, replaySeconds, replayURL, replayFunnel, observerGlyph, centerLabelX, sceneMarks, markAt, markStack, markLabelPlace, FATALITY_MARK_HALF} from './reconstruction-model.mjs';
+import {fatalityLabel} from './impact-model.mjs';
 import {reportedWidthAt, groundCircle, reportedWidthTag, reportedWidthCaption} from './reported-widths-model.mjs';
 import {mountFootage} from './footage-view.mjs';
 import {mountReplayCamera} from './replay-camera-view.mjs';
@@ -21,7 +22,7 @@ import {GROUND_MARKS} from './ground-view-model.mjs';
 
 const el=id=>document.getElementById(id), canvas=el('replay-scene'), context=canvas.getContext('2d');
 const funnelLabel=el('replay-funnel-label');
-let funnelLabelSize=null;
+let funnelLabelSize=null,funnelLabelBox=null;
 // The label is page text beside the drawn funnel, so it can be read and
 // enlarged like any other text. It shows while any of the funnel body is in
 // the scene and stays inside the scene at every width. The recorded base is
@@ -32,6 +33,7 @@ function placeFunnelLabel(base,body,rect,clear=null){
   if(canvas.dataset.funnelBase!==recorded)canvas.dataset.funnelBase=recorded;
   const shown=Boolean(body)&&body.right>=0&&body.left<=rect.width&&body.bottom>=0&&body.top<=rect.height;
   if(funnelLabel.hidden===shown){funnelLabel.hidden=!shown;funnelLabelSize=null;}
+  funnelLabelBox=null;
   if(!shown)return;
   funnelLabelSize??={width:funnelLabel.offsetWidth,height:funnelLabel.offsetHeight};
   const {width,height}=funnelLabelSize;
@@ -43,9 +45,11 @@ function placeFunnelLabel(base,body,rect,clear=null){
   const y=below+height+8<=rect.height?below:Math.max(8,above);
   const transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
   if(funnelLabel.style.transform!==transform)funnelLabel.style.transform=transform;
+  funnelLabelBox={left:x,top:y,right:x+width,bottom:y+height};
 }
 const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
 const widthLabel=el('replay-width-label'),widthStatus=el('replay-width-status');
+let widthTagSize=null;
 // A reported width has a short tag inside the scene and its full text in a
 // caption under the scene, so the scene stays readable on a small screen.
 // Both are page text. The tag shows while part of the circle is in the scene.
@@ -64,6 +68,7 @@ const failedRadar=new Set();
 const requestDraw=()=>{if(drawPending===null) drawPending=requestAnimationFrame(()=>{drawPending=null;redraw();});};
 // Measure the label again whenever its own box changes, for example when text is enlarged.
 new ResizeObserver(()=>{funnelLabelSize=null;requestDraw();}).observe(funnelLabel);
+new ResizeObserver(()=>{widthTagSize=null;requestDraw();}).observe(widthLabel);
 function pause(){clock?.pause(performance.now());if(frame!==null) cancelAnimationFrame(frame);frame=null;el('replay-play').textContent='Play timeline';}
 function resetView(){const distance=Math.min(60,Math.max(24,43.2*canvas.clientHeight/canvas.clientWidth));for(const [key,value] of Object.entries({azimuth:0,elevation:48,distance}))el(`replay-${key}`).value=value;el('replay-follow').checked=false;requestDraw();}
 
@@ -225,6 +230,87 @@ async function start(){
   }
   const appearanceTimeline=data.appearance_timeline??null;
   const reportedWidths=data.reported_widths??null;
+  // Survey records and fatality records are marked in the scene only where
+  // the inspector below can open them.
+  const inspectable=event.id==='el-reno-2013'&&Boolean(data.survey&&data.survey_media);
+  const surveyPoints=inspectable?data.survey.points:[];
+  // A record without a whole count of deaths is left to the inspector, which reports it.
+  const fatalityPlaces=inspectable?(data.history?.remembrance?.places??[]).filter(place=>place.category==='fatalities'&&Number.isSafeInteger(place.deaths)&&place.deaths>=1):[];
+  // A fatality record is never a mark alone. Its written label is page text
+  // beside its diamond, in the words of the record.
+  const fatalitySizes=new Map(),fatalityLabels=new Map(fatalityPlaces.map(place=>{
+    const label=document.createElement('p');label.className='replay-fatality-label';label.hidden=true;
+    label.dataset.fatality=place.id;
+    label.textContent=`\u25c6 ${place.map_label??place.title}: ${fatalityLabel(place)}. ${place.label}.`;
+    el('replay-fatality-labels').append(label);
+    new ResizeObserver(()=>{fatalitySizes.delete(place.id);requestDraw();}).observe(label);
+    return [place.id,label];
+  }));
+  const marksCount=el('replay-marks-count'),markStatus=el('replay-mark-status'),fatalityStatus=el('replay-fatality-status');
+  const markKey=mark=>mark.kind+':'+mark.id,labelBoxes=new Map(),labelOffsets=new Map();
+  let marks=[],markCursor=null,selectedFatality=null,openMark=()=>{};
+  // Marks are drawn and selectable in the path view. Photograph and study
+  // modes keep only the center marker and whatever the inspector has selected.
+  let marksActive=false,markSelectable=true,ringLeft=false,marksCovered=0,lastView='';
+  // The ring's text is a live region, so it stays in the page and is empty
+  // while there is nothing to say.
+  if(inspectable)markStatus.hidden=false;
+  // Each label goes beside its diamond, inside the scene and off the other
+  // labels of the scene, and off the reported width circle where it can. Of
+  // the places left it takes the one that covers the fewest marks, and the
+  // caption says how many it covers. While the view is changing the label
+  // keeps its place beside its mark as long as that place is free, and the
+  // frame after the view comes to rest chooses again.
+  function placeFatalityLabels(rect,taken,soft,moving){
+    labelBoxes.clear();marksCovered=0;
+    for(const [id,label] of fatalityLabels){
+      const mark=marks.find(item=>item.kind==='fatality'&&item.id===id);
+      if(label.hidden===Boolean(mark)){label.hidden=!mark;fatalitySizes.delete(id);}
+      if(!mark){labelOffsets.delete(id);continue;}
+      if(!fatalitySizes.has(id))fatalitySizes.set(id,{width:label.offsetWidth,height:label.offsetHeight});
+      const size=fatalitySizes.get(id);
+      if(!(size.width>0&&size.height>0))continue;
+      const place=markLabelPlace(mark,size,rect,taken,soft,marks,8,moving?labelOffsets.get(id)??null:null);
+      labelOffsets.set(id,{dx:place.x-mark.x,dy:place.y-mark.y});
+      const transform=`translate(${place.x.toFixed(1)}px,${place.y.toFixed(1)}px)`;
+      if(label.style.transform!==transform)label.style.transform=transform;
+      labelBoxes.set(id,{left:place.x,top:place.y,right:place.x+size.width,bottom:place.y+size.height});
+      marksCovered+=place.covers;
+    }
+    if(canvas.dataset.marksCovered!==String(marksCovered))canvas.dataset.marksCovered=String(marksCovered);
+    if(moving&&labelBoxes.size)requestDraw();
+  }
+  function describeMarks(cursor){
+    if(!inspectable)return;
+    if(marksCount.hidden===marksActive)marksCount.hidden=!marksActive;
+    // The scene is described by this caption, so it is emptied as well as hidden.
+    if(!marksActive){setText(marksCount,'');setText(markStatus,'');return;}
+    const survey=marks.filter(mark=>mark.kind==='survey').length,fatal=marks.length-survey;
+    const counted=[survey?`${survey} NWS survey ${survey===1?'record':'records'}`:'',fatal?`${fatal} fatality ${fatal===1?'record':'records'}`:''].filter(Boolean).join(' and ');
+    const covered=marksCovered?` The fatality label covers ${marksCovered} of them here. Turning or zooming the scene uncovers them.`:'';
+    const how=markSelectable?' Press one to select its record in the inspector below, and press again to step through records that share a place. From the keyboard, period and comma step through the marks and Enter selects the ringed one.':
+      ' The survey inspector could not start, so a mark cannot be selected here.';
+    setText(marksCount,marks.length?`${counted} ${marks.length===1?'is':'are'} marked in this view. A mark is a recorded location. It shows no rating and no time.${covered}${how}`:
+      'No survey record is in this view. Whole path restores the overview.');
+    // The text names the ringed record and nothing that changes while the
+    // timeline plays, so it is announced once for each step.
+    let words=ringLeft?'The ringed mark has left this view.':'';
+    if(cursor?.kind==='survey'){
+      const point=surveyPoints.find(item=>item.id===cursor.id);
+      words=`Ring: NWS survey record ${point.id}, ${point.rating}, ${point.indicator}. Enter selects it.`;
+    }else if(cursor){
+      const place=fatalityPlaces.find(item=>item.id===cursor.id);
+      words=`Ring: ${place.title}, ${fatalityLabel(place)}. ${place.label}. Enter selects its record.`;
+    }
+    setText(markStatus,words);
+  }
+  // The words are the record's own. They say so when its diamond is not in the scene.
+  function describeFatality(){
+    if(fatalityStatus.hidden===Boolean(selectedFatality))fatalityStatus.hidden=!selectedFatality;
+    if(!selectedFatality){setText(fatalityStatus,'');return;}
+    const place=selectedFatality,shown=marks.some(mark=>mark.kind==='fatality'&&mark.id===place.id);
+    setText(fatalityStatus,`${shown?'Outlined filled diamond':'Selected fatality record'}: ${place.title}, ${fatalityLabel(place)}. ${place.label}. ${place.time_note} ${shown?'':'Its diamond is outside this view. Whole path restores the overview. '}Inspect its record below.`);
+  }
   const photoSequences=appearanceTimeline?.photo_sequences??[];
   const drawing=el('replay-appearance-drawing'),formCanvas=el('replay-appearance-canvas'),mode=el('replay-appearance-mode');
   let appearanceRenderer=null,appearanceState={state:'unknown'},rendererQuality=3200;
@@ -596,6 +682,21 @@ async function start(){
     for(let x=-16;x<=16;x+=2)line([[x,-12,0],[x,12,0]],muted,1,false,.17);
     for(let y=-12;y<=12;y+=2)line([[-16,y,0],[16,y,0]],muted,1,false,.17);
     line(stageBoundary,muted,1.4,true,.8);line(stagePath,text,2.1);
+    // Every survey record in view is a small open diamond. A fatality record
+    // is a filled diamond with its written label beside it. A mark is the
+    // recorded point only. It carries no rating, no time and no extent.
+    // Photograph and study modes keep the center marker and a selected record.
+    marksActive=inspectable&&!separateAppearance();
+    if(!marksActive){markCursor=null;ringLeft=false;}
+    marks=marksActive?sceneMarks(surveyPoints,fatalityPlaces,origin,camera,rect.width,rect.height):
+      selectedFatality?sceneMarks([],[selectedFatality],origin,camera,rect.width,rect.height):[];
+    const diamond=(x,y,half)=>{context.beginPath();context.moveTo(x,y-half);context.lineTo(x+half,y);context.lineTo(x,y+half);context.lineTo(x-half,y);context.closePath();};
+    context.strokeStyle=text;context.lineWidth=1;context.globalAlpha=.6;
+    for(const mark of marks)if(mark.kind==='survey'){diamond(mark.x,mark.y,3);context.stroke();}
+    context.globalAlpha=1;
+    const surveyMarks=String(marks.filter(mark=>mark.kind==='survey').length),fatalityMarks=String(marks.length-Number(surveyMarks));
+    if(canvas.dataset.surveyMarks!==surveyMarks)canvas.dataset.surveyMarks=surveyMarks;
+    if(canvas.dataset.fatalityMarks!==fatalityMarks)canvas.dataset.fatalityMarks=fatalityMarks;
     const projectedSurvey=selectedSurvey?project(localPoint(selectedSurvey.coordinates,origin)):null;
     const surveyed=projectedSurvey&&projectedSurvey.x>=0&&projectedSurvey.x<=rect.width&&projectedSurvey.y>=0&&projectedSurvey.y<=rect.height?projectedSurvey:null;
     canvas.dataset.surveyRecord=selectedSurvey?String(selectedSurvey.id):'';
@@ -607,6 +708,20 @@ async function start(){
       if(rect.width>=600){context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText(`Survey ${selectedSurvey.id}`,surveyed.x+12,surveyed.y+4);}
     }
     el('replay-damage-offscreen').hidden=!selectedSurvey||Boolean(surveyed);
+    // A fatality record's diamond goes over the survey marks and over the
+    // outline of a selected survey record, so its symbol is never painted out.
+    // The one selected in the inspector has a second outline.
+    context.fillStyle=text;context.strokeStyle=text;
+    for(const mark of marks)if(mark.kind==='fatality'){
+      diamond(mark.x,mark.y,FATALITY_MARK_HALF);context.fill();
+      if(selectedFatality?.id===mark.id){context.lineWidth=2;diamond(mark.x,mark.y,11);context.stroke();}
+    }
+    describeFatality();
+    // The ring a keyboard moves across the marks. It leaves with its mark.
+    const cursor=markCursor&&marksActive?marks.find(mark=>markKey(mark)===markCursor)??null:null;
+    if(markCursor&&!cursor){markCursor=null;ringLeft=marksActive;}
+    if(cursor){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(cursor.x,cursor.y,10,0,Math.PI*2);context.stroke();}
+    if(canvas.dataset.markCursor!==(markCursor??''))canvas.dataset.markCursor=markCursor??'';
     for(const point of positions){const p=project(localPoint(point.geometry.coordinates,origin));if(!p)continue;context.beginPath();context.arc(p.x,p.y,2.5,0,Math.PI*2);context.fillStyle=text;context.fill();}
     const marker=project(center);
     let funnelBase=null,funnelBody=null;
@@ -657,7 +772,20 @@ async function start(){
     const widthRead=Boolean(reported)&&(!clock.playing||clock.rate===1);
     showReportedWidth(widthInView?reportedWidthTag(reported):'',
       widthRead?reportedWidthCaption(reportedWidths,reported,{published:current.published,inView:widthInView}):'');
-    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;context.fillText('Center position',centerLabelX(marker.x,context.measureText('Center position').width,rect.width,widthBox),marker.y+4);}
+    let centerText=null;
+    if(marker){context.strokeStyle=text;context.lineWidth=2;context.beginPath();context.arc(marker.x,marker.y,7,0,Math.PI*2);context.stroke();context.fillStyle=text;context.font='12px '+getComputedStyle(canvas).fontFamily;
+      const centerWidth=context.measureText('Center position').width,centerX=centerLabelX(marker.x,centerWidth,rect.width,widthBox);
+      context.fillText('Center position',centerX,marker.y+4);
+      centerText={left:centerX,right:centerX+centerWidth,top:marker.y-10,bottom:marker.y+8};}
+    // The width tag is measured when its box changes, not in every frame.
+    if(!widthLabel.hidden)widthTagSize??={width:widthLabel.offsetWidth,height:widthLabel.offsetHeight};
+    const widthTag=widthLabel.hidden?null:{left:8,top:8,right:8+widthTagSize.width,bottom:8+widthTagSize.height};
+    // A place off the other labels is taken while one is within reach. The
+    // width circle is left clear while a place allows it.
+    const view=[camera.azimuth,camera.elevation,camera.distance,...camera.focus,rect.width,rect.height].join(','),moving=view!==lastView;
+    lastView=view;
+    placeFatalityLabels(rect,[funnelLabelBox,widthTag,centerText],[widthBox],moving);
+    describeMarks(cursor);
     const glyph=observer?.visible?observerGlyph(observer.sample,origin,camera,rect.width,rect.height):null;
     canvas.dataset.observerVisible=String(Boolean(glyph));
     if(glyph){
@@ -727,27 +855,79 @@ async function start(){
   el('replay-time').addEventListener('input',()=>seek(Number(el('replay-time').value),{mode:'replace'}));
   el('replay-rate').addEventListener('change',()=>{clock.setRate(Number(el('replay-rate').value),performance.now());refresh();});
   window.addEventListener('popstate',restore);
+  // A press that does not drag selects the mark the pointer went down on, as
+  // the scene showed it at that moment. A finger or a pen may move farther
+  // than a mouse before the press counts as a drag. A press on the written
+  // label of a fatality record selects that record. Records that share a
+  // place take turns: a press on the selected one moves to the next.
+  let press=null;
+  const pointed=(x,y)=>{
+    for(const [id,box] of labelBoxes)if(x>=box.left&&x<=box.right&&y>=box.top&&y<=box.bottom)return marks.find(mark=>mark.kind==='fatality'&&mark.id===id)??null;
+    return markAt(marks,x,y);
+  };
+  canvas.addEventListener('pointerdown',e=>{
+    if(ringLeft){ringLeft=false;requestDraw();}
+    if(e.button!==0||!marksActive){press=null;return;}
+    const box=canvas.getBoundingClientRect(),mark=pointed(e.clientX-box.left,e.clientY-box.top);
+    press={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false,slack:e.pointerType==='mouse'?4:10,mark,stack:mark?markStack(marks,mark):[]};
+  });
+  canvas.addEventListener('pointermove',e=>{if(press&&e.pointerId===press.id&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>press.slack)press.moved=true;});
+  canvas.addEventListener('pointercancel',()=>{press=null;});
+  canvas.addEventListener('pointerup',e=>{
+    const held=press;press=null;
+    if(!held||e.pointerId!==held.id||held.moved||!held.mark)return;
+    const at=held.mark.kind==='survey'?held.stack.findIndex(mark=>mark.id===selectedSurvey?.id):-1;
+    openMark(at>=0?held.stack[(at+1)%held.stack.length]:held.mark);
+  });
+  // Period and comma move a ring across the marks in view, Enter selects the
+  // ringed one and Escape puts the ring away. The arrow keys stay with the
+  // camera, and the keys that scroll the page stay with the page.
+  // The note that a ringed mark left the view goes with the next key or press.
+  canvas.addEventListener('keydown',e=>{
+    if(!marksActive||!markSelectable||e.ctrlKey||e.metaKey||e.altKey)return;
+    if(ringLeft){ringLeft=false;requestDraw();}
+    if(e.key==='Escape'&&markCursor){markCursor=null;requestDraw();return;}
+    if(!marks.length)return;
+    if(e.key==='.'||e.key===','){
+      e.preventDefault();
+      const at=marks.findIndex(mark=>markKey(mark)===markCursor),step=e.key==='.'?1:-1;
+      markCursor=markKey(marks[at<0?(step>0?0:marks.length-1):(at+step+marks.length)%marks.length]);
+      requestDraw();
+    }else if(e.key==='Enter'&&markCursor){
+      const mark=marks.find(item=>markKey(item)===markCursor);
+      if(mark){e.preventDefault();openMark(mark);}
+    }
+  });
   refresh();syncLocation();
   if(event.id==='el-reno-2013'&&data.survey&&data.survey_media){
     const panel=el('replay-damage');panel.hidden=false;
-    let mounted=false;
+    let mounted=false,inspector=null;
     function mountDamage(){
       if(mounted)return;mounted=true;
       try{
-        mountSurvey(data.survey,data.geometry,data.survey_media,openReplayPhoto,data.history?.remembrance?.places??[],{
+        inspector=mountSurvey(data.survey,data.geometry,data.survey_media,openReplayPhoto,data.history?.remembrance?.places??[],{
           reportPage:event.documentary,alternatePage:'survey.html',alternateLabel:'Open this selection in the focused survey map',
           beforeHistoryChange:()=>{if(clock.playing)clock.tick(performance.now());pause();refresh();syncLocation();},
           afterHistoryChange:refresh,
           onObservationSelect:point=>{
-            selectedSurvey=point;
+            selectedSurvey=point;selectedFatality=null;
             el('replay-damage-status').hidden=!point;
             el('replay-damage-status').textContent=point?`Outlined diamond: NWS survey record ${point.id}, ${point.rating}. A surveyed feature location with no assigned impact time. Inspect its assessment below.`:'';
             requestDraw();
           },
+          onFatalitySelect:place=>{selectedFatality=place;requestDraw();},
         });
       }catch(error){el('survey-explorer').textContent=`The survey inspector could not start. Read the documented damage in the ${event.title} report using the documentary link above.`;}
     }
     panel.addEventListener('toggle',()=>{if(panel.open)mountDamage();});
+    // A mark selects its own record and leaves the visitor in the scene. The
+    // inspector clears a filter that would hide the record.
+    openMark=mark=>{
+      panel.open=true;mountDamage();
+      // Without an inspector the caption stops offering a press and the ring is put away.
+      if(!inspector){if(markSelectable){markSelectable=false;markCursor=null;ringLeft=false;requestDraw();}return;}
+      if(mark.kind==='survey')inspector.showRecord(mark.id,{reveal:false});else inspector.showFatality(mark.id,{reveal:false});
+    };
     const hasSurveyTarget=()=>['survey','surveyRating','surveySearch','surveyPhotos','surveyOrder','fatality'].some(key=>new URL(location.href).searchParams.has(key));
     if(hasSurveyTarget()){panel.open=true;mountDamage();}
     window.addEventListener('popstate',()=>{if(hasSurveyTarget()){panel.open=true;mountDamage();}});

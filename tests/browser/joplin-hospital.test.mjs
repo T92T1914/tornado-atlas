@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fixture, base} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {inspectDossierHop} from './dossier-navigation-diagnostics.mjs';
+import {pressAtRest} from './press-at-rest.mjs';
 
 const photos = [
   {id: 'nist-west-tower', file: 'nist-west-tower.jpg', width: 901, height: 541,
@@ -106,16 +107,16 @@ for (const viewport of [{width: 320, height: 740}, {width: 390, height: 844},
       for (const photo of inspected) {
         const mediaLink = account.getByRole('link', {name: photo.record, exact: true});
         const mediaTarget = {href: await mediaLink.evaluate(link => link.href), elementId: 'media-' + photo.id};
-        await evidenceHop(page, () => mediaLink.click(), mediaTarget);
+        await evidenceHop(page, () => pressAtRest(mediaLink), mediaTarget);
         const media = page.locator('#media-' + photo.id);
         assert.match(await media.textContent(), /unregistered/);
         assert.match(await media.textContent(), /permitted hosting/);
         assert.match(await media.textContent(), /Not established in this record/);
-        await media.getByText('Clock roles and registration', {exact: true}).click();
+        await pressAtRest(media.getByText('Clock roles and registration', {exact: true}));
         assert.match(await media.locator('details').filter({hasText: 'Clock roles and registration'}).textContent(), /"alignment": null/);
         const sourceLink = media.getByRole('link', {name: 'Inspect the source card', exact: true});
         const sourceTarget = {href: await sourceLink.evaluate(link => link.href), elementId: 'source-nist-hospital-envelope'};
-        await evidenceHop(page, () => sourceLink.click(), sourceTarget);
+        await evidenceHop(page, () => pressAtRest(sourceLink), sourceTarget);
         const source = page.locator('#source-nist-hospital-envelope');
         assert.match(await source.textContent(), /PDF page 4/);
         assert.match(await source.textContent(), /Curtis Lynn Geise/);
@@ -128,7 +129,7 @@ for (const viewport of [{width: 320, height: 740}, {width: 390, height: 844},
           await evidenceHop(page, () => page.goForward(), sourceTarget);
           await source.waitFor();
         }
-        await page.getByRole('link', {name: 'Hospital frame, windows and loss of function', exact: true}).click();
+        await pressAtRest(page.getByRole('link', {name: 'Hospital frame, windows and loss of function', exact: true}));
         await account.waitFor();
         assert.equal(new URL(page.url()).hash, '#hospital-envelope');
       }
@@ -182,7 +183,7 @@ test('failed local photograph retains its account, alt description and exact sou
   await closed(page, enlargement);
   const record = account.getByRole('link', {name: photos[0].record, exact: true});
   const target = {href: await record.evaluate(link => link.href), elementId: 'media-' + photos[0].id};
-  await evidenceHop(page, () => record.click(), target);
+  await evidenceHop(page, () => pressAtRest(record), target);
   assert.match(await page.locator('#media-nist-west-tower').textContent(), /not the order of failures/);
   await fits(page);
 });
