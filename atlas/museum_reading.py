@@ -86,7 +86,7 @@ def documentary_photographs(bundle):
             continue
         report = samples[0]['hosted_image']['creator_report']
         content = element('h3', 'Three moments in Nick Nolte’s El Reno account')
-        content += p('Creator-attributed discrete documentary observations. These full published GoPro exports retain their complete location, time and copyright marks.')
+        content += p('Discrete documentary observations attributed to their creator. These full published GoPro exports retain their complete location, time and copyright marks.')
         content += p(report['limits'])
         content += element('details', element('summary', 'Camera and publication context') + p(report['lineage']) + p(report['viewpoint']))
         for sample in samples:
@@ -105,7 +105,7 @@ def documentary_photographs(bundle):
             caption += element('p', link('Open the unchanged full resolution JPEG', image['asset'])+' · '
                 +link('Original full JPEG at the creator’s site', image['original_url'])+' · '
                 +link('Source and item permission', record)+' · '+link('Read this reported instant in the player',player))
-            caption += element('p', link('Creator-reported movie guide '+guide['movie_locator'],guide['movie_url']+'&t='+str(guide['movie_seconds'])+'s')
+            caption += element('p', link('Movie guide reported by the creator: '+guide['movie_locator'],guide['movie_url']+'&t='+str(guide['movie_seconds'])+'s')
                 +' (navigation guide, not a source frame number or calibrated UTC).')
             caption += element('details', element('summary','Identity and clock limits')
                 +p('Unchanged '+str(image['width'])+' × '+str(image['height'])+' JPEG; '+str(image['bytes'])+' bytes; SHA256 '+image['sha256'])
