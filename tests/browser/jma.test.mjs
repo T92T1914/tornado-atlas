@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {fixture,base} from './harness.mjs';
+import {pressAtRest} from './press-at-rest.mjs';
 
 const index=JSON.parse(await readFile(new URL('../../web/jma-cases/index.json',import.meta.url)));
 const tornadoes=index.records.filter(r=>r.classification_code==='1').sort((a,b)=>b.year-a.year||b.case_id.localeCompare(a.case_id));
@@ -17,7 +18,7 @@ async function ready(page,record){
 const compared=(page,id)=>page.locator('[data-comparison-case="'+id+'"]');
 async function comparisonReady(page,record){await compared(page,record.id).locator('[lang=ja]').first().waitFor();await page.waitForFunction(id=>document.querySelector('[data-comparison-case="'+id+'"]')?.dataset.state==='ready',record.id);}
 const comparisonQuery=records=>'?'+new URLSearchParams(records.map(record=>['compare',record.id])).toString();
-async function downloadedComparison(page,action=()=>page.locator('#case-comparison-download').click()){
+async function downloadedComparison(page,action=()=>pressAtRest(page.locator('#case-comparison-download'))){
  const event=page.waitForEvent('download');await action();const download=await event;
  assert.equal(await download.failure(),null);
  const stream=await download.createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);
