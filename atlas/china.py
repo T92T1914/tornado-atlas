@@ -3,12 +3,13 @@
 The dataset is published under CC BY 4.0. Its own Parameters sheet says the
 dates, times, time notes, Chinese locations and damage descriptions come from
 the Yearbook of Meteorological Disasters in China, and that the English
-locations are translated from it. The yearbook's terms have not been read, so
-this adapter keeps the structured fields, which are the case label, the
-recorded date, the recorded times, the geocoded position and the EF value, and
-leaves out every column of yearbook text. Positions are the authors' geocoded
-points for a place description, not survey positions. Times are UTC+8 as the
-dataset states.
+locations are translated from it. No reuse terms for the yearbook were found
+on its publisher's pages or in web searches, as
+`research/yearbook-reuse-terms-2026-11-22.md` records, so this adapter keeps
+the structured fields, which are the case label, the recorded date, the
+recorded times, the geocoded position and the EF value, and leaves out every
+column of yearbook text. Positions are the authors' geocoded points for a place
+description, not survey positions. Times are UTC+8 as the dataset states.
 """
 
 from __future__ import annotations

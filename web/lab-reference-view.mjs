@@ -5,7 +5,7 @@ import {checkedPhotoBytes} from './photo-view.mjs';
 const REFERENCES=Object.freeze({
   'el-reno-2013':{id:'nolte-231037-full-documentary',source:'nolte-three-permitted-full-exports',asset:'assets/el-reno-2013/nolte-231037-full.jpg',
     role:'Storm photograph at a creator-reported instant',story:'index.html#documentary-nolte-231037',
-    boundary:'A reported photographic instant is not a calibrated three-dimensional shape or continuous appearance.',
+    boundary:'A reported photographic instant is not a calibrated three dimensional shape or continuous appearance.',
     extra:[['Read this reported instant in the player','reconstruction.html?event=el-reno-2013&t=397&appearance_view=photo&appearance_photo=nolte-reported-stills#replay-appearance'],['Compare the other permitted photographs','index.html#nolte-documentary-photographs']]},
   'joplin-2011':{id:'friskey-joplin-storm',source:'commons-friskey-joplin',asset:'assets/joplin-2011/storm.jpg',
     role:'Storm photograph with an unregistered camera and clock',story:'joplin.html?photo=friskey-joplin-storm#visibility',
