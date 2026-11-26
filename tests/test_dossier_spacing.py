@@ -14,6 +14,7 @@ import unittest
 
 from atlas.archive import dossiers
 from footage_continuation_support import FOOTAGE_PROMOTIONS, footage_boundary, footage_predecessor
+from recast_continuation_support import recast_boundary
 from reviewed_continuation_support import reviewed_predecessor
 from response_continuation_support import response_predecessor
 from spacing_continuation_support import (LATE_SPACING_PROMOTIONS, REVIEW_KEYS, SPACING_PROMOTIONS, canonical,
@@ -132,12 +133,15 @@ class DossierSpacingTests(unittest.TestCase):
                 .__setitem__('access', 'retainedPDF'),
             'a different basis': lambda doc: doc['provenance']['publication_review'].__setitem__('basis', 'Spacing.'),
         }
+        # A wording recast edge is newer, so the late spacing edge gets what that edge retained.
+        base, entry = recast_boundary(self, self.docs['el-reno-2013'])
+        late_spacing_boundary(self, base, ROOT, entry)
         for label, change in changes.items():
             with self.subTest(change=label):
-                current = copy.deepcopy(self.docs['el-reno-2013'])
+                current = copy.deepcopy(base)
                 change(current)
                 with self.assertRaisesRegex(AssertionError, 'Only the exact reviewed continuation'):
-                    late_spacing_boundary(self, current)
+                    late_spacing_boundary(self, current, ROOT, entry)
 
     def test_an_injected_join_in_a_current_dossier_is_found(self):
         doc = copy.deepcopy(self.docs['tuscaloosa-birmingham-2011'])
@@ -211,10 +215,12 @@ class DossierSpacingTests(unittest.TestCase):
                 footage = FOOTAGE_PROMOTIONS[event]
                 self.assertEqual((specs[0]['previous'], specs[0]['previous_index_sha256']),
                                  (footage['current'], footage['current_index_sha256']))
-                previous, entry = late_spacing_boundary(self, self.docs[event])
+                # A wording recast edge is newer still, so it is peeled first.
+                late, late_entry = recast_boundary(self, self.docs[event])
+                previous, entry = late_spacing_boundary(self, late, ROOT, late_entry)
                 self.assertEqual((canonical(previous), canonical(entry)),
                                  (footage['current'], footage['current_index_sha256']))
-                self.assertEqual(canonical(self.docs[event]), specs[-1]['current'])
+                self.assertEqual(canonical(late), specs[-1]['current'])
         self.assertEqual(canonical(response_predecessor(self, self.docs['moore-2013'])),
                          '5ed36647a0e6141f8ddeeee30ef7be9e7bb6332613ed86428b3b9b5536b25e85')
         self.assertEqual(canonical(reviewed_predecessor(self, self.docs['tuscaloosa-birmingham-2011'])),

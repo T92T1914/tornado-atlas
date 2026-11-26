@@ -34,7 +34,7 @@ async function shown(page,item){
   assert.equal(await page.locator('#replay-appearance-canvas').evaluate(node=>node.hidden&&node.getBoundingClientRect().height===0),true);
   assert.equal(await page.locator('#replay-time').inputValue(),String(item.seconds));
   assert.equal(await page.locator('#replay-play').textContent(),'Play timeline');
-  assert.match(await page.locator('#replay-documentary-image figcaption').textContent(),/Nick Nolte.*item-specific permission/s);
+  assert.match(await page.locator('#replay-documentary-image figcaption').textContent(),/Nick Nolte.*permission, specific to each item/s);
   assert.equal(await page.locator('#replay-photo-full').getAttribute('href'),asset(item));
   assert.equal(await page.locator('#replay-photo-creator-guide').getAttribute('href'),'https://www.youtube.com/watch?v=jsBDFA6_81M&t='+item.guide+'s');
   assert.equal(await page.locator('#replay-documentary-image figure>a').getAttribute('href'),asset(item));

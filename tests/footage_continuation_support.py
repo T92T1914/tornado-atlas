@@ -19,6 +19,7 @@ from pathlib import Path
 
 from atlas.archive import digest, dossiers
 from citation_continuation_support import citation_boundary, citation_index_entry
+from recast_continuation_support import recast_boundary, recast_index_entry
 
 ROOT = Path(__file__).resolve().parents[1]
 BASIS = 'Footage register amendment. '
@@ -169,13 +170,14 @@ def footage_boundary(case, current, root=ROOT, index_entry=None):
 
     Events without a footage register edge come back unchanged with the entry
     supplied. Without an entry, the current document first passes its source
-    citation edge and the spacing edges newer than this one, and this edge
-    reads the entry they retained.
+    citation edge, its wording recast edge and the spacing edges newer than
+    this one, and this edge reads the entry they retained.
     """
     if index_entry is None:
         # Imported here because the spacing module imports this one.
         from spacing_continuation_support import late_spacing_boundary
         current, index_entry = citation_boundary(case, current, root)
+        current, index_entry = recast_boundary(case, current, root, index_entry)
         current, index_entry = late_spacing_boundary(case, current, root, index_entry)
     spec = FOOTAGE_PROMOTIONS.get(current['id'])
     if spec is None:
@@ -190,7 +192,8 @@ def footage_predecessor(case, current, root=ROOT):
 def footage_index_entry(case, entry, root=ROOT):
     """A historical index view only. The real current index stays as it is."""
     from spacing_continuation_support import late_spacing_index_entry
-    entry = late_spacing_index_entry(case, citation_index_entry(case, entry, root), root)
+    entry = recast_index_entry(case, citation_index_entry(case, entry, root), root)
+    entry = late_spacing_index_entry(case, entry, root)
     spec = FOOTAGE_PROMOTIONS.get(entry['id'])
     if spec is None:
         return entry

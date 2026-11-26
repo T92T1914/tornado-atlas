@@ -51,7 +51,7 @@ async function shown(page,index){
  assert.equal(await page.locator('#photo-title').textContent(),'Nick Nolte / '+names[index]+'.jpg');
  assert.equal(await page.locator('#photo-source').getAttribute('href'),samples[index].hosted_image.original_url);
  assert.equal(await page.locator('#photo-original').getAttribute('href'),samples[index].hosted_image.asset);
- assert.match(await page.locator('#photo-credit').textContent(),/item-specific permission/);
+ assert.match(await page.locator('#photo-credit').textContent(),/permission, specific to each item/);
  const hash=await page.evaluate(async()=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',await(await fetch(document.getElementById('photo-full').src)).arrayBuffer()))].map(x=>x.toString(16).padStart(2,'0')).join(''));
  assert.equal(hash,expected[index],'Actual displayed Blob has the independent full JPEG identity');
  const framing=await page.locator('#photo-full').evaluate(img=>({fit:getComputedStyle(img).objectFit,rect:img.getBoundingClientRect().toJSON()}));

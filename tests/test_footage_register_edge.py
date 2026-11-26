@@ -11,6 +11,7 @@ import unittest
 
 from atlas.archive import dossiers
 from citation_continuation_support import CITATION_PROMOTIONS, citation_boundary
+from recast_continuation_support import recast_boundary
 from footage_continuation_support import (FOOTAGE_PROMOTIONS, ROOT, _footage_edge, canonical, footage_boundary,
                                           footage_index_entry)
 from spacing_continuation_support import LATE_SPACING_PROMOTIONS, SPACING_PROMOTIONS, late_spacing_boundary
@@ -24,7 +25,9 @@ class FootageRegisterEdgeTests(unittest.TestCase):
 
     def setUp(self):
         # The footage register version as the later spacing edge retained it, with its index entry.
-        self.footage, self.entry = late_spacing_boundary(self, self.docs['el-reno-2013'])
+        # A wording recast edge is newer still, so it is peeled first.
+        recast, entry = recast_boundary(self, self.docs['el-reno-2013'])
+        self.footage, self.entry = late_spacing_boundary(self, recast, ROOT, entry)
 
     def test_the_edge_returns_the_spaced_predecessor_and_its_index_entry(self):
         previous, entry = footage_boundary(self, self.docs['el-reno-2013'])

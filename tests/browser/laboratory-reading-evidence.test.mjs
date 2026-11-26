@@ -9,11 +9,11 @@ import {fixture,base} from './harness.mjs';
 // These expectations do not import the reference adapter or its generated map.
 const references=[
  {event:'el-reno-2013',media:'nolte-231037-full-documentary',source:'nolte-three-permitted-full-exports',
-  revision:'f36f10f672a9e2e0a999262a0a461f7c5dbadebc89a39f1d6fa41bad7823eefe',
+  revision:'ba698502f89d644549c0d29453e7f6fcf50a9c6a186f7bfd350c68d06495ee71',
   asset:'assets/el-reno-2013/nolte-231037-full.jpg',sha:'e9ad30c4fdcb6a28340bbb0e422b80cbc937ef248b497092246c7bff51fd4847',width:1920,height:1080,
   original:'https://nnwx.us/blog/2013/07/15/may-31-2013-the-el-reno-ef-5/',item:'https://nnwx.us/wp-content/uploads/2018/02/231037.jpg',
   story:'index.html#documentary-nolte-231037',role:/instant the creator reported/,credit:'creator: Nick Nolte',
-  rights:['item-specific permission','231037.jpg, 231059.jpg and 231202.jpg','fourth still and movie remain outside this grant'],
+  rights:['permission, specific to each item','231037.jpg, 231059.jpg and 231202.jpg','fourth still and movie remain outside this grant'],
   limits:['23:10Z','not independently calibrated','Appearance between samples remains unknown'],version:'Unchanged full published JPEG'},
  {event:'joplin-2011',media:'friskey-joplin-storm',source:'commons-friskey-joplin',
   revision:'bbea762ba1a842484b4fd887ec830a1bc897ed5d8e5f5a75ffcf1ebae080ebc7',
