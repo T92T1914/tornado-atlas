@@ -10,6 +10,7 @@ import copy
 import unittest
 
 from atlas.archive import dossiers
+from citation_continuation_support import CITATION_PROMOTIONS, citation_boundary
 from footage_continuation_support import (FOOTAGE_PROMOTIONS, ROOT, _footage_edge, canonical, footage_boundary,
                                           footage_index_entry)
 from spacing_continuation_support import LATE_SPACING_PROMOTIONS, SPACING_PROMOTIONS, late_spacing_boundary
@@ -42,6 +43,11 @@ class FootageRegisterEdgeTests(unittest.TestCase):
             if event in FOOTAGE_PROMOTIONS:
                 continue
             with self.subTest(event=event):
+                # A source citation edge is newer and is peeled first, so this edge
+                # hands back what that one retained.
+                self.assertEqual(footage_boundary(self, doc), citation_boundary(self, doc))
+                if event in CITATION_PROMOTIONS:
+                    continue
                 self.assertEqual(footage_boundary(self, doc), (doc, None))
                 entry = {'id': event}
                 self.assertIs(footage_index_entry(self, entry), entry)

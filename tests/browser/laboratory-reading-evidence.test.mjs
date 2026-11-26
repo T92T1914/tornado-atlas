@@ -37,7 +37,7 @@ const references=[
   rights:['CC BY 4.0','Mike Wilhelm','John Brown','does not license the complete original recordings'],
   limits:['estimated','two credited films','not verified capture UTC'],version:'All panels, printed letters, arrows and time labels preserved'},
  {event:'moore-2013',media:'moore-medical-center-survey',source:'nws-event-hub',
-  revision:'5c2ac0ec0006b1eee3e08e0fd8fbf4402ee284c51bded881707e51e7a950ce72',
+  revision:'2c71bdb17f121b0c00afb869aa7cc6482e1aad99fd51df238d2abbd92b24e167',
   asset:'assets/moore-2013/IMG_9287-800.jpg',sha:'f10b6b33fbcecd2c228632d2d681bbef47e58876246b753a04721dda3a58c6bb',width:800,height:533,
   original:'https://www.weather.gov/oun/events-20130520',item:'https://www.weather.gov/images/oun/wxevents/20130520/photos/damage/IMG_9287-800.jpg',
   story:'moore.html#survey-photographs',role:/Survey photograph from the following day, not a view during the storm/,credit:'creator: Doug Speheger',

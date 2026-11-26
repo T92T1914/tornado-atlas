@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "event_id": "moore-2013",
-  "dossier_sha256": "5c2ac0ec0006b1eee3e08e0fd8fbf4402ee284c51bded881707e51e7a950ce72",
+  "dossier_sha256": "2c71bdb17f121b0c00afb869aa7cc6482e1aad99fd51df238d2abbd92b24e167",
   "survey": null,
   "layers": {
     "geography": {
