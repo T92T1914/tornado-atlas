@@ -457,3 +457,29 @@ test('Native Replay to Reader to Back preserves time, radar source and documenta
     assert.equal(await page.locator('#timeline').inputValue(),'720');
   }
 });
+
+test('The published analysis of the same radar keeps its two shared scan labels and its limit',{timeout:30000},async t=>{
+  const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900},serviceWorkers:'block'});
+  await page.goto(base+'/radar-source.html');
+  const section=page.locator('#radar-published-analysis');
+  assert.equal(await section.getByRole('heading',{level:2}).textContent(),'A published analysis of the same radar scans');
+  const paper=section.getByRole('link',{name:'Wood, Davies-Jones, Snyder and Hopper (2025)'});
+  assert.equal(await paper.getAttribute('href'),'https://doi.org/10.1175/MWR-D-23-0110.1');
+  assert.deepEqual(await section.locator('#radar-analysis-frames li').allTextContents(),[
+    'The frame labeled 23:19:22 shares its label with the start of the scan in the paper’s Fig. 11, 2319:22 to 2319:40 UTC.',
+    'The frame labeled 23:37:08 shares its label with the start of the scan in the paper’s Fig. 17, 2337:08 to 2337:26 UTC.']);
+  const text=await section.textContent();
+  assert.match(text,/analyzed Doppler velocity from the scans the NWRT collected between 2258:03 and 2346:46 UTC\. All twelve retained labels fall inside that window\./);
+  for(const [id,printed] of [[166,'23:19:22'],[181,'23:37:08']]){
+    assert.equal(original(id).printed,printed,'Each shared label belongs to a retained observation');
+    const response=await page.request.get(base+'/'+original(id).file);
+    assert.equal(response.status(),200);assert.equal(sha(await response.body()),original(id).sha);
+  }
+  assert.match(text,/These images show reflectivity\. The paper analyzes Doppler velocity and circulation\./);
+  assert.match(text,/does not make either image a view of that analysis/);
+  assert.match(text,/not an independent clock calibration/);
+  const record=section.getByRole('link',{name:'Read where the paper and this reader meet'});
+  assert.equal(await record.getAttribute('href'),'https://github.com/T92T1914/tornado-atlas/blob/main/research/wood-nwrt-circulation-2026-11-25.md');
+  const width=await page.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
+  assert.ok(width.document<=width.viewport+1,'The new section reflows at 320 pixels');
+});
