@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,settle} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
@@ -31,8 +31,11 @@ async function fontsReady(page,phase){
 async function stylesReady(page){
   await page.waitForLoadState('load');
   console.log('UDALL_STYLES_READINESS '+JSON.stringify({phase:'loaded',route:page.url()}));
-  await page.waitForFunction(()=>document.readyState==='complete'&&
-    [...document.querySelectorAll('link[rel="stylesheet"]')].every(node=>node.sheet?.cssRules.length>0));
+  // The rules of a sheet are read only once the document is complete, as before.
+  await settle(page,()=>{const complete=document.readyState==='complete',sheets=[...document.querySelectorAll('link[rel="stylesheet"]')];
+    const loaded=complete?sheets.filter(node=>node.sheet?.cssRules.length>0).length:null;
+    return {ok:complete&&loaded===sheets.length,readyState:document.readyState,sheets:sheets.length,loaded};},
+    undefined,'The page and every linked stylesheet are loaded');
   await fontsReady(page,'styles-ready');
 }
 async function keyboardArrival(page,locator){
@@ -53,8 +56,10 @@ async function keyboardArrival(page,locator){
     assert.equal(previous.different,true,'Shift+Tab leaves the intended control');
     if(predecessors.has(articleHref))assert.equal(previous.href,predecessors.get(articleHref),'The exact article predecessor is retained');
     await page.keyboard.press('Tab');
-    await page.waitForFunction(node=>{const r=node?.getBoundingClientRect();
-      return node===document.activeElement&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;},target);
+    await settle(page,node=>{const r=node?.getBoundingClientRect(),focused=node===document.activeElement;
+      const inView=focused&&r.width>0&&r.height>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=-1&&r.bottom<=innerHeight+1;
+      return {ok:inView,focused,top:r?.top??null,bottom:r?.bottom??null,left:r?.left??null,right:r?.right??null,innerWidth,innerHeight,scrollY};},
+      target,'Sequential keys bring the intended control into view with focus');
     assert.equal(page.url(),route,'Sequential keys do not navigate');
     assert.equal(await page.evaluate(()=>history.length),historyLength,'Sequential keys do not change history');
   }catch(error){

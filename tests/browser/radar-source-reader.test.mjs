@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,settle} from './harness.mjs';
 
 // Pin the previously retained PNGs independently of the new reader's model.
 const originals=[
@@ -416,7 +416,7 @@ test('A declared persisted restore after pending initialization reports absent i
 test('Without scripts the original complete frame 151 and its source explanation remain readable',{timeout:20000},async t=>{
   const page=await fixture(t,{javaScriptEnabled:false,viewport:{width:320,height:900},serviceWorkers:'block'});
   await page.goto(base+'/radar-source.html?frame=184');
-  await page.waitForFunction(()=>{const image=document.querySelector('#radar-source-image');return image?.complete&&image.naturalWidth===597&&image.naturalHeight===599;});
+  await settle(page,()=>{const image=document.querySelector('#radar-source-image');return {ok:Boolean(image?.complete)&&image.naturalWidth===597&&image.naturalHeight===599,complete:image?.complete??null,width:image?.naturalWidth??null,height:image?.naturalHeight??null};},undefined,'The original complete frame loads at its recorded size');
   assert.equal(await page.locator('#radar-reader-controls').isVisible(),false);
   const image=page.locator('#radar-source-image');assert.equal(await image.getAttribute('src'),original(151).file);
   assert.match(await page.locator('#radar-source-caption').textContent(),/Original GIF frame 151/);

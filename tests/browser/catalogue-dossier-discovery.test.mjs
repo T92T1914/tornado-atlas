@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,stat} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {fixture,open,search,detail,base} from './harness.mjs';
+import {fixture,open,search,detail,base,settle} from './harness.mjs';
 
 const frozen=JSON.parse(await readFile(new URL('../fixtures/catalogue-dossier-discovery.json',import.meta.url),'utf8'));
 const published=JSON.parse(await readFile(new URL('../../web/catalogue/index.json',import.meta.url),'utf8'));
@@ -93,7 +93,7 @@ for(const width of [320,1280])for(const theme of ['dark','light'])test('static m
   await page.goto(base+'/atlas.html',{waitUntil:'load',timeout:10000});
   phase('goto','after');
   phase('font_status_loaded','before',{timeout_ms:5000});
-  await page.waitForFunction(()=>document.fonts.status==='loaded',null,{timeout:5000});
+  await settle(page,()=>({ok:document.fonts.status==='loaded',fonts:document.fonts.status}),undefined,'The fonts of the page without scripts are loaded',5000);
   phase('font_status_loaded','after',{required_status:'loaded'});
   assert.equal(await page.locator('html').getAttribute('data-appearance'),'dark');
   assert.equal(await page.locator('#reading-appearance').inputValue(),'dark');

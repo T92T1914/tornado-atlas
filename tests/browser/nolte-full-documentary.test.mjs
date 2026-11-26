@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-import {fixture as isolatedFixture,base,withNavigationDiagnostics} from './harness.mjs';
+import {fixture as isolatedFixture,base,settle,withNavigationDiagnostics} from './harness.mjs';
 const timeline=JSON.parse(await readFile(new URL('../../exhibits/el-reno-2013/appearance-timeline.json',import.meta.url)));
 const samples=timeline.photo_sequences[0].samples;
 const names=['231037','231059','231202'];
@@ -130,7 +130,7 @@ test('Nolte no-script full frame reading retains all marks and native original l
  const target=base+'/'+samples[2].hosted_image.asset;
  const [response]=await Promise.all([page.waitForResponse(r=>r.url()===target),direct.click()]);
  assert.equal(response.status(),200);assert.equal(createHash('sha256').update(await response.body()).digest('hex'),expected[2]);
- await page.waitForURL(target);await page.waitForFunction(()=>document.querySelector('img')?.naturalWidth===1920);
+ await page.waitForURL(target);await settle(page,()=>{const image=document.querySelector('img');return {ok:image?.naturalWidth===1920,complete:image?.complete??null,width:image?.naturalWidth??null};},undefined,'The unchanged full JPEG opens at its recorded width');
  assert.equal(await page.locator('img').evaluate(img=>img.naturalHeight),1080);
  await page.goBack();await page.locator('#nolte-documentary-photographs').waitFor();
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);

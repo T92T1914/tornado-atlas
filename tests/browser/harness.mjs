@@ -251,6 +251,33 @@ export async function open(page,suffix=''){
     throw error;
   }finally{observer.stop();}
 }
+// page.waitForFunction checks its condition once, then again on each animation
+// frame of the page's own script world. With scripts disabled that first check
+// is the only one in WebKit, Chrome and Firefox, and a condition that turns true
+// later is never seen. settle checks again from the test until the page reports
+// ok, and keeps the last state the page reported for the failure message. read
+// runs in the page and returns an object with an ok field. Each check races the
+// time that is left, so a check the page never answers ends with the wait. Use
+// it for every wait on a page without scripts, and within one document only,
+// because an evaluate across a navigation rejects at once.
+export async function settle(page,read,arg,message,timeout=10000){
+  const deadline=performance.now()+timeout,expired=Symbol('expired');
+  let state={ok:false,unanswered:true},checks=0,timer;
+  const limit=new Promise(resolve=>{timer=setTimeout(resolve,timeout,expired);});
+  try{
+    for(;;){
+      const check=page.evaluate(read,arg);
+      // A check still open when the time runs out may reject after the page closes.
+      check.catch(()=>{});
+      const answer=await Promise.race([check,limit]);
+      if(answer===expired)break;
+      state=answer;checks++;
+      if(state.ok||performance.now()>=deadline)break;
+      await new Promise(resolve=>setTimeout(resolve,50));
+    }
+  }finally{clearTimeout(timer);}
+  assert.ok(state.ok,message+' after '+checks+' checks '+JSON.stringify(state));
+}
 export async function search(page,text){await page.locator('#query').fill(text);await page.locator('#query').press('Enter');}
 export async function select(page,id){await page.locator(`#results [data-record="${id}"]`).click();}
 export async function detail(page,id){
