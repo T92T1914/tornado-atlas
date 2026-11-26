@@ -37,10 +37,10 @@ The abstract's EF1 to EF3 summary is the paper's own generalization. The text ne
 These are stated in the text and are recorded here only so a later item does not have to read the paper again.
 
 1. Times are UTC. The tornado "begins producing EF0 damage in northern Newcastle at approximately 1956 UTC" (Results, Fig. 1). The KTLX scans the paper discusses are at 1955:27, 1959 and 2016:43 UTC, and the range from KTLX to the tornado fell from 30.6 km at 1955:27 to 11.9 km at 2033:46 (section "Radar data").
-2. The merged ground and aerial survey gives a path 23.25 km long with a maximum width of 1.74 km over south Oklahoma City and western Moore, (Results and Summary). The Summary adds a damaged area of 19.04 km².
+2. The merged ground and aerial survey gives a path 23.25 km long with a maximum width of 1.74 km over south Oklahoma City and western Moore (Results and Summary). The Summary adds a damaged area of 19.04 km².
 3. Footnote 3 says EF0 damage "consistent with weak tornadic rotation" was seen up to 5.2 km southwest of the start of the path in Fig. 1.
 4. The count of structures rated in both surveys differs inside the paper. The abstract says 4,039 and the section "Comparison between aerial and ground damage surveys" says 4,077. The count of EF5 structures is 11 in that section and 10 in the summary. This record keeps both pairs as published.
-5. The section "Quantifying damage risk" says catastrophic damage to homes rated EF2 or higher would be expected over "over 25% of the total damage area", and the Summary says "Only 25%" of the damage area is rated EF2 or higher. This record keeps both wordings.
+5. The section "Quantifying damage risk" says catastrophic damage to homes rated EF2 or higher would be expected across "over 25% of the total damage area", and the Summary says "Only 25%" of the damage area is rated EF2 or higher. This record keeps both wordings.
 6. The images are credited in the Fig. 3 caption: frames from video by Justin Cox in Fig. 3b and 3d, and a still by Bob Fritchie in Fig. 3f. The acknowledgments also thank Chance Coldiron. The paper states no license for any of them. The publisher's page offers a "Get Permissions" link for the article, which was not followed. This record supplies no rights.
 7. The section "Damage survey" gives an address for the aerial survey imagery, `http://meteorology.lyndonstate.edu/vortex2/Moore2013`. It was not opened for this record.
 
