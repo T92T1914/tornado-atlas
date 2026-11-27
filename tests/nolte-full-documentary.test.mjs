@@ -23,6 +23,17 @@ test('v5 admits three full documentary copies and retains accepted forms and unk
  }
  assert.throws(()=>documentaryPhoto(samples[3]));
 });
+test('the gallery sentence and the documentary license label hold no prose hyphen or semicolon',async()=>{
+ const compound=/\b[A-Za-z]+-[A-Za-z]+\b/;
+ const license=documentaryPhoto(timeline.photo_sequences[0].samples[0]).license;
+ assert.equal(license,'Permission, specific to each item: unchanged documentary display');
+ const page=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
+ const gallery=page.match(/<p class="section-intro">(Photographs by Daniel Rodriguez and Nick Nolte[^<]*)<\/p>/)?.[1];
+ assert.ok(gallery,'The documentary gallery sentence is on the page');
+ assert.match(gallery,/three GoPro exports used with the creator’s permission,/);
+ assert.match(gallery,/discrete labels in the player, reported by the creator\. Their clock accuracy and intervening appearance remain unknown\./);
+ for(const text of [license,gallery]){assert.doesNotMatch(text,compound);assert.doesNotMatch(text,/;/);}
+});
 test('full references do not weaken older versions, size bounds or creator context semantics',()=>{
  for(const version of [1,2,3,4]){const t=structuredClone(timeline);t.schema_version=version;assert.throws(()=>validate(t));}
  for(const [key,value]of [['asset','../private.jpg'],['sha256',null],['sha256',timeline.photo_sequences[0].samples[0].image.sha256],['bytes',true],['bytes',2097153],['width',0]]){
