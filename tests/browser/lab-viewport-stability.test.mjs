@@ -81,7 +81,7 @@ const SPACED_PUBLICATIONS={
     "wire": "f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76"
   }
 };
-// Later edges gave El Reno two more versions, oldest first. The footage register
+// Later edges gave El Reno three more versions, oldest first. The footage register
 // edge changed the Robinson rows only, and a later spacing edge put spaces back
 // in two other source notes, so its reference item and that item's source stay exact.
 // A source citation edge gave Moore one more version. It adds a source and an
@@ -107,9 +107,30 @@ const LATER_PUBLICATIONS={
       "previous_wire": "30e49dada90e17051f8b3631d96d5233982ab636a79a69d6a44713934c748b6a",
       "file": "el-reno-2013-f36f10f672a9e2e0a999.json",
       "wire": "2c32832275b12e084d4c31bc7610218776b362930fae3a070de93293c78c5752"
+    },
+    {
+      "previous_file": "el-reno-2013-f36f10f672a9e2e0a999.json",
+      "previous_wire": "2c32832275b12e084d4c31bc7610218776b362930fae3a070de93293c78c5752",
+      "file": "el-reno-2013-ba698502f89d644549c0.json",
+      "wire": "9611a840ffbd7dc5b6978d5f4687b3dedf2021168b65866d55401014ebd70876",
+      "recast": true
     }
   ]
 };
+// A wording recast edge then rewrote six phrases around the values Nick Nolte
+// reported. Its reference item and that item's source differ from the earlier
+// ones by these exact replacements only.
+const RECASTS=[
+ ['Creator-reported label: ','Label reported by the creator: '],
+ ['The movie marks are creator-reported navigation guides.','The movie marks are navigation guides reported by the creator.'],
+ ['Still-label offsets of 0, 22 and 85 seconds and creator movie-guide offsets of 0, 21 and 86 seconds remain distinct.',
+  'The still labels are offset by 0, 22 and 85 seconds and the movie guides of the creator by 0, 21 and 86 seconds, and the two sets remain distinct.'],
+ ['Used with Nick Nolte\u2019s item-specific permission for unchanged copies of','Used with Nick Nolte\u2019s permission, specific to each item, for unchanged copies of'],
+ ['exports from his roof-mounted GoPro recording.','exports from the recording made by his GoPro mounted on the roof.'],
+ ['He reports using the GPS-equipped Sony HDR-PJ710V recording as a time reference','He reports using the GPS equipped Sony HDR-PJ710V recording as a time reference']
+];
+const recast=value=>typeof value==='string'?RECASTS.reduce((text,[old,next])=>text.split(old).join(next),value):
+ Array.isArray(value)?value.map(recast):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,item])=>[key,recast(item)])):value;
 const newestOf=event=>LATER_PUBLICATIONS[event]?.at(-1);
 const CURRENT_REFERENCES={...REFERENCES};
 const currentIndex=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
@@ -153,8 +174,16 @@ for(const[event,steps]of Object.entries(LATER_PUBLICATIONS)){
   assert.equal(createHash('sha256').update(afterBytes).digest('hex'),later.wire);
   const before=JSON.parse(beforeBytes.toString('utf8')),after=JSON.parse(afterBytes.toString('utf8'));
   const beforeItem=before.media.find(row=>row.id===previous.media),afterItem=after.media.find(row=>row.id===previous.media);
-  assert.ok(beforeItem&&afterItem);assert.deepEqual(afterItem,beforeItem,'A later edge keeps the reference item of '+event);
-  assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),before.sources.find(row=>row.id===beforeItem.source_id));
+  const beforeSource=before.sources.find(row=>row.id===beforeItem?.source_id);
+  assert.ok(beforeItem&&afterItem);
+  if(later.recast){
+   assert.notDeepEqual(afterItem,beforeItem,'The recast edge rewords the reference item of '+event);
+   assert.deepEqual(afterItem,recast(beforeItem),'Only the named recasts separate the reference items of '+event);
+   assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),recast(beforeSource));
+  }else{
+   assert.deepEqual(afterItem,beforeItem,'A later edge keeps the reference item of '+event);
+   assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),beforeSource);
+  }
   CURRENT_REFERENCES[event]={...previous,file:later.file};
  }
 }
