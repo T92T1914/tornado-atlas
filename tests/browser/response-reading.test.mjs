@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,settle} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 import {noScriptImage} from './no-script-image.mjs';
@@ -27,7 +27,7 @@ const absolute=route=>new URL(route,base+'/').href;
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 async function activate(page,link){await link.scrollIntoViewIfNeeded();await link.focus();assert.equal(await link.evaluate(n=>document.activeElement===n),true);await page.keyboard.press('Enter');}
 async function ready(page,appearance='dark',script=true){
- await page.waitForFunction(()=>[...document.styleSheets].some(s=>s.href?.endsWith('/documentary-page.css')&&s.cssRules.length>0)&&document.fonts.status==='loaded');
+ await settle(page,()=>{const styled=[...document.styleSheets].some(s=>s.href?.endsWith('/documentary-page.css')&&s.cssRules.length>0);return {ok:styled&&document.fonts.status==='loaded',styled,fonts:document.fonts.status};},undefined,'The documentary stylesheet and the fonts are loaded');
  if(script){await page.locator('#reading-appearance:not([disabled])').waitFor();await page.locator('#reading-appearance').selectOption(appearance);}
  else assert.equal(await page.locator('#reading-appearance').isDisabled(),true);
  assert.equal(await page.locator('html').getAttribute('data-appearance'),appearance);
@@ -38,7 +38,7 @@ function noExternal(page,t){const outside=[];page.on('request',r=>{if(!r.url().s
 }
 async function imageLayout(page,{noScript=false}={}){
  const image=page.locator('#moore-command-post img');await image.scrollIntoViewIfNeeded();
- await page.waitForFunction(({asset,url})=>{const n=document.querySelector('#moore-command-post img');return n?.getAttribute('src')===asset&&n.currentSrc===url&&n.complete&&n.naturalWidth===2592&&n.naturalHeight===1936;},{asset,url:absolute(asset)});
+ await settle(page,({asset,url})=>{const n=document.querySelector('#moore-command-post img');return {ok:n?.getAttribute('src')===asset&&n.currentSrc===url&&n.complete&&n.naturalWidth===2592&&n.naturalHeight===1936,src:n?.getAttribute('src')??null,current:n?.currentSrc??null,complete:n?.complete??null,width:n?.naturalWidth??null,height:n?.naturalHeight??null};},{asset,url:absolute(asset)},'The command post photograph loads at its recorded size');
  // A returned page Promise can remain pending in no-script Firefox.
  // Reuse the maintained synchronous bitmap witness; full layout and byte checks remain separate.
  if(noScript)await noScriptImage(image,{source:absolute(asset),width:2592,height:1936});

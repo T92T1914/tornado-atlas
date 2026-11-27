@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,settle} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
@@ -29,22 +29,9 @@ async function openContents(page){
   const summary=page.locator('#article-contents');
   if(!await summary.evaluate(node=>node.parentElement.open))await summary.click();
 }
-// page.waitForFunction checks its condition once, then again on each animation
-// frame of the page's own script world. WebKit and Chrome run none of those
-// frames while scripts are disabled, so there the first check is the only one.
-// WebKit also scrolls to a newly focused element from a zero delay timer after
-// focus() returns. Check again from the test until the page reports ok, and keep
-// the last state the page reported for the failure message. Use it within one
-// document only, because an evaluate across a navigation rejects at once.
-async function settle(page,read,arg,message){
-  const deadline=performance.now()+10000;
-  let state=await page.evaluate(read,arg),checks=1;
-  while(!state.ok&&performance.now()<deadline){
-    await new Promise(resolve=>setTimeout(resolve,50));
-    state=await page.evaluate(read,arg);checks++;
-  }
-  assert.ok(state.ok,message+' after '+checks+' checks '+JSON.stringify(state));
-}
+// WebKit scrolls to a newly focused element from a zero delay timer after
+// focus() returns, so the link can come into view after a first check. settle
+// from the harness checks again from the test, with or without scripts.
 async function focusedInView(page,selector){
   await page.locator(selector).focus();
   await settle(page,selector=>{

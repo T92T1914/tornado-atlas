@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,settle} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
@@ -60,7 +60,7 @@ test('Moore native reading, enlarged text and failed photograph keep source rout
   await page.route('**/IMG_2314-800.jpg',route=>{failedImageRequests++;return route.abort();});
   await page.goto(base+'/moore.html');
   await page.locator('#moore-briarwood-survey img').scrollIntoViewIfNeeded();
-  await page.waitForFunction(()=>{const image=document.querySelector('#moore-briarwood-survey img');return image.complete&&image.naturalWidth===0;});
+  await settle(page,()=>{const image=document.querySelector('#moore-briarwood-survey img');return {ok:image.complete&&image.naturalWidth===0,complete:image.complete,width:image.naturalWidth};},undefined,'The refused Briarwood photograph reports no image');
   assert.equal(failedImageRequests,1,'The exact lazy image request reached the intentional failure route');
   assert.deepEqual(await page.locator('#moore-briarwood-survey img').evaluate(n=>[n.complete,n.naturalWidth,n.naturalHeight]),[true,0,0],'The photograph actually failed before its retained source routes are checked');
   assert.match(await page.locator('#briarwood-rating').textContent(),/rating revision/);

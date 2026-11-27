@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,settle} from './harness.mjs';
 
 // These source identities and seven pairs come from the retained complete
 // NOAA/NIST figure review, independently of the controller's configuration.
@@ -231,7 +231,7 @@ for(const blocked of ['scripts','owner'])test('Joplin full original figure remai
  if(blocked==='owner')await page.route('**/recorded-animation.mjs',route=>route.fulfill({status:503,contentType:'text/plain',body:'Controlled motion owner refusal'}));
  await page.goto(base+'/joplin.html#radar-reading');const original=page.locator('a[data-photo-id="nist-joplin-radar-sequence"]');
  await original.scrollIntoViewIfNeeded();const image=original.locator('img');
- await page.waitForFunction(()=>{const image=document.querySelector('a[data-photo-id="nist-joplin-radar-sequence"] img');return image?.complete&&image.naturalWidth===947&&image.naturalHeight===1326;});
+ await settle(page,()=>{const image=document.querySelector('a[data-photo-id="nist-joplin-radar-sequence"] img');return {ok:Boolean(image?.complete)&&image.naturalWidth===947&&image.naturalHeight===1326,complete:image?.complete??null,width:image?.naturalWidth??null,height:image?.naturalHeight??null};},undefined,'The full original figure loads at its recorded size');
  assert.equal(await image.getAttribute('src'),asset);assert.equal(await play(page).isVisible(),false);assert.equal(await stage(page).isVisible(),false);
  await preservedFigure(page);assert.match(await card(page).textContent(),/Without scripts, use that figure and its enlargement link/);
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

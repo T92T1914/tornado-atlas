@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
-import {fixture,base} from './harness.mjs';
+import {fixture,base,settle} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
@@ -21,7 +21,7 @@ const photos=[['nws-ddc-main-street-2008','https://www.weather.gov/images/ddc/IM
 const chapters=['path-and-impact','warnings','records-and-clocks','boundary-and-dimensions','response','recovery','documentary-views','counts-and-remembrance','sources','assumed-experiments'];
 const absolute=route=>new URL(route,base+'/').href;
 async function activate(page,link){await link.scrollIntoViewIfNeeded();await link.focus();assert.equal(await link.evaluate(n=>document.activeElement===n),true);await page.keyboard.press('Enter');}
-async function ready(page,appearance='dark',script=true){await page.waitForFunction(()=>[...document.styleSheets].some(s=>s.href?.endsWith('/documentary-page.css')&&s.cssRules.length>0)&&document.fonts.status==='loaded');if(script){await page.locator('#reading-appearance:not([disabled])').waitFor();await page.locator('#reading-appearance').selectOption(appearance);}else assert.equal(await page.locator('#reading-appearance').isDisabled(),true);assert.equal(await page.locator('html').getAttribute('data-appearance'),appearance);}
+async function ready(page,appearance='dark',script=true){await settle(page,()=>{const styled=[...document.styleSheets].some(s=>s.href?.endsWith('/documentary-page.css')&&s.cssRules.length>0);return {ok:styled&&document.fonts.status==='loaded',styled,fonts:document.fonts.status};},undefined,'The documentary stylesheet and the fonts are loaded');if(script){await page.locator('#reading-appearance:not([disabled])').waitFor();await page.locator('#reading-appearance').selectOption(appearance);}else assert.equal(await page.locator('#reading-appearance').isDisabled(),true);assert.equal(await page.locator('html').getAttribute('data-appearance'),appearance);}
 async function chapter(page,id){const toc=page.locator('.documentary-contents');if(!await toc.evaluate(n=>n.open))await activate(page,toc.locator('summary'));await activate(page,toc.locator('a[href="#'+id+'"]'));await page.waitForURL(u=>u.hash==='#'+id);}
 function observeRequests(page,t){const external=[],hosted=[];page.on('request',r=>{const url=r.url();if(!url.startsWith(base+'/')&&!url.startsWith('blob:'+base+'/'))external.push(url);if(/\/assets\/greensburg(?:-2007)?\//.test(url))hosted.push(url);});t.after(()=>{assert.deepEqual(external,[],'Original-source anchors do not request their providers');assert.deepEqual(hosted,[],'Caption review does not add hosted Greensburg photographs');});}
 async function capture(page,name,anchor){if(!process.env.ATLAS_DOCUMENTARY_CAPTURE)return;await anchor.scrollIntoViewIfNeeded();await mkdir(process.env.ATLAS_DOCUMENTARY_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.ATLAS_DOCUMENTARY_CAPTURE,name+'.png'),fullPage:false});}
