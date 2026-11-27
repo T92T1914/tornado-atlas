@@ -10,8 +10,8 @@ import {noScriptImage} from './no-script-image.mjs';
 
 // Exact reviewed publications, not expectations generated from the current index.
 const stories=[
- {event:'moore-2013',digest:'5c2ac0ec0006b1eee3e08e0fd8fbf4402ee284c51bded881707e51e7a950ce72',article:'moore.html',section:'weather-support-after-the-tornado',observation:'moore-response-weather-support',source:'nws-event-hub',original:'https://www.weather.gov/oun/events-20130520',
-  file:'archive/moore-2013-5c2ac0ec0006b1eee3e0.json',wire:'b00333f3cc740e24dd9e8760e00f5ff640518b3ea543f4e7595ab42063c3965b',bytes:57970,
+ {event:'moore-2013',digest:'2c71bdb17f121b0c00afb869aa7cc6482e1aad99fd51df238d2abbd92b24e167',article:'moore.html',section:'weather-support-after-the-tornado',observation:'moore-response-weather-support',source:'nws-event-hub',original:'https://www.weather.gov/oun/events-20130520',
+  file:'archive/moore-2013-2c71bdb17f121b0c00af.json',wire:'7ba85ca684ea557d3c9c2d2899c520ad8dfad7e3cdcf6c30711047ede4ea2a80',bytes:61841,
   facts:[/Warren Theater parking lot/,/May 21/,/7 a\.m\. to 7 p\.m\./,/Tuesday through Saturday/],limits:/printed shift hours have no separate time-zone label/},
  {event:'udall-1955',digest:'38073d38c17d165d603c0d4522981f61ff42813ecbbae0fee43b4a84241331c1',article:'udall.html',section:'damage-and-aftermath',observation:'udall-directional-damage-comparison',source:'nws-wichita-storm-report',original:'https://www.weather.gov/ict/udall_stormreport',
   file:'archive/udall-1955-38073d38c17d165d603c.json',wire:'f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76',bytes:37569,

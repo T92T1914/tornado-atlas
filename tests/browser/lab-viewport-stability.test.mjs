@@ -84,7 +84,17 @@ const SPACED_PUBLICATIONS={
 // Later edges gave El Reno two more versions, oldest first. The footage register
 // edge changed the Robinson rows only, and a later spacing edge put spaces back
 // in two other source notes, so its reference item and that item's source stay exact.
+// A source citation edge gave Moore one more version. It adds a source and an
+// observation and changes no older row, so its reference item stays exact too.
 const LATER_PUBLICATIONS={
+  "moore-2013": [
+    {
+      "previous_file": "moore-2013-5c2ac0ec0006b1eee3e0.json",
+      "previous_wire": "b00333f3cc740e24dd9e8760e00f5ff640518b3ea543f4e7595ab42063c3965b",
+      "file": "moore-2013-2c71bdb17f121b0c00af.json",
+      "wire": "7ba85ca684ea557d3c9c2d2899c520ad8dfad7e3cdcf6c30711047ede4ea2a80"
+    }
+  ],
   "el-reno-2013": [
     {
       "previous_file": "el-reno-2013-be9fdcbfb14a0da6b850.json",

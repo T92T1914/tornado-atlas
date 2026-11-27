@@ -5,7 +5,7 @@ import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
 // Accepted source identities and report locators, independent of the coverage generator.
-const revision='5c2ac0ec0006b1eee3e08e0fd8fbf4402ee284c51bded881707e51e7a950ce72';
+const revision='2c71bdb17f121b0c00afb869aa7cc6482e1aad99fd51df238d2abbd92b24e167';
 const damageObservations=[
   'facility-reconnaissance-scope','medical-center-function','plaza-reported-refuge-change',
   'plaza-roof-wall-performance','briarwood-400-refuge-envelope'
@@ -184,7 +184,7 @@ for(const width of [320,1280])for(const [kind,id,layerName] of [
   ['media','moore-briarwood-survey','damage'],
 ])test('Moore coverage retries the exact unavailable '+kind+' reader '+width,{timeout:30000},async t=>{
   const page=await fixture(t,{viewport:{width,height:900},reducedMotion:'reduce'});
-  const archive=base+'/archive/moore-2013-5c2ac0ec0006b1eee3e0.json';
+  const archive=base+'/archive/moore-2013-2c71bdb17f121b0c00af.json';
   let unavailable=true,blocked=0,recovered=0;
   await page.route(archive,route=>{
     assert.equal(route.request().url(),archive);

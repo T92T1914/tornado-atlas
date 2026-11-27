@@ -8,6 +8,7 @@ import unittest
 from tempfile import TemporaryDirectory
 
 from atlas.archive import dossiers, validate_dossier
+from citation_continuation_support import CITATION_PROMOTIONS
 from response_continuation_support import RESPONSE_PROMOTIONS, response_predecessor
 from reviewed_continuation_support import reviewed_predecessor
 from spacing_continuation_support import SPACING_PROMOTIONS, spacing_boundary, spacing_predecessor
@@ -260,13 +261,20 @@ class ResponseReadingTests(unittest.TestCase):
         files = [spec[key] for key in ('previous_file', 'current_file', 'previous_history_file', 'history_file')]
         for later in SPACING_PROMOTIONS.get(event, ()):
             files += [later['current_file'], later['history_file']]
+        notes = [NOTE]
+        # A source citation edge is newer still, and it also reads its research record.
+        cited = CITATION_PROMOTIONS.get(event)
+        if cited:
+            files += [cited['current_file'], cited['history_file']]
+            notes.append(cited['record'])
         for file in files:
             path = destination / 'web' / file
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes((ROOT / 'web' / file).read_bytes())
-        path = destination / NOTE
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes((ROOT / NOTE).read_bytes())
+        for note in notes:
+            path = destination / note
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((ROOT / note).read_bytes())
         index = json.loads((ROOT / 'web/archive/index.json').read_bytes())
         entry = next(row for row in index['events'] if row['id'] == event)
         (destination / 'web/archive/index.json').write_text(json.dumps({'events': [entry]}), encoding='utf8')
@@ -295,7 +303,7 @@ class ResponseReadingTests(unittest.TestCase):
                     index['events'][0][field] = {'file': spec['previous_file'], 'dossier_sha256': spec['previous'],
                         'history_file': spec['previous_history_file'], 'registered_media': 1}[field]
                     path.write_text(json.dumps(index), encoding='utf8')
-                    with self.assertRaisesRegex(AssertionError, 'Exact current (spacing|response) index entry'):
+                    with self.assertRaisesRegex(AssertionError, 'Exact current (citation|spacing|response) index entry'):
                         response_predecessor(self, self.docs[event], isolated)
             with self.subTest(event=event, field='source note'), TemporaryDirectory() as temporary:
                 isolated = Path(temporary)
