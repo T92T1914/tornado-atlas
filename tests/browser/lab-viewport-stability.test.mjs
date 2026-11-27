@@ -81,7 +81,7 @@ const SPACED_PUBLICATIONS={
     "wire": "f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76"
   }
 };
-// Later edges gave El Reno three more versions, oldest first. The footage register
+// Later edges gave El Reno four more versions, oldest first. The footage register
 // edge changed the Robinson rows only, and a later spacing edge put spaces back
 // in two other source notes, so its reference item and that item's source stay exact.
 // A source citation edge gave Moore one more version. It adds a source and an
@@ -113,14 +113,23 @@ const LATER_PUBLICATIONS={
       "previous_wire": "2c32832275b12e084d4c31bc7610218776b362930fae3a070de93293c78c5752",
       "file": "el-reno-2013-ba698502f89d644549c0.json",
       "wire": "9611a840ffbd7dc5b6978d5f4687b3dedf2021168b65866d55401014ebd70876",
-      "recast": true
+      "recast": "labels"
+    },
+    {
+      "previous_file": "el-reno-2013-ba698502f89d644549c0.json",
+      "previous_wire": "9611a840ffbd7dc5b6978d5f4687b3dedf2021168b65866d55401014ebd70876",
+      "file": "el-reno-2013-1f93dbc7a57c2f187b8d.json",
+      "wire": "532eeeaf32075028a9944b6027eca4cc6f18109814346789d17aeb2dffc3a802",
+      "recast": "permission"
     }
   ]
 };
 // A wording recast edge then rewrote six phrases around the values Nick Nolte
-// reported. Its reference item and that item's source differ from the earlier
-// ones by these exact replacements only.
-const RECASTS=[
+// reported, and a second one rewrote three sentences about his permission and
+// what he reported. After
+// each, the reference item and that item's source differ from the earlier ones
+// by that edge's exact replacements only, and at least one of them changed.
+const RECASTS={labels:[
  ['Creator-reported label: ','Label reported by the creator: '],
  ['The movie marks are creator-reported navigation guides.','The movie marks are navigation guides reported by the creator.'],
  ['Still-label offsets of 0, 22 and 85 seconds and creator movie-guide offsets of 0, 21 and 86 seconds remain distinct.',
@@ -128,9 +137,19 @@ const RECASTS=[
  ['Used with Nick Nolte\u2019s item-specific permission for unchanged copies of','Used with Nick Nolte\u2019s permission, specific to each item, for unchanged copies of'],
  ['exports from his roof-mounted GoPro recording.','exports from the recording made by his GoPro mounted on the roof.'],
  ['He reports using the GPS-equipped Sony HDR-PJ710V recording as a time reference','He reports using the GPS equipped Sony HDR-PJ710V recording as a time reference']
-];
-const recast=value=>typeof value==='string'?RECASTS.reduce((text,[old,next])=>text.split(old).join(next),value):
- Array.isArray(value)?value.map(recast):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,item])=>[key,recast(item)])):value;
+],permission:[
+ ['Creator attribution on the three unchanged published JPEGs and item-specific documentary permission reviewed October 15, 2026.',
+  'Creator attribution on the three unchanged published JPEGs and documentary permission, specific to each item, reviewed October 15, 2026.'],
+ ['The three full JPEGs have separate item-specific permission records; the Commons photograph keeps its separate license.',
+  'The three full JPEGs have separate records of permission, specific to each item. The Commons photograph keeps its separate license.'],
+ ['Creator-reported export, timing and approximate camera context reviewed separately.',
+  'The export, timing and approximate camera context reported by the creator were reviewed separately.']
+]};
+const recastWith=pairs=>{
+ const recast=value=>typeof value==='string'?pairs.reduce((text,[old,next])=>text.split(old).join(next),value):
+  Array.isArray(value)?value.map(recast):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,item])=>[key,recast(item)])):value;
+ return recast;
+};
 const newestOf=event=>LATER_PUBLICATIONS[event]?.at(-1);
 const CURRENT_REFERENCES={...REFERENCES};
 const currentIndex=JSON.parse(await readFile(new URL('../../web/archive/index.json',import.meta.url),'utf8'));
@@ -177,9 +196,10 @@ for(const[event,steps]of Object.entries(LATER_PUBLICATIONS)){
   const beforeSource=before.sources.find(row=>row.id===beforeItem?.source_id);
   assert.ok(beforeItem&&afterItem);
   if(later.recast){
-   assert.notDeepEqual(afterItem,beforeItem,'The recast edge rewords the reference item of '+event);
+   const recast=recastWith(RECASTS[later.recast]),afterSource=after.sources.find(row=>row.id===beforeItem.source_id);
+   assert.notDeepEqual([afterItem,afterSource],[beforeItem,beforeSource],'The recast edge rewords the reference item or its source of '+event);
    assert.deepEqual(afterItem,recast(beforeItem),'Only the named recasts separate the reference items of '+event);
-   assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),recast(beforeSource));
+   assert.deepEqual(afterSource,recast(beforeSource));
   }else{
    assert.deepEqual(afterItem,beforeItem,'A later edge keeps the reference item of '+event);
    assert.deepEqual(after.sources.find(row=>row.id===beforeItem.source_id),beforeSource);
