@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
-import {fixture,base,settle} from './harness.mjs';
+import {fixture,base,settle,singleCheckWait} from './harness.mjs';
 import {waitForDossier} from './dossier-readiness.mjs';
 import {assertReadingReflow} from './reading-reflow-diagnostics.mjs';
 
@@ -265,7 +265,7 @@ test('Udall focus wait without scripts sees a link that scrolls into view after 
   assert.equal(await page.evaluate(selector=>document.querySelector(selector).getBoundingClientRect().top>innerHeight,selector),true,'The records link starts below the first screen');
   // The control reports what page.waitForFunction does in this engine and how
   // often it checked. It is not asserted.
-  const control=page.waitForFunction(selector=>{
+  const control=singleCheckWait(page,selector=>{
     window.controlChecks=(window.controlChecks||0)+1;
     const node=document.querySelector(selector),r=node.getBoundingClientRect();
     return node===document.activeElement&&r.top>=-1&&r.bottom<=innerHeight+1;
@@ -283,6 +283,16 @@ test('Udall focus wait without scripts sees a link that scrolls into view after 
   const outcome=await control,checks=await page.evaluate(()=>({control:window.controlChecks,settle:window.settleChecks}));
   assert.ok(checks.settle>1,'The polled wait checked again after the scroll');
   t.diagnostic('page.waitForFunction without scripts after a late focus scroll: '+outcome+' after '+checks.control+' checks');
+});
+test('A page without scripts refuses page.waitForFunction at the call and names settle',{timeout:45000},async t=>{
+  const page=await fixture(t,{viewport:{width:320,height:900},javaScriptEnabled:false,colorScheme:'dark',reducedMotion:'reduce'});
+  await openArticle(page,'dark',false);
+  assert.throws(()=>page.waitForFunction(()=>true),/checks only once on a page without scripts\. Wait with settle/);
+  assert.equal(await singleCheckWait(page,()=>document.querySelector('#records')!==null).then(()=>'seen'),'seen','The named control still waits');
+  // A page with scripts keeps page.waitForFunction and has no single check wait.
+  const scripted=await fixture(t,{viewport:{width:320,height:900},colorScheme:'dark',reducedMotion:'reduce'});
+  assert.throws(()=>singleCheckWait(scripted,()=>true),/only for a page opened without scripts/);
+  await openArticle(scripted,'dark');
 });
 test('Udall failed regional image retains the account, caption and exact source actions',{timeout:45000},async t=>{
   const page=await fixture(t,{viewport:{width:320,height:900},colorScheme:'dark',reducedMotion:'reduce'});
