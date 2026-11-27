@@ -12,7 +12,7 @@ import unittest
 
 from atlas.archive import digest, dossiers
 from recast_continuation_support import (BASIS, RECAST_PROMOTIONS, ROOT, _recast_edge, canonical, explain_recast,
-                                         recast_boundary, recast_index_entry, recast_paths)
+                                         recast_boundary, recast_chain, recast_index_entry, recast_paths)
 from spacing_continuation_support import LATE_SPACING_PROMOTIONS
 
 EVENT = 'el-reno-2013'
@@ -34,14 +34,18 @@ class RecastEdgeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.docs = {doc['id']: doc for doc in dossiers(ROOT)}
-        cls.spec = RECAST_PROMOTIONS[EVENT]
+        cls.spec = RECAST_PROMOTIONS[EVENT][0]
         cls.timeline = json.loads((ROOT / 'exhibits/el-reno-2013/appearance-timeline.json').read_bytes())
 
     def media(self, doc, identity):
         return next(row for row in doc['media'] if row['id'] == identity)
 
+    def first(self):
+        """The version this edge admitted and its index entry, as the newer recast edges retained them."""
+        return recast_chain(self, self.docs[EVENT])[-2]
+
     def test_the_edge_returns_the_late_spaced_predecessor_and_its_index_entry(self):
-        self.assertEqual(canonical(self.docs[EVENT]), self.spec['current'])
+        self.assertEqual(canonical(self.first()[0]), self.spec['current'])
         previous, entry = recast_boundary(self, self.docs[EVENT])
         self.assertEqual(canonical(previous), self.spec['previous'])
         self.assertEqual(canonical(entry), self.spec['previous_index_sha256'])
@@ -116,8 +120,8 @@ class RecastEdgeTests(unittest.TestCase):
 
     def test_the_explanation_refuses_every_change_it_does_not_name(self):
         # explain_recast reads no pinned bytes, so each change below reaches the rule itself.
-        previous = recast_boundary(self, self.docs[EVENT])[0]
-        paths, _ = explain_recast(self, self.spec, previous, copy.deepcopy(self.docs[EVENT]))
+        previous, current = recast_boundary(self, self.docs[EVENT])[0], self.first()[0]
+        paths, _ = explain_recast(self, self.spec, previous, copy.deepcopy(current))
         self.assertEqual(len(paths), 25)
         first = lambda doc: self.media(doc, ROWS[0])
         named, only = 'with the named phrases replaced', 'changes only the phrases it names'
@@ -153,13 +157,13 @@ class RecastEdgeTests(unittest.TestCase):
         }
         for label, (change, message) in changes.items():
             with self.subTest(change=label):
-                successor = copy.deepcopy(self.docs[EVENT])
+                successor = copy.deepcopy(current)
                 change(successor)
                 with self.assertRaisesRegex(AssertionError, message):
                     explain_recast(self, self.spec, previous, successor)
 
     def test_the_named_phrases_must_explain_the_successor_exactly(self):
-        current, recasts = self.docs[EVENT], self.spec['recasts']
+        (current, entry), recasts = self.first(), self.spec['recasts']
 
         def with_pair(index, old=None, new=None, count=None):
             pair = recasts[index]
@@ -181,7 +185,7 @@ class RecastEdgeTests(unittest.TestCase):
                 ('a recast that changes nothing', with_pair(1, new=recasts[1][0]), 'must change its phrase'),
                 ('another candidate', {'candidate_sha256': '0' * 64}, 'exact reviewed candidate')):
             with self.subTest(change=label), self.assertRaisesRegex(AssertionError, message):
-                _recast_edge(self, current, {**self.spec, **change}, ROOT, None)
+                _recast_edge(self, current, {**self.spec, **change}, ROOT, entry)
 
     def test_a_named_phrase_is_recast_only_in_reader_prose(self):
         recasts = (('Creator-reported label: ', 'Label reported by the creator: ', 1),)

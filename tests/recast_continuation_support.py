@@ -1,11 +1,14 @@
-"""One exact wording recast edge over the spaced El Reno publication.
+"""Exact wording recast edges over the spaced El Reno publication.
 
 The El Reno dossier keeps copies of the labels written around the values Nick
 Nolte reported for his three photographs, and the timeline of the exhibit holds
-the same labels. Six of those phrases were hyphenated compounds. This edge
-admits the dossier version that rewrites them only when every changed string
-is its predecessor with the phrases this edge names replaced, each as often as
-this edge counts, and nothing else changed.
+the same labels. Six of those phrases were hyphenated compounds, and the first
+edge admits the version that rewrote them. Three more sentences about his
+permission and what he reported held the same kind of wording, and the second
+edge admits the version that rewrote those. Each edge admits its version only when every
+changed string is its predecessor with the phrases that edge names replaced,
+each as often as that edge counts, and nothing else changed. The edges of an
+event are listed oldest first and peeled newest first.
 
 Only strings under reader prose keys may change. Capture, alignment and video
 times, places, statuses, roles, identifiers, links and every provenance field
@@ -14,7 +17,7 @@ in order and every held name. That guards the values. It cannot judge meaning,
 so what each replacement says is read when the edge is reviewed, and the edge
 then holds the version to those exact words. Nothing else may change apart
 from the publication review, which has to name the recast, and the index
-entry and the history have to extend the retained ones by exactly this step.
+entry and the history have to extend the retained ones by exactly that step.
 Every other edit and every later promotion still gets no allowance.
 
 Historical preservation tests read the predecessor this module returns. Current
@@ -28,11 +31,11 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 BASIS = 'Wording recast. '
-# Immutable predecessor and successor publications, both histories, both index
-# identities and the reviewed candidate. Then the phrases: old wording, new
-# wording and how many times the dossier held the old one.
+# For each edge, oldest first: immutable predecessor and successor publications,
+# both histories, both index identities and the reviewed candidate. Then the
+# phrases: old wording, new wording and how many times the dossier held the old one.
 RECAST_PROMOTIONS = {
-    'el-reno-2013': {
+    'el-reno-2013': ({
         'previous_file': 'archive/el-reno-2013-f36f10f672a9e2e0a999.json',
         'previous_wire': '2c32832275b12e084d4c31bc7610218776b362930fae3a070de93293c78c5752',
         'previous': 'f36f10f672a9e2e0a999262a0a461f7c5dbadebc89a39f1d6fa41bad7823eefe',
@@ -62,15 +65,44 @@ RECAST_PROMOTIONS = {
             ('He reports using the GPS-equipped Sony HDR-PJ710V recording as a time reference',
              'He reports using the GPS equipped Sony HDR-PJ710V recording as a time reference', 6),
         ),
-    },
+    }, {
+        'previous_file': 'archive/el-reno-2013-ba698502f89d644549c0.json',
+        'previous_wire': '9611a840ffbd7dc5b6978d5f4687b3dedf2021168b65866d55401014ebd70876',
+        'previous': 'ba698502f89d644549c0d29453e7f6fcf50a9c6a186f7bfd350c68d06495ee71',
+        'current_file': 'archive/el-reno-2013-1f93dbc7a57c2f187b8d.json',
+        'current_wire': '532eeeaf32075028a9944b6027eca4cc6f18109814346789d17aeb2dffc3a802',
+        'current': '1f93dbc7a57c2f187b8d0ad84785eeba6f6b752d9b16fef3b4d7b3f728efa622',
+        'previous_history_file': 'archive/el-reno-2013-history-d615347619a312d61d16.json',
+        'previous_history_wire': '861472a1de0d05fa3ac177d263a541d07135e455132eaca846b5ab5b1b83351d',
+        'history_file': 'archive/el-reno-2013-history-28bbbe0c211875dcc771.json',
+        'history_wire': '8ac594d9977962c091968884597ff6a26c88e0cd6c2c75ebd5047581d4818b26',
+        'previous_index_sha256': '124e2f18a2162e739d08b6d549fcd14e55f15457768e537978949fe3233732a4',
+        'current_index_sha256': '499c2327c0dfe5b83e59843eb89cfae7553e471996f885b5cff9d412954f31f2',
+        'candidate_sha256': '7a28939efdc7e6289100782dd7bd3278aad03ccc3d8079d5d232b46547dcdf94',
+        'strings': 3,
+        'recasts': (
+            ('Creator attribution on the three unchanged published JPEGs and item-specific documentary permission '
+             'reviewed October 15, 2026.',
+             'Creator attribution on the three unchanged published JPEGs and documentary permission, specific to '
+             'each item, reviewed October 15, 2026.', 1),
+            ('The three full JPEGs have separate item-specific permission records; the Commons photograph keeps its '
+             'separate license.',
+             'The three full JPEGs have separate records of permission, specific to each item. The Commons '
+             'photograph keeps its separate license.', 1),
+            ('Creator-reported export, timing and approximate camera context reviewed separately.',
+             'The export, timing and approximate camera context reported by the creator were reviewed separately.', 1),
+        ),
+    }),
 }
-# Only strings under these reader prose keys may be recast.
-PROSE_KEYS = {'account', 'basis', 'caption', 'clock_disposition', 'limits', 'lineage', 'rights', 'rights_basis'}
+# Only strings under these reader prose keys may be recast. The access note of a source is the
+# inspection scope a visitor reads beside it.
+PROSE_KEYS = {'access', 'account', 'basis', 'caption', 'clock_disposition', 'limits', 'lineage', 'rights',
+              'rights_basis'}
 # A recast never reaches a time, a place, a status, a role or a transformation record.
 HELD_KEYS = {'alignment', 'capture', 'video', 'time', 'place', 'status', 'transformation', 'roles'}
 NUMBER = re.compile(r'\d+(?:[:.]\d+)*')
 # Names a recast has to carry over as they stand.
-NAMES = ('Nick Nolte', 'GoPro', 'Sony', 'HDR-PJ710V', 'GPS')
+NAMES = ('Nick Nolte', 'GoPro', 'Sony', 'HDR-PJ710V', 'GPS', 'Commons', 'JPEG', 'October')
 ROW_KINDS = ('sources', 'observations', 'media', 'creators', 'records')
 REVIEW_KEYS = ('basis', 'candidate_sha256', 'previous_dossier_sha256', 'reviewed_at')
 
@@ -213,16 +245,26 @@ def _recast_edge(case, current, spec, root, index_entry):
     return copy.deepcopy(previous), retained
 
 
+def recast_chain(case, current, root=ROOT, index_entry=None):
+    """Return every (document, index entry) from the current version back through each recast edge.
+
+    The first pair is the current document with the entry supplied. Each later
+    pair is what one more edge retained, newest edge first, and each older edge
+    reads the index entry the newer one retained.
+    """
+    chain = [(copy.deepcopy(current), index_entry)]
+    for spec in reversed(RECAST_PROMOTIONS.get(current['id'], ())):
+        chain.append(_recast_edge(case, chain[-1][0], spec, root, chain[-1][1]))
+    return chain
+
+
 def recast_boundary(case, current, root=ROOT, index_entry=None):
-    """Return (retained document, retained index entry) after exact validation.
+    """Return (retained document, retained index entry) after exact validation of every recast edge.
 
     Events without a recast edge come back unchanged with the entry supplied.
-    This is the newest edge of its dossier, so it is peeled before every other.
+    These are the newest edges of their dossier, so they are peeled before every other.
     """
-    spec = RECAST_PROMOTIONS.get(current['id'])
-    if spec is None:
-        return copy.deepcopy(current), index_entry
-    return _recast_edge(case, current, spec, root, index_entry)
+    return recast_chain(case, current, root, index_entry)[-1]
 
 
 def recast_predecessor(case, current, root=ROOT):
@@ -231,8 +273,9 @@ def recast_predecessor(case, current, root=ROOT):
 
 def recast_index_entry(case, entry, root=ROOT):
     """A historical index view only. The real current index stays as it is."""
-    spec = RECAST_PROMOTIONS.get(entry['id'])
-    if spec is None:
+    specs = RECAST_PROMOTIONS.get(entry['id'])
+    if not specs:
         return entry
+    spec = specs[-1]
     current = _bound(case, root, spec['current_file'], spec['current_wire'], spec['current'])
     return recast_boundary(case, current, root, entry)[1]
