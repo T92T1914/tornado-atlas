@@ -71,7 +71,8 @@ export async function fixture(t,options={}){
   // Without scripts page.waitForFunction checks once and never again (see settle
   // below), so a wait whose condition turns true after that check always times out.
   // The page refuses it at the call. A test that shows that single check on
-  // purpose names singleCheckWait instead.
+  // purpose names singleCheckWait instead. Only the page returned here is guarded.
+  // Frame waits and any later page in the same context still need the same care.
   if(options.javaScriptEnabled===false){
     singleCheckWaits.set(page,page.waitForFunction.bind(page));
     page.waitForFunction=()=>{throw new Error('page.waitForFunction checks only once on a page without scripts. Wait with settle from harness.mjs.');};
