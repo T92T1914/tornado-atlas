@@ -364,7 +364,7 @@ async function drawMap(geojson, chapters, updateMedia, cameras, places, document
     byId('next').disabled = clock.seconds === clock.duration;
     const basis = selected.published ? 'Published NWS minute position' : `Interpolated between ${positions[selected.before].properties.source_name} and ${positions[selected.after].properties.source_name} PM CDT`;
     byId('position-basis').textContent = basis;
-    byId('map-description').textContent = `NWS whole-event outline and center path. Selected time: ${time}. ${basis}. The marker has no physical size. Camera samples are separate recorded observations.`;
+    byId('map-description').textContent = `NWS outline of the whole event and center path. Selected time: ${time}. ${basis}. The marker has no physical size. Camera samples are separate recorded observations.`;
     const minute=Number(positions[selected.before].properties.source_name.split(':')[1]);
     const chapter=chapters.filter(c=>c.minute<=minute).at(-1) || chapters[0];
     if (lastChapter === chapter) return;
