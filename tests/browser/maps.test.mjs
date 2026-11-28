@@ -124,6 +124,13 @@ test('evidence-only mode removes modern qualification from the visible status',a
   assert.match(await page.locator('#path-geography [role=status]').textContent(),/hidden/);
 });
 
+test('the map description names the outline of the whole event in plain words',async t=>{
+  const page=await fixture(t,phone);await exhibit(page);
+  const text=await page.locator('#map-description').textContent();
+  assert.match(text,/^NWS outline of the whole event and center path\. Selected time: /);
+  assert.doesNotMatch(text,/whole-event/);
+});
+
 test('failed replacement geography removes the old mode and reports the actual fallback',async t=>{
   const page=await fixture(t,phone);await exhibit(page);
   await page.route('**/USGSShadedReliefOnly/MapServer/export?*',route=>route.fulfill({status:503,body:'Unavailable'}));
