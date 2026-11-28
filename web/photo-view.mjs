@@ -55,7 +55,7 @@ export function documentaryPhoto(sample) {
   return {title:image.creator+' / '+new URL(image.original_url).pathname.split('/').at(-1),asset:image.asset,expectedSha256:image.sha256,
     alt:image.alt,caption:image.caption,location:image.creator_report.viewpoint,
     credit:image.creator+'. '+image.rights_basis,source:image.original_url,
-    license:'Item-specific permission: unchanged documentary display',selectionKey:'appearance:'+sample.id};
+    license:'Permission, specific to each item: unchanged documentary display',selectionKey:'appearance:'+sample.id};
 }
 
 // One viewer for historical images, with the credit supplied by each source.
