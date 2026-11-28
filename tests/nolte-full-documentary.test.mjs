@@ -30,8 +30,8 @@ test('the gallery sentence and the documentary license label hold no prose hyphe
  const page=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
  const gallery=page.match(/<p class="section-intro">(Photographs by Daniel Rodriguez and Nick Nolte[^<]*)<\/p>/)?.[1];
  assert.ok(gallery,'The documentary gallery sentence is on the page');
- assert.match(gallery,/three GoPro exports used with the creator’s permission,/);
- assert.match(gallery,/discrete labels in the player, reported by the creator\. Their clock accuracy and intervening appearance remain unknown\./);
+ assert.match(gallery,/three GoPro exports used with Nick Nolte’s permission,/);
+ assert.match(gallery,/discrete labels in the player, reported by Nick Nolte\. Their clock accuracy and intervening appearance remain unknown\./);
  for(const text of [license,gallery]){assert.doesNotMatch(text,compound);assert.doesNotMatch(text,/;/);assert.doesNotMatch(text,/[\u2013\u2014]/);}
 });
 test('full references do not weaken older versions, size bounds or creator context semantics',()=>{
