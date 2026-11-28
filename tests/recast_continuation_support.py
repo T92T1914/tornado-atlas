@@ -5,12 +5,16 @@ Nolte reported for his three photographs, and the timeline of the exhibit holds
 the same labels. Six of those phrases were hyphenated compounds, and the first
 edge admits the version that rewrote them. Three more sentences about his
 permission and what he reported held the same kind of wording, and the second
-edge admits the version that rewrote those. Each edge admits its version only when every
+edge admits the version that rewrote those. The third edge admits the version
+that rewrote the rest of that kind around his photographs, with the summary and
+three more records, and it is the first to name prose places outside the
+reader prose keys. Each edge admits its version only when every
 changed string is its predecessor with the phrases that edge names replaced,
 each as often as that edge counts, and nothing else changed. The edges of an
 event are listed oldest first and peeled newest first.
 
-Only strings under reader prose keys may change. Capture, alignment and video
+Only strings under reader prose keys, or at the extra places an edge names,
+may change. Capture, alignment and video
 times, places, statuses, roles, identifiers, links and every provenance field
 keep their exact bytes. Each named replacement keeps the digits of its phrase
 in order and every held name. That guards the values. It cannot judge meaning,
@@ -92,6 +96,80 @@ RECAST_PROMOTIONS = {
             ('Creator-reported export, timing and approximate camera context reviewed separately.',
              'The export, timing and approximate camera context reported by the creator were reviewed separately.', 1),
         ),
+    }, {
+        'previous_file': 'archive/el-reno-2013-1f93dbc7a57c2f187b8d.json',
+        'previous_wire': '532eeeaf32075028a9944b6027eca4cc6f18109814346789d17aeb2dffc3a802',
+        'previous': '1f93dbc7a57c2f187b8d0ad84785eeba6f6b752d9b16fef3b4d7b3f728efa622',
+        'current_file': 'archive/el-reno-2013-36f880d7c23e5aa90ca3.json',
+        'current_wire': '87da53b9ef3c71ea654c7444d0668b4b8206d0f550e42513773a6e022acce695',
+        'current': '36f880d7c23e5aa90ca33365f344fd116773f35d256b499a78bf069eefac64bc',
+        'previous_history_file': 'archive/el-reno-2013-history-28bbbe0c211875dcc771.json',
+        'previous_history_wire': '8ac594d9977962c091968884597ff6a26c88e0cd6c2c75ebd5047581d4818b26',
+        'history_file': 'archive/el-reno-2013-history-d8f16d55b9486b164efd.json',
+        'history_wire': '76d004265a94ce86d84b31c9da9a8af9337d01e9f9a5f73cd38e62cfc1004656',
+        'previous_index_sha256': '499c2327c0dfe5b83e59843eb89cfae7553e471996f885b5cff9d412954f31f2',
+        'current_index_sha256': '0bf995552cbcc5a465d693778404b6921b2e32668aba1f5b20e0171cb823cfb6',
+        'candidate_sha256': '8f28a7fd47e2f88579c5076f818cd787efa241447979cbb2cd12d15c4a954068',
+        'strings': 24,
+        # The first edge to change prose outside the reader prose keys. It names each extra place, and a
+        # star stands for a list position. Older edges name none and keep the reader prose keys alone.
+        'prose_paths': (
+            ('summary',),
+            ('sources', '*', 'locator'),
+            ('sources', '*', 'revision'),
+            ('media', '*', 'review', 'unreviewed'),
+            ('media', '*', 'review', 'inspection'),
+            ('media', '*', 'review', 'source_comparison', 'scene_features', '*'),
+            ('media', '*', 'review', 'published_resource_provenance', 'role'),
+        ),
+        'recasts': (
+            ('Original creator-linked public watch page and nearby timestamped link only.',
+             'Original public watch page linked by the creator, and nearby timestamped link only.', 2),
+            ('Individual camera and still-exposure assignment remain unknown.',
+             'The camera and the exposure behind each still remain unknown.', 1),
+            ('The Commons original-work description names Nick Nolte as author and copyright claimant. This '
+             'attribution belongs to this photograph; no footage ownership or camera record is transferred.',
+             'The Commons description records the photograph as original work and names Nick Nolte as author '
+             'and copyright claimant. This attribution belongs to this photograph. No footage ownership or camera '
+             'record is transferred.', 1),
+            ('Commons description, original-work attribution, CC BY-SA 3.0 notice,',
+             'Commons description, attribution as original work, CC BY-SA 3.0 notice,', 1),
+            ('Selected source-page fields read October 12, 2026.',
+             'Selected fields of the source page were read on October 12, 2026.', 1),
+            ('Exact original bytes match the source SHA1; no source video was used.',
+             'Exact original bytes match the source SHA1. No source video was used.', 1),
+            ('Preserve Nick Nolte credit, source/license links and unchanged-image statement.',
+             'Preserve Nick Nolte credit, source/license links and the statement that the image is unchanged.', 1),
+            ('Compatible broad cloud arrangement and lightning-lit left region; publication processing and exact '
+             'exposure remain unknown.',
+             'Compatible broad cloud arrangement and left region lit by lightning. Publication processing and '
+             'exact exposure remain unknown.', 2),
+            ('Illumination differs from the lightning-lit published second still; exact exposure remains unknown.',
+             'Illumination differs from the published second still, which is lit by lightning. Exact exposure '
+             'remains unknown.', 2),
+            ('Exact source exposure, original-camera assignment, absolute clock accuracy,',
+             'Exact source exposure, assignment to the original camera, absolute clock accuracy,', 2),
+            ('No camera-original or complete movie digest is claimed.',
+             'No digest of the camera original or of the complete movie is claimed.', 1),
+            ('The visible bottom mark reads 23:10Z; the exposure second',
+             'The visible bottom mark reads 23:10Z. The exposure second', 4),
+            ('The visible bottom mark reads 23:12Z; the exposure second',
+             'The visible bottom mark reads 23:12Z. The exposure second', 2),
+            ('The visible condensation, surveyed damage and radar-measured winds describe different aspects of the '
+             'tornado.',
+             'The visible condensation, the surveyed damage and the winds measured by radar describe different '
+             'aspects of the tornado.', 1),
+            ('toward a green-gray storm.',
+             'toward a greenish gray storm.', 1),
+            ('Related full-size first published photograph; not movie capture metadata',
+             'Related first published photograph, full size, not movie capture metadata', 1),
+            ('All 120 ordered source presentations inspected in 20 six-frame half-scale tiles, plus full-size '
+             'endpoints; independent second reviewer repeated this coverage.',
+             'All 120 ordered source presentations inspected in 20 tiles of six frames at half scale, plus the '
+             'endpoints at full size. An independent second reviewer repeated this coverage.', 1),
+            ('; encoded endpoints inspected.',
+             '. Encoded endpoints inspected.', 1),
+        ),
     }),
 }
 # Only strings under these reader prose keys may be recast. The access note of a source is the
@@ -104,6 +182,8 @@ NUMBER = re.compile(r'\d+(?:[:.]\d+)*')
 # Names a recast has to carry over as they stand.
 NAMES = ('Nick Nolte', 'GoPro', 'Sony', 'HDR-PJ710V', 'GPS', 'Commons', 'JPEG', 'October')
 ROW_KINDS = ('sources', 'observations', 'media', 'creators', 'records')
+# Fields of the dossier itself, in the order the archive history lists their changes.
+DOSSIER_FIELDS = ('title', 'coverage', 'summary', 'routes', 'reconstruction')
 REVIEW_KEYS = ('basis', 'candidate_sha256', 'previous_dossier_sha256', 'reviewed_at')
 
 
@@ -141,17 +221,29 @@ def recast(text, recasts, used=None):
     return text
 
 
-def recast_paths(case, before, after, recasts, used, path=()):
-    """Return the path of every recast string, failing on any other kind of change."""
+def admitted_path(path, patterns):
+    """Whether path is one of the extra prose places an edge names. A star stands for a list position only."""
+    return any(len(path) == len(pattern) and all(
+        isinstance(part, int) if want == '*' else part == want for part, want in zip(path, pattern))
+        for pattern in patterns)
+
+
+def recast_paths(case, before, after, recasts, used, path=(), admitted=()):
+    """Return the path of every recast string, failing on any other kind of change.
+
+    A string may change under a reader prose key, or at one of the extra places
+    in admitted, which only an edge that names them supplies.
+    """
     where = '/'.join(map(str, path)) or 'dossier'
     case.assertIs(type(after), type(before), 'A recast edge keeps every JSON type: ' + where)
     if isinstance(before, dict):
         case.assertEqual(set(after), set(before), 'A recast edge keeps every key: ' + where)
-        return [found for key in before for found in recast_paths(case, before[key], after[key], recasts, used, path + (key,))]
+        return [found for key in before
+                for found in recast_paths(case, before[key], after[key], recasts, used, path + (key,), admitted)]
     if isinstance(before, list):
         case.assertEqual(len(after), len(before), 'A recast edge keeps every list length: ' + where)
         return [found for index, (old, new) in enumerate(zip(before, after))
-                for found in recast_paths(case, old, new, recasts, used, path + (index,))]
+                for found in recast_paths(case, old, new, recasts, used, path + (index,), admitted)]
     if not isinstance(before, str):
         case.assertEqual(after, before, 'A recast edge changes strings only: ' + where)
         return []
@@ -162,7 +254,8 @@ def recast_paths(case, before, after, recasts, used, path=()):
         return []
     case.assertNotEqual(path[0], 'provenance', 'A recast edge cannot change provenance: ' + where)
     case.assertFalse(HELD_KEYS & set(path), 'A recast edge cannot change a time, a place, a status or a role: ' + where)
-    case.assertIn(path[-1], PROSE_KEYS, 'A recast edge may only change reader prose: ' + where)
+    case.assertTrue(path[-1] in PROSE_KEYS or admitted_path(path, admitted),
+                    'A recast edge may only change reader prose: ' + where)
     case.assertEqual(after, expected, 'A recast string is its predecessor with the named phrases replaced: ' + where)
     for index, hits in counted.items():
         used[index] = used.get(index, 0) + hits
@@ -170,14 +263,23 @@ def recast_paths(case, before, after, recasts, used, path=()):
 
 
 def recast_history_changes(previous, paths):
-    """The history rows these paths imply, in the order the archive history writes them."""
-    rows = {}
+    """The history rows these paths imply, in the order the archive history writes them.
+
+    Row changes come first. A change to a field of the dossier itself, such as
+    its summary, follows as one row per field, as the archive writes it.
+    """
+    rows, fields = {}, set()
     for path in paths:
+        if path[0] in DOSSIER_FIELDS:
+            fields.add(path[0])
+            continue
         if path[0] not in ROW_KINDS:
             raise AssertionError('A recast path outside the dossier rows: ' + str(path))
         rows.setdefault((path[0], previous[path[0]][path[1]]['id']), set()).add(path[2])
     return [dict(kind=kind, id=identifier, change='updated', fields=sorted(rows[(kind, identifier)]))
-            for kind in ROW_KINDS for identifier in sorted(i for k, i in rows if k == kind)]
+            for kind in ROW_KINDS for identifier in sorted(i for k, i in rows if k == kind)] + [
+        dict(kind='dossier', id=previous['id'], change='updated', fields=[field])
+        for field in DOSSIER_FIELDS if field in fields]
 
 
 def explain_recast(case, spec, previous, successor):
@@ -200,7 +302,7 @@ def explain_recast(case, spec, previous, successor):
     for key in REVIEW_KEYS:
         view['provenance']['publication_review'][key] = old_review[key]
     used = {}
-    paths = recast_paths(case, previous, view, spec['recasts'], used)
+    paths = recast_paths(case, previous, view, spec['recasts'], used, admitted=spec.get('prose_paths', ()))
     case.assertEqual(len(paths), spec['strings'], 'The recast edge changes exactly its reviewed strings')
     case.assertEqual([used.get(index, 0) for index in range(len(spec['recasts']))],
                      [count for _, _, count in spec['recasts']],

@@ -7,7 +7,7 @@
     "stage": "First exhibit study",
     "record_id": "ncei:453682",
     "record_match_basis": "Date, county, start time, rating and event narrative agree. Nearby satellite tornadoes are separate records.",
-    "introduction": "On May 31, 2013, a tornado formed southwest of El Reno, Oklahoma, and passed south of the town and airport before turning northeast. The National Weather Service reports a maximum width of 2.6 miles and a final damage rating of EF3. Eight people died, all in vehicles. The visible condensation, surveyed damage and radar-measured winds describe different aspects of the tornado.",
+    "introduction": "On May 31, 2013, a tornado formed southwest of El Reno, Oklahoma, and passed south of the town and airport before turning northeast. The National Weather Service reports a maximum width of 2.6 miles and a final damage rating of EF3. Eight people died, all in vehicles. The visible condensation, the surveyed damage and the winds measured by radar describe different aspects of the tornado.",
     "facts": [
       {
         "value": "EF3",
@@ -21,12 +21,12 @@
       },
       {
         "value": "39",
-        "label": "Time-labeled positions in the NWS file",
+        "label": "Positions with time labels in the NWS file",
         "source": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"
       }
     ],
-    "map_note": "NWS tornado outline, center path and time-labeled center positions. The shaded outline covers the event as a whole; it is not the tornado's shape at the selected minute. The marker has no physical size.",
-    "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Between published minutes, the marker moves by linear interpolation in longitude and latitude. This is a display assumption, not an additional observation or a measured second-by-second route. Playback pauses when this tab is hidden.",
+    "map_note": "NWS tornado outline, center path and center positions with time labels. The shaded outline covers the event as a whole. It is not the tornado's shape at the selected minute. The marker has no physical size.",
+    "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Between published minutes, the marker moves by linear interpolation in longitude and latitude. This is a display assumption, not an additional observation or a route measured second by second. Playback pauses when this tab is hidden.",
     "discrepancies": [
       {
         "title": "An unresolved end time",
@@ -38,7 +38,7 @@
       },
       {
         "title": "Rating and appearance answer different questions",
-        "text": "The damage rating does not specify the funnel's dimensions or recreate its appearance. Building a scene needs shot-level evidence about viewpoint, visibility and time.",
+        "text": "The damage rating does not specify the funnel's dimensions or recreate its appearance. Building a scene needs evidence about the viewpoint, visibility and time of individual shots.",
         "sources": [
           "https://www.weather.gov/oun/efscale"
         ]
@@ -50,7 +50,7 @@
       "frame_registration": "Separate Dan Robinson dashcam samples now have a visible source-clock correspondence. Pecos Hank samples remain without historical time or camera position. No continuous video synchronization or measured speed or width is inferred.",
       "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
       "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
-      "remaining": "Continuous shot registration, independent clock calibration, complete video review, camera georeferencing, and a historical appearance reconstruction. Discrete registered moments are available in the original-footage viewer. The separate 3D form study is illustrative."
+      "remaining": "Continuous shot registration, independent clock calibration, complete video review, camera georeferencing, and a historical appearance reconstruction. Discrete registered moments are available in the viewer for the original footage. The separate 3D form study is illustrative."
     },
     "introduction_source": "https://www.weather.gov/oun/events-20130531"
   },
@@ -9247,13 +9247,13 @@
               "visibility_limits": "The complete printed clock label is readable in the retained presentation.",
               "scene_features": [
                 "Compatible curved field horizon, foreground fence and left utility poles.",
-                "Compatible broad cloud arrangement and lightning-lit left region; publication processing and exact exposure remain unknown."
+                "Compatible broad cloud arrangement and left region lit by lightning. Publication processing and exact exposure remain unknown."
               ],
               "exposure_identity": "unknown",
               "reviewed_on": "2026-10-13",
               "inspection_basis": "Root and independent reviewers inspected the complete paused browser presentation against the published first still. The video decoded at 1920 by 1080; the saved presentation is 1112 by 626. A composition callback does not establish the original camera exposure.",
               "reuse": "external_links_only",
-              "rights_basis": "Original creator-linked public watch page and nearby timestamped link only. The separate Commons photograph license does not license this movie or these source stills.",
+              "rights_basis": "Original public watch page linked by the creator, and nearby timestamped link only. The separate Commons photograph license does not license this movie or these source stills.",
               "limits": [
                 "Exact photographic exposure and original camera assignment are unknown.",
                 "Printed clocks and creator photo labels do not establish absolute clock accuracy or a fractional photo capture time.",
@@ -9274,7 +9274,7 @@
               "width": 1920,
               "height": 1080,
               "alt": "A dark tapered lowering beneath the storm above a field, with bright illumination at left, a fence and roadside poles in the foreground.",
-              "caption": "The published caption describes a cone with a wide base. Dark cloud and precipitation leave the physical boundary unresolved. Label reported by the creator: 2013-05-31T23:10:37Z. The visible bottom mark reads 23:10Z; the exposure second and UTC accuracy are not independently calibrated.",
+              "caption": "The published caption describes a cone with a wide base. Dark cloud and precipitation leave the physical boundary unresolved. Label reported by the creator: 2013-05-31T23:10:37Z. The visible bottom mark reads 23:10Z. The exposure second and UTC accuracy are not independently calibrated.",
               "creator": "Nick Nolte",
               "rights_basis": "Used with Nick Nolte’s permission, specific to each item, for unchanged copies of 231037.jpg, 231059.jpg and 231202.jpg. Complete location, time and copyright marks are retained. The fourth still and movie remain outside this grant. The previously hosted Commons image keeps its separate license.",
               "creator_report": {
@@ -9353,13 +9353,13 @@
               "visibility_limits": "A Settings tooltip obscures some fractional clock digits. Only the readable whole second is retained; no fraction is inferred from playback metadata.",
               "scene_features": [
                 "Compatible left utility pole, immediate fence, smaller roadside poles and curved field horizon.",
-                "Compatible broad cloud scene. Illumination differs from the lightning-lit published second still; exact exposure remains unknown."
+                "Compatible broad cloud scene. Illumination differs from the published second still, which is lit by lightning. Exact exposure remains unknown."
               ],
               "exposure_identity": "unknown",
               "reviewed_on": "2026-10-13",
               "inspection_basis": "Root and an independent reviewer inspected the complete paused browser presentation against the published second still. The video decoded at 1920 by 1080; the saved presentation is 1168 by 657. The lookup fixed 22 seconds after the first reached the reported second. Some fractional digits were obscured, so numerical clock differences were unavailable.",
               "reuse": "external_links_only",
-              "rights_basis": "Original creator-linked public watch page and nearby timestamped link only. No movie, still or inspection screenshot hosting permission is inferred.",
+              "rights_basis": "Original public watch page linked by the creator, and nearby timestamped link only. No movie, still or inspection screenshot hosting permission is inferred.",
               "limits": [
                 "Exact photographic exposure and original camera assignment are unknown.",
                 "Printed clocks and creator photo labels do not establish absolute clock accuracy or a fractional photo capture time.",
@@ -9380,7 +9380,7 @@
               "width": 1920,
               "height": 1080,
               "alt": "A dark lowering and broad cloud base over the same field and fence, with a bright region at left and roadside poles along the horizon.",
-              "caption": "The published caption describes the base continuing to grow. The image supplies no calibrated physical width. Label reported by the creator: 2013-05-31T23:10:59Z. The visible bottom mark reads 23:10Z; the exposure second and UTC accuracy are not independently calibrated.",
+              "caption": "The published caption describes the base continuing to grow. The image supplies no calibrated physical width. Label reported by the creator: 2013-05-31T23:10:59Z. The visible bottom mark reads 23:10Z. The exposure second and UTC accuracy are not independently calibrated.",
               "creator": "Nick Nolte",
               "rights_basis": "Used with Nick Nolte’s permission, specific to each item, for unchanged copies of 231037.jpg, 231059.jpg and 231202.jpg. Complete location, time and copyright marks are retained. The fourth still and movie remain outside this grant. The previously hosted Commons image keeps its separate license.",
               "creator_report": {
@@ -9451,7 +9451,7 @@
               "width": 1920,
               "height": 1080,
               "alt": "A person in the left foreground faces a broad dark lowering above a field, fence and distant road, beneath the storm cloud.",
-              "caption": "The published caption describes a transition toward a wedge and a wrapping rear-flanking downdraft (RFD) cut. These are attributed descriptions, not measured circulation geometry. Label reported by the creator: 2013-05-31T23:12:02Z. The visible bottom mark reads 23:12Z; the exposure second and UTC accuracy are not independently calibrated.",
+              "caption": "The published caption describes a transition toward a wedge and a wrapping rear-flanking downdraft (RFD) cut. These are attributed descriptions, not measured circulation geometry. Label reported by the creator: 2013-05-31T23:12:02Z. The visible bottom mark reads 23:12Z. The exposure second and UTC accuracy are not independently calibrated.",
               "creator": "Nick Nolte",
               "rights_basis": "Used with Nick Nolte’s permission, specific to each item, for unchanged copies of 231037.jpg, 231059.jpg and 231202.jpg. Complete location, time and copyright marks are retained. The fourth still and movie remain outside this grant. The previously hosted Commons image keeps its separate license.",
               "creator_report": {

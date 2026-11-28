@@ -6,7 +6,7 @@
   "stage": "First exhibit study",
   "record_id": "ncei:453682",
   "record_match_basis": "Date, county, start time, rating and event narrative agree. Nearby satellite tornadoes are separate records.",
-  "introduction": "On May 31, 2013, a tornado formed southwest of El Reno, Oklahoma, and passed south of the town and airport before turning northeast. The National Weather Service reports a maximum width of 2.6 miles and a final damage rating of EF3. Eight people died, all in vehicles. The visible condensation, surveyed damage and radar-measured winds describe different aspects of the tornado.",
+  "introduction": "On May 31, 2013, a tornado formed southwest of El Reno, Oklahoma, and passed south of the town and airport before turning northeast. The National Weather Service reports a maximum width of 2.6 miles and a final damage rating of EF3. Eight people died, all in vehicles. The visible condensation, the surveyed damage and the winds measured by radar describe different aspects of the tornado.",
   "facts": [
     {
       "value": "EF3",
@@ -20,12 +20,12 @@
     },
     {
       "value": "39",
-      "label": "Time-labeled positions in the NWS file",
+      "label": "Positions with time labels in the NWS file",
       "source": "https://www.weather.gov/source/oun/wxevents/20130531/gis/ElRenoTornadoPath_final.kmz"
     }
   ],
-  "map_note": "NWS tornado outline, center path and time-labeled center positions. The shaded outline covers the event as a whole; it is not the tornado's shape at the selected minute. The marker has no physical size.",
-  "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Between published minutes, the marker moves by linear interpolation in longitude and latitude. This is a display assumption, not an additional observation or a measured second-by-second route. Playback pauses when this tab is hidden.",
+  "map_note": "NWS tornado outline, center path and center positions with time labels. The shaded outline covers the event as a whole. It is not the tornado's shape at the selected minute. The marker has no physical size.",
+  "time_note": "KML labels are interpreted as PM CDT on May 31 using the accompanying NWS chronology. Between published minutes, the marker moves by linear interpolation in longitude and latitude. This is a display assumption, not an additional observation or a route measured second by second. Playback pauses when this tab is hidden.",
   "discrepancies": [
     {
       "title": "An unresolved end time",
@@ -37,7 +37,7 @@
     },
     {
       "title": "Rating and appearance answer different questions",
-      "text": "The damage rating does not specify the funnel's dimensions or recreate its appearance. Building a scene needs shot-level evidence about viewpoint, visibility and time.",
+      "text": "The damage rating does not specify the funnel's dimensions or recreate its appearance. Building a scene needs evidence about the viewpoint, visibility and time of individual shots.",
       "sources": [
         "https://www.weather.gov/oun/efscale"
       ]
@@ -49,7 +49,7 @@
     "frame_registration": "Separate Dan Robinson dashcam samples now have a visible source-clock correspondence. Pecos Hank samples remain without historical time or camera position. No continuous video synchronization or measured speed or width is inferred.",
     "caption_discrepancy": "Caption near 5:43 says EF5; current description and NWS final rating say EF3. Audio has not been independently checked.",
     "geometry": "Original NWS KMZ preserved, hashed and converted to GeoJSON; source coordinate sequences retained.",
-    "remaining": "Continuous shot registration, independent clock calibration, complete video review, camera georeferencing, and a historical appearance reconstruction. Discrete registered moments are available in the original-footage viewer. The separate 3D form study is illustrative."
+    "remaining": "Continuous shot registration, independent clock calibration, complete video review, camera georeferencing, and a historical appearance reconstruction. Discrete registered moments are available in the viewer for the original footage. The separate 3D form study is illustrative."
   },
   "introduction_source": "https://www.weather.gov/oun/events-20130531"
 }

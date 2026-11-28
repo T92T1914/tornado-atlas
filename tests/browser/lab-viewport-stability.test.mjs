@@ -81,7 +81,7 @@ const SPACED_PUBLICATIONS={
     "wire": "f2f4f092e6317cae482906f03f3afbf9ae353df03dd3a0d08b0f9f1f25ccfd76"
   }
 };
-// Later edges gave El Reno four more versions, oldest first. The footage register
+// Later edges gave El Reno five more versions, oldest first. The footage register
 // edge changed the Robinson rows only, and a later spacing edge put spaces back
 // in two other source notes, so its reference item and that item's source stay exact.
 // A source citation edge gave Moore one more version. It adds a source and an
@@ -121,12 +121,19 @@ const LATER_PUBLICATIONS={
       "file": "el-reno-2013-1f93dbc7a57c2f187b8d.json",
       "wire": "532eeeaf32075028a9944b6027eca4cc6f18109814346789d17aeb2dffc3a802",
       "recast": "permission"
+    },
+    {
+      "previous_file": "el-reno-2013-1f93dbc7a57c2f187b8d.json",
+      "previous_wire": "532eeeaf32075028a9944b6027eca4cc6f18109814346789d17aeb2dffc3a802",
+      "file": "el-reno-2013-36f880d7c23e5aa90ca3.json",
+      "wire": "87da53b9ef3c71ea654c7444d0668b4b8206d0f550e42513773a6e022acce695",
+      "recast": "words"
     }
   ]
 };
 // A wording recast edge then rewrote six phrases around the values Nick Nolte
-// reported, and a second one rewrote three sentences about his permission and
-// what he reported. After
+// reported, a second one rewrote three sentences about his permission and
+// what he reported, and a third rewrote the rest of that kind of wording. After
 // each, the reference item and that item's source differ from the earlier ones
 // by that edge's exact replacements only, and at least one of them changed.
 const RECASTS={labels:[
@@ -144,6 +151,43 @@ const RECASTS={labels:[
   'The three full JPEGs have separate records of permission, specific to each item. The Commons photograph keeps its separate license.'],
  ['Creator-reported export, timing and approximate camera context reviewed separately.',
   'The export, timing and approximate camera context reported by the creator were reviewed separately.']
+],words:[
+ ['Original creator-linked public watch page and nearby timestamped link only.',
+  'Original public watch page linked by the creator, and nearby timestamped link only.'],
+ ['Individual camera and still-exposure assignment remain unknown.',
+  'The camera and the exposure behind each still remain unknown.'],
+ ['The Commons original-work description names Nick Nolte as author and copyright claimant. This attribution belongs to this photograph; no footage ownership or camera record is transferred.',
+  'The Commons description records the photograph as original work and names Nick Nolte as author and copyright claimant. This attribution belongs to this photograph. No footage ownership or camera record is transferred.'],
+ ['Commons description, original-work attribution, CC BY-SA 3.0 notice,',
+  'Commons description, attribution as original work, CC BY-SA 3.0 notice,'],
+ ['Selected source-page fields read October 12, 2026.',
+  'Selected fields of the source page were read on October 12, 2026.'],
+ ['Exact original bytes match the source SHA1; no source video was used.',
+  'Exact original bytes match the source SHA1. No source video was used.'],
+ ['Preserve Nick Nolte credit, source/license links and unchanged-image statement.',
+  'Preserve Nick Nolte credit, source/license links and the statement that the image is unchanged.'],
+ ['Compatible broad cloud arrangement and lightning-lit left region; publication processing and exact exposure remain unknown.',
+  'Compatible broad cloud arrangement and left region lit by lightning. Publication processing and exact exposure remain unknown.'],
+ ['Illumination differs from the lightning-lit published second still; exact exposure remains unknown.',
+  'Illumination differs from the published second still, which is lit by lightning. Exact exposure remains unknown.'],
+ ['Exact source exposure, original-camera assignment, absolute clock accuracy,',
+  'Exact source exposure, assignment to the original camera, absolute clock accuracy,'],
+ ['No camera-original or complete movie digest is claimed.',
+  'No digest of the camera original or of the complete movie is claimed.'],
+ ['The visible bottom mark reads 23:10Z; the exposure second',
+  'The visible bottom mark reads 23:10Z. The exposure second'],
+ ['The visible bottom mark reads 23:12Z; the exposure second',
+  'The visible bottom mark reads 23:12Z. The exposure second'],
+ ['The visible condensation, surveyed damage and radar-measured winds describe different aspects of the tornado.',
+  'The visible condensation, the surveyed damage and the winds measured by radar describe different aspects of the tornado.'],
+ ['toward a green-gray storm.',
+  'toward a greenish gray storm.'],
+ ['Related full-size first published photograph; not movie capture metadata',
+  'Related first published photograph, full size, not movie capture metadata'],
+ ['All 120 ordered source presentations inspected in 20 six-frame half-scale tiles, plus full-size endpoints; independent second reviewer repeated this coverage.',
+  'All 120 ordered source presentations inspected in 20 tiles of six frames at half scale, plus the endpoints at full size. An independent second reviewer repeated this coverage.'],
+ ['; encoded endpoints inspected.',
+  '. Encoded endpoints inspected.']
 ]};
 const recastWith=pairs=>{
  const recast=value=>typeof value==='string'?pairs.reduce((text,[old,next])=>text.split(old).join(next),value):
