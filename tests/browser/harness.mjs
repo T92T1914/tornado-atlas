@@ -46,6 +46,7 @@ before(async()=>{
 });
 after(async()=>{await browser?.close();if(server){server.closeAllConnections();await new Promise(r=>server.close(r));}});
 
+const singleCheckWaits=new WeakMap();
 export async function fixture(t,options={}){
   const supportedOptions={...options};
   // Firefox supports narrow viewports and touch input, but not Playwright's
@@ -67,7 +68,23 @@ export async function fixture(t,options={}){
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
   t.after(()=>assert.deepEqual(errors,[],'Uncaught page errors'));
   page.setDefaultTimeout(10000);
+  // Without scripts page.waitForFunction checks once and never again (see settle
+  // below), so a wait whose condition turns true after that check always times out.
+  // The page refuses it at the call. A test that shows that single check on
+  // purpose names singleCheckWait instead. Only the page returned here is guarded.
+  // Frame waits and any later page in the same context still need the same care.
+  if(options.javaScriptEnabled===false){
+    singleCheckWaits.set(page,page.waitForFunction.bind(page));
+    page.waitForFunction=()=>{throw new Error('page.waitForFunction checks only once on a page without scripts. Wait with settle from harness.mjs.');};
+  }
   return page;
+}
+// The original page.waitForFunction of a page opened without scripts, for a
+// control that reports how often it checks. Every other wait there uses settle.
+export function singleCheckWait(page,...args){
+  const wait=singleCheckWaits.get(page);
+  assert.ok(wait,'singleCheckWait is only for a page opened without scripts');
+  return wait(...args);
 }
 function observeOpenResources(page,critical=new Set(['/atlas.js','/catalogue/index.json.gz','/catalogue/index.json','/catalogue/media.json'])){
   const started=Date.now(),rows=[],states=new WeakMap(),counts={requested:0,responded:0,finished:0,failed:0,pending:0,omitted:0,outside_scope:0};
