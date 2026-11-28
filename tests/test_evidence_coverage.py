@@ -339,7 +339,7 @@ class EvidenceCoverageTests(unittest.TestCase):
             self.assertIn(locator, text)
         for statement in ('thunderstorm wind', 'earlier short-lived EF0 tornado',
                           'not synchronized with the weather clock',
-                          'not registered to Building 400', 'whole-track maximum'):
+                          'not registered to Building 400', 'maximum for the whole track'):
             self.assertIn(statement, text)
         for identifier, asset, size, sha in (
                 ('moore-briarwood-survey', 'assets/moore-2013/IMG_2314-800.jpg', 410330,

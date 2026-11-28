@@ -50,7 +50,7 @@ for(const [width,appearance] of [[320,'dark'],[1280,'light']])test('Moore story,
   assert.equal(await named.count(),1);await named.focus();await page.keyboard.press('Enter');
   await page.waitForURL(u=>u.pathname.endsWith('/moore.html')&&u.hash==='#schools');
   await page.reload();await page.waitForFunction(()=>document.querySelector('.documentary-contents').dataset.focusReveal==='ready');
-  assert.match(await page.locator('#schools').textContent(),/whole-track maximum remains EF5/);
+  assert.match(await page.locator('#schools').textContent(),/maximum for the whole track remains EF5/);
   await assertReadingReflow(page,'Moore reading');
 });
 
