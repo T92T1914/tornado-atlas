@@ -67,7 +67,7 @@ async function preservedFigure(page){
  assert.equal(await original.getAttribute('href'),asset);
  assert.equal(await original.locator('img').getAttribute('src'),asset);
  assert.equal(await original.locator('img').getAttribute('width'),'947');assert.equal(await original.locator('img').getAttribute('height'),'1326');
- assert.match(await original.locator('..').locator('figcaption').textContent(),/complete seven-pair figure, annotations, source credit and original caption/);
+ assert.match(await original.locator('..').locator('figcaption').textContent(),/complete figure of seven pairs, annotations, source credit and original caption/);
  assert.equal(await card(page).locator('a[href="'+sourceRecord+'"]').count(),1);
 }
 

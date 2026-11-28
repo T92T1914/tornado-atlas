@@ -6,7 +6,7 @@ import {fixture, base} from './harness.mjs';
 
 const id = 'nist-home-depot-roof';
 const figureLink = 'Open the complete NIST Home Depot photograph and annotation';
-const recordLink = 'Inspect the roof-loss photograph and its limits';
+const recordLink = 'Inspect the photograph of roof loss and its limits';
 const source = 'https://www.govinfo.gov/content/pkg/GOVPUB-C13-a0ac8adb5269166f1b1e230423cf79ec/pdf/GOVPUB-C13-a0ac8adb5269166f1b1e230423cf79ec.pdf';
 async function ready(page) {
   await page.waitForFunction(() => document.body?.dataset.ready === 'true');

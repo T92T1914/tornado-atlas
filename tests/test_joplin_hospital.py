@@ -63,7 +63,7 @@ class HospitalExhibitTests(unittest.TestCase):
         chapter = (ROOT / 'web/joplin.html').read_text(encoding='utf-8')
         for phrase in ('likely combination', 'even without the electrical outage',
                        'not a controlled experiment', 'not a before and after pair',
-                       'embedded metadata removed', 'item-specific rights statement'):
+                       'embedded metadata removed', 'own rights statement'):
             self.assertIn(phrase, chapter)
         self.assertNotIn('©', chapter[chapter.index('id="hospital-envelope"'):chapter.index('id="school-refuge"')])
 
