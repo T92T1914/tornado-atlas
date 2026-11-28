@@ -5,7 +5,12 @@ from atlas.archive import dossiers,digest
 from atlas.event_package import validate_appearance_timeline,utc
 from atlas.evidence_coverage import validate_hosted_photo_joins
 from spacing_continuation_support import spacing_predecessor
+from recast_continuation_support import RECAST_PROMOTIONS,recast
 ROOT=Path(__file__).resolve().parents[1]
+def reworded(value,recasts):
+ if isinstance(value,dict):return {key:reworded(item,recasts)for key,item in value.items()}
+ if isinstance(value,list):return [reworded(item,recasts)for item in value]
+ return recast(value,recasts)if isinstance(value,str)else value
 T=json.loads((ROOT/'exhibits/el-reno-2013/appearance-timeline.json').read_bytes())
 C=json.loads((ROOT/'exhibits/el-reno-2013/replay.json').read_bytes())
 F=json.loads((ROOT/'exhibits/el-reno-2013/footage.json').read_bytes())
@@ -31,9 +36,15 @@ class NolteFullDocumentaryTests(unittest.TestCase):
   # A later spacing edge is validated exactly before these older records are compared.
   retained=spacing_predecessor(self,self.doc)
   for identity in ids:self.assertEqual(next(m for m in retained['media']if m['id']==identity),next(m for m in old['media']if m['id']==identity))
+  # The third recast edge rewords the rights basis and one scene feature of each comparison, and nothing else in it.
+  # Any later edge rewords it only by its own named phrases, applied in order.
+  edges=RECAST_PROMOTIONS['el-reno-2013'][2:]
   for sample in T['photo_sequences'][0]['samples'][:2]:
    prior=next(m for m in old['media']if m['id']=='nolte-timecoded-context-'+sample['id'].split('-')[-1])
-   self.assertEqual(sample['source_comparison'],prior['review']['source_comparison'])
+   self.assertNotEqual(sample['source_comparison'],prior['review']['source_comparison'])
+   expected=prior['review']['source_comparison']
+   for edge in edges:expected=reworded(expected,edge['recasts'])
+   self.assertEqual(sample['source_comparison'],expected)
   self.assertEqual(T['photo_sequences'][0]['samples'][1]['source_comparison']['requested_seconds'],1263.223333)
   self.assertEqual(T['photo_sequences'][0]['samples'][1]['hosted_image']['creator_report']['movie_seconds'],1262)
  def test_hosting_requires_own_grant_sample_clock_and_source(self):
