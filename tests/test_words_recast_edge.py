@@ -18,13 +18,16 @@ import re
 import unittest
 
 from atlas.archive import dossiers
-from recast_continuation_support import (PROSE_KEYS, RECAST_PROMOTIONS, ROOT, _recast_edge, canonical,
-                                         explain_recast, recast_chain, recast_history_changes)
+from recast_continuation_support import (PROSE_KEYS, RECAST_PROMOTIONS, ROOT, _recast_edge, admitted_path,
+                                         canonical, explain_recast, recast_chain, recast_history_changes,
+                                         recast_paths)
 
 EVENT = 'el-reno-2013'
 COMPOUND = re.compile(r'\b[A-Za-z]+-[A-Za-z]+\b')
-# Compounds a recast string may still hold: a license name, a model name and a term of the field.
-KEPT = {'BY-SA', 'HDR-PJ710V', 'rear-flanking'}
+# The one compound a new phrase may hold is the license name.
+KEPT = {'BY-SA'}
+# Pages that hold every event are searched only for phrases long enough to belong to El Reno alone.
+SHARED_PAGES = {'web/coverage.html', 'web/archive/index.json'}
 # The exhibit page text holds the summary and five more phrases of the same kind.
 EXHIBIT = (
     ('The visible condensation, surveyed damage and radar-measured winds',
@@ -73,6 +76,9 @@ class WordsRecastEdgeTests(unittest.TestCase):
             entry = next(item for item in index['events'] if item['id'] == EVENT)
         self.current_entry = entry
         self.previous, self.entry = chain[-3]
+        # Live pages and exhibit sources follow the newest version. Once a newer edge exists, its own
+        # tests compare them, and these keep to what this edge's version holds.
+        self.newest = len(self.specs) == 3
 
     def test_this_edge_extends_the_permission_recast(self):
         second = self.specs[1]
@@ -103,8 +109,12 @@ class WordsRecastEdgeTests(unittest.TestCase):
         for page in pages:
             text = (ROOT / page).read_text(encoding='utf-8')
             for old in [old for old, _, _ in self.spec['recasts']] + [old for old, _ in EXHIBIT]:
+                if page in SHARED_PAGES and len(old) < 40:
+                    continue
                 with self.subTest(page=page, phrase=old):
                     self.assertNotIn(old, text)
+        if not self.newest:
+            return
         exhibit = (ROOT / 'exhibits/el-reno-2013/dossier.json').read_text(encoding='utf-8')
         reader = (ROOT / 'web/index.html').read_text(encoding='utf-8')
         for _, new in EXHIBIT:
@@ -125,6 +135,8 @@ class WordsRecastEdgeTests(unittest.TestCase):
         self.assertIn('rear-flanking downdraft (RFD)', media['nolte-231202-full-documentary']['account'])
         source = next(row for row in self.current['sources'] if row['id'] == 'nolte-original-timecoded-publication')
         self.assertIn('unchanged creator-reported stills', source['agent_processing'])
+        if not self.newest:
+            return
         # The timeline holds the same captions and comparisons as the dossier rows it feeds.
         samples = {sample['id']: sample for sequence in self.timeline['photo_sequences'] for sample in sequence['samples']}
         for identity in ('231037', '231059', '231202'):
@@ -152,6 +164,30 @@ class WordsRecastEdgeTests(unittest.TestCase):
         # Without its extra places this edge fails at the first string outside the reader prose keys.
         with self.assertRaisesRegex(AssertionError, 'may only change reader prose'):
             explain_recast(self, {**self.spec, 'prose_paths': ()}, self.previous, copy.deepcopy(self.current))
+
+    def test_an_extra_place_matches_its_whole_path_and_a_star_only_a_list_position(self):
+        patterns = (('sources', '*', 'locator'), ('media', '*', 'review', 'source_comparison', 'scene_features', '*'))
+        for path, admitted in ((('sources', 0, 'locator'), True), (('sources', 'x', 'locator'), False),
+                               (('sources', 0, 'locator', 0), False), (('sources', 0), False),
+                               (('sources', 0, 'title'), False), (('records', 0, 'locator'), False),
+                               (('media', 2, 'review', 'source_comparison', 'scene_features', 1), True),
+                               (('media', 2, 'review', 'source_comparison', 'scene_features', 'note'), False)):
+            with self.subTest(path=path):
+                self.assertIs(admitted_path(path, patterns), admitted)
+        self.assertFalse(admitted_path(('summary',), ()))
+        # A named phrase at a key beside an extra place is still refused there, though it is replaced exactly.
+        recasts = (('a green-gray storm', 'a greenish gray storm', 1),)
+        before = {'sources': [{'id': 'a', 'locator': 'Note', 'title': 'Toward a green-gray storm'}]}
+        after = {'sources': [{'id': 'a', 'locator': 'Note', 'title': 'Toward a greenish gray storm'}]}
+        with self.assertRaisesRegex(AssertionError, 'may only change reader prose'):
+            recast_paths(self, before, after, recasts, {}, admitted=patterns)
+        deeper = ({'sources': [{'id': 'a', 'revision': {'note': 'a green-gray storm'}}]},
+                  {'sources': [{'id': 'a', 'revision': {'note': 'a greenish gray storm'}}]})
+        with self.assertRaisesRegex(AssertionError, 'may only change reader prose'):
+            recast_paths(self, *deeper, recasts, {}, admitted=(('sources', '*', 'revision'),))
+        self.assertEqual(recast_paths(self, {'sources': [{'id': 'a', 'locator': 'a green-gray storm'}]},
+                                      {'sources': [{'id': 'a', 'locator': 'a greenish gray storm'}]}, recasts, {},
+                                      admitted=patterns), [('sources', 0, 'locator')])
 
     def test_the_explanation_refuses_every_change_it_does_not_name(self):
         def edit(path, old, new):

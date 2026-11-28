@@ -14,9 +14,12 @@ each as often as that edge counts, and nothing else changed. The edges of an
 event are listed oldest first and peeled newest first.
 
 Only strings under reader prose keys, or at the extra places an edge names,
-may change. Capture, alignment and video
-times, places, statuses, roles, identifiers, links and every provenance field
-keep their exact bytes. Each named replacement keeps the digits of its phrase
+may change. Capture, alignment and video times, places, statuses, the roles
+of a row, identifiers, links and the provenance of the dossier keep their
+exact bytes. An extra place can be a note inside a media review. The third
+edge names one there, the role a related published photograph plays in the
+record of where that photograph came from, so that role is the one note of
+its kind a recast has changed. Each named replacement keeps the digits of its phrase
 in order and every held name. That guards the values. It cannot judge meaning,
 so what each replacement says is read when the edge is reviewed, and the edge
 then holds the version to those exact words. Nothing else may change apart
@@ -176,7 +179,8 @@ RECAST_PROMOTIONS = {
 # inspection scope a visitor reads beside it.
 PROSE_KEYS = {'access', 'account', 'basis', 'caption', 'clock_disposition', 'limits', 'lineage', 'rights',
               'rights_basis'}
-# A recast never reaches a time, a place, a status, a role or a transformation record.
+# A recast never reaches a time, a place, a status, the roles of a row or a transformation record.
+# The provenance of the dossier is held apart from these, by its top level key.
 HELD_KEYS = {'alignment', 'capture', 'video', 'time', 'place', 'status', 'transformation', 'roles'}
 NUMBER = re.compile(r'\d+(?:[:.]\d+)*')
 # Names a recast has to carry over as they stand.
