@@ -52,7 +52,7 @@ for (const width of [308, 390, 768, 1280]) {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 
     const beforeDossier = requests.length;
-    await note.getByRole('link', {name: 'Inspect the first-siren distinction and its limits'}).click();
+    await note.getByRole('link', {name: 'Inspect the distinction about the first siren and its limits'}).click();
     await ready(page);
     assert.equal(new URL(page.url()).searchParams.get('observation'), id);
     const card = page.locator('#observation-' + id);
